@@ -43,6 +43,7 @@ import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.meta.geocoding.GeocodeJsonRpcEndpoint;
 import io.openems.edge.core.meta.geocoding.OpenCageGeocodingService;
 
@@ -142,6 +143,23 @@ public class MetaImpl extends AbstractOpenemsComponent
 		return this.config.gridConnectionPointFuseLimit();
 	}
 
+	/**
+	 * Gets the {@link #getGridConnectionPointFuseLimit()} as three-phase symmetric
+	 * [W].
+	 * 
+	 * <p>
+	 * NOTE: this currently uses static values for voltage (400 V) and cos(φ) (1)
+	 * internally.
+	 * 
+	 * @return the value
+	 */
+	private int getGridConnectionPointFuseLimitInWatt() {
+		final var voltage = 400.0; // [V]
+		final var cosPhi = 1; // cos(φ)
+		final var current = this.getGridConnectionPointFuseLimit(); // [A]
+		return Double.valueOf(Math.sqrt(3) * voltage * current * cosPhi).intValue();
+	}
+
 	@Override
 	public SubdivisionCode getSubdivisionCode() {
 		return this.config.subdivisionCode();
@@ -168,6 +186,18 @@ public class MetaImpl extends AbstractOpenemsComponent
 		return (timeZoneString == null || timeZoneString.isBlank()) //
 				? null //
 				: ZoneId.of(timeZoneString);
+	}
+
+	@Override
+	public int getGridSellHardLimit() {
+		return this.getGridConnectionPointFuseLimitInWatt();
+	}
+
+	@Override
+	public int getGridBuyHardLimit() {
+		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
+		final var powerFromMaximumGridFeedInLimit = this.getMaximumGridFeedInLimitValue().orElse(null);
+		return TypeUtils.min(powerFromFuseLimit, powerFromMaximumGridFeedInLimit);
 	}
 
 	@Override

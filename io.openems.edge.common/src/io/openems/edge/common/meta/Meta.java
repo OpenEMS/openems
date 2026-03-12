@@ -330,6 +330,27 @@ public interface Meta extends ModbusSlave {
 	public ZoneId getTimezone();
 
 	/**
+	 * Returns the continuous hard limit for Grid-Sell Power in [W].
+	 * 
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit.
+	 * 
+	 * @return the value
+	 */
+	public int getGridSellHardLimit();
+
+	/**
+	 * Returns the continuous hard limit for Grid-Buy Power in [W].
+	 * 
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit and
+	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 * 
+	 * @return the value
+	 */
+	public int getGridBuyHardLimit();
+
+	/**
 	 * Returns the {@link GridBuySoftLimit} {@link JSCalendar.Tasks}.
 	 * 
 	 * <p>
