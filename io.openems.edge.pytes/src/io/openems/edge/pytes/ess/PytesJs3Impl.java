@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -302,8 +303,10 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nActivePower=" + this.channel(SymmetricEss.ChannelId.ACTIVE_POWER).value().asString()
 					+ "\nReactivePower=" + this.channel(SymmetricEss.ChannelId.REACTIVE_POWER).value().asString()
 					+ "\nApparentPower=" + this.channel(PytesJs3.ChannelId.APPARENT_POWER).value().asString()
-					+ "\nFrequency=" + this.channel(PytesJs3.ChannelId.FREQUENCY).value().asString()
 					+ "\nInverterCurrentStatus=" + this.channel(PytesJs3.ChannelId.INVERTER_CURRENT_STATUS).value().asString()
+					+ "\nOperatingMode=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE).value().asString()
+					+ "\nFrequency=" + this.channel(PytesJs3.ChannelId.FREQUENCY).value().asString()
+					/*
 					+ "\nLeadAcidBatteryTemp=" + this.channel(PytesJs3.ChannelId.LEAD_ACID_BATTERY_TEMP).value().asString()
 					+ "\nFunctionStatus=" + this.channel(PytesJs3.ChannelId.FUNCTION_STATUS).value().asString()
 					+ "\nCurrentDrmCodeStatus=" + this.channel(PytesJs3.ChannelId.CURRENT_DRM_CODE_STATUS).value().asString()
@@ -325,7 +328,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nFaultCode04=" + this.channel(PytesJs3.ChannelId.FAULT_CODE_04).value().asString()
 					+ "\nFaultCode05=" + this.channel(PytesJs3.ChannelId.FAULT_CODE_05).value().asString()
 					+ "\nOperatingStatus=" + this.channel(PytesJs3.ChannelId.OPERATING_STATUS).value().asString()
-					+ "\nOperatingMode=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE).value().asString()
+					
 					+ "\nWorkingModeRunningStatus=" + this.channel(PytesJs3.ChannelId.WORKING_MODE_RUNNING_STATUS).value().asString()
 					+ "\nFaultCode06=" + this.channel(PytesJs3.ChannelId.FAULT_CODE_06).value().asString()
 					+ "\nFaultCode07=" + this.channel(PytesJs3.ChannelId.FAULT_CODE_07).value().asString()
@@ -470,6 +473,8 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nSettingFlag_FactoryRecover=" + this.channel(PytesJs3.ChannelId.SETTING_FLAG_FACTORY_RECOVER).value().asString()
 					
 					+ "\nOperatingModeDecoded=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE_DECODE).value().asString()
+					
+					*/
 					;			
 			
 		}
@@ -761,16 +766,6 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 	
 	@Override
 	public void applyPower(int targetActivePower, int reactivePower) throws OpenemsNamedException {
-
-		this.logDebug(this.log,"\n\n applyPower called by {} with {} W");
-		// AC 1/28/2024
-		// IntegerWriteChannel setGridLoadOffPowerChannel =
-		// this.channel(DeyeSunHybrid.ChannelId.SET_GRID_LOAD_OFF_POWER);
-		// setGridLoadOffPowerChannel.setNextWriteValue(93);
-
-		//this._setMaxApparentPower(this.MAX_APPARENT_POWER);
-		
-
 		
 		if (this.battery == null) {
 			this.applyPowerHandler = null;
@@ -778,29 +773,12 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 			return;
 		}
 		
-		
-		int setActivePowerValue = (int) Math.round(targetActivePower / 10.0);		
-		
-		this.setRemoteDispatchSwitch(1);
-		this.setRemoteDispatchTimeout(5);
-		this.setRemoteDispatchSystemLimitSwitch(0);
-		this.setRemoteDispatchSystemImportLimit(150);
-		this.setRemoteDispatchSystemExportLimit(150);
-		this.setRemoteDispatchRealtimeControlSwitch(2); // Set grid connection point
-		this.setRemoteDispatchRealtimeControlPower(setActivePowerValue *-1);
-		
-		
-		
-		
-		
-		
-		
 		logDebug(this.log, "ApplyPower: ActivePowerTarget = " + targetActivePower);
-/*
+
 		if (this.applyPowerHandler != null) {
-			this.applyPowerHandler.apply(activePower, reactivePower, this.config.maxApparentPower());
+			this.applyPowerHandler.apply(targetActivePower, reactivePower, this.config.maxApparentPower());
 		}
-*/
+
 		
 	}
 	

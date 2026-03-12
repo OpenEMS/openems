@@ -2,6 +2,8 @@ package io.openems.edge.pytes.ess;
 
 import static io.openems.common.channel.AccessMode.READ_ONLY;
 import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.PersistencePriority.LOW;
 
 import org.osgi.service.event.EventHandler;
 
@@ -25,7 +27,8 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 
 		STARTER_BATTERY_VOLTAGE(Doc.of(INTEGER)//
 				.accessMode(READ_ONLY)//
-				.unit(Unit.VOLT)),
+				.unit(Unit.VOLT)
+				.persistencePriority(LOW)),
 
 		INVERTED_RATED_APPARENT_POWER(Doc.of(INTEGER)//
 				.accessMode(READ_ONLY)//
