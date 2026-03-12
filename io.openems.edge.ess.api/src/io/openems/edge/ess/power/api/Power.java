@@ -45,7 +45,7 @@ public interface Power {
 	 * @throws OpenemsException on error
 	 */
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, SingleOrAllPhase phase,
-			Pwr pwr, Relationship relationship, double value) throws OpenemsException;
+			Pwr pwr, Relationship relationship, int value) throws OpenemsException;
 
 	/**
 	 * Removes a Constraint.

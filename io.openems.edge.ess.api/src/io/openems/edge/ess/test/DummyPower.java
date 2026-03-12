@@ -91,7 +91,7 @@ public class DummyPower implements Power {
 
 	@Override
 	public Constraint createSimpleConstraint(String description, ManagedSymmetricEss ess, SingleOrAllPhase phase,
-			Pwr pwr, Relationship relationship, double value) {
+			Pwr pwr, Relationship relationship, int value) {
 		return null;
 	}
 

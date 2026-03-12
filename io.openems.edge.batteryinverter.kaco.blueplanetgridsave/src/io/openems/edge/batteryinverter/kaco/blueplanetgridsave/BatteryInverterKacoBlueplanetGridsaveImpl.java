@@ -274,8 +274,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("KACO inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
-				new BatteryInverterConstraint("KACO inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, REACTIVE, EQUALS, 0), //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 

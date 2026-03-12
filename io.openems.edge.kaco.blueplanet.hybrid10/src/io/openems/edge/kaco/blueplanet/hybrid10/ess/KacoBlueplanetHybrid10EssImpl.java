@@ -366,8 +366,8 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 		}
 		// Apply Power-Ramp for version > 5
 		if (this.core.getVersionCom().orElse(0F) > 5F) {
-			float maxDelta = MAX_POWER_RAMP * this.cycle.getCycleTime() / 1000;
-			int activePower = this.getActivePower().orElse(0);
+			var maxDelta = Math.round(MAX_POWER_RAMP * this.cycle.getCycleTime() / 1000);
+			var activePower = this.getActivePower().orElse(0);
 			return new Constraint[] {
 					this.createPowerConstraint(MAX_POWER_RAMP + "W/sec Ramp", ALL, ACTIVE, LESS_OR_EQUALS,
 							activePower + maxDelta),

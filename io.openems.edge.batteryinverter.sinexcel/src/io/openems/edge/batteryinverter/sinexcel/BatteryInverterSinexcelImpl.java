@@ -356,8 +356,8 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0), //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 

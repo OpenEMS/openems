@@ -6,7 +6,7 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private SolverStrategy strategy;
 		private boolean symmetricMode;
 		private boolean debugMode;

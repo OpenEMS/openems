@@ -173,8 +173,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		var constraints = this.getBatteryInverter().getStaticConstraints();
 
 		for (var c : constraints) {
-			result.add(this.getPower().createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
-					c.value));
+			result.add(this.getPower().createSimpleConstraint(c.description(), this, c.phase(), c.pwr(),
+					c.relationship(), c.value()));
 		}
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!

@@ -705,7 +705,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @throws OpenemsException on error
 	 */
 	public default Constraint createPowerConstraint(String description, SingleOrAllPhase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException {
+			Relationship relationship, int value) throws OpenemsException {
 		return this.getPower().createSimpleConstraint(description, this, phase, pwr, relationship, value);
 	}
 
@@ -724,7 +724,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @throws OpenemsException on error
 	 */
 	public default Constraint addPowerConstraint(String description, SingleOrAllPhase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException {
+			Relationship relationship, int value) throws OpenemsException {
 		return this.getPower().addConstraint(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}
 
@@ -743,7 +743,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 * @throws OpenemsException on error
 	 */
 	public default Constraint addPowerConstraintAndValidate(String description, SingleOrAllPhase phase, Pwr pwr,
-			Relationship relationship, double value) throws OpenemsException {
+			Relationship relationship, int value) throws OpenemsException {
 		return this.getPower()
 				.addConstraintAndValidate(this.createPowerConstraint(description, phase, pwr, relationship, value));
 	}
