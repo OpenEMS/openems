@@ -1494,8 +1494,7 @@ public class OdooHandler {
 			var userLogin = getAs(AlertingSetting.USER_LOGIN, setting, String.class);
 
 			if (deviceName == null || userLogin == null) {
-				this.log.error(
-						"Alerting settings for Device:" + deviceName + " and User:" + userLogin + " are invalid!!");
+				this.log.error("Alerting settings for Device:{} and User:{} are invalid!!", deviceName, userLogin);
 				continue;
 			}
 

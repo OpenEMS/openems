@@ -57,11 +57,13 @@ import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
+import io.openems.backend.common.mail.MailContext;
+import io.openems.backend.common.mail.Mailer;
+import io.openems.backend.common.mail.SendMailException;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
@@ -545,12 +547,33 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-		this.odooHandler.sendNotificationMailAsync(sendAt, template, params).whenComplete((result, throwable) -> {
-			if (throwable != null) {
-				this.log.error("sendMail failed: {}", throwable.getMessage(), throwable);
-			}
-		});
+	public CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String template, List<MailContext> context) {
+		final var params = JsonUtils.generateJsonArray(context, MailContext::toJson);
+		return this.odooHandler.sendNotificationMailAsync(sendAt, template, params) //
+				.thenApply(response -> {
+					final var result = response.result;
+					final var status = JsonUtils.getAsStringOrElse(result, "status", "none");
+
+					return switch (status) {
+					case "success" -> {
+						final var sentMails = JsonUtils.getAsOptionalInt(result, "mails_sent").orElse(0);
+						if (sentMails == 0) {
+							this.log.warn("[sendMail] No mails sent for template [{}] and context [{}]", template,
+									context);
+						}
+						yield sentMails;
+					}
+					case "error" -> {
+						final var errorMessage = JsonUtils.getAsStringOrElse(result, "message", "Failed to send mail!");
+						throw new SendMailException("Failed to send mail for template [" + template + "] and context ["
+								+ context + "]: " + errorMessage);
+					}
+					default -> { // backwards compatibility, if no "status" field is provided, we assume success
+						this.log.debug("[sendMail] No status provided for sendMail response. Assuming success.");
+						yield context.size();
+					}
+					};
+				});
 	}
 
 	@Override
