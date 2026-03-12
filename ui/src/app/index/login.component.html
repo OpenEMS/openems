@@ -6,7 +6,7 @@
             <ion-col size="12" size-md="6" size-lg="4">
                 @switch (websocketStatus()) {
                 <!-- Login is required. Waiting for credentials input -->
-                @case (States.WEBSOCKET_CONNECTED) {
+                @case (States.NOT_AUTHENTICATED) {
                 <ion-card>
                     <ion-item color="primary" lines="full">
                         <ion-icon slot="start" name="person-outline"></ion-icon>
