@@ -93,14 +93,20 @@ export namespace ViewUtils {
     * Gets the available chart content height in [vh].
     *
     * @param windowHeight the window height
+    * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
     * @returns the available height
     */
-    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null) {
-        const rawViewHeight = ViewUtils.getViewHeightInPx(position);
+    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+        let viewHeight = ViewUtils.getViewHeightInPx(position);
+
+        if (customChartHeightPercentage != null) {
+            viewHeight = viewHeight * (customChartHeightPercentage / 100);
+        }
+
         return NumberUtils.multiplySafely(
             NumberUtils.divideSafely(
                 NumberUtils.subtractSafely(
-                    rawViewHeight,
+                    viewHeight,
                 ),
                 windowHeight),
             100);

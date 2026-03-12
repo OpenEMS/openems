@@ -62,6 +62,7 @@ export class NavigationChipsComponent {
      */
     public async navigateAbsolutly(node: NavigationTree): Promise<void> {
         this.navigateAbsolute.emit(node);
+        this.layoutRefresh.request(500);
     }
 
     /**

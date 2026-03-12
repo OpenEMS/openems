@@ -50,6 +50,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     /** Title for Chart, diplayed above the Chart */
     @Input() public chartTitle: string = "";
 
+    /** Optional chart height in percent (0–100) of the available view height. */
+    @Input() public customChartHeightPercentage?: number;
+
     /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
     @Input() public component: EdgeConfig.Component;
     @Input() public showPhases: boolean = false;
@@ -1057,7 +1060,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     ngAfterViewInit() {
-        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
         this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
@@ -1078,7 +1081,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     protected getChartHeight(): number | null {
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
     }
 
     protected updateChart() {
