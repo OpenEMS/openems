@@ -17,6 +17,7 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome15;
@@ -217,6 +218,14 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.kdkMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.kdkGridMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("MODBUS_UNIT_ID", 1) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.goodWeGridMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_CATEGORY", GoodWeGridMeterCategory.COMMERCIAL_METER) //
+					.addProperty("CT_RATIO_FIRST", 200) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.phoenixContactMeter(t), true, new JsonObject()));

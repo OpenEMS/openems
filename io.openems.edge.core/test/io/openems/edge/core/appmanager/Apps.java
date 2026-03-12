@@ -94,7 +94,9 @@ import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.meter.gridmeter.GridMeterGoodWe;
 import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
+import io.openems.edge.app.meter.gridmeter.GridMeterKdk;
 import io.openems.edge.app.meter.shelly.AppShellyMeter;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
@@ -1079,6 +1081,26 @@ public final class Apps {
 	 */
 	public static final GridMeterJanitza janitzaGridMeter(AppManagerTestBundle t) {
 		return app(t, GridMeterJanitza::new, "App.GridMeter.Janitza");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterGoodWe}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterGoodWe goodWeGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterGoodWe::new, "App.GridMeter.GoodWe");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterKdk}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterKdk kdkGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterKdk::new, "App.GridMeter.Kdk");
 	}
 
 	/**
