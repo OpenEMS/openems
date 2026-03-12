@@ -10,6 +10,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
@@ -43,6 +44,7 @@ export class AppComponent implements OnInit, OnDestroy {
         public service: Service,
         public toastController: ToastController,
         public websocket: Websocket,
+        private globalRouteChangeHandler: GlobalRouteChangeHandler,
         private meta: Meta,
         private appService: PlatFormService,
         private title: Title,
@@ -52,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private routeService: RouteService,
         private layoutRefresh: LayoutRefreshService,
     ) {
-        service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+        service.setLang(Language.getCurrentLanguage());
 
         this.subscription.add(
             this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
@@ -119,5 +121,14 @@ export class AppComponent implements OnInit, OnDestroy {
         });
 
         this.title.setTitle(environment.edgeShortName);
+    }
+
+    /**
+     * Called by the router-outlet (activate) event on every route change.
+     * Triggers a delayed window resize so chart components recalculate their
+     * dimensions (WCAG 1.4.4 compliance).
+     */
+    public onActivate(_event: any): void {
+        this.layoutRefresh.request(200);
     }
 }

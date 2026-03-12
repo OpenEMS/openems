@@ -5,8 +5,7 @@ import { Language } from "../type/language";
     providers: [
         {
             provide: LOCALE_ID,
-            useFactory: () => (
-                Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT).key,
+            useFactory: () => Language.getCurrentLanguage().key,
         },
     ],
 })
