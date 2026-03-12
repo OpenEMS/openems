@@ -17,7 +17,7 @@ import io.openems.edge.common.meta.types.SubdivisionCode;
 	@AttributeDefinition(name = "Grid feed in limitation type", description = "Grid feed in limitation type.")
 	GridFeedInLimitationType gridFeedInLimitationType() default GridFeedInLimitationType.NO_LIMITATION;
 
-	@AttributeDefinition(name = "Maximum Grid Feed In Limit", description = "The target limit for sell-to-grid power.")
+	@AttributeDefinition(name = "Maximum Grid Feed In Limit", description = "The target limit for sell-to-grid power, 0 for no fixed limit")
 	int maximumGridFeedInLimit() default 0;
 
 	@AttributeDefinition(name = "Is Ess Charge From Grid Allowed", description = "Charging the battery from grid is allowed.")
