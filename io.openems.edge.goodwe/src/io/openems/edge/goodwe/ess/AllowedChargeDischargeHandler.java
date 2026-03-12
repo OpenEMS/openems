@@ -1,10 +1,13 @@
 package io.openems.edge.goodwe.ess;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 
@@ -46,7 +49,9 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 				0);
 
 		// Apply AllowedChargePower and AllowedDischargePower
-		this.parent._setAllowedChargePower(batteryAllowedChargePower * -1 /* invert charge power */);
-		this.parent._setAllowedDischargePower(batteryAllowedDischargePower + pvProduction);
+		setValue(this.parent, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				batteryAllowedChargePower * -1 /* invert charge power */);
+		setValue(this.parent, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				batteryAllowedDischargePower + pvProduction);
 	}
 }

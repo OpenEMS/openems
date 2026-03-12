@@ -1,5 +1,6 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.ess;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
@@ -207,16 +208,14 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 		this._setReactivePower(reactivePower);
 		this._setGridMode(gridMode);
 
-		if (soc == null || soc >= 99) {
-			this._setAllowedChargePower(0);
-		} else {
-			this._setAllowedChargePower(this.config.capacity() * -1);
-		}
-		if (soc == null || soc <= 0) {
-			this._setAllowedDischargePower(0);
-		} else {
-			this._setAllowedDischargePower(this.config.capacity());
-		}
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, //
+				soc == null || soc >= 99 //
+						? 0 //
+						: this.config.capacity() * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, //
+				soc == null || soc <= 0 //
+						? 0 //
+						: this.config.capacity());
 
 		this.channel(KacoBlueplanetHybrid10Ess.ChannelId.BMS_VOLTAGE).setNextValue(bmsVoltage);
 		this.channel(KacoBlueplanetHybrid10Ess.ChannelId.RISO).setNextValue(riso);

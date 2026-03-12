@@ -1,5 +1,7 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import java.io.IOException;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -94,8 +96,10 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 		this.soc = config.initialSoc();
 		this._setCapacity(config.capacity());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.maxApparentPower() * -1);
-		this._setAllowedDischargePower(config.maxApparentPower());
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(config.initialSoc(), config.maxApparentPower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(config.initialSoc(), config.maxApparentPower()));
 		this._setGridMode(config.gridMode());
 	}
 
@@ -159,18 +163,14 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 		this._setReactivePowerL3(reactivePowerL3);
 		this._setReactivePower(reactivePower);
 		/*
-		 * Set AllowedCharge / Discharge based on SoC
+		 * Set AllowedCharge / Discharge based on SoC with derating zone: - Charge: full
+		 * below 95%, linear derating 95–100%, hard 0 at 100% - Discharge: full above
+		 * 5%, linear derating 0–5%, hard 0 at 0%
 		 */
-		if (this.soc == 100) {
-			this._setAllowedChargePower(0);
-		} else {
-			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
-		}
-		if (this.soc == 0) {
-			this._setAllowedDischargePower(0);
-		} else {
-			this._setAllowedDischargePower(this.config.maxApparentPower());
-		}
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(this.soc, this.config.maxApparentPower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(this.soc, this.config.maxApparentPower()));
 	}
 
 	@Override
@@ -214,5 +214,39 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	/**
+	 * Calculates allowed charge power with a linear derating from 95% to 100% SoC.
+	 *
+	 * @param soc            the current SoC [%]
+	 * @param maxChargePower the maximum charge power [W], positive value
+	 * @return allowed charge power as a positive value [W]
+	 */
+	private static int calculateAllowedChargePower(float soc, int maxChargePower) {
+		if (soc >= 100) {
+			return 0;
+		}
+		if (soc > 95) {
+			return Math.round(maxChargePower * (100 - soc) / 5f);
+		}
+		return maxChargePower;
+	}
+
+	/**
+	 * Calculates allowed discharge power with a linear derating from 5% to 0% SoC.
+	 *
+	 * @param soc               the current SoC [%]
+	 * @param maxDischargePower the maximum discharge power [W], positive value
+	 * @return allowed discharge power as a positive value [W]
+	 */
+	private static int calculateAllowedDischargePower(float soc, int maxDischargePower) {
+		if (soc <= 0) {
+			return 0;
+		}
+		if (soc < 5) {
+			return Math.round(maxDischargePower * soc / 5f);
+		}
+		return maxDischargePower;
 	}
 }

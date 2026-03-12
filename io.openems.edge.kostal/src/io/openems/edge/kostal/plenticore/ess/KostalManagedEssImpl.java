@@ -2,6 +2,7 @@ package io.openems.edge.kostal.plenticore.ess;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.element.WordOrder.LSWMSW;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
@@ -63,7 +64,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent implements KostalManagedEss,
 		ManagedSymmetricEss, SymmetricEss, ModbusComponent, TimedataProvider, EventHandler, OpenemsComponent {
 
-	private static final Logger log = LoggerFactory.getLogger(KostalManagedEss.class);
+	private static final Logger log = LoggerFactory.getLogger(KostalManagedEssImpl.class);
 
 	@Reference
 	private Power power;
@@ -182,8 +183,8 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 					// Skip if change from last written value is within tolerance
 					if (Math.abs(powerToWrite - this.lastSetPower) <= this.tolerance) {
 						shouldSkip = true;
-						log.debug("skipped - change within tolerance (" + this.tolerance + "W): "
-								+ this.lastSetPower + "W -> " + powerToWrite + "W");
+						log.debug("skipped - change within tolerance (" + this.tolerance + "W): " + this.lastSetPower
+								+ "W -> " + powerToWrite + "W");
 					} else if (activePower == this.getMaxChargePower().get()
 							|| Math.abs(activePower) == this.getMaxDischargePower().get()) {
 						shouldSkip = true;
@@ -196,7 +197,8 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 				}
 			}
 
-			// Write to channel: first write, value changed significantly, or watchdog expired
+			// Write to channel: first write, value changed significantly, or watchdog
+			// expired
 			if (this.lastSetPower == null || powerToWrite != this.lastSetPower
 					|| Duration.between(this.lastApplyPower, now).getSeconds() >= this.watchdog) {
 
@@ -357,19 +359,17 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 		int maxDischargePower = getMaxDischargePower().orElse(0);
 		int maxChargePower = getMaxChargePower().orElse(0) * -1;
 
-		this._setAllowedDischargePower(maxDischargePower);
-		this._setAllowedChargePower(maxChargePower);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, maxDischargePower);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, maxChargePower);
 
-		try {
-			int soc = getSoc().get();
+		var soc = getSoc().orElse(null);
+		if (soc != null) {
 			if (soc == 100) {
-				this._setAllowedChargePower(0);
+				setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, 0);
 			}
 			if (soc <= this.minsoc) {
-				this._setAllowedDischargePower(0);
+				setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, 0);
 			}
-		} catch (NullPointerException e) {
-			// Handle potential null values gracefully
 		}
 		log.debug("--> set limits: " + maxDischargePower + " / " + maxChargePower);
 	}
