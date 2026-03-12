@@ -1,14 +1,14 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
-import io.openems.common.session.Language;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.type.TextProvider;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import io.openems.common.session.Language;
+import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.type.TextProvider;
 
 class StringChannelParameterProviderImpl extends ChannelParameterProvider<String>
 		implements StringChannelParameterProvider {

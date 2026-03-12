@@ -1,10 +1,10 @@
 package io.openems.edge.io.shelly.common.gen2;
 
+import java.util.Arrays;
+
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.utils.JsonUtils;
-
-import java.util.Arrays;
 
 public record Gen2RpcDeviceInfo(String name, String id, String mac, int slot, String model, int gen, String fwId,
 		String ver, String app, boolean authEn, String authDomain) {

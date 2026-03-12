@@ -12,11 +12,9 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import com.google.gson.JsonArray;
-import io.openems.edge.common.mdns.MDnsDiscovery;
-import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBaseImpl;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,22 +27,24 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.mdns.MDnsDiscovery;
+import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBaseImpl;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//

@@ -1,17 +1,17 @@
 package io.openems.edge.io.shelly.shellyplugsbase;
 
-import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
@@ -38,8 +38,8 @@ public interface IoShellyPlugSBase
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Indicates if an update is available.
@@ -50,7 +50,7 @@ public interface IoShellyPlugSBase
 		 * <li>Level: INFO
 		 * </ul>
 		 */
-		HAS_UPDATE(Doc.of(Level.INFO) //
+		HAS_UPDATE(Doc.of(Level.INFO)//
 				.text("A new Firmware Update is available.")),;
 
 		private final Doc doc;

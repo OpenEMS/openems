@@ -1,28 +1,11 @@
 package io.openems.edge.app.meter.shelly.meter;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import io.openems.common.session.Role;
-import io.openems.edge.app.meter.shelly.ShellyProps;
-import io.openems.edge.app.meter.shelly.discovery.DiscoveryType;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
-import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
-import io.openems.edge.core.appmanager.AppConfiguration;
-import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
-import io.openems.edge.core.appmanager.ComponentUtil;
-import io.openems.edge.core.appmanager.ConfigurationTarget;
-import io.openems.edge.core.appmanager.OpenemsApp;
-import io.openems.edge.core.appmanager.OpenemsAppCardinality;
-import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
-import io.openems.edge.core.appmanager.Type;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,16 +18,28 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.MeterType;
-import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.meter.MeterProps;
-import io.openems.edge.app.meter.shelly.discovery.jsonrpc.GetDiscoveredDevices;
+import io.openems.edge.app.meter.shelly.ShellyProps;
+import io.openems.edge.app.meter.shelly.discovery.DiscoveryType;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
+import io.openems.edge.core.appmanager.AppConfiguration;
+import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppDescriptor;
+import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppCardinality;
+import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
+import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.Meter.Shelly.Meter")
 public class AppShellyMeter

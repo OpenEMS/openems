@@ -1,5 +1,10 @@
 package io.openems.edge.io.shelly.common;
 
+import java.time.Duration;
+import java.util.function.Consumer;
+
+import org.osgi.service.component.annotations.Component;
+
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpExecutor;
 import io.openems.common.bridge.http.api.EndpointFetcher;
@@ -12,10 +17,6 @@ import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.types.Result;
 import io.openems.edge.io.shelly.common.gen2.Gen2RpcDeviceInfo;
-import org.osgi.service.component.annotations.Component;
-
-import java.time.Duration;
-import java.util.function.Consumer;
 
 public class HttpBridgeShellyService implements HttpBridgeService {
 

@@ -35,9 +35,9 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_1(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_1(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 
 		/**
@@ -49,7 +49,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_1_OVERTEMP(Doc.of(Level.WARNING) //
+		RELAY_1_OVERTEMP(Doc.of(Level.WARNING)//
 				.text("Relay 1 has been switched off due to Overtemperature.")),
 		/**
 		 * Indicates whether the associated Relay is in Overpower-State.
@@ -60,7 +60,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_1_OVERPOWER(Doc.of(Level.WARNING) //
+		RELAY_1_OVERPOWER(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overpower.")),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
@@ -81,9 +81,9 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_2(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_2(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Indicates whether the associated Relay is in Overtemp-State.
@@ -94,7 +94,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_2_OVERTEMP(Doc.of(Level.WARNING) //
+		RELAY_2_OVERTEMP(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overtemperature.")),
 		/**
 		 * Indicates whether the associated Relay is in Overpower-State.
@@ -105,7 +105,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_2_OVERPOWER(Doc.of(Level.WARNING) //
+		RELAY_2_OVERPOWER(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overpower.")),
 		/**
 		 * Slave Communication Failed Fault.

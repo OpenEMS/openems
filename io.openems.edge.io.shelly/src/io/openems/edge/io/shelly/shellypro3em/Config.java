@@ -1,9 +1,9 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
-import io.openems.common.types.DebugMode;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(name = "IO Shelly Pro 3EM", //

@@ -1,15 +1,15 @@
 package io.openems.edge.common.channel;
 
-import io.openems.edge.common.channel.internal.AbstractDoc;
-import io.openems.edge.common.channel.dynamicdoctext.DynamicDocText;
-import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
-import io.openems.edge.common.type.TextProvider;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import io.openems.edge.common.channel.dynamicdoctext.DynamicDocText;
+import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
+import io.openems.edge.common.channel.internal.AbstractDoc;
+import io.openems.edge.common.type.TextProvider;
 
 public interface DynamicChannelDoc<V> {
 	/**
@@ -60,12 +60,11 @@ public interface DynamicChannelDoc<V> {
 			return this;
 		}
 
-		public DynamicChannelDocBuilder<T> setDynamicText(TextProvider text,
-				ParameterProvider... parameterProviders) {
+		public DynamicChannelDocBuilder<T> setDynamicText(TextProvider text, ParameterProvider... parameterProviders) {
 			this.addFactory(doc -> {
 				doc.onInit(channel -> {
-					var providerInstances = Arrays.stream(parameterProviders)
-							.map(ParameterProvider::copy)
+					var providerInstances = Arrays.stream(parameterProviders) //
+							.map(ParameterProvider::copy) //
 							.toArray(ParameterProvider[]::new);
 
 					var dynamicDocText = new DynamicDocText(text, providerInstances);

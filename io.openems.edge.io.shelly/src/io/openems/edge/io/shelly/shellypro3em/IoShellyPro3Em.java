@@ -2,7 +2,6 @@ package io.openems.edge.io.shelly.shellypro3em;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;

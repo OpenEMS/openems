@@ -1,18 +1,19 @@
 package io.openems.edge.app.meter.shelly.meter;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.app.meter.shelly.discovery.ShellyDiscovery;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class ShellyDiscoveryMeter extends ShellyDiscovery<MdnsValueMeter> implements ComponentJsonApi {

@@ -1,5 +1,8 @@
 package io.openems.edge.app.meter.shelly;
 
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
+
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.app.meter.shelly.discovery.DiscoveryType;
@@ -10,9 +13,6 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 public class ShellyProps {
 

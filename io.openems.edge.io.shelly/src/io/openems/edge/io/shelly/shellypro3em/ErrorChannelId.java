@@ -1,10 +1,10 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
-import io.openems.common.channel.Level;
-import io.openems.edge.common.channel.Doc;
-
 import java.util.Arrays;
 import java.util.Optional;
+
+import io.openems.common.channel.Level;
+import io.openems.edge.common.channel.Doc;
 
 /**
  * Channels with errors that can be returned by Shelly Pro 3EM. See <a href=

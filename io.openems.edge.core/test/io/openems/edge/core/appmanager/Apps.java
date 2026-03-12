@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
-import io.openems.edge.app.meter.shelly.meter.AppShellyMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -71,6 +69,7 @@ import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
+import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
 import io.openems.edge.app.integratedsystem.FeneconProHybridGw;
 import io.openems.edge.app.integratedsystem.SystemFeneconHome;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -98,8 +97,9 @@ import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.meter.gridmeter.GridMeterGoodWe;
 import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
-import io.openems.edge.app.meter.shelly.diy.AppShellyMeterDiy;
 import io.openems.edge.app.meter.gridmeter.GridMeterKdk;
+import io.openems.edge.app.meter.shelly.diy.AppShellyMeterDiy;
+import io.openems.edge.app.meter.shelly.meter.AppShellyMeter;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
 import io.openems.edge.app.openemshardware.TechbaseCm3;

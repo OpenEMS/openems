@@ -7,8 +7,6 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +22,8 @@ import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBase;
 import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBaseImpl;
 import io.openems.edge.meter.api.ElectricityMeter;

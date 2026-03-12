@@ -1,9 +1,9 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
+import java.util.function.Function;
+
 import io.openems.common.session.Language;
 import io.openems.edge.common.component.OpenemsComponent;
-
-import java.util.function.Function;
 
 class ComponentDataParameterProvider<T extends OpenemsComponent> implements ParameterProvider {
 	private final Class<T> clazz;
@@ -20,13 +20,14 @@ class ComponentDataParameterProvider<T extends OpenemsComponent> implements Para
 	public void init(OpenemsComponent component) {
 		this.component = component;
 		if (!this.clazz.isInstance(this.component)) {
-			throw new RuntimeException("Component %s is not a instance of class %s".formatted(component.id(), this.clazz.getName()));
+			throw new RuntimeException(
+					"Component %s is not a instance of class %s".formatted(component.id(), this.clazz.getName()));
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public String getText(Language lang) {
-		//noinspection unchecked
 		return this.function.apply((T) this.component);
 	}
 

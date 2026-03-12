@@ -1,15 +1,11 @@
 package io.openems.edge.app.meter.shelly.diy;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
-import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import io.openems.edge.app.meter.shelly.ShellyProps;
-import io.openems.edge.app.meter.shelly.discovery.DiscoveryType;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -25,10 +21,10 @@ import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.MeterType;
-import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.meter.MeterProps;
-import io.openems.edge.app.meter.shelly.discovery.jsonrpc.GetDiscoveredDevices;
+import io.openems.edge.app.meter.shelly.ShellyProps;
+import io.openems.edge.app.meter.shelly.discovery.DiscoveryType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -43,7 +39,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.formly.Exp;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 @Component(name = "App.Meter.Shelly")
 public class AppShellyMeterDiy extends

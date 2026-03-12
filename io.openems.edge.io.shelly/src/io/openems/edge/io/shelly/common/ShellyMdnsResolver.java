@@ -1,10 +1,11 @@
 package io.openems.edge.io.shelly.common;
 
-import io.openems.edge.common.mdns.MDnsDiscovery;
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Consumer;
+import io.openems.edge.common.mdns.MDnsDiscovery;
 
 public class ShellyMdnsResolver {
 	private final Logger log = LoggerFactory.getLogger(ShellyMdnsResolver.class);

@@ -13,18 +13,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.session.Language;
 import io.openems.edge.app.meter.shelly.discovery.jsonrpc.GetDiscoveredDevices;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
-import io.openems.edge.core.appmanager.OpenemsAppInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import io.openems.common.session.Language;
 import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 
 public abstract class ShellyDiscovery<T> implements ComponentJsonApi {
 	private static final String SERVICE_TYPE = "_shelly._tcp.local.";

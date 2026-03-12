@@ -1,5 +1,10 @@
 package io.openems.edge.io.shelly.common.gen2;
 
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Deactivate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.metric.HttpBridgeMetricService;
@@ -14,10 +19,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
 import io.openems.edge.io.shelly.common.ShellyMdnsResolver;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Deactivate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 		implements IoGen2ShellyBase, OpenemsComponent {

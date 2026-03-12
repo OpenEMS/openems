@@ -1,5 +1,6 @@
 package io.openems.common.types;
 
+import java.io.Serial;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -127,7 +128,7 @@ public sealed interface Result<T> {
 	 * Transforms the successful value with the given function.
 	 *
 	 * @param mapper the function to transform the value
-	 * @param <N> the type of the transformed value
+	 * @param <N>    the type of the transformed value
 	 * @return a new Result with the transformed value, or the error if present
 	 */
 	public <N> Result<N> map(Function<T, N> mapper);
@@ -283,6 +284,9 @@ public sealed interface Result<T> {
 	}
 
 	public static class ResultThrowException extends RuntimeException {
+		@Serial
+		private static final long serialVersionUID = 1L;
+
 		public ResultThrowException(Throwable cause) {
 			super(cause.getMessage(), cause);
 		}

@@ -1,7 +1,6 @@
 package io.openems.edge.io.shelly.shellyplugsbase;
 
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
-import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalFloat;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
@@ -13,7 +12,6 @@ import static java.lang.Math.round;
 
 import java.util.function.IntFunction;
 
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBaseImpl;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
@@ -29,6 +27,7 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBaseImpl;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.TimedataProvider;

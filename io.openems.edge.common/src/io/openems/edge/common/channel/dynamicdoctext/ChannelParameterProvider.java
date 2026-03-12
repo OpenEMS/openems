@@ -1,12 +1,12 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 
 abstract class ChannelParameterProvider<V> implements ParameterProvider {
 	protected final ChannelId channelId;
