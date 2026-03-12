@@ -155,7 +155,7 @@
             -->
             <groupId>de.bytefish</groupId>
             <artifactId>pgbulkinsert</artifactId>
-            <version>8.1.8</version>
+            <version>9.0.0</version>
         </dependency>
         <!-- eu -->
         <dependency>
