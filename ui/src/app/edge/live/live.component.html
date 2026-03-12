@@ -20,8 +20,7 @@
               <ng-container *ngFor="let widget of widgets.list" [ngSwitch]="widget.name">
                 <!-- Weather-->
                 <weather [componentId]="widget.componentId" *ngSwitchCase="'Weather.OpenMeteo'"
-                  class="ion-hide-sm-down">
-                </weather>
+                  class="ion-hide-sm-down"></weather>
               </ng-container>
             </ion-col>
           </ion-row>

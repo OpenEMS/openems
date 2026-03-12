@@ -53,7 +53,7 @@ export class NavigationService {
         }
 
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
-        return config.hasFactories(["Evse.Controller.Single", "System.Fenecon.Industrial.L"]);
+        return config.hasFactories(["Evse.Controller.Single", "System.Fenecon.Industrial.Xl", "System.Fenecon.Industrial.L"]);
     }
 
     /**
@@ -143,7 +143,7 @@ export class NavigationService {
 
         const newWidgets: TMutable<Widgets> = { ...widgets };
         newWidgets.classes = ArrayUtils.removeMatching<(TEnumKeys<typeof WidgetClass>)[]>(widgets.classes, NavigationConstants.newClasses);
-        newWidgets.list = widgets.list?.filter(listItem => NavigationConstants.newWidgets.some(name => name != listItem.name)) ?? null;
+        newWidgets.list = widgets.list?.filter(listItem => NavigationConstants.newWidgets.every(name => name != listItem.name)) ?? null;
         return newWidgets;
     }
 

@@ -377,5 +377,5 @@ export namespace NavigationConstants {
     /**
      * The widget factories to show in new navigation
      */
-    export const newWidgets: Widget["name"][] = ["System.Fenecon.Industrial.L"];
+    export const newWidgets: Widget["name"][] = ["System.Fenecon.Industrial.L", "System.Fenecon.Industrial.Xl"];
 }
