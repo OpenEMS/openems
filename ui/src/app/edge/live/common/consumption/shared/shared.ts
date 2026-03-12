@@ -270,4 +270,3 @@ export namespace SharedConsumption {
         };
     }
 }
-

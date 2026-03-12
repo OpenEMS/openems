@@ -4,6 +4,7 @@ import { NavigationComponent } from "../../action-sheet-modal";
 import { NavigationService } from "../../service/navigation.service";
 
 export namespace ViewUtils {
+
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
         const bars = getVisibleBars();
 
@@ -76,15 +77,18 @@ export namespace ViewUtils {
 
         return window.innerHeight - header - footer;
     }
+
     export function getActionSheetModalHeightInPx() {
         return window.innerHeight * NavigationComponent.INITIAL_BREAKPOINT;
     }
+
     export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
         if (position == "bottom") {
             return (getActionSheetModalHeightInPx() / window.innerHeight) * 100;
         }
         return 0;
     }
+
     /**
     * Gets the available chart content height in [vh].
     *

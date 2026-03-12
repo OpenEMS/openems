@@ -513,6 +513,7 @@ export class Edge {
         const conf = await this.config.getValue();
         this.addCommonWidgetNavigation(edge, conf, navigationTree, translate);
         this.addControllerNavigation(edge, conf, navigationTree, translate);
+
         const baseMode: NavigationTree["mode"] = "label";
         for (const [componentId, component] of Object.entries(conf.components)) {
             if (component.isEnabled == false) {
@@ -547,7 +548,8 @@ export class Edge {
                     break;
             }
         }
-        navigationTree.setChild(NavigationId.LIVE, new NavigationTree("navigation-info", { baseString: "navigation-info" }, { name: "information-outline" }, translate.instant("GENERAL.HELP"), "label", [], null));
+        navigationTree.setChild(NavigationId.LIVE, new NavigationTree("navigation-info", { baseString: "navigation-info" }, { name: "information-outline" }, translate.instant("GENERAL.HELP"), "label", [], null, "LOW"));
+        navigationTree.reorderByPriorization(navigationTree);
         return navigationTree;
     }
 
@@ -575,10 +577,10 @@ export class Edge {
             if (navigationTree == null) {
                 continue;
             }
-
             currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
         }
     }
+
     private addControllerNavigation(edge: Edge, conf: EdgeConfig, currentNavigationTree: NavigationTree, translate: TranslateService): void {
         const list = Widgets.parseWidgets(edge, conf).list;
 

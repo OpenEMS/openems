@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import { PipeComponentsModule, PipeModule } from "src/app/shared/pipe/pipe.module";
 import { CommonUiModule } from "../common-ui.module";
 import { DomChangeDirective } from "../directive/oe-dom-change";
@@ -13,6 +14,7 @@ import { FlatWidgetComponent } from "./flat/flat";
 import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal-line/flat-widget-horizontal-line";
 import { FlatWidgetLineComponent } from "./flat/flat-widget-line/flat-widget-line";
 import { FlatWidgetLineItemComponent } from "./flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item";
+
 import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/flat-widget-line-divider";
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
 import { FooterComponent } from "./footer/footer";
@@ -36,9 +38,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         ModalComponentsModule,
         PickdateComponentModule,
         ChartComponentsModule,
+        TranslateModule,
     ],
     declarations: [
-
         // Flat
         FlatWidgetComponent,
         FlatWidgetHorizontalLineComponent,

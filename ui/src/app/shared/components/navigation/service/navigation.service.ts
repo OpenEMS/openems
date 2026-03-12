@@ -57,6 +57,56 @@ export class NavigationService {
     }
 
     /**
+    * Converts a relative {@link NavigationTree.routerLink routerLink} to absolute from root node.
+    *
+    * @param tree the tree
+    * @returns a tree with absolute {@link NavigationTree.routerLink routerLinks}
+    */
+    public static convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
+
+        /**
+         * Builds the absolute link from root node to current node
+         *
+         * @param node the current node
+         * @returns a update navigation tree
+         */
+        function buildAbsoluteLink(node: NavigationTree): NavigationTree {
+            const segments: (string | null)[] = [];
+            const current: NavigationTree | null = node;
+
+            segments.unshift(current.routerLink.baseString);
+            segments.unshift(current?.parent?.routerLink.baseString ?? null);
+
+            const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
+            node.routerLink.baseString = routerLink;
+            return node;
+        }
+
+        /**
+         * Traverses through the navigation tree
+         *
+         * @param node the current node
+         */
+        function traverse(node: NavigationTree | null): void {
+
+            if (!node) {
+                return;
+            }
+            const _node = structuredClone(node);
+            node.routerLink = buildAbsoluteLink(_node).routerLink;
+
+            if (node.children) {
+                for (const child of node.children) {
+                    traverse(child);
+                }
+            }
+        }
+
+        traverse(tree);
+        return tree;
+    }
+
+    /**
      * Creates a navigation Tree
      *
      * @param components the edgeconfig components
@@ -70,6 +120,30 @@ export class NavigationService {
             return Promise.resolve(null);
         }
         return await edge.createNavigationTree(translate, edge);
+    }
+
+    private static getNavigationIds(tree: NavigationTree | null, url: string | null): NavigationTree | null {
+        if (!tree || !url) {
+            return null;
+        }
+
+        const some = url.split("/").slice().reverse();
+        const urlSegments = tree.routerLink.baseString.split("/").slice().reverse();
+
+        const foundNode = ArrayUtils.containsAll({ strings: some.slice(0, urlSegments.length), arr: urlSegments });
+        if (foundNode) {
+            return tree;
+        }
+
+        for (const child of tree.children) {
+            const result = NavigationService.getNavigationIds(child, url);
+
+            if (result) {
+                return result;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -115,6 +189,25 @@ export class NavigationService {
                 ? { queryParams: link.routerLink.queryParams }
                 : undefined);
         }
+    }
+
+    /**
+     * Navigates to passed link
+     *
+     * @param link the link segment to navigate to
+     * @returns
+     */
+    public async navigateAbsolute(link: NavigationTree): Promise<void> {
+        const currentEdge = await this.service.getCurrentEdge();
+        const newSegments = ["device", currentEdge.id, ...link.routerLink.baseString.split("/")];
+        const currentNavigationNode = NavigationService.getNavigationIds(this.navigationTree(), link.routerLink.baseString);
+
+        if (!currentNavigationNode) {
+            return;
+        }
+
+        // Navigate forward
+        this.router.navigate(newSegments);
     }
 
     /**
@@ -260,6 +353,7 @@ export class NavigationService {
         return arr.slice(0, startIndex + keySegments.length);
     }
 
+
     /**
      * Finds the active node from a passed url.
      *
@@ -269,91 +363,9 @@ export class NavigationService {
      */
     private findActiveNode(nodes: NavigationTree | null, currentUrl: string | null): NavigationTree | null {
 
-        /**
-         * Converts a relative routerLink to absolute from root node.
-         *
-         * @param tree the current navigation node
-            * @returns a navigationTree
-         */
-        function convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
-
-            /**
-             * Builds the absolute link from root node to current node.
-             *
-             * @param node the current node
-             * @returns a update navigation tree
-             */
-            function buildAbsoluteLink(node: NavigationTree): NavigationTree {
-                const segments: (string | null)[] = [];
-                const current: NavigationTree | null = node;
-
-                segments.unshift(current.routerLink.baseString);
-                segments.unshift(current?.parent?.routerLink.baseString ?? null);
-
-                const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
-                node.routerLink.baseString = routerLink;
-                return node;
-            }
-
-            /**
-             * Traverses through the navigation tree.
-             *
-             * @param node the current node
-             */
-            function traverse(node: NavigationTree | null): void {
-
-                if (!node) {
-                    return;
-                }
-                const _node = structuredClone(node);
-                node.routerLink = buildAbsoluteLink(_node).routerLink;
-
-                if (node.children) {
-                    for (const child of node.children) {
-                        traverse(child);
-                    }
-                }
-            }
-
-            traverse(tree);
-            return tree;
-        }
-
-        /**
-         * Gets the navigation id from a navigation tree and current router url
-         *
-         * @param tree the navigation tree
-         * @param url the current router url
-         * @returns the navigationId if found, else null
-         */
-        function getNavigationIds(tree: NavigationTree | null, url: string | null): NavigationTree | null {
-            if (!tree || !url) {
-                return null;
-            }
-
-            const urlWithoutQueryParmas = url.split(/[?]/, 1)[0];
-            const some = urlWithoutQueryParmas.split("/").slice().reverse();
-            const urlSegments = tree.routerLink.baseString.split("/").slice().reverse();
-
-            const foundNode = ArrayUtils.containsAll({ strings: some.slice(0, urlSegments.length), arr: urlSegments });
-            if (foundNode) {
-                return tree;
-            }
-
-            for (const child of tree.children) {
-                const result = getNavigationIds(child, url);
-
-                if (result) {
-                    return result;
-                }
-            }
-
-            return null;
-        }
-
         const _nodes = structuredClone(nodes);
-        const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(_nodes);
-        const currentNavigationNode = getNavigationIds(flattenedNavigationTree, currentUrl);
+        const flattenedNavigationTree: NavigationTree | null = NavigationService.convertRelativeToAbsoluteLink(_nodes);
+        const currentNavigationNode = NavigationService.getNavigationIds(flattenedNavigationTree, currentUrl);
 
         if (!currentNavigationNode) {
             return null;

@@ -10,7 +10,7 @@
         </ng-template>
       }
       @if (navigationService.position() === 'left') {
-        <ion-split-pane style="--side-max-width: 10%;" when="xs" contentId="main">
+        <ion-split-pane style="--side-max-width: 15%; --side-width: 15%" when="xs" contentId="main">
           <ng-container *ngTemplateOutlet="sidemenu">
           </ng-container>
           <div id="main">
@@ -78,7 +78,9 @@
 
 <ng-template #sidemenu>
   <ion-menu menuId="main-menu" [contentId]="navigationService.position === 'left' ? 'main': 'content'"
-    [type]="navigationService.position === 'left' ? '': 'overlay'" side="start">
+    [type]="navigationService.position === 'left' ? '': 'overlay'" side="start"
+    style="width: 100%; min-width: 20% !important">
+
     <ion-list>
       @if ((service.metadata | async)?.user; as user) {
         <ion-item tabindex="0" button routerLinkActive="active" (keydown.enter)="navigateToUser()"
@@ -115,10 +117,17 @@
         </nav>
       }
 
-      @if(!service.isSmartphoneResolution && navigationService.position() === "left"){
-        <oe-navigation-chips (navigate)="navigationService.navigateTo($event)"></oe-navigation-chips>
+
+    </ion-list>
+    <ion-list style="overflow-y: auto;">
+
+      @if(!service.isSmartphoneResolution && navigationService.position() === "left"
+            &&navigationService.currentNode() !== null){
+        <oe-navigation-chips (navigate)="navigationService.navigateTo($event)"
+          (navigateAbsolute)="navigationService.navigateAbsolute($event)"></oe-navigation-chips>
       }
     </ion-list>
+
   </ion-menu>
 </ng-template>
 

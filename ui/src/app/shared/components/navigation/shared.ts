@@ -11,7 +11,6 @@ type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "
 export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
-
     constructor(
         public id: NavigationId | string,
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
@@ -24,14 +23,16 @@ export class NavigationTree {
 
         /** Use null for nested node */
         public parent: NavigationTree | null,
+        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
+        public priorization: "HIGH" | "LOW" = "HIGH",
     ) { }
 
     /**
-     * Creates new navigation tree instance from existing navigation tree object
-     *
-     * @param navigationTree
-     * @returns the new navigationTree
-     */
+     * Creates new navigation tree instance from existing navigation tree object.
+    *
+    * @param navigationTree
+    * @returns the new navigationTree
+    */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
         if (!navigationTree) {
             return null;
@@ -41,6 +42,27 @@ export class NavigationTree {
 
     public static dummy() {
         return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
+    }
+
+    /**
+     * Reorders the navigation tree children by its {@link priorization} from HIGH to LOW.
+     *
+     * @param node the node
+     * @returns
+     */
+    public reorderByPriorization(node: NavigationTree): void {
+        if (node == null || !Array.isArray(node.children)) {
+            return;
+        }
+
+        // First reorder deeper levels
+        node.children.forEach(child => this.reorderByPriorization(child));
+
+        // Explicit grouping (safer than comparator)
+        const high = node.children.filter(c => c.priorization === "HIGH");
+        const low = node.children.filter(c => c.priorization === "LOW");
+
+        node.children = [...high, ...low];
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
@@ -231,6 +253,7 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
+            this.priorization,
         ];
     }
 
