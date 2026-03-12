@@ -135,10 +135,6 @@ subprojects {
 	}
 }
 
-tasks.named('wrapper') {
-	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
-}
-
 tasks.register('checkstyleEdge') {
 	group = 'OpenEMS-Test'
 	description = 'Checkstyle Edge bundles'
