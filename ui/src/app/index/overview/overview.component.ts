@@ -45,7 +45,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if all available edges for this user had been retrieved */
     private limitReached: boolean = false;
 
-    private lastReqId: string | null = null;
     private sub: Subscription = new Subscription();
 
     constructor(
@@ -77,12 +76,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     ionViewWillEnter() {
         this.page = 0;
-        this.filteredEdges = [];
         this.limitReached = false;
-        this.filters = [
-            ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
-            ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
-        ];
     }
 
     ionViewDidEnter() {
@@ -92,7 +86,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     ionViewWillLeave() {
-        this.filters = [];
         this.sub?.unsubscribe();
         this.ngOnDestroy();
     }
@@ -141,21 +134,18 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
 
-            this.lastReqId = req.id;
-
             this.service.getEdges(req)
                 .then((edges) => {
-                    if (this.lastReqId !== req.id) {
-                        resolve(this.filteredEdges);
-                    }
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
-                    if (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false || (Role.isAtMost(user.globalRole, Role.OWNER) && edges.length == 1)) {
+
+                    if ((environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) || (user.hasMultipleEdges === false && edges.length == 1)) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
                         }, 100);
                     }
+                    this.filteredEdges = edges;
                     resolve(edges);
                 }).catch((err) => {
                     reject(err);
