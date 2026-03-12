@@ -535,7 +535,8 @@
           "STATE": {
             "BALANCING": "Self-consumption optimization",
             "CHARGE_GRID": "Charge from grid allowed",
-            "DELAY_DISCHARGE": "Delayed discharge"
+            "DELAY_DISCHARGE": "Delayed discharge",
+            "PEAK_SHAVING": "Peak shaving"
           }
         },
         "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",

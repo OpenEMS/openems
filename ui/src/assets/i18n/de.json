@@ -534,7 +534,8 @@
           "STATE": {
             "BALANCING": "Eigenverbrauchsoptimierung",
             "CHARGE_GRID": "Beladung aus dem Netz freigegeben",
-            "DELAY_DISCHARGE": "Entladung verzögert"
+            "DELAY_DISCHARGE": "Entladung verzögert",
+            "PEAK_SHAVING": "Lastspitzenkappung"
           }
         },
         "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",

@@ -373,7 +373,7 @@
           "PRICE": "現在の価格",
           "STATE": {
             "BALANCING": "自己消費の最適化",
-            "CHARGE": "ネットワークから解放された負荷",
+            "CHARGE_GRID": "ネットワークから解放された負荷",
             "DELAY_DISCHARGE": "遅延退院"
           }
         },
