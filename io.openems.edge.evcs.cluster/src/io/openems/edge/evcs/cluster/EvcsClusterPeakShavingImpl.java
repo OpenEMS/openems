@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.cluster;
 
+import static io.openems.common.utils.IntUtils.maxInteger;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
@@ -36,7 +37,6 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -505,7 +505,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return calculated grid power
 	 */
 	private int getGridPower() {
-		var maxPowerOnPhase = TypeUtils.max(//
+		var maxPowerOnPhase = maxInteger(//
 				this.meter.getActivePowerL1().get(), //
 				this.meter.getActivePowerL2().get(), //
 				this.meter.getActivePowerL3().get());

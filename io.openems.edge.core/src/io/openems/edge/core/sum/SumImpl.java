@@ -1,6 +1,7 @@
 package io.openems.edge.core.sum;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.IntUtils.sumInteger;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.NEGATIVE;
 import static io.openems.edge.core.sum.ExtremeEverValues.Range.POSTIVE;
@@ -399,7 +400,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		this._setProductionAcActivePowerL3(productionAcActivePowerL3Sum);
 		var productionDcActualPowerSum = productionDcActualPower.calculate();
 		this._setProductionDcActualPower(productionDcActualPowerSum);
-		var productionActivePower = TypeUtils.sum(productionAcActivePowerSum, productionDcActualPowerSum);
+		var productionActivePower = sumInteger(productionAcActivePowerSum, productionDcActualPowerSum);
 		setValue(this, Sum.ChannelId.PRODUCTION_ACTIVE_POWER, productionActivePower);
 		// TODO calculate actual "Unmanaged"-ProductionActivePower
 		setValue(this, Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER, productionActivePower);
@@ -415,14 +416,14 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				productionActiveEnergySum);
 
 		// Consumption
-		var consumptionActivePower = TypeUtils.sum(//
+		var consumptionActivePower = sumInteger(//
 				essActivePowerSum, gridActivePowerSum, productionAcActivePowerSum);
 		this._setConsumptionActivePower(consumptionActivePower);
-		this._setConsumptionActivePowerL1(TypeUtils.sum(//
+		this._setConsumptionActivePowerL1(sumInteger(//
 				essActivePowerL1Sum, gridActivePowerL1Sum, productionAcActivePowerL1Sum));
-		this._setConsumptionActivePowerL2(TypeUtils.sum(//
+		this._setConsumptionActivePowerL2(sumInteger(//
 				essActivePowerL2Sum, gridActivePowerL2Sum, productionAcActivePowerL2Sum));
-		this._setConsumptionActivePowerL3(TypeUtils.sum(//
+		this._setConsumptionActivePowerL3(sumInteger(//
 				essActivePowerL3Sum, gridActivePowerL3Sum, productionAcActivePowerL3Sum));
 		this._setUnmanagedConsumptionActivePower(
 				TypeUtils.subtract(consumptionActivePower, managedConsumptionActivePower.calculate()));

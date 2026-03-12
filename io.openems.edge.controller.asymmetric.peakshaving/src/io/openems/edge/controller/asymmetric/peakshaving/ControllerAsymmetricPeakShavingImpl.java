@@ -1,5 +1,7 @@
 package io.openems.edge.controller.asymmetric.peakshaving;
 
+import static io.openems.common.utils.IntUtils.maxInteger;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -14,7 +16,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -81,7 +82,7 @@ public class ControllerAsymmetricPeakShavingImpl extends AbstractOpenemsComponen
 		var gridPowerL1 = meter.getActivePowerL1().get();
 		var gridPowerL2 = meter.getActivePowerL2().get();
 		var gridPowerL3 = meter.getActivePowerL3().get();
-		var maxPowerOnPhase = TypeUtils.max(gridPowerL1, gridPowerL2, gridPowerL3);
+		var maxPowerOnPhase = maxInteger(gridPowerL1, gridPowerL2, gridPowerL3);
 		final int gridPower;
 		if (maxPowerOnPhase != null) {
 			gridPower = maxPowerOnPhase * 3;

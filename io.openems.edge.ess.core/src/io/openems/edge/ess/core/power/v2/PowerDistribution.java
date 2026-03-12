@@ -3,6 +3,8 @@ package io.openems.edge.ess.core.power.v2;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
+import static io.openems.common.utils.IntUtils.maxInteger;
+import static io.openems.common.utils.IntUtils.minInteger;
 import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
@@ -13,7 +15,6 @@ import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 
@@ -48,7 +49,7 @@ public class PowerDistribution {
 			if (this.limitActivePowerMin != null && newMin < this.limitActivePowerMin) {
 				return;
 			}
-			this.limitActivePowerMin = TypeUtils.min(newMin, this.limitActivePowerMax);
+			this.limitActivePowerMin = minInteger(newMin, this.limitActivePowerMax);
 		}
 
 		synchronized void limitActivePowerMax(Integer newMax) {
@@ -58,7 +59,7 @@ public class PowerDistribution {
 			if (this.limitActivePowerMax != null && newMax > this.limitActivePowerMax) {
 				return;
 			}
-			this.limitActivePowerMax = TypeUtils.max(newMax, this.limitActivePowerMin);
+			this.limitActivePowerMax = maxInteger(newMax, this.limitActivePowerMin);
 		}
 
 		synchronized void limitReactivePowerMin(Integer newMin) {
@@ -68,7 +69,7 @@ public class PowerDistribution {
 			if (this.limitReactivePowerMin != null && newMin < this.limitReactivePowerMin) {
 				return;
 			}
-			this.limitReactivePowerMin = TypeUtils.min(newMin, this.limitReactivePowerMax);
+			this.limitReactivePowerMin = minInteger(newMin, this.limitReactivePowerMax);
 		}
 
 		synchronized void limitReactivePowerMax(Integer newMax) {
@@ -78,7 +79,7 @@ public class PowerDistribution {
 			if (this.limitReactivePowerMax != null && newMax > this.limitReactivePowerMax) {
 				return;
 			}
-			this.limitReactivePowerMax = TypeUtils.max(newMax, this.limitReactivePowerMin);
+			this.limitReactivePowerMax = maxInteger(newMax, this.limitReactivePowerMin);
 		}
 
 		protected ToStringHelper toStringHelper(Class<?> clazz) {

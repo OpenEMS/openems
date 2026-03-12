@@ -1,6 +1,7 @@
 package io.openems.edge.meter.virtual.subtract;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.IntUtils.sumInteger;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -65,11 +66,11 @@ public class SubtractChannelManager extends AbstractChannelListenerManager {
 				switch (subtrahend) {
 				case ElectricityMeter meter -> {
 					IntegerReadChannel channel = meter.channel(meterChannelId);
-					subtrahendsSum = TypeUtils.sum(subtrahendsSum, channel.getNextValue().get());
+					subtrahendsSum = sumInteger(subtrahendsSum, channel.getNextValue().get());
 				}
 				case SymmetricEss ess -> {
 					IntegerReadChannel channel = ess.channel(essChannelId);
-					subtrahendsSum = TypeUtils.sum(subtrahendsSum, channel.getNextValue().get());
+					subtrahendsSum = sumInteger(subtrahendsSum, channel.getNextValue().get());
 				}
 				default -> doNothing();
 				}

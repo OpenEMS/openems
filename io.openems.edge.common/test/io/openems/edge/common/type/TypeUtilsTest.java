@@ -84,10 +84,7 @@ public class TypeUtilsTest {
 
 	@Test
 	public void testMin() {
-		assertEquals(25, (int) TypeUtils.min(null, 25, null, 40, null));
 		assertEquals(null, TypeUtils.min((Double) null, null, null));
-		assertEquals(17, (int) TypeUtils.min(null, 17, 25, 40));
-		assertEquals(34, (int) TypeUtils.min(null, 34, 40));
 	}
 
 	@Test
@@ -291,13 +288,6 @@ public class TypeUtilsTest {
 		assertEquals(new JsonPrimitive(45.6F), getAsJson(FLOAT, 45.6F));
 		assertEquals(new JsonPrimitive(56.7), getAsJson(DOUBLE, 56.7));
 		assertEquals(new JsonPrimitive("678"), getAsJson(STRING, "678"));
-	}
-
-	@Test
-	public void sumInteger() {
-		assertEquals(6, sum(1, 2, 3).intValue());
-		assertNull(sum((Integer) null));
-		assertEquals(6, sum(1, null, 2, 3).intValue());
 	}
 
 	@Test

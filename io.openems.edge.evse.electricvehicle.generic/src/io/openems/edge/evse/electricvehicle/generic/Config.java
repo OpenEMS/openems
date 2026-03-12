@@ -16,6 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Battery Capacity [Wh]", description = "64000 for 64 kWh")
+	int capacity() default 50000;
 
 	@AttributeDefinition(name = "Minimum Power in Single-Phase charging [W]", description = "1380 W for 6 A, 2300 W for 10 A, 0 if single-phase charging is not available")
 	int minPowerSinglePhase() default 1380;

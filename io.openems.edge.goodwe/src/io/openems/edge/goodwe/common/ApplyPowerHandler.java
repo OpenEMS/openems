@@ -1,12 +1,13 @@
 package io.openems.edge.goodwe.common;
 
+import static io.openems.common.utils.IntUtils.maxInt;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.BooleanConsumer;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
@@ -39,8 +40,8 @@ public final class ApplyPowerHandler {
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
 
 		// Calculate PV production and Surplus Power
-		var pvProduction = TypeUtils.max(0, goodWe.calculatePvProduction());
-		var surplusPower = TypeUtils.max(0, goodWe.getSurplusPower());
+		var pvProduction = maxInt(0, goodWe.calculatePvProduction());
+		var surplusPower = maxInt(0, goodWe.getSurplusPower());
 
 		// Write-Channels
 		final var emsPowerSetChannel = goodWe.getEmsPowerSetChannel();

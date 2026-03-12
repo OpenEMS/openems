@@ -44,7 +44,6 @@
 	bnd.identity;id='io.openems.backend.common',\
 	bnd.identity;id='io.openems.backend.edge.application',\
 	bnd.identity;id='io.openems.backend.metrics.prometheus',\
-	bnd.identity;id='io.openems.common.bridge.http',\
 	bnd.identity;id='io.openems.core.logger',\
 
 -runbundles: \

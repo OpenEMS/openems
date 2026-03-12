@@ -25,12 +25,14 @@ public final class Profile {
 	 * Declares the Abilities of an {@link EvseElectricVehicle}.
 	 */
 	public static record ElectricVehicleAbilities(//
+			int capacity, //
 			ApplySetPoint.Ability.Watt singlePhaseLimit, //
 			ApplySetPoint.Ability.Watt threePhaseLimit, //
 			boolean canInterrupt) {
 
 		public static final class Builder {
 
+			private int capacity;
 			private ApplySetPoint.Ability.Watt singlePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
 			private ApplySetPoint.Ability.Watt threePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
 
@@ -39,6 +41,17 @@ public final class Profile {
 			 * is reduced to minimum by the Controller in this case.
 			 */
 			private boolean canInterrupt = false;
+
+			/**
+			 * Sets the battery capacity of this EV in [Wh].
+			 * 
+			 * @param capacity the capacity in [Wh]
+			 * @return the {@link Builder}
+			 */
+			public Builder setCapacity(int capacity) {
+				this.capacity = capacity;
+				return this;
+			}
 
 			/**
 			 * Sets the limit for {@link SingleThreePhase#SINGLE_PHASE}.
@@ -153,7 +166,8 @@ public final class Profile {
 			}
 
 			public ElectricVehicleAbilities build() {
-				return new ElectricVehicleAbilities(this.singlePhaseLimit, this.threePhaseLimit, this.canInterrupt);
+				return new ElectricVehicleAbilities(this.capacity, this.singlePhaseLimit, this.threePhaseLimit,
+						this.canInterrupt);
 			}
 		}
 
@@ -174,11 +188,13 @@ public final class Profile {
 		public static JsonSerializer<ElectricVehicleAbilities> serializer() {
 			return JsonSerializerUtil.jsonObjectSerializer(json -> {
 				return new ElectricVehicleAbilities(//
+						json.getInt("capacity"), //
 						json.getObject("singlePhaseLimit", ApplySetPoint.Ability.Watt.serializer()), //
 						json.getObject("threePhaseLimit", ApplySetPoint.Ability.Watt.serializer()), //
 						json.getBoolean("canInterrupt"));
 			}, obj -> {
 				return buildJsonObject() //
+						.addProperty("capacity", obj.capacity) //
 						.add("singlePhaseLimit", //
 								ApplySetPoint.Ability.Watt.serializer().serialize(obj.singlePhaseLimit)) //
 						.add("threePhaseLimit", //

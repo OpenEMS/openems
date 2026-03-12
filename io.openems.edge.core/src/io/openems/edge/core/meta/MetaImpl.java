@@ -1,5 +1,6 @@
 package io.openems.edge.core.meta;
 
+import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.common.utils.StringUtils.emptyToNull;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
@@ -49,7 +50,6 @@ import io.openems.edge.common.meta.types.Coordinates;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.core.meta.geocoding.GeocodeJsonRpcEndpoint;
 import io.openems.edge.core.meta.geocoding.OpenCageGeocodingService;
 
@@ -228,7 +228,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 		case NO_LIMITATION -> null;
 		};
 		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
-		return TypeUtils.min(powerFromMaximumGridFeedInLimit, powerFromFuseLimit);
+		return minInt(powerFromFuseLimit, powerFromMaximumGridFeedInLimit);
 	}
 
 	@Override

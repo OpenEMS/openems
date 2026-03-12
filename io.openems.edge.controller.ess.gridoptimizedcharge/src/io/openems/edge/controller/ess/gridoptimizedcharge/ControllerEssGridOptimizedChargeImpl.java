@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.common.utils.IntUtils.minInt;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,7 +38,6 @@ import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -486,7 +487,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		} else {
 			dynamicGridFeedInLimit = null;
 		}
-		this.maximumSellToGridPower = TypeUtils.min(gridSellHardLimit, dynamicGridFeedInLimit);
+		this.maximumSellToGridPower = minInt(gridSellHardLimit, dynamicGridFeedInLimit);
 	}
 
 	/**

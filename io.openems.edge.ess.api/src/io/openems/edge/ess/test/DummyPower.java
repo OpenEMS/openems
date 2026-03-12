@@ -1,5 +1,7 @@
 package io.openems.edge.ess.test;
 
+import static io.openems.common.utils.IntUtils.minInt;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +110,7 @@ public class DummyPower implements Power {
 	public int getMaxPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
 		for (var e : this.esss) {
-			result = TypeUtils.min(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
+			result = minInt(result, e.getMaxApparentPower().get(), e.getAllowedDischargePower().get());
 		}
 		return result;
 	}
@@ -117,7 +119,7 @@ public class DummyPower implements Power {
 	public int getMinPower(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr) {
 		var result = this.maxApparentPower;
 		for (var e : this.esss) {
-			result = TypeUtils.min(result, e.getMaxApparentPower().get(),
+			result = minInt(result, e.getMaxApparentPower().get(),
 					TypeUtils.multiply(e.getAllowedChargePower().get(), -1));
 		}
 		return result * -1;

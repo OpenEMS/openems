@@ -6,8 +6,8 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.backend.authentication.api,\
-	io.openems.backend.metrics.prometheus,\
 	io.openems.backend.common,\
+	io.openems.backend.metrics.prometheus,\
 	io.openems.common,\
 	io.openems.common.bridge.http,\
 	io.openems.wrapper.auth0-auth0,\

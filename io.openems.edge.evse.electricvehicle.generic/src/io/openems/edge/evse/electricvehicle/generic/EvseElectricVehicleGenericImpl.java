@@ -35,7 +35,9 @@ public class EvseElectricVehicleGenericImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		final var abilities = ElectricVehicleAbilities.create();
+		final var abilities = ElectricVehicleAbilities.create() //
+				.setCapacity(config.capacity()) //
+				.setCanInterrupt(config.canInterrupt());
 
 		if (config.maxPowerSinglePhase() > 0 && config.minPowerSinglePhase() > 0
 				&& config.maxPowerSinglePhase() >= config.minPowerSinglePhase()) {
@@ -45,7 +47,7 @@ public class EvseElectricVehicleGenericImpl extends AbstractOpenemsComponent
 				&& config.maxPowerThreePhase() >= config.minPowerThreePhase()) {
 			abilities.setThreePhaseLimitInWatt(config.minPowerThreePhase(), config.maxPowerThreePhase());
 		}
-		abilities.setCanInterrupt(config.canInterrupt());
+
 		this.electricVehicleAbilities = abilities.build();
 	}
 

@@ -1,5 +1,9 @@
 package io.openems.edge.goodwe.common;
 
+import static io.openems.common.utils.IntUtils.maxInt;
+import static io.openems.common.utils.IntUtils.minInteger;
+import static io.openems.common.utils.IntUtils.sumInt;
+import static io.openems.common.utils.IntUtils.sumInteger;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
@@ -10,6 +14,7 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static java.lang.Math.min;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -1874,7 +1879,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	protected final Integer calculatePvProduction() {
 		Integer productionPower = null;
 		for (GoodWeCharger charger : this.chargers) {
-			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
+			productionPower = sumInteger(productionPower, charger.getActualPower().get());
 		}
 		return productionPower;
 	}
@@ -1897,7 +1902,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 				((EnumReadChannel) this.channel(GoodWe.ChannelId.EMS_POWER_MODE)).getNextValue().asEnum(),
 				this.getEmsPowerSetChannel().getNextValue().get());
 
-		var acActivePower = TypeUtils.sum(productionPower, dcDischargePower);
+		var acActivePower = sumInteger(productionPower, dcDischargePower);
 
 		/*
 		 * Update AC Active Power
@@ -2018,7 +2023,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		return goodweDcPower;
 	}
 
-	public record MaxAcPower(Integer maxAcImport, Integer maxAcExport) {
+	public record MaxAcPower(int maxAcImport, int maxAcExport) {
 	}
 
 	/**
@@ -2077,33 +2082,36 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * @param batVoltage             the voltage of the battery
 	 * @param maxInvDcChargeP        the maximum inverter DC charge power
 	 * @param maxInvDcDischargeP     the maximum inverter DC discharge power
-	 * @param pvProduction           the DC production power
+	 * @param pvProductionInteger    the DC production power; or null
 	 * @return MaxAcPower with maxAcImport and maxAcExport
 	 */
 	protected static MaxAcPower calculateMaxAcPower(int maxApparentPower, Integer batChargeMaxCurrent,
 			Integer batDischargeMaxCurrent, Integer batVoltage, Integer maxInvDcChargeP, Integer maxInvDcDischargeP,
-			Integer pvProduction) {
-		pvProduction = TypeUtils.max(0, pvProduction);
+			Integer pvProductionInteger) {
+		final var pvProduction = maxInt(0, pvProductionInteger);
 
 		/*
 		 * Calculate Max-Ac-Import
 		 */
 		final var maxDcChargePower = calculateDcLimitation(batChargeMaxCurrent, batVoltage, maxInvDcChargeP);
 
-		var maxAcImport = TypeUtils.subtract(maxDcChargePower, TypeUtils
-				.min(TypeUtils.max(0, maxDcChargePower) /* avoid negative number for `subtract` */, pvProduction));
+		var maxAcImport = maxDcChargePower //
+				- min(//
+						maxInt(0, maxDcChargePower) /* avoid negative number for `subtract` */, //
+						pvProduction);
 
 		/*
 		 * Calculate Max-Ac-Export
 		 */
 		final var maxDcDischargePower = calculateDcLimitation(batDischargeMaxCurrent, batVoltage, maxInvDcDischargeP);
-		var maxAcExport = TypeUtils.sum(maxDcDischargePower, pvProduction);
+		var maxAcExport = sumInt(pvProduction, maxDcDischargePower);
 
 		// Limit Max-AC-Power to inverter specific limit
-		maxAcImport = TypeUtils.min(maxAcImport, maxApparentPower);
-		maxAcExport = TypeUtils.min(maxAcExport, maxApparentPower);
+		maxAcImport = min(maxApparentPower, maxAcImport);
+		maxAcExport = min(maxApparentPower, maxAcExport);
 
-		return new MaxAcPower(TypeUtils.multiply(maxAcImport, /* negate */ -1), // Max-Ac-Import is negative
+		return new MaxAcPower(//
+				-maxAcImport /* negate */, // Max-Ac-Import is negative
 				maxAcExport);
 	}
 
@@ -2121,11 +2129,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * @param inverterLimit hard limit for DC power in W
 	 * @return the maximum DC power in W
 	 */
-	protected static Integer calculateDcLimitation(Integer bmsMaxCurrent, Integer voltage, Integer inverterLimit) {
-		return TypeUtils.min(//
-				bmsMaxCurrent == null || voltage == null ? 0 : bmsMaxCurrent * voltage, //
-				inverterLimit //
-		);
+	protected static int calculateDcLimitation(Integer bmsMaxCurrent, Integer voltage, Integer inverterLimit) {
+		final var bmsLimit = bmsMaxCurrent == null || voltage == null //
+				? 0 //
+				: bmsMaxCurrent * voltage;
+
+		return minInteger(bmsLimit, inverterLimit);
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.common;
 
+import static io.openems.common.utils.IntUtils.maxInteger;
+import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
@@ -133,10 +135,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
 		sb //
 				.append("|Allowed:") //
-				.append(TypeUtils.max(//
+				.append(maxInteger(//
 						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
 				.append(";") //
-				.append(TypeUtils.min(//
+				.append(minInteger(//
 						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
 	}
 

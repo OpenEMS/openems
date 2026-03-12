@@ -13,7 +13,6 @@ import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
 import io.openems.edge.common.filter.Pt1filter;
 import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.type.TypeUtils;
 
 public class AbstractAllowedChargeDischargeHandlerTest {
 
@@ -24,7 +23,7 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 		final var cycleTime = 500; // [ms]
 		final var pt1Filter = new Pt1filter(VOLTAGE_CONTROL_FILTER_TIME_CONSTANT, cycleTime);
 		Supplier<Integer> maxCurrent = () -> calculateMaxCurrent(battery, batteryInverter, cycleTime, pt1Filter, //
-				TypeUtils::min, TypeUtils::subtract, true /* invert */);
+				Math::min, (a, b) -> a - b, true /* invert */);
 
 		// Without data
 		assertNull(maxCurrent.get());

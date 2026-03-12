@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.openems.common.utils.IntUtils;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
@@ -151,9 +152,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	}
 
 	private static final Function<Integer, Integer> DIVIDE_BY_THREE = value -> TypeUtils.divide(value, 3);
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = TypeUtils::min;
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = TypeUtils::max;
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = IntUtils::minInteger;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = IntUtils::maxInteger;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = IntUtils::sumInteger;
 	private static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
 
 	/**
