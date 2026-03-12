@@ -14,7 +14,10 @@ export namespace SharedConsumption {
     export function getNavigationTree(edge: Edge, config: EdgeConfig, translate: TranslateService): ConstructorParameters<typeof NavigationTree> | null {
         const evcss: EvcsComponent[] = EvcsComponent.getComponents(config, edge);
         const consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+            .filter(component => component.isEnabled
+                && config.isTypeConsumptionMetered(component)
+                && evcss.every(evcs => component.id !== evcs.id));
+
         const heatComponents = config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(component =>
                 !(component.factoryId === "Controller.Heat.Heatingelement") &&
