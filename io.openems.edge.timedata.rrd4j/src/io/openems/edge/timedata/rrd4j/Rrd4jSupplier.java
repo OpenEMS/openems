@@ -158,6 +158,23 @@ public class Rrd4jSupplier {
 	}
 
 	/**
+	 * Deletes the RrdDb file of the given RrdDb. Use with care as this can lead to
+	 * data loss.
+	 * 
+	 * @param db the RrdDb to delete
+	 * @return true if deletion was successful, false otherwise
+	 */
+	public boolean delete(RrdDb db) {
+		try {
+			db.close();
+		} catch (IOException e) {
+			return false;
+		}
+		var file = new File(db.getPath());
+		return file.delete();
+	}
+
+	/**
 	 * Gets an existing RrdDb.
 	 * 
 	 * @param channelAddress the ChannelAddress
