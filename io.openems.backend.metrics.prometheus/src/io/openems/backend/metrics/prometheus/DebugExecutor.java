@@ -1,4 +1,4 @@
-package io.openems.backend.metadata.odoo;
+package io.openems.backend.metrics.prometheus;
 
 import static java.util.stream.Collectors.joining;
 
@@ -18,7 +18,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.function.ThrowingSupplier;
 import io.openems.common.types.DebugMode;
@@ -31,12 +30,14 @@ public class DebugExecutor implements ExecutorService {
 
 	private static final String UNDEFINED_TASK_ID = "UNDEFINED";
 
+	private final String id;
 	private final ThreadPoolExecutor executor;
 	private final ConcurrentHashMap<String, AtomicInteger> activeTasks = new ConcurrentHashMap<>(100);
 	private final ConcurrentHashMap<String, AtomicInteger> taskCounter = new ConcurrentHashMap<>(100);
 
-	public DebugExecutor(ThreadPoolExecutor executor) {
+	public DebugExecutor(String id, ThreadPoolExecutor executor) {
 		super();
+		this.id = id;
 		this.executor = executor;
 	}
 
@@ -98,7 +99,7 @@ public class DebugExecutor implements ExecutorService {
 		this.activeTasks.computeIfAbsent(id, ATOMIC_INTEGER_PROVIDER).incrementAndGet();
 		this.taskCounter.computeIfAbsent(id, ATOMIC_INTEGER_PROVIDER).incrementAndGet();
 		return CompletableFuture.supplyAsync(() -> {
-			try (var timer = PrometheusMetrics.WEBSOCKET_REQUEST.labelValues(MetadataOdoo.ID, id).startTimer()) {
+			try (var timer = PrometheusMetrics.WEBSOCKET_REQUEST.labelValues(this.id, id).startTimer()) {
 				return command.get();
 			} catch (Exception e) {
 				throw new CompletionException(e);

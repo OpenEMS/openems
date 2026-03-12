@@ -71,6 +71,7 @@ import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
 import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
+import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
@@ -155,12 +156,14 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.debugMode = config.debugMode();
 		this.authOAuthProviderName = config.authOAuthProviderName();
 
-		this.eventExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(config.eventPoolSize(),
-				new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Event-%d").build()));
-		this.requestExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(
-				config.requestPoolSize(), Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
-		this.refreshTokenExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(1,
-				Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
+		this.eventExecutor = new DebugExecutor(MetadataOdoo.ID,
+				(ThreadPoolExecutor) Executors.newFixedThreadPool(config.eventPoolSize(),
+						new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Event-%d").build()));
+		this.requestExecutor = new DebugExecutor(MetadataOdoo.ID,
+				(ThreadPoolExecutor) Executors.newFixedThreadPool(config.requestPoolSize(),
+						Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
+		this.refreshTokenExecutor = new DebugExecutor(MetadataOdoo.ID, (ThreadPoolExecutor) Executors
+				.newFixedThreadPool(1, Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
 
 		this.odooHandler = new OdooHandler(this, this.edgeCache, config, this.refreshTokenExecutor,
 				this.requestExecutor);
