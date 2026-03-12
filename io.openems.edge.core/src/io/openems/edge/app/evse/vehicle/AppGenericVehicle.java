@@ -105,7 +105,7 @@ public class AppGenericVehicle extends
 							.addProperty("canInterrupt", canInterrupt)//
 							.build()), //
 					Configuration.defaultConfig()//
-							.withInstallAlways(false));
+							.withInstallAlways(true));
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(component)) //
