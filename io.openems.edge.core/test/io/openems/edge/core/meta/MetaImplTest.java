@@ -26,6 +26,7 @@ public class MetaImplTest {
 
 	private static final UUID UID_1 = UUID.randomUUID();
 	private static final UUID UID_2 = UUID.randomUUID();
+	private static final UUID UID_3 = UUID.randomUUID();
 
 	@Test
 	public void test() throws Exception {
@@ -82,17 +83,25 @@ public class MetaImplTest {
 												.addProperty("power", 50000) //
 												.build()) //
 										.build()) //
+								.add(buildJsonObject() //
+										.addProperty("@type", "Task") //
+										.addProperty("uid", UID_3) //
+										.add("openems.io:payload", buildJsonObject() //
+												.addProperty("power", 10000) //
+												.build()) //
+										.build()) //
 								.build().toString()) //
 						.build());
 
 		final var ots = sut.getGridBuySoftLimit() //
 				.getOneTasksBetween(clock.now(), clock.now().plusHours(48)).iterator();
 		{
-			// from 00:00 to 08:00: fallback task
+			// from 00:00 to 08:00: defined fallback task
 			final var ot = ots.next();
+			assertEquals(UID_3, ot.parentTask().uid());
 			assertEquals("2020-01-01T00:00Z", ot.start().toString());
 			assertEquals("PT8H", ot.duration().toString());
-			assertEquals(22170, ot.payload().power());
+			assertEquals(10000, ot.payload().power());
 		}
 		{
 			// from 08:00 to 09:00: first task
@@ -105,9 +114,10 @@ public class MetaImplTest {
 		{
 			// from 09:00 to 10:00: fallback task
 			final var ot = ots.next();
+			assertEquals(UID_3, ot.parentTask().uid());
 			assertEquals("2020-01-01T09:00Z", ot.start().toString());
 			assertEquals("PT1H", ot.duration().toString());
-			assertEquals(22170, ot.payload().power());
+			assertEquals(10000, ot.payload().power());
 		}
 		{
 			// from 10:00 to 11:00: second task; 50.000 curtailed to Grid-Buy-Hard-Limit
@@ -120,9 +130,10 @@ public class MetaImplTest {
 		{
 			// from 11:00: fallback task
 			final var ot = ots.next();
+			assertEquals(UID_3, ot.parentTask().uid());
 			assertEquals("2020-01-01T11:00Z", ot.start().toString());
 			assertEquals("PT21H", ot.duration().toString());
-			assertEquals(22170, ot.payload().power());
+			assertEquals(10000, ot.payload().power());
 		}
 
 		// Validate Hard Limits
@@ -132,13 +143,13 @@ public class MetaImplTest {
 		// Test Live Channels
 		test //
 				.next(new TestCase() //
-						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 22170)) //
+						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 10000)) //
 				.next(new TestCase() //
 						.timeleap(clock, 8, ChronoUnit.HOURS) //
 						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 6789)) //
 				.next(new TestCase() //
 						.timeleap(clock, 1, ChronoUnit.HOURS) //
-						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 22170)) //
+						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 10000)) //
 				.deactivate();
 	}
 

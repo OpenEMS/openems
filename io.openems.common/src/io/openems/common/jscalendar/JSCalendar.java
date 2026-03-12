@@ -593,7 +593,7 @@ public class JSCalendar<PAYLOAD> {
 							: occurrenceEnd) //
 					.orElse(occurrenceEnd);
 
-			if (task.duration != Duration.ZERO && start.isEqual(end)) {
+			if (task.duration != Duration.ZERO && !end.isAfter(start)) {
 				// This is a Task with Duration, but during creation of OneTasks for the last
 				// one start would be same as end -> do not add to result
 			} else {
@@ -976,13 +976,21 @@ public class JSCalendar<PAYLOAD> {
 				while (true) {
 					var start = rr.getNextOccurrence(this.start, nextFrom);
 					if (start == null) {
-						break; // impossible occurence
+						// impossible occurence
+						break;
+
+					} else if (this.duration != Duration.ZERO && !start.plus(this.duration).isAfter(from)) {
+						// This occurrence ends before from; search next
+						nextFrom = start.plus(this.duration);
+
+					} else {
+						// This occurence is after from...
+						if (start.isAfter(to) && !result.isEmpty()) {
+							break; // ...and after to; but we want at least one result; even if it's out of range
+						}
+						result.add(start);
+						nextFrom = start.plusNanos(1);
 					}
-					if (start.isAfter(to) && !result.isEmpty()) {
-						break; // at least one result; even if it's out of range
-					}
-					result.add(start);
-					nextFrom = start.plusNanos(1);
 				}
 			}
 			return ImmutableList.copyOf(result);
