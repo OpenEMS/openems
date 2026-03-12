@@ -52,7 +52,6 @@ public final class RelayProps {
 			List<RelayInfo> allRelays, //
 			List<PreferredRelay> defaultRelays //
 	) {
-
 	}
 
 	public record RelayContactFilter(//

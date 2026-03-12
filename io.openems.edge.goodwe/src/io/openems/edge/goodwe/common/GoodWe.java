@@ -287,7 +287,7 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.WATT)), //
 		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
-		SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), // .
+		SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), //
 		WORK_MODE(Doc.of(WorkMode.values())), //
 		OPERATION_MODE(Doc.of(OperationMode.values())), //
 

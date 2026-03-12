@@ -1112,6 +1112,77 @@ public class GoodWeBatteryInverterImplTest {
 	}
 
 	@Test
+	public void testGoodWePowerSettings() throws Exception {
+		var inv = "batteryInverter0";
+		var sut = new GoodWeBatteryInverterImpl();
+		new ComponentTest(sut) //
+				.addReference("meta", META) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(createDummyClock())) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus2") //
+						.withRegisters(32000, // GoodWe State Register
+								new int[] {
+										0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
+										0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0xffff, 0xffff, 0xffff,
+										0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff })
+						.withRegisters(35001, // Block including GoodWe Serial Number
+								new int[] { 0xc350, 0x0001, 0x3730, 0x3530, 0x4b45, 0x5446, 0x3235, 0x3830, 0x3030,
+										0x3037 })
+						.withRegisters(35011, new int[] { 0, 0, 0, 0, 0 }) //
+						.withRegisters(35180, // Battery values of GoodWe
+								new int[] { 0x056e, 0x0000, 0xffff, 0xfffb, 0x0002 })
+						.withRegisters(35016, // GoodWe Software Versions
+								new int[] { 0, 0, 0x07df, 0x0006, 0x0185 })
+						.withRegisters(35111, // PV data including GridMode
+								new int[] { 0x8FC, 0, 0, 0, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0, 0x0200, 0x8EF, 0x0054,
+										0x1389, 0xFFFF, 0xF869, 0x08E3, 0x0055, 0x138B, 0xFFFF, 0xF870, 0x08EC, 0x0056,
+										0x138B, 0xFFFF, 0xF86b, 0x0001 /* GridMode */ }))
+				.activate(MyConfig.create() //
+						.setId(inv) //
+						.setModbusId("modbus2") //
+						.setMpptForShadowEnable(EnableDisable.DISABLE) //
+						.setModbusUnitId(DEFAULT_UNIT_ID) //
+						.setSafetyCountry(SafetyCountry.GERMANY) //
+						.setMpptForShadowEnable(EnableDisable.ENABLE) //
+						.setBackupEnable(EnableDisable.ENABLE) //
+						.setFeedPowerEnable(EnableDisable.ENABLE) //
+						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+						.setControlMode(ControlMode.SMART) //
+						.setStartStop(StartStopConfig.START) //
+						.build()) //
+
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.SERIAL_NUMBER, "7050KETF25800007") //
+						.output(SymmetricEss.ChannelId.MAX_APPARENT_POWER, 50000) //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.UNDEFINED)) //
+
+				.next(new TestCase(), 50) //
+				.next(new TestCase() //
+						.output(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+
+				.next(new TestCase(), 50).next(new TestCase() //
+						.output(inv, "GwState32000B0", false) //
+						.output(inv, "GwState32000B1", false) //
+						.output(inv, "GwState32000B2", false) //
+						.output(inv, "GwState32000B3", false) //
+						.output(inv, "GwState32000B4", false) //
+						.output(inv, "GwState32000B5", false) //
+						.output(inv, "GwState32000B6", false) //
+						.output(inv, "GwState32000B7", false) //
+						.output(inv, "GwState32000B8", false) //
+						.output(inv, "GwState32000B9", false) //
+						.output(inv, "GwState32000B10", false) //
+						.output(inv, "GwState32000B11", false) //
+						.output(inv, "GwState32000B12", false) //
+						.output(inv, "GwState32000B13", false) //
+						.output(inv, "GwState32000B14", false) //
+						.output(inv, "GwState32000B15", false)) //
+				.deactivate();
+
+	}
+
+	@Test
 	public void testStatesReadFromModbus() throws Exception {
 		var inv = "batteryInverter0";
 		var sut = new GoodWeBatteryInverterImpl();

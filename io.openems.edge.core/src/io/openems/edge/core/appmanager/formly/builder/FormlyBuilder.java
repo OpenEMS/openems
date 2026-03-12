@@ -186,12 +186,28 @@ public abstract class FormlyBuilder<T extends FormlyBuilder<T>> implements OnlyI
 	/**
 	 * Only shows the current input if the given {@link ExpressionBuilder} returns
 	 * true.
-	 * 
+	 *
 	 * @param expression the {@link BooleanExpression} to set
 	 * @return this
 	 */
 	public final T onlyShowIf(BooleanExpression expression) {
 		return this.onlyShowIf(expression.expression());
+	}
+
+	private final T onlyShowIfWithoutRequired(String expression) {
+		this.getExpressionProperties().addProperty("hide", "!(" + expression + ")");
+		return this.self();
+	}
+
+	/**
+	 * Only shows the current input if the given {@link ExpressionBuilder} returns
+	 * true without adding the "required" property.
+	 *
+	 * @param expression the {@link BooleanExpression} to set
+	 * @return this
+	 */
+	public final T onlyShowIfWithoutRequired(BooleanExpression expression) {
+		return this.onlyShowIfWithoutRequired(expression.expression());
 	}
 
 	/**
