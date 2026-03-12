@@ -5,7 +5,6 @@ import io.openems.common.function.BooleanConsumer;
 import io.openems.common.function.ThrowingConsumer;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
-import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.goodwe.common.enums.ControlMode;
@@ -44,7 +43,7 @@ public final class ApplyPowerHandler {
 		var surplusPower = TypeUtils.max(0, goodWe.getSurplusPower());
 
 		// Write-Channels
-		IntegerWriteChannel emsPowerSetChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_SET);
+		final var emsPowerSetChannel = goodWe.getEmsPowerSetChannel();
 		EnumWriteChannel emsPowerModeChannel = goodWe.channel(GoodWe.ChannelId.EMS_POWER_MODE);
 
 		apply(setActivePower, controlMode, gridActivePower, essActivePower, maxAcImport, maxAcExport, isPidEnabled,
@@ -58,9 +57,9 @@ public final class ApplyPowerHandler {
 	protected static synchronized void apply(int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
 			Value<Integer> maxAcExport, boolean isPidEnabled, MeterCommunicateStatus meterCommunicateStatus,
-			int pvProduction, int surplusPower,
-			BooleanConsumer setSmartModeNotWorkingWithPidFilter, BooleanConsumer setNoSmartMeterDetected, //
-			ThrowingConsumer<Integer, OpenemsNamedException> writeEmsPowerSet, //
+			int pvProduction, int surplusPower, BooleanConsumer setSmartModeNotWorkingWithPidFilter,
+			BooleanConsumer setNoSmartMeterDetected, //
+			ThrowingConsumer<Long, OpenemsNamedException> writeEmsPowerSet, //
 			ThrowingConsumer<EmsPowerMode, OpenemsNamedException> writeEmsPowerMode) throws OpenemsNamedException {
 
 		// Update Warn Channels
@@ -78,7 +77,7 @@ public final class ApplyPowerHandler {
 		writeEmsPowerMode.accept(apply.emsPowerMode);
 	}
 
-	protected static record Result(EmsPowerMode emsPowerMode, int emsPowerSet) {
+	protected static record Result(EmsPowerMode emsPowerMode, long emsPowerSet) {
 	}
 
 	protected static ApplyPowerHandler.Result calculate(int activePowerSetPoint, int pvProduction,
