@@ -1,10 +1,15 @@
 package io.openems.edge.phoenixcontact.plcnext.common.mapper;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.gson.JsonObject;
+
+import io.openems.edge.phoenixcontact.plcnext.meter.PlcNextMeterGdsDataReadMappingDefinition;
 
 public class PlcNextGdsDataToChannelMapperImplTest {
 
@@ -25,8 +30,8 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn." + expectedVariableName);
 
 		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
-		Assert.assertNotNull(variableName);
-		Assert.assertEquals(expectedVariableName, variableName);
+		assertNotNull(variableName);
+		assertEquals(expectedVariableName, variableName);
 	}
 
 	@Test
@@ -34,6 +39,26 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		JsonObject primitiveVariable = new JsonObject();
 
 		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
-		Assert.assertNull(variableName);
+		assertNull(variableName);
+	}
+	
+	@Test
+	public void testMapping_FailureDueToMissingJsonPrimitiveNamedValue() {
+		// prep
+		JsonObject errorObject = new JsonObject();
+		errorObject.addProperty("domain", "variables");
+		errorObject.addProperty("reason", "NotExists");
+		
+		JsonObject responseBody = new JsonObject();
+		responseBody.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.Arp.PlcEclr.energyMeasurement.EnergyExport");
+		responseBody.addProperty("value", (String)null);
+		responseBody.add("error", errorObject);
+		
+		// test
+		 PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody, "value", 
+				 PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
+		 
+		// check
+		assertNull(result);		
 	}
 }

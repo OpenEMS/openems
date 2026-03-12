@@ -73,7 +73,7 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 				mappedValues.add(mappedValue);
 			}
 		}
-		log.debug("Mapped values: {}", mappedValues);
+		log.debug("Station-ID '{}': Mapped values: {}", stationId, mappedValues);
 
 		return Collections.unmodifiableList(mappedValues);
 	}
@@ -129,24 +129,27 @@ public class PlcNextGdsDataToChannelMapperImpl implements PlcNextGdsDataToChanne
 
 		ChannelId destinationChannelId = varMappingDefinition.getChannelId();
 		JsonPrimitive primitiveValue = null;
+		PlcNextGdsDataMappedValue mappingResult = null;
 
-		try {
-			primitiveValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonPrimitive();
-		} catch (IllegalStateException e) {
-			log.warn("Fetching field 'value' from object {} failed!", varObject, e);
+		if (varObject.get(PLC_NEXT_VARIABLE_VALUE).isJsonNull()) {
+			log.info("Station-ID '{}': Got unexpected NULL value from object {}!", stationId, varObject);
+		} else {
+			try {
+				primitiveValue = varObject.get(PLC_NEXT_VARIABLE_VALUE).getAsJsonPrimitive();
+			} catch (IllegalStateException e) {
+				log.warn("Station-ID '{}': Fetching field 'value' from object {} failed!", stationId, varObject, e);
+			}
 		}
 
-		if (Objects.isNull(primitiveValue)) {
-			log.warn("Got NULL value for variable '{}' from PLCnext API! Publishing to channel skipped.",
-					varIdentifier);
-			return null;
+		if (Objects.nonNull(primitiveValue)) {
+			Object mappedValue = mapValue(primitiveValue, destinationChannelId.doc(), stationId);	
+			log.debug("Station-ID '{}': PLCnext variable named '{}' and value '{}' mapped to value '{}'",
+					stationId, varMappingDefinition.getIdentifier(), primitiveValue, mappedValue);
+			
+			mappingResult = new PlcNextGdsDataMappedValue(varMappingDefinition.getChannelId(), mappedValue); 
+			
 		}
-		Object mappedValue = mapValue(primitiveValue, destinationChannelId.doc(), stationId);
-		
-		log.debug("PLCnext variable named '{}' and value '{}' mapped to value '{}'",
-				varMappingDefinition.getIdentifier(), primitiveValue, mappedValue);
-
-		return new PlcNextGdsDataMappedValue(varMappingDefinition.getChannelId(), mappedValue);
+		return mappingResult; 
 	}
 
 	/**
