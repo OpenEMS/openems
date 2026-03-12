@@ -29,7 +29,7 @@ import io.openems.edge.controller.ess.sohcycle.statemachine.Context;
 import io.openems.edge.controller.ess.sohcycle.statemachine.StateMachine;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-@Designate(ocd = Config.class)
+@Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.SoH.Cycle", //
 		immediate = true, //

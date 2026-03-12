@@ -18,4 +18,26 @@ public class ArrayUtils {
 		return result;
 	}
 
+	/**
+	 * Checks if an array contains a specific element, ignoring null values.
+	 *
+	 * @param <T>     the component type of the array
+	 * @param array   the array to search
+	 * @param element the element to find
+	 * @return true if the array contains the element (ignoring nulls), false
+	 *         otherwise
+	 * @implNote For comparison {@link Object#equals(Object)} is used
+	 */
+	public static <T> boolean containsIgnoreNull(T[] array, T element) {
+		if (array == null || element == null) {
+			return false;
+		}
+		for (T item : array) {
+			if (item != null && item.equals(element)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
