@@ -30,38 +30,42 @@ public final class Utils {
 		final var cpMax = cp.toPower(cp.max());
 		return switch (cp.phase()) {
 		case SINGLE_PHASE -> {
-			if (electricVehicleAbilities.singlePhaseLimit() != null) {
+			if (!electricVehicleAbilities.singlePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint SINGLE_PHASE; Vehicle SINGLE_PHASE
 				var ev = electricVehicleAbilities.singlePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
 						max(cpMin, ev.min()), //
 						min(cpMax, ev.max()), //
 						step);
-			} else if (electricVehicleAbilities.threePhaseLimit() != null) {
+			} else if (!electricVehicleAbilities.threePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint SINGLE_PHASE; Vehicle THREE_PHASE
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						max(cpMin, ev.min()) / 3, //
-						min(cpMax, ev.max()) / 3, //
+						max(cpMin, ev.min() / 3), //
+						min(cpMax, ev.max() / 3), //
 						step);
 			} else {
 				yield EMPTY_APPLY_SET_POINT_ABILITY;
 			}
 		}
 		case THREE_PHASE -> {
-			if (electricVehicleAbilities.threePhaseLimit() != null) {
+			if (!electricVehicleAbilities.threePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint THREE_PHASE; Vehicle THREE_PHASE
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(THREE_PHASE, //
 						max(cpMin, ev.min()), //
 						min(cpMax, ev.max()), //
 						step);
-			} else if (electricVehicleAbilities.singlePhaseLimit() != null) {
+			} else if (!electricVehicleAbilities.singlePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint THREE_PHASE; Vehicle SINGLE_PHASE
 				var ev = electricVehicleAbilities.singlePhaseLimit();
-				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				var step = max(calculatePowerStep(cp) / 3, calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						max(cpMin, ev.min()), //
-						min(cpMax, ev.max()), //
+						max(cpMin / 3, ev.min()), //
+						min(cpMax / 3, ev.max()), //
 						step);
 			} else {
 				yield EMPTY_APPLY_SET_POINT_ABILITY;
