@@ -280,6 +280,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.appSohCycle(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconProHybrid910(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HAS_DC_PV1", "true") //
+					.addProperty("DC_PV1_ALIAS", "charger0")
+					.addProperty("HAS_DC_PV1", "false") //
+					.addProperty("DC_PV1_ALIAS", "charger1")
+					.build()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}
