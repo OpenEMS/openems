@@ -9,6 +9,8 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { SohDeterminationService } from "./common/soh/service/soh-determination.service";
+
 
 @Component({
     selector: "live",
@@ -39,6 +41,7 @@ export class LiveComponent implements OnDestroy {
         protected navigationService: NavigationService,
         private userService: UserService,
         private layoutRefresh: LayoutRefreshService,
+        protected sohDeterminationService: SohDeterminationService,
     ) {
 
         effect(() => {
@@ -49,6 +52,8 @@ export class LiveComponent implements OnDestroy {
             this.service.getConfig().then(config => {
                 this.config = config;
                 this.widgets = navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
+                // Initialize SoH state tracking
+                this.sohDeterminationService.initializeSohTracking(edge, config);
             });
             this.checkIfRefreshNeeded();
         });
