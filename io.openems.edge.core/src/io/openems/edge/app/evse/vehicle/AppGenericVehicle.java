@@ -49,6 +49,7 @@ public class AppGenericVehicle extends
 		MAX_POWER_SINGLE_PHASE(VehicleProps.maxPowerSinglePhase()), //
 		MIN_POWER_THREE_PHASE(VehicleProps.minPowerThreePhase()), //
 		MAX_POWER_THREE_PHASE(VehicleProps.maxPowerThreePhase()), //
+		CAPACITY(VehicleProps.capacity()), //
 		CAN_INTERRUPT(VehicleProps.canInterupt());
 
 		private final AppDef<? super AppGenericVehicle, ? super Property, ? super BundleParameter> def;
