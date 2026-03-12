@@ -1,7 +1,6 @@
 import { computed, Directive, effect, inject, runInInjectionContext, signal, untracked, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
-import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 import { States } from "../../ngrx-store/states";
 import { Service } from "../service";
@@ -20,7 +19,6 @@ export class AuthService {
     private oAuthService = inject(OAuthService);
     private service = inject(Service);
     private router = inject(Router);
-    private platformService = inject(PlatFormService);
 
     constructor() {
 
@@ -40,14 +38,6 @@ export class AuthService {
                 this.service.websocket.logout();
             }
         });
-
-        effect(() => {
-            const isApp = this.platformService.getIsApp();
-            if (isApp) {
-                this.router.navigate(["/oauthcallback"], { queryParams: { code: this.redirectURI() } });
-            }
-        });
-
     }
 
     public async authenticate(websocket: Websocket) {
