@@ -776,15 +776,16 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		var gridFeedInLimit = maxApparentPower;
 
 		// Limit from general Feed-In Limitation
-		if (limitType == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
+		var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		if (gridSellHardLimit < maxApparentPower) {
 			enableFeedInLimit = true;
-			gridFeedInLimit = this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
+			gridFeedInLimit = gridSellHardLimit;
 		}
 
 		// Limit from Ripple Control Receiver (Minimum of both limits)
 		if (this.rcr != null && this.rcr.isEnabled()) {
 			enableFeedInLimit = true;
-			gridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower);
+			gridFeedInLimit = Math.min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());

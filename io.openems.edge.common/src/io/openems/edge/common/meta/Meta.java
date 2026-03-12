@@ -19,7 +19,6 @@ import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
 import io.openems.edge.common.meta.types.Coordinates;
@@ -89,19 +88,6 @@ public interface Meta extends ModbusSlave {
 		 * </ul>
 		 */
 		GRID_FEED_IN_LIMITATION_TYPE(Doc.of(GridFeedInLimitationType.values())//
-				.persistencePriority(HIGH)), //
-
-		/**
-		 * Maximum grid feed in limit.
-		 *
-		 * <ul>
-		 * <li>Interface: Meta
-		 * <li>Type: Integer
-		 * <li>Unit: Watt
-		 * </ul>
-		 */
-		MAXIMUM_GRID_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.unit(Unit.WATT)//
 				.persistencePriority(HIGH)), //
 		/**
 		 * Grid-Buy Soft-Limit.
@@ -207,32 +193,6 @@ public interface Meta extends ModbusSlave {
 	 */
 	public default boolean getIsEssChargeFromGridAllowed() {
 		return this.getIsEssChargeFromGridAllowedChannel().value().orElse(false);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getMaximumGridFeedInLimitChannel() {
-		return this.channel(ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT);
-	}
-
-	/**
-	 * Gets the feed to grid power limit as Value.
-	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
-	 *
-	 * <p>
-	 * Use this getter always in combination with
-	 * {@link #getGridFeedInLimitationType()} as 0 could be a valid limit. If there
-	 * is no limit the correct value would be the maximum apparent power of the
-	 * inverter.
-	 * </p>
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getMaximumGridFeedInLimitValue() {
-		return this.getMaximumGridFeedInLimitChannel().value();
 	}
 
 	/**

@@ -36,6 +36,7 @@ import io.openems.edge.common.filter.RampFilter;
 import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.energy.api.EnergySchedulable;
@@ -477,16 +478,15 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	}
 
 	private void updateMaximumSellToGridPower() {
-		if (!this.ess.getMaxApparentPower().isDefined()) {
-			this.maximumSellToGridPower = 0;
-			return;
+		final var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		final Integer dynamicGridFeedInLimit;
+		var maxApparentPower = this.ess.getMaxApparentPower();
+		if (this.rcr != null && this.rcr.isEnabled() && maxApparentPower.isDefined()) {
+			dynamicGridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower.get());
+		} else {
+			dynamicGridFeedInLimit = null;
 		}
-		var maxApparentPower = this.ess.getMaxApparentPower().get();
-		if (this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
-			this.maximumSellToGridPower = (this.rcr != null && this.rcr.isEnabled())
-					? this.rcr.getDynamicGridFeedInLimit(maxApparentPower)
-					: this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
-		}
+		this.maximumSellToGridPower = TypeUtils.min(gridSellHardLimit, dynamicGridFeedInLimit);
 	}
 
 	/**

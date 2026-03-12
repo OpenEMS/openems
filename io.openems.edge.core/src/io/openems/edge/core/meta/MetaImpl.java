@@ -136,9 +136,6 @@ public class MetaImpl extends AbstractOpenemsComponent
 		this.config = config;
 		setValue(this, Meta.ChannelId.CURRENCY, Currency.fromCurrencyConfig(config.currency()));
 		setValue(this, Meta.ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED, config.isEssChargeFromGridAllowed());
-		setValue(this, Meta.ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT, config.maximumGridFeedInLimit() > 0 //
-				? config.maximumGridFeedInLimit() //
-				: null);
 		setValue(this, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE,
 				config.gridFeedInLimitationType().getGridFeedInLimitationType());
 
@@ -224,14 +221,20 @@ public class MetaImpl extends AbstractOpenemsComponent
 
 	@Override
 	public int getGridSellHardLimit() {
-		return this.getGridConnectionPointFuseLimitInWatt();
+		final var powerFromMaximumGridFeedInLimit = switch (this.config.gridFeedInLimitationType()) {
+		case DYNAMIC_LIMITATION -> this.config.maximumGridFeedInLimit() >= 0 //
+				? this.config.maximumGridFeedInLimit() //
+				: null;
+		case NO_LIMITATION -> null;
+		};
+		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
+		return TypeUtils.min(powerFromMaximumGridFeedInLimit, powerFromFuseLimit);
 	}
 
 	@Override
 	public int getGridBuyHardLimit() {
 		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
-		final var powerFromMaximumGridFeedInLimit = this.getMaximumGridFeedInLimitValue().orElse(null);
-		return TypeUtils.min(powerFromFuseLimit, powerFromMaximumGridFeedInLimit);
+		return powerFromFuseLimit;
 	}
 
 	@Override

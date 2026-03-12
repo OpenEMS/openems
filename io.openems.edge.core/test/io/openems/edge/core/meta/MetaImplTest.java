@@ -7,7 +7,6 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.common.types.CurrencyConfig.EUR;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.common.test.TestUtils.withValue;
 import static org.junit.Assert.assertEquals;
 
 import java.time.temporal.ChronoUnit;
@@ -52,7 +51,8 @@ public class MetaImplTest {
 				.activate(MyConfig.create() //
 						.setCurrency(EUR) //
 						.setGridConnectionPointFuseLimit(32) //
-						.setGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(12345) //
 						.setGridSoftLimit(buildJsonArray() //
 								.add(buildJsonObject() //
 										.addProperty("@type", "Task") //
@@ -127,13 +127,7 @@ public class MetaImplTest {
 
 		// Validate Hard Limits
 		assertEquals(22170, sut.getGridBuyHardLimit());
-		assertEquals(22170, sut.getGridSellHardLimit());
-
-		withValue(sut, Meta.ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT, 123456);
-		assertEquals(22170, sut.getGridBuyHardLimit());
-
-		withValue(sut, Meta.ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT, 12345);
-		assertEquals(12345, sut.getGridBuyHardLimit());
+		assertEquals(12345, sut.getGridSellHardLimit());
 
 		// Test Live Channels
 		test //
@@ -146,5 +140,122 @@ public class MetaImplTest {
 						.timeleap(clock, 1, ChronoUnit.HOURS) //
 						.output(Meta.ChannelId.GRID_BUY_SOFT_LIMIT, 22170)) //
 				.deactivate();
+	}
+
+	@Test
+	public void testGetGridSellHardLimitWithZeroExportDynamicLimitation() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setGridConnectionPointFuseLimit(32) // → 22,170 W
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(0) // Zero export
+						.build());
+
+		// Grid sell hard limit should be clamped to 0 (zero export enforced)
+		assertEquals("Grid sell hard limit should be 0 with zero export", 0, sut.getGridSellHardLimit());
+	}
+
+	@Test
+	public void testGetGridSellHardLimitWithNoFixedLimitDynamicLimitation() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setGridConnectionPointFuseLimit(32) // → 22,170 W
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(-1) // No fixed limit
+						.build());
+
+		// Grid sell hard limit should fall back to fuse limit when no fixed limit is
+		// set
+		assertEquals("Grid sell hard limit should be fuse limit (22170) when limit is -1", 22170,
+				sut.getGridSellHardLimit());
+	}
+
+	@Test
+	public void testGetGridSellHardLimitWithPositiveLimitDynamicLimitation() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setGridConnectionPointFuseLimit(32) // → 22,170 W
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(12345) // Configured limit is lower than fuse limit
+						.build());
+
+		// Grid sell hard limit should be the minimum of configured and fuse limits
+		assertEquals("Grid sell hard limit should be 12345 (minimum of 12345 and 22170)", 12345,
+				sut.getGridSellHardLimit());
+	}
+
+	@Test
+	public void testGetGridSellHardLimitWithNoLimitationType() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setGridConnectionPointFuseLimit(32) // → 22,170 W
+						.setGridFeedInLimitationType(GridFeedInLimitationType.NO_LIMITATION) //
+						.setMaximumGridFeedInLimit(5000) // Should be ignored
+						.build());
+
+		// Grid sell hard limit should be fuse limit (configured limit is ignored with
+		// NO_LIMITATION)
+		assertEquals("Grid sell hard limit should be fuse limit (22170) with NO_LIMITATION type", 22170,
+				sut.getGridSellHardLimit());
 	}
 }
