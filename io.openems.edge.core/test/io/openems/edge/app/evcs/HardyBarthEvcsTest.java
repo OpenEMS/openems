@@ -75,6 +75,7 @@ public class HardyBarthEvcsTest {
 				            "_lastChangeAt": "2026-02-17T18:04:16",
 				            "_lastChangeBy": "UNDEFINED",
 				            "alias": "Generisches Fahrzeug",
+				            "capacity": 50000,
 				            "canInterrupt": "true",
 				            "enabled": "true",
 				            "maxPowerSinglePhase": "7360",
@@ -92,6 +93,7 @@ public class HardyBarthEvcsTest {
 				            "alias": "Generisches Fahrzeug",
 				            "canInterrupt": "true",
 				            "enabled": "true",
+				            "capacity": 50000,
 				            "maxPowerSinglePhase": "7360",
 				            "maxPowerThreePhase": "11040",
 				            "minPowerSinglePhase": "1380",
@@ -185,6 +187,7 @@ public class HardyBarthEvcsTest {
 				            "MAX_POWER_SINGLE_PHASE": 7360,
 				            "MIN_POWER_THREE_PHASE": 4140,
 				            "MAX_POWER_THREE_PHASE": 11040,
+				            "CAPACITY": 50000,
 				            "CAN_INTERRUPT": true
 				        }
 				    },
@@ -198,6 +201,7 @@ public class HardyBarthEvcsTest {
 				            "MAX_POWER_SINGLE_PHASE": 7360,
 				            "MIN_POWER_THREE_PHASE": 4140,
 				            "MAX_POWER_THREE_PHASE": 11040,
+				            "CAPACITY": 50000,
 				            "CAN_INTERRUPT": true
 				        }
 				    },

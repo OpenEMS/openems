@@ -96,6 +96,7 @@ public class AppGenericVehicle extends
 			final var minPowerThreePhase = this.getInt(p, Property.MIN_POWER_THREE_PHASE);
 			final var maxPowerThreePhase = this.getInt(p, Property.MAX_POWER_THREE_PHASE);
 			final var canInterrupt = this.getBoolean(p, Property.CAN_INTERRUPT);
+			final var capacity = this.getInt(p, Property.CAPACITY);
 
 			final var component = new ComponentDef(id, alias, "Evse.ElectricVehicle.Generic",
 					ComponentProperties.fromJson(JsonUtils.buildJsonObject()//
@@ -104,6 +105,7 @@ public class AppGenericVehicle extends
 							.addProperty("minPowerThreePhase", minPowerThreePhase)//
 							.addProperty("maxPowerThreePhase", maxPowerThreePhase)//
 							.addProperty("canInterrupt", canInterrupt)//
+							.addProperty("capacity", capacity)//
 							.build()), //
 					Configuration.defaultConfig()//
 							.withInstallAlways(true));

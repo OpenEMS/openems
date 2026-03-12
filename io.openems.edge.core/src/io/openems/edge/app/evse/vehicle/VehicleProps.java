@@ -1,5 +1,6 @@
 package io.openems.edge.app.evse.vehicle;
 
+import io.openems.common.channel.Unit;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.Nameable;
@@ -22,6 +23,7 @@ public class VehicleProps {
 			def.setDefaultValue(50000);
 			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 				field.setInputType(InputType.NUMBER);
+				field.setUnit(Unit.WATT_HOURS, l);
 			});
 		});
 	}
@@ -38,6 +40,7 @@ public class VehicleProps {
 			def.setDefaultValue(1380);
 			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 				field.setInputType(InputType.NUMBER);
+				field.setUnit(Unit.WATT, l);
 			});
 		});
 	}
@@ -54,6 +57,7 @@ public class VehicleProps {
 			def.setDefaultValue(7360);
 			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 				field.setInputType(InputType.NUMBER);
+				field.setUnit(Unit.WATT, l);
 			});
 		});
 	}
@@ -70,6 +74,7 @@ public class VehicleProps {
 			def.setDefaultValue(4140);
 			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 				field.setInputType(InputType.NUMBER);
+				field.setUnit(Unit.WATT, l);
 			});
 		});
 	}
@@ -87,6 +92,7 @@ public class VehicleProps {
 			def.setDefaultValue(11040);
 			def.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 				field.setInputType(InputType.NUMBER);
+				field.setUnit(Unit.WATT, l);
 			});
 		});
 	}
