@@ -134,21 +134,6 @@
 </ng-template>
 
 <ng-template #footer>
-    @if (isSystemOutage) {
-    <ion-footer>
-        <ion-toolbar color="warning">
-            <ion-grid>
-                <ion-row class="ion-justify-content-center">
-                    <ion-col size="12" size-md="6">
-                        <span translate>GENERAL.SYSTEM_OUTAGE</span>
-                        <span>&nbsp;</span>
-                        <a href="https://status.fenecon.de/" target="_blank">status.fenecon.de</a>
-                    </ion-col>
-                </ion-row>
-            </ion-grid>
-        </ion-toolbar>
-    </ion-footer>
-    }
     @if (isUserAllowedToSeeFooter && !isHistoryDetailView) {
     <oe-footer #appFooter slot="fixed"></oe-footer>
     }

@@ -10,7 +10,6 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
-import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route.service";

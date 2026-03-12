@@ -430,7 +430,7 @@
 	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.weather.openmeteo;version=snapshot,\
-	io.openems.j2mod;version='[3.2.2,3.2.3)',\
+	io.openems.j2mod;version='[3.3.0,3.3.1)',\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.Java-WebSocket;version=snapshot,\

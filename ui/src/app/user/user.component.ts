@@ -335,14 +335,7 @@ export class UserComponent implements OnInit {
      * @returns true, if user is allowed to see contact details
      */
     private isUserAllowedToSeeContactDetails(id: string): boolean {
-        switch (id) {
-            case "demo@fenecon.de":
-            case "pv@schachinger-gaerten.de":
-            case "pv@studentenpark1-straubing.de":
-                return false;
-            default:
-                return true;
-        }
+        return true;
     }
 }
 

@@ -53,7 +53,7 @@ export class NavigationService {
         }
 
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
-        return config.hasFactories(["Evse.Controller.Single", "System.Fenecon.Industrial.Xl", "System.Fenecon.Industrial.L"]);
+        return config.hasFactories(["Evse.Controller.Single"]);
     }
 
     /**

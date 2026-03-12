@@ -14,13 +14,6 @@
         <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
             <ion-col size-lg="4" size-sm="10" size-md="8">
                 <ion-card>
-                    <ion-item lines="none" class="ion-text-center">
-                        <ion-grid class="ion-justify-content-center">
-                            <ion-row class="ion-justify-content-center ion-no-padding">
-                                <ion-img style="height: 10vh;" src="assets/img/fenecon-logo.png" />
-                            </ion-row>
-                        </ion-grid>
-                    </ion-item>
                     <ion-card-content class="ion-justify-content-center ion-text-center">
                         @if (environment.backend === 'OpenEMS Backend') {
                         <ng-container *ngTemplateOutlet="connectionToBackendFailed"></ng-container>
@@ -47,7 +40,7 @@
         </ion-col>
     </ion-row>
 
-    <<<<<<< HEAD <ion-row class="ion-justify-content-center ion-align-items-center">
+    <ion-row class="ion-justify-content-center ion-align-items-center">
         <ion-col size="12">
             <ion-item lines="none" class="ion-text-center">
                 <ion-label class="ion-text-wrap">
@@ -55,76 +48,17 @@
                 </ion-label>
             </ion-item>
         </ion-col>
-        </ion-row>
+    </ion-row>
 
-        <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
-            <ion-col size="12">
-                <ion-item lines="none" class="ion-text-center">
-                    <ion-label class="ion-text-wrap" style="font-weight: bolder;">
-                        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
-                    </ion-label>
-                </ion-item>
-            </ion-col>
-        </ion-row>
-
-        =======
-        <ion-row class="ion-justify-content-center ion-align-items-center">
-            <ion-col size="12">
-                <ion-item lines="none" class="ion-text-center">
-                    <ion-label class="ion-text-wrap">
-                        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_DESCRIPTION" | translate}}
-                    </ion-label>
-                </ion-item>
-            </ion-col>
-        </ion-row>
-
-        <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
-            <ion-col size="12">
-                <ion-item lines="none" class="ion-text-center">
-                    <ion-label class="ion-text-wrap" style="font-weight: bolder;">
-                        {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
-                    </ion-label>
-                </ion-item>
-            </ion-col>
-        </ion-row>
-
-        @if (environment.theme !== 'OpenEMS') {
-        <ion-row class="ion-justify-content-center ion-align-items-center">
-            <ion-col size="12" class="ion-text-center">
-                @switch (environment.theme) {
-                @case ('Heckert') {
-                <ion-button size="small" fill="outline"
-                    href="https://symphon-e.heckert-solar.com/docs/de/fems/ui/introduction.html#_offlinelokal"
-                    target="_blank" translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-                }
-                @default {
-                <ion-button size="small" fill="outline"
-                    href="https://docs.fenecon.de/de/fems/ui/introduction.html#_offlinelokal" target="_blank"
-                    translate>LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY</ion-button>
-                }
-                }
-            </ion-col>
-        </ion-row>
-        }
-
-        @if (environment.theme === 'FENECON') {
-        <ion-row>
-            <ion-item lines="none" class="ion-margin-top">
-                <ul style="font-size: smaller;">
-                    <li><a href="https://fenecon.de/faq/" target="_blank">
-                            FAQs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://status.fenecon.de/" target="_blank">
-                            FENECON Status
-                        </a>
-                    </li>
-                </ul>
+    <ion-row class="ion-justify-content-center ion-align-items-center ion-padding-top">
+        <ion-col size="12">
+            <ion-item lines="none" class="ion-text-center">
+                <ion-label class="ion-text-wrap" style="font-weight: bolder;">
+                    {{"LOADING_SCREEN.SERVER_NOT_ACCESSIBLE_TRY_RELOADING" | translate}}
+                </ion-label>
             </ion-item>
-        </ion-row>
-        }
-        >>>>>>> d4a8a70dfd ([UI] Offline + Time-of-Use new icon (#2700))
+        </ion-col>
+    </ion-row>
 </ng-template>
 
 <ng-template #connectionToEdgeFailed>
