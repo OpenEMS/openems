@@ -258,7 +258,7 @@ export type OeFormlyView = {
     lines: OeFormlyField[],
     isCommonWidget?: string,
     helpKey?: string | null,
-    component?: EdgeConfig.Component,
+    component?: EdgeConfig.Component | null,
     edge?: Edge,
 };
 

@@ -1,5 +1,4 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
-import { States } from "src/app/shared/ngrx-store/states";
 
 /**
  * Initiates a OAuth connection.
@@ -42,8 +41,6 @@ export namespace InitiateConnect {
     export const METHOD: string = "initiateConnect";
 
     export class Request extends JsonrpcRequest {
-
-        protected override requiredState: States = States.WEBSOCKET_CONNECTED;
 
         public constructor(
             public override readonly params: {

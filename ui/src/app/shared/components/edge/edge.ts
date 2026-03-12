@@ -212,6 +212,26 @@ export class Edge {
     }
 
     /**
+    * Add Channels to subscription with checking websocket states first.
+    *
+    * @param websocket the Websocket
+    * @param id        a unique ID for this subscription (e.g. the component selector)
+    * @param channels  the subscribed Channel-Addresses
+    */
+    public subscribeChannelsWithState(websocket: Websocket, id: string, channels: ChannelAddress[]): void {
+        const previousChannels = Object.values(this.subscribedChannels).flat().map(channel => channel.toString());
+        this.subscribedChannels[id] = channels;
+
+        const channelsToSubscribe = channels.map(channel => channel.toString());
+
+        if (previousChannels.length > 0 && ArrayUtils.containsAll({ strings: channelsToSubscribe, arr: previousChannels })) {
+            return;
+        }
+
+        this.sendSubscribeChannelsWithState(websocket);
+    }
+
+    /**
      * Add Channels to subscription
      *
      * @param websocket the Websocket
@@ -370,6 +390,18 @@ export class Edge {
     }
 
     /**
+     * Creates a configuration for a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param factoryPId  the OpenEMS Edge Factory-PID
+     * @param properties  the properties to be updated.
+     */
+    public createComponentConfigWithState(ws: Websocket, factoryPid: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+        const request = new CreateComponentConfigRequest({ factoryPid: factoryPid, properties: properties });
+        return this.sendStateFullRequest(ws, request);
+    }
+
+    /**
      * Updates the configuration of a OpenEMS Edge Component.
      *
      * @param ws          the Websocket
@@ -382,12 +414,35 @@ export class Edge {
     }
 
     /**
+     * Updates the configuration of a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param componentId the OpenEMS Edge Component-ID
+     * @param properties  the properties to be updated.
+     */
+    public updateComponentConfigWithState(ws: Websocket, componentId: string, properties: { name: string, value: any }[]): Promise<JsonrpcResponseSuccess> {
+        const request = new UpdateComponentConfigRequest({ componentId: componentId, properties: properties });
+        return this.sendStateFullRequest(ws, request);
+    }
+
+    /**
      * Deletes the configuration of a OpenEMS Edge Component.
      *
      * @param ws          the Websocket
      * @param componentId the OpenEMS Edge Component-ID
      */
     public deleteComponentConfig(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
+        const request = new DeleteComponentConfigRequest({ componentId: componentId });
+        return this.sendRequest(ws, request);
+    }
+
+    /**
+     * Deletes the configuration of a OpenEMS Edge Component.
+     *
+     * @param ws          the Websocket
+     * @param componentId the OpenEMS Edge Component-ID
+     */
+    public deleteComponentConfigWithState(ws: Websocket, componentId: string): Promise<JsonrpcResponseSuccess> {
         const request = new DeleteComponentConfigRequest({ componentId: componentId });
         return this.sendRequest(ws, request);
     }
@@ -403,6 +458,24 @@ export class Edge {
         const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
         return new Promise((resolve, reject) => {
             ws.sendRequest(wrap).then(response => {
+                resolve(response["result"]["payload"]);
+            }).catch(reason => {
+                reject(reason);
+            });
+        });
+    }
+
+    /**
+    * Sends a JSON-RPC Request. The Request is wrapped in a EdgeRpcRequest.
+    *
+    * @param ws               the Websocket
+    * @param request          the JSON-RPC Request
+    * @param responseCallback the JSON-RPC Response callback
+    */
+    public sendStateFullRequest<T = JsonrpcResponseSuccess>(ws: Websocket, request: JsonrpcRequest): Promise<T> {
+        const wrap = new EdgeRpcRequest({ edgeId: this.id, payload: request });
+        return new Promise((resolve, reject) => {
+            ws.sendStateFullRequest(wrap).then(response => {
                 resolve(response["result"]["payload"]);
             }).catch(reason => {
                 reject(reason);
@@ -640,6 +713,33 @@ export class Edge {
                 }
                 const request = new SubscribeChannelsRequest(channels);
                 this.sendRequest(websocket, request).then(() => {
+                    this.subscribeChannelsSuccessful = true;
+                }).catch(reason => {
+                    this.subscribeChannelsSuccessful = false;
+                    console.warn(reason);
+                });
+            }, 100);
+        }
+    }
+    /**
+   * Sends a SubscribeChannelsRequest for all Channels in 'this.subscribedChannels'
+   *
+   * @param websocket the Websocket
+   */
+    private sendSubscribeChannelsWithState(websocket: Websocket): void {
+        // make sure to send not faster than every 100 ms
+        if (this.subscribeChannelsTimeout == null) {
+            this.subscribeChannelsTimeout = setTimeout(() => {
+                // reset subscribeChannelsTimeout
+                this.subscribeChannelsTimeout = null;
+
+                // merge channels from currentDataSubscribes
+                const channels: ChannelAddress[] = [];
+                for (const componentId in this.subscribedChannels) {
+                    channels.push(...this.subscribedChannels[componentId]);
+                }
+                const request = new SubscribeChannelsRequest(channels);
+                this.sendStateFullRequest(websocket, request).then(() => {
                     this.subscribeChannelsSuccessful = true;
                 }).catch(reason => {
                     this.subscribeChannelsSuccessful = false;

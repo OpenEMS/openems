@@ -155,7 +155,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
-        this.pagination.getAndSubscribeEdge(edge);
+        this.pagination.getAndSubscribeEdge(edge.id);
     }
 
     /**

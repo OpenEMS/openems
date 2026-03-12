@@ -1,4 +1,4 @@
-import { JsonrpcResponseSuccess } from "../base";
+import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 
 /**
  * Wraps a JSON-RPC Response for a queryHistoricTimeseriesEnergy.

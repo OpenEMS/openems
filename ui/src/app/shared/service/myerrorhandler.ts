@@ -28,7 +28,6 @@ export class MyErrorHandler implements ErrorHandler {
                     browser: navigator.userAgent,
                 },
             };
-
             logger.error(JSON.stringify(json));
         }
     }

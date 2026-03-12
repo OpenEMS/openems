@@ -13,6 +13,7 @@ import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInfo
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { States } from "../shared/ngrx-store/states";
 import { RouteService } from "../shared/service/route.service";
 import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
@@ -161,7 +162,7 @@ export class UserComponent implements OnInit {
     public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
         return new Promise(resolve => {
             const interval = setInterval(() => {
-                if (this.websocket.status === "online") {
+                if (States.isAtLeast(this.websocket.state(), States.AUTHENTICATED)) {
                     this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
                         const user = response.result.user;
                         resolve({

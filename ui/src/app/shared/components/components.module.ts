@@ -38,6 +38,7 @@ import { NotificationComponent } from "./shared/notification/notification";
         ModalComponentsModule,
         PickdateComponentModule,
         ChartComponentsModule,
+        FlatWidgetPercentagebarComponent,
         TranslateModule,
     ],
     declarations: [
@@ -47,7 +48,6 @@ import { NotificationComponent } from "./shared/notification/notification";
         FlatWidgetLineComponent,
         FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
-        FlatWidgetPercentagebarComponent,
 
         // Others
         NotificationComponent,

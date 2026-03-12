@@ -22,7 +22,7 @@ import { PlatFormService } from "./platform.service";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
-import { AppStateTracker } from "./shared/ngrx-store/states";
+import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
 import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";

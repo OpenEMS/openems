@@ -1,4 +1,3 @@
-import { JsonPipe } from "@angular/common";
 import { Component, model, ModelSignal } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
@@ -20,7 +19,6 @@ import { TaskFormMonthlyComponent } from "./monthly/monthly";
         ReactiveFormsModule,
         TaskFormTimeComponent,
         TaskFormMonthlyComponent,
-        JsonPipe,
     ],
 })
 export class TaskFormComponent {

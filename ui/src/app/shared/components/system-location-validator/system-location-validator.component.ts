@@ -141,7 +141,7 @@ export class SystemLocationValidatorComponent implements OnInit {
         });
 
         const [error, response] = await PromiseUtils.Functions.handle(
-            this.edge.sendRequest(this.websocket, request)
+            this.edge.sendStateFullRequest(this.websocket, request)
         );
 
         if (error) {
