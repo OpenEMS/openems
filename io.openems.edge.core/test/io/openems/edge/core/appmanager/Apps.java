@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
+import io.openems.edge.app.meter.shelly.meter.AppShellyMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -97,8 +98,8 @@ import io.openems.edge.app.meter.PqPlusMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.meter.gridmeter.GridMeterGoodWe;
 import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
+import io.openems.edge.app.meter.shelly.diy.AppShellyMeterDiy;
 import io.openems.edge.app.meter.gridmeter.GridMeterKdk;
-import io.openems.edge.app.meter.shelly.AppShellyMeter;
 import io.openems.edge.app.openemshardware.BeagleBoneBlack;
 import io.openems.edge.app.openemshardware.Compulab;
 import io.openems.edge.app.openemshardware.TechbaseCm3;
@@ -1035,13 +1036,23 @@ public final class Apps {
 	// Meter
 
 	/**
+	 * Test method for creating a {@link AppShellyMeterDiy}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppShellyMeterDiy shellyMeterDiy(AppManagerTestBundle t) {
+		return app(t, AppShellyMeterDiy::new, "App.Meter.Shelly");
+	}
+
+	/**
 	 * Test method for creating a {@link AppShellyMeter}.
 	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final AppShellyMeter shellyMeter(AppManagerTestBundle t) {
-		return app(t, AppShellyMeter::new, "App.Meter.Shelly");
+	public static final AppShellyMeter shellyMeterPaid(AppManagerTestBundle t) {
+		return app(t, AppShellyMeter::new, "App.Meter.Shelly.Meter");
 	}
 
 	/**

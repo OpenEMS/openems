@@ -49,7 +49,7 @@ export class SystemStatusComponent implements OnDestroy {
             this.subscribed = true;
             this.edge = edge;
 
-            this.liveDataService.getValues([
+            this.liveDataService.subscribeChannels([
                 SystemStatusComponent.SUM_STATE_CHANNEL,
             ], edge, uuidv4());
 

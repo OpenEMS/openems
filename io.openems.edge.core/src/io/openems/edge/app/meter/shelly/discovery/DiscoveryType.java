@@ -1,4 +1,4 @@
-package io.openems.edge.app.meter.shelly;
+package io.openems.edge.app.meter.shelly.discovery;
 
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 

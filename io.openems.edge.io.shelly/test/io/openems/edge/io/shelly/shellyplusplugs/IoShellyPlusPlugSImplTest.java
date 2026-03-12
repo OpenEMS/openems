@@ -5,6 +5,8 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
@@ -29,6 +31,8 @@ public class IoShellyPlusPlugSImplTest {
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("httpBridgeCycleServiceDefinition",
 						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
+				.addReference("httpBridgeShellyServiceDefinition",
+						new HttpBridgeShellyService.HttpBridgeShellyServiceDefinition()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
@@ -74,7 +78,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
 						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
-						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Stable update available") //
 						.onBeforeProcessImage(() -> {
@@ -155,7 +159,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
 						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
-						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				// Test case for writing to relay
 				.next(new TestCase("Write") //
@@ -183,6 +187,8 @@ public class IoShellyPlusPlugSImplTest {
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("httpBridgeCycleServiceDefinition",
 						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
+				.addReference("httpBridgeShellyServiceDefinition",
+						new HttpBridgeShellyService.HttpBridgeShellyServiceDefinition()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
@@ -228,6 +234,6 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
 						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
-						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
+						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }

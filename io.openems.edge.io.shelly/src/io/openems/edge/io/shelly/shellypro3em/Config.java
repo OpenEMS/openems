@@ -1,5 +1,6 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
+import io.openems.common.types.DebugMode;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
@@ -21,11 +22,20 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption")
 	MeterType type() default MeterType.GRID;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.", required = false)
 	String ip();
+
+	@AttributeDefinition(name = "MDNS Name", required = false)
+	String mdnsName() default "";
 
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;
+
+	@AttributeDefinition(name = "Device type validation", description = "If enabled and type is wrong no values will be read from the device.")
+	boolean validateDevice() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode.")
+	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Pro 3EM [{id}]";
 

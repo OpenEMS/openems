@@ -50,5 +50,5 @@ abstract class ChannelParameterProvider<V> implements ParameterProvider {
 	}
 
 	@Override
-	public abstract ParameterProvider clone();
+	public abstract ParameterProvider copy();
 }

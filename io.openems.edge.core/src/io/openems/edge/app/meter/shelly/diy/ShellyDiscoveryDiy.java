@@ -1,0 +1,79 @@
+package io.openems.edge.app.meter.shelly.diy;
+
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.edge.app.meter.shelly.discovery.ShellyDiscovery;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.mdns.MDnsDiscovery;
+import io.openems.edge.core.appmanager.AppManagerUtil;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Component
+public class ShellyDiscoveryDiy extends ShellyDiscovery<MdnsValueDiy> implements ComponentJsonApi {
+	public static final String ID = "shellyDiscoveryDiy";
+
+	private final AppManagerUtil appManagerUtil;
+
+	@Activate
+	public ShellyDiscoveryDiy(//
+			@Reference MDnsDiscovery mDnsDiscovery, //
+			@Reference AppManagerUtil appManagerUtil //
+	) {
+		super(mDnsDiscovery);
+		this.appManagerUtil = appManagerUtil;
+	}
+
+	@Override
+	public String id() {
+		return ShellyDiscoveryDiy.ID;
+	}
+
+	@Override
+	protected JsonSerializer<MdnsValueDiy> getMdnsValueSerializer() {
+		return MdnsValueDiy.serializer();
+	}
+
+	@Override
+	protected Optional<MdnsValueDiy> createMdnsValue(MDnsDiscovery.MDnsEvent.ServiceResolved resolved) {
+		final var type = getShellyType(resolved);
+		if (type == null) {
+			return Optional.empty();
+		}
+
+		return Optional.of(new MdnsValueDiy(resolved.serviceName(), type));
+	}
+
+	@Override
+	protected List<OpenemsAppInstance> getInstalledAppsByDevice(UUID excludedInstance,
+			MDnsDiscovery.MDnsEvent.ServiceResolved resolved) {
+		final var shellyApps = this.appManagerUtil.getInstantiatedAppsOfApp("App.Meter.Shelly");
+		return shellyApps.stream().filter(t -> {
+			if (t.instanceId.equals(excludedInstance)) {
+				return false;
+			}
+
+			final var device = t.properties.get(AppShellyMeterDiy.Property.DEVICE.name());
+			if (device == null) {
+				return false;
+			}
+
+			final var mdnsValue = MdnsValueDiy.serializer().deserialize(device);
+			return mdnsValue.name().equals(resolved.serviceName());
+		}).toList();
+	}
+
+	private static ShellyTypeDiy getShellyType(MDnsDiscovery.MDnsEvent.ServiceResolved event) {
+		return switch (event.properties().get("app")) {
+		case "PlusPlugS" -> ShellyTypeDiy.PLUS_PLUG_S;
+		case "OutdoorPlugSG3" -> ShellyTypeDiy.OUTDOOR_PLUG_S_GEN_3;
+		case "PlugSG3" -> ShellyTypeDiy.PLUG_S_GEN_3;
+		case null, default -> null;
+		};
+	}
+}

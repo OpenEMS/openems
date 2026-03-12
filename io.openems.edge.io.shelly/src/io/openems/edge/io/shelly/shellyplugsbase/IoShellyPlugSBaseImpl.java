@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shellyplugsbase;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalFloat;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
@@ -12,8 +13,8 @@ import static java.lang.Math.round;
 
 import java.util.function.IntFunction;
 
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBaseImpl;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.slf4j.Logger;
@@ -21,22 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
-import io.openems.common.bridge.http.metric.HttpBridgeMetricService;
-import io.openems.common.bridge.http.metric.HttpBridgeMetricServiceDefinition;
-import io.openems.common.bridge.http.time.HttpBridgeTimeService;
-import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.StringUtils;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.mdns.MDnsDiscovery;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -47,12 +37,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 /**
  * Base class for shelly plugs gen2 and gen3. Implements meter values and relay.
  */
-public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent implements IoShellyPlugSBase,
-		DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
-
-	public record ShellyValidation(String shellyAppName) {
-
-	}
+public abstract class IoShellyPlugSBaseImpl extends IoGen2ShellyBaseImpl implements IoShellyPlugSBase, DigitalOutput,
+		SinglePhaseMeter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
@@ -65,15 +51,6 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	private MeterType meterType = null;
 	private SinglePhase phase = null;
 	private boolean invert = false;
-	private String baseUrl;
-	private ShellyValidation shellyValidation;
-
-	private BridgeHttp httpBridge;
-	private HttpBridgeCycleService cycleService;
-	private HttpBridgeTimeService timeService;
-	private HttpBridgeMetricService<String> metricService;
-
-	private AutoCloseable mdnsUnsubscribe;
 
 	protected IoShellyPlugSBaseImpl(//
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds, //
@@ -94,99 +71,17 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled, MeterType type,
 			SinglePhase phase, boolean invert, String ip, String mdnsName, DebugMode debugMode,
-			ShellyValidation shellyValidation) {
-		super.activate(context, id, alias, enabled);
+			boolean enableDeviceValidation) {
 		this.meterType = type;
 		this.phase = phase;
 		this.invert = invert;
-		this.httpBridge = this.getBridgeHttpFactory().get();
-		this.httpBridge.setDebugMode(debugMode);
-		if (debugMode == DebugMode.DETAILED) {
-			this.metricService = this.httpBridge.createService(HttpBridgeMetricServiceDefinition.byUrl());
-		}
 
-		this.cycleService = this.httpBridge.createService(this.getHttpBridgeCycleServiceDefinition());
-		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
-		this.shellyValidation = shellyValidation;
-
-		if (!this.isEnabled()) {
-			return;
-		}
-
-		if (!StringUtils.isNullOrBlank(ip)) {
-			this.subscribe(ip);
-			return;
-		}
-
-		if (!StringUtils.isNullOrBlank(mdnsName)) {
-			this.mdnsUnsubscribe = this.getMDnsDiscovery().subscribeService("_shelly._tcp.local.", mdnsName, event -> {
-				switch (event) {
-				case MDnsDiscovery.MDnsEvent.ServiceAdded serviceAdded -> {
-					// Do nothing, wait for resolved event
-				}
-				case MDnsDiscovery.MDnsEvent.ServiceResolved serviceResolved -> {
-					if (serviceResolved.addresses().isEmpty()) {
-						return;
-					}
-					final var dynamicIp = serviceResolved.addresses().getFirst();
-					this.unsubscribe();
-					this.subscribe(dynamicIp.getHostAddress());
-				}
-				case MDnsDiscovery.MDnsEvent.ServiceRemoved serviceRemoved -> {
-					this.unsubscribe();
-				}
-				}
-			});
-			return;
-		}
-
-		this.logWarn(this.log, "No valid IP or MDNS Name configured.");
-		this._setSlaveCommunicationFailed(true);
+		super.activate(context, id, alias, enabled, ip, mdnsName, debugMode, enableDeviceValidation);
 	}
 
 	@Override
-	@Deactivate
-	protected void deactivate() {
-		if (this.httpBridge != null) {
-			this.getBridgeHttpFactory().unget(this.httpBridge);
-			this.httpBridge = null;
-		}
-		if (this.mdnsUnsubscribe != null) {
-			try {
-				this.mdnsUnsubscribe.close();
-			} catch (Exception e) {
-				this.logWarn(this.log, "Error during MDNS unsubscribe: " + e.getMessage());
-			}
-			this.mdnsUnsubscribe = null;
-		}
-		super.deactivate();
-	}
-
-	private void subscribe(String ip) {
-		this.log.info("Subscribing to Shelly at IP {}", ip);
-		this.baseUrl = "http://" + ip;
-
-		final var validation = this.shellyValidation;
-		if (validation != null) {
-			this.timeService.subscribeJsonTime(new ValidateTimeEndpointDelayTimeProvider(),
-					BridgeHttp.create(this.baseUrl + "/rpc/Shelly.GetDeviceInfo").build(), (result, httpError) -> {
-						if (httpError != null) {
-							this._setWrongDeviceType(false);
-							return;
-						}
-						final var deviceInfo = DeviceInfo.serializer().deserialize(result.data());
-						this._setWrongDeviceType(!deviceInfo.app().equals(validation.shellyAppName()));
-					});
-		} else {
-			this._setWrongDeviceType(false);
-		}
+	protected void subscribeDataCalls() {
 		this.cycleService.subscribeJsonEveryCycle(this.baseUrl + "/rpc/Shelly.GetStatus", this::processHttpResult);
-	}
-
-	private void unsubscribe() {
-		this.baseUrl = null;
-		this.timeService.removeAllTimeEndpoints();
-		this.cycleService.removeAllCycleEndpoints();
 	}
 
 	@Override
@@ -240,12 +135,19 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 			var update = getAsJsonObject(sysInfo, "available_updates");
 			var stable = getAsOptionalJsonObject(update, "stable");
 			updatesAvailable = (stable.isPresent() && !stable.isEmpty());
-			
+
 			var relays = getAsJsonObject(response, "switch:0");
-			activePower = invert.apply(round(getAsFloat(relays, "apower")));
-			current = invert.apply(round(getAsFloat(relays, "current") * 1000));
-			voltage = round(getAsFloat(relays, "voltage") * 1000);
 			relayStatus = getAsBoolean(relays, "output");
+
+			// NOTE: Consumption data can be missing in switch object. It happens
+			// sometimes when relais was never activated since shelly restart.
+
+			Integer fallbackPowerValue = relayStatus ? null : 0;
+			activePower = getAsOptionalFloat(relays, "apower").map(v -> invert.apply(round(v)))
+					.orElse(fallbackPowerValue);
+			current = getAsOptionalFloat(relays, "current").map(v -> invert.apply(round(v * 1000)))
+					.orElse(fallbackPowerValue);
+			voltage = getAsOptionalFloat(relays, "voltage").map(v -> round(v * 1000)).orElse(null);
 
 		} catch (Exception e) {
 			this.logWarn(this.log, e.getMessage());
@@ -294,11 +196,4 @@ public abstract class IoShellyPlugSBaseImpl extends AbstractOpenemsComponent imp
 	public SinglePhase getPhase() {
 		return this.phase;
 	}
-
-	protected abstract BridgeHttpFactory getBridgeHttpFactory();
-
-	protected abstract HttpBridgeCycleServiceDefinition getHttpBridgeCycleServiceDefinition();
-
-	protected abstract MDnsDiscovery getMDnsDiscovery();
-
 }

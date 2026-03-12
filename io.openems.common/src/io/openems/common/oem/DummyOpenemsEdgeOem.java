@@ -159,6 +159,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.LoadControl.ManualRelayControl", "") //
 			.put("App.LoadControl.ThresholdControl", "") //
 			.put("App.Meter.Shelly", "") //
+			.put("App.Meter.Shelly.Meter", "") //
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.PqPlus", "") //

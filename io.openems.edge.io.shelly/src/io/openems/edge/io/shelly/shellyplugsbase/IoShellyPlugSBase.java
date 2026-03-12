@@ -1,23 +1,22 @@
 package io.openems.edge.io.shelly.shellyplugsbase;
 
+import io.openems.edge.common.channel.BooleanDoc;
+import io.openems.edge.common.channel.BooleanWriteChannel;
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import org.osgi.service.event.EventHandler;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
-import io.openems.edge.common.channel.BooleanDoc;
-import io.openems.edge.common.channel.BooleanWriteChannel;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 
 public interface IoShellyPlugSBase
-		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, IoGen2ShellyBase, EventHandler {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -52,20 +51,7 @@ public interface IoShellyPlugSBase
 		 * </ul>
 		 */
 		HAS_UPDATE(Doc.of(Level.INFO) //
-				.text("A new Firmware Update is available.")),
-		/**
-		 * Slave Communication Failed Fault.
-		 *
-		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: State
-		 * </ul>
-		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)), //
-
-		WRONG_DEVICE_TYPE(Doc.of(Level.WARNING) //
-				.translationKey(IoShellyPlugSBase.class, "IoShellyPlugSBase.WrongDeviceType")), //
-		;
+				.text("A new Firmware Update is available.")),;
 
 		private final Doc doc;
 
@@ -114,64 +100,6 @@ public interface IoShellyPlugSBase
 	 */
 	public default void setRelay(boolean value) throws OpenemsNamedException {
 		this.getRelayChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#WRONG_DEVICE_TYPE}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getWrongDeviceTypeChannel() {
-		return this.channel(ChannelId.WRONG_DEVICE_TYPE);
-	}
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#WRONG_DEVICE_TYPE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getWrongDeviceType() {
-		return this.getWrongDeviceTypeChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#WRONG_DEVICE_TYPE}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setWrongDeviceType(boolean value) {
-		this.getWrongDeviceTypeChannel().setNextValue(value);
 	}
 
 }

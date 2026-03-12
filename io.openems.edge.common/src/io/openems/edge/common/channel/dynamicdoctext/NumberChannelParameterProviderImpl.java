@@ -143,7 +143,7 @@ class NumberChannelParameterProviderImpl<V extends Number> extends ChannelParame
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new NumberChannelParameterProviderImpl<>(this.channelId, this.predicates, this.defaultText);
 	}
 

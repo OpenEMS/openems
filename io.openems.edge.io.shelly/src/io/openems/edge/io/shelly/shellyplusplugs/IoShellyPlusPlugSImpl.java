@@ -7,6 +7,8 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.OPTION
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -46,11 +48,13 @@ public class IoShellyPlusPlugSImpl extends IoShellyPlugSBaseImpl implements IoSh
 	private volatile Timedata timedata;
 
 	@Reference
+	private MDnsDiscovery mDnsDiscovery;
+	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
 	@Reference
 	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 	@Reference
-	private MDnsDiscovery mDnsDiscovery;
+	private HttpBridgeShellyService.HttpBridgeShellyServiceDefinition httpBridgeShellyServiceDefinition;
 
 	public IoShellyPlusPlugSImpl() {
 		super(//
@@ -58,16 +62,21 @@ public class IoShellyPlusPlugSImpl extends IoShellyPlugSBaseImpl implements IoSh
 				ElectricityMeter.ChannelId.values(), //
 				SinglePhaseMeter.ChannelId.values(), //
 				DigitalOutput.ChannelId.values(), //
+				IoGen2ShellyBase.ChannelId.values(), //
 				IoShellyPlugSBase.ChannelId.values(), //
 				IoShellyPlusPlugs.ChannelId.values() //
 		);
 	}
 
+	@Override
+	public String[] getSupportedShellyDeviceTypes() {
+		return new String[] { "PlusPlugS" };
+	}
+
 	@Activate
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.type(), config.phase(),
-				config.invert(), config.ip(), config.mdnsName(), config.debugMode(),
-				config.validateDevice() ? new ShellyValidation("PlusPlugS") : null);
+				config.invert(), config.ip(), config.mdnsName(), config.debugMode(), config.validateDevice());
 	}
 
 	@Override
@@ -82,18 +91,23 @@ public class IoShellyPlusPlugSImpl extends IoShellyPlugSBaseImpl implements IoSh
 	}
 
 	@Override
-	protected BridgeHttpFactory getBridgeHttpFactory() {
-		return this.httpBridgeFactory;
-	}
-
-	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
 
 	@Override
+	protected BridgeHttpFactory getHttpBridgeFactory() {
+		return this.httpBridgeFactory;
+	}
+
+	@Override
 	protected HttpBridgeCycleServiceDefinition getHttpBridgeCycleServiceDefinition() {
 		return this.httpBridgeCycleServiceDefinition;
+	}
+
+	@Override
+	protected HttpBridgeShellyService.HttpBridgeShellyServiceDefinition getHttpBridgeShellyServiceDefinition() {
+		return this.httpBridgeShellyServiceDefinition;
 	}
 
 	@Override

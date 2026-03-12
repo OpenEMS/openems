@@ -66,7 +66,7 @@ class EnumChannelParameterProviderImpl<V extends Enum<V> & OptionsEnum> extends 
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new EnumChannelParameterProviderImpl<>(this.enumClass, this.channelId, this.specificMappings,
 				this.defaultText);
 	}

@@ -74,7 +74,7 @@ class StringChannelParameterProviderImpl extends ChannelParameterProvider<String
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new StringChannelParameterProviderImpl(this.channelId, this.predicates, this.defaultText);
 	}
 

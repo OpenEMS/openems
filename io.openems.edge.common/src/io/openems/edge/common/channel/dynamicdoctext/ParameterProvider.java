@@ -5,6 +5,8 @@ import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.component.OpenemsComponent;
 
+import java.util.function.Function;
+
 public interface ParameterProvider {
 	/**
 	 * Links this parameter to this component. Must only be called once. Create a
@@ -27,7 +29,7 @@ public interface ParameterProvider {
 	 * 
 	 * @return Cloned instance
 	 */
-	public ParameterProvider clone();
+	public ParameterProvider copy();
 
 	/**
 	 * Creates a parameter that just returns the value of the given channel.
@@ -81,5 +83,17 @@ public interface ParameterProvider {
 	 */
 	public static ParameterProvider staticValue(String value) {
 		return new StaticParameterProvider(value);
+	}
+
+	/**
+	 * Creates a parameter that returns data from the component.
+	 *
+	 * @param componentClass The component class
+	 * @param function The function that is used to get the data
+	 * @param <T> The component class
+	 * @return ParameterProvider
+	 */
+	public static <T extends OpenemsComponent> ParameterProvider byComponentData(Class<T> componentClass, Function<T, String> function) {
+		return new ComponentDataParameterProvider<>(componentClass, function);
 	}
 }

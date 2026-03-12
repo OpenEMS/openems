@@ -65,7 +65,7 @@ public interface DynamicChannelDoc<V> {
 			this.addFactory(doc -> {
 				doc.onInit(channel -> {
 					var providerInstances = Arrays.stream(parameterProviders)
-							.map(ParameterProvider::clone)
+							.map(ParameterProvider::copy)
 							.toArray(ParameterProvider[]::new);
 
 					var dynamicDocText = new DynamicDocText(text, providerInstances);

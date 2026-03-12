@@ -1,4 +1,4 @@
-package io.openems.edge.app.meter.shelly.jsonrpc;
+package io.openems.edge.app.meter.shelly.discovery.jsonrpc;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,18 +8,18 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.utils.JsonUtils;
 
-public final class GetOptions<T> implements EndpointRequestType<GetOptions.Request, GetOptions.Response<T>> {
-	public static final String METHOD = "getOptions";
+public final class GetDiscoveredDevices<T> implements EndpointRequestType<GetDiscoveredDevices.Request, GetDiscoveredDevices.Response<T>> {
+	public static final String METHOD = "getDiscoveredDevices";
 
 	private final JsonSerializer<T> valueSerializer;
 
-	public GetOptions(JsonSerializer<T> valueSerializer) {
+	public GetDiscoveredDevices(JsonSerializer<T> valueSerializer) {
 		this.valueSerializer = valueSerializer;
 	}
 
 	@Override
 	public String getMethod() {
-		return GetOptions.METHOD;
+		return GetDiscoveredDevices.METHOD;
 	}
 
 	@Override

@@ -1,76 +1,58 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
-import io.openems.common.channel.Level;
-import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.common.channel.Unit;
+import io.openems.common.types.OpenemsType;
 
-public interface IoShellyPro3Em extends OpenemsComponent {
+import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerDoc;
+import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
+
+public interface IoShellyPro3Em extends IoGen2ShellyBase {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
-		 * Phase Sequence Error.
-		 *
-		 * <p>
-		 * Represents an error indicating if the sequence of zero-crossing events is
-		 * Phase A followed by Phase C followed by Phase B. The regular succession of
-		 * these zero-crossing events is Phase A followed by Phase B followed by Phase
-		 * C.
+		 * Apparent Power.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: State
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE}
 		 * </ul>
 		 */
-		PHASE_SEQUENCE_ERROR(Doc.of(Level.FAULT) //
-				.text("Incorrect phase sequence. Expected A-B-C but found A-C-B.")),
+		APPARENT_POWER(new IntegerDoc()//
+				.unit(Unit.VOLT_AMPERE)), //
 
 		/**
-		 * Power Meter Failure.
-		 *
-		 * <p>
-		 * Represents a failure in the power meter, potentially leading to inaccurate or
-		 * missing measurements.
+		 * Apparent Power L1.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: State
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE}
 		 * </ul>
 		 */
-		POWER_METER_FAILURE(Doc.of(Level.FAULT) //
-				.text("Power meter failure; unable to record or measure power accurately.")),
+		APPARENT_POWER_L1(new IntegerDoc()//
+				.unit(Unit.VOLT_AMPERE)), //
 
 		/**
-		 * No Load Error.
-		 *
-		 * <p>
-		 * Indicates that the power meter is in a no-load condition and is not
-		 * accumulating the registered energies, therefore, the measured values can be
-		 * discarded.
+		 * Apparent Power L2.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: State
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE}
 		 * </ul>
 		 */
-		NO_LOAD(Doc.of(Level.FAULT) //
-				.text("No load condition detected; the power meter is not accumulating energy.")),
+		APPARENT_POWER_L2(new IntegerDoc()//
+				.unit(Unit.VOLT_AMPERE)), //
 
 		/**
-		 * Slave Communication Failed Fault.
-		 *
-		 * <p>
-		 * Indicates a failure in communication with a slave device, which might affect
-		 * system operations.
+		 * Apparent Power L3.
 		 *
 		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: State
+		 * <li>Type: {@link OpenemsType#INTEGER}
+		 * <li>Unit: {@link Unit#VOLT_AMPERE}
 		 * </ul>
 		 */
-		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT) //
-				.text("Communication with slave device failed."));
+		APPARENT_POWER_L3(new IntegerDoc()//
+				.unit(Unit.VOLT_AMPERE)); //
 
 		private final Doc doc;
 
@@ -82,36 +64,6 @@ public interface IoShellyPro3Em extends OpenemsComponent {
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the StateChannel representing communication failure with a slave
-	 *         device.
-	 */
-	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
-
-	/**
-	 * Gets the current state of the Slave Communication Failed channel.
-	 *
-	 * @return the Channel {@link Value} indicating whether communication has
-	 *         failed.
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 *
-	 * @param value the next value indicating communication failure state.
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
 
 }
