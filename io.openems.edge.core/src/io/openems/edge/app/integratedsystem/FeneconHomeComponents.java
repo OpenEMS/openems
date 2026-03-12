@@ -665,16 +665,16 @@ public final class FeneconHomeComponents {
 	 * @return the {@link DependencyDeclaration}
 	 */
 	public static DependencyDeclaration sohCycle() {
-		return new DependencyDeclaration("ESS_SOH_CYCLE",
-				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING,
-				DependencyDeclaration.UpdatePolicy.NEVER,
-				DependencyDeclaration.DeletePolicy.IF_MINE,
-				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES,
-				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED,
-				DependencyDeclaration.AppDependencyConfig.create()
-						.setAppId(AppSohCycle.APP_ESS_SOH_CYCLE)
-						.setProperties(JsonUtils.buildJsonObject()
-								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0")
+		return new DependencyDeclaration("ESS_SOH_CYCLE", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.NEVER, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId(AppSohCycle.APP_ESS_SOH_CYCLE) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0") //
 								.build())
 						.build());
 	}

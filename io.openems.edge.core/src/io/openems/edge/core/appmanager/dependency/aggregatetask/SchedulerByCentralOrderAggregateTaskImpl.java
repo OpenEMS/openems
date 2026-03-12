@@ -5,15 +5,19 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,9 +29,16 @@ import com.google.gson.JsonNull;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppManagerUtil;
@@ -42,11 +53,13 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 		service = { //
 				AggregateTask.class, //
 				SchedulerByCentralOrderAggregateTask.class, //
-				SchedulerByCentralOrderAggregateTaskImpl.class //
+				SchedulerByCentralOrderAggregateTaskImpl.class, //
+				ComponentJsonApi.class //
 		}, //
 		scope = ServiceScope.SINGLETON //
 )
-public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCentralOrderAggregateTask {
+public class SchedulerByCentralOrderAggregateTaskImpl
+		implements SchedulerByCentralOrderAggregateTask, ComponentJsonApi {
 
 	private record SchedulerByCentralOrderExecutionConfiguration(//
 			List<SchedulerComponent> insertOrder //
@@ -234,7 +247,10 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 		@Override
 		public int compare(SchedulerComponent o1, SchedulerComponent o2) {
-			return this.predefinedOrder.compare(o1, o2);
+			return this.predefinedOrder.thenComparing(SchedulerComponent::id) //
+					.thenComparing(SchedulerComponent::factoryId) //
+					.thenComparing(SchedulerComponent::createdByAppId, Comparator.nullsLast(String::compareTo)) //
+					.compare(o1, o2);
 		}
 
 		/**
@@ -331,10 +347,39 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var finalOrder = new ArrayList<>(schedulerIds);
-		for (final var schedulerComponent : handledIds) {
-			final var lower = handledIds.lower(schedulerComponent);
-			final var higher = handledIds.higher(schedulerComponent);
+		this.updateSchedulerOrder(user, schedulerIds, handledIds, this.getIdsToRemove(otherAppConfigurations));
+	}
+
+	@Override
+	public void fixSchedulerOrder(User user) throws OpenemsNamedException {
+		this.fixSchedulerOrder(user, Collections.emptyList());
+	}
+
+	@Override
+	public void fixSchedulerOrder(User user, List<SchedulerComponent> additionalSchedulerComponents)
+			throws OpenemsNamedException {
+		final var allSchedulerComponents = StreamSupport
+				.stream(this.appManagerUtil
+						.appConfigs(this.appManagerUtil.getInstantiatedApps(), openemsAppInstance -> true)
+						.spliterator(), false)
+				.map(t -> t.getValue().getConfiguration(SchedulerByCentralOrderAggregateTask.class)) //
+				.filter(Objects::nonNull) //
+				.flatMap(t -> t.componentOrder().stream()) //
+				.collect(Collectors.toCollection(() -> new TreeSet<>(this.order)));
+
+		allSchedulerComponents.addAll(additionalSchedulerComponents);
+
+		this.updateSchedulerOrder(user, this.componentUtil.getSchedulerIds(), allSchedulerComponents,
+				Collections.emptyList());
+	}
+
+	private void updateSchedulerOrder(User user, List<String> currentSchedulerOrder,
+			NavigableSet<SchedulerComponent> allSchedulerComponents, List<String> idsToRemove)
+			throws OpenemsNamedException {
+		final var finalOrder = new ArrayList<>(currentSchedulerOrder);
+		for (final var schedulerComponent : allSchedulerComponents) {
+			final var lower = allSchedulerComponents.lower(schedulerComponent);
+			final var higher = allSchedulerComponents.higher(schedulerComponent);
 			final var iLower = lower == null ? -1 : finalOrder.indexOf(lower.id());
 			final var i = finalOrder.indexOf(schedulerComponent.id());
 			final var iHigher = higher == null ? -1 : finalOrder.indexOf(higher.id());
@@ -353,7 +398,6 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var idsToRemove = this.getIdsToRemove(otherAppConfigurations);
 		finalOrder.removeAll(idsToRemove);
 
 		this.componentUtil.setSchedulerComponentIds(user, finalOrder);
@@ -498,6 +542,21 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					}
 				}) //
 				.collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
+	}
+
+	@Override
+	public String id() {
+		return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(EndpointRequestType.ofEmpty("fixScheduler"), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			this.fixSchedulerOrder(call.get(EdgeKeys.USER_KEY));
+			return EmptyObject.INSTANCE;
+		});
 	}
 
 }

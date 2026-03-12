@@ -119,7 +119,7 @@ public abstract class AbstractOpenemsAppWithProps<//
 	) throws OpenemsNamedException {
 		return this.getString(map, Language.DEFAULT, property);
 	}
-	
+
 	protected UUID getUuid(//
 			final Map<PROPERTY, JsonElement> map, //
 			final PROPERTY property //
