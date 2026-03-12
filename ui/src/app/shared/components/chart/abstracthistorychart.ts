@@ -1147,7 +1147,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                                     this.initializeChart();
                                 }
                                 resolve(responseToReturn);
-                            }).catch(() => {
+                            }).catch((error) => {
+                                if (error instanceof JsonrpcResponseError) {
+                                    this.errorResponse = error;
+                                }
                                 this.initializeChart();
                             });
                     })

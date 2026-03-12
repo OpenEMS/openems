@@ -2,7 +2,6 @@ package io.openems.edge.evse.chargepoint.hardybarth;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
-import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;

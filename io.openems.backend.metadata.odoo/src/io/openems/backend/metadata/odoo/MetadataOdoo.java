@@ -100,7 +100,8 @@ import io.openems.common.utils.JsonUtils;
 		name = "Metadata.Odoo", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		service = { AppCenterMetadata.class, AppCenterMetadata.EdgeData.class, AppCenterMetadata.UiData.class,
-				Metadata.class, Mailer.class, EventHandler.class, DebugLoggable.class }, immediate = true //
+				Metadata.class, Mailer.class, EventHandler.class, DebugLoggable.class }, //
+		immediate = true //
 )
 @EventTopics({ //
 		Edge.Events.ALL_EVENTS //

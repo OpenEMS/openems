@@ -8,7 +8,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
@@ -25,9 +24,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
-import io.openems.edge.core.appmanager.dependency.Task;
-import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
@@ -558,8 +554,7 @@ public final class FeneconHomeComponents {
 	 * 
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration stateLed(String ioId)
-			throws OpenemsNamedException {
+	public static DependencyDeclaration stateLed(String ioId) throws OpenemsNamedException {
 
 		return new DependencyDeclaration("STATE_LED", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
