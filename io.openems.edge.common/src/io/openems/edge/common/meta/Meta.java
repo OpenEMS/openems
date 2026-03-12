@@ -100,7 +100,19 @@ public interface Meta extends ModbusSlave {
 		 * <li>Unit: Watt
 		 * </ul>
 		 */
-		MAXIMUM_GRID_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		MAXIMUM_GRID_FEED_IN_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(HIGH)), //
+		/**
+		 * Grid-Buy Soft-Limit.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Integer
+		 * <li>Unit: Watt
+		 * </ul>
+		 */
+		GRID_BUY_SOFT_LIMIT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT) //
 				.persistencePriority(HIGH)) //
 		;

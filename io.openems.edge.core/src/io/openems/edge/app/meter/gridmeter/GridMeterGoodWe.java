@@ -1,6 +1,5 @@
 package io.openems.edge.app.meter.gridmeter;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 

@@ -2,7 +2,6 @@ package io.openems.edge.app.meter.gridmeter;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -71,10 +70,10 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 		METER_ID(AppDef.componentId("meter0")), //
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		ALIAS(alias()), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setDefaultValue(1) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setDefaultValue(1)//
+				.setAutoGenerateField(false)//
 		));
 
 		private final AppDef<? super GridMeterKdk, ? super Property, ? super BundleParameter> def;
