@@ -3,7 +3,7 @@ import { Injectable, WritableSignal, signal } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 import { ChannelAddress, Edge, Service } from "../../shared";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export abstract class DataService {
 
     /** Used to retrieve values */

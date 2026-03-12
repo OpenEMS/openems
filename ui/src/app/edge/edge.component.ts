@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy, OnInit } from "@angular/core";
+import { Component, effect, OnDestroy } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController, ViewWillLeave } from "@ionic/angular";
 import { Edge, Service, Websocket } from "src/app/shared/shared";
@@ -16,7 +16,7 @@ import { UserService } from "../shared/service/user.service";
     `,
     standalone: false,
 })
-export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
+export class EdgeComponent implements OnDestroy, ViewWillLeave {
 
     protected latestIncident: { message: string | null, id: string } | null = null;
     private edge: Edge | null = null;
@@ -43,13 +43,11 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
         });
     }
 
-    public async ngOnInit() {
+    async ionViewWillEnter() {
         const edgeId = this.routeService.getRouteParam<string>("edgeId");
         await this.service.updateCurrentEdge(edgeId);
-    }
-
-    ionViewWillEnter() {
-        this.ngOnInit();
+        const edge = this.service.currentEdge();
+        await this.pagination.subscribeEdge(edge, this.websocket);
     }
 
     public ionViewWillLeave() {
@@ -61,6 +59,5 @@ export class EdgeComponent implements OnDestroy, ViewWillLeave, OnInit {
         if (!this.edge) {
             return;
         }
-        this.edge.unsubscribeAllChannels(this.websocket);
     }
 }
