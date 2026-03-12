@@ -147,13 +147,13 @@ public class GetEdgesRequest extends JsonrpcRequest {
 							isOnline.isPresent(), //
 							isOnline.getOrDefault(false));
 				}, obj -> JsonUtils.buildJsonObject() //
-						.add("producttype", obj.productTypes().stream() //
+						.onlyIf(!obj.productTypes().isEmpty(), b -> b.add("producttype", obj.productTypes().stream() //
 								.map(JsonPrimitive::new) //
-								.collect(toJsonArray()))
-						.add("sumState", obj.sumStates().stream() //
+								.collect(toJsonArray())))
+						.onlyIf(!obj.sumStates().isEmpty(), b -> b.add("sumState", obj.sumStates().stream() //
 								.map(Level::name) //
 								.map(JsonPrimitive::new) //
-								.collect(toJsonArray()))
+								.collect(toJsonArray())))
 						.onlyIf(obj.orderState() != null, b -> {
 							b.add("orderState", OrderState.serializer().serialize(obj.orderState()));
 						}) //

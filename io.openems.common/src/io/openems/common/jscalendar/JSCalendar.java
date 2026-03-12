@@ -1050,33 +1050,30 @@ public class JSCalendar<PAYLOAD> {
 		 */
 		public static JsonSerializer<RecurrenceRule> serializer() {
 			return jsonObjectSerializer(RecurrenceRule.class, //
-					json -> {
-						return new RecurrenceRule(//
-								json.getEnum("frequency", RecurrenceFrequency.class), //
-								json.getOptionalLocalDate("until").orElse(null), //
-								json.getNullableJsonArrayPath("byDay") //
-										.mapToOptional(arr -> arr.getAsImmutableSortedSet(//
-												RecurrenceRule::deserializeByDayElement, //
-												Comparator.comparing(NDay::day)))//
-										.orElse(ImmutableSortedSet.of())); //
-					}, obj -> {
-						return buildJsonObject() //
-								.addPropertyIfNotNull("frequency", obj.frequency().name().toLowerCase()) //
-								.addPropertyIfNotNull("until", obj.until()) //
-								.onlyIf(!obj.byDay.isEmpty(), j -> {
-									if (obj.byDay.stream().allMatch(nd -> nd.nthOfPeriod() == null)) {
-										j.add("byDay", dayOfWeekSerializer().toSetSerializer().serialize(//
-												obj.byDay.stream()//
-														.map(NDay::day)//
-														.collect(ImmutableSortedSet.toImmutableSortedSet(//
-																Comparator.naturalOrder()//
-										))));
-									} else {
-										j.add("byDay", nDaySerializer().toSetSerializer().serialize(obj.byDay));
-									}
-								}) //
-								.build();
-					});
+					json -> new RecurrenceRule(//
+							json.getEnum("frequency", RecurrenceFrequency.class), //
+							json.getOptionalLocalDate("until").orElse(null), //
+							json.getNullableJsonArrayPath("byDay") //
+									.mapToOptional(arr -> arr.getAsImmutableSortedSet(//
+											RecurrenceRule::deserializeByDayElement, //
+											Comparator.comparing(NDay::day)))//
+									.orElse(ImmutableSortedSet.of())), //
+					obj -> buildJsonObject() //
+							.addPropertyIfNotNull("frequency", obj.frequency().name().toLowerCase()) //
+							.addPropertyIfNotNull("until", obj.until()) //
+							.onlyIf(!obj.byDay.isEmpty(), j -> {
+								if (obj.byDay.stream().allMatch(nd -> nd.nthOfPeriod() == null)) {
+									j.add("byDay", dayOfWeekSerializer().toSetSerializer().serialize(//
+											obj.byDay.stream()//
+													.map(NDay::day)//
+													.collect(ImmutableSortedSet.toImmutableSortedSet(//
+															Comparator.naturalOrder()//
+									))));
+								} else {
+									j.add("byDay", nDaySerializer().toSetSerializer().serialize(obj.byDay));
+								}
+							}) //
+							.build());
 		}
 
 		private static final Map<String, DayOfWeek> STRING_TO_DAY = Map.of(//
@@ -1094,12 +1091,10 @@ public class JSCalendar<PAYLOAD> {
 						.collect(Collectors.toUnmodifiableMap(Map.Entry::getValue, Map.Entry::getKey));
 
 		private static JsonSerializer<DayOfWeek> dayOfWeekSerializer() {
-			return jsonSerializer(//
-					DayOfWeek.class, //
+			return jsonSerializer(DayOfWeek.class, //
 					json -> json.getAsStringParsed(//
 							RecurrenceRule::dayOfWeekEnumConverter, //
-							() -> new StringParser.ExampleValues<>("mo", MONDAY)//
-					), //
+							() -> new StringParser.ExampleValues<>("mo", MONDAY)), //
 					obj -> new JsonPrimitive(dayOfWeekStringConverter(obj))//
 			);
 		}
@@ -1112,15 +1107,13 @@ public class JSCalendar<PAYLOAD> {
 				// String -> "mo"
 				return new NDay(dayOfWeekEnumConverter(el.getAsString()), null);
 			}
-
 		}
 
 		protected static JsonSerializer<NDay> nDaySerializer() {
 			return jsonObjectSerializer(NDay.class, //
 					json -> new NDay(//
 							dayOfWeekEnumConverter(json.getString("day")), //
-							json.getOptionalInt("nthOfPeriod").orElse(null) //
-					), //
+							json.getOptionalInt("nthOfPeriod").orElse(null)), //
 					obj -> {
 						// If nthOfPeriod null serialize as String
 						if (obj.nthOfPeriod() == null) {

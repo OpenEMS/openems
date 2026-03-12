@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -20,12 +21,25 @@ public interface JsonElementPathNullable {
 	 * null otherwise returns null.
 	 * 
 	 * @param <T>    the type of the mapping result
-	 * @param mapper the mapper to convert the non-null {@link JsonArrayPath} to a
+	 * @param mapper the mapper to convert the non-null {@link JsonElementPath} to a
 	 *               result object
 	 * @return the result of the mapper function if the current value is not null
 	 *         otherwise null
 	 */
 	public <T> T mapIfPresent(Function<JsonElementPath, T> mapper);
+
+	/**
+	 * Maps the current value using the provided mapper if the current value is not
+	 * null otherwise returns an empty {@link Optional}.
+	 * 
+	 * @param <T>    the type of the mapping result
+	 * @param mapper the mapper to convert the non-null {@link JsonElementPath} to a
+	 *               result object
+	 * @return the result of the mapper function wrapped in an {@link Optional}
+	 */
+	public default <T> Optional<T> mapIfPresentOptional(Function<JsonElementPath, T> mapper) {
+		return Optional.ofNullable(this.mapIfPresent(mapper));
+	}
 
 	/**
 	 * Gets the current {@link JsonElementPathNullable} as a

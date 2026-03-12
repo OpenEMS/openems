@@ -7,7 +7,6 @@ import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsEnum;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOptional;
 import static io.openems.backend.metadata.odoo.odoo.OdooUtils.getAsOrElse;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.common.utils.JsonUtils.getAsJsonElement;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalBoolean;
 import static io.openems.common.utils.JsonUtils.getAsOptionalInt;
@@ -65,9 +64,7 @@ import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.ObjectUtils;
 
@@ -1583,68 +1580,6 @@ public class OdooHandler {
 								setting.lastSumStateNotification()));
 			}
 		}
-	}
-
-	/**
-	 * Gets the Edges of the given user matching the {@link PaginationOptions}.
-	 *
-	 * @param user              the current {@link MyUser}
-	 * @param paginationOptions the {@link PaginationOptions}
-	 * @return the edges
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonObject> getEdges(User user, PaginationOptions paginationOptions) {
-		var request = buildJsonObject() //
-				.add("params", buildJsonObject() //
-						.addProperty("external_uid", user.getUserId()) //
-						.addProperty("page", paginationOptions.getPage()) //
-						.addProperty("limit", paginationOptions.getLimit()) //
-						.add("query", getAsJsonElement(paginationOptions.getQuery()))
-						.onlyIf(paginationOptions.getSearchParams() != null,
-								b -> b.add("searchParams", paginationOptions.getSearchParams().toJson()))//
-						.build()) //
-				.build();
-
-		return this.executeAdminRequest(session -> {
-			return this.executor.submit("getEdges", () -> {
-				try {
-					return getAsJsonObject(
-							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edges",
-									"session_id=" + session, request).result);
-				} catch (OpenemsNamedException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		});
-	}
-
-	/**
-	 * Gets the edge with the {@link Role} of the user.
-	 *
-	 * @param user   the current {@link MyUser}
-	 * @param edgeId the id of the edge
-	 * @return the edge with the role of the user
-	 * @throws OpenemsNamedException on error
-	 */
-	public CompletableFuture<JsonObject> getEdgeWithRole(User user, String edgeId) {
-		var request = buildJsonObject() //
-				.add("params", buildJsonObject() //
-						.addProperty("external_uid", user.getUserId()) //
-						.addProperty("edge_id", edgeId) //
-						.build()) //
-				.build();
-
-		return this.executeAdminRequest(session -> {
-			return this.executor.submit("getEdgeWithRole", () -> {
-				try {
-					return getAsJsonObject(
-							OdooUtils.sendJsonrpcRequest(this.credentials.url() + "/openems_backend/get_edge_with_role",
-									"session_id=" + session, request).result);
-				} catch (OpenemsNamedException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		});
 	}
 
 	/**

@@ -458,6 +458,24 @@ public interface JsonElementPath extends JsonPath {
 	public boolean isNumber();
 
 	/**
+	 * Checks if the current value is a {@link String}. Do only use this method in
+	 * combination with {@link #multiple(List)} inside the {@link Case#isApplicable}
+	 * method.
+	 *
+	 * @return true if the current value is a {@link String}
+	 */
+	public boolean isString();
+
+	/**
+	 * Checks if the current value is a {@link Boolean}. Do only use this method in
+	 * combination with {@link #multiple(List)} inside the {@link Case#isApplicable}
+	 * method.
+	 *
+	 * @return true if the current value is a {@link Boolean}
+	 */
+	public boolean isBoolean();
+
+	/**
 	 * Serializes this object based on the provided subtypes.
 	 * 
 	 * @param <I>             the type of the items to use for serializing each
