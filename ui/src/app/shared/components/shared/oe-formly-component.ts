@@ -93,7 +93,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         const edge = await service.getCurrentEdge();
         AssertionUtils.assertIsDefined(edge);
 
-        this.dataService.getValues(channelAddresses, edge);
+        this.dataService.subscribeChannels(channelAddresses, edge);
         this.fetchCurrentData(service);
     }
 

@@ -1,18 +1,17 @@
-<!-- SoH Status Banner - shows when SoH cycle is running without error -->
-@if (anySohCycleRunningWithoutError) {
-<ion-grid id="SOH_STATUS_BANNER">
-  <ion-text id="SOH_INFO_TEXT"
-    >
-    <i>{{ 'STORAGE.ADMIN_MODAL.SOH.CAPACITY_MEASURING' | translate }}</i>
-  </ion-text>
-</ion-grid>
-
+@switch (anySohCycleRunningState()) {
+  @case ("error") {
+    <ion-grid id="SOH_ERROR_BANNER">
+      <ion-text id="SOH_ERROR_TEXT">
+        <strong>{{ "STORAGE.ADMIN_MODAL.SOH.ERROR" | translate }}</strong>
+      </ion-text>
+    </ion-grid>
+  }
+  @case ("success") {
+    <ion-grid id="SOH_STATUS_BANNER">
+      <ion-text id="SOH_INFO_TEXT">
+        <i>{{ "STORAGE.ADMIN_MODAL.SOH.CAPACITY_MEASURING" | translate }}</i>
+      </ion-text>
+    </ion-grid>
+  }
+  @default {}
 }
-<!-- SoH Error Banner - shows when SoH cycle is running with error -->
- @if (anySohCycleRunningWithError){
-  <ion-grid id="SOH_ERROR_BANNER">
-    <ion-text id="SOH_ERROR_TEXT" >
-      <strong>{{ 'STORAGE.ADMIN_MODAL.SOH.ERROR' | translate }}</strong>
-    </ion-text>
-  </ion-grid>
- }

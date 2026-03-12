@@ -104,7 +104,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             this.config = config;
 
             // Initialize SoH cycle state tracking
-            this.sohDeterminationService.initializeSohTracking(this.edge, config);
+            this.sohDeterminationService.initializeSohTracking(config, this.edge);
 
             this.essComponents = this.config
                 .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")

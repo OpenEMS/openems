@@ -1,7 +1,8 @@
-import { computed, Injectable, OnDestroy, Signal, signal } from "@angular/core";
+import { computed, effect, inject, Injectable, Injector, OnDestroy, Signal, signal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject, Subscription, takeUntil } from "rxjs";
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { Subject } from "rxjs";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import de from "../i18n/de.json";
 import en from "../i18n/en.json";
@@ -53,32 +54,33 @@ export class SohDeterminationService implements OnDestroy {
     private readonly runningWithoutErrorSignals = new Map<string, Signal<boolean>>();
     private readonly runningWithErrorSignals = new Map<string, Signal<boolean>>();
     private readonly capacityMeasuredSignals = new Map<string, Signal<boolean>>();
-    private readonly falseSignal = computed(() => false);
     private readonly stopOnDestroy = new Subject<void>();
-    private trackingSubscription: Subscription | null = null;
-    private trackingEdgeId: string | null = null;
 
-    constructor(
-        private readonly service: Service,
-        private readonly websocket: Websocket,
-        private readonly translate: TranslateService,
-    ) {
-        // Initialize translations once when service is created
-        this.initializeTranslations();
+    private readonly translate = inject(TranslateService);
+    private readonly dataService = inject(DataService);
+    private readonly injector = inject(Injector);
+    private readonly service = inject(Service);
+
+    constructor() {
+        Language.normalizeAdditionalTranslationFiles({ de, en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                this.translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
+
+        effect(() => {
+            const val = this.dataService.currentValue();
+            this.setSohStates(val);
+        }, { injector: this.injector });
     }
 
     /**
      * Initializes SoH cycle state tracking for the given edge and config
      */
-    public initializeSohTracking(edge: Edge, config: EdgeConfig): void {
-        const nextEdgeId = String(edge?.id ?? "");
-        if (this.trackingSubscription != null && this.trackingEdgeId === nextEdgeId) {
+    public initializeSohTracking(config: EdgeConfig | null, edge: Edge | null): void {
+
+        if (config == null || edge == null) {
             return;
-        }
-        if (this.trackingSubscription != null) {
-            this.trackingSubscription.unsubscribe();
-            this.trackingSubscription = null;
-            this.trackingEdgeId = null;
         }
 
         const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? [])
@@ -101,39 +103,33 @@ export class SohDeterminationService implements OnDestroy {
             );
         }
 
-        edge.subscribeChannels(this.websocket, "soh-state-service", channelAddresses);
+        this.dataService.subscribeChannels(channelAddresses, edge);
+    }
 
-        this.trackingEdgeId = nextEdgeId;
-        this.trackingSubscription = edge.currentData.pipe(
-            takeUntil(this.stopOnDestroy),
-        ).subscribe(currentData => {
-            const newStates = new Map<string, SohCycleState>();
+    public async setSohStates(currentData: CurrentData) {
+        const config = await this.service.getConfig();
+        const essSohCycleCtrl = (config.getComponentsByFactory("Controller.Ess.SoH.Cycle") ?? [])
+            .filter(component => component.isEnabled);
+        const newStates = new Map<string, SohCycleState>();
 
-            for (const controller of essSohCycleCtrl) {
-                const essId = controller.properties?.["ess.id"] || controller.id;
-                const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"];
-                const stateMachine = currentData.channel[controller.id + "/StateMachine"];
-                const sohPercent = currentData.channel[controller.id + "/SohPercent"];
-                const measuredCapacity = currentData.channel[controller.id + "/MeasuredCapacity"];
-                const isBatteryBalanced = Number(currentData.channel[controller.id + "/IsBatteryBalanced"]) === 1;
-                const isMeasured = Number(currentData.channel[controller.id + "/IsMeasured"]) === 1;
-                const hasError = stateMachine === SohCycleStateMachine.ERROR_ABORT;
+        for (const controller of essSohCycleCtrl) {
+            const essId = controller.properties?.["ess.id"] || controller.id;
+            const stateMachine = currentData.allComponents[controller.id + "/StateMachine"];
 
-                newStates.set(essId, {
-                    essId,
-                    controllerId: controller.id,
-                    isRunning: isRunning === 1,
-                    stateMachine,
-                    hasError,
-                    sohPercent,
-                    measuredCapacity,
-                    isBatteryBalanced,
-                    isMeasured,
-                });
-            }
+            newStates.set(essId, {
+                essId: essId,
+                controllerId: controller.id,
+                isRunning: currentData.allComponents[controller.id + "/_PropertyIsRunning"] === 1,
+                stateMachine: stateMachine,
+                hasError: stateMachine === SohCycleStateMachine.ERROR_ABORT,
+                sohPercent: currentData.allComponents[controller.id + "/SohPercent"],
+                measuredCapacity: currentData.allComponents[controller.id + "/MeasuredCapacity"],
+                isBatteryBalanced: Number(currentData.allComponents[controller.id + "/IsBatteryBalanced"]) === 1,
+                isMeasured: Number(currentData.allComponents[controller.id + "/IsMeasured"]) === 1,
+            });
+        }
 
-            this.sohStates.set(newStates);
-        });
+        this.sohStates.set(newStates);
     }
 
     public getIsSohCycleRunningSignal(essId: string): Signal<boolean> {
@@ -185,10 +181,6 @@ export class SohDeterminationService implements OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this.trackingSubscription) {
-            this.trackingSubscription.unsubscribe();
-            this.trackingSubscription = null;
-        }
         this.runningSignals.clear();
         this.runningWithoutErrorSignals.clear();
         this.runningWithErrorSignals.clear();
@@ -216,14 +208,6 @@ export class SohDeterminationService implements OnDestroy {
             cache.set(essId, signal);
         }
         return signal;
-    }
-
-    private initializeTranslations(): void {
-        Language.normalizeAdditionalTranslationFiles({ de, en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                this.translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
     }
 
 }

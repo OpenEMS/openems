@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, signal, SimpleChanges } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input, OnChanges, signal, SimpleChanges } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -38,15 +38,13 @@ export class SohCycleSectionComponent implements OnChanges {
     @Input({ required: true }) public edge!: any; // Edge instance for updates
 
     public readonly Converter = Converter;
-    private readonly essId = signal<string>("");
 
-    constructor(
-        protected readonly sohDeterminationService: SohDeterminationService,
-        private readonly alertCtrl: AlertController,
-        private readonly translate: TranslateService,
-        private readonly service: Service,
-        private readonly websocket: Websocket,
-    ) { }
+    private readonly essId = signal<string>("");
+    private sohDeterminationService = inject(SohDeterminationService);
+    private alertCtrl = inject(AlertController);
+    private translate = inject(TranslateService);
+    private service = inject(Service);
+    private websocket = inject(Websocket);
 
     public get isSohCycleLoading(): boolean {
         return this.sohCycleController?.["isRunning"] === null;

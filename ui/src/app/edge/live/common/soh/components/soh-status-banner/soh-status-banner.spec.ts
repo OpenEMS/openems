@@ -1,12 +1,13 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { TranslateModule } from "@ngx-translate/core";
-import { SohDeterminationService } from "../../service/soh-determination.service";
 
+import { RouteService } from "src/app/shared/service/route.service";
+import { Service } from "src/app/shared/shared";
+import { SohDeterminationService } from "../../service/soh-determination.service";
 import { SohStatusBannerComponent } from "./soh-status-banner";
 
 describe("SohStatusBannerComponent", () => {
     let fixture: ComponentFixture<SohStatusBannerComponent>;
-    let component: SohStatusBannerComponent;
     let sohDeterminationServiceSpy: jasmine.SpyObj<SohDeterminationService>;
 
     beforeEach(async () => {
@@ -21,22 +22,21 @@ describe("SohStatusBannerComponent", () => {
                 TranslateModule.forRoot(),
             ],
             providers: [
+                RouteService,
+                Service,
                 { provide: SohDeterminationService, useValue: sohDeterminationServiceSpy },
             ],
         }).compileComponents();
 
         fixture = TestBed.createComponent(SohStatusBannerComponent);
-        component = fixture.componentInstance;
     });
 
     it("delegates both getters to SohDeterminationService", () => {
         sohDeterminationServiceSpy.anySohCycleRunningWithoutError.and.returnValue(true);
         sohDeterminationServiceSpy.anySohCycleRunningWithError.and.returnValue(false);
+        fixture.detectChanges();
 
-        expect(component.anySohCycleRunningWithoutError).toBeTrue();
         expect(sohDeterminationServiceSpy.anySohCycleRunningWithoutError).toHaveBeenCalledTimes(1);
-
-        expect(component.anySohCycleRunningWithError).toBeFalse();
         expect(sohDeterminationServiceSpy.anySohCycleRunningWithError).toHaveBeenCalledTimes(1);
     });
 
