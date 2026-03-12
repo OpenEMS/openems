@@ -215,6 +215,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// Remove deleted components from the scheduler
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedComponentIds);
+		this.appManager._setAppsNotSyncedWithBackend(true);
 	}
 
 	private void clusterApp(User user, final ArrayList<OpenemsAppInstance> instantiatedApps,
