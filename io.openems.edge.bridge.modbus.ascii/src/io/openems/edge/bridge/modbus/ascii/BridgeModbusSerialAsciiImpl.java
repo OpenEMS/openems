@@ -268,7 +268,7 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 		@Override
 		public void disconnected(AbstractSerialConnection port) {
 			BridgeModbusSerialAsciiImpl.this.log.warn("[{}] Serial connection disconnected", id());
-			incrementCommunicationErrors();
+			BridgeModbusSerialAsciiImpl.this.incrementCommunicationErrors();
 		}
 
 		/**
