@@ -58,6 +58,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Creates a new {@link Builder}.
+	 *
+	 * @return a new Builder instance
+	 */
 	public static Builder create() {
 		return new Builder();
 	}

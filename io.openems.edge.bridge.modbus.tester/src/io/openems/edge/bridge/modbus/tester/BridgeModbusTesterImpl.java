@@ -104,6 +104,8 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Called by the FC3ReadRegistersTask after each execution attempt.
+	 *
+	 * @param state the execution state
 	 */
 	private void onExecute(ExecuteState state) {
 		if (this.config == null) {
@@ -177,8 +179,15 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds the expected FC3 request frame depending on the protocol type.
-	 * <p>
-	 * The FC3 request PDU is: {@code [unitId][FC=03][startAddress:2][registerCount:2]}.
+	 *
+	 * <p>The FC3 request PDU is: {@code [unitId][FC=03][startAddress:2][registerCount:2]}.
+	 *
+	 * @param protocolType  the Modbus protocol type
+	 * @param unitId        the Modbus unit ID
+	 * @param fc            the function code
+	 * @param startAddress  the register start address
+	 * @param registerCount the number of registers
+	 * @return the request frame as a hex string
 	 */
 	private static String rebuildRequestFrame(ModbusProtocolType protocolType, int unitId, int fc,
 			int startAddress, int registerCount) {
@@ -196,11 +205,13 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds an ASCII request frame: {@code :UUFF[data...]LL\r\n}.
+	 *
+	 * @param unitId the Modbus unit ID
+	 * @param fc     the function code
+	 * @param data   the request data bytes
+	 * @return the frame as an ASCII hex string
 	 */
 	private static String rebuildAsciiRequestFrame(int unitId, int fc, byte[] data) {
-		var sb = new StringBuilder(":");
-		int lrc = 0;
-
 		int[] pdu = new int[2 + data.length]; // unitId + fc + data
 		pdu[0] = unitId & 0xFF;
 		pdu[1] = fc & 0xFF;
@@ -208,6 +219,8 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 			pdu[2 + i] = data[i] & 0xFF;
 		}
 
+		var sb = new StringBuilder(":");
+		int lrc = 0;
 		for (int b : pdu) {
 			sb.append(String.format("%02X", b));
 			lrc += b;
@@ -221,6 +234,11 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds an RTU request frame: {@code [unitId][fc][data...][CRC-lo][CRC-hi]}.
+	 *
+	 * @param unitId the Modbus unit ID
+	 * @param fc     the function code
+	 * @param data   the request data bytes
+	 * @return the frame as a hex string
 	 */
 	private static String rebuildRtuRequestFrame(int unitId, int fc, byte[] data) {
 		var frame = new byte[2 + data.length + 2]; // header + data + CRC
@@ -242,6 +260,11 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Rebuilds a TCP request frame (MBAP header + PDU):
 	 * {@code [transId:2][protocolId:2][length:2][unitId][fc][data...]}.
+	 *
+	 * @param unitId the Modbus unit ID
+	 * @param fc     the function code
+	 * @param data   the request data bytes
+	 * @return the frame as a hex string
 	 */
 	private static String rebuildTcpRequestFrame(int unitId, int fc, byte[] data) {
 		int pduLength = 1 + 1 + data.length; // unitId + fc + data
@@ -259,6 +282,9 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Builds the hex string of the raw register payload (data only).
+	 *
+	 * @param values the register values
+	 * @return the hex string representation
 	 */
 	private static String buildResponseHex(Integer[] values) {
 		if (values == null) {
@@ -281,6 +307,9 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Converts register values to a flat byte array (big-endian, 2 bytes per
 	 * register).
+	 *
+	 * @param values the register values
+	 * @return the byte array
 	 */
 	private static byte[] buildResponseDataBytes(Integer[] values) {
 		if (values == null) {
@@ -297,6 +326,12 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds the full Modbus response frame depending on the protocol type.
+	 *
+	 * @param protocolType the Modbus protocol type
+	 * @param unitId       the Modbus unit ID
+	 * @param fc           the function code
+	 * @param dataBytes    the data bytes
+	 * @return the response frame as a hex string
 	 */
 	private static String rebuildResponseFrame(ModbusProtocolType protocolType, int unitId, int fc,
 			byte[] dataBytes) {
@@ -309,13 +344,15 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds an ASCII response frame: {@code :UUFFBB[data...]LL\r\n}.
-	 * <p>
-	 * UU=unitId, FF=function code, BB=byte count, data, LL=LRC checksum.
+	 *
+	 * <p>UU=unitId, FF=function code, BB=byte count, data, LL=LRC checksum.
+	 *
+	 * @param unitId    the Modbus unit ID
+	 * @param fc        the function code
+	 * @param dataBytes the data bytes
+	 * @return the frame as an ASCII hex string
 	 */
 	private static String rebuildAsciiResponseFrame(int unitId, int fc, byte[] dataBytes) {
-		var sb = new StringBuilder(":");
-		int lrc = 0;
-
 		int byteCount = dataBytes.length;
 		int[] pdu = new int[3 + byteCount]; // unitId + fc + byteCount + data
 		pdu[0] = unitId & 0xFF;
@@ -325,6 +362,8 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 			pdu[3 + i] = dataBytes[i] & 0xFF;
 		}
 
+		var sb = new StringBuilder(":");
+		int lrc = 0;
 		for (int b : pdu) {
 			sb.append(String.format("%02X", b));
 			lrc += b;
@@ -339,8 +378,13 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Rebuilds an RTU response frame: {@code [unitId][fc][byteCount][data...][CRC-lo][CRC-hi]}.
-	 * <p>
-	 * Displayed as hex string.
+	 *
+	 * <p>Displayed as hex string.
+	 *
+	 * @param unitId    the Modbus unit ID
+	 * @param fc        the function code
+	 * @param dataBytes the data bytes
+	 * @return the frame as a hex string
 	 */
 	private static String rebuildRtuResponseFrame(int unitId, int fc, byte[] dataBytes) {
 		int byteCount = dataBytes.length;
@@ -365,9 +409,14 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 	/**
 	 * Rebuilds a TCP response frame (MBAP header + PDU):
 	 * {@code [transId:2][protocolId:2][length:2][unitId][fc][byteCount][data...]}.
-	 * <p>
-	 * Transaction ID and Protocol ID are set to 0000 since the actual values are
+	 *
+	 * <p>Transaction ID and Protocol ID are set to 0000 since the actual values are
 	 * not available from the device component side.
+	 *
+	 * @param unitId    the Modbus unit ID
+	 * @param fc        the function code
+	 * @param dataBytes the data bytes
+	 * @return the frame as a hex string
 	 */
 	private static String rebuildTcpResponseFrame(int unitId, int fc, byte[] dataBytes) {
 		int byteCount = dataBytes.length;
@@ -391,6 +440,10 @@ public class BridgeModbusTesterImpl extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Computes CRC-16/Modbus over the given data.
+	 *
+	 * @param data   the data bytes
+	 * @param length the number of bytes to process
+	 * @return the CRC-16 value
 	 */
 	private static int crc16Modbus(byte[] data, int length) {
 		int crc = 0xFFFF;
