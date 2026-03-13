@@ -1,0 +1,89 @@
+= Bridge Modbus Tester
+
+A minimal Modbus device component for testing and debugging a physical Modbus communication channel. It reads a configurable register via FC3 (Read Holding Registers) and exposes raw response data on channels, enabling verification that hardware-level Modbus communication works through the modbus bridge without needing an implemented device-specific OpenEMS component.
+
+== Channels
+
+[cols="1,1,3"]
+|===
+| Channel | Type | Description
+
+| `Response` | STRING | Raw register payload as hex (e.g. `003F 00A1`)
+| `Message` | STRING | Full reconstructed Modbus frame (protocol-dependent, for comparison with bridge logs)
+| `RegisterAddress` | INTEGER | Configured register start address
+| `RegisterCount` | INTEGER | Number of registers being read
+| `UnitId` | INTEGER | Configured Modbus slave address
+| `ModbusProtocol` | STRING | Configured transport protocol (TCP/RTU/ASCII)
+| `CommunicationOk` | BOOLEAN | `true` after successful read, `false` after error
+| `CommunicationErrors` | INTEGER | Running error counter
+| `LastError` | STRING | Last error message text
+|===
+
+== Configuring the Modbus Bridge for deep debugging
+
+The bridge's `LogVerbosity` configuration controls what the bridge itself logs. Available levels (from `io.openems.edge.bridge.modbus.api.LogVerbosity`):
+
+[cols="1,3"]
+|===
+| Level | What it shows
+
+| `NONE` | No logs
+| `DEBUG_LOG` | Basic info in Controller.Debug.Log
+| `READS_AND_WRITES` | All read/write requests
+| `READS_AND_WRITES_VERBOSE` | Reads/writes + hex values of request and response
+| `READS_AND_WRITES_DURATION` | Reads/writes + timing per request
+| `READS_AND_WRITES_DURATION_TRACE_EVENTS` | All of the above + internal state machine trace
+|===
+
+*Recommended for debugging:* Set the bridge's `logVerbosity` to `READS_AND_WRITES_VERBOSE` or `READS_AND_WRITES_DURATION_TRACE_EVENTS`. This gives wire-level hex frames from the bridge side, which can be compared with the tester's `Message` channel to cross-validate.
+
+== Configuring the tester component
+
+Example configuration (Apache Felix Web Console or JSON):
+
+----
+id:                modbusTester0
+modbus_id:         modbusAscii0        # must match the bridge component ID
+modbusUnitId:      1                   # slave address of the target device
+registerAddress:   1                   # register to read (0-based)
+registerCount:     2                   # number of consecutive 16-bit registers
+modbusProtocolType: ASCII              # must match the bridge type for correct Message reconstruction
+----
+
+
+=== Possible output to be expected in the logs (console of java application) ===
+2026-03-11T22:49:32,418 [usAscii0] INFO  [ii.BridgeModbusSerialAsciiImpl] [modbusAscii0] Serial connection opened: port=/dev/ttyUSB0, transport=ModbusASCIITransport, encoding should be ASCII
+2026-03-11T22:49:32,432 [usAscii0] INFO  [ii.BridgeModbusSerialAsciiImpl] [modbusAscii0] TX >> FC=3 Unit=1 Len=6 Hex=[00 03 00 00 00 06 01 03 00 01 00 02]
+2026-03-11T22:49:32,460 [usAscii0] INFO  [ii.BridgeModbusSerialAsciiImpl] [modbusAscii0] RX << Response: FC=3 Unit=1 Len=7 Hex=[01 03 04 01 41 41 36]
+2026-03-11T22:49:32,469 [usAscii0] INFO  [e.modbus.api.task.AbstractTask]   Execute FC3ReadHoldingRegisters [modbusTester0;unitid=1;priority=HIGH;ref=1/0x1;length=2] Elapsed [242ms]
+2026-03-11T22:49:32,486 [usAscii0] INFO  [.tester.BridgeModbusTesterImpl] ModbusTester [modbusTester0] Reg 0x0001 x2 | (should TX: :010300010002F9\r\n) | Response: ???? ???? | Frame: :01030400000000F8\r\n
+2026-03-11T22:49:32,497 [usAscii0] INFO  [ker.internal.CycleTasksManager] [modbusAscii0] State: READ_AFTER_WRITE -> FINISHED (getNextTask)
+...
+[modbusAscii0] State: WRITE -> WAIT_BEFORE_READ (getNextTask)
+2026-03-11T22:49:32,632 [usAscii0] INFO  [ker.internal.CycleTasksManager] [modbusAscii0] State: WAIT_BEFORE_READ -> READ_AFTER_WRITE (onWaitDelayTaskFinished)
+2026-03-11T22:49:32,638 [usAscii0] INFO  [ker.internal.CycleTasksManager] [modbusAscii0] State: READ_AFTER_WRITE -> FINISHED (getNextTask)
+
+
+
+
+
+== Debugging workflow
+
+1. Configure and start the Modbus bridge (e.g. `modbusAscii0`) with `logVerbosity = READS_AND_WRITES_VERBOSE`
+2. Configure and start `modbusTester0` pointing to that bridge
+3. Observe:
+   - *Bridge logs*: Raw Modbus frames at transport level
+   - *Tester `Response` channel*: Hex payload of the register data
+   - *Tester `Message` channel*: Reconstructed full Modbus frame (for comparison with bridge logs)
+   - *Tester `CommunicationOk` channel*: Whether reads succeed
+   - *Tester `LastError` channel*: Error details on failure
+
+== Note on the ASCII bridge's transport listener
+
+The ASCII bridge implementation (`BridgeModbusSerialAsciiImpl`) includes an `AsciiTransportListener` that tracks:
+
+- `bytesSent` / `bytesReceived`
+- `communicationErrors` / `successfulTransactions`
+- `lastSuccessfulCommunication` timestamp
+
+These are available as channels on the bridge component itself and complement the tester's per-register view.
