@@ -259,15 +259,15 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 				}
 			} else {
 				incrementCommunicationErrors();
-				if (isTraceEnabled()) {
-					log.info("[{}] RX << Response: NULL (timeout or error)", id());
+				if (BridgeModbusSerialAsciiImpl.this.isTraceEnabled()) {
+					BridgeModbusSerialAsciiImpl.this.log.info("[{}] RX << Response: NULL (timeout or error)", id());
 				}
 			}
 		}
 
 		@Override
 		public void disconnected(AbstractSerialConnection port) {
-			log.warn("[{}] Serial connection disconnected", id());
+			BridgeModbusSerialAsciiImpl.this.log.warn("[{}] Serial connection disconnected", id());
 			incrementCommunicationErrors();
 		}
 

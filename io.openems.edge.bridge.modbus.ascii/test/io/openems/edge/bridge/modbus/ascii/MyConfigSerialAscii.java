@@ -61,6 +61,10 @@ public class MyConfigSerialAscii extends AbstractComponentConfig implements Conf
 			return this;
 		}
 
+		public Builder setAblCompatible(boolean ablCompatible) {
+			this.ablCompatible = ablCompatible;
+			return this;
+		}
 		public MyConfigSerialAscii build() {
 			return new MyConfigSerialAscii(this);
 		}
@@ -117,4 +121,8 @@ public class MyConfigSerialAscii extends AbstractComponentConfig implements Conf
 		return this.builder.invalidateElementsAfterReadErrors;
 	}
 
+	@Override
+	public boolean ablCompatible() {
+		return this.builder.ablCompatible;
+	}
 }
