@@ -42,5 +42,8 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 	@AttributeDefinition(name = "Invalidate elements after how many read Errors?", description = "Increase this value if modbus read errors happen frequently.")
 	int invalidateElementsAfterReadErrors() default 1;
 
+	@AttributeDefinition(name = "ABL compatible mode", description = "Enable compatibility with the ABL eMH1 EVCC wallbox, which sends '>' (0x3E) as the response frame-start character instead of the standard ':' (0x3A). When enabled, the bridge transparently replaces '>' with ':' in the received byte stream.")
+	boolean ablCompatible() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Bridge Modbus/ASCII Serial [{id}]";
 }

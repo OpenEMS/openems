@@ -83,6 +83,9 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 	/** The configured log verbosity. */
 	private LogVerbosity logVerbosity;
 
+	/** Whether ABL eMH1 compatible frame-start replacement is enabled. */
+	private boolean ablCompatible;
+
 	// Health monitoring counters
 	private final AtomicLong bytesSent = new AtomicLong(0);
 	private final AtomicLong bytesReceived = new AtomicLong(0);
@@ -121,6 +124,7 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 		this.stopbits = config.stopbits();
 		this.parity = config.parity();
 		this.logVerbosity = config.logVerbosity();
+		this.ablCompatible = config.ablCompatible();
 	}
 
 	@Override
@@ -167,7 +171,15 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 			params.setEncoding(Modbus.SERIAL_ENCODING_ASCII);
 			params.setEcho(false);
 			params.disableRs485Control();
-			var connection = new SerialConnection(params);
+
+			// Log the encoding to verify it's set to ASCII
+			this.log.info("[{}] Creating serial connection: port={}, baud={}, encoding={} (expected: {}), ablCompatible={}",
+					this.id(), this.portName, this.baudrate,
+					params.getEncoding(), Modbus.SERIAL_ENCODING_ASCII, this.ablCompatible);
+
+			var connection = this.ablCompatible
+					? new AblCompatibleSerialConnection(params)
+					: new SerialConnection(params);
 			this._connection = connection;
 		}
 		if (!this._connection.isOpen()) {
@@ -180,6 +192,10 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 
 			var transport = (ModbusSerialTransport) this._connection.getModbusTransport();
 			transport.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
+
+			// Log transport type to verify ASCII encoding is active
+			this.log.info("[{}] Serial connection opened: port={}, transport={}, encoding should be ASCII",
+					this.id(), this.portName, transport.getClass().getSimpleName());
 
 			// Add transport listener for health monitoring and debug logging
 			transport.addListener(new AsciiTransportListener());
@@ -328,5 +344,10 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 	@Override
 	public Stopbit getStopbits() {
 		return this.stopbits;
+	}
+	
+	@Override
+	public boolean ablCompatible() {
+		return this.ablCompatible;
 	}
 }

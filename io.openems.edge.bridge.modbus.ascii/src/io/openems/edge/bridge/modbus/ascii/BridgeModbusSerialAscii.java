@@ -265,4 +265,10 @@ public interface BridgeModbusSerialAscii extends BridgeModbus, StartStoppable {
 	 */
 	public Parity getParity();
 
+	/**
+	 * Gets the ABL compatibility flag.
+	 *
+	 * @return the ABL compatibility flag.
+	 */
+	public boolean ablCompatible();
 }
