@@ -44,6 +44,7 @@ import { PercentageBarComponent } from "./components/percentagebar/percentagebar
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
+import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
@@ -112,6 +113,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
 
 @NgModule({
     imports: [
+        SystemStatusComponent,
         PickdateComponentModule,
         BaseChartDirective,
         BrowserAnimationsModule,
@@ -197,6 +199,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         FormlySelectOptionsWithImageModalComponent,
     ],
     exports: [
+        SystemStatusComponent,
         AppHeaderComponent,
         BrowserAnimationsModule,
         ChartOptionsComponent,

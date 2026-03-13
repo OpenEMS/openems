@@ -54,21 +54,21 @@ public class TestClient extends AbstractWebsocketClient<WsData> implements AutoC
 	protected TestClient(URI serverUri, Map<String, String> httpHeaders) {
 		super("B2bwebsocket.Unittest", serverUri, httpHeaders);
 		this.onOpen = (ws, handshake) -> {
-			this.log.info("OnOpen: " + handshake);
+			this.log.info("OnOpen: {}", handshake);
 			return null;
 		};
 		this.onRequest = (ws, request) -> {
-			this.log.info("OnRequest: " + request);
+			this.log.info("OnRequest: {}", request);
 			return null;
 		};
 		this.onNotification = (ws, notification) -> {
-			this.log.info("OnNotification: " + notification);
+			this.log.info("OnNotification: {}", notification);
 		};
 		this.onError = (ws, ex) -> {
-			this.log.info("onError: " + ex.getMessage());
+			this.log.info("onError: {}", ex.getMessage());
 		};
 		this.onClose = (ws, code, reason, remote) -> {
-			this.log.info("onClose: " + reason);
+			this.log.info("onClose: {}", reason);
 		};
 	}
 

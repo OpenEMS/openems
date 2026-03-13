@@ -1,9 +1,11 @@
 package io.openems.edge.energy.api.simulation;
 
-import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.calculatePeriodDurationHourFromIndex;
+import static io.openems.common.jscalendar.JSCalendar.RecurrenceFrequency.DAILY;
+import static io.openems.edge.energy.api.Environment.PRODUCTION;
+import static io.openems.edge.energy.api.simulation.GocUtils.calculatePeriodDurationHourFromIndex;
 import static org.junit.Assert.assertEquals;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,9 +15,12 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.api.EnergyConstants;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.predictor.api.prediction.Prediction;
@@ -31,6 +36,17 @@ public class GlobalOptimizationContextTest {
 	public void testBuild() throws OpenemsNamedException {
 		final var cm = new DummyComponentManager(CLOCK);
 		final var now = Instant.now(CLOCK);
+		final var meta = new DummyMeta()//
+				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+						.add(t -> t//
+								.setStart("06:00") //
+								.setDuration(Duration.ofHours(12)) //
+								.addRecurrenceRule(b -> b //
+										.setFrequency(DAILY)) //
+								.setPayload(new GridBuySoftLimit(2000))) //
+						.add(t -> t//
+								.setPayload(new GridBuySoftLimit(6000))) //
+						.build());
 		final var sum = new DummySum() //
 				.withEssCapacity(10000) //
 				.withEssSoc(50) //
@@ -63,7 +79,8 @@ public class GlobalOptimizationContextTest {
 
 		var goc = GlobalOptimizationContext.create() //
 				.setComponentManager(cm) //
-				.setRiskLevel(MEDIUM) //
+				.setMeta(meta) //
+				.setEnvironment(PRODUCTION) //
 				.setEnergyScheduleHandlers(ImmutableList.of()) //
 				.setSum(sum) //
 				.setPredictorManager(predictorManager) //
@@ -74,8 +91,9 @@ public class GlobalOptimizationContextTest {
 		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
 		assertEquals(28, goc.periods().size());
 		var p0 = (Period.Quarter.Complete) goc.periods().get(0);
-		assertEquals(2000 /* Wh */, p0.production());
-		assertEquals(1000 /* Wh */, p0.consumption());
+		assertEquals(1500 /* Wh */, p0.gridBuySoftLimit().intValue());
+		assertEquals(2000 /* Wh */, p0.prediction().production());
+		assertEquals(1000 /* Wh */, p0.prediction().consumptionPredicted());
 	}
 
 	@Test

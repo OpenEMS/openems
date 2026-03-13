@@ -213,7 +213,9 @@
       "WED": "Wed",
       "WEEK": "Week",
       "YEAR": "Year",
-      "YESTERDAY": "Yesterday"
+      "YESTERDAY": "Yesterday",
+      "NO_LOCAL_DATA_INFO": "Historical data is currently unavailable locally",
+      "NO_LOCAL_DATA_NOTICE": "Please visit https://github.com/OpenEMS/openems for updates on this topic."
     },
     "INDEX": {
       "EMERGENCY_RESERVE": {
@@ -519,9 +521,6 @@
           "TOTAL_DC": "Total DC"
         },
         "SYSTEM": {
-          "INDUSTRIAL": {
-            "NOTE": "Starts or stops the entire system, including battery inverter and batteries."
-          },
           "OVERALL_SYSTEM": "Overall system"
         },
         "TIME_OF_USE_TARIFF": {
@@ -545,7 +544,8 @@
             "SCHEDULE": "Schedule",
             "ADD_TASK": "Add task"
           },
-          "CHARGE_MODE": "Charging mode"
+          "CHARGE_MODE": "Charging mode",
+          "VEHICLE_ID_ERROR": "The vehicle ID could not be found. Please check the configuration. All registered vehicles are displayed."
         }
       }
     },

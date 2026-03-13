@@ -1,16 +1,25 @@
 package io.openems.edge.energy.optimizer.app;
 
+import static io.openems.common.utils.DateUtils.QUARTERS_PER_DAY;
+import static io.openems.common.utils.DateUtils.TIME_FORMATTER;
+import static io.openems.common.utils.DateUtils.toQuarterIndex;
 import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.optimizer.app.AppUtils.period;
 
+import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.energy.EnergySchedulerTestUtils.Controller;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
+import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
 
 /**
  * This little application allows running the Optimizer from a mocked JSON
@@ -21,12 +30,36 @@ public class RunOptimizerApp {
 	// TODO log when only one-mode ctrls
 	private static final long EXECUTION_LIMIT_SECONDS = 10;
 
+	private static final PlotSettings PLOT_SETTINGS = PlotSettings.SIMULATION_RESULT;
+
 	private static final JsonObject JSON = buildJsonObject() //
+			.addProperty("zone", "Europe/Berlin") //
 			.addProperty("startTime", ZonedDateTime.parse("2025-03-17T07:45:00Z")) //
-			.addProperty("riskLevel", RiskLevel.MEDIUM) //
+			.addProperty("environment", Environment.PRODUCTION) //
 			.add("grid", buildJsonObject() //
 					.addProperty("maxBuyPower", 100000) //
 					.addProperty("maxSellPower", 100000) //
+					.add("gridBuySoftLimit", buildJsonArray() //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.addProperty("start", "08:00:00") //
+									.addProperty("duration", "PT12H") //
+									.add("recurrenceRules", buildJsonArray() //
+											.add(buildJsonObject() //
+													.addProperty("frequency", "daily") //
+													.build()) //
+											.build()) //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 2000) //
+											.build()) //
+									.build()) //
+							.add(buildJsonObject() //
+									.addProperty("@type", "Task") //
+									.add("openems.io:payload", buildJsonObject() //
+											.addProperty("power", 6000) //
+											.build()) //
+									.build()) //
+							.build()) //
 					.build()) //
 			.add("ess", buildJsonObject() //
 					.addProperty("currentEnergy", 11000) //
@@ -223,74 +256,7 @@ public class RunOptimizerApp {
 
 					.build()) //
 
-			.add("periods", buildJsonArray() //
-					// time | production | consumption | price
-					.add(period("07:45", 305.0, 291.3, 367.0)) //
-					.add(period("08:00", 351.0, 258.4, 345.0)) //
-					.add(period("08:15", 932.0, 258.4, 1490.0)) //
-					.add(period("08:30", 1087.0, 258.4, 1523.0)) //
-					.add(period("08:45", 1258.0, 258.4, 1535.0)) //
-					.add(period("09:00", 1372.0, 215.4, 1480.0)) //
-					.add(period("09:15", 1388.0, 215.4, 1567.0)) //
-					.add(period("09:30", 1533.0, 215.4, 1065.0)) //
-					.add(period("09:45", 1808.0, 215.4, 503.0)) //
-					.add(period("10:00", 1951.0, 192.6, 794.0)) //
-					.add(period("10:15", 1918.0, 192.6, 906.0)) //
-					.add(period("10:30", 2072.0, 192.6, 868.0)) //
-					.add(period("10:45", 2222.0, 192.6, 1781.0)) //
-					.add(period("11:00", 2370.0, 180.7, 973.0)) //
-					.add(period("11:15", 2476.0, 180.7, 853.0)) //
-					.add(period("11:30", 2552.0, 180.7, 996.0)) //
-					.add(period("11:45", 2581.0, 180.7, 979.0)) //
-					.add(period("12:00", 2598.0, 177.9, 1231.0)) //
-					.add(period("12:15", 2604.0, 177.9, 1431.0)) //
-					.add(period("12:30", 2603.0, 177.9, 1100.0)) //
-					.add(period("12:45", 2583.0, 177.9, 895.0)) //
-					.add(period("13:00", 2596.0, 178.2, 904.0)) //
-					.add(period("13:15", 2603.0, 178.2, 1025.0)) //
-					.add(period("13:30", 2594.0, 178.2, 781.0)) //
-					.add(period("13:45", 2516.0, 178.2, 838.0)) //
-					.add(period("14:00", 2431.0, 180.7, 931.0)) //
-					.add(period("14:15", 2325.0, 180.7, 654.0)) //
-					.add(period("14:30", 2153.0, 180.7, 613.0)) //
-					.add(period("14:45", 2087.0, 180.7, 1117.0)) //
-					.add(period("15:00", 2021.0, 201.3, 987.0)) //
-					.add(period("15:15", 1864.0, 201.3, 1554.0)) //
-					.add(period("15:30", 1653.0, 201.3, 1692.0)) //
-					.add(period("15:45", 1581.0, 201.3, 970.0)) //
-					.add(period("16:00", 1360.0, 288.4, 803.0)) //
-					.add(period("16:15", 1262.0, 288.4, 676.0)) //
-					.add(period("16:30", 1148.0, 288.4, 1395.0)) //
-					.add(period("16:45", 985.0, 288.4, 975.0)) //
-					.add(period("17:00", 743.0, 330.2, 397.0)) //
-					.add(period("17:15", 516.0, 330.2, 604.0)) //
-					.add(period("17:30", 224.0, 330.2, 892.0)) //
-					.add(period("17:45", 68.0, 330.2, 1113.0)) //
-					.add(period("18:00", 13.0, 341.7, 590.0)) //
-					.add(period("18:15", 2.0, 341.7, 832.0)) //
-					.add(period("18:30", 0.0, 341.7, 726.0)) //
-					.add(period("18:45", 0.0, 341.7, 394.0)) //
-					.add(period("19:00", 0.0, 343.3, 950.0)) //
-					.add(period("19:15", 0.0, 343.3, 662.0)) //
-					.add(period("19:30", 0.0, 343.3, 394.0)) //
-					.add(period("19:45", 0.0, 343.3, 728.0)) //
-					.add(period("20:00", 0.0, 335.6, 492.0)) //
-					.add(period("20:15", 0.0, 335.6, 1320.0)) //
-					.add(period("20:30", 0.0, 335.6, 663.0)) //
-					.add(period("20:45", 0.0, 335.6, 432.0)) //
-					.add(period("21:00", 0.0, 326.6, 579.0)) //
-					.add(period("21:15", 0.0, 326.6, 430.0)) //
-					.add(period("21:30", 0.0, 326.6, 421.0)) //
-					.add(period("21:45", 0.0, 326.6, 542.0)) //
-					.add(period("22:00", 0.0, 314.9, 703.0)) //
-					.add(period("22:15", 0.0, 314.9, 656.0)) //
-					.add(period("22:30", 0.0, 314.9, 476.0)) //
-					.add(period("22:45", 0.0, 314.9, 446.0)) //
-					.add(period("23:00", 0.0, 307.7, 450.0)) //
-					.add(period("23:15", 0.0, 307.7, 487.0)) //
-					.add(period("23:30", 0.0, 307.7, 554.0)) //
-					.add(period("23:45", 0.0, 307.7, 434.0)) //
-					.build())
+			.add("periods", getTestData()) //
 			.build();
 
 	/**
@@ -300,6 +266,243 @@ public class RunOptimizerApp {
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		AppUtils.simulateFromJson(JSON, EXECUTION_LIMIT_SECONDS);
+		AppUtils.simulateFromJson(JSON, EXECUTION_LIMIT_SECONDS, PLOT_SETTINGS);
+	}
+
+	protected static JsonArray getTestData() {
+		var startTimeDayOne = LocalTime.of(0, 0);
+		var prodDayOne = ProductionTestData.PRODUCTION_WINTER_CLEAR;
+		var consDayOne = ConsumptionTestData.CONSUMPTION;
+		var pricesDayOne = PricesTestData.PRICES_TIBBER_WINTER_CLEAR;
+
+		var endTimeDayTwo = LocalTime.of(23, 45);
+		var prodDayTwo = ProductionTestData.PRODUCTION_WINTER_CLEAR;
+		var consDayTwo = ConsumptionTestData.CONSUMPTION;
+		var pricesDayTwo = PricesTestData.PRICES_TIBBER_WINTER_CLEAR;
+
+		var dayOneStream = IntStream.range(toQuarterIndex(startTimeDayOne), QUARTERS_PER_DAY)//
+				.mapToObj(i -> {
+					var time = LocalTime.MIN.plusMinutes(i * 15L);
+					return period(//
+							time.format(TIME_FORMATTER), //
+							null, //
+							prodDayOne[i], //
+							consDayOne[i], //
+							pricesDayOne[i]);
+				});
+
+		var dayTwoStream = IntStream.rangeClosed(0, toQuarterIndex(endTimeDayTwo))//
+				.mapToObj(i -> {
+					var time = LocalTime.MIN.plusMinutes(i * 15L);
+					return period(//
+							time.format(TIME_FORMATTER), //
+							null, //
+							prodDayTwo[i], //
+							consDayTwo[i], //
+							pricesDayTwo[i]);
+				});
+
+		return Stream.concat(dayOneStream, dayTwoStream)//
+				.collect(new JsonUtils.JsonArrayCollector());
+	}
+
+	public static JsonArray getCustomTestData() {
+		return buildJsonArray()//
+				// time | gridBuySoftLimit | production | consumption | price
+				// Day One
+				.add(period("00:00", null, 0.0, 0.0, 210.0)) //
+				.add(period("00:15", null, 0.0, 0.0, 210.0)) //
+				.add(period("00:30", null, 0.0, 0.0, 210.0)) //
+				.add(period("00:45", null, 0.0, 291.3, 210.0)) //
+				.add(period("01:00", null, 0.0, 291.3, 210.0)) //
+				.add(period("01:15", null, 0.0, 291.3, 210.0)) //
+				.add(period("01:30", null, 0.0, 291.3, 210.0)) //
+				.add(period("01:45", null, 0.0, 291.3, 210.0)) //
+				.add(period("02:00", null, 0.0, 291.3, 210.0)) //
+				.add(period("02:15", null, 0.0, 291.3, 210.0)) //
+				.add(period("02:30", null, 0.0, 291.3, 210.0)) //
+				.add(period("02:45", null, 0.0, 291.3, 210.0)) //
+				.add(period("03:00", null, 0.0, 291.3, 210.0)) //
+				.add(period("03:15", null, 0.0, 291.3, 210.0)) //
+				.add(period("03:30", null, 0.0, 291.3, 210.0)) //
+				.add(period("03:45", null, 0.0, 251.3, 210.0)) //
+				.add(period("04:00", null, 0.0, 217.3, 210.0)) //
+				.add(period("04:15", null, 0.0, 217.3, 210.0)) //
+				.add(period("04:30", null, 0.0, 217.3, 210.0)) //
+				.add(period("04:45", null, 0.0, 217.3, 210.0)) //
+				.add(period("05:00", null, 0.0, 217.3, 210.0)) //
+				.add(period("05:15", null, 0.0, 217.3, 210.0)) //
+				.add(period("05:30", null, 0.0, 217.3, 210.0)) //
+				.add(period("05:45", null, 0.0, 217.3, 210.0)) //
+				.add(period("06:00", null, 0.0, 217.3, 210.0)) //
+				.add(period("06:15", null, 0.0, 217.3, 210.0)) //
+				.add(period("06:30", null, 0.0, 217.3, 210.0)) //
+				.add(period("06:45", null, 0.0, 217.3, 310.0)) //
+				.add(period("07:00", null, 0.0, 217.3, 310.0)) //
+				.add(period("07:15", null, 0.0, 217.3, 310.0)) //
+				.add(period("07:30", null, 0.0, 217.3, 310.0)) //
+				.add(period("07:45", null, 0.0, 217.3, 310.0)) //
+				.add(period("08:00", null, 0.0, 20.4, 310.0)) //
+				.add(period("08:15", null, 0.0, 28.4, 310.0)) //
+				.add(period("08:30", null, 0.0, 28.4, 310.0)) //
+				.add(period("08:45", null, 0.0, 28.4, 310.0)) //
+				.add(period("09:00", null, 0.0, 25.4, 310.0)) //
+				.add(period("09:15", null, 0.0, 215.4, 310.0)) //
+				.add(period("09:30", null, 0.0, 25.4, 310.0)) //
+				.add(period("09:45", null, 0.0, 25.4, 310.0)) //
+				.add(period("10:00", null, 0.0, 120.6, 310.0)) //
+				.add(period("10:15", null, 0.0, 120.6, 310.0)) //
+				.add(period("10:30", null, 0.0, 120.6, 310.0)) //
+				.add(period("10:45", null, 0.0, 120.6, 310.0)) //
+				.add(period("11:00", null, 0.0, 100.7, 310.0)) //
+				.add(period("11:15", null, 0.0, 100.7, 310.0)) //
+				.add(period("11:30", null, 0.0, 100.7, 310.0)) //
+				.add(period("11:45", null, 0.0, 100.7, 310.0)) //
+				.add(period("12:00", null, 0.0, 170.9, 310.0)) //
+				.add(period("12:15", null, 0.0, 170.9, 310.0)) //
+				.add(period("12:30", null, 0.0, 170.9, 310.0)) //
+				.add(period("12:45", null, 0.0, 170.9, 310.0)) //
+				.add(period("13:00", null, 0.0, 180.2, 310.0)) //
+				.add(period("13:15", null, 0.0, 180.2, 310.0)) //
+				.add(period("13:30", null, 0.0, 180.2, 310.0)) //
+				.add(period("13:45", null, 0.0, 180.2, 310.0)) //
+				.add(period("14:00", null, 0.0, 100.7, 310.0)) //
+				.add(period("14:15", null, 0.0, 180.7, 310.0)) //
+				.add(period("14:30", null, 0.0, 180.7, 310.0)) //
+				.add(period("14:45", null, 0.0, 18.7, 310.0)) //
+				.add(period("15:00", null, 0.0, 20.3, 310.0)) //
+				.add(period("15:15", null, 0.0, 20.3, 310.0)) //
+				.add(period("15:30", null, 0.0, 20.3, 310.0)) //
+				.add(period("15:45", null, 0.0, 201.3, 310.0)) //
+				.add(period("16:00", null, 0.0, 280.4, 310.0)) //
+				.add(period("16:15", null, 0.0, 280.4, 310.0)) //
+				.add(period("16:30", null, 0.0, 280.4, 310.0)) //
+				.add(period("16:45", null, 0.0, 280.4, 310.0)) //
+				.add(period("17:00", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:15", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:30", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:45", null, 0.0, 330.2, 310.0)) //
+				.add(period("18:00", null, 0.0, 310.7, 310.0)) //
+				.add(period("18:15", null, 0.0, 310.7, 310.0)) //
+				.add(period("18:30", null, 0.0, 341.7, 310.0)) //
+				.add(period("18:45", null, 0.0, 341.7, 310.0)) //
+				.add(period("19:00", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:15", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:30", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:45", null, 0.0, 343.3, 310.0)) //
+				.add(period("20:00", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:15", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:30", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:45", null, 0.0, 335.6, 310.0)) //
+				.add(period("21:00", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:15", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:30", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:45", null, 0.0, 326.6, 310.0)) //
+				.add(period("22:00", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:15", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:30", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:45", null, 0.0, 314.9, 310.0)) //
+				.add(period("23:00", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:15", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:30", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:45", null, 0.0, 307.7, 310.0)) //
+				// Day Two
+				.add(period("00:00", null, 0.0, 0.0, 120.0)) //
+				.add(period("00:15", null, 0.0, 0.0, 120.0)) //
+				.add(period("00:30", null, 0.0, 0.0, 120.0)) //
+				.add(period("00:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("01:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("01:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("01:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("01:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("02:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("02:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("02:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("02:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("03:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("03:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("03:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("03:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("04:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("04:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("04:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("04:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("05:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("05:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("05:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("05:45", null, 0.0, 291.3, 120.0)) //
+				.add(period("06:00", null, 0.0, 291.3, 120.0)) //
+				.add(period("06:15", null, 0.0, 291.3, 120.0)) //
+				.add(period("06:30", null, 0.0, 291.3, 120.0)) //
+				.add(period("06:45", null, 0.0, 291.3, 310.0)) //
+				.add(period("07:00", null, 0.0, 291.3, 310.0)) //
+				.add(period("07:15", null, 0.0, 291.3, 310.0)) //
+				.add(period("07:30", null, 0.0, 291.3, 310.0)) //
+				.add(period("07:45", null, 0.0, 291.3, 310.0)) //
+				.add(period("08:00", null, 0.0, 250.4, 310.0)) //
+				.add(period("08:15", null, 10.0, 258.4, 310.0)) //
+				.add(period("08:30", null, 20.0, 258.4, 310.0)) //
+				.add(period("08:45", null, 30.0, 258.4, 310.0)) //
+				.add(period("09:00", null, 40.0, 215.4, 310.0)) //
+				.add(period("09:15", null, 60.0, 215.4, 310.0)) //
+				.add(period("09:30", null, 80.0, 215.4, 310.0)) //
+				.add(period("09:45", null, 110.0, 215.4, 310.0)) //
+				.add(period("10:00", null, 120.0, 192.6, 310.0)) //
+				.add(period("10:15", null, 120.0, 192.6, 310.0)) //
+				.add(period("10:30", null, 130.0, 192.6, 310.0)) //
+				.add(period("10:45", null, 130.0, 192.6, 310.0)) //
+				.add(period("11:00", null, 170.0, 180.7, 310.0)) //
+				.add(period("11:15", null, 190.0, 180.7, 310.0)) //
+				.add(period("11:30", null, 220.0, 180.7, 310.0)) //
+				.add(period("11:45", null, 180.0, 180.7, 310.0)) //
+				.add(period("12:00", null, 210.0, 177.9, 310.0)) //
+				.add(period("12:15", null, 220.0, 177.9, 310.0)) //
+				.add(period("12:30", null, 220.0, 177.9, 310.0)) //
+				.add(period("12:45", null, 240.0, 177.9, 310.0)) //
+				.add(period("13:00", null, 220.0, 178.2, 310.0)) //
+				.add(period("13:15", null, 220.0, 178.2, 310.0)) //
+				.add(period("13:30", null, 210.0, 178.2, 310.0)) //
+				.add(period("13:45", null, 210.0, 178.2, 310.0)) //
+				.add(period("14:00", null, 200.0, 180.7, 310.0)) //
+				.add(period("14:15", null, 180.0, 180.7, 310.0)) //
+				.add(period("14:30", null, 160.0, 180.7, 310.0)) //
+				.add(period("14:45", null, 140.0, 1800.7, 310.0)) //
+				.add(period("15:00", null, 120.0, 2010.3, 310.0)) //
+				.add(period("15:15", null, 100.0, 2010.3, 310.0)) //
+				.add(period("15:30", null, 80.0, 2010.3, 310.0)) //
+				.add(period("15:45", null, 80.0, 201.3, 310.0)) //
+				.add(period("16:00", null, 60.0, 280.4, 310.0)) //
+				.add(period("16:15", null, 50.0, 280.4, 310.0)) //
+				.add(period("16:30", null, 40.0, 2880.4, 310.0)) //
+				.add(period("16:45", null, 20.0, 2880.4, 310.0)) //
+				.add(period("17:00", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:15", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:30", null, 0.0, 330.2, 310.0)) //
+				.add(period("17:45", null, 0.0, 330.2, 310.0)) //
+				.add(period("18:00", null, 0.0, 310.7, 310.0)) //
+				.add(period("18:15", null, 0.0, 310.7, 310.0)) //
+				.add(period("18:30", null, 0.0, 341.7, 310.0)) //
+				.add(period("18:45", null, 0.0, 341.7, 310.0)) //
+				.add(period("19:00", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:15", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:30", null, 0.0, 343.3, 310.0)) //
+				.add(period("19:45", null, 0.0, 343.3, 310.0)) //
+				.add(period("20:00", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:15", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:30", null, 0.0, 335.6, 310.0)) //
+				.add(period("20:45", null, 0.0, 335.6, 310.0)) //
+				.add(period("21:00", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:15", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:30", null, 0.0, 326.6, 310.0)) //
+				.add(period("21:45", null, 0.0, 326.6, 310.0)) //
+				.add(period("22:00", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:15", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:30", null, 0.0, 314.9, 310.0)) //
+				.add(period("22:45", null, 0.0, 314.9, 310.0)) //
+				.add(period("23:00", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:15", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:30", null, 0.0, 307.7, 310.0)) //
+				.add(period("23:45", null, 0.0, 307.7, 310.0)) //
+				.build();
 	}
 }

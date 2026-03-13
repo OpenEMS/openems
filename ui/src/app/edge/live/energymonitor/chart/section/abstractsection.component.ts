@@ -127,7 +127,6 @@ export abstract class AbstractSection {
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
-    public animationSpeed: number = 500;
 
     protected valueText: string = "";
     protected innerRadius: number = 0;
@@ -203,7 +202,7 @@ export abstract class AbstractSection {
     }
 
     /**
-     * attr.fill="{{ fillRef }}" has to be specific if using Safari (IOS Browser)
+     * [attr.fill]="fillRef" has to be specific if using Safari (IOS Browser)
      * otherwise Energymonitor wont be displayed correctly
      */
     protected adjustFillRefbyBrowser(): void {

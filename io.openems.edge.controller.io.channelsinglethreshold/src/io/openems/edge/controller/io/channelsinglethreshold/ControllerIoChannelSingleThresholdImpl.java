@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -24,12 +26,12 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.WriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -151,37 +153,44 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 	 * @throws OpenemsNamedException on error
 	 */
 	private void automaticMode(List<WriteChannel<Boolean>> outputChannels) throws OpenemsNamedException {
-
-		var inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
+		final var now = LocalDateTime.now(this.componentManager.getClock());
+		final var inputChannelAddress = ChannelAddress.fromString(this.config.inputChannelAddress());
 
 		// Get average input value of the last 'minimumSwitchingTime' seconds
-		IntegerReadChannel inputChannel = this.componentManager.getChannel(inputChannelAddress);
-		var values = inputChannel.getPastValues().tailMap(
-				LocalDateTime.now(this.componentManager.getClock()).minusSeconds(this.config.minimumSwitchingTime()),
-				true).values();
+		final var inputChannel = this.componentManager.getChannel(inputChannelAddress);
+		final var inputValueOpt = Stream.concat(//
+				// #1: Past Values
+				inputChannel.getPastValues() //
+						.tailMap(now.minusSeconds(this.config.minimumSwitchingTime()), true) //
+						.values() //
+						.stream(), //
+				// #2: Current Value (make sure we have at least one value; could still be null)
+				Stream.of(inputChannel.value())) //
 
-		// make sure we have at least one value
-		if (values.isEmpty()) {
-			values = new ArrayList<>();
-			values.add(inputChannel.value());
-		}
-
-		var inputValueOpt = values.stream().filter(Value::isDefined) //
-				.mapToInt(Value::get) //
+				// Convert to DOUBLE
+				.map(v -> {
+					try {
+						return (Double) TypeUtils.getAsType(OpenemsType.DOUBLE, v);
+					} catch (IllegalArgumentException e) {
+						this.logWarn(this.log, "Unable to convert value [" + v + "] to Double: " + e.getMessage());
+						return null;
+					}
+				}) //
+				.filter(Objects::nonNull) // no null values
+				.mapToDouble(Double::doubleValue) //
 				.average();
-		int inputValue;
-		if (inputValueOpt.isPresent()) {
-			inputValue = (int) Math.round(inputValueOpt.getAsDouble());
 
-			/*
-			 * Power value (switchedLoadPower) of the output device is added to the input
-			 * channel value to avoid immediate switching based on threshold - e.g. helpful
-			 * when the input channel is the Grid Active Power.
-			 *
-			 * Example use case: if the feed-in is more than threshold, the output device is
-			 * switched on and next second feed-in reduces below threshold and immediately
-			 * switches off the device.
-			 */
+		double inputValue;
+		if (inputValueOpt.isPresent()) {
+			inputValue = inputValueOpt.getAsDouble();
+
+			// Power value (switchedLoadPower) of the output device is added to the input
+			// channel value to avoid immediate switching based on threshold - e.g. helpful
+			// when the input channel is the Grid Active Power.
+			//
+			// Example use case: if the feed-in is more than threshold, the output device is
+			// switched on and next second feed-in reduces below threshold and immediately
+			// switches off the device.
 			if (outputChannels.stream()
 					// At least one output channel is set
 					.anyMatch(channel -> channel.value().get() == Boolean.TRUE)) {
@@ -189,7 +198,7 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 			}
 		} else {
 			// no input value available
-			inputValue = -1; // is ignored later
+			inputValue = -1.0; // is ignored later
 			this.changeState(State.UNDEFINED);
 		}
 

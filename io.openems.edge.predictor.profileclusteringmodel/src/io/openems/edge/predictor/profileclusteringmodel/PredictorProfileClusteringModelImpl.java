@@ -34,6 +34,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.predictor.api.common.LogSeverity;
 import io.openems.edge.predictor.api.common.PredictionException;
 import io.openems.edge.predictor.api.common.PredictionState;
 import io.openems.edge.predictor.api.common.TrainingError;
@@ -132,29 +133,29 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	protected Prediction createNewPrediction(ChannelAddress channelAddress) {
 		if (this.currentModels == null) {
 			this._setPredictionState(PredictionState.FAILED_NO_MODEL);
-			this.logPredictionError(PredictionState.FAILED_NO_MODEL, "No trained model available");
+			this.logPredictionError(PredictionState.FAILED_NO_MODEL, LogSeverity.INFO, "No trained model available");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
 		if (this.isModelTooOld()) {
 			this._setPredictionState(PredictionState.FAILED_MODEL_OUTDATED);
-			this.logPredictionError(PredictionState.FAILED_MODEL_OUTDATED, "Trained model outdated");
+			this.logPredictionError(PredictionState.FAILED_MODEL_OUTDATED, LogSeverity.INFO, "Trained model outdated");
 			return Prediction.EMPTY_PREDICTION;
 		}
 
 		var predictionContext = this.createPredictionContext();
-		var predictionOchestrator = this.predictorConfig.predictionOrchestratorFactory().create(predictionContext);
+		var predictionOrchestrator = this.predictorConfig.predictionOrchestratorFactory().create(predictionContext);
 
 		List<Profile> predictedProfiles;
 		try {
-			predictedProfiles = predictionOchestrator.predictProfiles(this.predictorConfig.forecastDays());
+			predictedProfiles = predictionOrchestrator.predictProfiles(this.predictorConfig.forecastDays());
 		} catch (PredictionException e) {
 			this._setPredictionState(e.getError().getFailedState());
-			this.logPredictionError(e.getError().getFailedState(), e.getMessage());
+			this.logPredictionError(e.getError().getFailedState(), e.getError().getSeverity(), e.getMessage());
 			return Prediction.EMPTY_PREDICTION;
 		} catch (Exception e) {
 			this._setPredictionState(PredictionState.FAILED_UNKNOWN);
-			this.logPredictionError(PredictionState.FAILED_UNKNOWN, e.getMessage());
+			this.logPredictionError(PredictionState.FAILED_UNKNOWN, LogSeverity.ERROR, e.getMessage());
 			return Prediction.EMPTY_PREDICTION;
 		}
 
@@ -183,7 +184,7 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 	@Override
 	public void onTrainingError(TrainingError error, String message) {
 		this._setTrainingState(error.getFailedState());
-		this.logTrainingError(error.getFailedState(), message);
+		this.logTrainingError(error.getFailedState(), error.getSeverity(), message);
 	}
 
 	private boolean isModelTooOld() {
@@ -203,11 +204,11 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 
 		var values = IntStream.range(0, profiles.size())//
 				.flatMap(i -> {
-					var profileValues = profiles.get(i).values().getValues().stream();
+					var profileQValues = profiles.get(i).upperQuantileValues().getValues().stream();
 					if (i == 0) {
-						profileValues = profileValues.skip(quarterHourIndex);
+						profileQValues = profileQValues.skip(quarterHourIndex);
 					}
-					return profileValues.mapToInt(v -> (int) Math.round(v));
+					return profileQValues.mapToInt(v -> (int) Math.round(v));
 				})//
 				.boxed()//
 				.toArray(Integer[]::new);
@@ -244,18 +245,14 @@ public class PredictorProfileClusteringModelImpl extends AbstractPredictor
 				this.currentProfile);
 	}
 
-	private void logTrainingError(TrainingState state, String message) {
-		this.logError(this.log, String.format(//
-				"Training failed [%s]: %s", //
-				state.getName(), //
-				message));
+	private void logTrainingError(TrainingState state, LogSeverity severity, String message) {
+		var logMessage = String.format("Training failed [%s]: %s", state.getName(), message);
+		this.logWithSeverity(this.log, severity, logMessage);
 	}
 
-	private void logPredictionError(PredictionState state, String message) {
-		this.logError(this.log, String.format(//
-				"Prediction failed [%s]: %s", //
-				state.getName(), //
-				message));
+	private void logPredictionError(PredictionState state, LogSeverity severity, String message) {
+		var logMessage = String.format("Prediction failed [%s]: %s", state.getName(), message);
+		this.logWithSeverity(this.log, severity, logMessage);
 	}
 
 	@Override

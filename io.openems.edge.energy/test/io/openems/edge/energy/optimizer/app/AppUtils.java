@@ -3,6 +3,7 @@ package io.openems.edge.energy.optimizer.app;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.jenetics.engine.Limits.byExecutionTime;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
@@ -12,11 +13,15 @@ import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.logSimulationResult;
+import static io.openems.edge.energy.optimizer.app.PlotUtils.plotGlobalOptimizationContext;
 import static java.time.Duration.ofSeconds;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -29,16 +34,21 @@ import io.openems.common.jsonrpc.serialization.JsonElementPathActual.JsonElement
 import io.openems.common.jsonrpc.serialization.JsonObjectPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
 import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
+import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
+import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
@@ -52,25 +62,41 @@ public final class AppUtils {
 	private AppUtils() {
 	}
 
-	protected static void simulateFromLog(String log, long executionLimitSeconds)
-			throws IllegalArgumentException, OpenemsNamedException {
-		simulateFromJson(parseLog(log), executionLimitSeconds);
+	protected static void simulateFromLog(String log, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IllegalArgumentException, OpenemsNamedException, IOException {
+		simulateFromJson(parseLog(log), executionLimitSeconds, plotSettings);
 	}
 
-	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds)
-			throws IllegalArgumentException, OpenemsNamedException {
-		simulate(globalOptimizationContextSerializer().deserialize(json), executionLimitSeconds);
+	protected static void simulateFromJson(JsonObject json, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IllegalArgumentException, OpenemsNamedException, IOException {
+		final var goc = globalOptimizationContextSerializer().deserialize(json);
+		switch (plotSettings) {
+		case DISABLE, SIMULATION_RESULT -> doNothing();
+		case GLOBAL_OPTIMIZATION_CONTEXT -> {
+			plotGlobalOptimizationContext(goc);
+			return;
+		}
+		}
+		simulate(goc, executionLimitSeconds, plotSettings);
 	}
 
-	private static void simulate(GlobalOptimizationContext gsc, long executionLimitSeconds) {
-		var simulator = new Simulator(gsc);
+	private static void simulate(GlobalOptimizationContext goc, long executionLimitSeconds, PlotSettings plotSettings)
+			throws IOException {
+		var simulator = new Simulator(goc);
+		simulator.setEarliestCallbackDelay(Duration.ZERO);
 
-		var simulationResult = simulator.getBestSchedule(EMPTY_SIMULATION_RESULT, //
-				false /* isCurrentPeriodFixed */, null, //
+		var simulationResult = new AtomicReference<SimulationResult>();
+		simulator.runOptimization(//
+				() -> EMPTY_SIMULATION_RESULT, //
+				false /* optimizeCurrentPeriod */, //
+				null, //
 				stream -> stream //
-						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))));
+						.limit(byExecutionTime(ofSeconds(executionLimitSeconds))), //
+				simulationResult::set);
 
-		logSimulationResult(simulator, simulationResult);
+		final var sr = simulationResult.get();
+		logSimulationResult(simulator, sr);
+		PlotUtils.plotSimulationResult(goc, sr);
 	}
 
 	/**
@@ -80,10 +106,9 @@ public final class AppUtils {
 	 */
 	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
-			final var zone = ZoneId.of(json.getString("zone"));
-			final var startTime = json.getZonedDateTime("startTime").withZoneSameInstant(zone);
-			final var clock = new TimeLeapClock(startTime.toInstant(), zone);
-			final var componentManager = new DummyComponentManager(clock);
+			final var grid = json.getObject("grid", Grid.serializer());
+			final var meta = new DummyMeta() //
+					.withGridBuySoftLimit(grid.gridBuySoftLimit());
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //
 					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
@@ -94,11 +119,13 @@ public final class AppUtils {
 			// Periods: Predictions and Prices
 			final TimeOfUseTariff timeOfUseTariff;
 			final PredictorManager predictorManager;
+			final ComponentManager componentManager;
 			try {
 				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
 				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
-				final var timeParser = new TimeParser(startTime);
+				final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
+						ZoneId.of(json.getString("zone")));
 				json.getJsonArray("periods").forEach(e -> {
 					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
 					var time = timeParser.apply(p);
@@ -111,6 +138,10 @@ public final class AppUtils {
 							.ifPresent(consumption -> consumptions.put(time,
 									PeriodDuration.QUARTER.convertEnergyToPower(consumption)));
 				});
+
+				final var clock = new TimeLeapClock(timeParser.getFirst());
+				componentManager = new DummyComponentManager(clock);
+
 				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
 				predictorManager = new DummyPredictorManager(//
 						new DummyPredictor("predictor0", componentManager, //
@@ -134,9 +165,10 @@ public final class AppUtils {
 					.map(EnergySchedulable::getEnergyScheduleHandler) //
 					.collect(toImmutableList());
 
-			return GlobalOptimizationContext.create() //
+			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
 					.setComponentManager(componentManager) //
-					.setRiskLevel(json.getEnum("riskLevel", RiskLevel.class)) //
+					.setMeta(meta) //
+					.setEnvironment(json.getEnum("environment", Environment.class)) //
 					.setEnergyScheduleHandlers(eshs) //
 					.setSum(sum) //
 					.setPredictorManager(predictorManager) //
@@ -168,6 +200,9 @@ public final class AppUtils {
 				.map(l -> applyPatternOrError(PERIOD_PATTERN, l)) //
 				.map(m -> buildJsonObject() //
 						.addProperty("time", m.group("time")) //
+						.addProperty("gridBuySoftLimit", m.group("gridBuySoftLimit").equals("-") //
+								? null //
+								: Integer.parseInt(m.group("gridBuySoftLimit"))) //
 						.addProperty("price", m.group("price").equals("-") //
 								? null //
 								: Double.parseDouble(m.group("price"))) //
@@ -183,13 +218,16 @@ public final class AppUtils {
 
 	private static final Pattern PERIOD_PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
+			+ "\\s+(?<gridBuySoftLimit>-?\\d*)" //
 			+ "\\s+(?<price>-?\\d*)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
 
-	protected static JsonElement period(String time, double production, double consumption, double price) {
+	protected static JsonElement period(String time, Integer gridBuySoftLimit, double production, double consumption,
+			double price) {
 		return buildJsonObject() //
 				.addProperty("time", time) //
+				.addProperty("gridBuySoftLimit", gridBuySoftLimit) //
 				.addProperty("production", production) //
 				.addProperty("consumption", consumption) //
 				.addProperty("price", price) //
@@ -200,21 +238,29 @@ public final class AppUtils {
 
 		private final ZonedDateTime start;
 
+		private ZonedDateTime first = null;
 		private ZonedDateTime last = null;
 
-		public TimeParser(ZonedDateTime start) {
-			this.start = start;
+		public TimeParser(ZonedDateTime start, ZoneId zone) {
+			this.start = start.withZoneSameInstant(zone);
+		}
+
+		public ZonedDateTime getFirst() {
+			return this.first;
 		}
 
 		@Override
 		public synchronized Instant apply(JsonObjectPath p) {
 			var time = p.getLocalTime("time");
 			var base = this.last == null //
-					? this.start //
+					? this.start.with(time) //
 					: this.last;
 			var result = base.with(time);
 			if (result.isBefore(base)) {
 				result = result.plusDays(1);
+			}
+			if (this.first == null) {
+				this.first = result;
 			}
 			this.last = result;
 			return result.toInstant();

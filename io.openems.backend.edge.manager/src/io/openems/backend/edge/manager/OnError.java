@@ -20,7 +20,7 @@ public class OnError implements io.openems.common.websocket.OnError {
 	@Override
 	public void accept(WebSocket ws, Exception ex) throws OpenemsException {
 		this.logError.accept(this.log, "Websocket error. " + ex.getClass().getSimpleName() + ": " + ex.getMessage());
-		ex.printStackTrace();
+		this.log.error(ex.getMessage(), ex);
 	}
 
 }

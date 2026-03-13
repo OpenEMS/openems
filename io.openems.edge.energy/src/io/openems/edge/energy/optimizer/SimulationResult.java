@@ -14,9 +14,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
@@ -30,6 +28,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
+import io.openems.edge.energy.api.simulation.GocUtils;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 
 public record SimulationResult(//
@@ -107,8 +106,9 @@ public record SimulationResult(//
 			int simulationsCounter, //
 			int generationsCounter) {
 		final var bsc = new BestScheduleCollector();
-		final var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule, bsc);
-		final var periods = bsc.periods.build();
+		final var fitness = Simulator.simulate(goc, ModeCombinations.fromGlobalOptimizationContext(goc), schedule, bsc,
+				GocUtils.normalizeEshModePreferenceRanks(goc.eshsWithDifferentModes()));
+		final var periods = bsc.periods.buildOrThrow();
 
 		var schedules = bsc.modesPerEsh.entrySet().stream() //
 				.collect(toImmutableMap(Entry::getKey, // ESH
@@ -121,7 +121,8 @@ public record SimulationResult(//
 												var mode = e2.getValue();
 												var p = periods.get(e2.getKey());
 												var price = switch (p.period) {
-												case GlobalOptimizationContext.Period.WithPrice wp -> wp.price();
+												case GlobalOptimizationContext.Period.WithPrice wp ->
+													wp.price().actual();
 												default -> null;
 												};
 
@@ -168,16 +169,9 @@ public record SimulationResult(//
 		}
 
 		// Convert to Quarters
-		final var quarterPeriods = goc.periods().stream() //
-				.flatMap(period -> switch (period) {
-				case GlobalOptimizationContext.Period.Hour ph //
-					-> ph.quarterPeriods().stream();
-				case GlobalOptimizationContext.Period.Quarter pq //
-					-> Stream.of(period);
-				}) //
-				.collect(ImmutableList.<GlobalOptimizationContext.Period>toImmutableList());
-		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.riskLevel(), goc.startTime(), goc.eshs(),
-				goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
+		final var quarterPeriods = GlobalOptimizationContext.Periods.copyOfQuarterly(goc.periods());
+		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.environment(), goc.startTime(),
+				goc.eshs(), goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
 		final var quarterSchedule = IntStream.range(0, goc.periods().size()) //
 				.flatMap(periodIndex -> switch (goc.periods().get(periodIndex)) {
 				case GlobalOptimizationContext.Period.Hour ph //
@@ -225,8 +219,11 @@ public record SimulationResult(//
 			final var ef = p.energyFlow;
 			log(b, "%s", prefix);
 			log(b, "%s ", time.format(TIME_FORMATTER));
+			Optional.ofNullable(p.period.gridBuySoftLimit()).ifPresentOrElse(//
+					limit -> log(b, "%7d ", limit), //
+					() -> log(b, "%7s ", "-"));
 			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
-				log(b, "%5.0f ", wp.price());
+				log(b, "%5.0f ", wp.price().actual());
 			} else {
 				log(b, "     -");
 			}

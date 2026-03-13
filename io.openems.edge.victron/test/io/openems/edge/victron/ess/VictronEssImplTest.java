@@ -111,4 +111,48 @@ public class VictronEssImplTest {
 		assertEquals(100, victronEss.getPowerPrecision());
 	}
 
+	@Test
+	public void testCalculateAcInSetpoint_chargeWithAcOutLoad() {
+		// Issue #3573: Charge request of 3kW with 5kW AC-out load
+		// Battery should charge at 3kW, so AC-in must be 8kW
+		var result = VictronEssImpl.calculateAcInSetpoint(-3000, 5000, 3000, 3000);
+		assertEquals(-8000, result);
+	}
+
+	@Test
+	public void testCalculateAcInSetpoint_chargeExceedsMaxWithAcOut() {
+		// Charge request of 5kW exceeds maxChargePower of 3kW, with 2kW AC-out
+		// Should clamp to -3kW charge, then subtract 2kW AC-out => -5kW
+		var result = VictronEssImpl.calculateAcInSetpoint(-5000, 2000, 3000, 3000);
+		assertEquals(-5000, result);
+	}
+
+	@Test
+	public void testCalculateAcInSetpoint_chargeWithinLimitsNoAcOut() {
+		// Charge request of 2kW, no AC-out, maxCharge 3kW
+		var result = VictronEssImpl.calculateAcInSetpoint(-2000, 0, 3000, 3000);
+		assertEquals(-2000, result);
+	}
+
+	@Test
+	public void testCalculateAcInSetpoint_dischargeWithinLimits() {
+		// Discharge request of 2kW, maxDischarge 3kW
+		var result = VictronEssImpl.calculateAcInSetpoint(2000, 1000, 3000, 3000);
+		assertEquals(2000, result);
+	}
+
+	@Test
+	public void testCalculateAcInSetpoint_dischargeExceedsMax() {
+		// Discharge request of 5kW, maxDischarge 3kW => clamped to 3kW
+		var result = VictronEssImpl.calculateAcInSetpoint(5000, 0, 3000, 3000);
+		assertEquals(3000, result);
+	}
+
+	@Test
+	public void testCalculateAcInSetpoint_zeroPower() {
+		// Zero power target, should remain zero
+		var result = VictronEssImpl.calculateAcInSetpoint(0, 5000, 3000, 3000);
+		assertEquals(0, result);
+	}
+
 }

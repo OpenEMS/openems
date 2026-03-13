@@ -3,7 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
-import { OverviewComponent } from "./overview/overview";
+import { ControllerModbusTcpApiOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -12,12 +12,12 @@ import { OverviewComponent } from "./overview/overview";
     ],
     declarations: [
         FlatComponent,
-        OverviewComponent,
+        ControllerModbusTcpApiOverviewComponent,
         ChartComponent,
     ],
     exports: [
         FlatComponent,
-        OverviewComponent,
+        ControllerModbusTcpApiOverviewComponent,
         ChartComponent,
     ],
 })

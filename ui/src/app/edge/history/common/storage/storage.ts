@@ -9,12 +9,12 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
 import { DetailsOverviewComponent } from "./details/details.overview";
-import { OverviewComponent } from "./overview/overview";
+import { CommonStorageOverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
     {
         path: "",
-        component: OverviewComponent,
+        component: CommonStorageOverviewComponent,
     },
     { path: ":componentId", component: DetailsOverviewComponent },
 ];
@@ -29,7 +29,7 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         HistoryDataErrorModule,
         NgxSpinnerModule,
-        OverviewComponent,
+        CommonStorageOverviewComponent,
     ],
     exports: [
         RouterModule,

@@ -91,6 +91,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.ripplecontrolreceiver',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
+	bnd.identity;id='io.openems.edge.controller.ess.sohcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.standby',\
 	bnd.identity;id='io.openems.edge.controller.ess.timeofusetariff',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
@@ -169,6 +170,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
+	bnd.identity;id='io.openems.edge.meter.hager',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
@@ -220,12 +222,12 @@
 	bcpkix;version='[1.83.0,1.83.1)',\
 	bcprov;version='[1.83.0,1.83.1)',\
 	bcutil;version='[1.83.0,1.83.1)',\
-	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
+	com.fasterxml.aalto-xml;version='[1.3.4,1.3.5)',\
 	com.fazecast.jSerialComm;version='[2.11.4,2.11.5)',\
 	com.google.gson;version='[2.13.2,2.13.3)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.google.protobuf;version='[4.33.4,4.33.5)',\
+	com.google.protobuf;version='[4.34.0,4.34.1)',\
 	com.opencsv;version='[5.9.0,5.9.1)',\
 	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
 	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
@@ -288,6 +290,7 @@
 	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.ripplecontrolreceiver;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
+	io.openems.edge.controller.ess.sohcycle;version=snapshot,\
 	io.openems.edge.controller.ess.standby;version=snapshot,\
 	io.openems.edge.controller.ess.timeofusetariff;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
@@ -373,6 +376,7 @@
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
+	io.openems.edge.meter.hager;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
@@ -456,17 +460,17 @@
 	org.apache.commons.commons-beanutils;version='[1.9.4,1.9.5)',\
 	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\
 	org.apache.commons.commons-collections4;version='[4.4.0,4.4.1)',\
-	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
+	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
 	org.apache.commons.commons-csv;version='[1.14.1,1.14.2)',\
 	org.apache.commons.commons-fileupload;version='[1.6.0,1.6.1)',\
 	org.apache.commons.commons-io;version='[2.20.0,2.20.1)',\
-	org.apache.commons.lang3;version='[3.16.0,3.16.1)',\
+	org.apache.commons.lang3;version='[3.20.0,3.20.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.commons.text;version='[1.11.0,1.11.1)',\
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
-	org.apache.felix.http.jetty12;version='[1.1.6,1.1.7)',\
+	org.apache.felix.http.jetty12;version='[1.1.8,1.1.9)',\
 	org.apache.felix.http.servlet-api;version='[6.1.0,6.1.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
@@ -479,13 +483,13 @@
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.3.0,2.3.1)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
 	org.jsoup;version='[1.22.1,1.22.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)';startlevel=14,\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)';startlevel=15,\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.2,2.3.3)';startlevel=14,\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.2,2.3.3)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\

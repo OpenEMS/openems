@@ -22,30 +22,28 @@ public record RegisterUserRequest(//
 	 * @return the created {@link JsonSerializer}
 	 */
 	public static JsonSerializer<RegisterUserRequest> serializer() {
-		return JsonSerializerUtil.jsonObjectSerializer(RegisterUserRequest.class, json -> {
-			return new RegisterUserRequest(//
-					json.getString("firstname"), //
-					json.getString("lastname"), //
-					json.getString("phone"), //
-					json.getString("email"), //
-					json.getStringOrNull("password"), //
-					json.getOptionalBoolean("includePasswordInRegistrationEmail").orElse(false), //
-					json.getObject("address", Address.serializer()), //
-					json.getEnum("role", Role.class));
-		}, obj -> {
-			return JsonUtils.buildJsonObject() //
-					.addProperty("firstname", obj.firstname) //
-					.addProperty("lastname", obj.lastname) //
-					.addProperty("phone", obj.phone) //
-					.addProperty("email", obj.email) //
-					.addPropertyIfNotNull("password", obj.password) //
-					.onlyIf(obj.includePasswordInRegistrationEmail(),
-							b -> b.addProperty("includePasswordInRegistrationEmail",
-									obj.includePasswordInRegistrationEmail())) //
-					.add("address", Address.serializer().serialize(obj.address)) //
-					.addProperty("role", obj.role) //
-					.build();
-		});
+		return JsonSerializerUtil.jsonObjectSerializer(RegisterUserRequest.class, //
+				json -> new RegisterUserRequest(//
+						json.getString("firstname"), //
+						json.getString("lastname"), //
+						json.getString("phone"), //
+						json.getString("email"), //
+						json.getStringOrNull("password"), //
+						json.getOptionalBoolean("includePasswordInRegistrationEmail").orElse(false), //
+						json.getObject("address", Address.serializer()), //
+						json.getEnum("role", Role.class)), //
+				obj -> JsonUtils.buildJsonObject() //
+						.addProperty("firstname", obj.firstname) //
+						.addProperty("lastname", obj.lastname) //
+						.addProperty("phone", obj.phone) //
+						.addProperty("email", obj.email) //
+						.addPropertyIfNotNull("password", obj.password) //
+						.onlyIf(obj.includePasswordInRegistrationEmail(),
+								b -> b.addProperty("includePasswordInRegistrationEmail",
+										obj.includePasswordInRegistrationEmail())) //
+						.add("address", Address.serializer().serialize(obj.address)) //
+						.addProperty("role", obj.role) //
+						.build());
 	}
 
 	public record Address(String street, String zip, String city, String country) {
@@ -56,20 +54,18 @@ public record RegisterUserRequest(//
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<Address> serializer() {
-			return JsonSerializerUtil.jsonObjectSerializer(Address.class, json -> {
-				return new Address(//
-						json.getString("street"), //
-						json.getString("zip"), //
-						json.getString("city"), //
-						json.getString("country"));
-			}, obj -> {
-				return JsonUtils.buildJsonObject() //
-						.addProperty("street", obj.street) //
-						.addProperty("zip", obj.zip) //
-						.addProperty("city", obj.city) //
-						.addProperty("country", obj.country) //
-						.build();
-			});
+			return JsonSerializerUtil.jsonObjectSerializer(Address.class, //
+					json -> new Address(//
+							json.getString("street"), //
+							json.getString("zip"), //
+							json.getString("city"), //
+							json.getString("country")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("street", obj.street) //
+							.addProperty("zip", obj.zip) //
+							.addProperty("city", obj.city) //
+							.addProperty("country", obj.country) //
+							.build());
 		}
 
 	}

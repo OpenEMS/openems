@@ -5,6 +5,7 @@ import { Role } from "src/app/shared/type/role";
 import { Filter } from "../filter/filter.component";
 
 export enum SumState {
+    UNDEFINED = "UNDEFINED",
     OK = "OK",
     INFO = "INFO",
     WARNING = "WARNING",
@@ -16,7 +17,7 @@ export enum SumState {
     template: `
   <ion-col class="sum-state-icon">
     @if (!isEdgeOnline) {
-      <ion-icon name="cloud-offline-outline" color="danger"></ion-icon>
+      <ion-icon name="oe-offline" color="danger"></ion-icon>
     } @else {
       @if (!isAtLeastInstaller) {
         <ion-icon color="primary" name="play-outline"></ion-icon>

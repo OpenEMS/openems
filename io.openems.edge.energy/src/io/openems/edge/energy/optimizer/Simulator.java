@@ -1,22 +1,30 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.jenetics.engine.EvolutionResult.toBestResult;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Math.max;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
@@ -24,6 +32,7 @@ import io.jenetics.EliteSelector;
 import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
 import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
@@ -38,6 +47,7 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils;
 import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
@@ -45,22 +55,27 @@ import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 public class Simulator {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Simulator.class);
+	private static final double EFFICIENCY_FACTOR = 1.17;
 
 	public final GlobalOptimizationContext goc;
 	public final ModeCombinations modeCombinations;
+	private final List<Map<Integer, Double>> normalizedEshModePreferenceRanks;
 
 	private final AtomicInteger simulationsCounter = new AtomicInteger(0);
 	private final AtomicLong generationsCounter = new AtomicLong(0);
 
+	private Duration earliestCallbackDelay = Duration.ofSeconds(30);
+
 	public Simulator(GlobalOptimizationContext goc) {
 		this.goc = goc;
 
-		// Initialize the EnergyScheduleHandlers.
+		// Initialize the EnergyScheduleHandlers
 		for (var esh : goc.eshs()) {
 			var coc = ((AbstractEnergyScheduleHandler<?, ?>) esh /* this is safe */).initialize(goc);
 			LOG.info("OPTIMIZER ControllerOptimizationContext '" + esh.getParentId() + "': " + coc);
 		}
 		this.modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
+		this.normalizedEshModePreferenceRanks = GocUtils.normalizeEshModePreferenceRanks(goc.eshsWithDifferentModes());
 	}
 
 	protected int getTotalNumberOfSimulations() {
@@ -71,8 +86,12 @@ public class Simulator {
 		return (int) this.generationsCounter.get();
 	}
 
-	protected static Fitness simulate(GlobalOptimizationContext goc, ModeCombinations modeCombinations, int[] schedule,
-			BestScheduleCollector bsc) {
+	protected static Fitness simulate(//
+			GlobalOptimizationContext goc, //
+			ModeCombinations modeCombinations, //
+			int[] schedule, //
+			BestScheduleCollector bsc, //
+			List<Map<Integer, Double>> normalizedEshModePreferenceRanks) {
 		final var gsc = GlobalScheduleContext.from(goc);
 		final var cscsBuilder = ImmutableMap.<EnergyScheduleHandler, Object>builder();
 		for (var esh : goc.eshs()) {
@@ -90,7 +109,11 @@ public class Simulator {
 			simulatePeriod(gsc, cscs, periodIndex, modeCombination, fitness, bsc);
 		}
 
-		var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
+		final var modePreferencePenalty = calculateModePreferencePenalty(goc, modeCombinations, schedule,
+				normalizedEshModePreferenceRanks);
+		fitness.setModePreferencePenalty(modePreferencePenalty);
+
+		final var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
 		fitness.addSoftConstraintViolation(runLengthCost);
 
 		return fitness;
@@ -120,7 +143,7 @@ public class Simulator {
 		try {
 			ef = EnergyFlow.Model.from(gsc, period);
 		} catch (OpenemsException e) {
-			LOG.error("Error while simulating period [" + periodIndex + "]", e);
+			LOG.error("Error while simulating period [" + periodIndex + "]: " + e.getMessage());
 			fitness.addHardConstraintViolation();
 			return;
 		}
@@ -159,8 +182,13 @@ public class Simulator {
 
 		final EnergyFlow energyFlow = ef.solve();
 
+		// Evaluate Grid-Buy Soft-Limit
+		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
+			fitness.addHardConstraintViolation();
+		}
+
 		if (period instanceof Period.WithPrice periodWithPrice) {
-			final var price = periodWithPrice.price();
+			final var price = periodWithPrice.price().actual();
 
 			// Calculate Grid-Buy Cost
 			if (energyFlow.getGrid() > 0) {
@@ -172,7 +200,7 @@ public class Simulator {
 						// Cost for direct Consumption
 						gridToCons * price
 								// Cost for future Consumption after storage
-								+ max(0, gridToEss) * price * gsc.goc.riskLevel().efficiencyFactor);
+								+ max(0, gridToEss) * price * EFFICIENCY_FACTOR);
 			}
 
 			// Calculate Grid-Sell Revenue
@@ -196,28 +224,34 @@ public class Simulator {
 	}
 
 	/**
-	 * Runs the optimization and returns the "best" simulation result.
-	 * 
-	 * @param previousResult             the {@link SimulationResult} of the
-	 *                                   previous optimization run
-	 * @param isCurrentPeriodFixed       fixes the {@link Gene} of the current
-	 *                                   period to the previousResult
-	 * @param engineInterceptor          an interceptor for the
+	 * Runs the optimization and reports the "best" simulation result.
+	 *
+	 * @param previousResultSupplier     supplies the previous
+	 *                                   {@link SimulationResult}
+	 * @param optimizeCurrentPeriod      whether the current period should be
+	 *                                   optimized; if {@code false}, the
+	 *                                   {@link Gene} of the current period is fixed
+	 *                                   to the previous result
+	 * @param engineInterceptor          interceptor to customize the
 	 *                                   {@link Engine.Builder}
-	 * @param evolutionStreamInterceptor an interceptor for the
+	 * @param evolutionStreamInterceptor interceptor to customize the
 	 *                                   {@link EvolutionStream}
-	 * @return the best Schedule
+	 * @param onBestResult               consumer that is called to apply a new best
+	 *                                   {@link SimulationResult}
 	 */
-	public SimulationResult getBestSchedule(//
-			SimulationResult previousResult, //
-			boolean isCurrentPeriodFixed,
+	public void runOptimization(//
+			Supplier<SimulationResult> previousResultSupplier, //
+			boolean optimizeCurrentPeriod,
 			Function<Engine.Builder<IntegerGene, Fitness>, Engine.Builder<IntegerGene, Fitness>> engineInterceptor, //
-			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor) {
-		final var codec = EshCodec.of(this.goc, this.modeCombinations, previousResult, isCurrentPeriodFixed);
+			Function<EvolutionStream<IntegerGene, Fitness>, EvolutionStream<IntegerGene, Fitness>> evolutionStreamInterceptor, //
+			Consumer<SimulationResult> onBestResult) {
+		final var isCurrentPeriodFixed = new AtomicBoolean(!optimizeCurrentPeriod);
+		final var codec = EshCodec.of(this.goc, this.modeCombinations, previousResultSupplier,
+				isCurrentPeriodFixed::get);
 		if (codec == null) {
 			// TODO if there are ESHs we should return the fixed Schedule as
 			// SimulationResult
-			return EMPTY_SIMULATION_RESULT;
+			onBestResult.accept(EMPTY_SIMULATION_RESULT);
 		}
 
 		// Decide for single- or multi-threading
@@ -240,7 +274,7 @@ public class Simulator {
 		var engine = Engine //
 				.builder(gt -> {
 					this.simulationsCounter.incrementAndGet();
-					return simulate(this.goc, this.modeCombinations, gt, null);
+					return simulate(this.goc, this.modeCombinations, gt, null, this.normalizedEshModePreferenceRanks);
 				}, codec) //
 				.selector(//
 						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
@@ -264,18 +298,96 @@ public class Simulator {
 			stream = evolutionStreamInterceptor.apply(stream);
 		}
 
+		final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
+		final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
+
 		// Start the evaluation
-		var bestGt = stream //
-				.peek(er -> this.generationsCounter.set(er.generation()))//
-				.collect(toBestResult(codec));
-		if (bestGt == null) {
-			return EMPTY_SIMULATION_RESULT;
+		stream.forEach(er -> {
+			this.generationsCounter.set(er.generation());
+			var currentBest = er.bestPhenotype();
+
+			// Update best phenotype
+			bestPt.updateAndGet(prev -> {
+				if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
+					return currentBest;
+				}
+				return prev;
+			});
+
+			// Apply current best result
+			if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+				if (bestPt.get() == null) {
+					onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+				} else {
+					onBestResult.accept(SimulationResult.fromQuarters(//
+							this.goc, //
+							codec.decode(bestPt.get().genotype()), //
+							this.getTotalNumberOfSimulations(), //
+							this.getTotalNumberOfGenerations()));
+				}
+				// Fix current period form now on
+				isCurrentPeriodFixed.set(true);
+			}
+		});
+
+		// Apply final best result
+		if (Instant.now().isAfter(earliestCallback)) {
+			if (bestPt.get() == null) {
+				onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+				return;
+			}
+			onBestResult.accept(SimulationResult.fromQuarters(//
+					this.goc, //
+					codec.decode(bestPt.get().genotype()), //
+					this.getTotalNumberOfSimulations(), //
+					this.getTotalNumberOfGenerations()));
 		}
-		return SimulationResult.fromQuarters(//
-				this.goc, //
-				bestGt, //
-				this.getTotalNumberOfSimulations(), //
-				this.getTotalNumberOfGenerations());
+	}
+
+	/**
+	 * Calculates a weighted penalty based on the normalized preference ranks of
+	 * modes in a given schedule.
+	 *
+	 * <p>
+	 * The penalty is computed by summing the normalized preference scores of all
+	 * modes for each ESH in every period. Early periods are given a higher weight,
+	 * so that preferred modes appearing earlier contribute more to the total
+	 * penalty.
+	 *
+	 * <p>
+	 * Lower penalty values correspond to schedules that better match the preferred
+	 * modes across ESHs and periods.
+	 *
+	 * @param goc                              the {@link GlobalOptimizationContext}
+	 * @param modeCombinations                 the {@link ModeCombinations}
+	 * @param schedule                         the given schedule
+	 * @param normalizedEshModePreferenceRanks precomputed normalized preference
+	 *                                         ranks for each ESH's modes
+	 * @return the total weighted penalty for the given schedule
+	 */
+	private static double calculateModePreferencePenalty(GlobalOptimizationContext goc,
+			ModeCombinations modeCombinations, int[] schedule,
+			List<Map<Integer, Double>> normalizedEshModePreferenceRanks) {
+		final int numPeriods = goc.periods().size();
+
+		double penalty = 0.;
+		for (int periodIndex = 0; periodIndex < numPeriods; periodIndex++) {
+			final var modeCombination = modeCombinations.get(schedule[periodIndex]);
+
+			double prefRankSum = 0.;
+			for (int eshIndex = 0; eshIndex < goc.eshsWithDifferentModes().size(); eshIndex++) {
+				if (!goc.eshsWithDifferentModes().get(eshIndex).modes().hasForOptimizer()) {
+					continue;
+				}
+				prefRankSum += normalizedEshModePreferenceRanks.get(eshIndex)
+						.get(modeCombination.mode(eshIndex).index());
+			}
+
+			final double weight = numPeriods - periodIndex + 1;
+			penalty += weight * prefRankSum;
+		}
+
+		return penalty;
 	}
 
 	/**
@@ -334,5 +446,10 @@ public class Simulator {
 		return buildJsonObject() //
 				.add("GlobalOptimizationContext", GlobalOptimizationContext.toJson(this.goc)) //
 				.build();
+	}
+
+	@VisibleForTesting
+	public void setEarliestCallbackDelay(Duration delay) {
+		this.earliestCallbackDelay = delay;
 	}
 }

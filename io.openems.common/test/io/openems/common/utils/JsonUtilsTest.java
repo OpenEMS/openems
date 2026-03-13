@@ -85,6 +85,7 @@ import static java.util.Optional.empty;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -224,10 +225,13 @@ public class JsonUtilsTest {
 
 	@Test
 	public void testBuilder() throws OpenemsNamedException {
-		buildJsonArray(JSON_ARRAY) //
-				.build();
-		buildJsonObject(JSON_OBJECT) //
-				.build();
+		final var array = buildJsonArray(JSON_ARRAY).build();
+		assertNotNull(array);
+		assertEquals(JSON_ARRAY, array);
+
+		final var object = buildJsonObject(JSON_OBJECT).build();
+		assertNotNull(object);
+		assertEquals(JSON_OBJECT, object);
 	}
 
 	@Test
@@ -532,25 +536,25 @@ public class JsonUtilsTest {
 	@Test
 	public void testGetAsInet4Address() throws OpenemsNamedException, UnknownHostException {
 		final var ip = Inet4Address.getByName("192.168.1.2");
-		final var InvalidHost = new JsonPrimitive("value.");
-		final var InvalidHostObject = buildJsonObject() //
-				.add("String", InvalidHost) //
+		final var invalidHost = new JsonPrimitive("value.");
+		final var invalidHostObject = buildJsonObject() //
+				.add("String", invalidHost) //
 				.build();
 
 		// -> Element
 		assertEquals(ip, getAsInet4Address(JSON_INET4ADDRESS));
 		assertOpenemsError(JSON_NO_INET4ADDRESS, //
-				() -> getAsInet4Address(InvalidHost) //
+				() -> getAsInet4Address(invalidHost) //
 		);
 
 		// -> Optional Element
 		assertEquals(ip, getAsOptionalInet4Address(JSON_INET4ADDRESS).get());
-		assertEquals(empty(), getAsOptionalInet4Address(InvalidHost));
+		assertEquals(empty(), getAsOptionalInet4Address(invalidHost));
 
 		// -> Sub-Element
 		assertEquals(ip, getAsInet4Address(JSON_OBJECT, "Inet4Address"));
 		assertOpenemsError(JSON_NO_INET4ADDRESS_MEMBER, //
-				() -> getAsInet4Address(InvalidHostObject, "String") //
+				() -> getAsInet4Address(invalidHostObject, "String") //
 		);
 
 		// -> Optional Sub-Element

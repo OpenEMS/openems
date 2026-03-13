@@ -15,6 +15,7 @@ import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/j
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { ChannelAddress, EdgeConfig, Logger, Service } from "src/app/shared/shared";
 import { TSignalValue } from "src/app/shared/type/utility";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
@@ -156,8 +157,8 @@ export class ChartComponent extends AbstractHistoryChart {
         });
     }
 
-    protected override getChartHeight(): number {
-        return window.innerHeight / 2;
+    protected override getChartHeight(): number | null {
+        return NumberUtils.multiplySafely(NumberUtils.divideSafely(window.innerHeight, 2, window.innerHeight), 100);
     }
 
     private updateYAxisScaling(_datasets: typeof this.datasets, previousMax: number | null, translate: TranslateService) {

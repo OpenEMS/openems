@@ -1000,7 +1000,7 @@ describe("PersistencePriority", () => {
 
 describe("hasPropertyValue", () => {
 
-    const component = new EdgeConfig.Component("component0", "", true, "factoryId", {
+    const component = new EdgeConfig.Component("component0", "", true, false, "factoryId", {
         "booleanValue": true,
         "booleanValueString": "true",
         "numberValueStrng": "42",

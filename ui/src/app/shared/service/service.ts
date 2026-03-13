@@ -129,14 +129,11 @@ export class Service extends AbstractService {
     }
 
     public getDocsLang(): string {
-        return "de";
-
-        // TODO: Redo when translations for docs are available
-        // if (this.translate.getCurrentLang() == "de") {
-        //   return "de";
-        // } else {
-        //   return "en";
-        // }
+        if (this.translate.getCurrentLang() == "de") {
+            return "de";
+        } else {
+            return "en";
+        }
     }
 
     public notify(notification: DefaultTypes.Notification) {

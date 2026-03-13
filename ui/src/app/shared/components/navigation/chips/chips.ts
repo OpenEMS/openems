@@ -1,4 +1,5 @@
 import { Component, effect, EventEmitter, Output } from "@angular/core";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { NavigationService } from "../service/navigation.service";
 import { NavigationTree } from "../shared";
 
@@ -15,6 +16,7 @@ export class NavigationChipsComponent {
 
     constructor(
         protected navigationService: NavigationService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
@@ -31,5 +33,6 @@ export class NavigationChipsComponent {
     */
     public async navigateTo(node: NavigationTree): Promise<void> {
         this.navigate.emit(node);
+        this.layoutRefresh.request(500);
     }
 }

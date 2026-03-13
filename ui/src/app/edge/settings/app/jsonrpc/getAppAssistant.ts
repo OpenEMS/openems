@@ -101,7 +101,7 @@ export namespace GetAppAssistant {
         return appAssistant;
     }
 
-    export function setInitialModel(fields: FormlyFieldConfig[], model: {}, instanceId?: string): FormlyFieldConfig[] {
+    export function getInitialFields(fields: FormlyFieldConfig[], model: {}, instanceId?: string): FormlyFieldConfig[] {
         return fields.map(f => {
             function recursivIterate(field: FormlyFieldConfig) {
                 if (!field) {
