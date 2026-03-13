@@ -74,6 +74,50 @@ public class BridgeModbusSerialAsciiImplTest {
 	}
 
 	@Test
+	public void testWithAblCompatibleConfig() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii3") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.setAblCompatible(true) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> {
+							assertTrue(sut.ablCompatible());
+							// closeModbusConnection with no open connection should be a no-op
+							sut.closeModbusConnection();
+						})) //
+				.deactivate();
+	}
+
+	@Test
+	public void testAblCompatibleDefaultFalse() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii4") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.setAblCompatible(false) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertFalse(sut.ablCompatible()))) //
+				.deactivate();
+	}
+
+	@Test
 	public void testHealthMonitoringChannelsExist() throws Exception {
 		final var sut = new BridgeModbusSerialAsciiImpl();
 		new ComponentTest(sut) //

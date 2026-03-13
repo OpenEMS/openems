@@ -39,11 +39,22 @@ class AblCompatibleSerialConnection extends SerialConnection {
 	@Override
 	public int readBytes(byte[] buffer, int bytesToRead) {
 		var result = super.readBytes(buffer, bytesToRead);
-		for (var i = 0; i < result; i++) {
+		replaceAblFrameStart(buffer, result);
+		return result;
+	}
+
+	/**
+	 * Replaces any ABL eMH1 non-standard frame-start bytes in the buffer with the
+	 * standard Modbus/ASCII frame-start byte.
+	 *
+	 * @param buffer the byte buffer to modify in place
+	 * @param count  the number of valid bytes in the buffer
+	 */
+	static void replaceAblFrameStart(byte[] buffer, int count) {
+		for (var i = 0; i < count; i++) {
 			if (buffer[i] == ABL_FRAME_START) {
 				buffer[i] = STANDARD_FRAME_START;
 			}
 		}
-		return result;
 	}
 }
