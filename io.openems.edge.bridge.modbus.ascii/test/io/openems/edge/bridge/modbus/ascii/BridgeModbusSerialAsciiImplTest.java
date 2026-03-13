@@ -91,16 +91,15 @@ public class BridgeModbusSerialAsciiImplTest {
 						.onAfterProcessImage(() -> {
 							// Verify health monitoring channels are accessible
 							var bytesSent = sut.getBytesSentChannel();
-							var bytesReceived = sut.getBytesReceivedChannel();
-							var commErrors = sut.getCommunicationErrorsChannel();
-							var successfulTx = sut.getSuccessfulTransactionsChannel();
-							var lastComm = sut.getLastSuccessfulCommunicationChannel();
-
 							// Channels should exist (not null)
 							assertTrue("BYTES_SENT channel should exist", bytesSent != null);
+							var bytesReceived = sut.getBytesReceivedChannel();
 							assertTrue("BYTES_RECEIVED channel should exist", bytesReceived != null);
+							var commErrors = sut.getCommunicationErrorsChannel();
 							assertTrue("COMMUNICATION_ERRORS channel should exist", commErrors != null);
+							var successfulTx = sut.getSuccessfulTransactionsChannel();
 							assertTrue("SUCCESSFUL_TRANSACTIONS channel should exist", successfulTx != null);
+							var lastComm = sut.getLastSuccessfulCommunicationChannel();
 							assertTrue("LAST_SUCCESSFUL_COMMUNICATION channel should exist", lastComm != null);
 						})) //
 				.deactivate();

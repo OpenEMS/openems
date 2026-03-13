@@ -17,6 +17,7 @@ public class MyConfigSerialAscii extends AbstractComponentConfig implements Conf
 		private Parity parity;
 		private LogVerbosity logVerbosity;
 		private int invalidateElementsAfterReadErrors;
+		private boolean ablCompatible;
 
 		private Builder() {
 		}
@@ -65,6 +66,7 @@ public class MyConfigSerialAscii extends AbstractComponentConfig implements Conf
 			this.ablCompatible = ablCompatible;
 			return this;
 		}
+		
 		public MyConfigSerialAscii build() {
 			return new MyConfigSerialAscii(this);
 		}

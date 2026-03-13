@@ -210,8 +210,8 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 
 		@Override
 		public void beforeMessageWrite(AbstractSerialConnection port, ModbusMessage msg) {
-			if (isTraceEnabled()) {
-				log.info("[{}] TX >> {}", id(), formatMessage(msg));
+			if (BridgeModbusSerialAsciiImpl.this.isTraceEnabled()) {
+				BridgeModbusSerialAsciiImpl.this.log.info("[{}] TX >> {}", id(), this.formatMessage(msg));
 			}
 		}
 
@@ -221,8 +221,8 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 			// plus ':' start (1), CRLF end (2), and LRC (2 ASCII chars)
 			// Approximation: (message data length * 2) + 5
 			int estimatedBytes = (msg.getDataLength() + 2) * 2 + 5; // +2 for function code and unit ID
-			bytesSent.addAndGet(estimatedBytes);
-			updateHealthChannels();
+			BridgeModbusSerialAsciiImpl.this.bytesSent.addAndGet(estimatedBytes);
+			BridgeModbusSerialAsciiImpl.this.updateHealthChannels();
 
 			// Small delay after write to prevent read errors (same as RTU implementation)
 			try {
@@ -236,11 +236,11 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 		public void afterRequestRead(AbstractSerialConnection port, ModbusRequest req) {
 			if (req != null) {
 				int estimatedBytes = (req.getDataLength() + 2) * 2 + 5;
-				bytesReceived.addAndGet(estimatedBytes);
-				updateHealthChannels();
+				BridgeModbusSerialAsciiImpl.this.bytesReceived.addAndGet(estimatedBytes);
+				BridgeModbusSerialAsciiImpl.this.updateHealthChannels();
 
-				if (isTraceEnabled()) {
-					log.info("[{}] RX << Request: {}", id(), formatMessage(req));
+				if (BridgeModbusSerialAsciiImpl.this.isTraceEnabled()) {
+					BridgeModbusSerialAsciiImpl.this.log.info("[{}] RX << Request: {}", id(), this.formatMessage(req));
 				}
 			}
 		}
@@ -249,16 +249,16 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 		public void afterResponseRead(AbstractSerialConnection port, ModbusResponse res) {
 			if (res != null) {
 				int estimatedBytes = (res.getDataLength() + 2) * 2 + 5;
-				bytesReceived.addAndGet(estimatedBytes);
-				successfulTransactions.incrementAndGet();
-				lastSuccessfulCommunication.set(System.currentTimeMillis());
-				updateHealthChannels();
+				BridgeModbusSerialAsciiImpl.this.bytesReceived.addAndGet(estimatedBytes);
+				BridgeModbusSerialAsciiImpl.this.successfulTransactions.incrementAndGet();
+				BridgeModbusSerialAsciiImpl.this.lastSuccessfulCommunication.set(System.currentTimeMillis());
+				BridgeModbusSerialAsciiImpl.this.updateHealthChannels();
 
-				if (isTraceEnabled()) {
-					log.info("[{}] RX << Response: {}", id(), formatMessage(res));
+				if (BridgeModbusSerialAsciiImpl.this.isTraceEnabled()) {
+					BridgeModbusSerialAsciiImpl.this.log.info("[{}] RX << Response: {}", id(), this.formatMessage(res));
 				}
 			} else {
-				incrementCommunicationErrors();
+				BridgeModbusSerialAsciiImpl.this.incrementCommunicationErrors();
 				if (BridgeModbusSerialAsciiImpl.this.isTraceEnabled()) {
 					BridgeModbusSerialAsciiImpl.this.log.info("[{}] RX << Response: NULL (timeout or error)", id());
 				}
