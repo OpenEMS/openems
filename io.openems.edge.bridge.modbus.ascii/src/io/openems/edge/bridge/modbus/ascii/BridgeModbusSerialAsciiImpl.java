@@ -295,14 +295,14 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 	 *
 	 * @return true if highest verbosity is configured
 	 */
-	private boolean isTraceEnabled() {
+	boolean isTraceEnabled() {
 		return this.logVerbosity == LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS;
 	}
 
 	/**
 	 * Increment communication error counter and update channel.
 	 */
-	private void incrementCommunicationErrors() {
+	void incrementCommunicationErrors() {
 		this.communicationErrors.incrementAndGet();
 		this.updateHealthChannels();
 	}
@@ -310,7 +310,7 @@ public class BridgeModbusSerialAsciiImpl extends AbstractModbusBridge
 	/**
 	 * Update all health monitoring channels with current values.
 	 */
-	private void updateHealthChannels() {
+	void updateHealthChannels() {
 		this._setBytesSent(this.bytesSent.get());
 		this._setBytesReceived(this.bytesReceived.get());
 		this._setCommunicationErrors(this.communicationErrors.get());

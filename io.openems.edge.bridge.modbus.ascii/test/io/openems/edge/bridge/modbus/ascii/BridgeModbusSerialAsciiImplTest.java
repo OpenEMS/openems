@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.ascii;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -114,6 +115,102 @@ public class BridgeModbusSerialAsciiImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.onAfterProcessImage(() -> assertFalse(sut.ablCompatible()))) //
+				.deactivate();
+	}
+
+	@Test
+	public void testIsTraceEnabledFalse() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii5") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertFalse(sut.isTraceEnabled()))) //
+				.deactivate();
+	}
+
+	@Test
+	public void testIsTraceEnabledTrue() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii6") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.READS_AND_WRITES_DURATION_TRACE_EVENTS) //
+						.build()) //
+				.next(new TestCase() //
+						.onAfterProcessImage(() -> assertTrue(sut.isTraceEnabled()))) //
+				.deactivate();
+	}
+
+	@Test
+	public void testIncrementCommunicationErrorsAndHealthChannels() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii7") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build()) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> {
+							sut.incrementCommunicationErrors();
+							sut.incrementCommunicationErrors();
+						}) //
+						.onAfterProcessImage(() -> {
+							// communicationErrors should be 2
+							var errors = sut.getCommunicationErrors().get();
+							assertNotNull(errors);
+							assertEquals(2L, (long) errors);
+							// other counters start at 0
+							assertEquals(0L, (long) sut.getBytesSent().get());
+							assertEquals(0L, (long) sut.getBytesReceived().get());
+							assertEquals(0L, (long) sut.getSuccessfulTransactions().get());
+							// lastSuccessfulCommunication starts at 0 so channel is not set
+							assertFalse(sut.getLastSuccessfulCommunication().isDefined());
+						})) //
+				.deactivate();
+	}
+
+	@Test
+	public void testSetLastSuccessfulCommunicationDirect() throws Exception {
+		final var sut = new BridgeModbusSerialAsciiImpl();
+		new ComponentTest(sut) //
+				.activate(MyConfigSerialAscii.create() //
+						.setId("modbusAscii8") //
+						.setPortName("/dev/ttyUSB0") //
+						.setBaudRate(9600) //
+						.setDatabits(8) //
+						.setParity(Parity.EVEN) //
+						.setStopbits(Stopbit.ONE) //
+						.setInvalidateElementsAfterReadErrors(1) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build()) //
+				.next(new TestCase() //
+						.onBeforeProcessImage(() -> sut._setLastSuccessfulCommunication(1234567890L)) //
+						.onAfterProcessImage(() -> {
+							var val = sut.getLastSuccessfulCommunication().get();
+							assertNotNull(val);
+							assertEquals(1234567890L, (long) val);
+						})) //
 				.deactivate();
 	}
 
