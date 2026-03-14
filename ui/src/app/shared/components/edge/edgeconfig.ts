@@ -228,6 +228,7 @@ export class EdgeConfig {
                         "Bridge.Mbus",
                         "Bridge.Onewire",
                         "Bridge.Modbus.Serial",
+                        "Bridge.Modbus.Serial.Ascii",
                         "Bridge.Modbus.Tcp",
                         "Kaco.BlueplanetHybrid10.Core",
                     ]),
