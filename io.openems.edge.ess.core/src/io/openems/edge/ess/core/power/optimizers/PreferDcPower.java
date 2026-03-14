@@ -56,30 +56,10 @@ public class PreferDcPower {
 			return NO_RESULT;
 		}
 
-		/*
-		 *
-		 * TODO:
-		 *
-		 * 	- Documentation/Description with expected behavior of this implementation
-		 *
-		 *
-		 * COMMENT:
-		 *
-		 * 	- Inverters are by default sorted by weight descending.
-		 *    For DISCHARGE take list as it is; for CHARGE reverse it.
-		 * 	  This prefers high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight inverters (e.g. low state-of-charge) on CHARGE.
-		 * 		-> Note: The list will be adjusted slightly (when weight changes), see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.core/src/io/openems/edge/ess/core/power/data/WeightsUtil.java#L60-L71
-		 *
-		 *  	-> The foreach for "use pv production power first" is in the correct order then -> We want to use all PV (=no DC charge) for the first ESSs in the list (during discharge)
-		 * 		The ESSs last in list (descending order) will not use all PV power (=DC charge), if not all PV power is required. Therefore more charge for ESSs last in order, which are low-weight inverters (e.g. low state-of-charge)
-		 * 		If we have additional AC power for charge (we are in charge mode). This prefers low-weight inverters (e.g. low state-of-charge) for the additional ac-charge.
-		 *
-		 */
-
-		// Inverters are by default sorted by weight descending. For DISCHARGE take list
-		// as it is; for CHARGE reverse it. This prefers high-weight inverters (e.g.
-		// high state-of-charge) on DISCHARGE and low-weight
+		// Inverters are by default sorted by weight descending. For DISCHARGE take list as it is; for CHARGE reverse it.
+		// This prefers high-weight inverters (e.g. high state-of-charge) on DISCHARGE and low-weight
 		// inverters (e.g. low state-of-charge) on CHARGE.
+		// -> Note: The list will be adjusted slightly (when weight changes)
 		List<Inverter> sortedInverters;
 		if (direction == TargetDirection.DISCHARGE) {
 			sortedInverters = allInverters;
