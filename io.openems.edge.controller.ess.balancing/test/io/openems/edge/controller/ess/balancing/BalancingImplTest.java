@@ -40,51 +40,51 @@ public class BalancingImplTest {
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 3793) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 3793) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16483)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 15345)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 8981) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 8981) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19649)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16955)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 13723) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 13723) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21577)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 17460)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 17469) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 17469) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22436)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 17195)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 20066) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 20066) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22531)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16511)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 21564) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 21564) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22171)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 15702)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 22175) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 22175) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21608)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 14955)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 22173) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 22173) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21017)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 14365)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 21816) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 21816) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 20508)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13963)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 21311) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 21311) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 20129)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13736)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 20803) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 20803) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19889)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13648)) //
 				.next(new TestCase() //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 20377) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 20000 - 20377) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19767)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13654)) //
 				.deactivate();
 	}
 

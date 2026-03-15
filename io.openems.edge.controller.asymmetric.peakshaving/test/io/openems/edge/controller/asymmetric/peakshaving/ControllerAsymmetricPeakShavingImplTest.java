@@ -42,51 +42,51 @@ public class ControllerAsymmetricPeakShavingImplTest {
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 3793) //
 						.input("meter0", ACTIVE_POWER, 120000 - 3793) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16484)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 15346)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 8981) //
 						.input("meter0", ACTIVE_POWER, 120000 - 8981) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19650)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16956)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 13723) //
 						.input("meter0", ACTIVE_POWER, 120000 - 13723) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21578)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 17461)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 17469) //
 						.input("meter0", ACTIVE_POWER, 120000 - 17469) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22437)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 17197)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 20066) //
 						.input("meter0", ACTIVE_POWER, 120000 - 20066) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22533)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16513)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 21564) //
 						.input("meter0", ACTIVE_POWER, 120000 - 21564) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 22174)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 15705)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 22175) //
 						.input("meter0", ACTIVE_POWER, 120000 - 22175) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21610)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 14958)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 22173) //
 						.input("meter0", ACTIVE_POWER, 120000 - 22173) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 21020)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 14368)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 21816) //
 						.input("meter0", ACTIVE_POWER, 120000 - 21816) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 20511)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13966)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 21311) //
 						.input("meter0", ACTIVE_POWER, 120000 - 21311) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 20133)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13740)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 20803) //
 						.input("meter0", ACTIVE_POWER, 120000 - 20803) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19893)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13652)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 20377) //
 						.input("meter0", ACTIVE_POWER, 120000 - 20377) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19772)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 13658)) //
 				.deactivate();
 	}
 
@@ -121,13 +121,13 @@ public class ControllerAsymmetricPeakShavingImplTest {
 						.input("meter0", ACTIVE_POWER_L1, 20000 - 3793 / 3) //
 						.input("meter0", ACTIVE_POWER_L2, 40000 - 3793 / 3) //
 						.input("meter0", ACTIVE_POWER_L3, 10000 - 3793 / 3) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16484)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 15346)) //
 				.next(new TestCase() //
 						.input("ess0", ACTIVE_POWER, 8981) //
 						.input("meter0", ACTIVE_POWER_L1, 20000 - 8981 / 3) //
 						.input("meter0", ACTIVE_POWER_L2, 40000 - 8981 / 3) //
 						.input("meter0", ACTIVE_POWER_L3, 10000 - 8981 / 3) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 19651)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 16957)) //
 				.deactivate();
 	}
 }
