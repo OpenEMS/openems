@@ -152,6 +152,7 @@
             <!-- 
             PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol.
             Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md
+            Wrapper: io.openems.wrapper.pgbulkinsert
             -->
             <groupId>de.bytefish</groupId>
             <artifactId>pgbulkinsert</artifactId>
