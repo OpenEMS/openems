@@ -48,15 +48,27 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		    
 		}
 		
-		Double batteryMaxChargeCurrent = this.battery.getBmsChargeCurrentLimit().get() / 1000.0; // mA -> A
-		Double batteryMaxDischargeCurrent = this.battery.getBmsDischargeCurrentLimit().get() / 1000.0;
+		Integer batteryMaxChargeCurrent = this.battery.getBmsChargeCurrentLimit().get();
+		Integer batteryMaxDischargeCurrent = this.battery.getBmsDischargeCurrentLimit().get(); // mA
+		
 
 		Integer configuredMaxChargeCurrent = this.battery.getConfiguredMaxChargeCurrent(); // A
 		Integer configuredMaxDischargeCurrent = this.battery.getConfiguredMaxDischargeCurrent();
 
 		Integer batteryVoltage = this.battery.getVoltage().get(); // V
+		
+		if (batteryMaxChargeCurrent == null ||  batteryMaxDischargeCurrent == null || batteryVoltage == null) {
+			log.error("Cannot calculate max. charge/discharge power due to missing values");
+			
+			this.parent._setAllowedChargePower(0);
+			this.parent._setAllowedDischargePower(0);
+			return;
+		} 
 
+		batteryMaxChargeCurrent = (int) Math.ceil(batteryMaxChargeCurrent / 1000.0); // mA -> A
+		batteryMaxDischargeCurrent = (int) Math.floor(batteryMaxDischargeCurrent / 1000.0);
 
+		
 /*
 		    this.parent.logDebug(log, "[AllowChargeDischarge Handler] Values not available. Setting 0 W.");
 		    parent._setAllowedChargePower(0);
@@ -68,7 +80,6 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		int maxChargeCurrent = (int)    Math.min(configuredMaxChargeCurrent,batteryMaxChargeCurrent);
 		int maxDischargeCurrent = (int)    Math.min(configuredMaxDischargeCurrent,batteryMaxDischargeCurrent);
 
-		// Convert A * V -> W (floor so we never exceed)
 		int allowedChargePower = (int) Math.min(0, Math.ceil(maxChargeCurrent * batteryVoltage * -1));
 		int allowedDischargePower = (int) Math.max(0, Math.floor(maxDischargeCurrent * batteryVoltage));
 

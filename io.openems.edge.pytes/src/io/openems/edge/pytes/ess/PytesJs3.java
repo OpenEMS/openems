@@ -59,7 +59,9 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		DC_BUS_VOLTAGE(Doc.of(INTEGER).accessMode(READ_ONLY).unit(Unit.MILLIVOLT)),
 
 		DC_BUS_HALF_VOLTAGE(Doc.of(INTEGER)
-		// .accessMode(READ_ONLY)
+				.accessMode(READ_ONLY)//
+				.unit(Unit.MILLIVOLT)
+				.persistencePriority(LOW)
 		),
 
 		APPARENT_POWER(Doc.of(INTEGER)

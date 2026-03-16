@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -94,9 +93,6 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 
 	private PytesDcCharger charger;
 	private PytesBattery battery;
-	
-	private static final int MAX_APPARENT_POWER = 5000;		
-	
 
 	public PytesJs3Impl() {
 		super(//
@@ -129,7 +125,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
 			// TODO: fill channels
 			this._setSoc(this.battery.getSoc().get());   // Integer value		
-			var dcDischargePower = this.battery.getDcDischargePower().get();
+			Integer dcDischargePower = this.battery.getDcDischargePower().get();
 			this._setDcDischargePower(dcDischargePower);
 			
 			this.logDebug(this.log, "DcDischargePower: " + dcDischargePower + "W");
@@ -797,6 +793,13 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 	public Logger getLogger() {
 		return this.log;
 	}
+	
+	
+	// for use in handler-classes
+	public void debugLog(String message) {
+	    this.logDebug(this.log, message);
+	}
+	
 	
 	
 	@Override

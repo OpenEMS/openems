@@ -148,6 +148,19 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 						m(PytesMeterGrid.ChannelId.EQUIPMENT_FAULT_CODE, new UnsignedWordElement(33292)) // 33292						
 
 		));
+
+			modbusProtocol.addTask(new FC3ReadRegistersTask(43073, Priority.LOW,
+					m(new BitsWordElement(43073, this)
+							.bit(2,  PytesMeterGrid.ChannelId.METER_CT_IN_GRID)
+							.bit(3,  PytesMeterGrid.ChannelId.METER_PARALLEL_PV_CT_SWITCH)
+							.bit(4,  PytesMeterGrid.ChannelId.METER_EPM_SWITCH)
+							.bit(5,  PytesMeterGrid.ChannelId.METER_FAILSAFE_SWITCH)
+							.bit(6,  PytesMeterGrid.ChannelId.METER_POWER_CONTROL_MODE_UNBALANCED)
+							.bit(7,  PytesMeterGrid.ChannelId.METER_EPM_CURRENT_SETTING_SWITCH)
+							.bit(8,  PytesMeterGrid.ChannelId.METER_EXTERNAL_EPM_STATUS)
+							.bit(9,  PytesMeterGrid.ChannelId.METER_EXTERNAL_EPM_FAILSAFE_SWITCH)
+							.bit(13, PytesMeterGrid.ChannelId.METER_CT_SELECTION))
+			));
 		
 			modbusProtocol.addTask(new FC4ReadInputRegistersTask(33300, Priority.LOW, 
 			    m(PytesMeterGrid.ChannelId.METER1_TYPE_LOCATION_RAW, new UnsignedWordElement(33300))));
@@ -214,7 +227,7 @@ public class PytesMeterGridImpl extends AbstractOpenemsModbusComponent implement
 					m(ElectricityMeter.ChannelId.FREQUENCY, new UnsignedWordElement(33282),ElementToChannelConverter.SCALE_FACTOR_1)
 					
 					));
-		//}		
+		//}
 
 		return modbusProtocol;
 

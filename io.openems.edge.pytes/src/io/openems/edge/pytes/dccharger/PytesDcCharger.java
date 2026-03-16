@@ -7,8 +7,9 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
-public interface PytesDcCharger extends OpenemsComponent, EventHandler {
+public interface PytesDcCharger extends EssDcCharger, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         // ---------------------------------------------------------------------
