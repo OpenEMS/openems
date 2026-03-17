@@ -314,7 +314,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nInverterCurrentStatus=" + this.channel(PytesJs3.ChannelId.INVERTER_CURRENT_STATUS).value().asString()
 					+ "\nOperatingMode=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE).value().asString()
 					+ "\nFrequency=" + this.channel(PytesJs3.ChannelId.FREQUENCY).value().asString()
-					/*
+					
 					+ "\nLeadAcidBatteryTemp=" + this.channel(PytesJs3.ChannelId.LEAD_ACID_BATTERY_TEMP).value().asString()
 					+ "\nFunctionStatus=" + this.channel(PytesJs3.ChannelId.FUNCTION_STATUS).value().asString()
 					+ "\nCurrentDrmCodeStatus=" + this.channel(PytesJs3.ChannelId.CURRENT_DRM_CODE_STATUS).value().asString()
@@ -482,7 +482,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					
 					+ "\nOperatingModeDecoded=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE_DECODE).value().asString()
 					
-					*/
+					
 					;			
 			
 		}
