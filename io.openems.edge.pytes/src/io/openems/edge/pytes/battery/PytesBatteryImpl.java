@@ -258,8 +258,8 @@ public class PytesBatteryImpl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_1),
 						
 						// Battery Current [mA], resolution 0.1A
-						m(PytesBattery.ChannelId.BMS_BATTERY_CURRENT, new SignedWordElement(33142),
-								ElementToChannelConverter.SCALE_FACTOR_2),
+						m(Battery.ChannelId.CURRENT, new SignedWordElement(33142),
+								ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
 						
 						// BMS Charge Current Limit [mA], resolution 0.1A
 						m(PytesBattery.ChannelId.BMS_CHARGE_CURRENT_LIMIT, new UnsignedWordElement(33143),

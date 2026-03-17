@@ -4,9 +4,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 import io.openems.edge.pytes.battery.PytesBattery;
 import io.openems.edge.pytes.dccharger.PytesDcCharger;
-import io.openems.edge.pytes.enums.EnableDisable;
-import io.openems.edge.pytes.enums.RemoteDispatchRealtimeControlSwitch;
-import io.openems.edge.pytes.enums.RemoteDispatchSystemLimitSwitch;
 
 import org.slf4j.Logger;
 
@@ -146,12 +143,13 @@ public class ApplyPowerHandler {
 	// ========================= Helper =========================
 
 	/**
-	 * ToDo: Read before Write
+	 * Flags: "erstmal lassen", aber ohne Unterscheidung nach Charge/Discharge.
+	 * Einheitliche Konfiguration.
 	 */
 	private void writeFlags() throws OpenemsNamedException {
-		ess.setRemoteDispatchSwitch(EnableDisable.ENABLE);
-		ess.setRemoteDispatchTimeout(5); // in Minutes
-		ess.setRemoteDispatchSystemLimitSwitch(RemoteDispatchSystemLimitSwitch.DISABLE); // 44102 0
+		ess.setRemoteDispatchSwitch(1);
+		ess.setRemoteDispatchTimeout(5);
+		ess.setRemoteDispatchSystemLimitSwitch(0); // 44102 0
 													// -> No
 													// import
 													// /
@@ -168,7 +166,7 @@ public class ApplyPowerHandler {
 		 * Charge/Discharge Control 3: Grid Connection Point Import/Export Control 4. AC
 		 * Grid Port Import/Export Control Default :1 , others invalid
 		 */
-		ess.setRemoteDispatchRealtimeControlFunctionSwitch(RemoteDispatchRealtimeControlSwitch.BATTERY_CONTROL); // Battery Charge/Discharge Control
+		ess.setRemoteDispatchRealtimeControlSwitch(2); // Battery Charge/Discharge Control
 
 	}
 

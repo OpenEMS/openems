@@ -29,12 +29,12 @@ public interface PytesDcCharger extends EssDcCharger, OpenemsComponent, EventHan
                 .accessMode(AccessMode.READ_ONLY)),
 
         // NOTE: register is U16 with 0.1 kWh resolution
-        PV_ENERGY_TODAY_0_1KWH(Doc.of(OpenemsType.INTEGER)
+        PV_ENERGY_TODAY_KWH(Doc.of(OpenemsType.INTEGER)
                 .unit(Unit.KILOWATT_HOURS)
                 .accessMode(AccessMode.READ_ONLY)),
 
         // NOTE: register is U16 with 0.1 kWh resolution
-        PV_ENERGY_YESTERDAY_0_1KWH(Doc.of(OpenemsType.INTEGER)
+        PV_ENERGY_YESTERDAY_KWH(Doc.of(OpenemsType.INTEGER)
                 .unit(Unit.KILOWATT_HOURS)
                 .accessMode(AccessMode.READ_ONLY)),
 
