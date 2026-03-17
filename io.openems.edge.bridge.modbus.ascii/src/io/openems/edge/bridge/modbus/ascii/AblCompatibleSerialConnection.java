@@ -22,12 +22,6 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
  */
 class AblCompatibleSerialConnection extends SerialConnection {
 
-	/** Standard Modbus/ASCII frame-start character. */
-	private static final byte STANDARD_FRAME_START = ':'; // 0x3A
-
-	/** Non-standard frame-start character sent by the ABL eMH1. */
-	private static final byte ABL_FRAME_START = '>'; // 0x3E
-
 	AblCompatibleSerialConnection(SerialParameters parameters) {
 		super(parameters);
 	}
@@ -39,22 +33,7 @@ class AblCompatibleSerialConnection extends SerialConnection {
 	@Override
 	public int readBytes(byte[] buffer, int bytesToRead) {
 		var result = super.readBytes(buffer, bytesToRead);
-		replaceAblFrameStart(buffer, result);
+		AblFrameStartReplacer.replace(buffer, result);
 		return result;
-	}
-
-	/**
-	 * Replaces any ABL eMH1 non-standard frame-start bytes in the buffer with the
-	 * standard Modbus/ASCII frame-start byte.
-	 *
-	 * @param buffer the byte buffer to modify in place
-	 * @param count  the number of valid bytes in the buffer
-	 */
-	static void replaceAblFrameStart(byte[] buffer, int count) {
-		for (var i = 0; i < count; i++) {
-			if (buffer[i] == ABL_FRAME_START) {
-				buffer[i] = STANDARD_FRAME_START;
-			}
-		}
 	}
 }
