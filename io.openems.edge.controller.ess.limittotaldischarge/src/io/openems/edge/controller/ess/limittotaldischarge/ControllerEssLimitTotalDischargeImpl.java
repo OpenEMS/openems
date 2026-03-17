@@ -25,6 +25,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
 @Designate(ocd = Config.class, factory = true)
@@ -49,6 +50,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 	private EnergyScheduleHandler energyScheduleHandler;
 	private String essId;
+	private HybridEssMode hybridEssMode;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
 	private Optional<Integer> forceChargePower = Optional.empty();
@@ -71,6 +73,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 						: null));
 
 		this.essId = config.ess_id();
+		this.hybridEssMode = config.hybridEssMode();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
 
@@ -150,7 +153,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				 * Min-SoC State
 				 */
 				// Deny further discharging: set Constraint for ActivePower <= 0
-				calculatedPower = 0;
+				calculatedPower = getAcPower(ess, this.hybridEssMode, 0);
 
 				if (soc <= this.forceChargeSoc) {
 					stateChanged = this.changeState(State.FORCE_CHARGE_SOC);
@@ -168,7 +171,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				 */
 				// Force charge: set Constraint for ActivePower
 				if (this.forceChargePower.isPresent()) {
-					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
+					calculatedPower = getAcPower(ess, this.hybridEssMode, this.forceChargePower.get() * -1); // convert to negative for charging
 				} else {
 					var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 					calculatedPower = maxCharge / 5;
@@ -193,6 +196,31 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 		// store current state in StateMachine channel
 		this.channel(ControllerEssLimitTotalDischarge.ChannelId.STATE_MACHINE).setNextValue(this.state);
+	}
+
+	/**
+	 * Gets the required AC power set-point for AC- or Hybrid-ESS.
+	 *
+	 * @param ess           the {@link ManagedSymmetricEss}; checked for
+	 *                      {@link HybridEss}
+	 * @param hybridEssMode the {@link HybridEssMode}
+	 * @param power         the configured target power
+	 * @return the AC power set-point
+	 */
+	protected static Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
+		return switch (hybridEssMode) {
+		case TARGET_AC -> power;
+
+		case TARGET_DC -> //
+			switch (ess) {
+			case HybridEss he -> {
+				var pv = ess.getActivePower().orElse(0) - he.getDcDischargePower().orElse(0);
+				pv = pv > 0 ? pv : 0; // avoid negative numbers
+				yield pv + power; // Charge or Discharge
+			}
+			default -> power;
+			};
+		};
 	}
 
 	/**

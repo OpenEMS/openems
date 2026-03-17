@@ -8,6 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String essId;
+		private HybridEssMode hybridEssMode;
 		private int minSoc;
 		private int forceChargeSoc;
 		private int forceChargePower;
@@ -22,6 +23,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEssId(String essId) {
 			this.essId = essId;
+			return this;
+		}
+
+		public Builder setHybridEssMode(HybridEssMode hybridEssMode) {
+			this.hybridEssMode = hybridEssMode;
 			return this;
 		}
 
@@ -64,6 +70,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ess_id() {
 		return this.builder.essId;
+	}
+
+	@Override
+	public HybridEssMode hybridEssMode() {
+		return this.builder.hybridEssMode;
 	}
 
 	@Override
