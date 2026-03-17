@@ -142,66 +142,128 @@ public class PytesDcChargerImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		return new ModbusProtocol(this, //
+		return new ModbusProtocol(this,
 
-				new FC4ReadInputRegistersTask(33029, Priority.HIGH, //
 
+				// ---------------------------------------------------------------
+				// PV Energy Counters (reg 33029..33039)
+				// Priority LOW – historical totals, slow-changing
+				// ---------------------------------------------------------------
+				new FC4ReadInputRegistersTask(33029, Priority.LOW, //
+
+						// Total PV energy since installation [kWh], resolution 1kWh
 						m(PytesDcCharger.ChannelId.PV_ENERGY_TOTAL_KWH, new UnsignedDoublewordElement(33029)),
+						
+						// PV energy this month [kWh], resolution 1kWh
 						m(PytesDcCharger.ChannelId.PV_ENERGY_MONTH_KWH, new UnsignedDoublewordElement(33031)),
+						
+						// PV energy last month [kWh], resolution 1kWh
 						m(PytesDcCharger.ChannelId.PV_ENERGY_LAST_MONTH_KWH, new UnsignedDoublewordElement(33033)),
-						m(PytesDcCharger.ChannelId.PV_ENERGY_TODAY_0_1KWH, new UnsignedWordElement(33035)),
-						m(PytesDcCharger.ChannelId.PV_ENERGY_YESTERDAY_0_1KWH, new UnsignedWordElement(33036)),
+						
+						// PV energy today [kWh], resolution 0.1kWh
+						m(PytesDcCharger.ChannelId.PV_ENERGY_TODAY_KWH, new UnsignedWordElement(33035),
+									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						
+						// PV energy yesterday [1kWh], resolution 0.1kWh
+						m(PytesDcCharger.ChannelId.PV_ENERGY_YESTERDAY_KWH, new UnsignedWordElement(33036),
+									ElementToChannelConverter.SCALE_FACTOR_MINUS_1),
+						
+						// PV energy this year [kWh], resolution 1kWh
 						m(PytesDcCharger.ChannelId.PV_ENERGY_YEAR_KWH, new UnsignedDoublewordElement(33037)),
+						
+						// PV energy last year [kWh], resolution 1kWh
 						m(PytesDcCharger.ChannelId.PV_ENERGY_LAST_YEAR_KWH, new UnsignedDoublewordElement(33039)),
+						
 						new DummyRegisterElement(33041, 33047),
 
-						m(PytesDcCharger.ChannelId.DC_INPUT_TYPE, new UnsignedWordElement(33048)),
+						// DC Input Type (number of MPPT strings connected)
+						// decoded to DcInputType enum
+						m(PytesDcCharger.ChannelId.DC_INPUT_TYPE, new UnsignedWordElement(33048))
+				),
 
-						// DC1..DC4
+				// ---------------------------------------------------------------
+				// DC String Voltages and Currents – strings 1–4 (reg 33049..33056)
+				// + Total PV Power (reg 33057–33058)
+				// Priority HIGH – real-time PV monitoring
+				// ---------------------------------------------------------------
+				new FC4ReadInputRegistersTask(33049, Priority.HIGH,
+ 
+						// DC string 1 voltage [mV], resolution 0.1V
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_1, new UnsignedWordElement(33049),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// DC string 1 current [mA], resolution 0.1A
 						m(PytesDcCharger.ChannelId.DC_CURRENT_1, new UnsignedWordElement(33050),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// DC string 2 voltage [mV], resolution 0.1V
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_2, new UnsignedWordElement(33051),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33052 – DC string 2 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_2, new UnsignedWordElement(33052),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// DC string 3 voltage [mV], resolution 0.1V
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_3, new UnsignedWordElement(33053),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33054 – DC string 3 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_3, new UnsignedWordElement(33054),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// DC string 4 voltage [mV], resolution 0.1V
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_4, new UnsignedWordElement(33055),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33056 – DC string 4 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_4, new UnsignedWordElement(33056),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
-						// PV Power total (U32, 1W)
-						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(33057)),
-
+ 
+						// reg 33057–33058 – Total DC output power / Total PV Power [W]
+						// U32 (2 registers), 1 W resolution → no converter needed
+						m(EssDcCharger.ChannelId.ACTUAL_POWER, new UnsignedDoublewordElement(33057))
+				),
+ 
+				// ---------------------------------------------------------------
+				// DC String Voltages and Currents – strings 5–8 (reg 33059..33066)
+				// Priority HIGH – real-time PV monitoring
+				// ---------------------------------------------------------------
+				new FC4ReadInputRegistersTask(33059, Priority.HIGH,
+ 
+						// reg 33059 – DC string 5 voltage [mV]
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_5, new UnsignedWordElement(33059),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33060 – DC string 5 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_5, new UnsignedWordElement(33060),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// reg 33061 – DC string 6 voltage [mV]
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_6, new UnsignedWordElement(33061),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33062 – DC string 6 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_6, new UnsignedWordElement(33062),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// reg 33063 – DC string 7 voltage [mV]
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_7, new UnsignedWordElement(33063),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33064 – DC string 7 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_7, new UnsignedWordElement(33064),
 								ElementToChannelConverter.SCALE_FACTOR_2),
-
+ 
+						// reg 33065 – DC string 8 voltage [mV]
 						m(PytesDcCharger.ChannelId.DC_VOLTAGE_8, new UnsignedWordElement(33065),
 								ElementToChannelConverter.SCALE_FACTOR_2),
+ 
+						// reg 33066 – DC string 8 current [mA]
 						m(PytesDcCharger.ChannelId.DC_CURRENT_8, new UnsignedWordElement(33066),
 								ElementToChannelConverter.SCALE_FACTOR_2)
-
-				));
+				)
+		);
 
 	}
 
