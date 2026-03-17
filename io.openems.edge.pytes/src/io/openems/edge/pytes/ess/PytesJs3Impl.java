@@ -28,11 +28,13 @@ import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.SignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -159,6 +161,18 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 						m(PytesJs3.ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_SWITCH, new UnsignedWordElement(44105)),
 						m(PytesJs3.ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_POWER, new SignedDoublewordElement(44106)),
 						m(PytesJs3.ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_FUNCTION_SWITCH, new UnsignedWordElement(44108))),
+				
+				
+				new FC3ReadRegistersTask(44100, Priority.HIGH,
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_SWITCH, new UnsignedWordElement(44100)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_TIMEOUT, new UnsignedWordElement(44101)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_SYSTEM_LIMIT_SWITCH, new UnsignedWordElement(44102)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_SYSTEM_IMPORT_LIMIT, new UnsignedWordElement(44103)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_SYSTEM_EXPORT_LIMIT, new UnsignedWordElement(44104)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_SWITCH, new UnsignedWordElement(44105)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_POWER, new SignedDoublewordElement(44106)),
+						m(PytesJs3.ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_FUNCTION_SWITCH, new UnsignedWordElement(44108))),
+
 
 				new FC4ReadInputRegistersTask(33067, Priority.HIGH, //
 
@@ -302,7 +316,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					+ "\nInverterCurrentStatus=" + this.channel(PytesJs3.ChannelId.INVERTER_CURRENT_STATUS).value().asString()
 					+ "\nOperatingMode=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE).value().asString()
 					+ "\nFrequency=" + this.channel(PytesJs3.ChannelId.FREQUENCY).value().asString()
-					/*
+					
 					+ "\nLeadAcidBatteryTemp=" + this.channel(PytesJs3.ChannelId.LEAD_ACID_BATTERY_TEMP).value().asString()
 					+ "\nFunctionStatus=" + this.channel(PytesJs3.ChannelId.FUNCTION_STATUS).value().asString()
 					+ "\nCurrentDrmCodeStatus=" + this.channel(PytesJs3.ChannelId.CURRENT_DRM_CODE_STATUS).value().asString()
@@ -470,7 +484,7 @@ public class PytesJs3Impl extends AbstractOpenemsModbusComponent implements Pyte
 					
 					+ "\nOperatingModeDecoded=" + this.channel(PytesJs3.ChannelId.OPERATING_MODE_DECODE).value().asString()
 					
-					*/
+					
 					;			
 			
 		}
