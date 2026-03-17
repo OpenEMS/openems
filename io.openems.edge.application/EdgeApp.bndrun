@@ -9,7 +9,7 @@
 	felix.cm.dir=c:/openems/config,\
 	openems.data.dir=c:/openems/data,\
 	org.apache.felix.eventadmin.Timeout=0,\
-	org.ops4j.pax.logging.DefaultServiceLog.level=INFO
+	org.ops4j.pax.logging.DefaultServiceLog.level=WARN
 
 -runsystempackages:\
 	sun.misc,\
@@ -25,7 +25,8 @@
 	org.apache.felix.fileinstall;startlevel=13,\
 	org.ops4j.pax.logging.pax-logging-api;startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=15,\
-	io.openems.edge.application;startlevel=16,\
+	io.openems.core.logger;startlevel=16,\
+	io.openems.edge.application;startlevel=17,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -38,6 +39,7 @@
 	bnd.identity;id='org.apache.felix.eventadmin',\
 	bnd.identity;id='org.apache.felix.fileinstall',\
 	bnd.identity;id='org.apache.felix.metatype',\
+	bnd.identity;id='io.openems.core.logger',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -89,6 +91,7 @@
 	bnd.identity;id='io.openems.edge.controller.ess.reactivepowervoltagecharacteristic',\
 	bnd.identity;id='io.openems.edge.controller.ess.ripplecontrolreceiver',\
 	bnd.identity;id='io.openems.edge.controller.ess.selltogridlimit',\
+	bnd.identity;id='io.openems.edge.controller.ess.sohcycle',\
 	bnd.identity;id='io.openems.edge.controller.ess.standby',\
 	bnd.identity;id='io.openems.edge.controller.ess.timeofusetariff',\
 	bnd.identity;id='io.openems.edge.controller.evcs',\
@@ -167,6 +170,7 @@
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
+	bnd.identity;id='io.openems.edge.meter.hager',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
@@ -211,19 +215,19 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.rabotcharge',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.swisspower',\
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
+	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
 
 -runbundles: \
-	Java-WebSocket;version='[1.6.0,1.6.1)',\
 	bcpkix;version='[1.83.0,1.83.1)',\
 	bcprov;version='[1.83.0,1.83.1)',\
 	bcutil;version='[1.83.0,1.83.1)',\
-	com.fasterxml.aalto-xml;version='[1.3.3,1.3.4)',\
+	com.fasterxml.aalto-xml;version='[1.3.4,1.3.5)',\
 	com.fazecast.jSerialComm;version='[2.11.4,2.11.5)',\
 	com.google.gson;version='[2.13.2,2.13.3)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.google.protobuf;version='[4.33.2,4.33.3)',\
+	com.google.protobuf;version='[4.34.0,4.34.1)',\
 	com.opencsv;version='[5.9.0,5.9.1)',\
 	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
 	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
@@ -231,7 +235,8 @@
 	com.sun.jna;version='[5.18.1,5.18.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
-	io.openems.edge.application;version=snapshot,\
+	io.openems.core.logger;version=snapshot;startlevel=16,\
+	io.openems.edge.application;version=snapshot;startlevel=17,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
@@ -285,6 +290,7 @@
 	io.openems.edge.controller.ess.reactivepowervoltagecharacteristic;version=snapshot,\
 	io.openems.edge.controller.ess.ripplecontrolreceiver;version=snapshot,\
 	io.openems.edge.controller.ess.selltogridlimit;version=snapshot,\
+	io.openems.edge.controller.ess.sohcycle;version=snapshot,\
 	io.openems.edge.controller.ess.standby;version=snapshot,\
 	io.openems.edge.controller.ess.timeofusetariff;version=snapshot,\
 	io.openems.edge.controller.evcs;version=snapshot,\
@@ -370,6 +376,7 @@
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
+	io.openems.edge.meter.hager;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
@@ -421,11 +428,13 @@
 	io.openems.edge.timeofusetariff.rabotcharge;version=snapshot,\
 	io.openems.edge.timeofusetariff.swisspower;version=snapshot,\
 	io.openems.edge.timeofusetariff.tibber;version=snapshot,\
+	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.weather.openmeteo;version=snapshot,\
 	io.openems.j2mod;version='[3.2.2,3.2.3)',\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
+	io.openems.wrapper.Java-WebSocket;version=snapshot,\
 	io.openems.wrapper.eu.chargetime.ocpp;version=snapshot,\
 	io.openems.wrapper.fastexcel;version=snapshot,\
 	io.openems.wrapper.gson;version=snapshot,\
@@ -447,26 +456,26 @@
 	io.openems.wrapper.sdnotify;version=snapshot,\
 	io.openems.wrapper.tribuo;version=snapshot,\
 	io.reactivex.rxjava3.rxjava;version='[3.1.12,3.1.13)',\
-	javax.jmdns;version='[3.6.2,3.6.3)',\
+	javax.jmdns;version='[3.6.3,3.6.4)',\
 	org.apache.commons.collections;version='[3.2.2,3.2.3)',\
 	org.apache.commons.commons-beanutils;version='[1.9.4,1.9.5)',\
 	org.apache.commons.commons-codec;version='[1.19.0,1.19.1)',\
 	org.apache.commons.commons-collections4;version='[4.4.0,4.4.1)',\
-	org.apache.commons.commons-compress;version='[1.27.1,1.27.2)',\
+	org.apache.commons.commons-compress;version='[1.28.0,1.28.1)',\
 	org.apache.commons.commons-csv;version='[1.14.1,1.14.2)',\
 	org.apache.commons.commons-fileupload;version='[1.6.0,1.6.1)',\
 	org.apache.commons.commons-io;version='[2.20.0,2.20.1)',\
-	org.apache.commons.lang3;version='[3.16.0,3.16.1)',\
+	org.apache.commons.lang3;version='[3.20.0,3.20.1)',\
 	org.apache.commons.math3;version='[3.6.1,3.6.2)',\
 	org.apache.commons.text;version='[1.11.0,1.11.1)',\
-	org.apache.felix.configadmin;version='[1.9.26,1.9.27)',\
-	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)',\
-	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)',\
-	org.apache.felix.http.jetty12;version='[1.1.6,1.1.7)',\
+	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
+	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
+	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
+	org.apache.felix.http.jetty12;version='[1.1.8,1.1.9)',\
 	org.apache.felix.http.servlet-api;version='[6.1.0,6.1.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.2.14,2.2.15)',\
+	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.eclipse.jetty.client;version='[9.4.28,9.4.29)',\
@@ -475,17 +484,17 @@
 	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.3.0,2.3.1)',\
-	org.jsoup;version='[1.21.2,1.21.3)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
+	org.jsoup;version='[1.22.1,1.22.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.1,2.3.2)',\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.1,2.3.2)',\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.2,2.3.3)';startlevel=14,\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.2,2.3.3)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\
 	org.owasp.encoder;version='[1.4.0,1.4.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
-	rrd4j;version='[3.9.0,3.9.1)',\
+	rrd4j;version='[3.10.0,3.10.1)',\
 	stax2-api;version='[4.2.2,4.2.3)'

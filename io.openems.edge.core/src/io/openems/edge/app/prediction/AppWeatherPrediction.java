@@ -18,6 +18,7 @@ import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -42,7 +43,8 @@ public class AppWeatherPrediction extends
 
 	public enum Property implements Type<Property, AppWeatherPrediction, Type.Parameter.BundleParameter> {
 		WEATHER_ID(AppDef.componentId("weather0")), //
-		PREDICTOR_ID(AppDef.componentId("predictor0")), //
+		PREDICTOR_ID(AppDef.componentId("predictor1")), //
+		ALIAS(CommonProps.alias()), //
 		;
 
 		private final AppDef<? super AppWeatherPrediction, ? super Property, ? super Parameter.BundleParameter> def;
@@ -83,15 +85,17 @@ public class AppWeatherPrediction extends
 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsError.OpenemsNamedException> appPropertyConfigurationFactory() {
-		return (t, p, l) -> {
-			final var weatherId = this.getId(t, p, Property.WEATHER_ID);
-			final var predictorId = this.getId(t, p, Property.PREDICTOR_ID);
+		return (t, m, l) -> {
+			final var weatherId = this.getId(t, m, Property.WEATHER_ID);
+			final var weatherAlias = this.getString(m, l, Property.ALIAS);
+			final var predictorId = this.getId(t, m, Property.PREDICTOR_ID);
+			final var predictorAlias = getTranslation(l, "App.Prediction.Weather.Predictor.Name");
 
 			final var components = List.of(//
-					new EdgeConfig.Component(weatherId, "", "Weather.OpenMeteo", JsonUtils.buildJsonObject() //
+					new EdgeConfig.Component(weatherId, weatherAlias, "Weather.OpenMeteo", JsonUtils.buildJsonObject() //
 							.addProperty("enabled", true) //
 							.build()), //
-					new EdgeConfig.Component(predictorId, "", "Predictor.Production.LinearModel",
+					new EdgeConfig.Component(predictorId, predictorAlias, "Predictor.Production.LinearModel",
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("sourceChannel", "PRODUCTION_ACTIVE_POWER") //

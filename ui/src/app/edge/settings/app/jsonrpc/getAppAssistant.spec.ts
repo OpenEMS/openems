@@ -43,7 +43,7 @@ describe("GetAppAssistant", () => {
         expect(GetAppAssistant.findField(fields, ["a"])["initialModel"]).toBeUndefined();
         expect(GetAppAssistant.findField(fields, ["a", "b"])["initialModel"]).toBeUndefined();
         expect(GetAppAssistant.findField(fields, ["c"])["initialModel"]).toBeUndefined();
-        GetAppAssistant.setInitialModel(fields, {});
+        GetAppAssistant.getInitialFields(fields, {});
         expect(GetAppAssistant.findField(fields, ["a"])["initialModel"]).toBeDefined();
         expect(GetAppAssistant.findField(fields, ["a", "b"])["initialModel"]).toBeDefined();
         expect(GetAppAssistant.findField(fields, ["c"])["initialModel"]).toBeDefined();

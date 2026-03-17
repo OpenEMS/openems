@@ -13,7 +13,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.HashMultimap;
@@ -43,7 +42,7 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 
 	private static final int WIDTH_FIRST = 30;
 
-	private final Logger log = LoggerFactory.getLogger(ControllerDebugDetailedLogImpl.class);
+	private final Logger log = OpenemsComponent.getComponentLogger(this);
 	private final Set<String> finishedFirstRun = new HashSet<>();
 	private final Map<ChannelAddress, String> lastPrinted = new HashMap<>();
 
@@ -82,17 +81,18 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 				/*
 				 * Print on first run
 				 */
-				this.logInfo(this.log, "=======================================");
-				this.log("ID", component.id());
-				this.log("Service-PID", component.servicePid());
-				this.log("Implementation", reducePackageName(component.getClass()));
+				this.log.info("=======================================");
+				this.logFormatted("ID", component.id());
+				this.logFormatted("Service-PID", component.servicePid());
+				this.logFormatted("Implementation", reducePackageName(component.getClass()));
 				getInheritanceViaReflection(component.getClass(), null).asMap().forEach((inheritance, names) -> {
 					var first = true;
 					for (String name : names) {
 						if (first) {
-							this.log(CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
+							this.logFormatted(
+									CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, inheritance.name()), name);
 						} else {
-							this.log("", name);
+							this.logFormatted("", name);
 						}
 						first = false;
 					}
@@ -111,26 +111,28 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 						 */
 						var channelText = switch (channel.channelDoc().getAccessMode()) {
 						case READ_ONLY, READ_WRITE -> {
-							var description = "";
+							final var description = new StringBuilder(64);
 							if (channel instanceof EnumReadChannel) {
 								try {
-									description += channel.value().asOptionString();
+									description.append(channel.value().asOptionString());
 								} catch (IllegalArgumentException e) {
-									description += "UNKNOWN OPTION VALUE [" + channel.value().asString() + "]";
-									description += "ERROR: " + e.getMessage();
+									description //
+											.append("UNKNOWN OPTION VALUE [") //
+											.append(channel.value().asString()) //
+											.append("] ERROR: ").append(e.getMessage());
 								}
 							}
 							if (channel instanceof StateChannel sc && sc.value().orElse(false) == true) {
 								if (!description.isEmpty()) {
-									description += "; ";
+									description.append("; ");
 								}
-								description += sc.channelDoc().getText();
+								description.append(sc.channelDoc().getText());
 							}
 							if (channel instanceof StateCollectorChannel scc && scc.value().orElse(0) != 0) {
 								if (!description.isEmpty()) {
-									description += "; ";
+									description.append("; ");
 								}
-								description += scc.listStates();
+								description.append(scc.listStates());
 							}
 							yield String.format("%15s %-3s %s", //
 									channel.value().asStringWithoutUnit(), //
@@ -141,7 +143,7 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 							-> "WRITE_ONLY";
 						};
 						// Build complete line
-						var line = String.format("%-" + WIDTH_FIRST + "s : %s", channel.channelId().id(), channelText);
+						final var line = this.format(channel.channelId().id(), channelText);
 						// Print the line only if is not equal to the last printed line
 						if (!this.lastPrinted.containsKey(channel.address())
 								|| !this.lastPrinted.get(channel.address()).equals(line)) {
@@ -156,15 +158,13 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 					/*
 					 * Print header (this is not the first run)
 					 */
-					this.logInfo(this.log, "=======================================");
-					this.log("ID", component.id());
+					this.log.info("=======================================");
+					this.logFormatted("ID", component.id());
 				}
 
-				this.logInfo(this.log, "---------------------------------------");
-				shouldPrint.values().stream().sorted().forEach(line -> {
-					this.logInfo(this.log, line);
-				});
-				this.logInfo(this.log, "---------------------------------------");
+				this.log.info("---------------------------------------");
+				shouldPrint.values().stream().sorted().forEach(this.log::info);
+				this.log.info("---------------------------------------");
 			}
 		}
 	}
@@ -190,8 +190,14 @@ public class ControllerDebugDetailedLogImpl extends AbstractOpenemsComponent
 		return map;
 	}
 
-	private void log(String topic, String message) {
-		this.logInfo(this.log, String.format("%-" + WIDTH_FIRST + "s : %s", topic, message));
+	private void logFormatted(String topic, String message) {
+		this.log.atInfo() //
+				.setMessage(() -> this.format(topic, message)) //
+				.log();
+	}
+
+	private String format(String topic, String message) {
+		return String.format("%-" + WIDTH_FIRST + "s : %s", topic, message);
 	}
 
 	private static String reducePackageName(Class<?> clazz) {

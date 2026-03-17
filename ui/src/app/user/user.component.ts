@@ -2,6 +2,7 @@
 import { KeyValue } from "@angular/common";
 import { Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
+import { NavController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { environment, Theme as SystemTheme } from "../../environments";
@@ -12,6 +13,7 @@ import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInfo
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { RouteService } from "../shared/service/route.service";
 import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
@@ -60,6 +62,9 @@ export class UserComponent implements OnInit {
             label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
             disabled: true,
         },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
+        },
     },
     {
         key: "lastname",
@@ -67,6 +72,9 @@ export class UserComponent implements OnInit {
         props: {
             label: this.translate.instant("REGISTER.FORM.LASTNAME"),
             disabled: true,
+        },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
         },
     }];
     protected companyInformationFields: FormlyFieldConfig[] = [];
@@ -82,6 +90,8 @@ export class UserComponent implements OnInit {
         private websocket: Websocket,
         private userService: UserService,
         private navigationService: NavigationService,
+        private routeService: RouteService,
+        protected navCtrl: NavController,
     ) {
         effect(async () => {
             const user = this.userService.currentUser();
@@ -100,7 +110,7 @@ export class UserComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
+        this.currentLanguage = Language.getCurrentLanguage();
         this.systemTheme = environment.theme as SystemTheme;
     }
 
@@ -203,6 +213,14 @@ export class UserComponent implements OnInit {
     //       this.service.toast(this.translate.instant('GENERAL.CHANGE_FAILED') + '\n' + reason.error.message, 'danger');
     //     });
     // }
+
+    public navigateToChangelog(event: Event) {
+        event.preventDefault();
+        const prev = this.routeService.getCurrentUrl();
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/changelog";
+        this.navCtrl.navigateRoot(userUrl);
+    }
 
     public toggleDebugMode(event: Event) {
         localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);

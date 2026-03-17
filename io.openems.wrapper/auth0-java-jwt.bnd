@@ -1,0 +1,24 @@
+Bundle-Name: auth0 java-jwt
+Bundle-Description: 
+Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-License: https://opensource.org/licenses/MIT
+Bundle-Version: 4.5.1
+
+Include-Resource: \
+	@java-jwt-4.5.1.jar,\
+
+Export-Package: \
+	com.auth0.jwt,\
+	com.auth0.jwt.algorithms,\
+	com.auth0.jwt.exceptions,\
+	com.auth0.jwt.impl,\
+	com.auth0.jwt.interfaces,\
+
+Import-Package: \
+	*
+	
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: false

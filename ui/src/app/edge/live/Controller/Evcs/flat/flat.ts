@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";

@@ -69,7 +69,7 @@ public class TouEntsoeAncillaryCostsOtherTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		var entsoe = new TouEntsoeImpl();
-		var dummyMeta = new DummyMeta("foo0") //
+		var dummyMeta = new DummyMeta() //
 				.withCurrency(EUR);
 		var schedule = parseToJsonArray(SCHEDULE);
 		new ComponentTest(entsoe) //

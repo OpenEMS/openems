@@ -4,11 +4,15 @@ import { Meta, Title } from "@angular/platform-browser";
 import { NavigationEnd, Router } from "@angular/router";
 import { SplashScreen } from "@capacitor/splash-screen";
 import { MenuController, ModalController, NavController, Platform, ToastController } from "@ionic/angular";
+import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "../environments";
 import { PlatFormService } from "./platform.service";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
+import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
+import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
+import { RouteService } from "./shared/service/route.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -40,13 +44,17 @@ export class AppComponent implements OnInit, OnDestroy {
         public service: Service,
         public toastController: ToastController,
         public websocket: Websocket,
+        private globalRouteChangeHandler: GlobalRouteChangeHandler,
         private meta: Meta,
         private appService: PlatFormService,
         private title: Title,
         protected navigationService: NavigationService,
         protected navCtrl: NavController,
+        private translate: TranslateService,
+        private routeService: RouteService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
-        service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+        service.setLang(Language.getCurrentLanguage());
 
         this.subscription.add(
             this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
@@ -63,6 +71,15 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.appService.listen();
         SplashScreen.hide();
+    }
+
+    public navigateToUser() {
+        const prev = this.routeService.getCurrentUrl();
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/user";
+
+        this.navCtrl.navigateRoot(userUrl);
+        this.menu.close();
     }
 
     ngOnDestroy() {
@@ -94,40 +111,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
         this.platform.ready().then(() => {
             // OEM colors exist only after ionic is initialized, so the notch color has to be set here
-            const notchColor = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-background");
-            this.meta.updateTag(
-                { name: "theme-color", content: notchColor },
-            );
-            this.service.deviceHeight = this.platform.height();
-            this.service.deviceWidth = this.platform.width();
-            this.checkSmartphoneResolution(true);
-            this.platform.resize.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
-                this.service.deviceHeight = this.platform.height();
-                this.service.deviceWidth = this.platform.width();
-                this.checkSmartphoneResolution(false);
-            });
+            const notchColor = getComputedStyle(document.documentElement)
+                .getPropertyValue("--ion-color-background");
+            this.meta.updateTag({ name: "theme-color", content: notchColor });
+
+            this.appService.handleResize(this.platform, this.service, this.ngUnsubscribe);
+
+
         });
 
         this.title.setTitle(environment.edgeShortName);
     }
 
-    private checkSmartphoneResolution(init: boolean): void {
-        if (init == true) {
-            if (this.platform.width() <= 576) {
-                this.service.isSmartphoneResolution = true;
-                this.service.isSmartphoneResolutionSubject.next(true);
-            } else if (this.platform.width() > 576) {
-                this.service.isSmartphoneResolution = false;
-                this.service.isSmartphoneResolutionSubject.next(false);
-            }
-        } else {
-            if (this.platform.width() <= 576 && this.service.isSmartphoneResolution == false) {
-                this.service.isSmartphoneResolution = true;
-                this.service.isSmartphoneResolutionSubject.next(true);
-            } else if (this.platform.width() > 576 && this.service.isSmartphoneResolution == true) {
-                this.service.isSmartphoneResolution = false;
-                this.service.isSmartphoneResolutionSubject.next(false);
-            }
-        }
+    /**
+     * Called by the router-outlet (activate) event on every route change.
+     * Triggers a delayed window resize so chart components recalculate their
+     * dimensions (WCAG 1.4.4 compliance).
+     */
+    public onActivate(_event: any): void {
+        this.layoutRefresh.request(200);
     }
 }

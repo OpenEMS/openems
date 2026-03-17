@@ -65,7 +65,7 @@ public abstract class AbstractReadTask<//
 
 				return ExecuteState.OK;
 
-			} catch (Exception e1) { 
+			} catch (Exception e1) {
 				logError(this.log, e1, "Parsing Response failed.");
 				throw e1;
 			}
@@ -132,7 +132,7 @@ public abstract class AbstractReadTask<//
 				if (this.elementClazz.isInstance(element)) {
 					try {
 						this.handleResponse((ELEMENT) element, position, response);
-					} catch (OpenemsException e) {
+					} catch (OpenemsException | IllegalArgumentException e) {
 						errors.add("Unable to fill Modbus Element. " //
 								+ element.toString() + " Error: " + e.getMessage());
 					}

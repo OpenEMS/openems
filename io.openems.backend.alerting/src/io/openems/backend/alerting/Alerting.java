@@ -19,10 +19,10 @@ import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.alerting.handler.OfflineEdgeHandler;
 import io.openems.backend.alerting.handler.SumStateHandler;
@@ -34,6 +34,7 @@ import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.ThreadPoolUtils;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -48,11 +49,12 @@ import io.openems.common.utils.JsonUtils;
 })
 public class Alerting extends AbstractOpenemsBackendComponent implements EventHandler, DebugLoggable {
 
+	public static final String COMPONENT_ID = "alerting0";
 	public static final String METRIC_MESSAGES_SENT = "AlertingMessagesSent";
 	public static final String METRIC_MESSAGES_QUEUE = "AlertingMessagesQueue";
 
 	// Maximum number of messages constructed at the same time
-	private static final byte THREAD_POOL_SIZE = 2;
+	private static final byte THREAD_POOL_SIZE = 4;
 	// Queue size from which warnings are issued
 	private static final byte THREAD_QUEUE_WARNING_THRESHOLD = 50;
 
@@ -62,7 +64,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		return (ThreadPoolExecutor) Executors.newFixedThreadPool(THREAD_POOL_SIZE, threadFactory);
 	}
 
-	private final Logger log = LoggerFactory.getLogger(Alerting.class);
+	private final Logger log = AbstractOpenemsBackendComponent.getComponentLogger(this);
 	private final ThreadPoolExecutor executor;
 
 	@Reference
@@ -87,7 +89,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Activate
 	protected void activate(Config config) {
-		this.logInfo(this.log, "Activate");
+		this.log.info("Activate");
 		this.scheduler.start();
 
 		if (config.notifyOnOffline()) {
@@ -102,7 +104,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 
 	@Deactivate
 	protected void deactivate() {
-		this.logInfo(this.log, "Deactivate");
+		this.log.info("Deactivate");
 		this.handler.forEach(Handler::stop);
 		this.handler.clear();
 		this.scheduler.stop();
@@ -147,6 +149,11 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 	@Override
 	public Map<String, JsonElement> debugMetrics() {
 		final var map = new HashMap<String, JsonElement>();
+
+		final var poolMetrics = ThreadPoolUtils.debugMetrics(this.executor);
+		for (var entry : poolMetrics.entrySet()) {
+			map.put("%s/%s".formatted(COMPONENT_ID, entry.getKey()), new JsonPrimitive(entry.getValue()));
+		}
 
 		for (var h : this.handler) {
 			final var id = h.id();

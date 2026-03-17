@@ -53,6 +53,12 @@ public @interface Config {
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
 	DebugMode debugMode() default DebugMode.OFF;
 
+	@AttributeDefinition(name = "User Password Authentication", description = "Enables the user password authentication against Odoo")
+	boolean enablePasswordAuthentication() default true;
+
+	@AttributeDefinition(name = "OAuth provider name")
+	String authOAuthProviderName();
+
 	String webconsole_configurationFactory_nameHint() default "Metadata.Odoo";
 
 }

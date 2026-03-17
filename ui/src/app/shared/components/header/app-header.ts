@@ -7,7 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
-import { Edge, Service, Websocket } from "../../shared";
+import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
 import { StatusSingleComponent } from "../status/single/status.component";
@@ -46,7 +46,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
         effect(() => {
             const currentNode = navigationService.currentNode();
-
             const _currentUrl = routeService.currentUrl();
 
             if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
@@ -178,25 +177,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             return;
         }
 
-        // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
-        if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
-            return;
-        }
-
-        // set backUrl for user if no edge had been selected
-        if (url === "/user") {
-            this.backUrl = "/overview";
-            return;
-        }
-
-        if (url === "/changelog" && currentEdge != null) {
-            // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
-            return;
-        }
-
         const urlArray = url.split("/");
         let backUrl: string | boolean = "/";
         const file = urlArray.pop();
@@ -238,7 +218,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
 
-        if (url.includes("/history/") && this.navigationService.position() === "disabled") {
+        if (url.includes("/history/") && !url.includes("/history/user") && this.navigationService.position() === "disabled") {
             return false;
         }
 
@@ -246,6 +226,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             case "/login":
             case "/index":
             case "/demo":
+            case "/oauthcallback":
                 return false;
             default:
                 return true;

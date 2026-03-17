@@ -1,8 +1,8 @@
 package io.openems.edge.evse.chargepoint.hardybarth;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.PhaseRotation;
-
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private PhaseRotation phaseRotation;
 		private boolean readOnly;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -30,9 +31,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.phaseRotation = phaseRotation;
 			return this;
 		}
-		
+
 		public Builder setReadOnly(boolean readOnly) {
 			this.readOnly = readOnly;
+			return this;
+		}
+
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -66,9 +72,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public PhaseRotation phaseRotation() {
 		return this.builder.phaseRotation;
 	}
-	
+
 	@Override
 	public boolean readOnly() {
 		return this.builder.readOnly;
+	}
+
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
 	}
 }

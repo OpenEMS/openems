@@ -3,15 +3,19 @@ package io.openems.edge.timeofusetariff.entsoe;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.XmlUtils.getXmlRootDocument;
 import static io.openems.common.utils.XmlUtils.stream;
+import static io.openems.edge.common.type.QuarterlyValues.streamQuartersExclusive;
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseForGermany;
 import static java.lang.Double.parseDouble;
 import static java.lang.Integer.parseInt;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.Clock;
 import java.time.Duration;
-import java.time.ZoneId;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -48,7 +53,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class Utils {
 
-	private record TimeInterval(ZonedDateTime start, ZonedDateTime end) {
+	private record TimeInterval(Instant start, Instant end) {
 	}
 
 	private static final int API_EXECUTE_HOUR = 14;
@@ -65,7 +70,7 @@ public class Utils {
 	 * @throws SAXException                 on error
 	 * @throws IOException                  on error
 	 */
-	protected static ImmutableSortedMap<ZonedDateTime, Double> parsePrices(String xml, Resolution preferredResolution,
+	protected static ImmutableSortedMap<Instant, Double> parsePrices(String xml, Resolution preferredResolution,
 			BiddingZone biddingZone) throws ParserConfigurationException, SAXException, IOException {
 		var root = getXmlRootDocument(xml);
 
@@ -82,12 +87,9 @@ public class Utils {
 				.distinct() //
 				.toList();
 
-		return Stream //
-				.iterate(globalTimeInterval.start, //
-						t -> t.isBefore(globalTimeInterval.end), //
-						t -> t.plusMinutes(15)) //
-				.collect(ImmutableSortedMap.<ZonedDateTime, ZonedDateTime, Double>toImmutableSortedMap(//
-						Comparator.naturalOrder(), //
+		return streamQuartersExclusive(globalTimeInterval.start, globalTimeInterval.end) //
+				.collect(ImmutableSortedMap.<Instant, Instant, Double>toImmutableSortedMap(//
+						Instant::compareTo, //
 						Function.identity(), //
 						t -> {
 							return durations.stream() //
@@ -95,7 +97,7 @@ public class Utils {
 										var time = Stream.of(Resolution.values()) //
 												.filter(r -> r.duration.equals(duration)) //
 												.map(r -> switch (r) {
-												case HOURLY -> t.truncatedTo(ChronoUnit.HOURS);
+												case HOURLY -> t.truncatedTo(HOURS);
 												case QUARTERLY -> roundDownToQuarter(t);
 												}) //
 												.findFirst().orElse(t); // should not happen
@@ -106,10 +108,9 @@ public class Utils {
 										return null;
 									});
 						}));
-
 	}
 
-	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXmlWithFallback(Element root,
+	protected static ImmutableTable<Duration, Instant, Double> parseXmlWithFallback(Element root,
 			Resolution preferredResolution, TimeInterval globalTimeInterval, BiddingZone biddingZone) {
 		// Check if classificationSequence exists
 		var hasClassificationSequence = stream(root) //
@@ -129,12 +130,12 @@ public class Utils {
 		}
 	}
 
-	protected static TimeOfUsePrices processPrices(Clock clock, ImmutableSortedMap<ZonedDateTime, Double> timePriceMap,
+	protected static TimeOfUsePrices processPrices(Clock clock, ImmutableSortedMap<Instant, Double> timePriceMap,
 			double exchangeRate, TimeOfUsePrices gridFees) {
 
 		// Filter timePriceMap to include only entries from "now" onward.
 		// filteredMap will have 34 hour data maximum (when called during 14:00).
-		var filteredPrices = timePriceMap.tailMap(ZonedDateTime.now(clock), true);
+		var filteredPrices = timePriceMap.tailMap(roundDownToQuarter(Instant.now(clock)), true);
 
 		if (filteredPrices.isEmpty()) {
 			return TimeOfUsePrices.EMPTY_PRICES; // or handle as appropriate
@@ -148,8 +149,7 @@ public class Utils {
 		gridFeesArray = Arrays.copyOf(gridFeesArray, filterSize);
 
 		// Build the result map with adjusted prices
-		ImmutableSortedMap.Builder<ZonedDateTime, Double> resultBuilder = new ImmutableSortedMap.Builder<>(
-				Comparator.naturalOrder());
+		var resultBuilder = new ImmutableSortedMap.Builder<Instant, Double>(Comparator.naturalOrder());
 
 		int index = 0;
 		for (var entry : filteredPrices.entrySet()) {
@@ -167,8 +167,8 @@ public class Utils {
 		return TimeOfUsePrices.from(resultBuilder.build());
 	}
 
-	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXml(Element root) {
-		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
+	protected static ImmutableTable<Duration, Instant, Double> parseXml(Element root) {
+		var result = ImmutableTable.<Duration, Instant, Double>builder();
 		stream(root) //
 				// <TimeSeries>
 				.filter(n -> n.getNodeName() == "TimeSeries") //
@@ -201,19 +201,19 @@ public class Utils {
 						.filter(n -> n.getNodeName() == "start") //
 						.map(XmlUtils::getContentAsString) //
 						.findFirst().get(),
-				FORMATTER_MINUTES).withZoneSameInstant(ZoneId.of("UTC"));
+				FORMATTER_MINUTES).toInstant();
 		var end = ZonedDateTime.parse(//
 				nodes.stream() //
 						// <end>2025-01-18T23:00Z</end>
 						.filter(n -> n.getNodeName() == "end") //
 						.map(XmlUtils::getContentAsString) //
 						.findFirst().get(),
-				FORMATTER_MINUTES).withZoneSameInstant(ZoneId.of("UTC"));
+				FORMATTER_MINUTES).toInstant();
 		return new TimeInterval(start, end);
 	}
 
-	protected static ImmutableTable<Duration, ZonedDateTime, Double> parseXmlForSequence(Element root, int position) {
-		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
+	protected static ImmutableTable<Duration, Instant, Double> parseXmlForSequence(Element root, int position) {
+		var result = ImmutableTable.<Duration, Instant, Double>builder();
 		stream(root) //
 				// <TimeSeries>
 				.filter(n -> n.getNodeName() == "TimeSeries") //
@@ -232,12 +232,11 @@ public class Utils {
 		return result.build();
 	}
 
-	private static ImmutableTable<Duration, ZonedDateTime, Double> mergeSequences(
-			ImmutableTable<Duration, ZonedDateTime, Double> sequence1,
-			ImmutableTable<Duration, ZonedDateTime, Double> sequence2, Element root, Resolution preferredResolution,
-			TimeInterval globalTimeInterval, BiddingZone biddingZone) {
+	private static ImmutableTable<Duration, Instant, Double> mergeSequences(
+			ImmutableTable<Duration, Instant, Double> sequence1, ImmutableTable<Duration, Instant, Double> sequence2,
+			Element root, Resolution preferredResolution, TimeInterval globalTimeInterval, BiddingZone biddingZone) {
 
-		var result = ImmutableTable.<Duration, ZonedDateTime, Double>builder();
+		var result = ImmutableTable.<Duration, Instant, Double>builder();
 
 		// If position 1 is empty, use position 2 entirely
 		if (sequence1.isEmpty()) {
@@ -306,8 +305,7 @@ public class Utils {
 				.anyMatch(position -> position == expectedSequence);
 	}
 
-	private static Double getPrice(ImmutableTable<Duration, ZonedDateTime, Double> sequence,
-			ZonedDateTime currentTime) {
+	private static Double getPrice(ImmutableTable<Duration, Instant, Double> sequence, Instant currentTime) {
 
 		for (var entry : sequence.rowMap().entrySet()) {
 			final var key = currentTime.truncatedTo(DurationUnit.of(entry.getKey()));
@@ -317,7 +315,7 @@ public class Utils {
 		return null;
 	}
 
-	protected static void parsePeriod(ImmutableTable.Builder<Duration, ZonedDateTime, Double> result, Node period)
+	protected static void parsePeriod(ImmutableTable.Builder<Duration, Instant, Double> result, Node period)
 			throws Exception {
 		final var duration = Duration.parse(stream(period) //
 				// <resolution>
@@ -348,7 +346,7 @@ public class Utils {
 		// Fill missing positions using the last known price
 		Double price = null;
 		for (var pos = 1;; pos++) {
-			var timestamp = timeInterval.start.plusMinutes((pos - 1) * duration.toMinutes());
+			var timestamp = timeInterval.start.plus((pos - 1) * duration.toMinutes(), MINUTES);
 			if (!timestamp.isBefore(timeInterval.end)) {
 				break;
 			}
@@ -369,6 +367,7 @@ public class Utils {
 	 */
 	protected static String parseCurrency(String xml) throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
+		dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
 		var doc = dBuilder.parse(is);
@@ -403,7 +402,7 @@ public class Utils {
 	 *         the table's row keys, otherwise the shortest {@link Duration} from
 	 *         the row keys.
 	 */
-	protected static Duration getDuration(ImmutableTable<Duration, ZonedDateTime, Double> allPrices,
+	protected static Duration getDuration(ImmutableTable<Duration, Instant, Double> allPrices,
 			Resolution preferredResolution) {
 		return allPrices.rowKeySet().stream() //
 				// match preferredResolution
@@ -437,7 +436,7 @@ public class Utils {
 		return switch (biddingZone) {
 		case GERMANY //
 			-> parseForGermany(clock, ancillaryCosts);
-		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4 -> {
+		case AUSTRIA, BELGIUM, NETHERLANDS, SWEDEN_SE1, SWEDEN_SE2, SWEDEN_SE3, SWEDEN_SE4, LITHUANIA -> {
 			logWarn.accept("Parser for " + biddingZone.name() + "-Scheduler is not implemented");
 			throw new OpenemsException("Parser for bidding zone " + biddingZone.name() + " is not implemented");
 		}
@@ -457,14 +456,14 @@ public class Utils {
 	 */
 	public static Delay calculateDelay(Clock clock, String xml)
 			throws ParserConfigurationException, SAXException, IOException {
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var root = getXmlRootDocument(xml);
 
 		final var hasClassificationSequence = stream(root) //
 				.filter(n -> n.getNodeName() == "TimeSeries") //
 				.anyMatch(timeSeries -> hasSequence(timeSeries));
 
-		final ImmutableTable<Duration, ZonedDateTime, Double> prices;
+		final ImmutableTable<Duration, Instant, Double> prices;
 
 		if (!hasClassificationSequence) {
 			// Without Sequences
@@ -474,7 +473,7 @@ public class Utils {
 			prices = parseXmlForSequence(root, 1);
 		}
 
-		var nextRun = DateUtils.roundDownToQuarter(now.plusHours(1));
+		var nextRun = DateUtils.roundDownToQuarter(now.plus(1, HOURS));
 
 		// Case 1: No prices at all
 		if (prices.isEmpty()) {
@@ -482,14 +481,14 @@ public class Utils {
 		}
 
 		var lastTimestamp = prices.columnKeySet().stream().max(Comparator.naturalOrder()).orElse(null);
-		var nextMidnight = now.truncatedTo(ChronoUnit.DAYS).plusDays(1);
+		var nextMidnight = now.truncatedTo(DAYS).plus(1, DAYS);
 
 		// Case 2: Data doesn't extend to next day (incomplete)
 		if (lastTimestamp == null || lastTimestamp.isBefore(nextMidnight)) {
 			return Delay.of(Duration.between(now, nextRun).minusMinutes(1));
 		}
 
-		final var todayAtExecuteHour = now.truncatedTo(ChronoUnit.DAYS).plusHours(API_EXECUTE_HOUR);
+		final var todayAtExecuteHour = now.truncatedTo(DAYS).plus(API_EXECUTE_HOUR, HOURS);
 
 		// Case 3: Complete data available, but before 14:00.
 		if (now.isBefore(todayAtExecuteHour)) {

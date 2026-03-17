@@ -76,7 +76,7 @@ export abstract class AbstractHistoryWidget implements OnInit, OnChanges, OnDest
     }
 
     public ngOnDestroy() {
-    // Unsubscribe from CurrentData subject
+        // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }

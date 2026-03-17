@@ -41,7 +41,7 @@ public class TouEntsoeTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		var entsoe = new TouEntsoeImpl();
-		var dummyMeta = new DummyMeta("foo0") //
+		var dummyMeta = new DummyMeta() //
 				.withCurrency(EUR);
 		new ComponentTest(entsoe) //
 				.addReference("meta", dummyMeta) //

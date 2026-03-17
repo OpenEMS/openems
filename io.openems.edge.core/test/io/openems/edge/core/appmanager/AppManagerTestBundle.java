@@ -84,7 +84,7 @@ public class AppManagerTestBundle {
 	public final ComponentUtil componentUtil;
 	public final Validator validator;
 	public final DummyHost host = new DummyHost();
-	public final DummyMeta meta = new DummyMeta("_meta");
+	public final DummyMeta meta = new DummyMeta();
 
 	public final DummyAppManagerAppHelper appHelper;
 	public final AppManagerImpl sut;

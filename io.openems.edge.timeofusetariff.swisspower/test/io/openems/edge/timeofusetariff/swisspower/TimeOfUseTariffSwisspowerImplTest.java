@@ -8,8 +8,8 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
@@ -197,7 +197,7 @@ public class TimeOfUseTariffSwisspowerImplTest {
 	public void test() throws Exception {
 		final var clock = createDummyClock();
 		var swissPower = new TimeOfUseTariffSwisspowerImpl();
-		var dummyMeta = new DummyMeta("foo0") //
+		var dummyMeta = new DummyMeta() //
 				.withCurrency(EUR);
 		new ComponentTest(swissPower) //
 				.addReference("httpBridgeFactory",

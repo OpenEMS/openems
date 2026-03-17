@@ -83,8 +83,7 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 						.setDuration(Duration.ofHours(5)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(lowPrice) //
-						.build()) //
+						.setPayload(lowPrice)) //
 				.build();
 
 		this.octopusHelper = new TouManualHelper(clock, goSchedule, standardPrice);
@@ -113,6 +112,7 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 	@Override
 	public TimeOfUsePrices getPrices() {
 		return Utils.getPrices(//
+				this.componentManager.getClock(), //
 				this.octopusHelper, //
 				this.ancillaryCostsHelper, //
 				this.config.ancillaryCosts(), //

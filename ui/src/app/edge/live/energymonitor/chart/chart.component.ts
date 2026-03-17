@@ -68,9 +68,9 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    * This method is called on every change of values.
    */
     updateCurrentData(currentData: CurrentData) {
-    /*
-     * Set values for energy monitor
-     */
+        /*
+         * Set values for energy monitor
+         */
         const summary = currentData.summary;
         [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
             .filter(section => section != null)

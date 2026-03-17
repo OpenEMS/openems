@@ -4,6 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.getDuration;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -11,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -5517,10 +5519,10 @@ public class ParserTest {
 	public void testPreferredResolutionExists() {
 		final var clock = createDummyClock();
 		// Create sample data
-		var table = ImmutableTable.<Duration, ZonedDateTime, Double>builder()
-				.put(Duration.ofMinutes(15), ZonedDateTime.now(clock), 100.0)
-				.put(Duration.ofMinutes(15), ZonedDateTime.now(clock).plusMinutes(15), 200.0)
-				.put(Duration.ofMinutes(60), ZonedDateTime.now(clock), 300.0) //
+		var table = ImmutableTable.<Duration, Instant, Double>builder()
+				.put(Duration.ofMinutes(15), Instant.now(clock), 100.0)
+				.put(Duration.ofMinutes(15), Instant.now(clock).plus(15, MINUTES), 200.0)
+				.put(Duration.ofMinutes(60), Instant.now(clock), 300.0) //
 				.build();
 
 		// Preferred resolution
@@ -5536,10 +5538,10 @@ public class ParserTest {
 	@Test
 	public void testPreferredResolutionDoesNotExist() {
 		// Create sample data
-		var table = ImmutableTable.<Duration, ZonedDateTime, Double>builder()
-				.put(Duration.ofMinutes(15), ZonedDateTime.now(), 100.0)
-				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(15), 200.0)
-				.put(Duration.ofMinutes(15), ZonedDateTime.now().plusMinutes(30), 300.0).build();
+		var table = ImmutableTable.<Duration, Instant, Double>builder()
+				.put(Duration.ofMinutes(15), Instant.now(), 100.0)
+				.put(Duration.ofMinutes(15), Instant.now().plus(15, MINUTES), 200.0)
+				.put(Duration.ofMinutes(15), Instant.now().plus(30, MINUTES), 300.0).build();
 
 		// Preferred resolution that does not exist
 		var preferredResolution = Resolution.HOURLY;
@@ -5555,27 +5557,28 @@ public class ParserTest {
 	@Test
 	public void testProcessPricesNormalCase() {
 		var baseTime = ZonedDateTime.parse("2023-01-01T00:00:00Z");
-		var clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
+		var baseInstant = baseTime.toInstant();
+		var clock = Clock.fixed(baseInstant, baseTime.getZone());
 
-		var timePriceMap = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder() //
-				.put(baseTime, 10.0)//
-				.put(baseTime.plusMinutes(15), 20.0) //
-				.put(baseTime.plusMinutes(30), 30.0) //
+		var timePriceMap = ImmutableSortedMap.<Instant, Double>naturalOrder() //
+				.put(baseInstant, 10.0)//
+				.put(baseInstant.plus(15, MINUTES), 20.0) //
+				.put(baseInstant.plus(30, MINUTES), 30.0) //
 				.build();
 
 		Double[] gridFees = { 1.0, 2.0, 3.0 }; // Length 3
-		var gridFeesObject = TimeOfUsePrices.from(baseTime, gridFees);
+		var gridFeesObject = TimeOfUsePrices.from(baseInstant, gridFees);
 		var exchangeRate = 1.0;
 
 		var result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
 
 		assertEquals(3, result.asArray().length);
-		assertEquals(20.0, result.getAt(baseTime), 0.001);
-		assertEquals(40.0, result.getAt(baseTime.plusMinutes(15)), 0.001);
-		assertEquals(60.0, result.getAt(baseTime.plusMinutes(30)), 0.001);
+		assertEquals(20.0, result.getAt(baseInstant), 0.001);
+		assertEquals(40.0, result.getAt(baseInstant.plus(15, MINUTES)), 0.001);
+		assertEquals(60.0, result.getAt(baseInstant.plus(30, MINUTES)), 0.001);
 
 		Double[] gridFees2 = { 1.0, 2.0, 3.0, 4.0, 5.0 }; // Length 5
-		gridFeesObject = TimeOfUsePrices.from(baseTime, gridFees2);
+		gridFeesObject = TimeOfUsePrices.from(baseInstant, gridFees2);
 		result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
 
 		// Ensures that excess grid fees are truncated when the grid fees array is
@@ -5585,7 +5588,6 @@ public class ParserTest {
 
 	@Test
 	public void testParsePrices() throws Exception {
-		
 		var biddingZone = BiddingZone.GERMANY;
 
 		// Test Quarterly resolution
@@ -5627,7 +5629,8 @@ public class ParserTest {
 
 		difference = Maps.difference(quarterlyPrices, hourlyPrices);
 
-		quarterlyPrices = parsePrices(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2, Resolution.QUARTERLY, biddingZone);
+		quarterlyPrices = parsePrices(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2, Resolution.QUARTERLY,
+				biddingZone);
 		hourlyPrices = parsePrices(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2, Resolution.HOURLY, biddingZone);
 
 		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
@@ -5698,7 +5701,7 @@ public class ParserTest {
 		delay = Utils.calculateDelay(clock, XML_WITH_BOTH_SEQUENCE_1_AND_2);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be 2 hours", duration.toHours() == 2);
-		
+
 		baseTime = ZonedDateTime.parse("2025-10-14T14:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 

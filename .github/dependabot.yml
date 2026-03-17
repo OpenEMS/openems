@@ -35,6 +35,9 @@ updates:
       olcut:
         patterns:
           - "com.oracle.labs.olcut:*"
+      auth0:
+        patterns:
+          - "com.auth0:*"
 
   - package-ecosystem: npm
     directory: "/ui"

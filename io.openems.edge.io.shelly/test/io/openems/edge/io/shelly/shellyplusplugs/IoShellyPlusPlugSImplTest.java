@@ -76,6 +76,63 @@ public class IoShellyPlusPlugSImplTest {
 						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
 						.output(IoShellyPlugSBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
+				.next(new TestCase("Stable update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										      "beta": {
+										        "version": "1.7.4-beta1"
+										      },
+										      "stable": {
+										        "version": "1.7.1"
+										      }
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, true)) //
+
+				.next(new TestCase("No stable update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										      "beta": {
+										        "version": "1.7.4-beta1"
+										      }
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+
+				.next(new TestCase("No update available") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									{
+									  "sys": {
+									        "available_updates": {
+										    }
+									  }
+									}
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
+
+						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
 							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());

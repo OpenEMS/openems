@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { WeatherComponent } from "./flat/flat";
@@ -25,6 +26,7 @@ import { SecondsToHoursPipe } from "./shared/weather.constants";
         WeatherCodeIconPipe,
         WeatherCodeDescriptionPipe,
         SecondsToHoursPipe,
+        HelpButtonComponent,
     ],
     declarations: [
         WeatherComponent,
