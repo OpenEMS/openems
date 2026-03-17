@@ -166,7 +166,7 @@ public class ApplyPowerHandler {
 		 * Charge/Discharge Control 3: Grid Connection Point Import/Export Control 4. AC
 		 * Grid Port Import/Export Control Default :1 , others invalid
 		 */
-		ess.setRemoteDispatchRealtimeControlSwitch(2); // Battery Charge/Discharge Control
+		ess.setRemoteDispatchRealtimeControlSwitch(RemoteDispatchRealtimeControlSwitch.BATTERY_CONTROL); // Battery Charge/Discharge Control
 
 	}
 

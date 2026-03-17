@@ -1,6 +1,7 @@
 package io.openems.edge.pytes.ess;
 
 import static io.openems.common.channel.AccessMode.READ_ONLY;
+import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.PersistencePriority.LOW;
@@ -125,6 +126,11 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		FCAS_MODE_RUNNING_STATUS(Doc.of(INTEGER)
 		// .accessMode(READ_ONLY)
 		),
+		
+		PV_SHUTDOWN_SWITCH(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_WRITE).text("PV shutdown mode")),
+		GRID_CHARGE_ALLOWED(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_WRITE).text("Battery grid charge allowed")),
+		DO_CONTROL(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_WRITE).text("DO Control enabled")),
+		OFF_GRID_BATTERY_STANDBY(Doc.of(OpenemsType.BOOLEAN).accessMode(READ_WRITE).text("Off-grid battery standby")),
 
 		SETTING_FLAG_BIT(Doc.of(INTEGER).accessMode(READ_ONLY)),
 		
@@ -481,13 +487,37 @@ public interface PytesJs3 extends OpenemsComponent, EventHandler {
 		return this.channel(ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_POWER);
 	}
 
-	// Set realtime control function switch
-	public default void setRemoteDispatchRealtimeControlFunctionSwitch(int value) throws OpenemsNamedException {
-		this.getSetRemoteDispatchRealtimeControlFunctionSwitchChannel().setNextWriteValue(value);
+	// Get realtime control function switch
+	public default Integer getRemoteDispatchRealtimeControlFunctionSwitch() {
+		return this.getRemoteDispatchRealtimeControlFunctionSwitchChannel().value().get();
 	}
 
-	public default IntegerWriteChannel getSetRemoteDispatchRealtimeControlFunctionSwitchChannel() {
-		return this.channel(ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_FUNCTION_SWITCH);
+	public default Channel<Integer> getRemoteDispatchRealtimeControlFunctionSwitchChannel() {
+		return this.channel(ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_FUNCTION_SWITCH);
+	}
+	
+	
+	/**
+	 * Sets the remote dispatch realtime control switch.
+	 *
+	 * @param value the {@link RemoteDispatchRealtimeControlSwitch} value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setRemoteDispatchRealtimeControlSwitch(RemoteDispatchRealtimeControlSwitch value)
+	        throws OpenemsNamedException {
+	    this.setRemoteDispatchRealtimeControlSwitchChannel().setNextWriteValue(value);
+	}
+
+	public default RemoteDispatchRealtimeControlSwitch getRemoteDispatchRealtimeControlSwitch() {
+	    return this.getRemoteDispatchRealtimeControlSwitchChannel().value().asEnum();
+	}
+
+	public default Channel<RemoteDispatchRealtimeControlSwitch> getRemoteDispatchRealtimeControlSwitchChannel() {
+	    return this.channel(ChannelId.REMOTE_DISPATCH_REALTIME_CONTROL_SWITCH);
+	}
+
+	public default WriteChannel<RemoteDispatchRealtimeControlSwitch> setRemoteDispatchRealtimeControlSwitchChannel() {
+	    return this.channel(ChannelId.SET_REMOTE_DISPATCH_REALTIME_CONTROL_SWITCH);
 	}
 
 	// Set remote control mode
