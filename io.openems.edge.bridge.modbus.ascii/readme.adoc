@@ -20,9 +20,27 @@ ASCII mode is more tolerant of timing delays, making it suitable for connections
 
 == Usage
 
-Configure `Bridge.Modbus.Serial.Ascii` with default 8E1 parameters (8 data bits, Even parity, 1 stop bit). All existing Modbus components work transparently with this bridge.
+Configure `Bridge.Modbus.Serial.Ascii` according to the requirements of your device that communicates via Modbus/ASCII. 
+The bridge's default parameters are communication port "/dev/ttyUSB0", baudrate 9600, and communication parameters 8E1 (8 data bits, Even parity, 1 stop bit).
 
 For implementation details, task execution, priority handling, and logging options, see the link:../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge documentation].
+
+== Implemented Natures
+
+- link:../io.openems.edge.bridge.modbus/readme.adoc[BridgeModbus]
+- BridgeModbusSerialAscii
+- StartStoppable
+
+== Compatibility
+
+Any Modbus/ASCII device should work with the standard configuration. Confirmed working:
+
+[cols="1,1,1"]
+|===
+| Manufacturer | Model | Notes
+
+| ABL | eMH1 EVCC | Requires `ablCompatible = true` (non-standard `>` frame-start)
+|===
 
 == Additional Features
 
@@ -78,3 +96,7 @@ Enable `ablCompatible = true` in the bridge configuration to activate a transpar
 This substitution is safe for all standards-compliant devices because `>` never appears in a valid Modbus/ASCII frame — the only permitted characters in the payload are hex digits (`0`–`9`, `A`–`F`), the frame-start `:`, and the CR/LF terminator.
 
 NOTE: This option is `false` by default and should only be enabled when connecting to an ABL eMH1 or another device with the same non-standard behaviour.
+
+== Source
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.modbus.ascii
