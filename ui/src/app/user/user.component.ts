@@ -13,6 +13,7 @@ import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInfo
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { UserSettings } from "../shared/jsonrpc/shared";
 import { States } from "../shared/ngrx-store/states";
 import { RouteService } from "../shared/service/route.service";
 import { UserService } from "../shared/service/user.service";
@@ -105,7 +106,8 @@ export class UserComponent implements OnInit {
                 this.showInformation = this.form != null;
                 this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
                 this.useNewUi = user.getUseNewUIFromSettings();
-                this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
+                const config = await untracked(() => this.service.currentEdge().getFirstValidConfig(service.websocket));
+                this.newNavigationForced = NavigationService.forceNewNavigation(config);
             }
         });
     }
@@ -231,7 +233,7 @@ export class UserComponent implements OnInit {
     public async toggleNewUI(event: Event) {
         const isToggleOn = (event as CustomEvent).detail["checked"];
         this.service.startSpinner("user");
-        await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
+        await this.userService.updateUserSettingsWithProperty(UserSettings.USE_NEW_UI, isToggleOn);
         this.service.stopSpinner("user");
     }
 

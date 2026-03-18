@@ -31,7 +31,7 @@
         "VALIDATION_ERROR_7": "Start time or duration is missing",
         "VALIDATION_ERROR_8": "Please specify repetition",
         "VALIDATION_ERROR_9": "Set at least one rotation",
-        "ADD_SUCCESS": "Task successfully added",
+        "ADD_SUCCESS": "Task successfully added to schedule",
         "ADD_ERROR": "Task could not be added",
         "EDIT_SUCCESS": "Task successfully adjusted",
         "EDIT_ERROR": "Task could not be customized",

@@ -1,5 +1,5 @@
 @if (isInitialized) {
-  <oe-navigation-view [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
+<oe-navigation-view [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
     <ion-grid class="ion-no-padding">
       <ion-row class="ion-justify-content-center ion-align-items-center ion-padding">
         <ion-col size-md="4" size-xs="9">
@@ -28,22 +28,6 @@
         }
       </ion-row>
     </ion-grid>
-    <ion-list>
-      <ion-label>
-        {{"EVSE_SINGLE.SCHEDULE.NEXT_TASKS" | translate}}
-      </ion-label>
-      @for (item of oneTasks; track item) {
-        <ion-item>
-          <ion-label>
-            {{ item.start | date:'EEE MMM d HH:mm' }}
-            -
-            {{ item.end | date:'EEE MMM d HH:mm' }}
-          </ion-label>
-          <ion-label slot="end">
-            {{ item.mode }}
-          </ion-label>
-        </ion-item>
-      }
-    </ion-list>
-  </oe-navigation-view>
+    <oe-components-scheduler-one-tasks [(payload)]="payload"></oe-components-scheduler-one-tasks>
+</oe-navigation-view>
 }

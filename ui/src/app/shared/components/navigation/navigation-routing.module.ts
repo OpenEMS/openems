@@ -12,6 +12,10 @@ import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/s
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
+import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
+import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
+import { SchedulerJsCalendarAddTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/add/add";
+import { SchedulerJsCalendarEditTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
@@ -67,6 +71,10 @@ export const newNavigationRoutes: Routes = [
     { path: "common/production/history", component: CommonAutarchyHistoryComponent },
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
+    { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/task/:taskId", component: SchedulerJsCalendarEditTaskComponent },
     ...history(true),
 ];
 

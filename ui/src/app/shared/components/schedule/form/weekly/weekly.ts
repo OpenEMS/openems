@@ -1,30 +1,29 @@
 import { Component, model } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
+import { SelectCustomEvent } from "@ionic/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { v4 as uuidv4 } from "uuid";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Language } from "src/app/shared/type/language";
-import { TIntRange } from "src/app/shared/type/utility";
 import de from "../../i18n/de.json";
 import en from "../../i18n/en.json";
 import { JsCalendar } from "../../js-calendar-task";
 
 @Component({
-    selector: "oe-schedule-task-form-monthly",
-    templateUrl: "./monthly.html",
+    selector: "oe-schedule-task-form-weekly",
+    templateUrl: "./weekly.html",
     imports: [
         CommonUiModule,
         NgxSpinnerModule,
         ReactiveFormsModule,
     ],
 })
-export class TaskFormMonthlyComponent {
+export class TaskFormWeeklyComponent {
 
-    public recurrenceRuleByDay = model<Extract<JsCalendar.Types.RecurrenceRule, { frequency: "monthly", byDay: { day: JsCalendar.Types.WeekDayKeys | null, nthOfPeriod: TIntRange<1, 5> | null }[] }> | null>(null);
+    public recurrenceRuleByDay = model<Extract<JsCalendar.Types.RecurrenceRule, { frequency: "weekly" }> | null>(null);
 
-    protected readonly nthOfPeriodSelection: number[] = [1, 2, 3, 4];
-    protected readonly daySelection = TaskFormMonthlyComponent.WEEK_DAYS(this.translate);
+    protected readonly daySelection = TaskFormWeeklyComponent.WEEK_DAYS(this.translate);
     protected readonly spinnerId: string = uuidv4();
 
     constructor(private translate: TranslateService) {
@@ -45,34 +44,13 @@ export class TaskFormMonthlyComponent {
         { key: "su", label: translate.instant("GENERAL.WEEK.SUNDAY") },
     ]) as const;
 
-    protected add(): void {
+    protected setDays(event: SelectCustomEvent<ReturnType<typeof TaskFormWeeklyComponent.WEEK_DAYS>[number]["key"][]>) {
         this.recurrenceRuleByDay.update((el) => {
-            if (el !== null) {
-                el.byDay ??= [];
-                el.byDay?.push({ day: null, nthOfPeriod: null });
+            if (el == null) {
+                return el;
             }
+            el.byDay = event.target.value;
             return el;
         });
-    }
-
-    protected remove(i: number): void {
-        this.recurrenceRuleByDay.update((el) => {
-            if (el !== null) {
-                el.byDay ??= [];
-                el.byDay = el.byDay?.filter((_el, index) => index !== i) ?? [];
-            }
-            return el;
-        });
-    }
-
-    protected setDay(item: MonthlyByDay, event: CustomEvent) {
-        item.day = event.detail.value;
-    }
-
-    protected setNthOfPeriod(item: MonthlyByDay, event: CustomEvent) {
-        item.nthOfPeriod = event.detail.value;
     }
 }
-
-type Monthly = JsCalendar.Types.RuleOf<"monthly">;
-type MonthlyByDay = Monthly["byDay"][number];

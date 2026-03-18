@@ -9,6 +9,7 @@ import en from "../i18n/en.json";
 import { JsCalendar } from "../js-calendar-task";
 import { TaskFormTimeComponent } from "./daily/daily";
 import { TaskFormMonthlyComponent } from "./monthly/monthly";
+import { TaskFormWeeklyComponent } from "./weekly/weekly";
 
 @Component({
     selector: "oe-schedule-task-form",
@@ -19,6 +20,7 @@ import { TaskFormMonthlyComponent } from "./monthly/monthly";
         ReactiveFormsModule,
         TaskFormTimeComponent,
         TaskFormMonthlyComponent,
+        TaskFormWeeklyComponent,
     ],
 })
 export class TaskFormComponent {
@@ -38,6 +40,8 @@ export class TaskFormComponent {
     }
 
     protected setRecurrenceRuleByDay(event: CustomEvent) {
-        this.recurrenceRuleByDay.update(el => ({ frequency: event.detail.value, byDay: el?.byDay ?? [] }));
+        this.recurrenceRuleByDay.update(_el => {
+            return ({ frequency: event.detail.value });
+        });
     }
 }

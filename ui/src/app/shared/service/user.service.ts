@@ -33,7 +33,7 @@ export class UserService {
 
             if (user != null) {
                 this.showThemeSelection(user);
-                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()));
+                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()?.getConfigSignal()()));
             }
         });
     }

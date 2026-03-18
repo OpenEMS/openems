@@ -41,19 +41,18 @@ export class NavigationService {
         });
     }
 
-    public static isNewNavigation(user: User | null, edge: Edge | null) {
-        return (user && user.getUseNewUIFromSettings()) || NavigationService.forceNewNavigation(edge);
+    /** Checks if new navigation is used */
+    public static isNewNavigation(user: User | null, config: EdgeConfig | null) {
+        return (user && user.getUseNewUIFromSettings()) || NavigationService.forceNewNavigation(config);
     }
 
-    public static forceNewNavigation(edge: Edge | null): boolean {
-        const config = edge?.getCurrentConfig() ?? null;
-
+    public static forceNewNavigation(config: EdgeConfig | null): boolean {
         if (config == null) {
             return false;
         }
 
         // If edgeconfig includes this factories, user gets forced to use new ui navigation
-        return config.hasFactories(["Evse.Controller.Single"]);
+        return config.hasFactories(["Evse.Controller.Single", "Scheduler.JSCalendar"]);
     }
 
     /**
@@ -228,8 +227,9 @@ export class NavigationService {
      * @param edge the current edge
      * @returns a new list with widgets
      */
-    public getWidgets(widgets: Widgets, user: User | null, edge: Edge): Widgets {
-        const isNewNavigation = NavigationService.isNewNavigation(user, edge);
+    public async getWidgets(widgets: Widgets, user: User | null, edge: Edge): Promise<Widgets> {
+        const config = await edge.getFirstValidConfig(this.service.websocket);
+        const isNewNavigation = NavigationService.isNewNavigation(user, config);
         if (isNewNavigation === false) {
             return widgets;
         }
@@ -328,9 +328,10 @@ export class NavigationService {
      * - left: side menu navigation
      * - disabled: not visible
      */
-    private setPosition() {
+    private async setPosition() {
         const user = this.userService.currentUser();
-        if (NavigationService.isNewNavigation(user, untracked(() => this.service.currentEdge()))) {
+        const config = await untracked(() => this.service.currentEdge()?.getFirstValidConfig(this.service.websocket));
+        if (NavigationService.isNewNavigation(user, config)) {
             this.position.set(this.service.isSmartphoneResolution ? "bottom" : "left");
         } else {
             this.position.set("disabled");
