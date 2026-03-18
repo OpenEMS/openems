@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        image: [edge, backend, ui-edge, ui-backend]
+        image: [edge, backend, ui-edge, ui-backend, backend-edge]
         include:
           - image: edge
             dockerfile: tools/docker/edge/Dockerfile
@@ -25,6 +25,8 @@ jobs:
             dockerfile: tools/docker/backend/Dockerfile
           - image: ui-backend
             dockerfile: tools/docker/ui/Dockerfile.backend
+          - image: backend-edge
+            dockerfile: tools/docker/backend-edge/Dockerfile
     permissions:
         packages: write
         contents: read
