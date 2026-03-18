@@ -260,6 +260,14 @@ public class EshUtils {
 		if (fromManualMode != null) {
 			return fromManualMode;
 		}
+		// 2.5th Priority: Window-boundary guard for Smart tasks.
+		// If this component has Smart tasks but the current period is NOT inside any
+		// Smart task window, the optimizer is not allowed to schedule charging here.
+		// Fall back to the configured mode (typically ZERO for postponed charging).
+		if (!clusterCoc.smartPayloads().row(p.componentId()).isEmpty()
+				&& clusterCoc.smartPayloads().get(p.componentId(), period.time()) == null) {
+			return p.mode();
+		}
 		// 3rd Priority: Simulated SingleMode
 		if (simulatedMode != null) {
 			final var fromSimulationSchedule = simulatedMode.getMode(p.componentId());
