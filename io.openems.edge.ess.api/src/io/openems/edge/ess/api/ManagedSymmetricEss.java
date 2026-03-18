@@ -24,7 +24,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
@@ -81,26 +81,6 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.accessMode(WRITE_ONLY) //
 				.text("Write command for a charge power (-) or discharge power (+). Range e.g. [-5000 to 5000]") //
 				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerEquals", ALL, ACTIVE, EQUALS))),
-
-		/**
-		 * Applies the PID filter and then sets a fixed Active Power.
-		 *
-		 * <ul>
-		 * <li>Interface: Managed Symmetric Ess
-		 * <li>Type: Integer
-		 * <li>Unit: W
-		 * <li>Range: negative values for Charge; positive for Discharge
-		 * </ul>
-		 */
-		SET_ACTIVE_POWER_EQUALS_WITH_PID(new IntegerDoc() //
-				.unit(WATT) //
-				.accessMode(WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetActivePowerEqualsWithPid", ALL, ACTIVE, EQUALS) {
-					@Override
-					public void accept(ManagedSymmetricEss ess, Integer value) throws OpenemsNamedException {
-						setActivePowerEqualsWithPid(ess, value, null);
-					}
-				})),
 
 		/**
 		 * Sets a fixed Reactive Power.
@@ -346,83 +326,91 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
 	}
 
-	/**
-	 * Sets an Active Power Equals setpoint in [W]. Negative values for Charge;
-	 * positive for Discharge. See {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
-	 *
-	 * @param value the next write value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActivePowerEquals(Integer value) throws OpenemsNamedException {
-		this.getSetActivePowerEqualsChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SET_ACTIVE_POWER_EQUALS_WITH_PID}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getSetActivePowerEqualsWithPidChannel() {
-		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID);
-	}
-
-	/**
-	 * Sets an Active Power Equals setpoint in [W] with applied PID filter. Negative
-	 * values for Charge; positive for Discharge. See
-	 * {@link ChannelId#SET_ACTIVE_POWER_EQUALS_WITH_PID}.
-	 *
-	 * @param value the next write value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActivePowerEqualsWithPid(Integer value) throws OpenemsNamedException {
-		this.getSetActivePowerEqualsWithPidChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Sets the {@link ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS} using
-	 * the provided {@link PidFilter}.
-	 * 
-	 * @param ess               the {@link ManagedSymmetricEss}
-	 * @param value             the target value
-	 * @param fallbackPidFilter the fallback PidFilter is used if the
-	 *                          {@link PidFilter} provided by ess is a
-	 *                          {@link DisabledPidFilter}
-	 * @throws OpenemsNamedException on error
-	 */
-	public static void setActivePowerEqualsWithPid(ManagedSymmetricEss ess, Integer value, PidFilter fallbackPidFilter)
+	private static void setActivePower(ManagedSymmetricEss ess, Integer value, boolean applyFilter)
 			throws OpenemsNamedException {
 		if (value == null) {
 			return;
 		}
 		final var power = ess.getPower();
-		var pidFilter = power.getPidFilter();
-		if (pidFilter instanceof DisabledPidFilter && fallbackPidFilter != null) {
-			pidFilter = fallbackPidFilter;
+
+		// Handle disabled filter
+		final var filter = power.getFilter();
+		final int setpoint;
+		if (filter == null) {
+			setpoint = value;
+
+		} else if (applyFilter) {
+			// Is set-point already fixed?
+			var minPower = power.getMinPower(ess, ALL, ACTIVE);
+			var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
+			if (maxPower < minPower) {
+				maxPower = minPower; // avoid rounding error
+			}
+			if (Math.abs((long) maxPower - (long) minPower) < 10) { // Overflow-Proof Near-Equality
+				// Min- and Max-Power are close to equal; stop early to avoid calling the
+				// Filter multiple times in a Cycle.
+				return;
+			}
+
+			// Configure filter, set limits and apply target set-point
+			filter.setLimits(minPower, maxPower);
+
+			// Call method of activated Filter
+			setpoint = switch (filter) {
+			case PidFilter pidFilter -> {
+				int currentActivePower = ess.getActivePower().orElse(0);
+				yield pidFilter.applyPidFilter(currentActivePower, value);
+			}
+
+			case PT1Filter pt1Filter -> {
+				yield pt1Filter.applyPT1Filter(value);
+			}
+			};
+
+		} else {
+			// If Filter is disabled, we still want to update the internal state of the
+			// filter to avoid a big jump when enabling it.
+			filter.reset();
+			setpoint = value;
 		}
 
-		// configure PID filter
-		var minPower = power.getMinPower(ess, ALL, ACTIVE);
-		var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
+		ess.getSetActivePowerEqualsChannel().setNextWriteValue(setpoint);
+	}
 
-		if (maxPower < minPower) {
-			maxPower = minPower; // avoid rounding error
-		}
+	/**
+	 * Sets an Active Power Set-Point in [W] without applying a filter.
+	 * 
+	 * <p>
+	 * Use this method whenever no closed control loop is applied, e.g. when the set
+	 * value is directly derived from a higher-level controller or a user input.
+	 * 
+	 * <p>
+	 * Negative values for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerEqualsWithoutFilter(Integer value) throws OpenemsNamedException {
+		setActivePower(this, value, false);
+	}
 
-		// Cast to long to prevent integer overflow when limits are at
-		// Integer.MAX_VALUE/MIN_VALUE. which commonly occurs during unit tests with
-		// default "unlimited" power settings.
-		if (Math.abs((long) maxPower - (long) minPower) < 10) {
-			// Min- and Max-Power are close to equal; stop early to avoid calling the
-			// PidFilter multiple times in a Cycle.
-			return;
-		}
-
-		pidFilter.setLimits(minPower, maxPower);
-
-		int currentActivePower = ess.getActivePower().orElse(0);
-		var pidOutput = pidFilter.applyPidFilter(currentActivePower, value);
-
-		ess.setActivePowerEquals(pidOutput);
+	/**
+	 * Sets an Active Power Set-Point in [W] after applying a filter.
+	 * 
+	 * <p>
+	 * Use this method whenever a closed control loop is applied, that e.g. relies
+	 * on measurements of a grid-meter.
+	 * 
+	 * <p>
+	 * Negative values for Charge; positive for Discharge. See
+	 * {@link ChannelId#SET_ACTIVE_POWER_EQUALS}.
+	 *
+	 * @param value the next write value
+	 * @throws OpenemsNamedException on error
+	 */
+	public default void setActivePowerEqualsWithFilter(Integer value) throws OpenemsNamedException {
+		setActivePower(this, value, true);
 	}
 
 	/**
@@ -435,13 +423,20 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Sets a Reactive Power Equals setpoint in [var]. See
+	 * Sets a Reactive Power Set-Point in [var] without applying a filter.
+	 * 
+	 * <p>
+	 * Use this method whenever no closed control loop is applied, e.g. when the set
+	 * value is directly derived from a higher-level controller or a user input.
+	 * 
+	 * <p>
+	 * Negative values for Charge; positive for Discharge. See
 	 * {@link ChannelId#SET_REACTIVE_POWER_EQUALS}.
 	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error
 	 */
-	public default void setReactivePowerEquals(Integer value) throws OpenemsNamedException {
+	public default void setReactivePowerEqualsWithoutFilter(Integer value) throws OpenemsNamedException {
 		this.getSetReactivePowerEqualsChannel().setNextWriteValue(value);
 	}
 

@@ -1,6 +1,5 @@
 package io.openems.edge.ess.generic.offgrid;
 
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 import static io.openems.edge.common.sum.GridMode.OFF_GRID;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.GRID_SWITCH;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.STOP_BATTERY_INVERTER;
@@ -43,7 +42,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.Context;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
@@ -65,7 +63,7 @@ import io.openems.edge.ess.power.api.Power;
 public class EssGenericOffGridImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, OffGridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericOffGridImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
@@ -260,11 +258,6 @@ public class EssGenericOffGridImpl
 			}
 			this.setTargetDeepDischarge(true);
 		});
-	}
-
-	@Override
-	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 
 	@Override

@@ -16,11 +16,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.TestUtils;
+import io.openems.edge.common.filter.PT1Filter;
+import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.core.power.MyConfig;
@@ -102,12 +107,12 @@ public class EssPowerImplTest {
 
 		expect("#1.1", ess1, 10000, 0);
 
-		ess0.setActivePowerEquals(10000);
+		ess0.setActivePowerEqualsWithoutFilter(10000);
 		componentTest.next(new TestCase("#1"));
 
 		expect("#2.1", ess1, 10000, 0);
 
-		ess0.setActivePowerEquals(12000);
+		ess0.setActivePowerEqualsWithoutFilter(12000);
 		componentTest.next(new TestCase("#2"));
 	}
 
@@ -633,7 +638,7 @@ public class EssPowerImplTest {
 		expect("#1.4", ess4, 2500, 0);
 
 		ess0.addPowerConstraint("SetActivePowerEquals", ALL, ACTIVE, EQUALS, 10000);
-		ess0.setActivePowerEquals(10000);
+		ess0.setActivePowerEqualsWithoutFilter(10000);
 		componentTest.next(new TestCase("#1"));
 
 		// #2 Charging
@@ -643,7 +648,7 @@ public class EssPowerImplTest {
 		expect("#2.4", ess4, -2500, 0);
 
 		ess0.addPowerConstraint("SetActivePowerEquals", ALL, ACTIVE, EQUALS, -10000);
-		ess0.setActivePowerEquals(10000);
+		ess0.setActivePowerEqualsWithoutFilter(10000);
 		componentTest.next(new TestCase("#1"));
 
 		// #3 Discharging with lower allowed discharge power
@@ -788,7 +793,7 @@ public class EssPowerImplTest {
 		expect("#11.8", ess8, 0, 0);
 
 		// Test discharge with one ESS at 0% SOC
-		ess1.setActivePowerEquals(100000); // 100kW discharge
+		ess1.setActivePowerEqualsWithoutFilter(100000); // 100kW discharge
 		componentTest.next(new TestCase("#11"));
 
 		expect("#11.1", ess1, 0, 0); // 0% SOC should get no discharge power
@@ -801,7 +806,7 @@ public class EssPowerImplTest {
 		expect("#11.8", ess8, 0, 0);
 
 		// Test discharge with one ESS at 0% SOC
-		ess1.setActivePowerEquals(10000); // 100kW discharge
+		ess1.setActivePowerEqualsWithoutFilter(10000); // 100kW discharge
 		componentTest.next(new TestCase("#11"));
 
 		// Test case: One ESS with 0% SOC during charge
@@ -815,9 +820,118 @@ public class EssPowerImplTest {
 		expect("#12.8", ess8, 0, 0);
 
 		// Test charge with one ESS at 0% SOC
-		ess1.setActivePowerEquals(-100000); // 100kW charge
+		ess1.setActivePowerEqualsWithoutFilter(-100000); // 100kW charge
 		componentTest.next(new TestCase("#12"));
 
+	}
+
+	@Test
+	public void testPidFilter() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-50000) //
+				.withAllowedDischargePower(50000) //
+				.withMaxApparentPower(12000) //
+				.withSoc(30);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePid(true) //
+						.setP(PidFilter.DEFAULT_P) //
+						.setI(PidFilter.DEFAULT_I) //
+						.setD(PidFilter.DEFAULT_D) //
+						.build()); //
+
+		expect("#1", ess0, 0, 0);
+		ess0.withActivePower(0);
+		ess0.setActivePowerEqualsWithFilter(0);
+		componentTest.next(new TestCase());
+
+		expect("#2", ess0, 230, 0);
+		ess0.withActivePower(333);
+		ess0.setActivePowerEqualsWithFilter(1100);
+		componentTest.next(new TestCase());
+
+		expect("#3", ess0, 357, 0);
+		ess0.withActivePower(666);
+		ess0.setActivePowerEqualsWithFilter(1200);
+		componentTest.next(new TestCase());
+
+		expect("#4", ess0, 447, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithFilter(1300);
+		componentTest.next(new TestCase());
+
+		expect("#5", ess0, 601, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithFilter(1400);
+		componentTest.next(new TestCase());
+
+		expect("#6", ess0, 751, 0);
+		ess0.withActivePower(999);
+		ess0.setActivePowerEqualsWithFilter(1500);
+		componentTest.next(new TestCase());
+	}
+
+	@Ignore
+	@Test
+	public void testPT1Filter() throws Exception {
+		final var clock = TestUtils.createDummyClock();
+		EssPower powerComponent = new EssPowerImpl();
+		var ess0 = new DummyManagedSymmetricEss("ess0") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-50000) //
+				.withAllowedDischargePower(50000) //
+				.withMaxApparentPower(12000) //
+				.withSoc(30);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("addEss", ess0) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_MOVING_TOWARDS_TARGET) //
+						.setSymmetricMode(true) //
+						.setDebugMode(false) //
+						.setEnablePT1Filter(true) //
+						.setPT1TimeConstant(PT1Filter.DEFAULT_TIME_CONSTANT) //
+						.build()); //
+
+		expect("#1", ess0, 0, 0);
+		ess0.setActivePowerEqualsWithFilter(0);
+		componentTest.next(new TestCase());
+
+		expect("#2", ess0, 693, 0);
+		ess0.setActivePowerEqualsWithFilter(1100);
+		componentTest.next(new TestCase());
+
+		expect("#3", ess0, 1012, 0);
+		ess0.setActivePowerEqualsWithFilter(1200);
+		componentTest.next(new TestCase());
+
+		expect("#4", ess0, 1193, 0);
+		ess0.setActivePowerEqualsWithFilter(1300);
+		componentTest.next(new TestCase());
+
+		expect("#5", ess0, 1323, 0);
+		ess0.setActivePowerEqualsWithFilter(1400);
+		componentTest.next(new TestCase());
+
+		expect("#6", ess0, 1435, 0);
+		ess0.setActivePowerEqualsWithFilter(1500);
+		componentTest.next(new TestCase());
 	}
 
 	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {

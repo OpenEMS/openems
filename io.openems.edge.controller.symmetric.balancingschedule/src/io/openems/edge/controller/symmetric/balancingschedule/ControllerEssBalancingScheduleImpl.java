@@ -154,8 +154,8 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 		/*
 		 * set result
 		 */
-		this.ess.setActivePowerEqualsWithPid(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEqualsWithFilter(calculatedPower);
+		this.ess.setReactivePowerEqualsWithoutFilter(0);
 	}
 
 	@Override

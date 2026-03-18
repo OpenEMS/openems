@@ -103,7 +103,7 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 		/*
 		 * set result
 		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		ess.setActivePowerEqualsWithFilter(calculatedPower);
+		ess.setReactivePowerEqualsWithoutFilter(0);
 	}
 }

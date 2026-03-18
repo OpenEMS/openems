@@ -121,7 +121,7 @@ public class KeepAllNearEqualTest {
 		expect("#2.7", ess7, -1047, 0);
 		expect("#2.8", ess8, -934, 0);
 
-		ess0.setActivePowerEquals(-8000);
+		ess0.setActivePowerEqualsWithoutFilter(-8000);
 		componentTest.next(new TestCase("#1"));
 
 		expect("#3.1", ess1, -1024, 0);
@@ -133,7 +133,7 @@ public class KeepAllNearEqualTest {
 		expect("#3.7", ess7, -1047, 0);
 		expect("#3.8", ess8, -934, 0);
 
-		ess0.setActivePowerEquals(-8000);
+		ess0.setActivePowerEqualsWithoutFilter(-8000);
 		componentTest.next(new TestCase("#3"));
 
 		expect("#4.1", ess1, -91999, 0);
@@ -146,7 +146,7 @@ public class KeepAllNearEqualTest {
 		expect("#4.8", ess8, -91999, 0);
 
 		// charging with 1 MW
-		ess0.setActivePowerEquals(-1000000);
+		ess0.setActivePowerEqualsWithoutFilter(-1000000);
 		componentTest.next(new TestCase("#4"));
 
 		expect("#5.1", ess1, -91999, 0);
@@ -159,7 +159,7 @@ public class KeepAllNearEqualTest {
 		expect("#5.8", ess8, -91999, 0);
 
 		// Charging with 4 W less the maximum
-		ess0.setActivePowerEquals(-735996);
+		ess0.setActivePowerEqualsWithoutFilter(-735996);
 		componentTest.next(new TestCase("#5"));
 
 		expect("#6.1", ess1, -91999, 0);
@@ -172,7 +172,7 @@ public class KeepAllNearEqualTest {
 		expect("#6.8", ess8, -91999, 0);
 
 		// Charging with maximum power
-		ess0.setActivePowerEquals(-736000);
+		ess0.setActivePowerEqualsWithoutFilter(-736000);
 		componentTest.next(new TestCase("#4"));
 
 		expect("#7.1", ess1, 92000, 0);
@@ -185,7 +185,7 @@ public class KeepAllNearEqualTest {
 		expect("#7.8", ess8, 92000, 0);
 
 		// Discharging Charging with maximum power
-		ess0.setActivePowerEquals(736000);
+		ess0.setActivePowerEqualsWithoutFilter(736000);
 		componentTest.next(new TestCase("#7"));
 
 		expect("#8.1", ess1, 92000, 0);
@@ -198,7 +198,7 @@ public class KeepAllNearEqualTest {
 		expect("#8.8", ess8, 92000, 0);
 
 		// Discharging with more than maximum power
-		ess0.setActivePowerEquals(1000000);
+		ess0.setActivePowerEqualsWithoutFilter(1000000);
 		componentTest.next(new TestCase("#7"));
 
 		expect("#9.1", ess1, 90857, 0);
@@ -211,7 +211,7 @@ public class KeepAllNearEqualTest {
 		expect("#9.8", ess8, 92000, 0);
 
 		// Discharging with maximum power
-		ess0.setActivePowerEquals(700000);
+		ess0.setActivePowerEqualsWithoutFilter(700000);
 		componentTest.next(new TestCase("#7"));
 
 		expect("#10.1", ess1, 92000, 0);
@@ -224,7 +224,7 @@ public class KeepAllNearEqualTest {
 		expect("#10.8", ess8, 92000, 0);
 
 		// Discharging with 4 W less then maximum power
-		ess0.setActivePowerEquals(735996);
+		ess0.setActivePowerEqualsWithoutFilter(735996);
 		componentTest.next(new TestCase("#10"));
 
 	}
@@ -315,7 +315,7 @@ public class KeepAllNearEqualTest {
 		expect("#0.7", ess7, -1047, 0);
 		expect("#0.8", ess8, -934, 0);
 
-		ess0.setActivePowerEquals(-8000);
+		ess0.setActivePowerEqualsWithoutFilter(-8000);
 		componentTest.next(new TestCase("#1"));
 
 		ess1.withState(Level.FAULT);
@@ -328,7 +328,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.7", ess7, -1200, 0);
 		expect("#1.8", ess8, -1071, 0);
 
-		ess0.setActivePowerEquals(-8000);
+		ess0.setActivePowerEqualsWithoutFilter(-8000);
 		componentTest.next(new TestCase("#1"));
 
 		ess1.withState(Level.FAULT);
@@ -342,7 +342,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.7", ess7, -1407, 0);
 		expect("#1.8", ess8, -1256, 0);
 
-		ess0.setActivePowerEquals(-8000);
+		ess0.setActivePowerEqualsWithoutFilter(-8000);
 		componentTest.next(new TestCase("#1"));
 
 	}
@@ -394,7 +394,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.2", ess2, 5000, 0); // Limited to its max discharge power
 		expect("#1.3", ess3, 47500, 0); // Gets more power due to ess2 limitation
 
-		ess0.setActivePowerEquals(100000); // 100kW discharge
+		ess0.setActivePowerEqualsWithoutFilter(100000); // 100kW discharge
 		componentTest.next(new TestCase("#1"));
 
 		// Test charge with limited power on ess1
@@ -402,7 +402,7 @@ public class KeepAllNearEqualTest {
 		expect("#2.2", ess2, -40000, 0); // Gets more charge due to ess1 limitation
 		expect("#2.3", ess3, -50000, 0); // Gets more charge due to ess1 limitation
 
-		ess0.setActivePowerEquals(-100000); // 100kW charge
+		ess0.setActivePowerEqualsWithoutFilter(-100000); // 100kW charge
 		componentTest.next(new TestCase("#2"));
 	}
 
@@ -445,21 +445,21 @@ public class KeepAllNearEqualTest {
 		expect("#1.1", ess1, 0, 0);
 		expect("#1.2", ess2, 0, 0);
 
-		ess0.setActivePowerEquals(0); // Zero power
+		ess0.setActivePowerEqualsWithoutFilter(0); // Zero power
 		componentTest.next(new TestCase("#1"));
 
 		// Test very small power request
 		expect("#2.1", ess1, 10, 0);
 		expect("#2.2", ess2, 10, 0);
 
-		ess0.setActivePowerEquals(20); // 2W discharge
+		ess0.setActivePowerEqualsWithoutFilter(20); // 2W discharge
 		componentTest.next(new TestCase("#2"));
 
 		// Test negative very small power request
 		expect("#3.1", ess1, 0, 0);
 		expect("#3.2", ess2, 0, 0);
 
-		ess0.setActivePowerEquals(-2); // 2W charge
+		ess0.setActivePowerEqualsWithoutFilter(-2); // 2W charge
 		componentTest.next(new TestCase("#3"));
 	}
 
@@ -510,7 +510,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.2", ess2, 20000, 0); // Limited by max discharge power
 		expect("#1.3", ess3, 40000, 0); // Gets remaining power
 
-		ess0.setActivePowerEquals(100000); // 100kW discharge
+		ess0.setActivePowerEqualsWithoutFilter(100000); // 100kW discharge
 		componentTest.next(new TestCase("#1"));
 
 		// Test charge with different limits and SOCs
@@ -518,7 +518,7 @@ public class KeepAllNearEqualTest {
 		expect("#2.2", ess2, -60000, 0); // Gets more charge due to low SOC
 		expect("#2.3", ess3, -40000, 0); // Gets remaining charge power
 
-		ess0.setActivePowerEquals(-100000); // 100kW charge
+		ess0.setActivePowerEqualsWithoutFilter(-100000); // 100kW charge
 		componentTest.next(new TestCase("#2"));
 	}
 
@@ -553,19 +553,19 @@ public class KeepAllNearEqualTest {
 		// Test single ESS gets all requested power
 		expect("#1.1", ess1, 30000, 0);
 
-		ess0.setActivePowerEquals(30000); // 30kW discharge
+		ess0.setActivePowerEqualsWithoutFilter(30000); // 30kW discharge
 		componentTest.next(new TestCase("#1"));
 
 		// Test single ESS charge
 		expect("#2.1", ess1, -30000, 0);
 
-		ess0.setActivePowerEquals(-30000); // 30kW charge
+		ess0.setActivePowerEqualsWithoutFilter(-30000); // 30kW charge
 		componentTest.next(new TestCase("#2"));
 
 		// Test power beyond limits
 		expect("#3.1", ess1, 50000, 0); // Limited to max discharge
 
-		ess0.setActivePowerEquals(80000); // Request more than available
+		ess0.setActivePowerEqualsWithoutFilter(80000); // Request more than available
 		componentTest.next(new TestCase("#3"));
 	}
 
@@ -608,7 +608,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.1", ess1, -6000, 0); //
 		expect("#1.2", ess2, -9000, 0); //
 
-		ess0.setActivePowerEquals(-15000); //
+		ess0.setActivePowerEqualsWithoutFilter(-15000); //
 		componentTest.next(new TestCase("#1"));
 
 	}
@@ -653,7 +653,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.1", ess1, -7500, 0); //
 		expect("#1.2", ess2, -7500, 0); //
 
-		ess0.setActivePowerEquals(-15000); //
+		ess0.setActivePowerEqualsWithoutFilter(-15000); //
 		componentTest.next(new TestCase("#1"));
 
 	}
@@ -697,7 +697,7 @@ public class KeepAllNearEqualTest {
 		expect("#1.1", ess1, 0, 0); //
 		expect("#1.2", ess2, -MAX_POWER, 0); //
 
-		ess0.setActivePowerEquals(-MAX_POWER); //
+		ess0.setActivePowerEqualsWithoutFilter(-MAX_POWER); //
 		componentTest.next(new TestCase("#1"));
 
 		clearCallbacks(ess1, ess2);
@@ -705,7 +705,7 @@ public class KeepAllNearEqualTest {
 		expect("#2.1", ess1, 0, 0); // Cannot charge, so gets 0
 		expect("#2.2", ess2, -MAX_POWER, 0); // Should be limited to its max
 
-		ess0.setActivePowerEquals(-100000); // Request 100kW charge (more than ess2 can handle)
+		ess0.setActivePowerEqualsWithoutFilter(-100000); // Request 100kW charge (more than ess2 can handle)
 		componentTest.next(new TestCase("#2"));
 
 		// Test #3: After SOC changes - should still respect power limits
@@ -714,7 +714,7 @@ public class KeepAllNearEqualTest {
 		expect("#3.1", ess1, 0, 0); // Still cannot charge
 		expect("#3.2", ess2, -50000, 0); // Should get requested charge power
 
-		ess0.setActivePowerEquals(-50000); // Request 50kW charge (within ess2 limits)
+		ess0.setActivePowerEqualsWithoutFilter(-50000); // Request 50kW charge (within ess2 limits)
 		componentTest.next(new TestCase("#3"));
 
 		// Test #4: Discharge scenario
@@ -723,7 +723,7 @@ public class KeepAllNearEqualTest {
 		expect("#4.1", ess1, 50000, 0); // Should get requested discharge power
 		expect("#4.2", ess2, 0, 0); // Cannot discharge
 
-		ess0.setActivePowerEquals(50000); // Request 50kW discharge
+		ess0.setActivePowerEqualsWithoutFilter(50000); // Request 50kW discharge
 		componentTest.next(new TestCase("#4"));
 
 		clearCallbacks(ess1, ess2);
@@ -731,7 +731,7 @@ public class KeepAllNearEqualTest {
 		expect("#5.1", ess1, -0, 0); // Limited charge power due to high SOC
 		expect("#5.2", ess2, -50000, 0); // Gets most of the charge power
 
-		ess0.setActivePowerEquals(-50000); // Request 50kW charge
+		ess0.setActivePowerEqualsWithoutFilter(-50000); // Request 50kW charge
 		componentTest.next(new TestCase("#5"));
 
 		clearCallbacks(ess1, ess2);
@@ -780,7 +780,7 @@ public class KeepAllNearEqualTest {
 		expect("Equal#1.1", ess1, -25000, 0);
 		expect("Equal#1.2", ess2, -25000, 0);
 
-		ess0.setActivePowerEquals(-50000); // Request 50kW charge
+		ess0.setActivePowerEqualsWithoutFilter(-50000); // Request 50kW charge
 		componentTest.next(new TestCase("Equal#1"));
 
 		clearCallbacks(ess1, ess2);

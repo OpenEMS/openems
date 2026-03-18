@@ -115,9 +115,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
-		if (activePower != null) {
-			ess.setActivePowerEqualsWithPid(activePower);
-		}
+		ess.setActivePowerEqualsWithFilter(activePower);
 		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 	}
 
@@ -172,7 +170,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 				this.chargeState = NORMAL;
 			}
 		}
-		};
+		}
 
 		// store current state in StateMachine channel
 		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.STATE_MACHINE).setNextValue(this.chargeState);

@@ -298,7 +298,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		if (sellToGridLimitIsDefined && delayChargeIsDefined) {
 			if (sellToGridLimitMinChargePower <= delayChargeMaxChargePower) {
 
-				this.ess.setActivePowerEquals(sellToGridLimitMinChargePower);
+				this.ess.setActivePowerEqualsWithFilter(sellToGridLimitMinChargePower);
 				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT_FIXED,
 						sellToGridLimitMinChargePower);
 				this.logDebug("Applying both constraints not possible - Set active power according to SellToGridLimit: "

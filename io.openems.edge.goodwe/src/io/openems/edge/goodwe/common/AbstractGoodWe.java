@@ -103,6 +103,8 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	protected final Set<GoodWeCharger> chargers = new HashSet<>();
 
+	protected final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
+
 	protected AbstractGoodWe(//
 			io.openems.edge.common.channel.ChannelId activePowerChannelId, //
 			io.openems.edge.common.channel.ChannelId reactivePowerChannelId, //

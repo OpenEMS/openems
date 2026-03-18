@@ -29,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.DisabledPidFilter;
+import io.openems.edge.common.filter.Filter;
+import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -63,6 +65,9 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	@Reference
 	private ConfigurationAdmin cm;
 
+	@Reference
+	private ComponentManager componentManager;
+
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(enabled=true)")
 	protected synchronized void addEss(ManagedSymmetricEss ess) {
 		this.esss.add(ess);
@@ -79,8 +84,8 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	private Config config;
+	private Filter filter; // nullable
 	private PowerDistributionHandler powerDistributionHandler;
-	private PidFilter pidFilter;
 
 	public EssPowerImpl() {
 		super(//
@@ -136,11 +141,15 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 
 		if (config.enablePid()) {
 			// build a PidFilter instance with the configured P, I and D variables
-			this.pidFilter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
-			// use a DisabledPidFilter instance, that always just returns the unfiltered
-			// target value
+			this.filter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
+
+		} else if (config.enablePT1Filter()) {
+			// build a PT1Filter instance with the configured time constant parameter
+			this.filter = new PT1Filter(this.componentManager.getClock(), config.pt1TimeConstant());
+
 		} else {
-			this.pidFilter = DisabledPidFilter.INSTANCE;
+			// unset filter if filters are disabled
+			this.filter = null;
 		}
 	}
 
@@ -210,12 +219,12 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	@Override
-	public PidFilter getPidFilter() {
-		return this.pidFilter;
+	public Filter getFilter() {
+		return this.filter;
 	}
 
-	public boolean isPidEnabled() {
-		return this.config.enablePid();
+	@Override
+	public boolean isFilterEnabled() {
+		return this.filter != null;
 	}
-
 }

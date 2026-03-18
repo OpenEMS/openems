@@ -229,8 +229,8 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.setActivePowerEquals(activePower);
-		this.setReactivePowerEquals(reactivePower);
+		this.setActivePowerEqualsWithoutFilter(activePower);
+		this.setReactivePowerEqualsWithoutFilter(reactivePower);
 	}
 
 	@Override

@@ -1823,8 +1823,8 @@ public interface GoodWe extends OpenemsComponent {
 				.unit(Unit.WATT)), //
 		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER) //
 				.unit(Unit.WATT)), //
-		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
-				.text("SMART mode does not work correctly with active PID filter")),
+		SMART_MODE_NOT_WORKING_WITH_FILTER(Doc.of(Level.WARNING) //
+				.text("SMART mode does not work correctly with active filter")),
 		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
 				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
 		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.WARNING) //

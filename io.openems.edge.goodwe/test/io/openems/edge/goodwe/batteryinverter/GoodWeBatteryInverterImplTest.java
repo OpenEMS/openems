@@ -120,8 +120,8 @@ public class GoodWeBatteryInverterImplTest {
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, 0) //
-						.input(MAX_AC_EXPORT, 0) //
+						.input(MAX_AC_IMPORT, -2000) //
+						.input(MAX_AC_EXPORT, 2000) //
 						.input("charger0", ACTUAL_POWER, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
@@ -156,8 +156,8 @@ public class GoodWeBatteryInverterImplTest {
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, 0) //
-						.input(MAX_AC_EXPORT, 0) //
+						.input(MAX_AC_IMPORT, -2000) //
+						.input(MAX_AC_EXPORT, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), -1000, 0);
 						}) //
@@ -191,8 +191,8 @@ public class GoodWeBatteryInverterImplTest {
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, 0) //
 						.input(ACTIVE_POWER, 0) //
-						.input(MAX_AC_IMPORT, 0) //
-						.input(MAX_AC_EXPORT, 0) //
+						.input(MAX_AC_IMPORT, -2000) //
+						.input(MAX_AC_EXPORT, 2000) //
 						.onExecuteWriteCallbacks(() -> {
 							ess.run(new DummyBattery("battery0"), 1000, 0);
 						}) //

@@ -113,7 +113,7 @@ public class ControllerAsymmetricPeakShavingImpl extends AbstractOpenemsComponen
 		/*
 		 * Apply PID filter
 		 */
-		ess.setActivePowerEqualsWithPid(calculatedPower);
-		ess.setReactivePowerEquals(0);
+		ess.setActivePowerEqualsWithFilter(calculatedPower);
+		ess.setReactivePowerEqualsWithoutFilter(0);
 	}
 }
