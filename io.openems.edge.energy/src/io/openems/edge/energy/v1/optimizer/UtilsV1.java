@@ -119,6 +119,8 @@ public final class UtilsV1 {
 				.setMaxBuyFromGrid(toEnergy(context.maxChargePowerFromGrid())) //
 				.setProductions(stream(interpolateArray(predictionProduction)).map(v -> toEnergy(v)).toArray()) //
 				.setConsumptions(stream(interpolateArray(predictionConsumption)).map(v -> toEnergy(v)).toArray()) //
+				// DANGER: setPrices() won't work correctly if there are missing prices.
+				// asArray() is not returning null values
 				.setPrices(interpolateDoubleArray(prices.asArray())) //
 				.setStates(context.controlMode().modesArray) //
 				.setExistingSchedule(existingSchedule) //

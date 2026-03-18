@@ -1,6 +1,10 @@
 package io.openems.common.utils;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.function.IntFunction;
 
 public class ArrayUtils {
 
@@ -38,6 +42,62 @@ public class ArrayUtils {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Creates a new array by concatenating multiple arrays of the same type.
+	 *
+	 * @param <T>    the component type of the arrays
+	 * @param arrays all arrays to concat
+	 * @return a new array containing all elements from all input arrays
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> T[] concatAll(T[]... arrays) {
+		if (arrays.length == 0) {
+			var underlyingType = arrays.getClass().getComponentType().getComponentType();
+			return (T[]) Array.newInstance(underlyingType, 0);
+		}
+
+		var finalSize = Arrays.stream(arrays).mapToInt(x -> x.length).sum();
+		T[] result = Arrays.copyOf(arrays[0], finalSize);
+		int resultIndex = arrays[0].length;
+
+		for (int arrayIndex = 1; arrayIndex < arrays.length; arrayIndex++) {
+			var array = arrays[arrayIndex];
+			System.arraycopy(array, 0, result, resultIndex, array.length);
+			resultIndex += array.length;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Creates a new array that contains all data from provided collections.
+	 *
+	 * @param <T>       the component type of the list and the resulting array
+	 * @param generator function that creates a new array with the component type of
+	 *                  the list and the specified size
+	 * @param lists     Collections that should be combined
+	 * @return a new array containing all elements from all provided collections
+	 */
+	@SafeVarargs
+	public static <T> T[] concatLists(IntFunction<T[]> generator, Collection<T>... lists) {
+		var size = Arrays.stream(lists).filter(Objects::nonNull).mapToInt(Collection::size).sum();
+		T[] result = generator.apply(size);
+		int resultIndex = 0;
+
+		for (var list : lists) {
+			if (list == null) {
+				continue;
+			}
+
+			for (var element : list) {
+				result[resultIndex] = element;
+				resultIndex++;
+			}
+		}
+
+		return result;
 	}
 
 }

@@ -1,35 +1,22 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.common.bridge.http.thirdparty.entsoe;
 
-import static io.openems.common.test.TestUtils.createDummyClock;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.getDuration;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.EntsoeBiddingZone;
+import io.openems.common.xml.serialization.XmlParser;
+import org.junit.Test;
 
-import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import javax.xml.parsers.ParserConfigurationException;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-import org.xml.sax.SAXException;
-
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.ImmutableTable;
-import com.google.common.collect.Maps;
-
-import io.openems.common.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.common.currency.Currency;
-import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
-
-public class ParserTest {
-
+public class EntsoeApiTest {
 	private static final String XML = """
 			<?xml version="1.0" encoding="utf-8"?>
 			<Publication_MarketDocument xmlns="urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3">
@@ -1100,11 +1087,11 @@ public class ParserTest {
 				<receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>
 				<createdDateTime>2025-01-17T14:45:02Z</createdDateTime>
 				<period.timeInterval>
-					<start>2025-01-16T23:00Z</start>
+					<start>2025-01-17T23:00Z</start>
 					<end>2025-01-18T23:00Z</end>
 				</period.timeInterval>
 				<TimeSeries>
-					<mRID>1</mRID>
+					<mRID>2</mRID>
 					<auction.type>A01</auction.type>
 					<businessType>A62</businessType>
 					<in_Domain.mRID codingScheme="A01">10Y1001A1001A82H</in_Domain.mRID>
@@ -1116,123 +1103,8 @@ public class ParserTest {
 					<curveType>A03</curveType>
 					<Period>
 						<timeInterval>
-							<start>2025-01-16T23:00Z</start>
-							<end>2025-01-17T23:00Z</end>
-						</timeInterval>
-						<resolution>PT60M</resolution>
-						<Point>
-							<position>1</position>
-							<price.amount>118.87</price.amount>
-						</Point>
-						<Point>
-							<position>2</position>
-							<price.amount>118.39</price.amount>
-						</Point>
-						<Point>
-							<position>3</position>
-							<price.amount>115.71</price.amount>
-						</Point>
-						<Point>
-							<position>4</position>
-							<price.amount>114.72</price.amount>
-						</Point>
-						<Point>
-							<position>5</position>
-							<price.amount>115.48</price.amount>
-						</Point>
-						<Point>
-							<position>6</position>
-							<price.amount>122.16</price.amount>
-						</Point>
-						<Point>
-							<position>7</position>
-							<price.amount>140.8</price.amount>
-						</Point>
-						<Point>
-							<position>8</position>
-							<price.amount>175.01</price.amount>
-						</Point>
-						<Point>
-							<position>9</position>
-							<price.amount>208.13</price.amount>
-						</Point>
-						<Point>
-							<position>10</position>
-							<price.amount>175.34</price.amount>
-						</Point>
-						<Point>
-							<position>11</position>
-							<price.amount>158</price.amount>
-						</Point>
-						<Point>
-							<position>12</position>
-							<price.amount>140.73</price.amount>
-						</Point>
-						<Point>
-							<position>13</position>
-							<price.amount>126.44</price.amount>
-						</Point>
-						<Point>
-							<position>14</position>
-							<price.amount>124.03</price.amount>
-						</Point>
-						<Point>
-							<position>15</position>
-							<price.amount>132.99</price.amount>
-						</Point>
-						<Point>
-							<position>16</position>
-							<price.amount>151.98</price.amount>
-						</Point>
-						<Point>
-							<position>17</position>
-							<price.amount>170.21</price.amount>
-						</Point>
-						<Point>
-							<position>18</position>
-							<price.amount>178.79</price.amount>
-						</Point>
-						<Point>
-							<position>19</position>
-							<price.amount>179.92</price.amount>
-						</Point>
-						<Point>
-							<position>20</position>
-							<price.amount>174.22</price.amount>
-						</Point>
-						<Point>
-							<position>21</position>
-							<price.amount>157.91</price.amount>
-						</Point>
-						<Point>
-							<position>22</position>
-							<price.amount>145</price.amount>
-						</Point>
-						<Point>
-							<position>23</position>
-							<price.amount>139.97</price.amount>
-						</Point>
-						<Point>
-							<position>24</position>
-							<price.amount>126.84</price.amount>
-						</Point>
-					</Period>
-				</TimeSeries>
-				<TimeSeries>
-					<mRID>2</mRID>
-					<auction.type>A01</auction.type>
-					<businessType>A62</businessType>
-					<in_Domain.mRID codingScheme="A01">10Y1001A1001A82H</in_Domain.mRID>
-					<out_Domain.mRID codingScheme="A01">10Y1001A1001A82H</out_Domain.mRID>
-					<contract_MarketAgreement.type>A01</contract_MarketAgreement.type>
-					<currency_Unit.name>EUR</currency_Unit.name>
-					<price_Measure_Unit.name>MWH</price_Measure_Unit.name>
-					<classificationSequence_AttributeInstanceComponent.position>2</classificationSequence_AttributeInstanceComponent.position>
-					<curveType>A03</curveType>
-					<Period>
-						<timeInterval>
 							<start>2025-01-17T23:00Z</start>
-							<end>2025-01-18T23:00Z</end>
+							<end>2025-01-18T22:00Z</end>
 						</timeInterval>
 						<resolution>PT15M</resolution>
 						<Point>
@@ -1602,22 +1474,6 @@ public class ParserTest {
 						<Point>
 							<position>92</position>
 							<price.amount>118.52</price.amount>
-						</Point>
-						<Point>
-							<position>93</position>
-							<price.amount>147.82</price.amount>
-						</Point>
-						<Point>
-							<position>94</position>
-							<price.amount>126.9</price.amount>
-						</Point>
-						<Point>
-							<position>95</position>
-							<price.amount>116.1</price.amount>
-						</Point>
-						<Point>
-							<position>96</position>
-							<price.amount>107</price.amount>
 						</Point>
 					</Period>
 				</TimeSeries>
@@ -1733,542 +1589,6 @@ public class ParserTest {
 						<Point>
 							<position>24</position>
 							<price.amount>129.36</price.amount>
-						</Point>
-					</Period>
-				</TimeSeries>
-			</Publication_MarketDocument>
-									""";
-
-	private static final String MISSING_DATA_FOR_HOUR_DURATION = """
-						<Publication_MarketDocument
-				xmlns="urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3">
-				<mRID>b800016070e147898e51672e789e6503</mRID>
-				<revisionNumber>1</revisionNumber>
-				<type>A44</type>
-				<sender_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</sender_MarketParticipant.mRID>
-				<sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>
-				<receiver_MarketParticipant.mRID codingScheme="A01">10X1001A1001A450</receiver_MarketParticipant.mRID>
-				<receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>
-				<createdDateTime>2025-01-17T14:45:02Z</createdDateTime>
-				<period.timeInterval>
-					<start>2025-01-16T23:00Z</start>
-					<end>2025-01-18T23:00Z</end>
-				</period.timeInterval>
-				<TimeSeries>
-					<mRID>1</mRID>
-					<auction.type>A01</auction.type>
-					<businessType>A62</businessType>
-					<in_Domain.mRID codingScheme="A01">10Y1001A1001A82H</in_Domain.mRID>
-					<out_Domain.mRID codingScheme="A01">10Y1001A1001A82H</out_Domain.mRID>
-					<contract_MarketAgreement.type>A01</contract_MarketAgreement.type>
-					<currency_Unit.name>EUR</currency_Unit.name>
-					<price_Measure_Unit.name>MWH</price_Measure_Unit.name>
-					<classificationSequence_AttributeInstanceComponent.position>1</classificationSequence_AttributeInstanceComponent.position>
-					<curveType>A03</curveType>
-					<Period>
-						<timeInterval>
-							<start>2025-01-16T23:00Z</start>
-							<end>2025-01-17T23:00Z</end>
-						</timeInterval>
-						<resolution>PT60M</resolution>
-						<Point>
-							<position>1</position>
-							<price.amount>118.87</price.amount>
-						</Point>
-						<Point>
-							<position>2</position>
-							<price.amount>118.39</price.amount>
-						</Point>
-						<Point>
-							<position>3</position>
-							<price.amount>115.71</price.amount>
-						</Point>
-						<Point>
-							<position>4</position>
-							<price.amount>114.72</price.amount>
-						</Point>
-						<Point>
-							<position>5</position>
-							<price.amount>115.48</price.amount>
-						</Point>
-						<Point>
-							<position>6</position>
-							<price.amount>122.16</price.amount>
-						</Point>
-						<Point>
-							<position>7</position>
-							<price.amount>140.8</price.amount>
-						</Point>
-						<Point>
-							<position>8</position>
-							<price.amount>175.01</price.amount>
-						</Point>
-						<Point>
-							<position>9</position>
-							<price.amount>208.13</price.amount>
-						</Point>
-						<Point>
-							<position>10</position>
-							<price.amount>175.34</price.amount>
-						</Point>
-						<Point>
-							<position>11</position>
-							<price.amount>158</price.amount>
-						</Point>
-						<Point>
-							<position>12</position>
-							<price.amount>140.73</price.amount>
-						</Point>
-						<Point>
-							<position>13</position>
-							<price.amount>126.44</price.amount>
-						</Point>
-						<Point>
-							<position>14</position>
-							<price.amount>124.03</price.amount>
-						</Point>
-						<Point>
-							<position>15</position>
-							<price.amount>132.99</price.amount>
-						</Point>
-						<Point>
-							<position>16</position>
-							<price.amount>151.98</price.amount>
-						</Point>
-						<Point>
-							<position>17</position>
-							<price.amount>170.21</price.amount>
-						</Point>
-						<Point>
-							<position>18</position>
-							<price.amount>178.79</price.amount>
-						</Point>
-						<Point>
-							<position>19</position>
-							<price.amount>179.92</price.amount>
-						</Point>
-						<Point>
-							<position>20</position>
-							<price.amount>174.22</price.amount>
-						</Point>
-						<Point>
-							<position>21</position>
-							<price.amount>157.91</price.amount>
-						</Point>
-						<Point>
-							<position>22</position>
-							<price.amount>145</price.amount>
-						</Point>
-						<Point>
-							<position>23</position>
-							<price.amount>139.97</price.amount>
-						</Point>
-						<Point>
-							<position>24</position>
-							<price.amount>126.84</price.amount>
-						</Point>
-					</Period>
-				</TimeSeries>
-				<TimeSeries>
-					<mRID>2</mRID>
-					<auction.type>A01</auction.type>
-					<businessType>A62</businessType>
-					<in_Domain.mRID codingScheme="A01">10Y1001A1001A82H</in_Domain.mRID>
-					<out_Domain.mRID codingScheme="A01">10Y1001A1001A82H</out_Domain.mRID>
-					<contract_MarketAgreement.type>A01</contract_MarketAgreement.type>
-					<currency_Unit.name>EUR</currency_Unit.name>
-					<price_Measure_Unit.name>MWH</price_Measure_Unit.name>
-					<classificationSequence_AttributeInstanceComponent.position>2</classificationSequence_AttributeInstanceComponent.position>
-					<curveType>A03</curveType>
-					<Period>
-						<timeInterval>
-							<start>2025-01-17T23:00Z</start>
-							<end>2025-01-18T23:00Z</end>
-						</timeInterval>
-						<resolution>PT15M</resolution>
-						<Point>
-							<position>1</position>
-							<price.amount>145.2</price.amount>
-						</Point>
-						<Point>
-							<position>2</position>
-							<price.amount>127.6</price.amount>
-						</Point>
-						<Point>
-							<position>3</position>
-							<price.amount>116.3</price.amount>
-						</Point>
-						<Point>
-							<position>4</position>
-							<price.amount>115.32</price.amount>
-						</Point>
-						<Point>
-							<position>5</position>
-							<price.amount>138.6</price.amount>
-						</Point>
-						<Point>
-							<position>6</position>
-							<price.amount>120.54</price.amount>
-						</Point>
-						<Point>
-							<position>7</position>
-							<price.amount>115.55</price.amount>
-						</Point>
-						<Point>
-							<position>8</position>
-							<price.amount>109.3</price.amount>
-						</Point>
-						<Point>
-							<position>9</position>
-							<price.amount>122.07</price.amount>
-						</Point>
-						<Point>
-							<position>10</position>
-							<price.amount>121.6</price.amount>
-						</Point>
-						<Point>
-							<position>11</position>
-							<price.amount>119</price.amount>
-						</Point>
-						<Point>
-							<position>12</position>
-							<price.amount>116.6</price.amount>
-						</Point>
-						<Point>
-							<position>13</position>
-							<price.amount>122.9</price.amount>
-						</Point>
-						<Point>
-							<position>14</position>
-							<price.amount>119</price.amount>
-						</Point>
-						<Point>
-							<position>15</position>
-							<price.amount>118</price.amount>
-						</Point>
-						<Point>
-							<position>16</position>
-							<price.amount>114.91</price.amount>
-						</Point>
-						<Point>
-							<position>17</position>
-							<price.amount>116.9</price.amount>
-						</Point>
-						<Point>
-							<position>18</position>
-							<price.amount>117.3</price.amount>
-						</Point>
-						<Point>
-							<position>19</position>
-							<price.amount>120.8</price.amount>
-						</Point>
-						<Point>
-							<position>20</position>
-							<price.amount>117.81</price.amount>
-						</Point>
-						<Point>
-							<position>21</position>
-							<price.amount>120.2</price.amount>
-						</Point>
-						<Point>
-							<position>22</position>
-							<price.amount>116.8</price.amount>
-						</Point>
-						<Point>
-							<position>23</position>
-							<price.amount>110.9</price.amount>
-						</Point>
-						<Point>
-							<position>24</position>
-							<price.amount>124.8</price.amount>
-						</Point>
-						<Point>
-							<position>25</position>
-							<price.amount>108.25</price.amount>
-						</Point>
-						<Point>
-							<position>26</position>
-							<price.amount>116.6</price.amount>
-						</Point>
-						<Point>
-							<position>27</position>
-							<price.amount>124.6</price.amount>
-						</Point>
-						<Point>
-							<position>28</position>
-							<price.amount>141.7</price.amount>
-						</Point>
-						<Point>
-							<position>29</position>
-							<price.amount>102.11</price.amount>
-						</Point>
-						<Point>
-							<position>30</position>
-							<price.amount>132.9</price.amount>
-						</Point>
-						<Point>
-							<position>31</position>
-							<price.amount>147.1</price.amount>
-						</Point>
-						<Point>
-							<position>32</position>
-							<price.amount>162.5</price.amount>
-						</Point>
-						<Point>
-							<position>33</position>
-							<price.amount>142</price.amount>
-						</Point>
-						<Point>
-							<position>34</position>
-							<price.amount>148.2</price.amount>
-						</Point>
-						<Point>
-							<position>35</position>
-							<price.amount>150.4</price.amount>
-						</Point>
-						<Point>
-							<position>36</position>
-							<price.amount>143.5</price.amount>
-						</Point>
-						<Point>
-							<position>37</position>
-							<price.amount>160.1</price.amount>
-						</Point>
-						<Point>
-							<position>38</position>
-							<price.amount>145.3</price.amount>
-						</Point>
-						<Point>
-							<position>39</position>
-							<price.amount>139.9</price.amount>
-						</Point>
-						<Point>
-							<position>40</position>
-							<price.amount>132.7</price.amount>
-						</Point>
-						<Point>
-							<position>41</position>
-							<price.amount>164.9</price.amount>
-						</Point>
-						<Point>
-							<position>42</position>
-							<price.amount>145.6</price.amount>
-						</Point>
-						<Point>
-							<position>43</position>
-							<price.amount>134.57</price.amount>
-						</Point>
-						<Point>
-							<position>44</position>
-							<price.amount>117.1</price.amount>
-						</Point>
-						<Point>
-							<position>45</position>
-							<price.amount>144.3</price.amount>
-						</Point>
-						<Point>
-							<position>46</position>
-							<price.amount>128.4</price.amount>
-						</Point>
-						<Point>
-							<position>47</position>
-							<price.amount>120.2</price.amount>
-						</Point>
-						<Point>
-							<position>48</position>
-							<price.amount>100.93</price.amount>
-						</Point>
-						<Point>
-							<position>49</position>
-							<price.amount>141.55</price.amount>
-						</Point>
-						<Point>
-							<position>50</position>
-							<price.amount>120.2</price.amount>
-						</Point>
-						<Point>
-							<position>51</position>
-							<price.amount>114.2</price.amount>
-						</Point>
-						<Point>
-							<position>52</position>
-							<price.amount>106.5</price.amount>
-						</Point>
-						<Point>
-							<position>53</position>
-							<price.amount>117.1</price.amount>
-						</Point>
-						<Point>
-							<position>54</position>
-							<price.amount>116.5</price.amount>
-						</Point>
-						<Point>
-							<position>55</position>
-							<price.amount>116.9</price.amount>
-						</Point>
-						<Point>
-							<position>56</position>
-							<price.amount>120.6</price.amount>
-						</Point>
-						<Point>
-							<position>57</position>
-							<price.amount>95.07</price.amount>
-						</Point>
-						<Point>
-							<position>58</position>
-							<price.amount>115.49</price.amount>
-						</Point>
-						<Point>
-							<position>59</position>
-							<price.amount>128.6</price.amount>
-						</Point>
-						<Point>
-							<position>60</position>
-							<price.amount>141.2</price.amount>
-						</Point>
-						<Point>
-							<position>61</position>
-							<price.amount>98.23</price.amount>
-						</Point>
-						<Point>
-							<position>62</position>
-							<price.amount>124.9</price.amount>
-						</Point>
-						<Point>
-							<position>63</position>
-							<price.amount>139.3</price.amount>
-						</Point>
-						<Point>
-							<position>64</position>
-							<price.amount>169.5</price.amount>
-						</Point>
-						<Point>
-							<position>65</position>
-							<price.amount>107.58</price.amount>
-						</Point>
-						<Point>
-							<position>66</position>
-							<price.amount>133.8</price.amount>
-						</Point>
-						<Point>
-							<position>67</position>
-							<price.amount>160.6</price.amount>
-						</Point>
-						<Point>
-							<position>68</position>
-							<price.amount>195.8</price.amount>
-						</Point>
-						<Point>
-							<position>69</position>
-							<price.amount>140.06</price.amount>
-						</Point>
-						<Point>
-							<position>70</position>
-							<price.amount>147.5</price.amount>
-						</Point>
-						<Point>
-							<position>71</position>
-							<price.amount>155.08</price.amount>
-						</Point>
-						<Point>
-							<position>72</position>
-							<price.amount>187</price.amount>
-						</Point>
-						<Point>
-							<position>73</position>
-							<price.amount>176.5</price.amount>
-						</Point>
-						<Point>
-							<position>74</position>
-							<price.amount>164.11</price.amount>
-						</Point>
-						<Point>
-							<position>75</position>
-							<price.amount>170.9</price.amount>
-						</Point>
-						<Point>
-							<position>76</position>
-							<price.amount>167.5</price.amount>
-						</Point>
-						<Point>
-							<position>77</position>
-							<price.amount>209.6</price.amount>
-						</Point>
-						<Point>
-							<position>78</position>
-							<price.amount>166.3</price.amount>
-						</Point>
-						<Point>
-							<position>79</position>
-							<price.amount>147.58</price.amount>
-						</Point>
-						<Point>
-							<position>80</position>
-							<price.amount>132.57</price.amount>
-						</Point>
-						<Point>
-							<position>81</position>
-							<price.amount>189.93</price.amount>
-						</Point>
-						<Point>
-							<position>82</position>
-							<price.amount>150.6</price.amount>
-						</Point>
-						<Point>
-							<position>83</position>
-							<price.amount>133.6</price.amount>
-						</Point>
-						<Point>
-							<position>84</position>
-							<price.amount>119</price.amount>
-						</Point>
-						<Point>
-							<position>85</position>
-							<price.amount>163.1</price.amount>
-						</Point>
-						<Point>
-							<position>86</position>
-							<price.amount>140.9</price.amount>
-						</Point>
-						<Point>
-							<position>87</position>
-							<price.amount>128.8</price.amount>
-						</Point>
-						<Point>
-							<position>88</position>
-							<price.amount>123.99</price.amount>
-						</Point>
-						<Point>
-							<position>89</position>
-							<price.amount>143.3</price.amount>
-						</Point>
-						<Point>
-							<position>90</position>
-							<price.amount>131</price.amount>
-						</Point>
-						<Point>
-							<position>91</position>
-							<price.amount>135.2</price.amount>
-						</Point>
-						<Point>
-							<position>92</position>
-							<price.amount>118.52</price.amount>
-						</Point>
-						<Point>
-							<position>93</position>
-							<price.amount>147.82</price.amount>
-						</Point>
-						<Point>
-							<position>94</position>
-							<price.amount>126.9</price.amount>
-						</Point>
-						<Point>
-							<position>95</position>
-							<price.amount>116.1</price.amount>
-						</Point>
-						<Point>
-							<position>96</position>
-							<price.amount>107</price.amount>
 						</Point>
 					</Period>
 				</TimeSeries>
@@ -5510,178 +4830,73 @@ public class ParserTest {
 			""";
 
 	@Test
-	public void testParseCurrency() throws Exception {
-		var res = parseCurrency(XML);
-		assertEquals(res, Currency.EUR.toString());
-	}
-
-	@Test
-	public void testPreferredResolutionExists() {
-		final var clock = createDummyClock();
-		// Create sample data
-		var table = ImmutableTable.<Duration, Instant, Double>builder()
-				.put(Duration.ofMinutes(15), Instant.now(clock), 100.0)
-				.put(Duration.ofMinutes(15), Instant.now(clock).plus(15, MINUTES), 200.0)
-				.put(Duration.ofMinutes(60), Instant.now(clock), 300.0) //
-				.build();
-
-		// Preferred resolution
-		var preferredResolution = Resolution.QUARTERLY;
-
-		// Call the method
-		var result = getDuration(table, preferredResolution);
-
-		// Assert
-		assertEquals("The preferred resolution should match.", Duration.ofMinutes(15), result);
-	}
-
-	@Test
-	public void testPreferredResolutionDoesNotExist() {
-		// Create sample data
-		var table = ImmutableTable.<Duration, Instant, Double>builder()
-				.put(Duration.ofMinutes(15), Instant.now(), 100.0)
-				.put(Duration.ofMinutes(15), Instant.now().plus(15, MINUTES), 200.0)
-				.put(Duration.ofMinutes(15), Instant.now().plus(30, MINUTES), 300.0).build();
-
-		// Preferred resolution that does not exist
-		var preferredResolution = Resolution.HOURLY;
-
-		// Call the method
-		var result = getDuration(table, preferredResolution);
-
-		// Assert
-		assertEquals("The shortest duration should be returned when preferred is unavailable.", Duration.ofMinutes(15),
-				result);
-	}
-
-	@Test
-	public void testProcessPricesNormalCase() {
-		var baseTime = ZonedDateTime.parse("2023-01-01T00:00:00Z");
-		var baseInstant = baseTime.toInstant();
-		var clock = Clock.fixed(baseInstant, baseTime.getZone());
-
-		var timePriceMap = ImmutableSortedMap.<Instant, Double>naturalOrder() //
-				.put(baseInstant, 10.0)//
-				.put(baseInstant.plus(15, MINUTES), 20.0) //
-				.put(baseInstant.plus(30, MINUTES), 30.0) //
-				.build();
-
-		Double[] gridFees = { 1.0, 2.0, 3.0 }; // Length 3
-		var gridFeesObject = TimeOfUsePrices.from(baseInstant, gridFees);
-		var exchangeRate = 1.0;
-
-		var result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
-
-		assertEquals(3, result.asArray().length);
-		assertEquals(20.0, result.getAt(baseInstant), 0.001);
-		assertEquals(40.0, result.getAt(baseInstant.plus(15, MINUTES)), 0.001);
-		assertEquals(60.0, result.getAt(baseInstant.plus(30, MINUTES)), 0.001);
-
-		Double[] gridFees2 = { 1.0, 2.0, 3.0, 4.0, 5.0 }; // Length 5
-		gridFeesObject = TimeOfUsePrices.from(baseInstant, gridFees2);
-		result = Utils.processPrices(clock, timePriceMap, exchangeRate, gridFeesObject);
-
-		// Ensures that excess grid fees are truncated when the grid fees array is
-		// longer than the number of price entries.
-		assertEquals(3, result.asArray().length);
-	}
-
-	@Test
 	public void testParsePrices() throws Exception {
-		var biddingZone = BiddingZone.GERMANY;
+		var biddingZone = EntsoeBiddingZone.GERMANY;
+		var api = EntsoeApi.INSTANCE;
+		var parser = XmlParser.INSTANCE;
+		var clock = Clock.systemDefaultZone();
 
 		// Test Quarterly resolution
-		var quarterlyPrices = parsePrices(XML, Resolution.QUARTERLY, biddingZone);
-		var hourlyPrices = parsePrices(XML, Resolution.HOURLY, biddingZone);
+		var prices = api.readPriceData(parser.parseXml(XML), biddingZone, clock);
+		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertEquals(120.26, prices.getValues().getAt(Instant.parse("2025-10-14T22:00:00Z")), 0.001);
+		assertEquals(116.09, prices.getValues().getAt(Instant.parse("2025-10-14T22:15:00Z")), 0.001);
+		assertEquals(90.22, prices.getValues().getAt(Instant.parse("2025-10-15T22:00:00Z")), 0.001);
 
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
+		prices = api.readPriceData(parser.parseXml(XML_ONLY_WITH_SEQUENCE_2), biddingZone, clock);
+		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
 
-		var difference = Maps.difference(quarterlyPrices, hourlyPrices);
+		prices = api.readPriceData(parser.parseXml(MISSING_DATA_AND_MULTIPLE_PERIODS_XML), biddingZone, clock);
+		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
 
-		assertTrue("Maps should be equal for both resultions " + ". Differences: " + difference.toString(),
-				difference.areEqual());
+		prices = api.readPriceData(parser.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), biddingZone, clock);
+		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
 
-		quarterlyPrices = parsePrices(XML_ONLY_WITH_SEQUENCE_2, Resolution.QUARTERLY, biddingZone);
-		hourlyPrices = parsePrices(XML_ONLY_WITH_SEQUENCE_2, Resolution.HOURLY, biddingZone);
+		prices = api.readPriceData(parser.parseXml(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2), biddingZone,
+				clock);
+		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+	}
 
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
-
-		difference = Maps.difference(quarterlyPrices, hourlyPrices);
-
-		assertTrue("Maps should be equal for both resultions " + ". Differences: " + difference.toString(),
-				difference.areEqual());
-
-		quarterlyPrices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, Resolution.QUARTERLY, biddingZone);
-		hourlyPrices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, Resolution.HOURLY, biddingZone);
-
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
-
-		difference = Maps.difference(quarterlyPrices, hourlyPrices);
-
-		quarterlyPrices = parsePrices(XML_WITH_BOTH_SEQUENCE_1_AND_2, Resolution.QUARTERLY, biddingZone);
-		hourlyPrices = parsePrices(XML_WITH_BOTH_SEQUENCE_1_AND_2, Resolution.HOURLY, biddingZone);
-
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
-
-		difference = Maps.difference(quarterlyPrices, hourlyPrices);
-
-		quarterlyPrices = parsePrices(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2, Resolution.QUARTERLY,
-				biddingZone);
-		hourlyPrices = parsePrices(XML_WITH_PARTIAL_SEQUENCE_1_AND_FULL_SEQUENCE_2, Resolution.HOURLY, biddingZone);
-
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
-
-		difference = Maps.difference(quarterlyPrices, hourlyPrices);
+	@Test
+	public void testParseCurrency() throws Exception {
+		var prices = EntsoeApi.INSTANCE.readPriceData(XmlParser.INSTANCE.parseXml(XML), EntsoeBiddingZone.GERMANY,
+				createDummyClock());
+		assertEquals("EUR", prices.getCurrency());
 	}
 
 	@Test
 	public void testParsePricesWithMissingData() throws Exception {
-		var preferredResolution = Resolution.QUARTERLY;
-		var biddingZone = BiddingZone.GERMANY;
+		var xml = XmlParser.INSTANCE.parseXml(MISSING_DATA_AND_MULTIPLE_PERIODS_XML);
+		var data = EntsoeApi.INSTANCE.readPriceData(xml, EntsoeBiddingZone.GERMANY, createDummyClock());
 
-		var prices = parsePrices(MISSING_DATA_AND_MULTIPLE_PERIODS_XML, preferredResolution, biddingZone);
-		assertFalse("Price map should not be empty", prices.isEmpty());
-
-		// Generic assertions for missing data scenario
-		assertEquals(192, prices.size());
-
-		// Check that missing positions are filled by duplicating adjacent values
-		var priceArray = prices.values().toArray(new Double[0]);
-		assertEquals("Missing position should be filled with adjacent value", priceArray[96], priceArray[97], 0.001);
+		assertEquals("Missing position should be filled with adjacent value", //
+				data.getValues().getAt(Instant.parse("2024-10-23T18:00:00Z")), //
+				data.getValues().getAt(Instant.parse("2024-10-23T19:00:00Z")), //
+				0.001);
 	}
 
 	@Test
 	public void testParsePricesWithBothResolutions() throws Exception {
-		var preferredResolution = Resolution.QUARTERLY;
-		var biddingZone = BiddingZone.GERMANY;
+		var xml = XmlParser.INSTANCE.parseXml(MISSING_DATA_FOR_QUARTER_DURATION);
+		var data = EntsoeApi.INSTANCE.readPriceData(xml, EntsoeBiddingZone.GERMANY, createDummyClock());
 
-		var quarterlyPrices = parsePrices(MISSING_DATA_FOR_QUARTER_DURATION, preferredResolution, biddingZone);
-		assertFalse("Price map should not be empty", quarterlyPrices.isEmpty());
-		assertEquals(192, quarterlyPrices.size());
-
-		preferredResolution = Resolution.HOURLY;
-		var hourlyPrices = parsePrices(MISSING_DATA_FOR_HOUR_DURATION, preferredResolution, biddingZone);
-		assertFalse("Price map should not be empty", hourlyPrices.isEmpty());
-
-		assertEquals(192, hourlyPrices.size());
+		assertEquals(145.2, data.getValues().getAt(Instant.parse("2025-01-17T23:00:00Z")), 0.001);
+		assertEquals(127.6, data.getValues().getAt(Instant.parse("2025-01-17T23:15:00Z")), 0.001);
+		assertEquals(129.36, data.getValues().getAt(Instant.parse("2025-01-18T22:00:00Z")), 0.001);
+		assertEquals(129.36, data.getValues().getAt(Instant.parse("2025-01-18T22:30:00Z")), 0.001);
 	}
 
 	@Test
-	public void testCalculateDelay() throws ParserConfigurationException, SAXException, IOException {
+	public void testCalculateDelay() throws OpenemsError.OpenemsNamedException {
 
 		var baseTime = ZonedDateTime.parse("2025-01-01T10:00:00Z");
 		var clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
 		// Mock XML root returning no TimeSeries data
-		var xml = "<root></root>";
+		var xml = XmlParser.INSTANCE.parseXml("<root></root>");
 
 		// Act
-		var delay = Utils.calculateDelay(clock, xml);
+		var delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(xml, EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 
 		// Assert
 		assertTrue(delay instanceof DelayTimeProvider.Delay.DurationDelay);
@@ -5691,24 +4906,23 @@ public class ParserTest {
 		baseTime = ZonedDateTime.parse("2025-10-21T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = Utils.calculateDelay(clock, XML);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be less than 1 hour", duration.compareTo(Duration.ofHours(1)) < 0);
 
 		baseTime = ZonedDateTime.parse("2025-10-14T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = Utils.calculateDelay(clock, XML_WITH_BOTH_SEQUENCE_1_AND_2);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be 2 hours", duration.toHours() == 2);
 
 		baseTime = ZonedDateTime.parse("2025-10-14T14:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = Utils.calculateDelay(clock, XML_WITH_BOTH_SEQUENCE_1_AND_2);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be 24 hours", duration.toHours() == 24);
 
 	}
-
 }

@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -169,6 +170,27 @@ public interface JsonElementPathNullable {
 	 */
 	public default StringPathNullable<LocalTime> getAsStringPathNullableLocalTime(DateTimeFormatter formatter) {
 		return this.getAsJsonPrimitivePathNullable().getAsStringPathNullableLocalTime(formatter);
+	}
+
+	/**
+	 * Gets the current {@link JsonElementPathNullable} as a
+	 * {@link StringPathNullable}.
+	 *
+	 * @return the current element as a {@link StringPathNullable}
+	 */
+	public default StringPathNullable<Instant> getAsStringPathNullableInstant() {
+		return this.getAsJsonPrimitivePathNullable().getAsStringPathNullableInstant();
+	}
+
+	/**
+	 * Gets the current {@link JsonElementPathNullable} as a
+	 * {@link StringPathNullable}.
+	 *
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the current element as a {@link StringPathNullable}
+	 */
+	public default StringPathNullable<Instant> getAsStringPathNullableInstant(DateTimeFormatter formatter) {
+		return this.getAsJsonPrimitivePathNullable().getAsStringPathNullableInstant(formatter);
 	}
 
 	/**
