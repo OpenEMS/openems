@@ -8,8 +8,8 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "productionMeterChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-common-production-history-meter",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {

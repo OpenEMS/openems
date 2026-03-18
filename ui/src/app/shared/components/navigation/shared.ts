@@ -1,6 +1,9 @@
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "../../type/role";
 import { TEnumKeys, TPartialBy } from "../../type/utility";
 import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { Edge } from "../edge/edge";
 
 export enum NavigationId {
     LIVE = "live",
@@ -395,10 +398,20 @@ export namespace NavigationConstants {
         "Common_Selfconsumption",
         "Consumption",
         "Grid",
+        "Common_Production",
     ];
 
     /**
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [];
+
+    export namespace CommonNodes {
+        export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
+        export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
+            return edge.roleIsAtLeast(Role.INSTALLER)
+                ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
+                : [];
+        }
+    }
 }

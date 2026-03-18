@@ -7,8 +7,8 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "chargerChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-common-production-history-charger",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class ChargerChartDetailsComponent extends AbstractHistoryChart {

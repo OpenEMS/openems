@@ -277,9 +277,22 @@ export type OeFormlyField =
     | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.RangeButtonFromFormControlLine
     | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.Advanced.ElectricityMeter
+    | OeFormlyField.Advanced.EssChargerLine
     ;
 
 export namespace OeFormlyField {
+
+    export namespace Advanced {
+        export type ElectricityMeter = {
+            type: "advanced-electricity-meter-line",
+            component: EdgeConfig.Component,
+        };
+        export type EssChargerLine = {
+            type: "advanced-ess-charger-line",
+            component: EdgeConfig.Component,
+        };
+    }
 
     export type InfoLine = {
         type: "info-line",

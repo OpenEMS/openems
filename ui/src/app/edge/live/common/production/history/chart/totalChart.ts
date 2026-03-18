@@ -3,13 +3,13 @@ import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, Utils } from "src/app/shared/shared";
+import { HistoryUtils, YAxisType, ChartAxis } from "src/app/shared/utils/utils";
 
-import { ChannelAddress } from "../../../../../shared/shared";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../../../../shared/utils/utils";
 
 @Component({
-    selector: "productionTotalChart",
-    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-common-production-total-chart",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
@@ -67,7 +67,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
             });
         }
 
-        const chartObject: HistoryUtils.ChartData = {
+        return {
             input: channels,
             output: (data: HistoryUtils.ChannelData) => {
                 const datasets: HistoryUtils.DisplayValue[] = [];
@@ -80,7 +80,6 @@ export class TotalChartComponent extends AbstractHistoryChart {
                         return data["ProductionActivePower"];
                     },
                     color: ChartConstants.Colors.BLUE,
-                    hiddenOnInit: true,
                     stack: 2,
                 });
 
@@ -160,7 +159,5 @@ export class TotalChartComponent extends AbstractHistoryChart {
                 yAxisId: ChartAxis.LEFT,
             }],
         };
-
-        return chartObject;
     }
 }

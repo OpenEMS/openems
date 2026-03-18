@@ -8,10 +8,10 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
-    templateUrl: "./details.overview.html",
+    templateUrl: "./overview.html",
     standalone: false,
 })
-export class DetailsOverviewComponent extends AbstractHistoryChartOverview {
+export class CommonProductionDetailsOverviewComponent extends AbstractHistoryChartOverview {
     protected navigationButtons: NavigationOption[] = [];
 
     protected componentSome: { type: "sum" | "productionMeter" | "charger", displayName: string } | null = null;

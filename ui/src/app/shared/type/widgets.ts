@@ -2,6 +2,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { SharedAutarchy } from "src/app/edge/live/common/autarchy/shared/shared";
 import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/shared";
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
+import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { Edge } from "../components/edge/edge";
@@ -49,6 +50,8 @@ export class Widgets {
                 return SharedSelfConsumption.getNavigationTree(translate);
             case "Consumption":
                 return SharedConsumption.getNavigationTree(edge, config, translate);
+            case "Common_Production":
+                return SharedProduction.getNavigationTree(edge, config, translate);
             default:
                 return null;
         }

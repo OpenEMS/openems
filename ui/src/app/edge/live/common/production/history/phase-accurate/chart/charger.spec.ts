@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { ActivatedRoute } from "@angular/router";
+import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { OeChartTester } from "src/app/shared/components/shared/testing/tester";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
-import { DATA, LABELS } from "../../../energy/chart/chart.constants.spec";
 import { History } from "./channels.spec";
 import { ChargerChartDetailsComponent } from "./charger";
 

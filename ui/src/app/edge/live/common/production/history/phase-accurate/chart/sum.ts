@@ -10,11 +10,11 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "oe-common-production-details-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-common-production-history-sum",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
-export class SumChartDetailsComponent extends AbstractHistoryChart {
+export class CommonProductionSumChartDetailsComponent extends AbstractHistoryChart {
 
     public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
 
@@ -90,6 +90,6 @@ export class SumChartDetailsComponent extends AbstractHistoryChart {
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
-        return SumChartDetailsComponent.getChartData(this.config, this.route, this.translate);
+        return CommonProductionSumChartDetailsComponent.getChartData(this.config, this.route, this.translate);
     }
 }

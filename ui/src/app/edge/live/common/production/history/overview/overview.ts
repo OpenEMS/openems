@@ -2,15 +2,15 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
 import { NavigationOption } from "src/app/shared/components/footer/subnavigation/footerNavigation";
-import { AbstractHistoryChartOverview } from "../../../../../shared/components/chart/abstractHistoryChartOverview";
-import { ChannelAddress, EdgeConfig, Service } from "../../../../../shared/shared";
+import { EdgeConfig, Service, ChannelAddress } from "src/app/shared/shared";
 
 @Component({
     templateUrl: "./overview.html",
     standalone: false,
 })
-export class CommonProductionOverviewComponent extends AbstractHistoryChartOverview {
+export class CommonProductionHistoryOverviewComponent extends AbstractHistoryChartOverview {
     protected chargerComponents: EdgeConfig.Component[] = [];
     protected productionMeterComponents: EdgeConfig.Component[] = [];
     protected navigationButtons: NavigationOption[] = [];

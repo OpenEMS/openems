@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { EdgeConfig, Utils, ChannelAddress } from "src/app/shared/shared";
 
-import { ChannelAddress, EdgeConfig, Utils } from "../../../../../shared/shared";
 
 @Component({
     selector: "productionWidget",
