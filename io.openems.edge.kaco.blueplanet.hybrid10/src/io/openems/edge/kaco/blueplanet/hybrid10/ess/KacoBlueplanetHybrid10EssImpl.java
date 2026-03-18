@@ -206,7 +206,7 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 		this._setActivePower(activePower);
 		this._setDcDischargePower(dcDischargePower);
 		this._setReactivePower(reactivePower);
-		this._setGridMode(gridMode);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, gridMode);
 
 		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, //
 				soc == null || soc >= 99 //

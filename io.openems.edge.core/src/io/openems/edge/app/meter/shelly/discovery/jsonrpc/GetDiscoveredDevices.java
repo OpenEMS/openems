@@ -8,7 +8,8 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.utils.JsonUtils;
 
-public final class GetDiscoveredDevices<T> implements EndpointRequestType<GetDiscoveredDevices.Request, GetDiscoveredDevices.Response<T>> {
+public final class GetDiscoveredDevices<T>
+		implements EndpointRequestType<GetDiscoveredDevices.Request, GetDiscoveredDevices.Response<T>> {
 	public static final String METHOD = "getDiscoveredDevices";
 
 	private final JsonSerializer<T> valueSerializer;

@@ -130,7 +130,7 @@ public class KostalManagedEssImpl extends AbstractOpenemsModbusComponent impleme
 			return;
 		}
 
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 		this._setCapacity(config.capacity());
 		this.controlMode = config.controlMode();
 		this.minsoc = config.minsoc();

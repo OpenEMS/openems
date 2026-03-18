@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.offgrid.statemachine;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -7,6 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
 /**
@@ -32,36 +35,39 @@ public class GridSwitchHandler extends StateHandler<OffGridState, Context> {
 		final var inverter = context.batteryInverter;
 
 		if (!context.isChannelsDefined()) {
-			// Wait till MainContactor and GroundingContactor are defined.
 			return OffGridState.GRID_SWITCH;
 		}
 
-		switch (offGridSwitch.getGridMode()) {
-		case UNDEFINED:
+		return switch (offGridSwitch.getGridMode()) {
+		case UNDEFINED ->
 			// Wait till GridStatus is defined.
-			return OffGridState.GRID_SWITCH;
-		case ON_GRID:
+			OffGridState.GRID_SWITCH;
+
+		case ON_GRID -> {
 			if (context.isFromOffToOnGrid()) {
 				this.changeFromOffToOnGrid(context);
-			} else {
-				// Inverter grid mode should set, before setting the
-				// relays in required position
-				inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
-				if (context.isOnGridContactorsSet()) {
-					return OffGridState.START_BATTERY_IN_ON_GRID;
-				}
-				context.setContactorsForOnGrid();
+				yield OffGridState.GRID_SWITCH;
 			}
-			return OffGridState.GRID_SWITCH;
-		case OFF_GRID:
+
+			inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
+			if (context.isOnGridContactorsSet()) {
+				yield OffGridState.START_BATTERY_IN_ON_GRID;
+			}
+
+			context.setContactorsForOnGrid();
+			yield OffGridState.GRID_SWITCH;
+		}
+
+		case OFF_GRID, OFF_GRID_GENSET -> {
 			inverter.setTargetGridMode(TargetGridMode.GO_OFF_GRID);
 			if (context.isOffGridContactorsSet()) {
-				return OffGridState.START_BATTERY_IN_OFF_GRID;
+				yield OffGridState.START_BATTERY_IN_OFF_GRID;
 			}
+
 			context.setContactorsForOffGrid();
-			return OffGridState.GRID_SWITCH;
+			yield OffGridState.GRID_SWITCH;
 		}
-		return OffGridState.GRID_SWITCH;
+		};
 	}
 
 	private void changeFromOffToOnGrid(Context context) throws OpenemsNamedException {
@@ -76,6 +82,6 @@ public class GridSwitchHandler extends StateHandler<OffGridState, Context> {
 			this.lastStateChange = Instant.now(context.componentManager.getClock());
 			inverter.stop();
 		}
-		ess._setGridMode(GridMode.UNDEFINED);
+		setValue(ess, SymmetricEss.ChannelId.GRID_MODE, GridMode.UNDEFINED);
 	}
 }

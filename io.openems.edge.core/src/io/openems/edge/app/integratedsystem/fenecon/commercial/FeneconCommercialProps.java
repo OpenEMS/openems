@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 import io.openems.common.channel.Unit;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.GridCode;
@@ -17,9 +18,12 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
+import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionBuilder;
 import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionGroupBuilder;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
+import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class FeneconCommercialProps {
 
@@ -36,6 +40,179 @@ public final class FeneconCommercialProps {
 					field.setOptions(List.of("START", "AUTO"));
 				}) //
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set if the genset is installed.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> isGensetInstalled(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.isGensetInstalled.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the Genset rated power.
+	 *
+	 * @param visiblitiyCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetRatedPower(//
+			final Nameable visiblitiyCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetRatedPower.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.range", "0", "50000", Unit.WATT.symbol) //
+				.setDefaultValue(0) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visiblitiyCondition);
+					setMinAndMax(field, 0, 50000, Unit.WATT, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the Genset preheating time.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetPreheatingTime(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetPreheatingTime.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.range", "10", "300", Unit.SECONDS.symbol) //
+				.setDefaultValue(10) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+					setMinAndMax(field, 10, 300, Unit.SECONDS, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the Genset runtime.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetRunTime(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetRunTime.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.range", "0", "1440", Unit.MINUTE.symbol) //
+				.setDefaultValue(0) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+					setMinAndMax(field, 0, 1440, Unit.MINUTE, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set if the battery can be charged from
+	 * the Genset.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetEnableCharge(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetEnableCharge.label") //
+				.setDefaultValue(false) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the Genset max power in percent.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetMaxPower(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetMaxPower.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.gensetMaxPower.description") //
+				.setDefaultValue(0) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+					setMinAndMax(field, 0, 100, Unit.PERCENT, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the SoC to start charge from the
+	 * Genset.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocStart(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetChargeSocStart.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.gensetChargeSocStart.description") //
+				.setDefaultValue(20) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+					setMinAndMax(field, 20, 90, Unit.PERCENT, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for input to set the SoC to end charge from the
+	 * Genset.
+	 *
+	 * @param visibilityCondition the condition to show the field
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocEnd(//
+			final Nameable visibilityCondition //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.FENECON.Commercial.gensetChargeSocEnd.label") //
+				.setTranslatedDescription("App.FENECON.Commercial.gensetChargeSocEnd.description") //
+				.setDefaultValue(40) //
+				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
+					onlyShowIf(field, visibilityCondition);
+					setMinAndMax(field, 40, 95, Unit.PERCENT, l);
+				}));
+	}
+
+	private static <T extends FormlyBuilder<T>> void onlyShowIf(//
+			final T field, //
+			final Nameable conditionsToShow //
+	) {
+
+		BooleanExpression expression = Exp.currentModelValue(conditionsToShow).notNull();
+		field.onlyShowIf(expression);
+	}
+
+	private static void setMinAndMax(//
+			final InputBuilder field, //
+			final int min, //
+			final int max, //
+			final Unit unit, //
+			final Language l //
+	) {
+		field.setInputType(InputType.NUMBER) //
+				.setMin(min) //
+				.setMax(max) //
+				.setUnit(unit, l);
 	}
 
 	/**
@@ -160,7 +337,7 @@ public final class FeneconCommercialProps {
 
 	/**
 	 * Creates a {@link AppDef} for an accordion group.
-	 * 
+	 *
 	 * @param consumer consumer for addition settings
 	 * @return the {@link AppDef}
 	 */
@@ -173,7 +350,7 @@ public final class FeneconCommercialProps {
 	/**
 	 * Creates an {@link AppDef} for an Accordion Group with the extended settings
 	 * of VDE 4110.
-	 * 
+	 *
 	 * @param gridCode the GRID_CODE
 	 * @return the {@link AppDef}
 	 */

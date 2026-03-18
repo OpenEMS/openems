@@ -275,7 +275,8 @@ public final class RelayProps {
 	}
 
 	/**
-	 * Creates a {@link RelayContactFilter} for {@link AppShellyMeterDiy} components.
+	 * Creates a {@link RelayContactFilter} for {@link AppShellyMeterDiy}
+	 * components.
 	 *
 	 * @return the {@link RelayContactFilter}
 	 */

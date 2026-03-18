@@ -75,6 +75,7 @@ import io.openems.edge.goodwe.common.GoodWeStateDefinitions.GwStateTask;
 import io.openems.edge.goodwe.common.enums.BatteryMode;
 import io.openems.edge.goodwe.common.enums.EmsPowerMode;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
+import io.openems.edge.goodwe.genset.GoodWeStsBoxGensetMeter;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
@@ -165,8 +166,10 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new ElementToChannelConverter(value -> {
 									Integer intValue = TypeUtils.<Integer>getAsType(OpenemsType.INTEGER, value);
 									final var goodWeType = this.getGoodweType();
+									final var isGensetActive = this.getGensetOperatingMode().isDefined()
+											&& this.getGensetOperatingMode().get();
 
-									return mapGridMode(goodWeType, intValue);
+									return mapGridMode(goodWeType, intValue, isGensetActive);
 								}))), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
@@ -1014,18 +1017,18 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			case FENECON_50K -> {
 				this.handleDefaultEmsPower(protocol);
 				this.handleMultipleStringChargers(protocol);
-				this.handleStsBox(protocol);
 				this.handleExtendedFeedPower(protocol);
 				this.handleNewFixPfRegisters(protocol);
 				this.handleEnablePfCurve(protocol);
+				this.handleGensetOperatingMode(protocol);
 			}
 
 			case FENECON_100K -> {
 				this.handleMultipleStringChargers(protocol);
-				this.handleStsBox(protocol);
 				this.handleExtendedFeedPower(protocol);
 				this.handleNewFixPfRegisters(protocol);
 				this.handleNewEmsPower(protocol);
+				this.handleGensetOperatingMode(protocol);
 			}
 
 			case FENECON_FHI_20_DAH, FENECON_FHI_29_9_DAH -> {
@@ -1172,6 +1175,12 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 								new UnsignedWordElement(45751))),
 				new FC16WriteRegistersTask(45776, m(GoodWePowerSetting.ChannelId.V2_APM_ENABLE_PF_UNDERFREQUENZY_CURVE,
 						new UnsignedWordElement(45776))));
+	}
+
+	private void handleGensetOperatingMode(ModbusProtocol protocol) {
+		protocol.addTask(//
+				new FC3ReadRegistersTask(36197, Priority.HIGH,
+						m(GoodWeStsBoxGensetMeter.ChannelId.GENSET_OPERATING_MODE, new UnsignedWordElement(36197))));
 	}
 
 	/**
@@ -1333,25 +1342,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 					charger._setCurrent(stringCurrentChannel.getNextValue().get());
 					charger._setVoltage(stringVoltageChannel.getNextValue().get());
 				});
-	}
-
-	/**
-	 * Handle STS-Box registers.
-	 *
-	 * <p>
-	 * GoodWe Versions >50kW have a separate box for off-grid and other
-	 * functionalities
-	 * </p>
-	 * 
-	 * @param protocol current protocol
-	 */
-	private void handleStsBox(ModbusProtocol protocol) {
-
-		protocol.addTask(//
-				new FC3ReadRegistersTask(35039, Priority.LOW, //
-						m(GoodWe.ChannelId.STS_VERSION, new UnsignedWordElement(35039)), //
-						m(GoodWe.ChannelId.STS_SUB_VERSION, new UnsignedWordElement(35040))) //
-		);
 	}
 
 	private void handleDspVersion7(ModbusProtocol protocol) throws OpenemsException {
@@ -2151,23 +2141,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	/**
-	 * Update STS-Box enabled information.
-	 *
-	 * <p>
-	 * STS-Box is enabled if the versions are not 0.
-	 * </p>
-	 * 
-	 * @param openemsComponent OpenEMS component
-	 */
-	public static void updateStsBoxEnabled(OpenemsComponent openemsComponent) {
-		IntegerReadChannel version = openemsComponent.channel(GoodWe.ChannelId.STS_VERSION);
-		IntegerReadChannel subVersion = openemsComponent.channel(GoodWe.ChannelId.STS_SUB_VERSION);
-
-		openemsComponent.channel(GoodWe.ChannelId.STS_BOX_ENABLE)
-				.setNextValue(version.getNextValue().orElse(0) + subVersion.getNextValue().orElse(0) > 0);
-	}
-
-	/**
 	 * Gets Surplus Power.
 	 *
 	 * @return {@link Integer}
@@ -2214,7 +2187,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	}
 
 	@VisibleForTesting
-	static GridMode mapGridMode(GoodWeType goodWeType, Integer value) {
+	static GridMode mapGridMode(GoodWeType goodWeType, Integer value, boolean isGensetActive) {
 		if (value == null) {
 			return GridMode.UNDEFINED;
 		}
@@ -2225,6 +2198,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 			yield defaultMapGridMode(value);
 		}
 		case FENECON_50K, FENECON_100K -> {
+			if (isGensetActive) {
+				yield GridMode.OFF_GRID_GENSET;
+			}
 			yield switch (value) {
 			case 0 -> GridMode.OFF_GRID;
 			case 1 -> GridMode.ON_GRID;

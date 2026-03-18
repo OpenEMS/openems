@@ -1644,7 +1644,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			if (comp.config().installAlways()) {
 				foundComponent = null;
 			}
-			
+
 			// use component based on the last configuration
 			if (foundComponent == null && oldAppInstance != null && canBeReplaced
 					&& oldAppInstance.properties.has(replacableId.key)) {
@@ -1659,7 +1659,6 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 					foundComponent = null;
 				}
 			}
-
 
 			if (foundComponent == null) {
 				// if the id is not already set and there is no component with the default id

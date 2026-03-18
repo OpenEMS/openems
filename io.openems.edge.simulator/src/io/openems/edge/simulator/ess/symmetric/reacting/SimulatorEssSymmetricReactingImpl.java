@@ -94,7 +94,7 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 				calculateAllowedChargePower(config.initialSoc(), config.maxChargePower()) * -1);
 		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
 				calculateAllowedDischargePower(config.initialSoc(), config.maxDischargePower()));
-		this._setGridMode(config.gridMode());
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, config.gridMode());
 		this._setCapacity(config.capacity());
 	}
 

@@ -14,6 +14,7 @@ import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.EnableDisable;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.Parity;
@@ -24,6 +25,9 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
+import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 
 public final class FeneconCommercialComponents {
 
@@ -191,6 +195,81 @@ public final class FeneconCommercialComponents {
 								.addProperty("invalidateElementsAfterReadErrors", 1) //
 								.addProperty("logVerbosity", "NONE"))
 						.build());
+	}
+
+	/**
+	 * Creates a default Genset component for a FENECON Commercial 50/100.
+	 * 
+	 * @param bundle   the translation bundle
+	 * @param gensetId the id of the Genset
+	 * @param modbusId the id of the modbus bridge
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef genset(//
+			final ResourceBundle bundle, //
+			final String gensetId, //
+			final String modbusId //
+	) {
+		return new ComponentDef(gensetId, translate(bundle, "App.IntegratedSystem.genset.alias"), //
+				"GoodWe.Genset", //
+				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("modbus.id", modbusId) //
+						.build()),
+				ComponentDef.Configuration.defaultConfig());
+	}
+
+	/**
+	 * Creates a default sts-box component for a FENECON Commercial 50/100.
+	 * 
+	 * @param bundle          the translation bundle
+	 * @param stsBoxId        the id of the sts-box
+	 * @param modbusId        the id of the modbus bridge
+	 * @param gensetId        the id of the genset, nullable
+	 * @param ratedPower      the rated power
+	 * @param preheatingTime  the preheating time
+	 * @param runtime         the runtime
+	 * @param enableCharge    should the battery charge from genset
+	 * @param chargeSocStart  the charge soc start
+	 * @param chargeSocEnd    the charge soc end
+	 * @param maxPowerPercent the max power in percent
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef stsBox(//
+			final ResourceBundle bundle, //
+			final String stsBoxId, //
+			final String modbusId, //
+			final String gensetId, //
+			final int ratedPower, //
+			final int preheatingTime, //
+			final int runtime, //
+			final boolean enableCharge, //
+			final int chargeSocStart, //
+			final int chargeSocEnd, //
+			final int maxPowerPercent //
+	) {
+		return new ComponentDef(stsBoxId, translate(bundle, "App.IntegratedSystem.stsBox.alias"), //
+				"GoodWe.StsBox", //
+				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("modbus.id", modbusId) //
+						.addProperty("modbusUnitId", 247) //
+						.addProperty("portMultiplexingMode", gensetId != null //
+								? MultiplexingMode.GENSET
+								: MultiplexingMode.UNDEFINED)
+						.onlyIf(gensetId != null, b -> b //
+								.addProperty("genset.id", gensetId))
+						.addProperty("ratedPower", ratedPower) //
+						.addProperty("preheatingTime", preheatingTime) //
+						.addProperty("runtime", runtime) //
+						.addProperty("enableCharge", enableCharge //
+								? EnableDisable.ENABLE
+								: EnableDisable.DISABLE) //
+						.addProperty("chargeSocStart", chargeSocStart) //
+						.addProperty("chargeSocEnd", chargeSocEnd) //
+						.addProperty("maxPowerPercent", maxPowerPercent) //
+						.build()),
+				ComponentDef.Configuration.defaultConfig());
 	}
 
 	/**

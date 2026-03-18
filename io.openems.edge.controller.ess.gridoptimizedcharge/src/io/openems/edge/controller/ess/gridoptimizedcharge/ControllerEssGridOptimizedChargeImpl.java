@@ -192,18 +192,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		// Updates the time channels.
 		this.calculateTime();
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = this.ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			this._setSellToGridLimitState(SellToGridLimitState.UNDEFINED);
 			this._setDelayChargeState(DelayChargeState.UNDEFINED);
 			return;

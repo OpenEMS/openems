@@ -53,7 +53,7 @@ public class OperatingSystemDocker implements OperatingSystem {
 			return new ExecuteSystemCommandResponse(request.id, scr);
 		});
 	}
-		
+
 	private static CompletableFuture<Command> execute(SystemCommand sc) {
 		return new Bash(sc.command()) //
 				.withTimeout(sc.timeoutSeconds()) //

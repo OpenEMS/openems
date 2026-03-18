@@ -58,21 +58,11 @@ public class ControllerEssPeakShavingImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		final ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		final ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return;
 		}
 

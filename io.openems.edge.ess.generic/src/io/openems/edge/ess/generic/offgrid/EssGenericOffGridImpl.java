@@ -231,7 +231,7 @@ public class EssGenericOffGridImpl
 			}
 			var targetGridMode = switch ((GridMode) t.asEnum()) {
 			case ON_GRID -> TargetGridMode.GO_ON_GRID;
-			case OFF_GRID -> TargetGridMode.GO_OFF_GRID;
+			case OFF_GRID, OFF_GRID_GENSET -> TargetGridMode.GO_OFF_GRID;
 			case UNDEFINED -> null;
 			};
 			if (targetGridMode != null) {

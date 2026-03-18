@@ -33,7 +33,17 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmer
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.genset;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.stsBox;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocEnd;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocStart;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetEnableCharge;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetMaxPower;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetPreheatingTime;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRatedPower;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRunTime;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.getExtendedGoodWeProperties;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.isGensetInstalled;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.vde4110Settings;
 
 import java.util.ArrayList;
@@ -131,8 +141,21 @@ public class FeneconCommercial50Gen3 extends
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
+
+		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)),
 		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
 		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED)), //
+		GENSET_ID(AppDef.componentId("meter1") //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull());
+				})), //
+		GENSET_RATED_POWER(gensetRatedPower(IS_GENSET_INSTALLED)), //
+		GENSET_PREHEATING_TIME(gensetPreheatingTime(IS_GENSET_INSTALLED)), //
+		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
+		GENSET_ENABLE_CHARGE(gensetEnableCharge(IS_GENSET_INSTALLED)), //
+		GENSET_MAX_POWER(gensetMaxPower(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_START(gensetChargeSocStart(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_END(gensetChargeSocEnd(GENSET_ENABLE_CHARGE)), //
 
 		SHADOW_MANAGEMENT_DISABLED(shadowManagementDisabled()) //
 		;
@@ -237,6 +260,7 @@ public class FeneconCommercial50Gen3 extends
 			final var modbusIdExternal = "modbus1";
 			final var modbusIdExternalMeters = "modbus2";
 			final var gridMeterId = "meter0";
+			final var stsBoxId = "stsBox0";
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 
@@ -276,6 +300,16 @@ public class FeneconCommercial50Gen3 extends
 						naProtection, gridCodeName);
 			}
 
+			final var isGensetInstalled = this.getBoolean(p, Property.IS_GENSET_INSTALLED);
+			final var gensetId = this.getId(t, p, Property.GENSET_ID);
+			final var gensetRatedPower = this.getInt(p, Property.GENSET_RATED_POWER);
+			final var gensetPreheatingTime = this.getInt(p, Property.GENSET_PREHEATING_TIME);
+			final var gensetRunTime = this.getInt(p, Property.GENSET_RUN_TIME);
+			final var gensetEnableCharge = this.getBoolean(p, Property.GENSET_ENABLE_CHARGE);
+			final var gensetMaxPower = this.getInt(p, Property.GENSET_MAX_POWER);
+			final var gensetSocStart = this.getInt(p, Property.GENSET_CHARGE_SOC_START);
+			final var gensetSocEnd = this.getInt(p, Property.GENSET_CHARGE_SOC_END);
+
 			final var components = Lists.newArrayList(//
 					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
 					ComponentDef.from(batteryInverter), //
@@ -287,12 +321,28 @@ public class FeneconCommercial50Gen3 extends
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
+					stsBox(bundle, //
+							stsBoxId, //
+							modbusIdExternal, //
+							isGensetInstalled ? gensetId : null, //
+							gensetRatedPower, //
+							gensetPreheatingTime, //
+							gensetRunTime, //
+							gensetEnableCharge, //
+							gensetSocStart, //
+							gensetSocEnd, //
+							gensetMaxPower //
+			), //
 					new ComponentDef("_power", "", "Ess.Power", new ComponentProperties(List.of(//
 							ComponentProperties.Property.of("enablePid") //
 									.withValue(false) //
 									.withPriority(5))),
 							ComponentDef.Configuration.defaultConfig()) //
 			);
+
+			if (isGensetInstalled) {
+				components.add(genset(bundle, gensetId, modbusIdExternal));
+			}
 
 			if (hasEmergencyReserve) {
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
@@ -361,6 +411,15 @@ public class FeneconCommercial50Gen3 extends
 						Property.HAS_EMERGENCY_RESERVE, //
 						Property.EMERGENCY_RESERVE_ENABLED, //
 						Property.EMERGENCY_RESERVE_SOC, //
+						Property.IS_GENSET_INSTALLED, //
+						Property.GENSET_ID, //
+						Property.GENSET_RATED_POWER, //
+						Property.GENSET_PREHEATING_TIME, //
+						Property.GENSET_RUN_TIME, //
+						Property.GENSET_ENABLE_CHARGE, //
+						Property.GENSET_MAX_POWER, //
+						Property.GENSET_CHARGE_SOC_START, //
+						Property.GENSET_CHARGE_SOC_END, //
 						Property.SHADOW_MANAGEMENT_DISABLED //
 				).allMatch(t -> p != t)).toList());
 
@@ -369,12 +428,24 @@ public class FeneconCommercial50Gen3 extends
 			builder.add(this.pvDefs.get(MPPT_ALIAS.apply(i)));
 		}
 
-		builder.add(Property.HAS_EMERGENCY_RESERVE);
-		builder.add(Property.EMERGENCY_RESERVE_ENABLED);
-		builder.add(Property.EMERGENCY_RESERVE_SOC);
-		builder.add(Property.SHADOW_MANAGEMENT_DISABLED);
-		this.goodWeDefs.values().forEach(builder::add);
-		return builder.build().toArray(PropertyParent[]::new);
+		builder//
+				.add(Property.HAS_EMERGENCY_RESERVE) //
+				.add(Property.EMERGENCY_RESERVE_ENABLED) //
+				.add(Property.EMERGENCY_RESERVE_SOC) //
+				.add(Property.IS_GENSET_INSTALLED) //
+				.add(Property.GENSET_ID) //
+				.add(Property.GENSET_RATED_POWER) //
+				.add(Property.GENSET_PREHEATING_TIME) //
+				.add(Property.GENSET_RUN_TIME) //
+				.add(Property.GENSET_ENABLE_CHARGE) //
+				.add(Property.GENSET_MAX_POWER) //
+				.add(Property.GENSET_CHARGE_SOC_START) //
+				.add(Property.GENSET_CHARGE_SOC_END) //
+				.add(Property.SHADOW_MANAGEMENT_DISABLED);
+		this.goodWeDefs.values()//
+				.forEach(builder::add);
+		return builder.build() //
+				.toArray(PropertyParent[]::new);
 	}
 
 	@Override

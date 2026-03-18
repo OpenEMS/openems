@@ -214,7 +214,7 @@ public class Isk011 extends AbstractOpenemsAppWithProps<Isk011, Property, Bundle
 			// .setRouteGateway("172.23.22.2") //
 			// .setRouteMetric(512) //
 			// );
-			
+
 			dependencies.add(predictionDefault());
 			dependencies.add(predictionUnmanagedConsumption());
 

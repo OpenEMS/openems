@@ -72,31 +72,35 @@ public abstract class ShellyDiscovery<T> implements ComponentJsonApi {
 				.map(Inet4Address::getHostAddress) //
 				.reduce((a, b) -> a + ", " + b).orElse("N/A") //
 				+ resolved.properties().entrySet().stream() //
-				.map(e -> e.getKey() + ": " + e.getValue()) //
-				.collect(Collectors.joining(", ", ", ", ""));
+						.map(e -> e.getKey() + ": " + e.getValue()) //
+						.collect(Collectors.joining(", ", ", ", ""));
 	}
 
 	protected abstract JsonSerializer<T> getMdnsValueSerializer();
 
 	protected abstract Optional<T> createMdnsValue(MDnsDiscovery.MDnsEvent.ServiceResolved resolved);
 
-	protected abstract List<OpenemsAppInstance> getInstalledAppsByDevice(UUID excludedInstance, MDnsDiscovery.MDnsEvent.ServiceResolved resolved);
+	protected abstract List<OpenemsAppInstance> getInstalledAppsByDevice(UUID excludedInstance,
+			MDnsDiscovery.MDnsEvent.ServiceResolved resolved);
 
-	protected Optional<String> computeDeviceAlreadyInUseText(UUID excludedInstance, MDnsDiscovery.MDnsEvent.ServiceResolved resolved, Language l) {
+	protected Optional<String> computeDeviceAlreadyInUseText(UUID excludedInstance,
+			MDnsDiscovery.MDnsEvent.ServiceResolved resolved, Language l) {
 		var installedAppsByDevice = this.getInstalledAppsByDevice(excludedInstance, resolved);
 		if (installedAppsByDevice.isEmpty()) {
 			return Optional.empty();
 		}
 
 		final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
-		final var deviceInUseText = translate(bundle, "App.Meter.Shelly.device.alreadyUsed", installedAppsByDevice.stream() //
-				.map(t -> t.alias) //
-				.collect(Collectors.joining(", ")));
+		final var deviceInUseText = translate(bundle, "App.Meter.Shelly.device.alreadyUsed",
+				installedAppsByDevice.stream() //
+						.map(t -> t.alias) //
+						.collect(Collectors.joining(", ")));
 
 		return Optional.of(deviceInUseText);
 	}
 
-	private GetDiscoveredDevices.OptionState getDisabledState(UUID forInstance, MDnsDiscovery.MDnsEvent.ServiceResolved resolved, Language l) {
+	private GetDiscoveredDevices.OptionState getDisabledState(UUID forInstance,
+			MDnsDiscovery.MDnsEvent.ServiceResolved resolved, Language l) {
 		var deviceInUseText = this.computeDeviceAlreadyInUseText(forInstance, resolved, l);
 		return deviceInUseText.map(text -> new GetDiscoveredDevices.OptionState(true, text)).orElse(null);
 	}
