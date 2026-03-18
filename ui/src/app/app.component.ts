@@ -13,6 +13,8 @@ import { NavigationService } from "./shared/components/navigation/service/naviga
 import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHandler";
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route.service";
+import { SystemStateService } from "./shared/service/systemStateService";
+import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
@@ -53,6 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         private routeService: RouteService,
         private layoutRefresh: LayoutRefreshService,
+        private systemState: SystemStateService,
     ) {
         service.setLang(Language.getCurrentLanguage());
 
@@ -124,11 +127,11 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Called by the router-outlet (activate) event on every route change.
-     * Triggers a delayed window resize so chart components recalculate their
-     * dimensions (WCAG 1.4.4 compliance).
-     */
-    public onActivate(_event: any): void {
-        this.layoutRefresh.request(200);
+    * Called by the router-outlet (activate) event on every route change.
+    * Triggers a delayed window resize so chart components recalculate their
+    * dimensions (WCAG 1.4.4 compliance).
+    */
+    private onActivate(_event: any): void {
+        this.layoutRefresh.request(300);
     }
 }

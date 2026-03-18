@@ -16,6 +16,7 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
+import { SystemOutageInfoComponent } from "./edge/live/system-outage-info/oe-system-outage-info";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
@@ -39,6 +40,7 @@ provideTranslateLoader(MyTranslateLoader);
         NavigationComponent,
     ],
     imports: [
+        SystemOutageInfoComponent,
         AngularMyDatePickerModule,
         AppRoutingModule,
         BrowserAnimationsModule,

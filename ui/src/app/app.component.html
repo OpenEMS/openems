@@ -1,6 +1,10 @@
 <ion-app>
     <app-header></app-header>
-
+    @if(service.isSmartphoneResolution){
+    <ion-header>
+        <oe-system-outage-info></oe-system-outage-info>
+    </ion-header>
+    }
     @if (navigationService.position() !== null) {
     <ion-content>
         @if (navigationService.position() === 'disabled') {
@@ -134,6 +138,11 @@
 </ng-template>
 
 <ng-template #footer>
+    @if (!service.isSmartphoneResolution) {
+    <ion-footer>
+        <oe-system-outage-info></oe-system-outage-info>
+    </ion-footer>
+    }
     @if (isUserAllowedToSeeFooter && !isHistoryDetailView) {
     <oe-footer #appFooter slot="fixed"></oe-footer>
     }

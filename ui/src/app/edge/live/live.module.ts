@@ -50,6 +50,7 @@ import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-ap
 import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
 import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
 import { NavigationInfoComponent } from "./navigation-info/navigation-info";
+import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage-info";
 
 @NgModule({
     imports: [
@@ -78,6 +79,8 @@ import { NavigationInfoComponent } from "./navigation-info/navigation-info";
         ModalModule,
         SharedModule,
         SohStatusBannerComponent,
+        SystemOutageInfoComponent,
+        SystemModule,
         PullToRefreshComponent,
         HelpButtonComponent,
         EvcsClusterApiChartComponent,
