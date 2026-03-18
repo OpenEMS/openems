@@ -152,6 +152,17 @@ public class EnergyScheduler {
 					ed.initializeSetPoints();
 					ed.distributeSurplusEnergy(DistributionStrategy.EQUAL_POWER);
 					ed.applyChargeEnergy(ef);
+
+					// Postponed charging: enforce minimum session energy at deadline periods.
+					// smartDeadlines is keyed (componentId → deadlineTime → minimumEnergy).
+					// column(period.time()) returns all components whose deadline is this period.
+					coc.smartDeadlines().column(period.time()).forEach((componentId, minimumEnergy) -> {
+						final var componentCsc = csc.getCsc(componentId);
+						if (componentCsc != null && componentCsc.getSessionEnergy() < minimumEnergy) {
+							fitness.addHardConstraintViolation();
+						}
+					});
+
 					return mode;
 				})
 
