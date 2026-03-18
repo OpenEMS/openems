@@ -3,6 +3,7 @@ package io.openems.edge.ess.samsung.ess;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.round;
 
 import org.osgi.service.component.ComponentContext;
@@ -95,7 +96,7 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 		this._setCapacity(config.capacity());
-		this._setGridMode(GridMode.ON_GRID); // Has no Backup function
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID); // Has no Backup function
 
 		if (!this.isEnabled()) {
 			return;

@@ -223,7 +223,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID); // Has no Backup function
 
 		if (this.batteryInverter == null) {
 			this.logError(this.log, "ESS->BatteryInverter not yet activated ");
