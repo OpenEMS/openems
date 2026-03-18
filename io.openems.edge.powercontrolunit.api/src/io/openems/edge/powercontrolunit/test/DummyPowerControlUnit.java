@@ -1,8 +1,8 @@
-package io.openems.edge.powerplantcontrol.test;
+package io.openems.edge.powercontrolunit.test;
 
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
-import io.openems.edge.powerplantcontrol.api.PowerControlUnit;
+import io.openems.edge.powercontrolunit.api.PowerControlUnit;
 
 public class DummyPowerControlUnit extends AbstractDummyOpenemsComponent<DummyPowerControlUnit>
 implements OpenemsComponent, PowerControlUnit {
