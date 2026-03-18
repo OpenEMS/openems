@@ -61,8 +61,9 @@ public class EshUtilsTest {
 						.build());
 
 		var t = EshUtils.parseTasks(goc, clusterEshConfig);
-		assertEquals(Mode.FORCE, t.a().get("ctrl0", ZonedDateTime.parse("2020-01-01T01:30Z")));
-		assertTrue(t.b().isEmpty());
+		assertEquals(Mode.FORCE, t.manualModes().get("ctrl0", ZonedDateTime.parse("2020-01-01T01:30Z")));
+		assertTrue(t.smartPayloads().isEmpty());
+		assertTrue(t.smartDeadlines().isEmpty());
 	}
 
 }

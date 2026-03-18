@@ -115,8 +115,8 @@ public class EnergyScheduler {
 
 					// Parse OneTasks with Payload.Manual, i.e. Periods with predefined Mode
 					final var t = parseTasks(goc, clusterConfig);
-					final var manualModes = t.a();
-					final var smartPayloads = t.b();
+					final var manualModes = t.manualModes();
+					final var smartPayloads = t.smartPayloads();
 
 					// Generate Modes
 					final var modes = generateModes(clusterConfig, smartPayloads);
