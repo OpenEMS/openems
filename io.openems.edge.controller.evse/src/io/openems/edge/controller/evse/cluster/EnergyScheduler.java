@@ -30,7 +30,9 @@ public class EnergyScheduler {
 			ClusterEshConfig clusterConfig, //
 			Modes<SingleModes> modes, //
 			ImmutableTable<String, ZonedDateTime, Mode> manualModes, //
-			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads) {
+			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads, //
+			/** Deadline periods for postponed charging: (componentId, deadlineTime) → sessionEnergyMinimum [Wh] */
+			ImmutableTable<String, ZonedDateTime, Integer> smartDeadlines) {
 	}
 
 	/**
@@ -117,11 +119,12 @@ public class EnergyScheduler {
 					final var t = parseTasks(goc, clusterConfig);
 					final var manualModes = t.manualModes();
 					final var smartPayloads = t.smartPayloads();
+					final var smartDeadlines = t.smartDeadlines();
 
 					// Generate Modes
 					final var modes = generateModes(clusterConfig, smartPayloads);
 
-					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads);
+					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads, smartDeadlines);
 				})
 
 				.setModes((goc, coc) -> coc.modes()) //
