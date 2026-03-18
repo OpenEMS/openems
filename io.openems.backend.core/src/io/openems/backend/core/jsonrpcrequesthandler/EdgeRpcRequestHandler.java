@@ -64,10 +64,7 @@ public class EdgeRpcRequestHandler {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
 
-		if (user.getRole(edgeId).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
-		}
-		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
+		final var role = this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, EdgeRpcRequest.METHOD);
 
 		var resultFuture = switch (request.getMethod()) {
 		case AppCenterRequest.METHOD -> AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
@@ -125,7 +122,7 @@ public class EdgeRpcRequestHandler {
 
 		if (resultFuture == null) {
 			// Request not handled delegate to edge
-			resultFuture = this.parent.edgeManager.send(edgeId, user, request);
+			resultFuture = this.parent.edgeManager.send(edgeId, user, role, request);
 		}
 
 		// Wrap reply in EdgeRpcResponse

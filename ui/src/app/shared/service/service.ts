@@ -4,7 +4,7 @@ import { effect, inject, Injectable, Injector, runInInjectionContext, signal, un
 import { ActivatedRoute, Router } from "@angular/router";
 import { ToastController } from "@ionic/angular";
 import { LangChangeEvent, TranslateService } from "@ngx-translate/core";
-import { NgxSpinnerService } from "ngx-spinner";
+import { NgxSpinnerService, Spinner } from "ngx-spinner";
 import { BehaviorSubject, Subject } from "rxjs";
 import { take } from "rxjs/operators";
 import { environment } from "src/environments";
@@ -92,7 +92,7 @@ export class Service extends AbstractService {
 
     constructor(
         private router: Router,
-        public spinner: NgxSpinnerService,
+        public spinnerService: NgxSpinnerService,
         private toaster: ToastController,
         public translate: TranslateService,
         private _injector: Injector,
@@ -129,14 +129,11 @@ export class Service extends AbstractService {
     }
 
     public getDocsLang(): string {
-        return "de";
-
-        // TODO: Redo when translations for docs are available
-        // if (this.translate.getCurrentLang() == "de") {
-        //   return "de";
-        // } else {
-        //   return "en";
-        // }
+        if (this.translate.getCurrentLang() == "de") {
+            return "de";
+        } else {
+            return "en";
+        }
     }
 
     public notify(notification: DefaultTypes.Notification) {
@@ -415,18 +412,25 @@ export class Service extends AbstractService {
         });
     }
 
-    public startSpinner(selector: string) {
-        this.spinner.show(selector, {
+    /**
+     * Starts a spinner.
+     *
+     * @param selector the unique selector
+     * @param spinner the spinner to show
+     */
+    public startSpinner(selector: string, spinner?: Spinner) {
+        this.spinnerService.show(selector, {
             type: "ball-clip-rotate-multiple",
             fullScreen: false,
             bdColor: "rgba(0, 0, 0, 0.8)",
             size: "medium",
             color: "#fff",
+            ...spinner,
         });
     }
 
     public startSpinnerTransparentBackground(selector: string) {
-        this.spinner.show(selector, {
+        this.spinnerService.show(selector, {
             type: "ball-clip-rotate-multiple",
             fullScreen: false,
             bdColor: "rgba(0, 0, 0, 0)",
@@ -436,7 +440,7 @@ export class Service extends AbstractService {
     }
 
     public stopSpinner(selector: string) {
-        this.spinner.hide(selector);
+        this.spinnerService.hide(selector);
     }
 
     public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {

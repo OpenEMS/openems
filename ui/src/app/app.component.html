@@ -73,7 +73,7 @@
   }
 
   <!-- Show Sub-Views -->
-  <ion-router-outlet id="content"></ion-router-outlet>
+  <ion-router-outlet (activate)="onActivate($event)" id="content"></ion-router-outlet>
 </ng-template>
 
 <ng-template #sidemenu>
@@ -81,9 +81,8 @@
     [type]="navigationService.position === 'left' ? '': 'overlay'" side="start">
     <ion-list>
       @if ((service.metadata | async)?.user; as user) {
-        <ion-item tabindex="0" button routerLinkActive="active"
-          (keydown.enter)="navCtrl.navigateRoot('/user');menu.close()"
-          (click)="navCtrl.navigateRoot('/user');menu.close()">
+        <ion-item tabindex="0" button routerLinkActive="active" (keydown.enter)="navigateToUser()"
+          (click)="navigateToUser()">
           <ion-icon style="margin-right: 5%" size="large" color="primary" slot="start" name="person-outline">
           </ion-icon>
           <ion-label>

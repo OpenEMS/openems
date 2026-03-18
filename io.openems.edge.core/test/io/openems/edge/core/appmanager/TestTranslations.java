@@ -63,6 +63,10 @@ public class TestTranslations {
 					.addProperty("SAFETY_COUNTRY", "GERMANY") //
 					.addProperty("GRID_CODE", "VDE_4105") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconCommercial100(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("SAFETY_COUNTRY", "GERMANY") //
+					.addProperty("GRID_CODE", "VDE_4105") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.feneconIndustrialLIlk710(t), true, new JsonObject()));
 			this.apps.add(
 					new TestTranslation(Apps.feneconIndustrialSIsk010(t), true, TestFeneconIndustrialS.fullSettings()));
@@ -258,6 +262,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.appSohCycle(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}
@@ -293,6 +300,10 @@ public class TestTranslations {
 
 		for (var entry : this.apps) {
 			final var app = entry.app();
+
+			app.getName(l);
+			app.getShortName(l);
+
 			if (entry.validateAppAssistant()) {
 				app.getAppAssistant(DUMMY_ADMIN);
 			}

@@ -1,6 +1,7 @@
 package io.openems.backend.metrics.prometheus;
 
 import io.prometheus.metrics.core.metrics.Gauge;
+import io.prometheus.metrics.core.metrics.Histogram;
 import io.prometheus.metrics.core.metrics.Info;
 
 public class PrometheusMetrics {
@@ -8,6 +9,11 @@ public class PrometheusMetrics {
 	public static final Gauge WEBSOCKET_CONNECTION = Gauge.builder() //
 			.name("websocket_connections") //
 			.labelNames("component") //
+			.build();
+
+	public static final Histogram WEBSOCKET_REQUEST = Histogram.builder() //
+			.name("websocket_requests") //
+			.labelNames("component", "method") //
 			.build();
 
 	public static final Gauge THREAD_POOL_QUEUE = Gauge.builder() //

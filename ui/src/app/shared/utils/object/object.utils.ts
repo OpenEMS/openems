@@ -38,6 +38,12 @@ export class ObjectUtils {
         return ArrayUtils.containsAll({ strings: Object.keys(obj), arr: keys });
     }
 
+    /**
+     * Checks if a object is empty or null.
+     *
+     * @param obj the object
+     * @returns true if object is empty or null, else false
+     */
     public static isObjectNullOrEmpty(obj: Record<string, any> | null | undefined): boolean {
         return obj == null || Object.keys(obj).length === 0;
     }

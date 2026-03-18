@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        image: [edge, backend, ui-edge, ui-backend]
+        image: [edge, backend, ui-edge, ui-backend, backend-edge]
         include:
           - image: edge
             dockerfile: tools/docker/edge/Dockerfile
@@ -25,6 +25,8 @@ jobs:
             dockerfile: tools/docker/backend/Dockerfile
           - image: ui-backend
             dockerfile: tools/docker/ui/Dockerfile.backend
+          - image: backend-edge
+            dockerfile: tools/docker/backend-edge/Dockerfile
     permissions:
         packages: write
         contents: read
@@ -34,10 +36,10 @@ jobs:
         uses: actions/checkout@v6
         
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         
       - name: Get cleaned branch name
         id: clean_name
@@ -46,13 +48,13 @@ jobs:
           echo "branch=${REF_NAME}-test" >> "$GITHUB_OUTPUT"
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.REPOSITORY_OWNER }}
@@ -60,7 +62,7 @@ jobs:
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             openems/${{ matrix.image }}
@@ -75,7 +77,7 @@ jobs:
             type=raw,value=develop,enable=${{ github.ref == 'refs/heads/develop' }}
 
       - name: Build and push Docker images
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64, linux/arm64

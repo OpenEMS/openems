@@ -1,5 +1,8 @@
 package io.openems.common.utils;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -7,6 +10,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 import java.util.function.BiFunction;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -24,6 +29,11 @@ public class DateUtils {
 	 */
 	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
+	/**
+	 * Total number of 15-minute intervals (quarter-hours) in a day (96).
+	 */
+	public static final int QUARTERS_PER_DAY = 96;
+
 	private DateUtils() {
 	}
 
@@ -39,12 +49,33 @@ public class DateUtils {
 	}
 
 	/**
+	 * Rounds a {@link Instant} down to given minutes.
+	 *
+	 * @param d       the {@link Instant}
+	 * @param minutes the minutes to round down to; max 59
+	 * @return the rounded result
+	 */
+	public static Instant roundDownToMinutes(Instant d, int minutes) {
+		return d.truncatedTo(DurationUnit.ofMinutes(minutes));
+	}
+
+	/**
 	 * Rounds a {@link ZonedDateTime} down to next quarter (15 minutes).
 	 *
 	 * @param d the {@link ZonedDateTime}
 	 * @return the rounded result
 	 */
 	public static ZonedDateTime roundDownToQuarter(ZonedDateTime d) {
+		return roundDownToMinutes(d, 15);
+	}
+
+	/**
+	 * Rounds a {@link Instant} down to next quarter (15 minutes).
+	 *
+	 * @param d the {@link Instant}
+	 * @return the rounded result
+	 */
+	public static Instant roundDownToQuarter(Instant d) {
 		return roundDownToMinutes(d, 15);
 	}
 
@@ -288,6 +319,97 @@ public class DateUtils {
 		return parseDateOrError(LocalTime.class, LocalTime::parse, time, formatter);
 	}
 
+	/**
+	 * Safely finds the min value of all values.
+	 *
+	 * @param values the {@link ZonedDateTime} values
+	 * @return the min value; or null if all values are null
+	 */
+	public static ZonedDateTime min(ZonedDateTime... values) {
+		ZonedDateTime result = null;
+		for (var value : values) {
+			if (result != null && value != null) {
+				if (value.isBefore(result)) {
+					result = value;
+				}
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Safely finds the min value of all values.
+	 *
+	 * @param values the {@link Instant} values
+	 * @return the min value; or null if all values are null
+	 */
+	public static Instant min(Instant... values) {
+		Instant result = null;
+		for (var value : values) {
+			if (result != null && value != null) {
+				if (value.isBefore(result)) {
+					result = value;
+				}
+			} else if (value != null) {
+				result = value;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Calculates the duration from the current time until the next quarter hour.
+	 *
+	 * @param clock the Clock to use for the current time
+	 * @return a Duration representing the time until the next quarter hour
+	 */
+	public static Duration durationUntilNextQuarter(Clock clock) {
+		var now = ZonedDateTime.now(clock);
+		var nextQuarter = roundDownToQuarter(now).plusMinutes(15);
+		return Duration.between(now, nextQuarter);
+	}
+
+	// TODO: Unit-Tests
+	/**
+	 * Returns the index of the quarter-hour slot in which the given
+	 * {@link LocalTime} falls within a day.
+	 *
+	 * @param time the {@link LocalTime} to convert
+	 * @return the quarter-hour index (0-95)
+	 */
+	public static int toQuarterIndex(LocalTime time) {
+		return time.getHour() * 4 + Math.floorDiv(time.getMinute(), 15);
+	}
+
+	/**
+	 * Determines the ordinal position (1-based) of the given date's weekday within
+	 * its month.
+	 * 
+	 * <p>
+	 * For example:
+	 * <ul>
+	 * <li>If the date is the first Monday of the month, the method returns 1.</li>
+	 * <li>If the date is the third Friday of the month, the method returns 3.</li>
+	 * </ul>
+	 * 
+	 * <p>
+	 * The calculation is based on the number of full weeks between the first
+	 * occurrence of the same weekday in the month and the given date.
+	 *
+	 * @param date the {@link ZonedDateTime} whose weekday position in the month is
+	 *             to be determined; must not be {@code null}
+	 * @return an integer representing the nth occurrence of the date's weekday in
+	 *         its month (starting at 1 for the first occurrence)
+	 */
+	public static int nthWeekdayOfMonth(ZonedDateTime date) {
+		var dow = date.getDayOfWeek();
+		var firstDowInMonth = date.with(TemporalAdjusters.firstInMonth(dow));
+		long weeksBetween = ChronoUnit.WEEKS.between(firstDowInMonth, date);
+		return (int) weeksBetween + 1;
+	}
+
 	private static final <T> T parseDateOrNull(//
 			BiFunction<String, DateTimeFormatter, T> parser, //
 			String value, //
@@ -331,5 +453,4 @@ public class DateUtils {
 					+ " [" + value + "] " + e.getMessage());
 		}
 	}
-
 }

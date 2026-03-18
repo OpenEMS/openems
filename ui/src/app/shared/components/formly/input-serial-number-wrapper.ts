@@ -59,7 +59,11 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
     protected isFocused: boolean = false;
 
     public get borderBottomColor(): { [key: string]: string } {
-        return FormlyUtils.getBorderBottomColor(this.formControl, this.isFocused);
+        return FormlyUtils.getControlStyle(
+            this.formControl,
+            this.isFocused,
+            "border-bottom-color"
+        );
     }
 
     /**

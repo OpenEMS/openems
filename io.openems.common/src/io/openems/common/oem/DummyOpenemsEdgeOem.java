@@ -99,6 +99,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Commercial.50.Gen3", "https://fenecon.de/fenecon-commercial-50/") //
 			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
+			.put("App.FENECON.Commercial.100", "") //
 			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
 			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
 			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
@@ -185,7 +186,9 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.Ess.PowerPlantController", "") //
 			.put("App.Ess.PrepareBatteryExtension", "") //
 			.put("App.Ess.Limiter14a", "") //
+			.put("App.Prediction.Default", "") //
 			.put("App.Prediction.UnmanagedConsumption", "") //
+			.put("App.Ess.SohCycle", "") //
 			.build();
 
 	@Override

@@ -144,11 +144,12 @@ public class EnergyScheduler {
 							.findFirst().map(m -> m.mode()).orElse(null);
 				}) //
 
-				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness) -> {
+				.setSimulator((id, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
 					var ed = EshUtils.EnergyDistribution.fromSimulator(period, coc, csc, mode);
 					ed.initializeSetPoints();
 					ed.distributeSurplusEnergy(DistributionStrategy.EQUAL_POWER);
 					ed.applyChargeEnergy(ef);
+					return mode;
 				})
 
 				.build();

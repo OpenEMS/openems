@@ -1,7 +1,5 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
-
 import java.time.ZonedDateTime;
 
 import com.google.common.collect.ImmutableList;
@@ -18,8 +16,8 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentMod
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 
 public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOnlyOneMode {
 
@@ -45,11 +43,13 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	public JsonObject toJson();
 
 	/**
-	 * Triggers Rescheduling by the Energy Scheduler.
-	 * 
-	 * @param reason a reason
+	 * Triggers a rescheduling event by the EnergyScheduler.
+	 *
+	 * @param reason         a descriptive reason for logging/debugging
+	 * @param rescheduleMode defines how the current period is handled
+	 * @throws NullPointerException if {@code rescheduleMode} is {@code null}
 	 */
-	public void triggerReschedule(String reason);
+	public void triggerReschedule(String reason, RescheduleMode rescheduleMode);
 
 	/**
 	 * Creates a ControllerScheduleContext.
@@ -66,90 +66,6 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	 * @return the Schedule
 	 */
 	public <OPTIMIZATION_CONTEXT> ImmutableSortedMap<ZonedDateTime, ? extends Period<OPTIMIZATION_CONTEXT>> getSchedule();
-
-	public static class Fitness implements Comparable<Fitness> {
-
-		private int hardConstraintViolations = 0;
-		private double gridBuyCost = 0.;
-		private double gridSellRevenue = 0.;
-
-		/**
-		 * Gets the number of Hard-Constraint-Violations.
-		 * 
-		 * @return Hard-Constraint-Violations
-		 */
-		public int getHardConstraintViolations() {
-			return this.hardConstraintViolations;
-		}
-
-		/**
-		 * Add a Hard-Constraint-Violation with degree=1.
-		 */
-		public void addHardConstraintViolation() {
-			this.hardConstraintViolations++;
-		}
-
-		/**
-		 * Add a Hard-Constraint-Violation.
-		 * 
-		 * @param degree degree of violation
-		 */
-		public void addHardConstraintViolation(int degree) {
-			this.hardConstraintViolations += degree;
-		}
-
-		/**
-		 * Gets the Grid-Buy cost.
-		 * 
-		 * @return Grid-Buy cost
-		 */
-		public double getGridBuyCost() {
-			return this.gridBuyCost;
-		}
-
-		/**
-		 * Add Grid-Buy cost.
-		 * 
-		 * @param cost the cost
-		 */
-		public void addGridBuyCost(double cost) {
-			this.gridBuyCost += cost;
-		}
-
-		/**
-		 * Add Grid-Sell revenue.
-		 * 
-		 * @param revenue the revenue
-		 */
-		public void addGridSellRevenue(double revenue) {
-			this.gridSellRevenue += revenue;
-		}
-
-		@Override
-		public int compareTo(Fitness o) {
-			// 1st priority: hard constraints (lower is better)
-			if (this.hardConstraintViolations != o.hardConstraintViolations) {
-				return Integer.compare(this.hardConstraintViolations, o.hardConstraintViolations);
-			}
-
-			// 2nd priority: grid buy cost (lower is better)
-			if (this.gridBuyCost != o.gridBuyCost) {
-				return Double.compare(this.gridBuyCost, o.gridBuyCost);
-			}
-
-			// 3nd priority: grid sell revenue (higher is better)
-			return Double.compare(o.gridSellRevenue, this.gridSellRevenue);
-		}
-
-		@Override
-		public String toString() {
-			return toStringHelper(Fitness.class) //
-					.add("hardConstraintViolations", this.hardConstraintViolations) //
-					.add("gridBuyCost", this.gridBuyCost) //
-					.add("gridSellRevenue", this.gridSellRevenue) //
-					.toString();
-		}
-	}
 
 	/**
 	 * A {@link EnergyScheduleHandler} for {@link EnergySchedulable} OpenEMS
@@ -203,31 +119,17 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		/**
 		 * Simulates a Mode for one Period of a Schedule.
 		 *
-		 * @param period    the {@link GlobalOptimizationContext.Period}
-		 * @param gsc       the {@link GlobalScheduleContext}
-		 * @param csc       the ControllerScheduleContext
-		 * @param ef        the {@link EnergyFlow.Model}
-		 * @param modeIndex the index of the simulated Mode; -1 if no Mode is available
-		 * @param fitness   the {@link Fitness} result
-		 */
-		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-				EnergyFlow.Model ef, int modeIndex, Fitness fitness);
-
-		/**
-		 * Post-processes a Period of the best Schedule.
-		 * 
-		 * <p>
-		 * This method is called internally after the Simulations are executed with the
-		 * found best Schedule.
-		 * 
 		 * @param period     the {@link GlobalOptimizationContext.Period}
 		 * @param gsc        the {@link GlobalScheduleContext}
-		 * @param energyFlow the {@link EnergyFlow}
-		 * @param modeIndex  the index of the simulated Mode
-		 * @return the post-processed Mode index
+		 * @param csc        the ControllerScheduleContext
+		 * @param ef         the {@link EnergyFlow.Model}
+		 * @param modeIndex  the index of the simulated Mode; -1 if no Mode is available
+		 * @param fitness    the {@link Fitness} result
+		 * @param isFinalRun is this the final simulation run?
+		 * @return the index of the post-processed Mode
 		 */
-		public int postProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				EnergyFlow energyFlow, int modeIndex);
+		public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+				EnergyFlow.Model ef, int modeIndex, Fitness fitness, boolean isFinalRun);
 
 		/**
 		 * Applies a new Schedule.

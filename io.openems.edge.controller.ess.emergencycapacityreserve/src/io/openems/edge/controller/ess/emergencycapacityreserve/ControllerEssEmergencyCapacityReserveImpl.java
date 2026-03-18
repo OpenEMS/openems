@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
 import static io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 
 import java.util.OptionalInt;
 
@@ -90,7 +91,8 @@ public class ControllerEssEmergencyCapacityReserveImpl extends AbstractOpenemsCo
 	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
 		super.modified(context, id, alias, enabled);
 		this.updateConfig(this.config);
-		this.energyScheduleHandler.triggerReschedule("ControllerEssEmergencyCapacityReserveImpl::modified()");
+		this.energyScheduleHandler.triggerReschedule("ControllerEssEmergencyCapacityReserveImpl::modified()",
+				OPTIMIZE_CURRENT_PERIOD);
 	}
 
 	@Override

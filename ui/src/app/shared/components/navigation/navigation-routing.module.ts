@@ -8,9 +8,9 @@ import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consump
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/pages/phase-switching/phase-switching";
-import { AddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/add/add-task.component";
-import { ScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
-import { EditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit-task.component";
+import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
+import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
+import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
@@ -37,10 +37,10 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/energy-limit", component: EvseEnergyLimitComponent },
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
     { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
-    { path: "evse/:componentId/schedule", component: ScheduleComponent },
-    { path: "evse/:componentId/schedule/task/:taskId", component: EditTaskComponent },
+    { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
+    { path: "evse/:componentId/schedule/task/:taskId", component: EvseEditTaskComponent },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
-    { path: "evse/:componentId/schedule/add-task", component: AddTaskComponent },
+    { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
     { path: "navigation-info", component: NavigationInfoComponent },
     {
         path: "evse/:componentId/car/update/:appId",

@@ -4,7 +4,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.common.base.Supplier;
 
@@ -61,9 +61,8 @@ public class DelayTimeProviderChain {
 	/**
 	 * Creates a {@link DelayTimeProviderChain} which returns a
 	 * {@link DelayTimeProvider.Delay} which indicates that the next run should
-	 * never happen. May be used if
-	 * {@link BridgeHttp.Endpoint} credentials are wrong
-	 * or expired.
+	 * never happen. May be used if {@link BridgeHttp.Endpoint} credentials are
+	 * wrong or expired.
 	 * 
 	 * <p>
 	 * NOTE: Do not use a very large {@link Duration} to indicate that a task should
@@ -135,7 +134,8 @@ public class DelayTimeProviderChain {
 	 */
 	public static DelayTimeProviderChain plusRandomDelay(DelayTimeProviderChain origin, int bound, TemporalUnit unit) {
 		return new DelayTimeProviderChain(() -> {
-			return origin.getDelay().plus(DelayTimeProvider.Delay.of(Duration.of(new Random().nextInt(bound), unit)));
+			final var randomValue = ThreadLocalRandom.current().nextInt(bound);
+			return origin.getDelay().plus(DelayTimeProvider.Delay.of(Duration.of(randomValue, unit)));
 		});
 	}
 

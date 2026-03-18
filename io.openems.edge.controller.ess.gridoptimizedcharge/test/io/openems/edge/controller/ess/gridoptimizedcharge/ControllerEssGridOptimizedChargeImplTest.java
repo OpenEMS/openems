@@ -63,7 +63,7 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
-	private static final DummyMeta META = new DummyMeta("_meta");
+	private static final DummyMeta META = new DummyMeta();
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0");
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss("ess0");
@@ -139,7 +139,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -193,7 +193,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -254,7 +254,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -334,7 +334,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_evening_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -762,7 +762,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -817,7 +817,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -870,7 +870,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void hybridEss_manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -925,7 +925,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void mode_off_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -977,7 +977,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void no_capacity_left_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1036,7 +1036,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1102,7 +1102,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(50);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1713,7 +1713,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void calculateAvailEnergy_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(

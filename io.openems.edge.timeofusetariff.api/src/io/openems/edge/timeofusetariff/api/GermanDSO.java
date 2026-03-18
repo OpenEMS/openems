@@ -683,7 +683,7 @@ public enum GermanDSO {
 							.setTariff(HIGH)))//
 	);
 
-	private static final ZoneId GERMAN_ZONE_ID = ZoneId.of("Europe/Berlin");
+	public static final ZoneId GERMAN_ZONE_ID = ZoneId.of("Europe/Berlin");
 
 	public final GridFee gridFee;
 
@@ -694,7 +694,7 @@ public enum GermanDSO {
 	/**
 	 * Gets the grid fee price for a specific date and time.
 	 *
-	 * @param dateTime the date and time for the lookup.
+	 * @param dateTime the {@link ZonedDateTime} for the lookup.
 	 * @return the price in ct/kWh.
 	 * @throws IllegalStateException if no matching date range is configured for the
 	 *                               given dateTime.

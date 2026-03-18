@@ -69,11 +69,12 @@ public class UtilsTest {
 		var now = ZonedDateTime.now(clock);
 		var ots = schedule.getOneTasksBetween(now, now.plusDays(1));
 		assertEquals(3, ots.size());
+		var iterator = ots.iterator();
 		assertEquals("OneTask{start=2020-01-01T05:30Z, end=2020-01-01T08:00Z, duration=PT2H30M, payload=null}",
-				ots.pollFirst().toString());
+				iterator.next().toString());
 		assertEquals("OneTask{start=2020-01-01T14:00Z, end=2020-01-02T00:00Z, duration=PT10H, payload=null}",
-				ots.pollFirst().toString());
+				iterator.next().toString());
 		assertEquals("OneTask{start=2020-01-04T08:00Z, end=2020-01-05T00:00Z, duration=PT16H, payload=null}",
-				ots.pollFirst().toString());
+				iterator.next().toString());
 	}
 }

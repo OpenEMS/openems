@@ -5,9 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	Java-WebSocket,\
+	io.openems.backend.authentication.api,\
 	io.openems.backend.common,\
 	io.openems.common,\
+	io.openems.wrapper.Java-WebSocket,\
 
 -testpath: \
 	${testpath}

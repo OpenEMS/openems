@@ -34,8 +34,7 @@ public final class ApplyPowerHandler {
 	 */
 	public static synchronized void apply(AbstractGoodWe goodWe, int setActivePower, ControlMode controlMode,
 			Value<Integer> gridActivePower, Value<Integer> essActivePower, Value<Integer> maxAcImport,
-			Value<Integer> maxAcExport, boolean isPidEnabled)
-			throws OpenemsNamedException {
+			Value<Integer> maxAcExport, boolean isPidEnabled) throws OpenemsNamedException {
 		// Evaluate MeterCommunicateStatus
 		EnumReadChannel meterCommunicateStatusChannel = goodWe.channel(GoodWe.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();

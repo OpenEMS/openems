@@ -1,6 +1,6 @@
 package io.openems.edge.core.sum;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,7 +47,7 @@ public class EnergyValuesHandler {
 	 * <li>value holds the last set value
 	 * </ul>
 	 */
-	private final Map<Sum.ChannelId, Long> lastEnergyValues = new HashMap<>();
+	private final Map<Sum.ChannelId, Long> lastEnergyValues = new EnumMap<>(Sum.ChannelId.class);
 
 	public EnergyValuesHandler(SumImpl parent) {
 		this.parent = parent;

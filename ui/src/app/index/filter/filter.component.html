@@ -1,5 +1,5 @@
-<ion-row>
-  @if(columnSize !== 0){
+@if(columnSize !== 0){
+  <ion-row>
     @for(filter of allFilters; track filter.category) {
       <ion-col [size]="columnSize">
         <ion-select interface="popover" [multiple]="filter.multiple" [label]="filter.placeholder"
@@ -15,5 +15,5 @@
         </ion-select>
       </ion-col>
     }
-  }
-</ion-row>
+  </ion-row>
+}

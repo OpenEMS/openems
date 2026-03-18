@@ -5,10 +5,9 @@ import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObj
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
-import com.google.common.collect.ImmutableList;
-
 import io.openems.common.jscalendar.GetOneTasks.Request;
 import io.openems.common.jscalendar.GetOneTasks.Response;
+import io.openems.common.jscalendar.JSCalendar.OneTasks;
 import io.openems.common.jscalendar.JSCalendar.Tasks;
 import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
@@ -110,7 +109,7 @@ public class GetOneTasks<PAYLOAD> implements EndpointRequestType<Request, Respon
 	}
 
 	public record Response<PAYLOAD>(//
-			ImmutableList<OneTask<PAYLOAD>> oneTasks //
+			OneTasks<PAYLOAD> oneTasks //
 	) {
 
 		/**
@@ -122,8 +121,7 @@ public class GetOneTasks<PAYLOAD> implements EndpointRequestType<Request, Respon
 		 * @return the created {@link Response}
 		 */
 		public static <PAYLOAD> Response<PAYLOAD> create(Request request, JSCalendar.Tasks<PAYLOAD> tasks) {
-			var ots = tasks.getOneTasksBetween(request.from, request.to);
-			return new Response<PAYLOAD>(ImmutableList.copyOf(ots));
+			return new Response<PAYLOAD>(tasks.getOneTasksBetween(request.from, request.to));
 		}
 
 		/**
@@ -137,9 +135,9 @@ public class GetOneTasks<PAYLOAD> implements EndpointRequestType<Request, Respon
 				JsonSerializer<PAYLOAD> payloadSerializer) {
 			return JsonSerializerUtil.<Response<PAYLOAD>>jsonObjectSerializer(//
 					json -> new Response<PAYLOAD>(//
-							json.getImmutableList("oneTasks", OneTask.serializer(payloadSerializer))),
+							json.getObject("oneTasks", OneTasks.serializer(payloadSerializer))),
 					obj -> JsonUtils.buildJsonObject() //
-							.add("oneTasks", OneTask.listSerializer(payloadSerializer).serialize(obj.oneTasks)) //
+							.add("oneTasks", OneTasks.serializer(payloadSerializer).serialize(obj.oneTasks)) //
 							.build());
 		}
 	}

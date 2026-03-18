@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -25,6 +26,7 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.Params;
+import io.openems.edge.controller.evse.single.Types;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
@@ -160,13 +162,28 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
+		 * charging and in {@link Mode.Actual#SURPLUS} or {@link Mode.Actual#MINIMUM}
+		 * mode.
+		 * 
+		 * @return {@link Stream}
+		 */
+		public final Stream<Entry> streamSurplusOrMinimum() {
+			return this.streamActives() //
+					.filter(e -> switch (e.mode) {
+					case FORCE, ZERO -> false;
+					case SURPLUS, MINIMUM -> true;
+					});
+		}
+
+		/**
+		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
 		 * charging and in {@link Mode.Actual#SURPLUS} mode and have a temporary
 		 * Set-Point > 0.
 		 * 
 		 * @return {@link Stream}
 		 */
 		public final Stream<Entry> streamSurplusGreaterZero() {
-			return this.streamSurplus()
+			return this.streamSurplusOrMinimum()
 					// Only the ones that are at least min() after distributeSurplusMinPower()
 					.filter(e -> e.setPointInWatt > 0);
 		}
@@ -291,16 +308,18 @@ public class RunUtils {
 
 	/**
 	 * Applies a change limit for set-points.
-	 * 
+	 *
 	 * <ul>
-	 * <li>Rising values: see See {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND}.
+	 * <li>Rising values: limited by {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} using
+	 * {@link #findFirstEntryWithSameSetPoint(Types.History)} to find the reference
+	 * point in history, avoiding rounding issues when setpoints remain constant.
 	 * <li>Declining values: no limit
 	 * </ul>
-	 * 
+	 *
 	 * @param clock             the {@link Clock}
 	 * @param powerDistribution the {@link PowerDistribution}
 	 */
-	private static void applyChangeLimit(Clock clock, PowerDistribution powerDistribution) {
+	static void applyChangeLimit(Clock clock, PowerDistribution powerDistribution) {
 		powerDistribution.streamActives().forEach(e -> {
 			final var fallbackLimit = e.params.combinedAbilities().applySetPoint().min();
 
@@ -319,7 +338,8 @@ public class RunUtils {
 					// last set-point was zero-> limit to min
 					limit = fallbackLimit;
 				} else {
-					var duration = Duration.between(lastEntry.getKey(), Instant.now(clock)).toMillis();
+					var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(e.params.history());
+					var duration = Duration.between(firstEntryWithSameSetPoint.getKey(), Instant.now(clock)).toMillis();
 					if (duration < 1) {
 						// history value is not in the past -> limit to min
 						limit = fallbackLimit;
@@ -331,6 +351,54 @@ public class RunUtils {
 			}
 			e.setPointInWatt = Math.min(e.setPointInWatt, limit);
 		});
+	}
+
+	/**
+	 * Finds the first history entry with the same setpoint as the last entry.
+	 *
+	 * <p>
+	 * This method is used in {@link #applyChangeLimit(Clock, PowerDistribution)} to
+	 * correctly apply the {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} ramp constraint.
+	 *
+	 * <p>
+	 * <b>Problem solved:</b> When a setpoint remained constant over multiple cycles,
+	 * using the last entry as reference caused rounding issues that prevented proper
+	 * power ramping. For example, starting from 6 A and trying to ramp to 16 A would
+	 * fail due to accumulated rounding errors and fall back to the minimum (6 A).
+	 *
+	 * <p>
+	 * <b>Solution:</b> By finding the first entry with the same setpoint value, the
+	 * ramp calculation starts from when the setpoint first changed to that value,
+	 * allowing gradual increases like: 6 → 6 → 6 → 7 → 7 → 7 → 8 (in Ampere units).
+	 *
+	 * <p>
+	 * <b>History filtering:</b> Only considers entries where:
+	 * <ul>
+	 * <li>activePower is not null and not 0</li>
+	 * <li>isReadyForCharging is true</li>
+	 * </ul>
+	 * For example, if the last entry with setpoint 7 A has invalid activePower or
+	 * isReadyForCharging false, the method searches backwards to find the first valid
+	 * entry with 7 A.
+	 *
+	 * @param history the {@link Types.History} to search
+	 * @return a {@link Map.Entry} containing the timestamp and history entry of the
+	 *         first occurrence with the same setpoint as the last entry
+	 */
+
+	static Map.Entry<Instant, Types.History.Entry> findFirstEntryWithSameSetPoint(Types.History history) {
+		var entries = history.streamAllWithActivePowerAndReadyForCharging().toList();
+		var lastEntry = history.getLastEntry();
+		var lastSetPoint = lastEntry.getValue().setPoint();
+		var firstEntryWithSameSetPoint = lastEntry;
+		// go through history backwards until set-point changes
+		for (int i = entries.size() - 1; i >= 0; i--) {
+			if (entries.get(i).getValue().setPoint() != lastSetPoint) {
+				break;
+			}
+			firstEntryWithSameSetPoint = entries.get(i);
+		}
+		return firstEntryWithSameSetPoint;
 	}
 
 	/**
