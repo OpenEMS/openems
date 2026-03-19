@@ -106,7 +106,10 @@
             <version>5.3.2</version>
         </dependency>
         <dependency>
-            <!-- Used by com.squareup.okhttp3: okhttp -->
+            <!--
+            Okio - A modern I/O library 
+            Changelog: https://github.com/square/okio/blob/master/CHANGELOG.md
+            -->
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio-jvm</artifactId>
             <version>3.17.0</version>
