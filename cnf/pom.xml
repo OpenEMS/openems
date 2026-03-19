@@ -106,10 +106,13 @@
             <version>5.3.2</version>
         </dependency>
         <dependency>
-            <!-- Used by com.squareup.okhttp3: okhttp -->
+            <!--
+            Okio - A modern I/O library 
+            Changelog: https://github.com/square/okio/blob/master/CHANGELOG.md
+            -->
             <groupId>com.squareup.okio</groupId>
             <artifactId>okio-jvm</artifactId>
-            <version>3.16.4</version>
+            <version>3.17.0</version>
         </dependency>
         <dependency>
             <!-- Used by com.influxdb: influxdb-client -->
@@ -146,16 +149,6 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>7.0.2</version>
-        </dependency>
-        <!-- de -->
-        <dependency>
-            <!-- 
-            PgBulkInsert is a Java library for Bulk Inserts to PostgreSQL using the Binary COPY Protocol.
-            Changelog: https://github.com/PgBulkInsert/PgBulkInsert/blob/master/CHANGELOG.md
-            -->
-            <groupId>de.bytefish</groupId>
-            <artifactId>pgbulkinsert</artifactId>
-            <version>8.1.8</version>
         </dependency>
         <!-- eu -->
         <dependency>
@@ -435,7 +428,7 @@
             -->
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>5.22.0</version>
+            <version>5.23.0</version>
             <scope>test</scope>
         </dependency>
         <!-- com -->
@@ -687,7 +680,7 @@
             -->
             <groupId>com.auth0</groupId>
             <artifactId>auth0</artifactId>
-            <version>3.2.0</version>
+            <version>3.3.0</version>
         </dependency>
         <dependency>
             <!--
