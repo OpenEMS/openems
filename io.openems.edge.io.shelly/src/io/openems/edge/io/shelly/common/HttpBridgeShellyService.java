@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.common;
 
 import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.annotations.Component;
@@ -31,11 +32,13 @@ public class HttpBridgeShellyService implements HttpBridgeService {
 		}
 	}
 
+	private final BridgeHttp httpBridge;
 	private final HttpBridgeTimeService timeService;
 
 	private String baseUrl;
 
 	public HttpBridgeShellyService(BridgeHttp httpBridge) {
+		this.httpBridge = httpBridge;
 		this.timeService = httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 	}
 
@@ -56,6 +59,11 @@ public class HttpBridgeShellyService implements HttpBridgeService {
 				}, httpError -> {
 					onResult.accept(Result.error(httpError));
 				});
+	}
+
+	public CompletableFuture<HttpResponse<String>> setSwitchStatus(int index, boolean on) {
+		final String url = this.baseUrl + "/rpc/Switch.Set?id=" + index + "&on=" + (on ? "true" : "false");
+		return this.httpBridge.get(url);
 	}
 
 	@Override

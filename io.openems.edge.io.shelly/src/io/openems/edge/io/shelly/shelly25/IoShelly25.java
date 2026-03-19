@@ -8,8 +8,6 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
 
@@ -127,34 +125,5 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
 }

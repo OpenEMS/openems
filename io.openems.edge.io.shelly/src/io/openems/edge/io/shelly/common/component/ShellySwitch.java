@@ -1,22 +1,15 @@
-package io.openems.edge.io.shelly.shellyplugsbase;
-
-import org.osgi.service.event.EventHandler;
+package io.openems.edge.io.shelly.common.component;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.io.api.DigitalOutput;
-import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
-import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.SinglePhaseMeter;
 
-public interface IoShellyPlugSBase
-		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, IoGen2ShellyBase, EventHandler {
+public interface ShellySwitch extends DigitalOutput {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -40,18 +33,7 @@ public interface IoShellyPlugSBase
 		 */
 		RELAY(new BooleanDoc()//
 				.accessMode(AccessMode.READ_WRITE)//
-				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
-		/**
-		 * Indicates if an update is available.
-		 *
-		 * <ul>
-		 * <li>Interface: ShellyPlug
-		 * <li>Type: Boolean
-		 * <li>Level: INFO
-		 * </ul>
-		 */
-		HAS_UPDATE(Doc.of(Level.INFO)//
-				.text("A new Firmware Update is available.")),;
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY));
 
 		private final Doc doc;
 
@@ -84,22 +66,12 @@ public interface IoShellyPlugSBase
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#RELAY} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setRelay(Boolean value) {
-		this.getRelayChannel().setNextValue(value);
-	}
-
-	/**
 	 * Sets the Relay Output. See {@link ChannelId#RELAY}.
 	 *
 	 * @param value the next write value
-	 * @throws OpenemsNamedException on error
+	 * @throws OpenemsError.OpenemsNamedException on error
 	 */
-	public default void setRelay(boolean value) throws OpenemsNamedException {
+	public default void setRelay(boolean value) throws OpenemsError.OpenemsNamedException {
 		this.getRelayChannel().setNextWriteValue(value);
 	}
-
 }

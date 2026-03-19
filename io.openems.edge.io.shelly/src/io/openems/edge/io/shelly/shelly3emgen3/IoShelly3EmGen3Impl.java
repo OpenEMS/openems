@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellypro3em;
+package io.openems.edge.io.shelly.shelly3emgen3;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
@@ -40,16 +40,16 @@ import io.openems.edge.timedata.api.TimedataProvider;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "IO.Shelly.Pro3EM", //
+		name = "IO.Shelly.3EMG3", //
 		immediate = true, //
 		configurationPolicy = REQUIRE)
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
-public class IoShellyPro3EmImpl extends IoGen2ShellyBaseImpl implements IoShellyPro3Em, ShellyEnergyMeter,
+public class IoShelly3EmGen3Impl extends IoGen2ShellyBaseImpl implements IoShelly3EmGen3, ShellyEnergyMeter,
 		IoGen2ShellyBase, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
-	private final Logger log = LoggerFactory.getLogger(IoShellyPro3EmImpl.class);
+	private final Logger log = LoggerFactory.getLogger(IoShelly3EmGen3Impl.class);
 
 	private MeterType meterType = null;
 	private ShellyEnergyMeterHandler handler;
@@ -66,20 +66,20 @@ public class IoShellyPro3EmImpl extends IoGen2ShellyBaseImpl implements IoShelly
 	@Reference
 	private HttpBridgeShellyService.HttpBridgeShellyServiceDefinition httpBridgeShellyServiceDefinition;
 
-	public IoShellyPro3EmImpl() {
+	public IoShelly3EmGen3Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				IoGen2ShellyBase.ChannelId.values(), //
 				ShellyEnergyMeter.ChannelId.values(), //
 				ShellyEnergyMeter.ErrorChannelId.values(), //
-				IoShellyPro3Em.ChannelId.values() //
+				IoShelly3EmGen3.ChannelId.values() //
 		);
 	}
 
 	@Override
 	public String[] getSupportedShellyDeviceTypes() {
-		return new String[] { "Pro3EM" };
+		return new String[] { "S3EMG3" };
 	}
 
 	@Activate
@@ -87,7 +87,7 @@ public class IoShellyPro3EmImpl extends IoGen2ShellyBaseImpl implements IoShelly
 		this.meterType = config.type();
 
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.ip(), config.mdnsName(),
-				config.debugMode(), config.validateDevice());
+				config.debugMode(), true);
 
 		this.handler = new ShellyEnergyMeterHandler(this, config.invert());
 	}
@@ -127,6 +127,7 @@ public class IoShellyPro3EmImpl extends IoGen2ShellyBaseImpl implements IoShelly
 		try {
 			var response = JsonUtils.getAsJsonObject(result.data());
 			this.handler.processEmData(response);
+
 		} catch (Exception e) {
 			this.logWarn(this.log, "Error while parsing response: " + e.getMessage());
 			this.handler.resetEmData();

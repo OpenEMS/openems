@@ -71,7 +71,11 @@ public class ShellyDiscoveryMeter extends ShellyDiscovery<MdnsValueMeter> implem
 
 	private static ShellyTypeMeter getShellyType(MDnsDiscovery.MDnsEvent.ServiceResolved event) {
 		return switch (event.properties().get("app")) {
+		case "S3EMG3" -> ShellyTypeMeter.GEN3_3EM;
 		case "Pro3EM" -> ShellyTypeMeter.PRO_3EM;
+		case "Pro1PM" -> ShellyTypeMeter.PRO_1PM;
+		case "Pro2PM" -> ShellyTypeMeter.PRO_2PM;
+		case "Pro4PM" -> ShellyTypeMeter.PRO_4PM;
 		case null, default -> null;
 		};
 	}

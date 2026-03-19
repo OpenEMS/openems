@@ -13,6 +13,7 @@ import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.component.ShellyEnergyMeter;
 import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
@@ -32,7 +33,7 @@ public class IoShellyPro3EmImplTest {
 						new HttpBridgeShellyService.HttpBridgeShellyServiceDefinition()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
-						.setId("io0") //
+						.setId("meter0") //
 						.setIp("127.0.0.1") //
 						.setType(GRID) //
 						.setInvert(false) //
@@ -89,13 +90,13 @@ public class IoShellyPro3EmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, 58) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER, 2807) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L1, 137) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L2, 2657) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L3, 14) //
-						.output(ErrorChannelId.NO_LOAD, false) //
-						.output(ErrorChannelId.PHASE_SEQUENCE_ERROR, true) //
-						.output(ErrorChannelId.POWER_METER_FAILURE, false) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER, 2807) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L1, 137) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L2, 2657) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L3, 14) //
+						.output(ShellyEnergyMeter.ErrorChannelId.NO_LOAD, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.PHASE_SEQUENCE_ERROR, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.POWER_METER_FAILURE, false) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Shelly errors") //
@@ -156,25 +157,25 @@ public class IoShellyPro3EmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 593) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, 11608) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, 58) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER, 2807) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L1, 137) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L2, 2657) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L3, 14) //
-						.output(ErrorChannelId.NO_LOAD, false) //
-						.output(ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
-						.output(ErrorChannelId.POWER_METER_FAILURE, true) //
-						.output(ErrorChannelId.L1_OUT_OF_RANGE_ACTIVE_POWER, true) //
-						.output(ErrorChannelId.L1_OUT_OF_RANGE_APPARENT_POWER, false) //
-						.output(ErrorChannelId.L1_OUT_OF_RANGE_CURRENT, false) //
-						.output(ErrorChannelId.L1_OUT_OF_RANGE_VOLTAGE, false) //
-						.output(ErrorChannelId.L2_OUT_OF_RANGE_ACTIVE_POWER, false) //
-						.output(ErrorChannelId.L2_OUT_OF_RANGE_APPARENT_POWER, true) //
-						.output(ErrorChannelId.L2_OUT_OF_RANGE_CURRENT, false) //
-						.output(ErrorChannelId.L2_OUT_OF_RANGE_VOLTAGE, false) //
-						.output(ErrorChannelId.L3_OUT_OF_RANGE_ACTIVE_POWER, false) //
-						.output(ErrorChannelId.L3_OUT_OF_RANGE_APPARENT_POWER, false) //
-						.output(ErrorChannelId.L3_OUT_OF_RANGE_CURRENT, true) //
-						.output(ErrorChannelId.L3_OUT_OF_RANGE_VOLTAGE, false) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER, 2807) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L1, 137) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L2, 2657) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L3, 14) //
+						.output(ShellyEnergyMeter.ErrorChannelId.NO_LOAD, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.POWER_METER_FAILURE, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L1_OUT_OF_RANGE_ACTIVE_POWER, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L1_OUT_OF_RANGE_APPARENT_POWER, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L1_OUT_OF_RANGE_CURRENT, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L1_OUT_OF_RANGE_VOLTAGE, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L2_OUT_OF_RANGE_ACTIVE_POWER, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L2_OUT_OF_RANGE_APPARENT_POWER, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L2_OUT_OF_RANGE_CURRENT, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L2_OUT_OF_RANGE_VOLTAGE, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L3_OUT_OF_RANGE_ACTIVE_POWER, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L3_OUT_OF_RANGE_APPARENT_POWER, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L3_OUT_OF_RANGE_CURRENT, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.L3_OUT_OF_RANGE_VOLTAGE, false) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Invalid read response") //
@@ -196,15 +197,15 @@ public class IoShellyPro3EmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER, null) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L1, null) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L2, null) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L3, null) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER, null) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L1, null) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L2, null) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
-						.output(ErrorChannelId.NO_LOAD, false) //
-						.output(ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
-						.output(ErrorChannelId.POWER_METER_FAILURE, true) //
+						.output(ShellyEnergyMeter.ErrorChannelId.NO_LOAD, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.POWER_METER_FAILURE, true) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				.deactivate();
@@ -223,7 +224,7 @@ public class IoShellyPro3EmImplTest {
 						new HttpBridgeShellyService.HttpBridgeShellyServiceDefinition()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
-						.setId("io0") //
+						.setId("meter0") //
 						.setIp("127.0.0.1") //
 						.setType(GRID) //
 						.setInvert(true) //
@@ -275,15 +276,15 @@ public class IoShellyPro3EmImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, -593) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, -11608) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, -58) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER, 2807) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L1, 137) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L2, 2657) //
-						.output(IoShellyPro3Em.ChannelId.APPARENT_POWER_L3, 14) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER, 2807) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L1, 137) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L2, 2657) //
+						.output(ShellyEnergyMeter.ChannelId.APPARENT_POWER_L3, 14) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(ErrorChannelId.NO_LOAD, false) //
-						.output(ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
-						.output(ErrorChannelId.POWER_METER_FAILURE, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.NO_LOAD, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.PHASE_SEQUENCE_ERROR, false) //
+						.output(ShellyEnergyMeter.ErrorChannelId.POWER_METER_FAILURE, false) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }

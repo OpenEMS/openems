@@ -15,8 +15,8 @@ import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.io.shelly.common.HttpBridgeShellyService;
+import io.openems.edge.io.shelly.common.component.ShellySwitch;
 import io.openems.edge.io.shelly.common.gen2.IoGen2ShellyBase;
-import io.openems.edge.io.shelly.shellyplugsbase.IoShellyPlugSBase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -77,7 +77,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(ShellySwitch.ChannelId.RELAY, null) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 
 				.next(new TestCase("Stable update available") //
@@ -100,7 +100,7 @@ public class IoShellyPlusPlugSImplTest {
 						}) //
 						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
-						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, true)) //
+						.output(IoGen2ShellyBase.ChannelId.HAS_UPDATE, true)) //
 
 				.next(new TestCase("No stable update available") //
 						.onBeforeProcessImage(() -> {
@@ -119,7 +119,7 @@ public class IoShellyPlusPlugSImplTest {
 						}) //
 						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
-						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+						.output(IoGen2ShellyBase.ChannelId.HAS_UPDATE, false)) //
 
 				.next(new TestCase("No update available") //
 						.onBeforeProcessImage(() -> {
@@ -135,7 +135,7 @@ public class IoShellyPlusPlugSImplTest {
 						}) //
 						.onAfterProcessImage(() -> assertEquals("?|UNDEFINED", sut.debugLog()))
 
-						.output(IoShellyPlugSBase.ChannelId.HAS_UPDATE, false)) //
+						.output(IoGen2ShellyBase.ChannelId.HAS_UPDATE, false)) //
 
 				.next(new TestCase("Invalid read response") //
 						.onBeforeProcessImage(() -> {
@@ -158,7 +158,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
-						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(ShellySwitch.ChannelId.RELAY, null) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
 
 				// Test case for writing to relay
@@ -233,7 +233,7 @@ public class IoShellyPlusPlugSImplTest {
 						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
-						.output(IoShellyPlugSBase.ChannelId.RELAY, null) //
+						.output(ShellySwitch.ChannelId.RELAY, null) //
 						.output(IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, false));
 	}
 }

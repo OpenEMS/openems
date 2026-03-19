@@ -1,5 +1,7 @@
 package io.openems.edge.io.shelly.common.gen2;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -68,7 +70,7 @@ public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 			this.mdnsResolver.subscribe();
 		} else {
 			this.logWarn(this.log, "No valid IP or MDNS Name configured.");
-			this._setSlaveCommunicationFailed(true);
+			setValue(this, IoGen2ShellyBase.ChannelId.SLAVE_COMMUNICATION_FAILED, true);
 		}
 	}
 
@@ -106,7 +108,7 @@ public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 		if (this.enableDeviceValidation) {
 			this.shellyService.subscribeToGen2DeviceInfo(this::onDeviceTypeValidationResult);
 		} else {
-			this._setWrongDeviceType(false);
+			setValue(this, IoGen2ShellyBase.ChannelId.WRONG_DEVICE_TYPE, false);
 		}
 
 		this.subscribeDataCalls();
@@ -125,8 +127,9 @@ public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 	private void onDeviceTypeValidationResult(Result<Gen2RpcDeviceInfo> result) {
 		switch (result) {
 		case Result.Ok(var deviceInfo) -> {
-			this.setShellyModelName(deviceInfo.app());
-			this._setWrongDeviceType(!deviceInfo.isDeviceType(this.getSupportedShellyDeviceTypes()));
+			setValue(this, IoGen2ShellyBase.ChannelId.SHELLY_MODEL_NAME, deviceInfo.app());
+			setValue(this, IoGen2ShellyBase.ChannelId.WRONG_DEVICE_TYPE,
+					!deviceInfo.isDeviceType(this.getSupportedShellyDeviceTypes()));
 		}
 		case Result.Error(var exception) -> {
 			this.logWarn(this.log, "Can't read shelly device type: " + exception.getMessage());

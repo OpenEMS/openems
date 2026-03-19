@@ -26,6 +26,18 @@ public interface IoGen2ShellyBase extends OpenemsComponent {
 		SLAVE_COMMUNICATION_FAILED(Doc.of(Level.FAULT)), //
 
 		/**
+		 * Indicates if an update is available.
+		 *
+		 * <ul>
+		 * <li>Interface: Shelly
+		 * <li>Type: Boolean
+		 * <li>Level: INFO
+		 * </ul>
+		 */
+		HAS_UPDATE(Doc.of(Level.INFO)//
+				.translationKey(HttpBridgeShellyService.class, "IoShelly.FirmwareUpdateAvailable")), //
+
+		/**
 		 * Model name reported by this shelly device.
 		 *
 		 * <ul>
@@ -91,16 +103,6 @@ public interface IoGen2ShellyBase extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#SHELLY_MODEL_NAME}.
 	 *
 	 * @return the Channel
@@ -120,16 +122,6 @@ public interface IoGen2ShellyBase extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#SHELLY_MODEL_NAME}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void setShellyModelName(String value) {
-		this.getShellyModelNameChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#WRONG_DEVICE_TYPE}.
 	 *
 	 * @return the Channel
@@ -146,15 +138,5 @@ public interface IoGen2ShellyBase extends OpenemsComponent {
 	 */
 	public default Value<Boolean> getWrongDeviceType() {
 		return this.getWrongDeviceTypeChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#WRONG_DEVICE_TYPE}
-	 * Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setWrongDeviceType(boolean value) {
-		this.getWrongDeviceTypeChannel().setNextValue(value);
 	}
 }
