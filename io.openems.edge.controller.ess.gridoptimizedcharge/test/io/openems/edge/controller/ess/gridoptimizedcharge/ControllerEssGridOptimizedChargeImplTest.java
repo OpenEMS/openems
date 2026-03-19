@@ -1758,6 +1758,29 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
+	public void calculateAvailEnergy_emptyPrediction_test() {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
+
+		// Empty arrays should return 0 instead of throwing IndexOutOfBoundsException
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[0], new Integer[0], clock, 720));
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[0], new Integer[] { 1000 }, clock, 720));
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[] { 1000 }, new Integer[0], clock, 720));
+	}
+
+	@Test
+	public void calculateAvailEnergy_shortPrediction_test() throws Exception {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
+
+		// Only 2 prediction entries but targetMinute at 12:00 requires endIndex=16.
+		// Should not throw IndexOutOfBoundsException.
+		var production = new Integer[] { 5000, 6000 };
+		var consumption = new Integer[] { 3000, 4000 };
+
+		// Must not throw; endIndex is clamped to available data
+		DelayCharge.calculateAvailEnergy(production, consumption, clock, 720 /* 12:00 */);
+	}
+
+	@Test
 	public void testPredictedChargeStart() throws OpenemsException {
 		int targetMinute = ControllerEssGridOptimizedChargeImplTest.getValidTargetMinute("17:00");
 		TimeLeapClock clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
