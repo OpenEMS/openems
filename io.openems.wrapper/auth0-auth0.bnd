@@ -12,6 +12,8 @@ Export-Package: \
 	com.auth0.client.auth,\
 	com.auth0.client.mgmt,\
 	com.auth0.client.mgmt.actions,\
+	com.auth0.client.mgmt.actions.modules,\
+	com.auth0.client.mgmt.actions.modules.types,\
 	com.auth0.client.mgmt.actions.triggers,\
 	com.auth0.client.mgmt.actions.triggers.types,\
 	com.auth0.client.mgmt.actions.types,\
@@ -41,6 +43,8 @@ Export-Package: \
 	com.auth0.client.mgmt.flows.types,\
 	com.auth0.client.mgmt.flows.vault,\
 	com.auth0.client.mgmt.flows.vault.types,\
+	com.auth0.client.mgmt.groups,\
+	com.auth0.client.mgmt.groups.types,\
 	com.auth0.client.mgmt.guardian,\
 	com.auth0.client.mgmt.guardian.factors,\
 	com.auth0.client.mgmt.guardian.factors.duo,\
