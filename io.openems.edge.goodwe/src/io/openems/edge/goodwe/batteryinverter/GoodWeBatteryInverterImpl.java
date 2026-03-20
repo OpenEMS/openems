@@ -443,7 +443,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
-		case FENECON_50K, FENECON_100K -> {
+		case FENECON_50K -> {
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.ENABLE_FIXED_POWER_FACTOR_V2), fixedPowerFactorEnable);
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FIXED_POWER_FACTOR_V2), fixedPowerFactor);
 		}
@@ -461,7 +461,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// TODO: Add individual handling related to each GoodWeType
 		switch (goodweType) {
-		case FENECON_50K, FENECON_100K -> {
+		case FENECON_50K -> {
 			// Feed-in limitation on / off
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.EXTENDED_FEED_POWER_ENABLE), feedPowerEnable);
 			setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.FEED_POWER_ENABLE), feedPowerEnable);

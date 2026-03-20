@@ -147,6 +147,26 @@ export namespace ArrayUtils {
         return keysA.every(key => deepEqual(a[key], b[key]));
     }
 
+    export function arraysDeepEqualHash<T = any>(arr1: T[], arr2: T[]): boolean {
+        if (arr1 == null || arr2 == null) {
+            return false;
+        }
+        if (arr1.length !== arr2.length) {
+            return false;
+        }
+
+        for (let i = 0; i < arr1.length; i++) {
+            if (hashObject(arr1[i]) !== hashObject(arr2[i])) {
+                return false;
+            };
+        }
+        return true;
+    }
+
+    function hashObject(obj: any): string {
+        return JSON.stringify(obj, Object.keys(obj).sort()); // deterministic key order
+    }
+
     export function getFirstElementWhereOrNull<T extends Record<string, any>, K extends keyof T>(arr: T[], property: K, propertyValue: string): T | null {
         const results = arr.filter(el => ObjectUtils.getKeySafely(el, property) === propertyValue) ?? [];
 

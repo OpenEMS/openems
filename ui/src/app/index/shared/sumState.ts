@@ -17,7 +17,7 @@ export enum SumState {
     template: `
   <ion-col class="sum-state-icon">
     @if (!isEdgeOnline) {
-      <ion-icon name="cloud-offline-outline" color="danger"></ion-icon>
+      <ion-icon name="oe-offline" color="danger"></ion-icon>
     } @else {
       @if (!isAtLeastInstaller) {
         <ion-icon color="primary" name="play-outline"></ion-icon>

@@ -2,6 +2,8 @@ package io.openems.edge.energy.optimizer.app;
 
 import static io.openems.edge.energy.optimizer.app.AppUtils.simulateFromLog;
 
+import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
+
 /**
  * This little application allows running the Optimizer from an existing log.
  * Just fill the header data and paste the log lines in
@@ -18,7 +20,9 @@ import static io.openems.edge.energy.optimizer.app.AppUtils.simulateFromLog;
  */
 public class RunOptimizerFromLogApp {
 
-	private static final long EXECUTION_LIMIT_SECONDS = 20;
+	private static final long EXECUTION_LIMIT_SECONDS = 30;
+
+	private static final PlotSettings PLOT_SETTINGS = PlotSettings.GLOBAL_OPTIMIZATION_CONTEXT;
 
 	/** Insert the full log lines including GlobalOptimizationContext header. */
 	private static final String LOG = """
@@ -31,6 +35,6 @@ public class RunOptimizerFromLogApp {
 	 * @throws Exception on error
 	 */
 	public static void main(String[] args) throws Exception {
-		simulateFromLog(LOG, EXECUTION_LIMIT_SECONDS);
+		simulateFromLog(LOG, EXECUTION_LIMIT_SECONDS, PLOT_SETTINGS);
 	}
 }

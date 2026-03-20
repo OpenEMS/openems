@@ -25,6 +25,7 @@ export enum UserSettings {
     CAPACITOR_TEST = "capacitorTest",
     USE_NEW_UI = "useNewUI",
     ANNUAL_REVIEW = "annualReview",
+    IS_DEVELOPER = "isDeveloper",
 }
 
 export class User {

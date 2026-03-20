@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -28,6 +28,7 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../sh
     ],
 })
 export class StorageEssChartComponent extends AbstractHistoryChart {
+    @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 
     public static getChartData(translate: TranslateService, essComponent: EdgeConfig.Component, chartType: "line" | "bar", config: EdgeConfig): HistoryUtils.ChartData {
         AssertionUtils.assertIsDefined(essComponent);
@@ -175,6 +176,13 @@ export class StorageEssChartComponent extends AbstractHistoryChart {
             converter: () => data[essComponentId + "Discharge"],
             nameSuffix: (energyResponse: QueryHistoricTimeseriesEnergyResponse) => energyResponse.result.data[dischargeChannels.energyChannel.toString()],
         };
+    }
+
+    public ionViewDidEnter() {
+        setTimeout(() => {
+            this.chart?.chart?.resize();
+            this.chart?.update();
+        }, 0);
     }
 
     public override getChartData() {

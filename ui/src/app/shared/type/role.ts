@@ -44,5 +44,22 @@ export namespace Role {
         return role1 <= role2;
     }
 
+    /**
+     * Evaluates whether "Role 1" is equal or less privileged than "Role 2".
+     *
+     * @param role1     the Role 1
+     * @param role2     the Role 2
+     * @return true if "Role 1" is equal or less privileged than "Role 2"
+     */
+    export function isAtMost(role1: Role | string, role2: Role | string): boolean {
+        if (typeof role1 === "string") {
+            role1 = Role.getRole(role1);
+        }
+        if (typeof role2 === "string") {
+            role2 = Role.getRole(role2);
+        }
+        return role1 >= role2;
+    }
+
 }
 

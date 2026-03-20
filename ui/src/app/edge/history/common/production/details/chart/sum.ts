@@ -10,7 +10,7 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "sumChart",
+    selector: "oe-common-production-details-chart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
