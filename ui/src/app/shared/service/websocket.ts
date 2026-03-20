@@ -5,7 +5,7 @@ import { Capacitor } from "@capacitor/core";
 import { TranslateService } from "@ngx-translate/core";
 import { SavePassword } from "capacitor-ios-autofill-save-password";
 import { CookieService } from "ngx-cookie-service";
-import { delay, retryWhen } from "rxjs/operators";
+import { delay, retry } from "rxjs/operators";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 import { v4 as uuidv4 } from "uuid";
 import { InitiateConnect } from "src/app/edge/settings/app/oauth/jsonrpc/initiateConnect";
@@ -147,7 +147,21 @@ export class Websocket implements WebsocketInterface {
                     });
                 });
 
-                this.router.navigate(["./overview"]);
+                const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
+                if (initialUrl == null) {
+                    this.router.navigate(["/overview"]);
+                    resolve();
+                    return;
+                }
+
+                const isAuthenticatedNavi = initialUrl.toString().split("/").length > 2;
+                if (isAuthenticatedNavi) {
+                    this.router.navigate([initialUrl.toString().split("?")[0]], { queryParams: initialUrl.queryParams });
+                    resolve();
+                    return;
+                }
+
+                this.router.navigate(["/overview"]);
                 resolve();
             }).catch(reason => {
                 this.checkErrorCode(reason);
@@ -328,6 +342,7 @@ export class Websocket implements WebsocketInterface {
                 break;
             }
             default:
+                reject(reason);
                 break;
         }
     }
@@ -355,9 +370,10 @@ export class Websocket implements WebsocketInterface {
 
         this.socket.pipe(
             // Websocket Auto-Reconnect
-            retryWhen((errors) => {
-                console.warn(errors);
-                return errors.pipe(delay(1000));
+            retry({
+                delay(error, retryCount) {
+                    return error.pipe(delay(1000));
+                },
             }),
 
         ).subscribe(originalMessage => {

@@ -16,8 +16,8 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithDifferentMod
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
 
 public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOnlyOneMode {
 
@@ -43,11 +43,13 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 	public JsonObject toJson();
 
 	/**
-	 * Triggers Rescheduling by the Energy Scheduler.
-	 * 
-	 * @param reason a reason
+	 * Triggers a rescheduling event by the EnergyScheduler.
+	 *
+	 * @param reason         a descriptive reason for logging/debugging
+	 * @param rescheduleMode defines how the current period is handled
+	 * @throws NullPointerException if {@code rescheduleMode} is {@code null}
 	 */
-	public void triggerReschedule(String reason);
+	public void triggerReschedule(String reason, RescheduleMode rescheduleMode);
 
 	/**
 	 * Creates a ControllerScheduleContext.

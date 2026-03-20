@@ -63,6 +63,12 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	private Integer measurementChargingMinVoltage;
 
 	/**
+	 * Maximum observed MAX_CELL_VOLTAGE during the measurement charging phase.
+	 * Stored here to persist across handler invocations.
+	 */
+	private Integer measurementChargingMaxVoltage;
+
+	/**
 	 * Measurement baseline energy in Wh captured at the beginning of the measurement
 	 * cycle. This is internal controller state and is intentionally not exposed via
 	 * channels to keep handlers stateless and thread-safe.
@@ -109,13 +115,24 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	@Override
 	public void run() throws OpenemsNamedException {
 		ChannelUtils.setValue(this, ControllerEssSohCycle.ChannelId.STATE_MACHINE, this.stateMachine.getCurrentState());
-		switch (this.config.mode()) {
-		case MANUAL_ON -> this.runManualOn();
-		case MANUAL_OFF -> this.logIfEnabled("Controller Ess SoH Cycle: manual off");
+		if (this.config.isRunning()) {
+			this.runSohMeasurement();
+		} else {
+			this.handleNotRunning();
 		}
 	}
 
-	private void runManualOn() throws OpenemsNamedException {
+	private void handleNotRunning() throws OpenemsNamedException {
+		this.logIfEnabled("Controller Ess SoH Cycle: not running");
+		this.stateMachine.forceNextState(StateMachine.State.IDLE);
+		this.stateMachine.run(new Context(this, //
+				this.config, //
+				this.componentManager.getClock(), //
+				this.ess));
+	}
+
+
+	private void runSohMeasurement() throws OpenemsNamedException {
 		var context = new Context(this, //
 				this.config, //
 				this.componentManager.getClock(), //
@@ -167,6 +184,14 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 		this.measurementChargingMinVoltage = value;
 	}
 
+	public Integer getMeasurementChargingMaxVoltage() {
+		return this.measurementChargingMaxVoltage;
+	}
+
+	public void setMeasurementChargingMaxVoltage(Integer value) {
+		this.measurementChargingMaxVoltage = value;
+	}
+
 	/**
 	 * Measurement baseline getter.
 	 *
@@ -186,16 +211,17 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	}
 
 	/**
-	 * Prevents next the SoH cycle by changing the mode configuration to MANUAL_OFF.
+	 * Prevents next the SoH cycle by changing the "isRunning" configuration to false.
+	 * This is used to stop the cycle in case of errors or when the cycle is completed.
 	 */
-	public void updateConfigToManualOff() {
+	public void updateConfigToNotRunning() {
 		try {
 			var configuration = this.cm.getConfiguration(this.servicePid(), "?");
 			var properties = configuration.getProperties();
-			properties.put("mode", Mode.MANUAL_OFF.name());
+			properties.put("isRunning", false);
 			configuration.update(properties);
 		} catch (IOException e) {
-			log.error("Failed to update mode configuration to MANUAL_OFF", e);
+			log.error("Failed to update isRunning configuration to false", e);
 		}
 	}
 

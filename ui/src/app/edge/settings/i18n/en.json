@@ -1,5 +1,9 @@
 {
   "PROFILE": {
+    "SYSTEM_LOCATION_VALIDATOR": {
+      "TITLE": "System Location",
+      "SUCCESS_MESSAGE": "System location updated successfully."
+    },
     "SYSTEM_PROTOCOL": {
       "LABEL": "System protocol",
       "DOWNLOAD": "Download",

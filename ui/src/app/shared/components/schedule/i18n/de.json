@@ -1,0 +1,41 @@
+{
+  "JS_SCHEDULE": {
+    "PLEASE_CHOOSE": "Wähle Zeit",
+    "ROTATION": "Turnus",
+    "REPEAT_EACH": "Wiederholen jeden",
+    "WEEK_DAY": "Wochentag",
+    "NEXT_TASKS": "Nächste Aufgaben",
+    "EDIT": "Bearbeiten",
+    "ACCEPT": "Übernehmen",
+    "DELETE": "Löschen",
+    "EDIT_TASK": "Aufgabe bearbeiten",
+    "START": "Start",
+    "END": "Ende",
+    "DURATION": "Dauer",
+    "MODE": "Lademodus",
+    "FREQUENCY": "Wiederholung",
+    "ADD": "Hinzufügen",
+    "FREQ": {
+      "DAILY": "Täglich",
+      "WEEKLY": "Wöchentlich",
+      "MONTHLY": "Monatlich",
+      "YEARLY": "Jährlich"
+    },
+    "MODE_SELECTION_PLACEHOLDER": "Auswählen",
+    "VALIDATION_ERROR_1": "Bitte Startzeit angeben",
+    "VALIDATION_ERROR_2": "Bitte Endzeit angeben",
+    "VALIDATION_ERROR_3": "Bitte Lademodus auswählen",
+    "VALIDATION_ERROR_4": "Bitte Startzeit im Format HH:mm und nur in Viertelstunden (00, 15, 30 oder 45 Minuten) angeben",
+    "VALIDATION_ERROR_5": "Bitte Endzeit im Format HH:mm und nur in Viertelstunden (00, 15, 30 oder 45 Minuten) angeben",
+    "VALIDATION_ERROR_6": "Endzeit muss nach Startzeit liegen",
+    "VALIDATION_ERROR_7": "Startzeit oder Dauer fehlt",
+    "VALIDATION_ERROR_8": "Bitte Dauer angeben",
+    "VALIDATION_ERROR_9": "Mindestens einen Turnus festlegen",
+    "ADD_SUCCESS": "Task erfolgreich hinzugefügt",
+    "ADD_ERROR": "Task konnte nicht hinzugefügt werden",
+    "EDIT_SUCCESS": "Task erfolgreich angepasst",
+    "EDIT_ERROR": "Task konnte nicht angepasst werden",
+    "DELETE_SUCCESS": "Task erfolgreich gelöscht",
+    "DELETE_ERROR": "Task konnte nicht gelöscht werden"
+  }
+}

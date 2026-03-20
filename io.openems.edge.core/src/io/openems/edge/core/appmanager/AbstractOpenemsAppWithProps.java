@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -117,6 +118,13 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return this.getString(map, Language.DEFAULT, property);
+	}
+	
+	protected UUID getUuid(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return UUID.fromString(this.getString(map, Language.DEFAULT, property));
 	}
 
 	protected String getStringOrNull(//

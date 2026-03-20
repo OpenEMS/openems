@@ -1,4 +1,4 @@
-<oe-navigation-view *ngIf="edge">
+<oe-navigation-view *ngIf="edge" (ngDomChange)="onDomChange($event)" [ngDomChangeObserveAttributes]=false>
   <ion-buttons #header header class="ion-justify-content-center">
     <ion-button size="small" fill="clear" class="ion-justify-content-center"
       *ngIf="navigationService.position() !== null && navigationService.position() !== 'disabled'">
