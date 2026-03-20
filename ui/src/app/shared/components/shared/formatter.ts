@@ -5,7 +5,7 @@ import { Language } from "../../type/language";
 export namespace Formatter {
 
     // Changes the number format based on the language selected.
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT)?.i18nLocaleKey;
+    const locale: string = Language.geti18nLocale();
 
     export const FORMAT_WATT = (value: number) => {
         return formatNumber(value, locale, "1.0-0") + " W";
