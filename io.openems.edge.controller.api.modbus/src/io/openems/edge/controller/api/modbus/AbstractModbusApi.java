@@ -239,6 +239,11 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 			return DEFAULT_WAIT_TIME;
 		}
 
+		@Override
+		protected int getMinSleepTime() {
+			return 0;
+		}
+
 	};
 
 	@Override

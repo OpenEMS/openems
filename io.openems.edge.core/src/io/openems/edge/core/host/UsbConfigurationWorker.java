@@ -70,4 +70,9 @@ public class UsbConfigurationWorker extends AbstractWorker {
 		return ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 }

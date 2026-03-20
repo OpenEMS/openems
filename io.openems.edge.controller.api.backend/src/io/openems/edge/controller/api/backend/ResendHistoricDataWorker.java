@@ -218,6 +218,11 @@ public final class ResendHistoricDataWorker extends AbstractWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	public void triggerNextRun() {
 		this.triggerState.set(TriggerState.AFTER_TRIGGER);
 		super.triggerNextRun();

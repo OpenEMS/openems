@@ -24,6 +24,11 @@ public class AbstractCycleWorkerTest {
 				counter.incrementAndGet();
 				future.get().complete(null);
 			}
+
+			@Override
+			protected int getMinSleepTime() {
+				return 0;
+			}
 		};
 
 		worker.activate("test");

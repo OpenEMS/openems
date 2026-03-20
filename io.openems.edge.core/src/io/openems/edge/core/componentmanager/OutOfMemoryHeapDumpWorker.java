@@ -77,4 +77,9 @@ public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 		return CYCLE_TIME;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 }

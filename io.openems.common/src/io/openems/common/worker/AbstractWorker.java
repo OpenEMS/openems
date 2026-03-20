@@ -121,9 +121,7 @@ public abstract class AbstractWorker {
 	 *
 	 * @return sleep time in ms
 	 */
-	protected int getMinSleepTime() {
-		return 0;
-	}
+	protected abstract int getMinSleepTime();
 
 	/**
 	 * Allows the next execution of the forever() method.

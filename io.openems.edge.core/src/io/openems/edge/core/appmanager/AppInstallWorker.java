@@ -136,6 +136,11 @@ public class AppInstallWorker extends AbstractWorker {
 		return INACTIVE_WAIT_TIME;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 	public void setKeyForFreeApps(String key) {
 		if (Objects.equals(this.keyForFreeApps, key)) {
 			return;

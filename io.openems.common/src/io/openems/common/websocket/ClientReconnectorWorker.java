@@ -194,6 +194,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		return this.config.cycleTime();
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 	/**
 	 * Gets some output that is suitable for a continuous Debug log.
 	 *
