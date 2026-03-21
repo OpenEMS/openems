@@ -127,6 +127,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			var activePowerL3 = TypeUtils.divide(rawPower3, 1_000);
 			switch (this.config.type()) {
 			case GRID:
+			case GRID_GENSET:
 				this.parent._setActivePower(activePower);
 				this.parent._setActivePowerL1(activePowerL1);
 				this.parent._setActivePowerL2(activePowerL2);

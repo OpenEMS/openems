@@ -2,13 +2,13 @@ package io.openems.edge.io.shelly.shellypro3;
 
 import static org.junit.Assert.assertEquals;
 
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 

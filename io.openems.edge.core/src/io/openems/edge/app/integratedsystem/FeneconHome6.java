@@ -16,6 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepare
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -72,7 +73,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //
-		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType(ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION)), //
+		FEED_IN_TYPE(externalLimitationType()), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //

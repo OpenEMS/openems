@@ -280,7 +280,7 @@ public class ControllerFastFrequencyReserveImpl extends AbstractOpenemsComponent
 			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
 			yield false;
 		}
-		case OFF_GRID -> true;
+		case OFF_GRID, OFF_GRID_GENSET -> true;
 		};
 	}
 

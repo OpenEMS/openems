@@ -9,8 +9,9 @@ import { SharedModule } from "./../../shared/shared.module";
 import { Common_Autarchy } from "./common/autarchy/Common_Autarchy";
 import { CommonConsumption } from "./common/consumption/common-consumption";
 import { Common_Grid } from "./common/grid/Common_Grid";
-import { Common_Production } from "./common/production/Common_Production";
+import { CommonProduction } from "./common/production/common-production";
 import { CommonSelfconsumption } from "./common/selfconsumption/common-selfconsumption";
+import { SohStatusBannerComponent } from "./common/soh/components/soh-status-banner/soh-status-banner";
 import { StorageLiveModule } from "./common/storage/storage.module";
 import { WeatherModule } from "./common/weather/weather.module";
 import { Controller_ChannelthresholdComponent } from "./Controller/Channelthreshold/Channelthreshold";
@@ -49,6 +50,7 @@ import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-ap
 import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
 import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
 import { NavigationInfoComponent } from "./navigation-info/navigation-info";
+import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage-info";
 
 @NgModule({
     imports: [
@@ -58,7 +60,7 @@ import { NavigationInfoComponent } from "./navigation-info/navigation-info";
         Common_Autarchy,
         CommonConsumption,
         Common_Grid,
-        Common_Production,
+        CommonProduction,
         CommonSelfconsumption,
         Controller_Api_ModbusTcp,
         Controller_EnerixControl,
@@ -76,6 +78,8 @@ import { NavigationInfoComponent } from "./navigation-info/navigation-info";
         WeatherModule,
         ModalModule,
         SharedModule,
+        SohStatusBannerComponent,
+        SystemOutageInfoComponent,
         PullToRefreshComponent,
         HelpButtonComponent,
         EvcsClusterApiChartComponent,

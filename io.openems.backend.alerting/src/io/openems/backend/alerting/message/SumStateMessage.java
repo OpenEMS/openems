@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.backend.alerting.Message;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.mail.MailContext;
 import io.openems.common.channel.Level;
 import io.openems.common.utils.JsonUtils;
 
@@ -61,28 +62,31 @@ public class SumStateMessage extends Message {
 	}
 
 	/**
+	 * Get a stream of settings, which are closest to be sent.
+	 * 
+	 * @return {@link Stream} of recipients
+	 */
+	private Stream<SumStateAlertingSetting> currentRecipientStream() {
+		var min = this.minimumSetting();
+		if (min.isEmpty()) {
+			return Stream.empty();
+		}
+		return this.recipients.stream() //
+				.filter(r -> r.getDelay(this.getSumState()) == min.getAsInt());
+	}
+
+	/**
 	 * Get the list of settings, which are closest to be sent.
 	 * 
 	 * @return {@link List} of recipients
 	 */
 	public List<SumStateAlertingSetting> getCurrentRecipients() {
-		var min = this.minimumSetting();
-		if (min.isEmpty()) {
-			return List.of();
-		}
-		return this.recipients.stream() //
-				.filter(r -> r.getDelay(this.getSumState()) == min.getAsInt()) //
-				.toList();
+		return this.currentRecipientStream().toList();
 	}
 
 	@Override
-	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
-				.add("recipients", JsonUtils.generateJsonArray(//
-						this.getCurrentRecipients(), s -> new JsonPrimitive(s.userLogin())))//
-				.addProperty("edgeId", this.getEdgeId()) //
-				.addProperty("state", this.getSumState().getName()) //
-				.build();
+	public MailContext getContext() {
+		return new SumStateEdgeMailContext(this);
 	}
 
 	@Override
@@ -90,8 +94,8 @@ public class SumStateMessage extends Message {
 		final var localNotify = this.getNotifyStamp().withZoneSameInstant(ZoneId.systemDefault()).toString();
 		final var localSince = this.getStateSince().withZoneSameInstant(ZoneId.systemDefault()).toString();
 
-		final var rec = this.getCurrentRecipients().stream() //
-				.map(s -> String.valueOf(s.userLogin())) //
+		final var rec = this.currentRecipientStream() //
+				.map(SumStateAlertingSetting::userLogin) //
 				.collect(Collectors.joining(","));
 
 		return SumStateMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
@@ -125,5 +129,24 @@ public class SumStateMessage extends Message {
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.getEdgeId(), this.stateSince, this.sumState, this.recipients);
+	}
+
+	private static class SumStateEdgeMailContext extends MailContext {
+
+		private final String state;
+
+		public SumStateEdgeMailContext(SumStateMessage msg) {
+			super(msg.getEdgeId(), msg.currentRecipientStream() //
+					.map(SumStateAlertingSetting::userLogin) //
+					.toList());
+			this.state = msg.getSumState().getName();
+		}
+
+		@Override
+		public JsonObject toJson() {
+			return JsonUtils.buildJsonObject(super.toJson()) //
+					.addProperty("state", this.state) //
+					.build();
+		}
 	}
 }

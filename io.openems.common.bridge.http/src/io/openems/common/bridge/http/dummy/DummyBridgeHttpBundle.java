@@ -40,6 +40,13 @@ public class DummyBridgeHttpBundle {
 	}
 
 	/**
+	 * Executes all pending tasks synchronously.
+	 */
+	public void runTasksImmediately() {
+		this.pool.update();
+	}
+
+	/**
 	 * Creates a {@link EndpointExpect} which can be used to asynchronously check if
 	 * a {@link BridgeHttp.Endpoint} was called.
 	 * 

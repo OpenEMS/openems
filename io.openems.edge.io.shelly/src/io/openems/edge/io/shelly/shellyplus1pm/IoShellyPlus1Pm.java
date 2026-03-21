@@ -39,8 +39,8 @@ public interface IoShellyPlus1Pm
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Indicates whether the Shelly needs a restart.
@@ -51,7 +51,7 @@ public interface IoShellyPlus1Pm
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		NEEDS_RESTART(Doc.of(Level.INFO) //
+		NEEDS_RESTART(Doc.of(Level.INFO)//
 				.text("Shelly suggests a restart.")),
 		/**
 		 * Slave Communication Failed Fault.

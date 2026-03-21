@@ -8,8 +8,6 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.StateChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.io.api.DigitalOutput;
 
@@ -35,9 +33,9 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_1(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_1(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 
 		/**
@@ -49,7 +47,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_1_OVERTEMP(Doc.of(Level.WARNING) //
+		RELAY_1_OVERTEMP(Doc.of(Level.WARNING)//
 				.text("Relay 1 has been switched off due to Overtemperature.")),
 		/**
 		 * Indicates whether the associated Relay is in Overpower-State.
@@ -60,7 +58,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_1_OVERPOWER(Doc.of(Level.WARNING) //
+		RELAY_1_OVERPOWER(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overpower.")),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
@@ -81,9 +79,9 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_2(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_2(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Indicates whether the associated Relay is in Overtemp-State.
@@ -94,7 +92,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_2_OVERTEMP(Doc.of(Level.WARNING) //
+		RELAY_2_OVERTEMP(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overtemperature.")),
 		/**
 		 * Indicates whether the associated Relay is in Overpower-State.
@@ -105,7 +103,7 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_2_OVERPOWER(Doc.of(Level.WARNING) //
+		RELAY_2_OVERPOWER(Doc.of(Level.WARNING)//
 				.text("Relay 2 has been switched off due to Overpower.")),
 		/**
 		 * Slave Communication Failed Fault.
@@ -127,34 +125,5 @@ public interface IoShelly25 extends DigitalOutput, OpenemsComponent, EventHandle
 		public Doc doc() {
 			return this.doc;
 		}
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel
-	 */
-	public default StateChannel getSlaveCommunicationFailedChannel() {
-		return this.channel(ChannelId.SLAVE_COMMUNICATION_FAILED);
-	}
-
-	/**
-	 * Gets the Slave Communication Failed State. See
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Boolean> getSlaveCommunicationFailed() {
-		return this.getSlaveCommunicationFailedChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#SLAVE_COMMUNICATION_FAILED} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setSlaveCommunicationFailed(boolean value) {
-		this.getSlaveCommunicationFailedChannel().setNextValue(value);
 	}
 }

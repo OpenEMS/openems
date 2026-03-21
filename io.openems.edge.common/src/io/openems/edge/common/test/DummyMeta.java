@@ -26,6 +26,8 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	private String postcode;
 	private Coordinates coordinates;
 	private ZoneId timezone;
+	private int gridSellHardLimit;
+	private int gridBuyHardLimit;
 	private JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit = JSCalendar.Tasks.empty();
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
 
@@ -76,19 +78,18 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	}
 
 	@Override
-	public Tasks<GridBuySoftLimit> getGridBuySoftLimit() {
-		return this.gridBuySoftLimit;
+	public int getGridSellHardLimit() {
+		return this.gridSellHardLimit;
 	}
 
-	/**
-	 * Set {@link Meta.ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
-	 *
-	 * @param value the value
-	 * @return myself
-	 */
-	public DummyMeta withMaximumGridFeedInLimit(int value) {
-		TestUtils.withValue(this, Meta.ChannelId.MAXIMUM_GRID_FEED_IN_LIMIT, value);
-		return this.self();
+	@Override
+	public int getGridBuyHardLimit() {
+		return this.gridBuyHardLimit;
+	}
+
+	@Override
+	public Tasks<GridBuySoftLimit> getGridBuySoftLimit() {
+		return this.gridBuySoftLimit;
 	}
 
 	/**
@@ -181,6 +182,30 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withTimezone(ZoneId timezone) {
 		this.timezone = timezone;
+		return this.self();
+	}
+
+	/**
+	 * Sets the Grid-Sell Hard-Limit for this {@link DummyMeta} instance and returns
+	 * the instance itself.
+	 *
+	 * @param gridSellHardLimit the value
+	 * @return myself
+	 */
+	public DummyMeta withGridSellHardLimit(int gridSellHardLimit) {
+		this.gridSellHardLimit = gridSellHardLimit;
+		return this.self();
+	}
+
+	/**
+	 * Sets the Grid-Buy Hard-Limit for this {@link DummyMeta} instance and returns
+	 * the instance itself.
+	 *
+	 * @param gridBuyHardLimit the value
+	 * @return myself
+	 */
+	public DummyMeta withGridBuyHardLimit(int gridBuyHardLimit) {
+		this.gridBuyHardLimit = gridBuyHardLimit;
 		return this.self();
 	}
 

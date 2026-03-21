@@ -98,12 +98,13 @@ export class AlertingComponent implements OnDestroy {
             }
         });
 
-        effect(() => {
+        const context = effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
 
             if (edge !== null) {
                 this.setup();
+                context.destroy();
             }
         });
     }
@@ -414,8 +415,7 @@ export class AlertingComponent implements OnDestroy {
     private sendRequest(request: GetUserAlertingConfigsRequest | SetUserAlertingConfigsRequest): Promise<GetUserAlertingConfigsResponse> {
         return new Promise((resolve, reject) => {
             this.service.startSpinner(this.spinnerId);
-            this.websocket.sendRequest<GetUserAlertingConfigsResponse>(request).then(response => {
-                // this.currentUserInformationSome.emit(this.asDetailedSettings(response.result.currentUserSettings));
+            this.websocket.sendStateFullRequest<GetUserAlertingConfigsResponse>(request).then(response => {
                 resolve(response as GetUserAlertingConfigsResponse);
             }).catch(reason => {
                 const error = reason.error;

@@ -1,6 +1,8 @@
 package io.openems.edge.app.integratedsystem.fenecon.industrial.s;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.s.FeneconIndustrialSComponents.batteryBmw;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.s.FeneconIndustrialSComponents.batteryInverter;
@@ -217,6 +219,9 @@ public class Isk110 extends AbstractOpenemsAppWithProps<Isk110, Property, Bundle
 			// .setRouteGateway("172.23.22.2") //
 			// .setRouteMetric(512) //
 			// );
+
+			dependencies.add(predictionDefault());
+			dependencies.add(predictionUnmanagedConsumption());
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

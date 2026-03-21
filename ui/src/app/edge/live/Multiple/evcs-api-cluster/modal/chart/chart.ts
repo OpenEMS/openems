@@ -103,7 +103,7 @@ export class ChartComponent extends AbstractHistoryChart {
             return this.chartObject;
         }
 
-        this.dataService?.getValues(Object.entries(this.evcss).map(([k, v]) => new ChannelAddress(k, "ChargePower")), this.edge);
+        this.dataService?.subscribeChannels(Object.entries(this.evcss).map(([k, v]) => new ChannelAddress(k, "ChargePower")), this.edge);
         return ChartComponent.getChartData(this.component, this.data);
     }
 

@@ -25,7 +25,7 @@ import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
 import io.openems.edge.app.hardware.IoGpio;
-import io.openems.edge.app.meter.shelly.AppShellyMeter;
+import io.openems.edge.app.meter.shelly.diy.AppShellyMeterDiy;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
@@ -52,7 +52,6 @@ public final class RelayProps {
 			List<RelayInfo> allRelays, //
 			List<PreferredRelay> defaultRelays //
 	) {
-
 	}
 
 	public record RelayContactFilter(//
@@ -276,7 +275,8 @@ public final class RelayProps {
 	}
 
 	/**
-	 * Creates a {@link RelayContactFilter} for {@link AppShellyMeter} components.
+	 * Creates a {@link RelayContactFilter} for {@link AppShellyMeterDiy}
+	 * components.
 	 *
 	 * @return the {@link RelayContactFilter}
 	 */
