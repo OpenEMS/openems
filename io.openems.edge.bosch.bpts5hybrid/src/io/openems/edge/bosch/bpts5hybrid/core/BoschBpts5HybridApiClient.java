@@ -18,7 +18,10 @@ public class BoschBpts5HybridApiClient {
 	private static final String POST_REQUEST_DATA = "action=get.hyb.overview&flow=1";
 	private static final String REQUEST_LOG_BOOK_VIEW = "&action=get.logbookview&page=0&id=&type=BATTERY&dtype=";
 	private static final String GET_VALUES_URL_PART = "/cgi-bin/ipcclient.fcgi?";
-	private static String BASE_URL;
+
+	private final String baseUrl;
+	private final HttpClient httpClient;
+
 	private String wuiSid;
 	private Integer pvLeistungWatt = Integer.valueOf(0);
 	private Integer soc = Integer.valueOf(0);
@@ -27,12 +30,13 @@ public class BoschBpts5HybridApiClient {
 	private Integer verbrauchVonPv = Integer.valueOf(0);
 	private Integer verbrauchVonBatterie = Integer.valueOf(0);
 	private Integer strombezugAusNetz = Integer.valueOf(0);
-	private final HttpClient httpClient;
 
 	public BoschBpts5HybridApiClient(String ipaddress) {
-		BASE_URL = "http://" + ipaddress;
-		this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5))
-				.followRedirects(HttpClient.Redirect.NORMAL).build();
+		this.baseUrl = "http://" + ipaddress;
+		this.httpClient = HttpClient.newBuilder() //
+				.connectTimeout(Duration.ofSeconds(5)) //
+				.followRedirects(HttpClient.Redirect.NORMAL) //
+				.build();
 		this.connect();
 	}
 
@@ -47,7 +51,10 @@ public class BoschBpts5HybridApiClient {
 
 	private String getWuiSidRequest() throws OpenemsNamedException {
 		try {
-			var request = HttpRequest.newBuilder().uri(URI.create(BASE_URL)).timeout(Duration.ofSeconds(5)).GET()
+			var request = HttpRequest.newBuilder() //
+					.uri(URI.create(this.baseUrl)) //
+					.timeout(Duration.ofSeconds(5)) //
+					.GET() //
 					.build();
 			var response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -56,6 +63,7 @@ public class BoschBpts5HybridApiClient {
 				return this.extractWuiSidFromBody(response.body());
 			}
 			throw new OpenemsException("Error while reading from Bosch BPT-S 5. Response code: " + status);
+
 		} catch (IOException | InterruptedException e) {
 			throw new OpenemsException(
 					"Unable to read from Bosch BPT-S 5. " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -73,21 +81,21 @@ public class BoschBpts5HybridApiClient {
 	}
 
 	protected void retreiveValues() throws OpenemsException {
-		var request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + GET_VALUES_URL_PART + this.wuiSid))
-				.timeout(Duration.ofSeconds(5)).header("Content-Type", "text/plain")
-				.POST(BodyPublishers.ofString(POST_REQUEST_DATA)).build();
-
-		HttpResponse<String> response;
+		var request = HttpRequest.newBuilder() //
+				.uri(URI.create(this.baseUrl + GET_VALUES_URL_PART + this.wuiSid)) //
+				.timeout(Duration.ofSeconds(5)) //
+				.header("Content-Type", "text/plain") //
+				.POST(BodyPublishers.ofString(POST_REQUEST_DATA)) //
+				.build();
 
 		try {
-			response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-
+			var response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 			var status = response.statusCode();
-
 			if (status >= 300) {
 				throw new OpenemsException("Error while reading from Bosch BPT-S 5. Response code: " + status);
 			}
 			this.extractValuesFromAnswer(response.body());
+
 		} catch (IOException | InterruptedException | OpenemsNamedException e) {
 			throw new OpenemsException(
 					"Unable to read from Bosch BPT-S 5. " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -96,9 +104,11 @@ public class BoschBpts5HybridApiClient {
 
 	protected int retreiveBatterieStatus() throws OpenemsException {
 		try {
-			var request = HttpRequest.newBuilder()
-					.uri(URI.create(BASE_URL + GET_VALUES_URL_PART + this.wuiSid + REQUEST_LOG_BOOK_VIEW))
-					.timeout(Duration.ofSeconds(5)).GET().build();
+			var request = HttpRequest.newBuilder() //
+					.uri(URI.create(this.baseUrl + GET_VALUES_URL_PART + this.wuiSid + REQUEST_LOG_BOOK_VIEW)) //
+					.timeout(Duration.ofSeconds(5)) //
+					.GET() //
+					.build();
 			var response = this.httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
 			var status = response.statusCode();
@@ -115,6 +125,7 @@ public class BoschBpts5HybridApiClient {
 			} else {
 				return 0;
 			}
+
 		} catch (IOException | InterruptedException e) {
 			throw new OpenemsException(
 					"Unable to read from Bosch BPT-S 5. " + e.getClass().getSimpleName() + ": " + e.getMessage());
