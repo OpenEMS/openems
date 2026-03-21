@@ -201,7 +201,7 @@ function main() {
     const duplicates = redundantKeys.flatMap(el => el.duplicates);
     const affectedLangs = redundantKeys.filter(el => el.duplicates.length > 0).map(el => el.lang);
     if (duplicates.length === 0) {
-        console.log('  ✅ No redundant keys found');
+        console.log('\n✅ Linting PASSED - All translation keys are unique');
     } else {
         console.log(`\n  ❌ Found ${duplicates.length} redundant keys in ${affectedLangs}: ${duplicates}`);
         totalErrors += redundantKeys.length;

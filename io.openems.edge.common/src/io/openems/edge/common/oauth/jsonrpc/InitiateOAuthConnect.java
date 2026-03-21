@@ -12,7 +12,8 @@ import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
-public class InitiateOAuthConnect implements EndpointRequestType<InitiateOAuthConnect.Request, InitiateOAuthConnect.Response> {
+public class InitiateOAuthConnect
+		implements EndpointRequestType<InitiateOAuthConnect.Request, InitiateOAuthConnect.Response> {
 
 	@Override
 	public String getMethod() {

@@ -77,7 +77,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 for (const channelId of channelIds) {
                     channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                 }
-                this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
+                this.dataService.subscribeChannels(Array.from(channelAddresses), this.edge, this.componentId);
                 this.subscription.push(effect(() => {
                     const value = this.dataService.currentValue();
                     this.onCurrentData(value);
@@ -120,7 +120,7 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * @returns a non null/undefined value
      */
     protected async subscribeAndGetFirstValidValueForChannel(channelAddress: ChannelAddress): Promise<any> {
-        this.dataService.getValues([channelAddress], this.edge, this.componentId);
+        this.dataService.subscribeChannels([channelAddress], this.edge, this.componentId);
         return new Promise<any>((res) => {
             const subscription = effect(() => {
                 const val = this.dataService.currentValue();

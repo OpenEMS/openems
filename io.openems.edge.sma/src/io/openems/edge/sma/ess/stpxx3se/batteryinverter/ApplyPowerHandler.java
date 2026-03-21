@@ -29,9 +29,8 @@ public class ApplyPowerHandler {
 	public synchronized void apply(SmaBattery battery, int setActivePower, int setReactivePower,
 			ControlMode controlmode, Value<Integer> gridActivePower, Value<Integer> essActivePower)
 			throws OpenemsNamedException {
-
-		this.parent.channel(BatteryInverterSmaStpSe.ChannelId.SMART_MODE_NOT_WORKING_WITH_PID_FILTER) //
-				.setNextValue(this.parent.power.isPidEnabled() && controlmode.equals(ControlMode.SMART));
+		this.parent.channel(BatteryInverterSmaStpSe.ChannelId.SMART_MODE_NOT_WORKING_WITH_FILTER) //
+				.setNextValue(this.parent.power.isFilterEnabled() && controlmode.equals(ControlMode.SMART));
 
 		var result = switch (controlmode) {
 		case INTERNAL -> handleInternalMode();

@@ -4,6 +4,8 @@ import { FormControl, ValidationErrors } from "@angular/forms";
 import { FORMLY_CONFIG, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { SharedModule } from "src/app/shared/shared.module";
+import { FormlyAccordionGroupComponent } from "./formly/accordion/formly-accordion-group.component";
+import { FormlyAccordionComponent } from "./formly/accordion/formly-accordion.component";
 import { FormlyLinkComponent } from "./formly/formly-link";
 import { FormlyTextComponent } from "./formly/formly-text";
 import { FormlyInputWithUnitComponent } from "./formly/input-with-unit";
@@ -44,6 +46,8 @@ export function registerTranslateExtension(translate: TranslateService) {
                 { name: "link", component: FormlyLinkComponent },
                 { name: "formly-option-group-picker", component: FormlyOptionGroupPickerComponent },
                 { name: "reorder-array", component: FormlyReorderArrayComponent },
+                { name: "accordion", component: FormlyAccordionComponent },
+                { name: "accordion-group", component: FormlyAccordionGroupComponent },
                 { name: "lazy-select", component: FormlyLazySelectComponent },
             ],
             validators: [
@@ -56,6 +60,8 @@ export function registerTranslateExtension(translate: TranslateService) {
     ],
     declarations: [
         KeyModalComponent,
+        FormlyAccordionComponent,
+        FormlyAccordionGroupComponent,
         FormlySafeInputModalComponent,
         FormlySafeInputWrapperComponent,
         FormlyLinkComponent,

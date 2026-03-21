@@ -3,6 +3,7 @@ package io.openems.edge.ess.core.power;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.ess.power.api.SolverStrategy;
 
@@ -34,6 +35,12 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 
 	@AttributeDefinition(name = "PID Filter: Derivative gain", description = "The weight of derivative gain in the PID filter. Value between [0;1].")
 	double d() default PidFilter.DEFAULT_D;
+
+	@AttributeDefinition(name = "Enable PT1 Filter", description = "Enables the PT1 Filter with the time constant parameter below; only if PID filter is disabled")
+	boolean enablePT1Filter() default false;
+
+	@AttributeDefinition(name = "PT1 Filter: time constant", description = "The filter time constant in milliseconds [ms]")
+	int pt1TimeConstant() default PT1Filter.DEFAULT_TIME_CONSTANT;
 
 	String webconsole_configurationFactory_nameHint() default "ESS Power";
 }

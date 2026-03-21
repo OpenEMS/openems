@@ -29,8 +29,8 @@ import io.openems.backend.alerting.handler.SumStateHandler;
 import io.openems.backend.alerting.scheduler.Scheduler;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
 import io.openems.common.utils.JsonUtils;
@@ -133,11 +133,7 @@ public class Alerting extends AbstractOpenemsBackendComponent implements EventHa
 		if (queueSize >= THREAD_QUEUE_WARNING_THRESHOLD) {
 			sb.append("%d tasks in the EventHandlerQueue! ".formatted(queueSize));
 		}
-		final String handlerStr = this.handler.stream().map(h -> {
-			final var metrics = h.getMetrics();
-			return "%s{MessagesSent: %d, MessagesQueue: %d}" //
-					.formatted(h.getClass().getSimpleName(), metrics.messagesSent(), metrics.messagesQueue());
-		}).collect(Collectors.joining(", "));
+		final String handlerStr = this.handler.stream().map(Handler::debugLog).collect(Collectors.joining(", "));
 		sb.append(handlerStr);
 
 		if (sb.isEmpty()) {

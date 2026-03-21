@@ -30,7 +30,7 @@ import { EvseManualPayload } from "../../js-calender-utils";
 })
 export class EvseEditTaskComponent extends JsCalendarEditTaskComponent {
 
-    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "monthly"]);
+    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
     public startTime = model<string | null>(null);
     public endTime = model<string | null>(null);
     public payload = model<EvseManualPayload>(new EvseManualPayload());
@@ -43,6 +43,6 @@ export class EvseEditTaskComponent extends JsCalendarEditTaskComponent {
     }));
 
     setValue(event: CustomEvent) {
-        this.payload.set(new EvseManualPayload(event.detail.value as Mode));
+        this.payload.update(el => { el.setValue({ class: "Manual", mode: event.detail.value }); return el; });
     }
 }

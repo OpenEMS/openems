@@ -1,0 +1,15 @@
+@if (isInitialized) {
+<oe-flat-widget [title]="'GENERAL.PRODUCTION' | translate" [icon]="{name: 'oe-production', color: 'production'}" button
+    [routerLink]="'/device/' + edge.id + newNavigationUrlSegment + '/history/productionchart'">
+    @for (component of productionMeterComponents; track component; let i = $index) {
+    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActiveProductionEnergy'"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    }
+    @for (component of chargerComponents; track component) {
+    <oe-flat-widget-line [name]="component.alias" [channelAddress]="component.id + '/ActualEnergy'"
+        [converter]="CONVERT_TO_KILO_WATTHOURS">
+    </oe-flat-widget-line>
+    }
+</oe-flat-widget>
+}

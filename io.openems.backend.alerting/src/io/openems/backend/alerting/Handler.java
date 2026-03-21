@@ -49,4 +49,11 @@ public interface Handler<T extends Message> {
 	 * @return message metrics
 	 */
 	HandlerMetrics getMetrics();
+	
+	/**
+	 * Get debug log about the Handler.
+	 * 
+	 * @return debug log
+	 */
+	String debugLog();
 }
