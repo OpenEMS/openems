@@ -31,13 +31,13 @@ public interface ComponentManager extends OpenemsComponent, ClockProvider {
 	public static final String SINGLETON_COMPONENT_ID = "_componentManager";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONFIG_NOT_ACTIVATED(Doc.of(Level.FAULT) //
+		CONFIG_NOT_ACTIVATED(Doc.of(Level.FAULT)//
 				.text("A configured OpenEMS Component was not activated")), //
-		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT) //
+		DUPLICATED_COMPONENT_ID(Doc.of(Level.FAULT)//
 				.text("Configuration has duplicated Component-IDs")), //
-		WAS_OUT_OF_MEMORY(Doc.of(Level.INFO) //
+		WAS_OUT_OF_MEMORY(Doc.of(Level.INFO)//
 				.text("OutOfMemory had happened. Found heap dump files.")),
-		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT) //
+		DEFAULT_CONFIGURATION_FAILED(Doc.of(Level.FAULT)//
 				.text("Applying the default configuration failed.")),;
 
 		private final Doc doc;

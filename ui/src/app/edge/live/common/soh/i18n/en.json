@@ -1,0 +1,23 @@
+{
+  "STORAGE": {
+    "ADMIN_MODAL": {
+      "SOH": {
+        "TITLE": "Capacity determination",
+        "TITLE_TIP": "visible only for admins",
+        "ENABLED_INFO": "ESS SoH Cycle controller is enabled",
+        "INFO": "Measures the battery capacity by performing a test cycle and thus calculates the state of health (SOH). The process can take several hours, depending on the battery type and size. It is recommended to only perform the test cycle when the battery is not in use.",
+        "STATE_MACHINE_LABEL": "State",
+        "CAPACITY_MEASURING": "Capacity is measuring",
+        "RESTART_WARNING": "Restarting the SoH cycle will reset the current measurements and start a new cycle. Are you sure you want to restart?",
+        "ERROR": "An error occurred during the SoH cycle. Please check the system logs for more details.",
+        "MEASURED_CAPACITY": "Measured Capacity",
+        "SOH_PERCENT": "SoH",
+        "RESTART_CONFIRMATION_TITLE": "Confirm perform again"
+      },
+      "BUTTONS": {
+        "START": "Perform",
+        "RESTART": "Perform again"
+      }
+    }
+  }
+}

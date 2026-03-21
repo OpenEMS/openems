@@ -1,5 +1,7 @@
 package io.openems.edge.ess.api;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,32 +31,44 @@ public class CalculateGridMode {
 	 * @return the {@link GridMode}
 	 */
 	public GridMode calculate() {
-		if (this.values.isEmpty()) {
+		return aggregateGridModes(this.values);
+	}
+
+	/**
+	 * Aggregates {@link GridMode GridModes} to one {@link GridMode}.
+	 * 
+	 * @param gridModes the GridModes
+	 * @return one {@link GridMode}
+	 */
+	public static GridMode aggregateGridModes(List<GridMode> gridModes) {
+		if (gridModes.isEmpty()) {
 			return GridMode.UNDEFINED;
 		}
 
 		var onGrids = 0;
 		var offGrids = 0;
-		for (GridMode gridMode : this.values) {
+		var offGridGenset = 0;
+		for (GridMode gridMode : gridModes) {
 			switch (gridMode) {
-			case OFF_GRID:
-				offGrids++;
-				break;
-			case ON_GRID:
-				onGrids++;
-				break;
-			case UNDEFINED:
-				break;
+			case OFF_GRID -> offGrids++;
+			case ON_GRID -> onGrids++;
+			case OFF_GRID_GENSET -> offGridGenset++;
+			case UNDEFINED -> doNothing();
 			}
 		}
 
 		var result = GridMode.UNDEFINED;
-		if (this.values.size() == onGrids) {
+
+		if (gridModes.size() == onGrids) {
 			result = GridMode.ON_GRID;
 		}
-		if (this.values.size() == offGrids) {
+		if (gridModes.size() == offGrids) {
 			result = GridMode.OFF_GRID;
 		}
+		if (offGridGenset > 0 && onGrids == 0) {
+			result = GridMode.OFF_GRID_GENSET;
+		}
+
 		return result;
 	}
 }

@@ -7,6 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
+		private int capacity;
 		private int minPowerSinglePhase;
 		private int minPowerThreePhase;
 		private int maxPowerSinglePhase;
@@ -18,6 +19,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setId(String id) {
 			this.id = id;
+			return this;
+		}
+
+		public Builder setCapacity(int capacity) {
+			this.capacity = capacity;
 			return this;
 		}
 
@@ -65,6 +71,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, builder.id);
 		this.builder = builder;
+	}
+
+	@Override
+	public int capacity() {
+		return this.builder.capacity;
 	}
 
 	@Override

@@ -20,7 +20,7 @@ class StaticParameterProvider implements ParameterProvider {
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new StaticParameterProvider(this.value);
 	}
 }

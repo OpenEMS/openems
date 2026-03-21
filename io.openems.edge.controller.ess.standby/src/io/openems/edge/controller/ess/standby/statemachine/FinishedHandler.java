@@ -18,7 +18,7 @@ public class FinishedHandler extends StateHandler<State, Context> {
 	@Override
 	public State runAndGetNextState(Context context) throws IllegalArgumentException, OpenemsNamedException {
 		// Apply power constraint
-		context.ess.setActivePowerEqualsWithPid(0);
+		context.ess.setActivePowerEqualsWithoutFilter(0);
 
 		// TODO Stop ESS via StartStoppable
 

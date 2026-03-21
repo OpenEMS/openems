@@ -170,14 +170,14 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
-    /**
-     * Gets the Hardy Barth API key, which is necessary for all versions above 2.2.
-     *
-     * @return the API key
-     */
-    public default String getHardyBarthApiToken() {
-        return null;
-    }
+	/**
+	 * Gets the Hardy Barth API key, which is necessary for all versions above 2.2.
+	 *
+	 * @return the API key
+	 */
+	public default String getHardyBarthApiToken() {
+		return null;
+	}
 
 	/**
 	 * Returns a link to a given key.

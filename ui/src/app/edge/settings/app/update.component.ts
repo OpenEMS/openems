@@ -81,10 +81,10 @@ export class UpdateAppComponent implements OnInit {
     public ngOnInit() {
         this.service.startSpinnerTransparentBackground(this.spinnerId);
         const appId = this.route.snapshot.params["appId"];
-        const componentId = this.routeService.getRouteParam<string>("componentId");
+        const componentId = this.routeService.getQueryParam<string>("componentId");
 
         const queryName = this.routeService.getQueryParam<string>("name");
-        this.isAppCenter = queryName != null && queryName !== "" && componentId == null;
+        this.isAppCenter = componentId == null;
 
         const appName = queryName ?? this.service.currentPageTitle;
 
@@ -118,10 +118,8 @@ export class UpdateAppComponent implements OnInit {
                         return;
                     }
 
-                    const filterComponentId = this.routeService.getQueryParam<string>("componentId");
-
-                    if (filterComponentId == null) {
-                        this.setInstance(appAssistant, componentId, recInstances, null, appId);
+                    if (componentId == null) {
+                        this.setInstance(appAssistant, null, recInstances, null, appId);
                         return;
                     }
 
@@ -132,7 +130,7 @@ export class UpdateAppComponent implements OnInit {
                                 filter: {
                                     component: {
                                         componentId: [
-                                            filterComponentId,
+                                            componentId,
                                         ],
                                     },
                                 },
@@ -143,7 +141,7 @@ export class UpdateAppComponent implements OnInit {
                         })).then(queryAppInstancesByFilter => {
                         const queryedAppInstance = (queryAppInstancesByFilter as QueryAppInstancesByFilter.Response).result.apps;
 
-                        this.setInstance(appAssistant, filterComponentId, recInstances, queryedAppInstance, appId);
+                        this.setInstance(appAssistant, componentId, recInstances, queryedAppInstance, appId);
                     }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
                 }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
             }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));

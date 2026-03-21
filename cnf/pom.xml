@@ -218,7 +218,7 @@
             -->
             <groupId>io.openems</groupId>
             <artifactId>j2mod</artifactId>
-            <version>3.2.2-openems.2</version>
+            <version>3.3.0-openems.1</version>
         </dependency>
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>

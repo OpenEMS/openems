@@ -93,7 +93,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         const edge = await service.getCurrentEdge();
         AssertionUtils.assertIsDefined(edge);
 
-        this.dataService.getValues(channelAddresses, edge);
+        this.dataService.subscribeChannels(channelAddresses, edge);
         this.fetchCurrentData(service);
     }
 
@@ -258,7 +258,7 @@ export type OeFormlyView = {
     lines: OeFormlyField[],
     isCommonWidget?: string,
     helpKey?: string | null,
-    component?: EdgeConfig.Component,
+    component?: EdgeConfig.Component | null,
     edge?: Edge,
 };
 
@@ -277,9 +277,22 @@ export type OeFormlyField =
     | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.RangeButtonFromFormControlLine
     | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.Advanced.ElectricityMeter
+    | OeFormlyField.Advanced.EssChargerLine
     ;
 
 export namespace OeFormlyField {
+
+    export namespace Advanced {
+        export type ElectricityMeter = {
+            type: "advanced-electricity-meter-line",
+            component: EdgeConfig.Component,
+        };
+        export type EssChargerLine = {
+            type: "advanced-ess-charger-line",
+            component: EdgeConfig.Component,
+        };
+    }
 
     export type InfoLine = {
         type: "info-line",

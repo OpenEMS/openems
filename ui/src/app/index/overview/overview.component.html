@@ -55,7 +55,7 @@
                         <ion-spinner [name]="'crescent'"></ion-spinner>
                       </ion-item>
                     }
-                    @for (edge of filteredEdges; track edge; let i = $index) {
+                    @for (edge of filteredEdges; track edge.id; let i = $index) {
                       <ion-item lines="inset" [routerLink]="['/device', edge.id]"
                         [color]="edge.isOnline ? null : 'light'" (click)="getAndSubscribeEdge(edge)">
                         <ion-label>

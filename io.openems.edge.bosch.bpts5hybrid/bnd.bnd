@@ -9,14 +9,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.common,\
 	io.openems.edge.ess.api,\
 	io.openems.edge.meter.api,\
-	org.eclipse.jetty.client,\
-	org.eclipse.jetty.http,\
-	org.eclipse.jetty.util,\
 	org.jsoup,\
 
 -testpath: \
 	${testpath},\
-	org.eclipse.jetty.client,\
-	org.eclipse.jetty.http,\
-	org.eclipse.jetty.util,\
-	org.eclipse.jetty.io,\

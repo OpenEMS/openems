@@ -17,6 +17,7 @@ import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
 import io.openems.edge.app.integratedsystem.TestFeneconHome15;
@@ -76,6 +77,12 @@ public class TestTranslations {
 					new TestTranslation(Apps.feneconIndustrialSIsk011(t), true, TestFeneconIndustrialS.fullSettings()));
 			this.apps.add(new TestTranslation(Apps.feneconProHybrid10(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("USER_KEY", "xxx") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconProHybridGW(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HAS_DC_PV1", "true") //
+					.addProperty("DC_PV1_ALIAS", "charger0") //
+					.addProperty("HAS_DC_PV1", "false") //
+					.addProperty("DC_PV1_ALIAS", "charger1") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
@@ -183,10 +190,16 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.thresholdControl(t), true, JsonUtils.buildJsonObject() //
 					.add("OUTPUT_CHANNELS", JsonUtils.buildJsonArray().add("io0/Relay1").build()) //
 					.build()));
-			this.apps.add(new TestTranslation(Apps.shellyMeter(t), true, JsonUtils.buildJsonObject() //
+			this.apps.add(new TestTranslation(Apps.shellyMeterDiy(t), true, JsonUtils.buildJsonObject() //
 					.add("DEVICE", JsonUtils.buildJsonObject() //
 							.addProperty("name", "dummyName") //
 							.addProperty("type", "PLUS_PLUG_S") //
+							.build()) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.shellyMeterPaid(t), true, JsonUtils.buildJsonObject() //
+					.add("DEVICE", JsonUtils.buildJsonObject() //
+							.addProperty("name", "dummyNamePro") //
+							.addProperty("type", "PRO_3EM") //
 							.build()) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.discovergyMeter(t), false, JsonUtils.buildJsonObject() //
@@ -211,6 +224,14 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.kdkMeter(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("MODBUS_ID", "modbus0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.kdkGridMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("MODBUS_ID", "modbus0") //
+					.addProperty("MODBUS_UNIT_ID", 1) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.goodWeGridMeter(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("GRID_METER_CATEGORY", GoodWeGridMeterCategory.COMMERCIAL_METER) //
+					.addProperty("CT_RATIO_FIRST", 200) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.pqPlusMeter(t), false, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.phoenixContactMeter(t), true, new JsonObject()));
@@ -264,6 +285,12 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.appSohCycle(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconProHybrid910(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HAS_DC_PV1", "true") //
+					.addProperty("DC_PV1_ALIAS", "charger0") //
+					.addProperty("HAS_DC_PV1", "false") //
+					.addProperty("DC_PV1_ALIAS", "charger1") //
 					.build()));
 			return this.apps.stream().map(TestTranslation::app).toList();
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());

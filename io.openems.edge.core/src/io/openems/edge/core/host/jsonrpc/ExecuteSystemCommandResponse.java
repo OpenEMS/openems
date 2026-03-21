@@ -1,7 +1,7 @@
 package io.openems.edge.core.host.jsonrpc;
 
+import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -30,7 +30,7 @@ public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Holds common parameters for a response to a {@link SystemCommand}.
 	 */
-	public static record SystemCommandResponse(String[] stdout, String[] stderr, int exitcode) {
+	public static record SystemCommandResponse(List<String> stdout, List<String> stderr, int exitcode) {
 
 		/**
 		 * Convert to {@link JsonObject}.
@@ -39,10 +39,10 @@ public class ExecuteSystemCommandResponse extends JsonrpcResponseSuccess {
 		 */
 		public JsonObject toJsonObject() {
 			return JsonUtils.buildJsonObject() //
-					.add("stdout", Stream.of(this.stdout) //
+					.add("stdout", this.stdout.stream() //
 							.map(JsonPrimitive::new) //
 							.collect(JsonUtils.toJsonArray()))
-					.add("stderr", Stream.of(this.stderr) //
+					.add("stderr", this.stderr.stream() //
 							.map(JsonPrimitive::new) //
 							.collect(JsonUtils.toJsonArray()))
 					.addProperty("exitcode", this.exitcode) //

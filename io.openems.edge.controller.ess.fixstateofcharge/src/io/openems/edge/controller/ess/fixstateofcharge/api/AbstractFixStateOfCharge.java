@@ -228,7 +228,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
 
 		// Apply Power
-		ess.setActivePowerEquals(activePower);
+		ess.setActivePowerEqualsWithFilter(activePower);
 
 		// Set debug channels
 		this._setDebugSetActivePower(activePower);
