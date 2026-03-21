@@ -1,0 +1,57 @@
+tasks:
+  installUiDeps:
+    name: Install UI dependencies
+    description: Install npm dependencies for the Angular UI.
+    command: cd ui && npm ci
+    triggeredBy:
+      - postDevcontainerStart
+
+  buildBackend:
+    name: Build Backend
+    description: Compile and assemble the OpenEMS Backend JAR (skips tests).
+    command: ./gradlew buildBackend -x test
+    triggeredBy:
+      - manual
+
+  buildEdge:
+    name: Build Edge
+    description: Compile and assemble the OpenEMS Edge JAR (skips tests).
+    command: ./gradlew buildEdge -x test
+    triggeredBy:
+      - manual
+
+  buildAll:
+    name: Build All
+    description: Compile backend, edge, and UI (skips tests).
+    command: ./gradlew build buildBackend buildEdge -x test
+    triggeredBy:
+      - manual
+
+services:
+  uiDevServer:
+    name: UI Dev Server
+    description: Angular dev server for the OpenEMS UI on port 4200.
+    commands:
+      start: cd ui && ng serve -c openems-backend --host 0.0.0.0 --disable-host-check
+      ready: curl -sf http://localhost:4200 > /dev/null
+
+  openemsBackend:
+    name: OpenEMS Backend
+    description: OpenEMS Backend OSGi runtime.
+    commands:
+      start: |
+        java \
+          -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-backend/config.d \
+          -jar build/openems-backend.jar
+      ready: curl -sf http://localhost:8082 > /dev/null
+
+  openemsEdge:
+    name: OpenEMS Edge
+    description: OpenEMS Edge OSGi runtime.
+    commands:
+      start: |
+        java \
+          -Dfelix.cm.dir=$(pwd)/tools/gitpod/openems-edge/config.d \
+          -Dopenems.data.dir=$(pwd)/tools/gitpod/openems-edge/data \
+          -jar build/openems-edge.jar
+      ready: curl -sf http://localhost:8080 > /dev/null
