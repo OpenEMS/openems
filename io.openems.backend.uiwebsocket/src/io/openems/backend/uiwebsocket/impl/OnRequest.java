@@ -33,6 +33,7 @@ import io.openems.backend.common.jsonrpc.response.GetProtocolsCoreInfoResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserAlertingConfigsResponse;
 import io.openems.backend.common.jsonrpc.response.GetUserInformationResponse;
 import io.openems.backend.common.metadata.User;
+import io.openems.backend.metrics.prometheus.PrometheusMetrics;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -74,6 +75,22 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> apply(WebSocket ws, JsonrpcRequest request)
+			throws OpenemsNamedException {
+		final var timer = PrometheusMetrics.WEBSOCKET_REQUEST
+				.labelValues(this.parent.getId(), request.getFullyQualifiedMethod()).startTimer();
+
+		try {
+			return this.applyInternal(ws, request) //
+					.whenComplete((jsonrpcResponseSuccess, throwable) -> {
+						timer.close();
+					});
+		} catch (Exception e) {
+			timer.close();
+			throw e;
+		}
+	}
+
+	private CompletableFuture<? extends JsonrpcResponseSuccess> applyInternal(WebSocket ws, JsonrpcRequest request)
 			throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
 

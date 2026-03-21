@@ -47,6 +47,19 @@ public final class Exp {
 	}
 
 	/**
+	 * Creates a {@link Variable} of a children property of the object value of the
+	 * given property of the current value in the model.
+	 *
+	 * @param property    the property of the value
+	 * @param subProperty Checks a specific property if the property has a object
+	 *                    value (e.g. type if value is {'type': 'xxx'})
+	 * @return the {@link Variable}
+	 */
+	public static Variable currentModelValue(Nameable property, String subProperty) {
+		return new Variable("(model.%s ?? {}).%s".formatted(property.name(), subProperty));
+	}
+
+	/**
 	 * Creates a {@link Variable} to access the initial value of a property. Only
 	 * helpful for already installed instances, otherwise this value is undefined.
 	 * 

@@ -24,7 +24,7 @@ public class SupportDurationTimeHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		context.ess.setActivePowerEquals(context.dischargePower);
+		context.ess.setActivePowerEqualsWithoutFilter(context.dischargePower);
 		this.supportDurationStartTime = LocalDateTime.now(context.clock);
 		this.supportDurationTimeState = new SupportDurationTimeState(SubState.HOLD_SUPPORT, Instant.now(context.clock));
 	}
@@ -44,7 +44,7 @@ public class SupportDurationTimeHandler extends StateHandler<State, Context> {
 	private SubState getNextSubState(Context context) throws OpenemsNamedException {
 		return switch (this.supportDurationTimeState.subState) {
 		case HOLD_SUPPORT -> {
-			context.ess.setActivePowerEquals(context.dischargePower);
+			context.ess.setActivePowerEqualsWithoutFilter(context.dischargePower);
 			var supportDurationExpiration = this.calculateSupportDurationExpiration(context);
 			if (supportDurationExpiration >= context.supportDuration.getValue()) {
 				yield SubState.FINISH_SUPPORT_DURATION;

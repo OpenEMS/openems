@@ -60,7 +60,6 @@
 	bnd.identity;id='io.openems.backend.timedata.aggregatedinflux',\
 	bnd.identity;id='io.openems.backend.timedata.dummy',\
 	bnd.identity;id='io.openems.backend.timedata.influx',\
-	bnd.identity;id='io.openems.backend.timedata.timescaledb',\
 	bnd.identity;id='io.openems.backend.uiwebsocket',\
 	bnd.identity;id='io.openems.core.logger',\
 
@@ -75,7 +74,7 @@
 	com.google.protobuf;version='[4.34.0,4.34.1)',\
 	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
 	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
-	com.squareup.okio;version='[3.16.4,3.16.5)',\
+	com.squareup.okio;version='[3.17.0,3.17.1)',\
 	com.zaxxer.HikariCP;version='[7.0.2,7.0.3)',\
 	io.openems.backend.alerting;version=snapshot,\
 	io.openems.backend.application;version=snapshot;startlevel=17,\
@@ -95,7 +94,6 @@
 	io.openems.backend.timedata.aggregatedinflux;version=snapshot,\
 	io.openems.backend.timedata.dummy;version=snapshot,\
 	io.openems.backend.timedata.influx;version=snapshot,\
-	io.openems.backend.timedata.timescaledb;version=snapshot,\
 	io.openems.backend.uiwebsocket;version=snapshot,\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
@@ -115,7 +113,6 @@
 	io.openems.wrapper.io.reactivex.rxjava3.rxjava;version=snapshot,\
 	io.openems.wrapper.kotlinx-coroutines-core-jvm;version=snapshot,\
 	io.openems.wrapper.opczip;version=snapshot,\
-	io.openems.wrapper.pgbulkinsert;version=snapshot,\
 	io.openems.wrapper.retrofit-adapter-rxjava3;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-gson;version=snapshot,\
 	io.openems.wrapper.retrofit-converter-scalars;version=snapshot,\
@@ -147,7 +144,7 @@
 	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.3.20,2.3.21)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.2,2.3.3)';startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.2,2.3.3)';startlevel=15,\

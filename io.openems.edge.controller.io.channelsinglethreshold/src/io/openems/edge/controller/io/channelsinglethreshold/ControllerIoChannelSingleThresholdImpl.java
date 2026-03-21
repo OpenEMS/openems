@@ -240,9 +240,9 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 		switch (this.state) {
 		case UNDEFINED:
 			/*
-			 * Still Undefined -> always OFF
+			 * Still Undefined -> use configured fallback output
 			 */
-			this.setOutputs(outputChannels, false);
+			this.setOutputs(outputChannels, this.config.fallbackOutput());
 			break;
 
 		case BELOW_THRESHOLD:
@@ -300,6 +300,11 @@ public class ControllerIoChannelSingleThresholdImpl extends AbstractOpenemsCompo
 				outputChannel.setNextWriteValue(value);
 			}
 		}
+	}
+
+	@Override
+	public String debugLog() {
+		return "State:" + this.state.getName();
 	}
 
 	@Override

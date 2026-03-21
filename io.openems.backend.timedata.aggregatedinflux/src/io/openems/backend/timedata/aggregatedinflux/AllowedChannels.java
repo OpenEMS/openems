@@ -73,6 +73,7 @@ public final class AllowedChannels {
 				.put("ctrlEmergencyCapacityReserve0/ActualReserveSoc", DataType.LONG) //
 				.put("ctrlGridOptimizedCharge0/_PropertyMaximumSellToGridPower", DataType.LONG) //
 				.put("_meta/_PropertyMaximumGridFeedInLimit", DataType.LONG) //
+				.put("_meta/GridBuySoftLimit", DataType.LONG) //
 				.putAll(multiChannels(meter, "ActivePower", DataType.LONG)) //
 				.putAll(multiChannels(meter, "ActivePowerL", 1, 4, DataType.LONG)) //
 				.putAll(multiChannels(meter, "Current", DataType.LONG)) //

@@ -50,7 +50,7 @@ public class ControllerEvseSingleImplTest {
 		assertEquals(Mode.MINIMUM, params.mode());
 		assertNull(params.activePower());
 		assertEquals(0, params.sessionEnergy());
-		assertEquals(10000, params.sessionEnergyLimit());
+		assertEquals(10000, params.sessionEnergyLimit().intValue());
 		assertEquals(0, params.history().streamAll().count());
 		assertEquals(Hysteresis.INACTIVE, params.hysteresis());
 		assertEquals(PhaseSwitching.DISABLE, params.phaseSwitching());

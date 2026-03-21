@@ -78,7 +78,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBatteryInverter
 		implements BatteryInverterKacoBlueplanetGridsave, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
 		ModbusComponent, ModbusSlave, OpenemsComponent, TimedataProvider, StartStoppable,
-        BatteryInverterErrorAcknowledge {
+		BatteryInverterErrorAcknowledge {
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
@@ -274,8 +274,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("KACO inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
-				new BatteryInverterConstraint("KACO inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, REACTIVE, EQUALS, 0), //
+				new BatteryInverterConstraint("KACO inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 

@@ -8,7 +8,8 @@ public interface TimedExecutor {
 
 	class TimedTask implements Comparable<TimedTask> {
 		protected final ZonedDateTime executeAt;
-		protected final Consumer<ZonedDateTime> task;
+		private final Consumer<ZonedDateTime> task;
+		private boolean done = false;
 
 		public TimedTask(ZonedDateTime executeAt, Consumer<ZonedDateTime> task) {
 			this.executeAt = executeAt;
@@ -33,6 +34,27 @@ public interface TimedExecutor {
 		@Override
 		public int hashCode() {
 			return Objects.hash(this.executeAt, this.task);
+		}
+		
+		/**
+		 * Execute the task and mark it as done.
+		 * 
+		 * @return true if the task was executed.
+		 */
+		public boolean isDone() {
+			return this.done;
+		}
+		
+		/**
+		 * Execute the task if it is not done yet. Mark the task as done after execution.
+		 * 
+		 * @param now current time
+		 */
+		protected void execute(ZonedDateTime now) {
+			if (!this.done) {
+				this.task.accept(now);
+				this.done = true;
+			}
 		}
 	}
 

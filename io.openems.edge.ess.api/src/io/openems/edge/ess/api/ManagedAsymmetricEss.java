@@ -2,7 +2,6 @@ package io.openems.edge.ess.api;
 
 import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.PersistencePriority.HIGH;
-import static io.openems.common.channel.Unit.VOLT_AMPERE;
 import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
 import static io.openems.common.channel.Unit.WATT;
 import static io.openems.common.types.OpenemsType.INTEGER;
@@ -114,7 +113,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		SET_REACTIVE_POWER_L3_EQUALS(new IntegerDoc() //
 				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
-				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL2Equals", L3, REACTIVE, EQUALS))), //
+				.onChannelSetNextWrite(new PowerConstraint("SetReactivePowerL3Equals", L3, REACTIVE, EQUALS))), //
 		/**
 		 * Sets a fixed maximum Active Power on L1.
 		 *
@@ -216,7 +215,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L1_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL1LessOrEquals", L1, REACTIVE, LESS_OR_EQUALS))), //
@@ -231,7 +230,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L2_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL2LessOrEquals", L2, REACTIVE, LESS_OR_EQUALS))), //
@@ -246,7 +245,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L3_LESS_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL3LessOrEquals", L3, REACTIVE, LESS_OR_EQUALS))), //
@@ -261,7 +260,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L1_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL1GreaterOrEquals", L1, REACTIVE, GREATER_OR_EQUALS))), //
@@ -276,7 +275,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L2_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL2GreaterOrEquals", L2, REACTIVE, GREATER_OR_EQUALS))), //
@@ -291,7 +290,7 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 		 * </ul>
 		 */
 		SET_REACTIVE_POWER_L3_GREATER_OR_EQUALS(new IntegerDoc() //
-				.unit(VOLT_AMPERE) //
+				.unit(VOLT_AMPERE_REACTIVE) //
 				.accessMode(WRITE_ONLY) //
 				.onChannelSetNextWrite(
 						new PowerConstraint("SetReactivePowerL3GreaterOrEquals", L3, REACTIVE, GREATER_OR_EQUALS))), //
@@ -507,9 +506,8 @@ public interface ManagedAsymmetricEss extends ManagedSymmetricEss, AsymmetricEss
 	}
 
 	/**
-	 * Sets a Reactive Power Equals setpoint on L3 in [W]. Negative values for
-	 * Charge; positive for Discharge. See
-	 * {@link ChannelId#SET_ACTIVE_POWER_L3_EQUALS}.
+	 * Sets a Active Power Equals setpoint on L3 in [W]. Negative values for Charge;
+	 * positive for Discharge. See {@link ChannelId#SET_ACTIVE_POWER_L3_EQUALS}.
 	 *
 	 * @param value the next write value
 	 * @throws OpenemsNamedException on error

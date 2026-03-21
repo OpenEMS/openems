@@ -49,8 +49,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"ZIP_CODE": "12345678",
-    	"CONTROL_MODE": {@link ControlMode}
+    	"ZIP_CODE": "12345678"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}

@@ -6,12 +6,17 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.convertMilliAmpereToWatt;
 import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_SET_POINT_ABILITY;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public final class Profile {
+
+	private static Logger LOG = LoggerFactory.getLogger(Profile.class);
 
 	private Profile() {
 	}
@@ -20,12 +25,14 @@ public final class Profile {
 	 * Declares the Abilities of an {@link EvseElectricVehicle}.
 	 */
 	public static record ElectricVehicleAbilities(//
+			int capacity, //
 			ApplySetPoint.Ability.Watt singlePhaseLimit, //
 			ApplySetPoint.Ability.Watt threePhaseLimit, //
 			boolean canInterrupt) {
 
 		public static final class Builder {
 
+			private int capacity;
 			private ApplySetPoint.Ability.Watt singlePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
 			private ApplySetPoint.Ability.Watt threePhaseLimit = EMPTY_APPLY_SET_POINT_ABILITY;
 
@@ -36,6 +43,28 @@ public final class Profile {
 			private boolean canInterrupt = false;
 
 			/**
+			 * Sets the battery capacity of this EV in [Wh].
+			 * 
+			 * @param capacity the capacity in [Wh]
+			 * @return the {@link Builder}
+			 */
+			public Builder setCapacity(int capacity) {
+				this.capacity = capacity;
+				return this;
+			}
+
+			/**
+			 * Sets the limit for {@link SingleThreePhase#SINGLE_PHASE}.
+			 * 
+			 * @param singlePhaseLimit the {@link ApplySetPoint.Ability.Watt}
+			 * @return the {@link Builder}
+			 */
+			public Builder setSinglePhaseLimit(ApplySetPoint.Ability.Watt singlePhaseLimit) {
+				this.singlePhaseLimit = singlePhaseLimit;
+				return this;
+			}
+
+			/**
 			 * Sets the limit for {@link SingleThreePhase#SINGLE_PHASE}.
 			 * 
 			 * @param min minimum power in [W]
@@ -43,8 +72,10 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setSinglePhaseLimitInWatt(int min, int max) {
-				this.singlePhaseLimit = new ApplySetPoint.Ability.Watt(SINGLE_PHASE, min, max);
-				return this;
+				return this.setSinglePhaseLimit(//
+						assertMinMax("SinglePhaseLimitInWatt", min, max) //
+								? new ApplySetPoint.Ability.Watt(SINGLE_PHASE, min, max) //
+								: EMPTY_APPLY_SET_POINT_ABILITY);
 			}
 
 			/**
@@ -55,9 +86,23 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setSinglePhaseLimitInMilliAmpere(int min, int max) {
-				return this.setSinglePhaseLimitInWatt(//
-						convertMilliAmpereToWatt(SINGLE_PHASE, min), //
-						convertMilliAmpereToWatt(SINGLE_PHASE, max));
+				return this.setSinglePhaseLimit(//
+						assertMinMax("SinglePhaseLimitInMilliAmpere", min, max) //
+								? new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
+										convertMilliAmpereToWatt(SINGLE_PHASE, min), //
+										convertMilliAmpereToWatt(SINGLE_PHASE, max)) //
+								: EMPTY_APPLY_SET_POINT_ABILITY);
+			}
+
+			/**
+			 * Sets the limit for {@link SingleThreePhase#THREE_PHASE}.
+			 * 
+			 * @param threePhaseLimit the {@link ApplySetPoint.Ability.Watt}
+			 * @return the {@link Builder}
+			 */
+			public Builder setThreePhaseLimit(ApplySetPoint.Ability.Watt threePhaseLimit) {
+				this.threePhaseLimit = threePhaseLimit;
+				return this;
 			}
 
 			/**
@@ -68,8 +113,10 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setThreePhaseLimitInWatt(int min, int max) {
-				this.threePhaseLimit = new ApplySetPoint.Ability.Watt(THREE_PHASE, min, max);
-				return this;
+				return this.setThreePhaseLimit(//
+						assertMinMax("ThreePhaseLimitInWatt", min, max) //
+								? new ApplySetPoint.Ability.Watt(THREE_PHASE, min, max) //
+								: EMPTY_APPLY_SET_POINT_ABILITY);
 			}
 
 			/**
@@ -80,9 +127,12 @@ public final class Profile {
 			 * @return the {@link Builder}
 			 */
 			public Builder setThreePhaseLimitInMilliAmpere(int min, int max) {
-				return this.setThreePhaseLimitInWatt(//
-						convertMilliAmpereToWatt(THREE_PHASE, min), //
-						convertMilliAmpereToWatt(THREE_PHASE, max));
+				return this.setThreePhaseLimit(//
+						assertMinMax("ThreePhaseLimitInMilliAmpere", min, max) //
+								? new ApplySetPoint.Ability.Watt(THREE_PHASE, //
+										convertMilliAmpereToWatt(THREE_PHASE, min), //
+										convertMilliAmpereToWatt(THREE_PHASE, max)) //
+								: EMPTY_APPLY_SET_POINT_ABILITY);
 			}
 
 			/**
@@ -96,8 +146,28 @@ public final class Profile {
 				return this;
 			}
 
+			/**
+			 * Asserts that min and max values are valid.
+			 * 
+			 * <p>
+			 * If values are invalid a WARN log is generated.
+			 * 
+			 * @param description a descriptive text in case values are invalid
+			 * @param min         the min value
+			 * @param max         the max value
+			 * @return true if values are valid; false if values are invalid
+			 */
+			private static boolean assertMinMax(String description, int min, int max) {
+				var invalid = min == 0 || max == 0 || min > max;
+				if (invalid) {
+					LOG.warn(description + ": Min/Max values are invalid. Min [" + min + "] Max [" + max + "]");
+				}
+				return !invalid;
+			}
+
 			public ElectricVehicleAbilities build() {
-				return new ElectricVehicleAbilities(this.singlePhaseLimit, this.threePhaseLimit, this.canInterrupt);
+				return new ElectricVehicleAbilities(this.capacity, this.singlePhaseLimit, this.threePhaseLimit,
+						this.canInterrupt);
 			}
 		}
 
@@ -118,11 +188,13 @@ public final class Profile {
 		public static JsonSerializer<ElectricVehicleAbilities> serializer() {
 			return JsonSerializerUtil.jsonObjectSerializer(json -> {
 				return new ElectricVehicleAbilities(//
+						json.getInt("capacity"), //
 						json.getObject("singlePhaseLimit", ApplySetPoint.Ability.Watt.serializer()), //
 						json.getObject("threePhaseLimit", ApplySetPoint.Ability.Watt.serializer()), //
 						json.getBoolean("canInterrupt"));
 			}, obj -> {
 				return buildJsonObject() //
+						.addProperty("capacity", obj.capacity) //
 						.add("singlePhaseLimit", //
 								ApplySetPoint.Ability.Watt.serializer().serialize(obj.singlePhaseLimit)) //
 						.add("threePhaseLimit", //

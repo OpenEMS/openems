@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.ComponentTest;
@@ -208,9 +209,18 @@ public class TimeOfUseTariffSwisspowerImplTest {
 				.activate(MyConfig.create() //
 						.setId(CTRL_ID) //
 						.setAccessToken("foo-bar") //
-						.setMeteringCode("") //
+						.setMeteringCode("test") //
 						.build()) //
 		;
+	}
+
+	@Test
+	public void testUrlEncode() {
+		final var url = UrlBuilder
+				.parse("https://esit.code-fabrik.ch/api/v1/metering_code?start_timestamp=2026-02-19T00:00:00+01:00");
+		assertEquals(
+				"https://esit.code-fabrik.ch/api/v1/metering_code?start_timestamp=2026-02-19T00%3A00%3A00%2B01%3A00",
+				url.toEncodedString());
 	}
 
 	@Test
