@@ -80,7 +80,6 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         SharedModule,
         SohStatusBannerComponent,
         SystemOutageInfoComponent,
-        SystemModule,
         PullToRefreshComponent,
         HelpButtonComponent,
         EvcsClusterApiChartComponent,

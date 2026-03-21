@@ -14,7 +14,6 @@ import { GlobalRouteChangeHandler } from "./shared/service/globalRouteChangeHand
 import { LayoutRefreshService } from "./shared/service/layoutRefreshService";
 import { RouteService } from "./shared/service/route.service";
 import { SystemStateService } from "./shared/service/systemStateService";
-import { UserService } from "./shared/service/user.service";
 import { Service, UserPermission, Websocket } from "./shared/shared";
 import { Language } from "./shared/type/language";
 
