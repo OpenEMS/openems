@@ -5,7 +5,6 @@ import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalJsonArray;
-import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static io.openems.common.utils.JsonUtils.getAsOptionalString;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTermination;
@@ -13,7 +12,6 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -57,23 +55,35 @@ import io.openems.backend.common.alerting.SumStateAlertingSetting;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
+import io.openems.backend.common.mail.MailContext;
+import io.openems.backend.common.mail.Mailer;
+import io.openems.backend.common.mail.SendMailException;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.AppCenterMetadata;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.EdgeHandler;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
+import io.openems.backend.metadata.odoo.odoo.Credentials;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
+import io.openems.backend.metadata.odoo.odoo.HttpBridgeOdooService;
+import io.openems.backend.metadata.odoo.odoo.HttpBridgeOdooServiceDefinition;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
 import io.openems.backend.metadata.odoo.odoo.OdooUserRole;
-import io.openems.backend.metadata.odoo.odoo.OdooUtils.DateTime;
+import io.openems.backend.metadata.odoo.odoo.http.OdooDeviceData;
+import io.openems.backend.metadata.odoo.odoo.http.OdooGetEdgeWithRoleRequest;
+import io.openems.backend.metadata.odoo.odoo.http.OdooGetUserInfoRequest;
 import io.openems.backend.metadata.odoo.postgres.PostgresHandler;
+import io.openems.backend.metrics.prometheus.DebugExecutor;
+import io.openems.backend.metrics.prometheus.httpbridge.HttpBridgePrometheusMetricServiceDefinition;
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.oem.OpenemsBackendOem;
@@ -90,7 +100,8 @@ import io.openems.common.utils.JsonUtils;
 		name = "Metadata.Odoo", //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		service = { AppCenterMetadata.class, AppCenterMetadata.EdgeData.class, AppCenterMetadata.UiData.class,
-				Metadata.class, Mailer.class, EventHandler.class, DebugLoggable.class }, immediate = true //
+				Metadata.class, Mailer.class, EventHandler.class, DebugLoggable.class }, //
+		immediate = true //
 )
 @EventTopics({ //
 		Edge.Events.ALL_EVENTS //
@@ -135,6 +146,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	private ServiceRegistration<AuthUserPasswordAuthenticationService> authServiceRegistration;
 
+	@Reference
+	private BridgeHttpFactory bridgeHttpFactory;
+	private BridgeHttp bridgeHttp;
+	private HttpBridgeOdooService httpBridgeOdooService;
+
 	public MetadataOdoo() {
 		super("Metadata.Odoo");
 
@@ -153,15 +169,31 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.debugMode = config.debugMode();
 		this.authOAuthProviderName = config.authOAuthProviderName();
 
-		this.eventExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(config.eventPoolSize(),
-				new ThreadFactoryBuilder().setNameFormat("Metadata.Odoo.Event-%d").build()));
-		this.requestExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(
-				config.requestPoolSize(), Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
-		this.refreshTokenExecutor = new DebugExecutor((ThreadPoolExecutor) Executors.newFixedThreadPool(1,
-				Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
+		this.bridgeHttp = this.bridgeHttpFactory.get();
+		this.bridgeHttp.setDebugMode(config.debugMode());
+		this.bridgeHttp.setMaximumPoolSize(config.requestPoolSize());
 
-		this.odooHandler = new OdooHandler(this, this.edgeCache, config, this.refreshTokenExecutor,
-				this.requestExecutor);
+		this.bridgeHttp.createService(HttpBridgePrometheusMetricServiceDefinition.byPath(ID));
+		this.httpBridgeOdooService = this.bridgeHttp
+				.createService(new HttpBridgeOdooServiceDefinition(Credentials.fromConfig(config)));
+
+		this.eventExecutor = new DebugExecutor(MetadataOdoo.ID, //
+				(ThreadPoolExecutor) Executors.newFixedThreadPool(//
+						config.eventPoolSize(), //
+						new ThreadFactoryBuilder() //
+								.setNameFormat("Metadata.Odoo.Event-%d")//
+								.build()));
+		this.requestExecutor = new DebugExecutor(MetadataOdoo.ID, //
+				(ThreadPoolExecutor) Executors.newFixedThreadPool(//
+						config.requestPoolSize(), //
+						Thread.ofVirtual().name("Metadata.Odoo.Request-", 0).factory()));
+		this.refreshTokenExecutor = new DebugExecutor(MetadataOdoo.ID, //
+				(ThreadPoolExecutor) Executors.newFixedThreadPool(//
+						1, // Not configurable
+						Thread.ofVirtual().name("Metadata.Odoo.RequestRefresh-", 0).factory()));
+
+		this.odooHandler = new OdooHandler(this, this.edgeCache, config, //
+				this.refreshTokenExecutor, this.requestExecutor);
 		this.postgresHandler = new PostgresHandler(this, this.edgeCache, config, () -> {
 			this.setInitialized();
 		});
@@ -176,6 +208,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Deactivate
 	private void deactivate() {
 		this.logInfo(this.log, "Deactivate");
+		this.bridgeHttpFactory.unget(this.bridgeHttp);
 		shutdownAndAwaitTermination(this.eventExecutor, 5);
 		shutdownAndAwaitTermination(this.requestExecutor, 5);
 		shutdownAndAwaitTermination(this.refreshTokenExecutor, 5);
@@ -285,7 +318,15 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	@Override
 	public CompletableFuture<User> getUserByExternalId(String userId) {
-		return this.authenticate(userId);
+		return this.httpBridgeOdooService.getUserInfo(new OdooGetUserInfoRequest(userId))
+				.thenApply(getUserInfoResponse -> {
+					var user = new MyUser(getUserInfoResponse.odooUserId(), userId, getUserInfoResponse.login(),
+							getUserInfoResponse.name(), "", getUserInfoResponse.language(),
+							getUserInfoResponse.globalRole(), getUserInfoResponse.hasMultipleEdges(),
+							getUserInfoResponse.settings());
+					this.users.put(getUserInfoResponse.login(), user);
+					return user;
+				});
 	}
 
 	@Override
@@ -545,12 +586,33 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	@Override
-	public void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
-		this.odooHandler.sendNotificationMailAsync(sendAt, template, params).whenComplete((result, throwable) -> {
-			if (throwable != null) {
-				this.log.error("sendMail failed: {}", throwable.getMessage(), throwable);
-			}
-		});
+	public CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String template, List<MailContext> context) {
+		final var params = JsonUtils.generateJsonArray(context, MailContext::toJson);
+		return this.odooHandler.sendNotificationMailAsync(sendAt, template, params) //
+				.thenApply(response -> {
+					final var result = response.result;
+					final var status = JsonUtils.getAsStringOrElse(result, "status", "none");
+
+					return switch (status) {
+					case "success" -> {
+						final var sentMails = JsonUtils.getAsOptionalInt(result, "mails_sent").orElse(0);
+						if (sentMails == 0) {
+							this.log.warn("[sendMail] No mails sent for template [{}] and context [{}]", template,
+									context);
+						}
+						yield sentMails;
+					}
+					case "error" -> {
+						final var errorMessage = JsonUtils.getAsStringOrElse(result, "message", "Failed to send mail!");
+						throw new SendMailException("Failed to send mail for template [" + template + "] and context ["
+								+ context + "]: " + errorMessage);
+					}
+					default -> { // backwards compatibility, if no "status" field is provided, we assume success
+						this.log.debug("[sendMail] No status provided for sendMail response. Assuming success.");
+						yield context.size();
+					}
+					};
+				});
 	}
 
 	@Override
@@ -690,37 +752,38 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 			final User user, //
 			final PaginationOptions paginationOptions //
 	) {
-		return this.odooHandler.getEdges(user, paginationOptions).thenApply(result -> {
-			try {
-				var jsonArray = getAsJsonArray(result, "devices");
-				final var resultMetadata = new ArrayList<EdgeMetadata>(jsonArray.size());
-				OpenemsNamedException lastException = null;
-				for (var jElement : jsonArray) {
-					try {
-						final var metadata = this.convertToEdgeMetadata(user, jElement);
-						this.setRole(user, metadata.id(), metadata.role());
-						resultMetadata.add(metadata);
-					} catch (OpenemsNamedException e) {
-						this.logWarn(this.log,
-								"Unable to read EdgeMetadata for [" + jElement.toString() + "]: " + e.getMessage());
-						lastException = e;
-					}
-				}
-				if (resultMetadata.isEmpty() && lastException != null) {
-					throw lastException; // No results -> re-throw Exception
-				}
-				return resultMetadata;
-			} catch (OpenemsNamedException e) {
-				throw new CompletionException(e);
-			}
-		});
+		return this.httpBridgeOdooService.getEdges(user, paginationOptions) //
+				.thenApply(result -> result.devices().stream()
+						.map(deviceData -> this.deviceDataToEdgeMetadata(user, deviceData)) //
+						.toList());
+	}
+
+	private EdgeMetadata deviceDataToEdgeMetadata(User user, OdooDeviceData deviceData) {
+
+		// TODO remove cached edge
+		final var cachedEdge = this.getEdge(deviceData.name()).orElse(null);
+		if (cachedEdge == null) {
+			throw new OpenemsRuntimeException("Unable to find edge with id [" + deviceData.name() + "]");
+		}
+		this.setRole(user, deviceData.name(), deviceData.role());
+
+		return new EdgeMetadata(//
+				deviceData.name(), //
+				deviceData.comment(), //
+				deviceData.producttype(), //
+				cachedEdge.getVersion(), //
+				deviceData.role(), //
+				cachedEdge.isOnline(), //
+				deviceData.lastmessage(), //
+				deviceData.firstSetupProtocol(), //
+				deviceData.sumState(), //
+				deviceData.settings() //
+		);
 	}
 
 	@Override
 	public Role getUserRole(User user, String edgeId) {
-		final var userRoles = this.userRoles.computeIfAbsent(user.getId(), (userId) -> {
-			return new ConcurrentHashMap<String, Role>();
-		});
+		final var userRoles = this.userRoles.computeIfAbsent(user.getId(), (userId) -> new ConcurrentHashMap<>());
 
 		return userRoles.computeIfAbsent(edgeId, t -> {
 			try {
@@ -734,9 +797,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	private void setRole(User user, String edgeId, Role role) {
-		final var userRoles = this.userRoles.computeIfAbsent(user.getId(), (userId) -> {
-			return new ConcurrentHashMap<String, Role>();
-		});
+		final var userRoles = this.userRoles.computeIfAbsent(user.getId(), (userId) -> new ConcurrentHashMap<>());
 
 		userRoles.put(edgeId, role);
 	}
@@ -750,59 +811,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	}
 
 	private CompletableFuture<EdgeMetadata> getEdgeMetadataForUserInternal(User user, String edgeId) {
-		return this.odooHandler.getEdgeWithRole(user, edgeId).thenApply(jsonObject -> {
-			try {
-				return this.convertToEdgeMetadata(user, jsonObject);
-			} catch (OpenemsNamedException e) {
-				throw new CompletionException(e);
-			}
-		});
-	}
-
-	private EdgeMetadata convertToEdgeMetadata(User user, JsonElement jDevice) throws OpenemsNamedException {
-		final var edgeId = getAsString(jDevice, "name");
-
-		// TODO remove cached edge
-		final var cachedEdge = this.getEdge(edgeId).orElse(null);
-		if (cachedEdge == null) {
-			throw new OpenemsException("Unable to find edge with id [" + edgeId + "]");
-		}
-
-		final var role = Role.getRole(getAsString(jDevice, "role"));
-
-		final var sumState = getAsOptionalString(jDevice, "openems_sum_state_level") //
-				.map(String::toUpperCase) //
-				.map(Level::valueOf) //
-				.orElse(Level.OK);
-
-		final var commment = this.oem.anonymizeEdgeComment(user, //
-				getAsOptionalString(jDevice, "comment").orElse(""), //
-				edgeId);
-
-		final var producttype = getAsOptionalString(jDevice, "producttype").orElse("");
-		final var firstSetupProtocol = getAsOptionalString(jDevice, "first_setup_protocol_date")
-				.map(DateTime::stringToDateTime) //
-				.orElse(null);
-		final var lastmessage = getAsOptionalString(jDevice, "lastmessage") //
-				.map(DateTime::stringToDateTime) //
-				.orElse(null);
-
-		final var settings = getAsOptionalJsonObject(jDevice, "settings").orElse(null);
-
-		return new EdgeMetadata(//
-				edgeId, //
-				commment, //
-				producttype, //
-				cachedEdge.getVersion(), //
-				role, //
-				// TODO isOnline should also come from odoo and in the ui there should be a
-				// subscribe to maybe "edgeState" if any of these properties change
-				cachedEdge.isOnline(), //
-				lastmessage, //
-				firstSetupProtocol, //
-				sumState, //
-				settings //
-		);
+		return this.httpBridgeOdooService.getEdgeWithRole(new OdooGetEdgeWithRoleRequest(user.getUserId(), edgeId)) //
+				.thenApply(deviceData -> this.deviceDataToEdgeMetadata(user, deviceData));
 	}
 
 	@Override

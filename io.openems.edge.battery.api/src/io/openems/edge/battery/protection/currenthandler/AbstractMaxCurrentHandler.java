@@ -1,5 +1,7 @@
 package io.openems.edge.battery.protection.currenthandler;
 
+import static io.openems.common.utils.IntUtils.maxInt;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
@@ -258,7 +260,7 @@ public abstract class AbstractMaxCurrentHandler {
 		var bpBms = bpBmsChannel.value().get();
 
 		// Update 'bmsMaxEverAllowedCurrent'
-		this.bmsMaxEverCurrent = TypeUtils.max(this.bmsMaxEverCurrent, bpBms);
+		this.bmsMaxEverCurrent = maxInt(this.bmsMaxEverCurrent, bpBms);
 
 		/*
 		 * Get all limits

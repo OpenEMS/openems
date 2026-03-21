@@ -14,9 +14,9 @@ public interface GoodWeBatteryInverter
 		extends GoodWe, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter, OpenemsComponent, StartStoppable {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.WARNING) //
+		RUN_FAILED(Doc.of(Level.WARNING)//
 				.text("Running the Logic failed")); //
 
 		private final Doc doc;

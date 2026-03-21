@@ -4,6 +4,16 @@ This bundle provides manually configurable time-of-use-tariffs.
 
 Implementations:
 
+== Fixed Grid-Sell
+
+Implementation of a grid-sell tariff with a fixed grid-sell price.
+
+== EEG 2025
+
+Implementation of a grid-sell tariff according to the EEG 2025 policy.
+It uses the ENTSO-E Transparency Platform to retrieve day-ahead electricity prices for European bidding zones.
+While the tariff is generally fixed, if the day-ahead market price is negative for a given period, the grid-sell price for that period is set to 0.
+
 == Octopus Go
 
 Calculates the quarterly prices for the next 36 hours based on the standard and low-price details from the user's contract. 

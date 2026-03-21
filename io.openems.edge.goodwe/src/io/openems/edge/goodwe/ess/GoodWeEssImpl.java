@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.ess;
 
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,10 +30,8 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
-import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
@@ -52,7 +48,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
-		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave, CycleProvider {
+		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
 
@@ -119,11 +115,12 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), this.getWbmsChargeMaxCurrent().get(), this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get());
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), this.getWbmsChargeMaxCurrent().get(),
+				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get());
 
 		// Apply Power Set-Point
-		ApplyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
+		this.applyPowerHandler.apply(activePower, this.config.controlMode(), this.sum.getGridActivePower(),
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled());
 	}
 
 	@Override
@@ -196,10 +193,5 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 				HybridEss.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(GoodWeEss.class, accessMode, 100) //
 						.build());
-	}
-
-	@Override
-	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 }

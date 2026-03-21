@@ -1,6 +1,6 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve.statemachine;
 
-import static io.openems.edge.common.type.TypeUtils.max;
+import static io.openems.common.utils.IntUtils.maxInt;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
@@ -39,7 +39,7 @@ public class ForceChargePvHandler extends StateHandler<State, Context> {
 	 * @return the AC-PV Production, always >= 0
 	 */
 	protected static int getAcPvProduction(Sum sum) {
-		return max(sum.getProductionAcActivePower().get(), 0);
+		return maxInt(0, sum.getProductionAcActivePower().get());
 	}
 
 }

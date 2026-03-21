@@ -6,6 +6,7 @@ import { AppModule } from "src/app/edge/settings/app/app.module";
 import { UpdateAppComponent } from "src/app/edge/settings/app/update.component";
 import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
+import { OneTasksComponent } from "src/app/shared/components/schedule/one-tasks/one-tasks";
 import { ScheduleComponent } from "src/app/shared/components/schedule/schedule.component";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { SharedModule } from "src/app/shared/shared.module";
@@ -38,6 +39,7 @@ import en from "./shared/i18n/en.json";
         UpdateAppComponent,
         ScheduleComponent,
         EvseAddTaskComponent,
+        OneTasksComponent,
     ],
     declarations: [
         FlatComponent,

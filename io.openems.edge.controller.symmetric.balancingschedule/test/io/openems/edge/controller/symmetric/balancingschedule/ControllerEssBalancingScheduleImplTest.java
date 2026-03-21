@@ -4,7 +4,7 @@ import static io.openems.common.utils.JsonUtils.buildJsonArray;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.controller.symmetric.balancingschedule.ControllerEssBalancingSchedule.ChannelId.GRID_ACTIVE_POWER_SET_POINT;
 import static io.openems.edge.controller.symmetric.balancingschedule.ControllerEssBalancingSchedule.ChannelId.NO_ACTIVE_SETPOINT;
-import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID;
+import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.GRID_MODE;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
@@ -63,18 +63,18 @@ public class ControllerEssBalancingScheduleImplTest {
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 1000) //
 						.output(NO_ACTIVE_SETPOINT, false) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS_WITH_PID, 5000)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 5000)) //
 				.next(new TestCase("Balance to -2000 via Channel") //
 						.input(GRID_ACTIVE_POWER_SET_POINT, -2000) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 1000) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS_WITH_PID, 7000)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 7000)) //
 				.next(new TestCase("Balance to 3000") //
 						.timeleap(clock, 800, SECONDS) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, 4000) //
 						.input("ess0", SymmetricEss.ChannelId.ACTIVE_POWER, 1000) //
 						.output(NO_ACTIVE_SETPOINT, false) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS_WITH_PID, 2000)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 2000)) //
 				.deactivate();
 	}
 }

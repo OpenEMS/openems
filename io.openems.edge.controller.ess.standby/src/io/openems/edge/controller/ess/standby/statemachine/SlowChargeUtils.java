@@ -45,6 +45,6 @@ public class SlowChargeUtils {
 		}
 
 		// Apply power constraint
-		context.ess.setActivePowerEqualsWithPid(setPower);
+		context.ess.setActivePowerEqualsWithFilter(setPower);
 	}
 }

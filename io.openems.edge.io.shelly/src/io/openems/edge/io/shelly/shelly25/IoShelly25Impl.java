@@ -3,6 +3,7 @@ package io.openems.edge.io.shelly.shelly25;
 import static io.openems.common.utils.JsonUtils.getAsBoolean;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.io.shelly.common.Utils.generateDebugLog;
 
 import java.util.Objects;
@@ -22,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -156,7 +157,8 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 			}
 		}
 
-		this._setSlaveCommunicationFailed(slaveCommunicationFailed);
+		setValue(this, IoShelly25.ChannelId.SLAVE_COMMUNICATION_FAILED, slaveCommunicationFailed);
+
 		relay1State.applyChannels(this, IoShelly25.ChannelId.RELAY_1, //
 				IoShelly25.ChannelId.RELAY_1_OVERTEMP, IoShelly25.ChannelId.RELAY_1_OVERPOWER);
 		relay2State.applyChannels(this, IoShelly25.ChannelId.RELAY_2, //
@@ -183,7 +185,7 @@ public class IoShelly25Impl extends AbstractOpenemsComponent
 		}
 		final String url = this.baseUrl + "/relay/" + index + "?turn=" + (writeValue.get() ? "on" : "off");
 		this.httpBridge.get(url).whenComplete((t, e) -> {
-			this._setSlaveCommunicationFailed(e != null);
+			setValue(this, IoShelly25.ChannelId.SLAVE_COMMUNICATION_FAILED, e != null);
 			if (e == null) {
 				this.logInfo(this.log, "Executed write successfully for URL: " + url);
 			} else {

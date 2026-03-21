@@ -47,7 +47,7 @@ import { JsCalendar } from "../js-calendar-task";
 export class EditTaskComponent extends JsCalendarEditTaskComponent {
     public payload = model<JsCalendar.OpenEMSPayload<string> | null>(null);
     public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>([]);
-    public recurrenceRuleByDay = model<JsCalendar.UpdateTask["recurrenceRules"][number] | null>(null);
+    public recurrenceRuleByDay = model<JsCalendar.Types.UpdateTask["recurrenceRules"][number] | null>(null);
     public startTime = model<string | null>(null);
     public endTime = model<string | null>(null);
 
@@ -154,7 +154,7 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         }
 
         const recurrenceRuleByDay = this.recurrenceRuleByDay();
-        const task: JsCalendar.UpdateTask = {
+        const task: JsCalendar.Types.UpdateTask = {
             "@type": "Task",
             "uid": this.uid ?? "",
             "start": start,

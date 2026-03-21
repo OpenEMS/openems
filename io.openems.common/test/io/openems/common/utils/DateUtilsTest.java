@@ -2,12 +2,15 @@ package io.openems.common.utils;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -208,6 +211,13 @@ public class DateUtilsTest {
 	}
 
 	@Test
+	public void testMax() {
+		final var now0 = Instant.now(TestUtils.createDummyClock());
+		final var now1 = now0.plus(Duration.ofDays(1));
+		assertEquals(now1, DateUtils.max(null, now1, null, now0));
+	}
+
+	@Test
 	public void testDurationUntilNextQuarter() {
 		// 10:07:30
 		var fixedTime = ZonedDateTime.of(2026, 1, 2, 10, 7, 30, 0, ZoneId.of("UTC"));
@@ -240,5 +250,22 @@ public class DateUtilsTest {
 		now = now.plusWeeks(1);
 		assertEquals("2020-02-05T00:00Z", now.toString());
 		assertEquals(1, DateUtils.nthWeekdayOfMonth(now));
+	}
+
+	@Test
+	public void testTime() {
+		assertTrue(DateUtils.isAfterOrEquals(Instant.parse("2025-02-03T02:00:00Z"),
+				Instant.parse("2025-02-03T01:00:00Z")));
+		assertTrue(DateUtils.isAfterOrEquals(Instant.parse("2025-02-03T02:00:00Z"),
+				Instant.parse("2025-02-03T02:00:00Z")));
+		assertFalse(DateUtils.isAfterOrEquals(Instant.parse("2025-02-03T00:00:00Z"),
+				Instant.parse("2025-02-03T02:00:00Z")));
+
+		assertTrue(DateUtils.isBeforeOrEquals(Instant.parse("2025-02-03T00:00:00Z"),
+				Instant.parse("2025-02-03T01:00:00Z")));
+		assertTrue(DateUtils.isBeforeOrEquals(Instant.parse("2025-02-03T02:00:00Z"),
+				Instant.parse("2025-02-03T02:00:00Z")));
+		assertFalse(DateUtils.isBeforeOrEquals(Instant.parse("2025-02-03T03:00:00Z"),
+				Instant.parse("2025-02-03T02:00:00Z")));
 	}
 }

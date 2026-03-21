@@ -102,6 +102,13 @@ export class ChartComponent extends AbstractHistoryChart {
                     order: 2,
                 },
                 {
+                    name: this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING"),
+                    converter: () => this.getDataset(data, TimeOfUseTariffUtils.State.PeakShaving),
+                    color: "rgb(218, 120, 8)",
+                    stack: 1,
+                    order: 2,
+                },
+                {
                     name: this.translate.instant("GENERAL.SOC"),
                     converter: () => data["Soc"]?.map(value => Utils.multiplySafely(value, 1000)),
                     color: "rgb(189, 195, 199)",
@@ -168,6 +175,16 @@ export class ChartComponent extends AbstractHistoryChart {
                 this.chartObject = this.getChartData();
 
                 const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse);
+
+                // Hide certain datasets if they contain no data
+                [this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING")].forEach(label => {
+                    const dataset = displayValues.datasets.find(ds => ds.label === label);
+                    if (dataset && dataset.data.every((value: any) => value === null)) {
+                        displayValues.datasets = displayValues.datasets.filter(ds => ds.label !== label);
+                        displayValues.labels = displayValues.labels.filter(l => l !== label);
+                    }
+                });
+
                 this.datasets = displayValues.datasets;
                 this.legendOptions = displayValues.legendOptions;
                 this.labels = displayValues.labels;
@@ -230,6 +247,8 @@ export class ChartComponent extends AbstractHistoryChart {
                     return null;
                 } else if (val < 0.5) {
                     return 0; // DelayDischarge
+                } else if (val > 4.5) {
+                    return 5; // PeakShaving
                 } else if (val > 2.5) {
                     return 3; // ChargeGrid
                 } else {
@@ -263,6 +282,7 @@ export class ChartComponent extends AbstractHistoryChart {
             this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING"),
             this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID"),
             this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
+            this.translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING"),
         ];
 
         const finalArray: number[] = labels

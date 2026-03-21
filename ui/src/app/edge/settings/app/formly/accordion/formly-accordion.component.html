@@ -1,0 +1,13 @@
+<ion-accordion>
+  <ion-item slot="header">
+    <ion-label>
+      {{ to.label || field.key }}
+    </ion-label>
+  </ion-item>
+
+  <div class="ion-padding" slot="content">
+    @for (childField of accordionFields; track childField) {
+      <formly-field default-value="childField.default-value" [field]="childField"></formly-field>
+    }
+  </div>
+</ion-accordion>

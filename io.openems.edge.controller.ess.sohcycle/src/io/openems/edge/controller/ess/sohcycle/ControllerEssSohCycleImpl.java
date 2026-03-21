@@ -29,13 +29,14 @@ import io.openems.edge.controller.ess.sohcycle.statemachine.Context;
 import io.openems.edge.controller.ess.sohcycle.statemachine.StateMachine;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
-@Designate(ocd = Config.class)
+@Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.SoH.Cycle", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implements ControllerEssSohCycle, Controller, OpenemsComponent {
+public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent
+		implements ControllerEssSohCycle, Controller, OpenemsComponent {
 
 	private static final Logger log = LoggerFactory.getLogger(ControllerEssSohCycleImpl.class);
 	protected static final int ZERO_WATT_POWER = 0; // [0 W]
@@ -69,9 +70,9 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	private Integer measurementChargingMaxVoltage;
 
 	/**
-	 * Measurement baseline energy in Wh captured at the beginning of the measurement
-	 * cycle. This is internal controller state and is intentionally not exposed via
-	 * channels to keep handlers stateless and thread-safe.
+	 * Measurement baseline energy in Wh captured at the beginning of the
+	 * measurement cycle. This is internal controller state and is intentionally not
+	 * exposed via channels to keep handlers stateless and thread-safe.
 	 */
 	private Long measurementStartEnergyWh;
 
@@ -131,7 +132,6 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 				this.ess));
 	}
 
-
 	private void runSohMeasurement() throws OpenemsNamedException {
 		var context = new Context(this, //
 				this.config, //
@@ -151,7 +151,7 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 			activePower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
 		}
 		var limitedActivePower = this.calculateAcLimit(activePower == null ? ZERO_WATT_POWER : activePower);
-		this.ess.setActivePowerEquals(limitedActivePower);
+		this.ess.setActivePowerEqualsWithoutFilter(limitedActivePower);
 	}
 
 	private void applyConfig(Config config) {
@@ -211,8 +211,9 @@ public class ControllerEssSohCycleImpl extends AbstractOpenemsComponent implemen
 	}
 
 	/**
-	 * Prevents next the SoH cycle by changing the "isRunning" configuration to false.
-	 * This is used to stop the cycle in case of errors or when the cycle is completed.
+	 * Prevents next the SoH cycle by changing the "isRunning" configuration to
+	 * false. This is used to stop the cycle in case of errors or when the cycle is
+	 * completed.
 	 */
 	public void updateConfigToNotRunning() {
 		try {

@@ -108,6 +108,8 @@ public final class AppUtils {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
 			final var grid = json.getObject("grid", Grid.serializer());
 			final var meta = new DummyMeta() //
+					.withGridBuyHardLimit(grid.maxBuyPower()) //
+					.withGridSellHardLimit(grid.maxSellPower()) //
 					.withGridBuySoftLimit(grid.gridBuySoftLimit());
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //

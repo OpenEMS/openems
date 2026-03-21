@@ -26,7 +26,7 @@ export class LiveDataService extends DataService implements OnDestroy {
         });
     }
 
-    public getValues(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
+    public subscribeChannels(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
 
         AssertionUtils.assertIsDefined(edge);
 
@@ -85,7 +85,7 @@ export class LiveDataService extends DataService implements OnDestroy {
      * @returns the currentData for thes channelAddresses
      */
     public async subscribeAndGetFirstValidValueForChannels(channelAddresses: ChannelAddress[], componentId: string): Promise<CurrentData> {
-        this.getValues(channelAddresses, this.edge, componentId);
+        this.subscribeChannels(channelAddresses, this.edge, componentId);
         return new Promise<any>((res) => {
             this.subscription = effect(() => {
                 const currentValue = this.currentValue();

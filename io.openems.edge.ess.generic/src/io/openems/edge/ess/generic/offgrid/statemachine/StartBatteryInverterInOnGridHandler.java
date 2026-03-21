@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.offgrid.statemachine;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import java.time.Duration;
 import java.time.Instant;
 
@@ -7,6 +9,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.batteryinverter.api.OffGridBatteryInverter.TargetGridMode;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
@@ -47,7 +50,7 @@ public class StartBatteryInverterInOnGridHandler extends StateHandler<OffGridSta
 			// Trying to start Battery
 			inverter.setTargetGridMode(TargetGridMode.GO_ON_GRID);
 			inverter.start();
-			ess._setGridMode(GridMode.ON_GRID);
+			setValue(ess, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 
 			this.lastAttempt = Instant.now();
 			this.attemptCounter++;
