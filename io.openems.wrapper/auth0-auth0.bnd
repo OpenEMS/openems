@@ -1,17 +1,19 @@
 Bundle-Name: auth0 auth0
-Bundle-Description: 
-Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
+Bundle-Description: Java client library for the Auth0 platform 
+Bundle-DocURL: https://github.com/auth0/auth0-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 3.0.0
+Bundle-Version: 3.3.0
 
 Include-Resource: \
-	@auth0-3.0.0.jar,\
+	@auth0-3.3.0.jar,\
 
 Export-Package: \
 	com.auth0.client,\
 	com.auth0.client.auth,\
 	com.auth0.client.mgmt,\
 	com.auth0.client.mgmt.actions,\
+	com.auth0.client.mgmt.actions.modules,\
+	com.auth0.client.mgmt.actions.modules.types,\
 	com.auth0.client.mgmt.actions.triggers,\
 	com.auth0.client.mgmt.actions.triggers.types,\
 	com.auth0.client.mgmt.actions.types,\
@@ -41,6 +43,8 @@ Export-Package: \
 	com.auth0.client.mgmt.flows.types,\
 	com.auth0.client.mgmt.flows.vault,\
 	com.auth0.client.mgmt.flows.vault.types,\
+	com.auth0.client.mgmt.groups,\
+	com.auth0.client.mgmt.groups.types,\
 	com.auth0.client.mgmt.guardian,\
 	com.auth0.client.mgmt.guardian.factors,\
 	com.auth0.client.mgmt.guardian.factors.duo,\

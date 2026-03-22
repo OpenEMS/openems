@@ -4,7 +4,9 @@ import static io.jenetics.util.ISeq.toISeq;
 import static java.lang.Math.min;
 import static java.util.stream.IntStream.range;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import io.jenetics.Genotype;
@@ -35,8 +37,8 @@ import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 
 	public final GlobalOptimizationContext goc;
-	public final SimulationResult previousResult;
-	public final boolean isFirstPeriodFixed;
+	public final Supplier<SimulationResult> previousResultSupplier;
+	public final BooleanSupplier isFirstPeriodFixedSupplier;
 	public final ModeCombinations modeCombinations;
 
 	private final Genotype<IntegerGene> gtf;
@@ -45,16 +47,20 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 
 	/**
 	 * Creates an {@link EshCodec}.
-	 * 
-	 * @param goc                the {@link GlobalOptimizationContext}
-	 * @param modeCombinations   the possible {@link ModeCombinations}
-	 * @param previousResult     the previous {@link SimulationResult}
-	 * @param isFirstPeriodFixed is the first period fixed to the value of the
-	 *                           previous result?
-	 * @return new {@link EshCodec} or null
+	 *
+	 * @param goc                        the {@link GlobalOptimizationContext}
+	 * @param modeCombinations           the possible {@link ModeCombinations}
+	 * @param previousResultSupplier     supplies the previous
+	 *                                   {@link SimulationResult}
+	 * @param isFirstPeriodFixedSupplier supplies whether the first period is fixed
+	 *                                   to the value of the previous result
+	 * @return a new {@link EshCodec} or {@code null}
 	 */
-	public static EshCodec of(GlobalOptimizationContext goc, ModeCombinations modeCombinations,
-			SimulationResult previousResult, boolean isFirstPeriodFixed) {
+	public static EshCodec of(//
+			GlobalOptimizationContext goc, //
+			ModeCombinations modeCombinations, //
+			Supplier<SimulationResult> previousResultSupplier, //
+			BooleanSupplier isFirstPeriodFixedSupplier) {
 		final var numberOfModeCombinations = modeCombinations.size();
 		final var numberOfPeriods = goc.periods().size();
 		final var genotype = Genotype.of(//
@@ -73,8 +79,9 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 				gt -> {
 					return IntStream.range(0, numberOfPeriods) //
 							.map(periodIndex -> {
-								if (isFirstPeriodFixed && periodIndex == 0) {
+								if (isFirstPeriodFixedSupplier.getAsBoolean() && periodIndex == 0) {
 									// Find ModeCombination that matches with previous result
+									var previousResult = previousResultSupplier.get();
 									var time = goc.periods().get(periodIndex).time();
 									var period = previousResult.periods().get(time);
 									if (period != null) {
@@ -109,7 +116,7 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 													0, numberOfModeCombinations)) //
 											.collect(toISeq())));
 				}, //
-				goc, previousResult, isFirstPeriodFixed);
+				goc, previousResultSupplier, isFirstPeriodFixedSupplier);
 	}
 
 	private EshCodec(//
@@ -118,15 +125,15 @@ public class EshCodec implements InvertibleCodec<int[], IntegerGene> {
 			Function<Genotype<IntegerGene>, int[]> decoder, //
 			Function<int[], Genotype<IntegerGene>> encoder, //
 			GlobalOptimizationContext goc, //
-			SimulationResult previousResult, //
-			boolean isFirstPeriodFixed) {
+			Supplier<SimulationResult> previousResultSupplier, //
+			BooleanSupplier isFirstPeriodFixedSupplier) {
 		this.gtf = gtf;
 		this.modeCombinations = modeCombinations;
 		this.decoder = decoder;
 		this.encoder = encoder;
 		this.goc = goc;
-		this.previousResult = previousResult;
-		this.isFirstPeriodFixed = isFirstPeriodFixed;
+		this.previousResultSupplier = previousResultSupplier;
+		this.isFirstPeriodFixedSupplier = isFirstPeriodFixedSupplier;
 	}
 
 	@Override

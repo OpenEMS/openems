@@ -143,6 +143,7 @@ public class TestUtils {
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
 				.setIsReadyForCharging(true);
 		private final ElectricVehicleAbilities.Builder electricVehicleAbilities = ElectricVehicleAbilities.create() //
+				.setCapacity(64000) //
 				.setSinglePhaseLimitInMilliAmpere(6000, 32000) //
 				.setThreePhaseLimitInMilliAmpere(6000, 16000); //
 
@@ -150,7 +151,7 @@ public class TestUtils {
 		private Mode mode = Mode.ZERO;
 		private Integer activePower = null;
 		private int sessionEnergy = 0;
-		private int sessionEnergyLimit = 0;
+		private Integer sessionEnergyLimit = null;
 		private History history = new History();
 		private PhaseSwitching phaseSwitching = PhaseSwitching.DISABLE;
 		private Consumer<CombinedAbilities.Builder> combinedAbilitiesCallback;
@@ -176,7 +177,7 @@ public class TestUtils {
 			return this;
 		}
 
-		public CtrlBuilder setSessionEnergyLimit(int sessionEnergyLimit) {
+		public CtrlBuilder setSessionEnergyLimit(Integer sessionEnergyLimit) {
 			this.sessionEnergyLimit = sessionEnergyLimit;
 			return this;
 		}

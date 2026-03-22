@@ -1,0 +1,39 @@
+// Dev container for OpenEMS — Java 21 (Gradle/OSGi) + Node.js 22 (Angular UI)
+{
+	"name": "OpenEMS",
+	"build": {
+		"context": ".",
+		"dockerfile": "Dockerfile"
+	},
+	"forwardPorts": [4200, 8080, 8079, 8081, 8082, 8084, 8085],
+	"portsAttributes": {
+		"4200": {
+			"label": "OpenEMS UI",
+			"onAutoForward": "openBrowserOnce"
+		},
+		"8080": {
+			"label": "Edge - Felix Web Console",
+			"onAutoForward": "ignore"
+		},
+		"8079": {
+			"label": "Backend - Felix Web Console",
+			"onAutoForward": "ignore"
+		},
+		"8081": {
+			"label": "Backend - Edge Websocket",
+			"onAutoForward": "ignore"
+		},
+		"8082": {
+			"label": "Backend - UI Websocket",
+			"onAutoForward": "ignore"
+		},
+		"8084": {
+			"label": "Edge - JSON/REST API",
+			"onAutoForward": "ignore"
+		},
+		"8085": {
+			"label": "Edge - JSON/Websocket API",
+			"onAutoForward": "ignore"
+		}
+	}
+}

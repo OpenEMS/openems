@@ -115,9 +115,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	 * @throws OpenemsNamedException on error
 	 */
 	private void applyPower(ManagedSymmetricEss ess, Integer activePower) throws OpenemsNamedException {
-		if (activePower != null) {
-			ess.setActivePowerEqualsWithPid(activePower);
-		}
+		ess.setActivePowerEqualsWithFilter(activePower);
 		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.CALCULATED_POWER).setNextValue(activePower);
 	}
 
@@ -172,7 +170,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 				this.chargeState = NORMAL;
 			}
 		}
-		};
+		}
 
 		// store current state in StateMachine channel
 		this.channel(ControllerEssTimeslotPeakshaving.ChannelId.STATE_MACHINE).setNextValue(this.chargeState);
@@ -196,17 +194,8 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	 * @throws InvalidValueException on error
 	 */
 	private int calculatePeakShavePower(ManagedSymmetricEss ess, ElectricityMeter meter) throws InvalidValueException {
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = ess.getGridMode();
-		switch (gridMode) {
-		case UNDEFINED:
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-			break;
-		case ON_GRID:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return 0;
 		}
 

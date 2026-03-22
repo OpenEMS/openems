@@ -79,6 +79,7 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelCount;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
 import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
 import io.openems.edge.io.api.DigitalInput;
@@ -453,6 +454,16 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 							.toList()));
 
 			return new GetDigitalInputChannelsOfComponents.Response(result);
+		});
+
+		builder.handleRequest(new GetChannelCount(), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			final var numberOfChannels = this.getAllComponents().stream() //
+					.mapToLong(t -> t.channels().size()) //
+					.sum();
+
+			return new GetChannelCount.Response(numberOfChannels);
 		});
 
 		builder.handleRequest(new GetAllComponentFactories(), endpoint -> {

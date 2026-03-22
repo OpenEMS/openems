@@ -42,6 +42,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         const barChargeGrid = Array(size).fill(null);
         const barBalancing = Array(size).fill(null);
         const barDelayDischarge = Array(size).fill(null);
+        const barPeakShaving = Array(size).fill(null);
 
         for (let index = 0; index < size; index++) {
             const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
@@ -58,6 +59,9 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                         break;
                     case TimeOfUseTariffUtils.State.ChargeGrid:
                         barChargeGrid[index] = quarterlyPrice;
+                        break;
+                    case TimeOfUseTariffUtils.State.PeakShaving:
+                        barPeakShaving[index] = quarterlyPrice;
                         break;
                 }
             }
@@ -93,7 +97,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             });
         }
 
-        // Set dataset for buy from grid
+        // Set dataset for DelayDischarge.
         datasets.push({
             type: "bar",
             label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE"),
@@ -106,6 +110,22 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             backgroundColor: "rgba(0,0,0,0.8)",
             borderColor: "rgba(0,0,0,0.9)",
         });
+
+        // Set dataset for PeakShaving (if any)
+        if (barPeakShaving.some(v => v !== null)) {
+            datasets.push({
+                type: "bar",
+                label: translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING"),
+                data: barPeakShaving,
+                hidden: false,
+                order: 1,
+            });
+            colors.push({
+                // Black
+                backgroundColor: "rgb(218, 120, 8)",
+                borderColor: "rgb(218, 120, 8)",
+            });
+        }
 
         // State of charge data
         datasets.push({

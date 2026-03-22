@@ -6,16 +6,19 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.DynamicDocText;
+import io.openems.edge.common.channel.DynamicStateChannelDoc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
+import io.openems.edge.common.channel.dynamicdoctext.ParameterProvider;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.goodwe.charger.GoodWeCharger;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
 import io.openems.edge.goodwe.common.enums.ArcSelfCheckStatus;
@@ -70,7 +73,7 @@ public interface GoodWe extends OpenemsComponent {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		AC_OUTPUT_TYPE(Doc.of(OutputTypeAC.values())), //
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		EMS_CHECK_INVERTER_OPERATION_STATUS(Doc.of(EmsCheck.values())), //
 		DSP_FM_VERSION_MASTER(Doc.of(OpenemsType.INTEGER)), //
@@ -82,27 +85,22 @@ public interface GoodWe extends OpenemsComponent {
 		DSP_DCDC_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_MPPT_BETA_VERSION(Doc.of(OpenemsType.INTEGER)), //
 		DSP_STS_FM_VERSION(Doc.of(OpenemsType.INTEGER)), //
-		STS_VERSION(Doc.of(OpenemsType.INTEGER).onChannelChange(AbstractGoodWe::updateStsBoxEnabled)), //
-		STS_SUB_VERSION(Doc.of(OpenemsType.INTEGER).onChannelChange(AbstractGoodWe::updateStsBoxEnabled)), //
-		STS_BOX_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH)), //
 
 		// Running Data
-		V_PV3(Doc.of(OpenemsType.INTEGER) //
+		V_PV3(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		I_PV3(Doc.of(OpenemsType.INTEGER) //
+		I_PV3(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		P_PV3(Doc.of(OpenemsType.LONG) //
+		P_PV3(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.WATT)), //
-		V_PV4(Doc.of(OpenemsType.INTEGER) //
+		V_PV4(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		I_PV4(Doc.of(OpenemsType.INTEGER) //
+		I_PV4(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		P_PV4(Doc.of(OpenemsType.LONG) //
+		P_PV4(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.WATT)), //
 		PV_MODE(Doc.of(PvMode.values())), //
-		TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER) //
+		TOTAL_INV_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 
 		/*
@@ -111,127 +109,127 @@ public interface GoodWe extends OpenemsComponent {
 		 *
 		 * MPPT1
 		 */
-		MPPT1_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT1_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT1_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV1_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV1_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV1_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV2_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV2_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV2_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV2_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 		/*
 		 * MPPT2
 		 */
-		MPPT2_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT2_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT2_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV3_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV3_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV3_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV4_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV4_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV4_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV4_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 		/*
 		 * MPPT3
 		 */
-		MPPT3_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT3_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT3_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV5_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV5_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV5_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV6_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV6_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV6_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV6_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/*
 		 * MPPT4
 		 */
-		MPPT4_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT4_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT4_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT4_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV7_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV7_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV7_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV7_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV8_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV8_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV8_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV8_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/*
 		 * MPPT5
 		 */
-		MPPT5_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT5_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT5_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT5_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV9_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV9_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV9_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV9_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV10_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV10_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV10_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV10_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/*
 		 * MPPT6
 		 */
-		MPPT6_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT6_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT6_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT6_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV11_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV11_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV11_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV11_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV12_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV12_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV12_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV12_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/*
 		 * MPPT7
 		 */
-		MPPT7_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT7_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT7_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT7_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV13_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV13_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV13_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV13_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV14_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV14_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV14_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV14_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/*
 		 * MPPT8
 		 */
-		MPPT8_P(Doc.of(OpenemsType.INTEGER) //
+		MPPT8_P(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
-		MPPT8_I(Doc.of(OpenemsType.INTEGER) //
+		MPPT8_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV15_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV15_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV15_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV15_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
-		TWO_S_PV16_V(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV16_V(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		TWO_S_PV16_I(Doc.of(OpenemsType.INTEGER) //
+		TWO_S_PV16_I(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIAMPERE)), //
 
 		/**
@@ -241,11 +239,11 @@ public interface GoodWe extends OpenemsComponent {
 		 * (If meter connection ok, it is meter power.If meter connection fail, it is
 		 * inverter on-grid port power)
 		 */
-		AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		AC_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		AC_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		AC_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+		AC_APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
 
 		/**
@@ -254,332 +252,335 @@ public interface GoodWe extends OpenemsComponent {
 		LOAD_MODE_R(Doc.of(LoadMode.values())), //
 		LOAD_MODE_S(Doc.of(LoadMode.values())), //
 		LOAD_MODE_T(Doc.of(LoadMode.values())), //
-		P_LOAD_R(Doc.of(OpenemsType.INTEGER) //
+		P_LOAD_R(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		P_LOAD_S(Doc.of(OpenemsType.INTEGER) //
+		P_LOAD_S(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		P_LOAD_T(Doc.of(OpenemsType.INTEGER) //
+		P_LOAD_T(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		TOTAL_BACK_UP_LOAD_POWER(Doc.of(OpenemsType.INTEGER) //
+		TOTAL_BACK_UP_LOAD_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		TOTAL_LOAD_POWER(Doc.of(OpenemsType.INTEGER) //
+		TOTAL_LOAD_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		UPS_LOAD_PERCENT(Doc.of(OpenemsType.INTEGER) //
+		UPS_LOAD_PERCENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)), //
-		AIR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		AIR_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
-		MODULE_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		MODULE_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
-		RADIATOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		RADIATOR_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
 		FUNCTION_BIT_VALUE(Doc.of(OpenemsType.INTEGER)), //
-		BUS_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		BUS_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		NBUS_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		NBUS_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		V_BATTERY1(Doc.of(OpenemsType.INTEGER) //
+		V_BATTERY1(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		I_BATTERY1(Doc.of(OpenemsType.INTEGER) //
+		I_BATTERY1(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		P_BATTERY1(Doc.of(OpenemsType.INTEGER) //
+		P_BATTERY1(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 		GOODWE_TYPE(Doc.of(GoodWeType.values())), //
 		BATTERY_MODE(Doc.of(BatteryMode.values())), //
-		SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), // .
+		SAFETY_COUNTRY(Doc.of(SafetyCountry.values())), //
 		WORK_MODE(Doc.of(WorkMode.values())), //
 		OPERATION_MODE(Doc.of(OperationMode.values())), //
 
-		PV_E_TOTAL(Doc.of(OpenemsType.INTEGER) //
+		PV_E_TOTAL(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		PV_E_DAY(Doc.of(OpenemsType.INTEGER) //
+		PV_E_DAY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		H_TOTAL(Doc.of(OpenemsType.INTEGER) //
+		H_TOTAL(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.HOUR)), //
-		E_DAY_SELL(Doc.of(OpenemsType.INTEGER) //
+		E_DAY_SELL(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_BUY(Doc.of(OpenemsType.INTEGER) //
+		E_TOTAL_BUY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_DAY_BUY(Doc.of(OpenemsType.INTEGER) //
+		E_DAY_BUY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_LOAD(Doc.of(OpenemsType.INTEGER) //
+		E_TOTAL_LOAD(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_LOAD_DAY(Doc.of(OpenemsType.INTEGER) //
+		E_LOAD_DAY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_BATTERY_CHARGE(Doc.of(OpenemsType.INTEGER) //
+		E_BATTERY_CHARGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_CHARGE_DAY(Doc.of(OpenemsType.INTEGER) //
+		E_CHARGE_DAY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_BATTERY_DISCHARGE(Doc.of(OpenemsType.INTEGER) //
+		E_BATTERY_DISCHARGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_DISCHARGE_DAY(Doc.of(OpenemsType.INTEGER) //
+		E_DISCHARGE_DAY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
 
 		// Setting/Controlling Data Registers 45222-45242
-		PV_E_TOTAL_2(Doc.of(OpenemsType.INTEGER) //
+		PV_E_TOTAL_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		PV_E_DAY_2(Doc.of(OpenemsType.INTEGER) //
+		PV_E_DAY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		H_TOTAL_2(Doc.of(OpenemsType.INTEGER) //
+		H_TOTAL_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.HOUR)), //
-		E_DAY_SELL_2(Doc.of(OpenemsType.INTEGER) //
+		E_DAY_SELL_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_BUY_2(Doc.of(OpenemsType.INTEGER) //
+		E_TOTAL_BUY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_DAY_BUY_2(Doc.of(OpenemsType.INTEGER) //
+		E_DAY_BUY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_LOAD_2(Doc.of(OpenemsType.INTEGER) //
+		E_TOTAL_LOAD_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_LOAD_DAY_2(Doc.of(OpenemsType.INTEGER) //
+		E_LOAD_DAY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_BATTERY_CHARGE_2(Doc.of(OpenemsType.INTEGER) //
+		E_BATTERY_CHARGE_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_CHARGE_DAY_2(Doc.of(OpenemsType.INTEGER) //
+		E_CHARGE_DAY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_BATTERY_DISCHARGE_2(Doc.of(OpenemsType.INTEGER) //
+		E_BATTERY_DISCHARGE_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_DISCHARGE_DAY_2(Doc.of(OpenemsType.INTEGER) //
+		E_DISCHARGE_DAY_2(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
 
 		// Error Message 35189
-		STATE_0(Doc.of(Level.WARNING) //
-				.text("The Ground Fault Circuit Interrupter (GFCI) detecting circuit is abnormal " //
-						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) wurde ausgelöst " //
+		STATE_0(Doc.of(Level.WARNING)//
+				.text("The Ground Fault Circuit Interrupter (GFCI) detecting circuit is abnormal "//
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) wurde ausgelöst "//
 						+ "| Bitte überprüfen Sie den Netzanschluss sowie ggf. Backup-Lasten")), //
 
-		STATE_1(Doc.of(Level.WARNING) //
-				.text("The output current sensor is abnormal " //
-						+ "| Der Ausgangs-Stromsensor liefert unplausible Werte " //
+		STATE_1(Doc.of(Level.WARNING)//
+				.text("The output current sensor is abnormal "//
+						+ "| Der Ausgangs-Stromsensor liefert unplausible Werte "//
 						+ "| Bitte überprüfen Sie die Installation")), //
 
 		// Bit 2 - TBD (Currently reserved) - warning should not appear unless there is
 		// a new description of GoodWe
-		STATE_2(Doc.of(Level.WARNING) //
+		STATE_2(Doc.of(Level.WARNING)//
 				.text("Warning Code 1")), //
 
-		STATE_3(Doc.of(Level.WARNING) //
-				.text("DCI Consistency Failure " //
-						+ "| Werte der Impedanzmessung (DCI Einheit) sind widersprüchlich/unplausibel " //
+		STATE_3(Doc.of(Level.WARNING)//
+				.text("DCI Consistency Failure "//
+						+ "| Werte der Impedanzmessung (DCI Einheit) sind widersprüchlich/unplausibel "//
 						+ "| Bitte überprüfen Sie den Netzanschluss")), //
 
-		STATE_4(Doc.of(Level.WARNING) //
-				.text("Ground Fault Circuit Interrupter (GFCI) Consistency Failure " //
-						+ "| Werte der internen Fehlerstrom-Schutzeinrichtung (RCD) sind widersprüchlich/unplausibel " //
+		STATE_4(Doc.of(Level.WARNING)//
+				.text("Ground Fault Circuit Interrupter (GFCI) Consistency Failure "//
+						+ "| Werte der internen Fehlerstrom-Schutzeinrichtung (RCD) sind widersprüchlich/unplausibel "//
 						+ "| Bitte überprüfen Sie den Netzanschluss")), //
 
 		// Bit 5 - TBD (Currently reserved) - warning should not appear unless there is
 		// a new description of GoodWe
-		STATE_5(Doc.of(Level.WARNING) //
+		STATE_5(Doc.of(Level.WARNING)//
 				.text("Warning Code 2")), //
 
-		STATE_6(Doc.of(Level.WARNING) //
-				.text("Ground Fault Circuit Interrupter (GFCI) Device Failure " //
-						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) befindet sich im Fehlerzustand " //
+		STATE_6(Doc.of(Level.WARNING)//
+				.text("Ground Fault Circuit Interrupter (GFCI) Device Failure "//
+						+ "| Interne Fehlerstrom-Schutzeinrichtung (RCD Einheit) befindet sich im Fehlerzustand "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_7(Doc.of(Level.WARNING) //
-				.text("Relay Device Failure " //
-						+ "| Interne Relais befinden sich im Fehlerzustand " //
+		STATE_7(Doc.of(Level.WARNING)//
+				.text("Relay Device Failure "//
+						+ "| Interne Relais befinden sich im Fehlerzustand "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_8(Doc.of(Level.WARNING) //
-				.text("AC HCT Failure " //
-						+ "| Die HCT Einheit befindet sich im Fehlerzustand " //
+		STATE_8(Doc.of(Level.WARNING)//
+				.text("AC HCT Failure "//
+						+ "| Die HCT Einheit befindet sich im Fehlerzustand "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_9(Doc.of(Level.WARNING) //
-				.text("Utility Loss " //
-						+ "| Netzausfall wurde erkannt " //
+		STATE_9(Doc.of(Level.WARNING)//
+				.text("Utility Loss "//
+						+ "| Netzausfall wurde erkannt "//
 						+ "| Bitte überprüfen Sie ob das Kommunikationsmodul richtig gesteckt ist")), //
 
 		// TODO: Use new-lines or html-lists when the UI and edge log are able to handle
 		// them
-		STATE_10(Doc.of(Level.WARNING) //
-				.text("Ground I Failure " //
-						+ "| Erdungsfehler " //
-						+ "| Ggf. N und PE Leiter sind nicht richtig mit dem Netzanschluss des Wechselrichters verbunden. " //
-						+ "Ggf. zu hoher Ableitstrom der PV-Module zur Erde (z.B. bei hoher Luftfeuchtigkeit). " //
-						+ "Ggf. Netzerdungsverlust bzw. Wechselrichter kann keine Verbindung zu einem geerdeten Potential feststellen. " //
+		STATE_10(Doc.of(Level.WARNING)//
+				.text("Ground I Failure "//
+						+ "| Erdungsfehler "//
+						+ "| Ggf. N und PE Leiter sind nicht richtig mit dem Netzanschluss des Wechselrichters verbunden. "//
+						+ "Ggf. zu hoher Ableitstrom der PV-Module zur Erde (z.B. bei hoher Luftfeuchtigkeit). "//
+						+ "Ggf. Netzerdungsverlust bzw. Wechselrichter kann keine Verbindung zu einem geerdeten Potential feststellen. "//
 						+ "Installation (Netz und PV) überprüfen")), //
 
-		STATE_11(Doc.of(Level.WARNING) //
-				.text("DC Bus High " //
-						+ "| Interne Betriebsspannung hoch " //
-						+ "| Ggf. übersteigt die Leerlauf- oder Betriebsspannung der PV-Module den für diesen Wechselrichter zulässigen Bereich. " //
+		STATE_11(Doc.of(Level.WARNING)//
+				.text("DC Bus High "//
+						+ "| Interne Betriebsspannung hoch "//
+						+ "| Ggf. übersteigt die Leerlauf- oder Betriebsspannung der PV-Module den für diesen Wechselrichter zulässigen Bereich. "//
 						+ "Ggf. liegt ein PV-Kriechstrom zur Erde an")), //
 
-		STATE_12(Doc.of(Level.WARNING) //
-				.text("Internal Fan Failure " //
+		STATE_12(Doc.of(Level.WARNING)//
+				.text("Internal Fan Failure "//
 						+ "| Der interne Lüfter meldet einen Defekt")), //
 
-		STATE_13(Doc.of(Level.WARNING) //
-				.text("Over Temperature " //
-						+ "| Übertemperatur " //
+		STATE_13(Doc.of(Level.WARNING)//
+				.text("Over Temperature "//
+						+ "| Übertemperatur "//
 						+ "| Ggf. Luft-Umgebungstemperatur ist über einen längeren Zeitraum zu hoch. "
 						+ "Ggf. Luftstrom durch den Kühlkörper für Normalbetrieb unzureichend (Aufstellbedingungen beachten!). "
 						+ "Ggf. Behinderung des Luftstroms, z.B. Kühlkörper wurde abgedeckt")), //
 
-		STATE_14(Doc.of(Level.WARNING) //
-				.textByChannel(GoodWe.class, ChannelId.GOODWE_TYPE,
-						DynamicDocText.fromEnumChannel(GoodWeType.class)
-								.when("GoodWe.State14.Specific", GoodWeType.FENECON_FHI_10_DAH) //
-								.defaultText("GoodWe.State14.Default"))), //
+		STATE_14(DynamicStateChannelDoc.builder(Level.WARNING)//
+				.setDynamicText(//
+						TextProvider.byStatic("{0}"), //
+						ParameterProvider.byEnumChannel(GoodWeType.class, GOODWE_TYPE)//
+								.when(GoodWeType.FENECON_FHI_10_DAH,
+										TextProvider.byTranslation(GoodWe.class, "GoodWe.State14.Specific"))//
+								.defaultText(TextProvider.byTranslation(GoodWe.class, "GoodWe.State14.Default")))//
+				.build()), //
 
-		STATE_15(Doc.of(Level.WARNING) //
-				.text("PV Over Voltage " //
-						+ "| Überspannung PV " //
+		STATE_15(Doc.of(Level.WARNING)//
+				.text("PV Over Voltage "//
+						+ "| Überspannung PV "//
 						+ "| Bitte überprüfen Sie die Installation")), //
 
-		STATE_16(Doc.of(Level.WARNING) //
-				.text("External Fan Failure " //
+		STATE_16(Doc.of(Level.WARNING)//
+				.text("External Fan Failure "//
 						+ "| Externer Lüfter befindet sich im Fehlerzustand")), //
 
-		STATE_17(Doc.of(Level.WARNING) //
-				.text("Vac Failure " //
-						+ "| Spannungsfehler " //
-						+ "| Die anliegende Spannung am \"On-Grid\" Anschluss befindet sich außerhalb der gültigen Parameter (für DE siehe VDE AR N 4105). " //
+		STATE_17(Doc.of(Level.WARNING)//
+				.text("Vac Failure "//
+						+ "| Spannungsfehler "//
+						+ "| Die anliegende Spannung am \"On-Grid\" Anschluss befindet sich außerhalb der gültigen Parameter (für DE siehe VDE AR N 4105). "//
 						+ "Ggf. Kommunikationsmodul nicht (richtig) gesteckt")), //
 
-		STATE_18(Doc.of(Level.WARNING) //
-				.text("Isolation resistance of PV-plant too low " //
-						+ "| Isolationsfehler auf PV-Strings " //
+		STATE_18(Doc.of(Level.WARNING)//
+				.text("Isolation resistance of PV-plant too low "//
+						+ "| Isolationsfehler auf PV-Strings "//
 						+ "| Bitte überprüfen Sie die Installation")), //
 
-		STATE_19(Doc.of(Level.WARNING) //
-				.text("The DC injection to grid is too high " //
-						+ "| DC-Strom Einspeisung auf \"On-Grid\" Seite ist zu hoch " //
+		STATE_19(Doc.of(Level.WARNING)//
+				.text("The DC injection to grid is too high "//
+						+ "| DC-Strom Einspeisung auf \"On-Grid\" Seite ist zu hoch "//
 						+ "| Bitte überprüfen Sie die Installation und angeschlossene Verbraucher bzw. Erzeuger")), //
 
-		STATE_20(Doc.of(Level.WARNING) //
-				.text("Back-Up Over Load " //
-						+ "| Überlastung Backup-Anschluss " //
+		STATE_20(Doc.of(Level.WARNING)//
+				.text("Back-Up Over Load "//
+						+ "| Überlastung Backup-Anschluss "//
 						+ "| Bitte beachten Sie die im Datenblatt angegebenen Maximal-Lasten")), //
 
 		// Bit 21 - TBD (Currently reserved) - warning should not appear unless there is
 		// a new description of GoodWe
-		STATE_21(Doc.of(Level.WARNING) //
+		STATE_21(Doc.of(Level.WARNING)//
 				.text("Warning Code 3")), //
 
-		STATE_22(Doc.of(Level.WARNING) //
-				.text("Difference between Master and Slave frequency too high " //
-						+ "| Frequenz zwischen Master und Slave weicht zu stark ab " //
+		STATE_22(Doc.of(Level.WARNING)//
+				.text("Difference between Master and Slave frequency too high "//
+						+ "| Frequenz zwischen Master und Slave weicht zu stark ab "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_23(Doc.of(Level.WARNING) //
-				.text("Difference between Master and Slave voltage too high " //
-						+ "| Spannung zwischen Master und Slave weicht zu stark ab " //
+		STATE_23(Doc.of(Level.WARNING)//
+				.text("Difference between Master and Slave voltage too high "//
+						+ "| Spannung zwischen Master und Slave weicht zu stark ab "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
 		// Bit 24 - TBD (Currently reserved) - warning should not appear unless there is
 		// a new description of GoodWe
-		STATE_24(Doc.of(Level.WARNING) //
+		STATE_24(Doc.of(Level.WARNING)//
 				.text("Warning Code 4")), //
 
-		STATE_25(Doc.of(Level.WARNING) //
-				.text("Relay Check Failure " //
-						+ "| Selbsttest der Relais ist Fehlgeschlagen " //
-						+ "| Ggf. sind N und PE-Leiter nicht richtig mit den Anschlussklemmen des Wechselrichters verbunden. " //
-						+ "Ggf. Netzerdungsverlust. " //
+		STATE_25(Doc.of(Level.WARNING)//
+				.text("Relay Check Failure "//
+						+ "| Selbsttest der Relais ist Fehlgeschlagen "//
+						+ "| Ggf. sind N und PE-Leiter nicht richtig mit den Anschlussklemmen des Wechselrichters verbunden. "//
+						+ "Ggf. Netzerdungsverlust. "//
 						+ "Bitte überprüfen Sie die Installation")), //
 
 		// Bit 26 - TBD (Currently reserved) - warning should not appear unless there is
 		// a new description of GoodWe
-		STATE_26(Doc.of(Level.WARNING) //
+		STATE_26(Doc.of(Level.WARNING)//
 				.text("Warning Code 5")), //
 
-		STATE_27(Doc.of(Level.WARNING) //
-				.text("Phase angle out of range (110~140°) " //
-						+ "| Die Phasenverschiebung zwischen den Phasen ist außerhalb der zulässigen Parameter (110~140°) " //
+		STATE_27(Doc.of(Level.WARNING)//
+				.text("Phase angle out of range (110~140°) "//
+						+ "| Die Phasenverschiebung zwischen den Phasen ist außerhalb der zulässigen Parameter (110~140°) "//
 						+ "| Bitte überprüfen Sie die Installation")), //
 
-		STATE_28(Doc.of(Level.WARNING) //
-				.text("Communication failure between ARM and DSP " //
-						+ "| Kommunikation zwischen der ARM und DSP Einheit ist fehlgeschlagen " //
+		STATE_28(Doc.of(Level.WARNING)//
+				.text("Communication failure between ARM and DSP "//
+						+ "| Kommunikation zwischen der ARM und DSP Einheit ist fehlgeschlagen "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_29(Doc.of(Level.WARNING) //
-				.text("The grid frequency is out of tolerable range " //
-						+ "| Die Netz-Frequenz befindet sich außerhalb der zulässigen Parameter " //
+		STATE_29(Doc.of(Level.WARNING)//
+				.text("The grid frequency is out of tolerable range "//
+						+ "| Die Netz-Frequenz befindet sich außerhalb der zulässigen Parameter "//
 						+ "| Bitte überprüfen Sie die Installation und führen anschließend einen Geräteneustart aus")), //
 
-		STATE_30(Doc.of(Level.WARNING) //
-				.text("EEPROM cannot be read or written " //
-						+ "| EEPROM kann nicht gelesen oder geschrieben werden " //
+		STATE_30(Doc.of(Level.WARNING)//
+				.text("EEPROM cannot be read or written "//
+						+ "| EEPROM kann nicht gelesen oder geschrieben werden "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
-		STATE_31(Doc.of(Level.WARNING) //
-				.text("Communication failure between microcontrollers " //
-						+ "| Die Kommunikation zwischen den einzelnen Microkontrollern ist fehlerhaft " //
+		STATE_31(Doc.of(Level.WARNING)//
+				.text("Communication failure between microcontrollers "//
+						+ "| Die Kommunikation zwischen den einzelnen Microkontrollern ist fehlerhaft "//
 						+ "| Bitte führen Sie einen Geräteneustart aus")), //
 
 		// External Communication Data (ARM)
 		COM_MODE(Doc.of(ComMode.values())), //
 		RSSI(Doc.of(OpenemsType.INTEGER)), //
 		METER_COMMUNICATE_STATUS(Doc.of(MeterCommunicateStatus.values())), //
-		METER_ACTIVE_POWER_R(Doc.of(OpenemsType.INTEGER) //
+		METER_ACTIVE_POWER_R(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		METER_ACTIVE_POWER_S(Doc.of(OpenemsType.INTEGER) //
+		METER_ACTIVE_POWER_S(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		METER_ACTIVE_POWER_T(Doc.of(OpenemsType.INTEGER) //
+		METER_ACTIVE_POWER_T(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		METER_TOTAL_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		METER_TOTAL_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 
-		METER_TOTAL_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		METER_TOTAL_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		METER_REACTIVE_POWER_R(Doc.of(OpenemsType.INTEGER) //
+		METER_REACTIVE_POWER_R(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		METER_REACTIVE_POWER_S(Doc.of(OpenemsType.INTEGER) //
+		METER_REACTIVE_POWER_S(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
-		METER_REACTIVE_POWER_T(Doc.of(OpenemsType.INTEGER) //
+		METER_REACTIVE_POWER_T(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE_REACTIVE)), //
 
-		METER_APPARENT_POWER_R(Doc.of(OpenemsType.INTEGER) //
+		METER_APPARENT_POWER_R(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
-		METER_APPARENT_POWER_S(Doc.of(OpenemsType.INTEGER) //
+		METER_APPARENT_POWER_S(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
-		METER_APPARENT_POWER_T(Doc.of(OpenemsType.INTEGER) //
+		METER_APPARENT_POWER_T(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
-		METER_TOTAL_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
+		METER_TOTAL_APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT_AMPERE)), //
 
 		METER_TYPE(Doc.of(GoodWeGridMeterType.values())), //
 		METER_SOFTWARE_VERSION(Doc.of(OpenemsType.INTEGER)), //
 
-		METER_CT2_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		METER_CT2_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		CT2_E_TOTAL_SELL(Doc.of(OpenemsType.INTEGER) //
+		CT2_E_TOTAL_SELL(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		CT2_E_TOTAL_BUY(Doc.of(OpenemsType.INTEGER) //
+		CT2_E_TOTAL_BUY(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.KILOWATT_HOURS)), //
 		METER_CT2_STATUS(Doc.of(OpenemsType.INTEGER)), //
 		EZLOGGER_PRO_COMM_STATUS(Doc.of(EzloggerProCommStatus.values())), //
 
-		E_TOTAL_SELL(Doc.of(OpenemsType.FLOAT) //
+		E_TOTAL_SELL(Doc.of(OpenemsType.FLOAT)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_SELL_2(Doc.of(OpenemsType.FLOAT) //
+		E_TOTAL_SELL_2(Doc.of(OpenemsType.FLOAT)//
 				.unit(Unit.KILOWATT_HOURS)), //
-		E_TOTAL_BUY_F(Doc.of(OpenemsType.FLOAT) //
+		E_TOTAL_BUY_F(Doc.of(OpenemsType.FLOAT)//
 				.unit(Unit.KILOWATT_HOURS)), //
 
-		DRM0(Doc.of(OpenemsType.BOOLEAN) //
+		DRM0(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 1 On")), //
-		DRM1(Doc.of(OpenemsType.BOOLEAN) //
+		DRM1(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 2 On")), //
-		DRM2(Doc.of(OpenemsType.BOOLEAN) //
+		DRM2(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 3 On")), //
-		DRM3(Doc.of(OpenemsType.BOOLEAN) //
+		DRM3(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 4 On")), //
-		DRM4(Doc.of(OpenemsType.BOOLEAN) //
+		DRM4(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 5 On")), //
-		DRM5(Doc.of(OpenemsType.BOOLEAN) //
+		DRM5(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 6 On")), //
-		DRM6(Doc.of(OpenemsType.BOOLEAN) //
+		DRM6(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 7 On")), //
-		DRM7(Doc.of(OpenemsType.BOOLEAN) //
+		DRM7(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 8 On")), //
-		DRM8(Doc.of(OpenemsType.BOOLEAN) //
+		DRM8(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRM Switch 9 On")), //
-		DRED_CONNECT(Doc.of(OpenemsType.BOOLEAN) //
+		DRED_CONNECT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRED Connected")), //
 
 		BATTERY_TYPE_INDEX(Doc.of(OpenemsType.INTEGER)), //
@@ -587,7 +588,7 @@ public interface GoodWe extends OpenemsComponent {
 		BMS_PACK_TEMPERATURE(Doc.of(OpenemsType.INTEGER).unit(Unit.DEGREE_CELSIUS)), //
 		BMS_CHARGE_IMAX(Doc.of(OpenemsType.INTEGER)), //
 		BMS_DISCHARGE_IMAX(Doc.of(OpenemsType.INTEGER)), //
-		BMS_SOH(Doc.of(OpenemsType.INTEGER) //
+		BMS_SOH(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)),
 		BMS_BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER)), //
 
@@ -705,13 +706,13 @@ public interface GoodWe extends OpenemsComponent {
 		MINIMUM_CELL_TEMPERATURE_ID(Doc.of(OpenemsType.INTEGER)), //
 		MAXIMUM_CELL_VOLTAGE_ID(Doc.of(OpenemsType.INTEGER)), //
 		MINIMUM_CELL_VOLTAGE_ID(Doc.of(OpenemsType.INTEGER)), //
-		MAXIMUM_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		MAXIMUM_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
-		MINIMUM_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		MINIMUM_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
-		MAXIMUM_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		MAXIMUM_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIVOLT)), //
-		MINIMUM_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		MINIMUM_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLIVOLT)), //
 		PASS_INFORMATION_1(Doc.of(OpenemsType.INTEGER)), //
 		PASS_INFORMATION_2(Doc.of(OpenemsType.INTEGER)), //
@@ -751,185 +752,185 @@ public interface GoodWe extends OpenemsComponent {
 		ERROR_MESSAGE_L(Doc.of(OpenemsType.INTEGER)), //
 
 		// Setting Parameter
-		INVERTER_UNIT_ID(Doc.of(OpenemsType.INTEGER) //
+		INVERTER_UNIT_ID(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER) //
+		MODBUS_BAUDRATE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FACTORY_SETTING(Doc.of(OpenemsType.INTEGER) //
+		FACTORY_SETTING(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		CLEAR_DATA(Doc.of(OpenemsType.INTEGER) //
+		CLEAR_DATA(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		ALLOW_CONNECT_TO_GRID(Doc.of(OpenemsType.INTEGER) //
+		ALLOW_CONNECT_TO_GRID(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		FORBID_CONNECT_TO_GRID(Doc.of(OpenemsType.INTEGER) //
+		FORBID_CONNECT_TO_GRID(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		RESTART(Doc.of(OpenemsType.INTEGER) //
+		RESTART(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		RESET_SPS(Doc.of(OpenemsType.INTEGER) //
+		RESET_SPS(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		E_DAY_SELL_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS) //
+		E_DAY_SELL_3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		E_DAY_BUY_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS) //
+		E_DAY_BUY_3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		E_DISCHARGE_DAY_3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.KILOWATT_HOURS) //
+		E_DISCHARGE_DAY_3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.KILOWATT_HOURS)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		SAFETY_COUNTRY_CODE(Doc.of(SafetyCountry.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ISO_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		ISO_LIMIT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_HVRT(Doc.of(OpenemsType.INTEGER) //
+		LVRT_HVRT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		PV_START_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		PV_START_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT).accessMode(AccessMode.READ_WRITE)), //
-		MPPT_FOR_SHADOW_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		MPPT_FOR_SHADOW_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACK_UP_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		BACK_UP_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		AUTO_START_BACKUP(Doc.of(OpenemsType.BOOLEAN) //
+		AUTO_START_BACKUP(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values()) //
+		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACKUP_START_DLY(Doc.of(OpenemsType.INTEGER) //
+		BACKUP_START_DLY(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		UPS_STD_VOLT_TYPE(Doc.of(UpsStandartVoltType.values()) //
+		UPS_STD_VOLT_TYPE(Doc.of(UpsStandartVoltType.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DERATE_RATE_VDE(Doc.of(OpenemsType.INTEGER) //
+		DERATE_RATE_VDE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		THREE_PHASE_UNBALANCED_OUTPUT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HIGH_IMP_MODE(Doc.of(OpenemsType.INTEGER) //
+		HIGH_IMP_MODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		ARC_SELF_CHECK(Doc.of(OpenemsType.INTEGER) //
+		ARC_SELF_CHECK(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		ARC_FAULT_REMOVE(Doc.of(OpenemsType.INTEGER) //
+		ARC_FAULT_REMOVE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		ISO_CHECK_MODE(Doc.of(OpenemsType.INTEGER) //
+		ISO_CHECK_MODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		OFF_GRID_TO_ON_GRID_DELAY(Doc.of(OpenemsType.INTEGER) //
+		OFF_GRID_TO_ON_GRID_DELAY(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT(Doc.of(OpenemsType.INTEGER) //
+		OFF_GRID_UNDER_VOLTAGE_PROTECT_COEFFICIENT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_MODE_PV_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER) //
+		BATTERY_MODE_PV_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DCV_CHECK_OFF(Doc.of(OpenemsType.INTEGER) //
+		DCV_CHECK_OFF(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		DEVICE_LICENCE(Doc.of(OpenemsType.STRING) //
+		DEVICE_LICENCE(Doc.of(OpenemsType.STRING)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		REMOTE_USER_LICENCE(Doc.of(OpenemsType.STRING) //
+		REMOTE_USER_LICENCE(Doc.of(OpenemsType.STRING)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER) //
+		BATTERY_STRINGS(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 		CPLD_WARNING_CODE(Doc.of(CpldWarningCode.values())), //
 
 		// DIAGNOSIS STATUS HIGH
-		DIAG_STATUS_BATTERY_PRECHARGE_RELAY_OFF(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_PRECHARGE_RELAY_OFF(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery Precharge Relay Off")), //
 
-		DIAG_STATUS_BYPASS_RELAY_STICK(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BYPASS_RELAY_STICK(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Bypass relay is sticking")), //
 
-		DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_METER_VOLTAGE_SAMPLE_FAULT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Meter voltage sample fault")), //
 
-		DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_EXTERNAL_STOP_MODE_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("DRED or ESD stop the inverter")), //
 
-		DIAG_STATUS_BATTERY_OFFGRID_DOD(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_OFFGRID_DOD(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery SOC less than Offgrid DOD")), //
 
-		DIAG_STATUS_BATTERY_SOC_ADJUST_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_SOC_ADJUST_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Only for BYD, adjust the SOC")), //
 		/*
 		 * DIAGNOSIS STATUS LOW
 		 */
-		DIAG_STATUS_BATTERY_VOLT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_VOLT_LOW(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery not discharge caused by low battery voltage")), //
 
-		DIAG_STATUS_BATTERY_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_SOC_LOW(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery not discharge caused by low SOC")), //
 
-		DIAG_STATUS_BATTERY_SOC_IN_BACK(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_SOC_IN_BACK(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery SOC not recover to allow-discharge level")), //
 
-		DIAG_STATUS_BMS_DISCHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BMS_DISCHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("BMS not allow discharge")), //
 
-		DIAG_STATUS_DISCHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_DISCHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Discharge time is set, 1: On, 0: OFF")), //
 
-		DIAG_STATUS_CHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_CHARGE_TIME_ON(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Charge time is set, 1: On, 0: OFF")), //
 
-		DIAG_STATUS_DISCHARGE_DRIVE_ON(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_DISCHARGE_DRIVE_ON(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Discharge driver is turned on")), //
 
-		DIAG_STATUS_BMS_DISCHG_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BMS_DISCHG_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN)//
 				.text("BMS discharge current limit is too low")), //
 
-		DIAG_STATUS_DISCHARGE_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_DISCHARGE_CURRENT_LOW(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Discharge current limit is too low (from App)")), //
 
-		DIAG_STATUS_METER_COMM_LOSS(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_METER_COMM_LOSS(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Smart Meter communication failure")), //
 
-		DIAG_STATUS_METER_CONNECT_REVERSE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_METER_CONNECT_REVERSE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Smart Meter connection reversed")), //
 
-		DIAG_STATUS_SELF_USE_LOAD_LIGHT(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_SELF_USE_LOAD_LIGHT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Low load power, cannot activate battery discharge")), //
 
-		DIAG_STATUS_EMS_DISCHARGE_IZERO(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_EMS_DISCHARGE_IZERO(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Discharge current limit 0A from EMS")), //
 
-		DIAG_STATUS_DISCHARGE_BUS_HIGH(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_DISCHARGE_BUS_HIGH(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery not discharge caused by over high PV voltage")), //
 
-		DIAG_STATUS_BATTERY_DISCONNECT(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_DISCONNECT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery disconnected")), //
 
-		DIAG_STATUS_BATTERY_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery overcharged")), //
 
-		DIAG_STATUS_BMS_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BMS_OVER_TEMPERATURE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Lithium battery over temperature")), //
 
-		DIAG_STATUS_BMS_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BMS_OVERCHARGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Lithium battery overcharged or an individual cell voltage is higher")), //
 
-		DIAG_STATUS_BMS_CHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BMS_CHARGE_DISABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("BMS does not allow charge")), //
 
-		DIAG_STATUS_SELF_USE_OFF(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_SELF_USE_OFF(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Self-use mode turned off")), //
 
-		DIAG_STATUS_SOC_DELTA_OVER_RANGE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_SOC_DELTA_OVER_RANGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("SOC Jumps abnormally")), //
 
-		DIAG_STATUS_BATTERY_SELF_DISCHARGE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_BATTERY_SELF_DISCHARGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Battery discharge at low current for long time, continuously over 30% of battery SOC")), //
 
-		DIAG_STATUS_OFFGRID_SOC_LOW(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_OFFGRID_SOC_LOW(Doc.of(OpenemsType.BOOLEAN)//
 				.text("SOC is low under off-grid statues")), //
 
-		DIAG_STATUS_GRID_WAVE_UNSTABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_GRID_WAVE_UNSTABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Grid wave is bad, switch to back-up mode frequently")), //
 
-		DIAG_STATUS_FEED_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_FEED_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Export power limit is set")), //
 
-		DIAG_STATUS_PF_VALUE_SET(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_PF_VALUE_SET(Doc.of(OpenemsType.BOOLEAN)//
 				.text("PF value is set")), //
 
-		DIAG_STATUS_REAL_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_REAL_POWER_LIMIT(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Active power value is set")), //
 
-		DIAG_STATUS_SOC_PROTECT_OFF(Doc.of(OpenemsType.BOOLEAN) //
+		DIAG_STATUS_SOC_PROTECT_OFF(Doc.of(OpenemsType.BOOLEAN)//
 				.text("SOC protect Off")), //
 
 		EH_BATTERY_FUNCTION_ACTIVE(Doc.of(EhBatteryFunctionActive.values())), //
@@ -953,377 +954,381 @@ public interface GoodWe extends OpenemsComponent {
 		INV_WARNING_CODE_RECORD_FOR_EMS(Doc.of(OpenemsType.LONG)), //
 		INV_CPLD_WARNING_RECORD_FOR_EMS(Doc.of(OpenemsType.LONG)), //
 
+		// genset
+		GENSET_OPERATING_MODE(Doc.of(OpenemsType.BOOLEAN)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+
 		// BMS
-		DEBUG_BMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		BMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_CHARGE_MAX_VOLTAGE)), //
 
-		DEBUG_BMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		BMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_CHARGE_MAX_CURRENT)), //
 
-		DEBUG_BMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		BMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_DISCHARGE_MIN_VOLTAGE)), //
 
-		DEBUG_BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_DISCHARGE_MAX_CURRENT)), //
 
-		DEBUG_BMS_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)), //
-		BMS_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_SOC_UNDER_MIN)), //
 
-		DEBUG_BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE)), //
 
-		DEBUG_BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)), //
-		BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		BMS_OFFLINE_SOC_UNDER_MIN(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_BMS_OFFLINE_SOC_UNDER_MIN)), //
 
 		// Safety
-		GRID_VOLT_HIGH_S1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_HIGH_S1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH_S1_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_HIGH_S1_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_LOW_S1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S1_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_LOW_S1_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH_S2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_HIGH_S2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH_S2_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_HIGH_S2_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_LOW_S2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S2_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_LOW_S2_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_QUALITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_QUALITY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_HIGH_S1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_FREQ_HIGH_S1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_HIGH_S1_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_FREQ_HIGH_S1_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_LOW_S1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_FREQ_LOW_S1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_LOW_S1_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_FREQ_LOW_S1_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_HIGH_S2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_FREQ_HIGH_S2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_HIGH_S2_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_FREQ_HIGH_S2_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_LOW_S2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_FREQ_LOW_S2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_LOW_S2_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_FREQ_LOW_S2_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_HIGH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_LOW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_HIGH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		GRID_FREQ_HIGH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_LOW(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		GRID_FREQ_LOW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_RECOVER_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_RECOVER_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Decide by specific safety regulations
-		GRID_VOLT_RECOVER_HIGH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_RECOVER_HIGH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_RECOVER_LOW(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_RECOVER_LOW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_RECOVER_HIGH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		GRID_FREQ_RECOVER_HIGH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_RECOVER_LOW(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		GRID_FREQ_RECOVER_LOW(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_RECOVER_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_RECOVER_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_FREQ_RECOVER_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_FREQ_RECOVER_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		POWER_RATE_LIMIT_GENERATE(Doc.of(OpenemsType.INTEGER) //
+		POWER_RATE_LIMIT_GENERATE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		POWER_RATE_LIMIT_RECONNECT(Doc.of(OpenemsType.INTEGER) //
+		POWER_RATE_LIMIT_RECONNECT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		POWER_RATE_LIMIT_REDUCTION(Doc.of(OpenemsType.INTEGER) //
+		POWER_RATE_LIMIT_REDUCTION(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_PROTECT(Doc.of(GridProtect.values()) //
+		GRID_PROTECT(Doc.of(GridProtect.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// CosPhi curve
-		ENABLE_CURVE_COS_PHI_P(Doc.of(EnableCurve.values()) //
+		ENABLE_CURVE_COS_PHI_P(Doc.of(EnableCurve.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ENABLE_POWER_SLOPE_COS_PHI_P(Doc.of(EnableCurve.values()) //
+		ENABLE_POWER_SLOPE_COS_PHI_P(Doc.of(EnableCurve.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		A_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		A_POINT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		A_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		A_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		B_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		B_POINT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		B_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		B_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		C_POINT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		C_POINT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		C_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		C_POINT_COS_PHI(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOCK_IN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		LOCK_IN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOCK_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		LOCK_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOCK_OUT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		LOCK_OUT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Power and frequency curve = PF
-		ENABLE_PF_CURVE(Doc.of(EnableCurve.values()) //
-				.text("Power and Frequency Curve Enabled") //
+		ENABLE_PF_CURVE(Doc.of(EnableCurve.values())//
+				.text("Power and Frequency Curve Enabled")//
 				.accessMode(AccessMode.READ_WRITE)), //
 		// Written together with ENABLE_PF_CURVE as GoodWe is not supporting Coils,
 		// relevant is anyways 0=Slope.
-		POWER_FREQUENCY_RESPONSE_MODE(Doc.of(OpenemsType.BOOLEAN) //
-				.text("Power and Frequency Curve: 0=Slope, 1=Fstop") //
+		POWER_FREQUENCY_RESPONSE_MODE(Doc.of(OpenemsType.BOOLEAN)//
+				.text("Power and Frequency Curve: 0=Slope, 1=Fstop")//
 				.accessMode(AccessMode.READ_ONLY)), //
 
-		FFROZEN_DCH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		FFROZEN_DCH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FFROZEN_CH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		FFROZEN_CH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FSTOP_DCH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		FSTOP_DCH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FSTOP_CH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		FSTOP_CH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		OF_RECOVERY_WAITING_TIME(Doc.of(OpenemsType.INTEGER) //
+		OF_RECOVERY_WAITING_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RECOVERY_WAITING_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		RECOVERY_WAITING_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		RECOVERY_FREQURNCY1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		RECOVERY_FREQURNCY1(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		CFP_SETTINGS(Doc.of(OpenemsType.INTEGER) //
+		CFP_SETTINGS(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		RECOVERY_FREQUENCY2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		RECOVERY_FREQUENCY2(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		OF_RECOVERY_SLOPE(Doc.of(OpenemsType.INTEGER) //
+		OF_RECOVERY_SLOPE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		CFP_OF_SLOPE_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		CFP_OF_SLOPE_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		CFP_UF_SLOPE_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HERTZ) //
+		CFP_UF_SLOPE_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HERTZ)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		CFP_OF_RECOVER_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
+		CFP_OF_RECOVER_POWER_PERCENT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// QU curve
-		ENABLE_QU_CURVE(Doc.of(EnableCurve.values()) //
+		ENABLE_QU_CURVE(Doc.of(EnableCurve.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOCK_IN_POWER_QU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		LOCK_IN_POWER_QU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOCK_OUT_POWER_QU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		LOCK_OUT_POWER_QU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V1_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V1_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V1_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V1_VALUE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V2_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V2_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V2_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V2_VALUE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V3_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V3_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V3_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V3_VALUE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V4_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V4_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V4_VALUE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V4_VALUE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		K_VALUE(Doc.of(OpenemsType.INTEGER) //
+		K_VALUE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		TIME_CONSTANT(Doc.of(OpenemsType.INTEGER) //
+		TIME_CONSTANT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		MISCELLANEA(Doc.of(OpenemsType.INTEGER) //
+		MISCELLANEA(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// PU curve
-		ENABLE_PU_CURVE(Doc.of(EnableCurve.values()) //
+		ENABLE_PU_CURVE(Doc.of(EnableCurve.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		POWER_CHANGE_RATE(Doc.of(OpenemsType.INTEGER) //
+		POWER_CHANGE_RATE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V1_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V1_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V1_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V1_VALUE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V2_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V2_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V2_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V2_VALUE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V3_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V3_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V3_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V3_VALUE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V4_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		V4_VOLTAGE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		V4_VALUE_PU(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		V4_VALUE_PU(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Fixed Power Factor
-		FIXED_POWER_FACTOR(Doc.of(FixedPowerFactor.values()) //
+		FIXED_POWER_FACTOR(Doc.of(FixedPowerFactor.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Separate Register to enable Fixed Power Factor used for ET50 (1547-1)
-		ENABLE_FIXED_POWER_FACTOR_V2(Doc.of(EnableCurve.values()) //
+		ENABLE_FIXED_POWER_FACTOR_V2(Doc.of(EnableCurve.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FIXED_POWER_FACTOR_V2(Doc.of(FixedPowerFactor.values()) //
+		FIXED_POWER_FACTOR_V2(Doc.of(FixedPowerFactor.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FIXED_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		FIXED_REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_LIMIT_BY_VOLT_SLOPE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		GRID_LIMIT_BY_VOLT_SLOPE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		AUTO_TEST_ENABLE(Doc.of(OpenemsType.INTEGER) //
+		AUTO_TEST_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		AUTO_TEST_STEP(Doc.of(OpenemsType.INTEGER) //
+		AUTO_TEST_STEP(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		UW_ITALY_FREQ_MODE(Doc.of(OpenemsType.INTEGER) //
+		UW_ITALY_FREQ_MODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ALL_POWER_CURVE_DISABLE(Doc.of(OpenemsType.INTEGER) //
+		ALL_POWER_CURVE_DISABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		R_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		R_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		S_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		S_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		T_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.THOUSANDTH) //
+		T_PHASE_FIXED_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.THOUSANDTH)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH_S3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_HIGH_S3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_HIGH_S3_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_HIGH_S3_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		GRID_VOLT_LOW_S3(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_VOLT_LOW_S3_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		GRID_VOLT_LOW_S3_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ZVRT_CONFIG(Doc.of(ZvrtConfig.values()) //
+		ZVRT_CONFIG(Doc.of(ZvrtConfig.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_START_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		LVRT_START_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_END_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		LVRT_END_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_START_TRIP_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		LVRT_START_TRIP_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_END_TRIP_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		LVRT_END_TRIP_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LVRT_TRIP_LIMIT_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		LVRT_TRIP_LIMIT_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HVRT_START_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		HVRT_START_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HVRT_END_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		HVRT_END_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HVRT_START_TRIP_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		HVRT_START_TRIP_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HVRT_END_TRIP_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		HVRT_END_TRIP_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HVRT_TRIP_LIMIT_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		HVRT_TRIP_LIMIT_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		PF_TIME_CONSTANT(Doc.of(OpenemsType.INTEGER)//
@@ -1354,93 +1359,93 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Meter Control ARM
-		SELECT_WORK_MODE(Doc.of(AppModeIndex.values()) //
+		SELECT_WORK_MODE(Doc.of(AppModeIndex.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WMETER_CONNECT_CHECK_FLAG(Doc.of(MeterConnectCheckFlag.values()) //
+		WMETER_CONNECT_CHECK_FLAG(Doc.of(MeterConnectCheckFlag.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOG_DATA_ENABLE(Doc.of(OpenemsType.INTEGER) //
+		LOG_DATA_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DATA_SEND_INTERVAL(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		DATA_SEND_INTERVAL(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DRED_CMD(Doc.of(DredCmd.values()) //
+		DRED_CMD(Doc.of(DredCmd.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WIFI_OR_LAN_SWITCH(Doc.of(WifiOrLan.values()) //
+		WIFI_OR_LAN_SWITCH(Doc.of(WifiOrLan.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DRED_OFFGRID_CHECK(Doc.of(DredOffgridCheck.values()) //
+		DRED_OFFGRID_CHECK(Doc.of(DredOffgridCheck.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		EXTERNAL_EMS_FLAG(Doc.of(ExternalEmsFlag.values()) //
+		EXTERNAL_EMS_FLAG(Doc.of(ExternalEmsFlag.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LED_BLINK_TIME(Doc.of(OpenemsType.INTEGER) //
+		LED_BLINK_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WIFI_LED_STATE(Doc.of(LedState.values()) //
+		WIFI_LED_STATE(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		COM_LED_STATE(Doc.of(LedState.values()) //
+		COM_LED_STATE(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		METER_CT1_REVERSE_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		METER_CT1_REVERSE_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ERROR_LOG_READ_PAGE(Doc.of(OpenemsType.INTEGER) //
+		ERROR_LOG_READ_PAGE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		MODBUS_TCP_WITHOUT_INTERNET(Doc.of(OpenemsType.INTEGER) //
+		MODBUS_TCP_WITHOUT_INTERNET(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACKUP_LED(Doc.of(LedState.values()) //
+		BACKUP_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_LED(Doc.of(LedState.values()) //
+		GRID_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SOC_LED_1(Doc.of(LedState.values()) //
+		SOC_LED_1(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SOC_LED_2(Doc.of(LedState.values()) //
+		SOC_LED_2(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SOC_LED_3(Doc.of(LedState.values()) //
+		SOC_LED_3(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SOC_LED_4(Doc.of(LedState.values()) //
+		SOC_LED_4(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_LED(Doc.of(LedState.values()) //
+		BATTERY_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SYSTEM_LED(Doc.of(LedState.values()) //
+		SYSTEM_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FAULT_LED(Doc.of(LedState.values()) //
+		FAULT_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		ENERGY_LED(Doc.of(LedState.values()) //
+		ENERGY_LED(Doc.of(LedState.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LED_EXTERNAL_CONTROL(Doc.of(OpenemsType.INTEGER) //
+		LED_EXTERNAL_CONTROL(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		STOP_MODE_SAVE_ENABLE(Doc.of(OpenemsType.INTEGER) //
+		STOP_MODE_SAVE_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// Battery Control Data ARM
-		STOP_SOC_PROTECT(Doc.of(InternalSocProtection.values()) //
+		STOP_SOC_PROTECT(Doc.of(InternalSocProtection.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_FLOAT_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		BMS_FLOAT_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_FLOAT_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+		BMS_FLOAT_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_FLOAT_TIME(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MINUTE) //
+		BMS_FLOAT_TIME(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MINUTE)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_TYPE_INDEX_ARM(Doc.of(OpenemsType.INTEGER) //
+		BMS_TYPE_INDEX_ARM(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		MANUFACTURE_CODE(Doc.of(OpenemsType.INTEGER) //
+		MANUFACTURE_CODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		DC_VOLT_OUTPUT(Doc.of(OpenemsType.INTEGER) //
+		DC_VOLT_OUTPUT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_AVG_CHG_VOLT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		BMS_AVG_CHG_VOLT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BMS_AVG_CHG_HOURS(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.HOUR) //
+		BMS_AVG_CHG_HOURS(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.HOUR)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		EXTENDED_FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		EXTENDED_FEED_POWER_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		EXTENDED_FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		EXTENDED_FEED_POWER_PARA_SET(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		/**
@@ -1451,32 +1456,32 @@ public interface GoodWe extends OpenemsComponent {
 		 * Depending on the hardware installation each function is activated
 		 * individually.
 		 */
-		DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		DRED_REMOTE_SHUTDOWN_RCR_FUNCTIONS_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		DEBUG_EMS_POWER_MODE(Doc.of(EmsPowerMode.values())), //
 		DEBUG_EMS_POWER_SET(Doc.of(OpenemsType.INTEGER)), //
-		EMS_POWER_MODE(Doc.of(EmsPowerMode.values()) //
-				.accessMode(AccessMode.READ_WRITE) //
+		EMS_POWER_MODE(Doc.of(EmsPowerMode.values())//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_MODE)), //
-		EMS_POWER_SET(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_WRITE) //
+		EMS_POWER_SET(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_EMS_POWER_SET)), //
 
-		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER) //
+		BMS_CURR_LMT_COFF(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BATTERY_PROTOCOL_ARM(Doc.of(BatteryProtocol.values()) //
+		BATTERY_PROTOCOL_ARM(Doc.of(BatteryProtocol.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+		WORK_WEEK_1_ENABLED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Work Week 1 Enabled")), //
-		WORK_WEEK_1_START_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_START_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_END_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_END_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		WORK_WEEK_1_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1(Doc.of(WorkWeek.values()) //
+		WORK_WEEK_1(Doc.of(WorkWeek.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_1_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1486,16 +1491,16 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_1_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_1_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_2_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+		WORK_WEEK_2_ENABLED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Work Week 2 Enabled")), //
-		WORK_WEEK_2_START_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_START_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_END_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_END_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		WORK_WEEK_2_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2(Doc.of(WorkWeek.values()) //
+		WORK_WEEK_2(Doc.of(WorkWeek.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_2_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1505,16 +1510,16 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_2_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_2_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_3_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+		WORK_WEEK_3_ENABLED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Work Week 3 Enabled")), //
-		WORK_WEEK_3_START_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_START_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_END_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_END_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		WORK_WEEK_3_BAT_POWER_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3(Doc.of(WorkWeek.values()) //
+		WORK_WEEK_3(Doc.of(WorkWeek.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_3_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1524,16 +1529,16 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_3_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_3_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		WORK_WEEK_4_ENABLED(Doc.of(OpenemsType.BOOLEAN) //
+		WORK_WEEK_4_ENABLED(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Work Week 4 Enabled")), //
-		WORK_WEEK_4_START_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_START_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_END_TIME(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_END_TIME(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_BMS_POWER_PERCENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
+		WORK_WEEK_4_BMS_POWER_PERCENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4(Doc.of(WorkWeek.values()) //
+		WORK_WEEK_4(Doc.of(WorkWeek.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		WORK_WEEK_4_SUNDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_MONDAY(Doc.of(OpenemsType.BOOLEAN)), //
@@ -1543,210 +1548,210 @@ public interface GoodWe extends OpenemsComponent {
 		WORK_WEEK_4_FRIDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_SATURDAY(Doc.of(OpenemsType.BOOLEAN)), //
 		WORK_WEEK_4_NA(Doc.of(OpenemsType.BOOLEAN)), //
-		SOC_START_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER) //
+		SOC_START_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		SOC_STOP_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER) //
+		SOC_STOP_TO_FORCE_CHARGE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		CLEAR_ALL_ECONOMIC_MODE(Doc.of(OpenemsType.INTEGER) //
+		CLEAR_ALL_ECONOMIC_MODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		WIFI_RESET(Doc.of(OpenemsType.INTEGER) //
+		WIFI_RESET(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		ARM_SOFT_RESET(Doc.of(OpenemsType.INTEGER) //
+		ARM_SOFT_RESET(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		WIFI_RELOAD(Doc.of(OpenemsType.INTEGER) //
+		WIFI_RELOAD(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		PEAK_SHAVING_POWER_LIMIT(Doc.of(OpenemsType.INTEGER) //
+		PEAK_SHAVING_POWER_LIMIT(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		PEAK_SHAVING_SOC(Doc.of(OpenemsType.INTEGER) //
+		PEAK_SHAVING_SOC(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		FAST_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER) //
+		FAST_CHARGE_ENABLE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		FAST_CHARGE_STOP_SOC(Doc.of(OpenemsType.INTEGER) //
+		FAST_CHARGE_STOP_SOC(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
-		WORK_WEEK_1_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_PARAMETER1_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_PARAMETER1_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_PARAMETER1_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_PARAMETER1_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_1_PARAMETER1_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_1_PARAMETER1_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		WORK_WEEK_2_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_PARAMETER2_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_PARAMETER2_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_PARAMETER2_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_PARAMETER2_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_2_PARAMETER2_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-
-		WORK_WEEK_3_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_PARAMETER3_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_PARAMETER3_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_3_PARAMETER3_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_2_PARAMETER2_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		WORK_WEEK_4_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_PARAMETER4_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_PARAMETER3_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_PARAMETER4_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_PARAMETER3_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_4_PARAMETER4_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-
-		WORK_WEEK_5_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_5_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_5_PARAMETER5_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_5_PARAMETER5_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_5_PARAMETER5_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_3_PARAMETER3_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		WORK_WEEK_6_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_6_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_6_PARAMETER6_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_PARAMETER4_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_6_PARAMETER6_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_PARAMETER4_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_6_PARAMETER6_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-
-		WORK_WEEK_7_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_7_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_7_PARAMETER7_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_7_PARAMETER7_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_7_PARAMETER7_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_4_PARAMETER4_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
-		WORK_WEEK_8_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_8_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_8_PARAMETER8_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_PARAMETER5_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_8_PARAMETER8_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_PARAMETER5_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WORK_WEEK_8_PARAMETER8_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_5_PARAMETER5_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOAD_REGULATION_INDEX(Doc.of(LoadRegulationIndex.values()) //
+
+		WORK_WEEK_6_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		LOAD_SWITCH_STATUS(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_6_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		BACKUP_SWITCH_SOC_MIN(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_6_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		HARDWARE_FEED_POWER(Doc.of(OpenemsType.INTEGER) //
+		WORK_WEEK_6_PARAMETER6_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_6_PARAMETER6_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_6_PARAMETER6_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+
+		WORK_WEEK_7_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_7_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_7_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_7_PARAMETER7_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_7_PARAMETER7_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_7_PARAMETER7_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+
+		WORK_WEEK_8_START_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_8_END_TIME_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_8_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_8_PARAMETER8_1_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_8_PARAMETER8_2_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		WORK_WEEK_8_PARAMETER8_3_ECO_MODE_FOR_ARM_18_AND_GREATER(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		LOAD_REGULATION_INDEX(Doc.of(LoadRegulationIndex.values())//
+				.accessMode(AccessMode.READ_WRITE)), //
+		LOAD_SWITCH_STATUS(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		BACKUP_SWITCH_SOC_MIN(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)), //
+		HARDWARE_FEED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		// BMS for RS485
 		DEBUG_WBMS_VERSION(Doc.of(OpenemsType.INTEGER)), //
-		WBMS_VERSION(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_VERSION(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_VERSION)), //
 
 		DEBUG_WBMS_STRINGS(Doc.of(OpenemsType.INTEGER)), //
-		WBMS_STRINGS(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_STRINGS(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_STRINGS)), //
 
-		DEBUG_WBMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		WBMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_CHARGE_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_CHARGE_MAX_VOLTAGE)), //
 
-		DEBUG_WBMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		WBMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_CHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_CHARGE_MAX_CURRENT)), //
 
-		DEBUG_WBMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		WBMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_DISCHARGE_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_DISCHARGE_MIN_VOLTAGE)), //
 
-		DEBUG_WBMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		WBMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_DISCHARGE_MAX_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_DISCHARGE_MAX_CURRENT)), //
 
-		DEBUG_WBMS_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.VOLT)), //
-		WBMS_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_VOLTAGE)), //
 
-		DEBUG_WBMS_CURRENT(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_CURRENT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.AMPERE)), //
-		WBMS_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_CURRENT)), //
 
-		DEBUG_WBMS_SOC(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_SOC(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)), //
-		WBMS_SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_SOC(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_SOC)), //
 
-		DEBUG_WBMS_SOH(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_SOH(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)), //
-		WBMS_SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_SOH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_SOH)), //
 
-		DEBUG_WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.DEGREE_CELSIUS)), //
-		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.accessMode(AccessMode.READ_WRITE) //
+		WBMS_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_WBMS_TEMPERATURE)), //
 
 		/**
@@ -1769,7 +1774,7 @@ public interface GoodWe extends OpenemsComponent {
 		 * </ul>
 		 */
 		// TODO: Into enum
-		WBMS_WARNING_CODE(Doc.of(OpenemsType.INTEGER) //
+		WBMS_WARNING_CODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		/**
@@ -1796,7 +1801,7 @@ public interface GoodWe extends OpenemsComponent {
 		 * </ul>
 		 */
 		// TODO: Into enum
-		WBMS_ALARM_CODE(Doc.of(OpenemsType.INTEGER) //
+		WBMS_ALARM_CODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
 
 		/**
@@ -1809,24 +1814,24 @@ public interface GoodWe extends OpenemsComponent {
 		 * </ul>
 		 */
 		// TODO: Into enum
-		WBMS_STATUS(Doc.of(OpenemsType.INTEGER) //
+		WBMS_STATUS(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER) //
-				.text("Cancel EMS mode BMS communication timeout detection") //
+		WBMS_DISABLE_TIMEOUT_DETECTION(Doc.of(OpenemsType.INTEGER)//
+				.text("Cancel EMS mode BMS communication timeout detection")//
 				.accessMode(AccessMode.READ_WRITE)), //
-		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER) //
+		MAX_AC_EXPORT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER) //
+		MAX_AC_IMPORT(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
-				.text("SMART mode does not work correctly with active PID filter")),
-		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
+		SMART_MODE_NOT_WORKING_WITH_FILTER(Doc.of(Level.WARNING)//
+				.text("SMART mode does not work correctly with active filter")),
+		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING)//
 				.text("No GoodWe Smart Meter detected. Only REMOTE mode can work correctly")),
-		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.WARNING) //
+		IMPOSSIBLE_FENECON_HOME_COMBINATION(Doc.of(Level.WARNING)//
 				.text("The installed inverter and battery combination is not authorised. Operation could cause hardware damages, so charging and discharging is blocked. Please install a complete Home 10, Home 20 or Home 30 system.")), //
-		IGNORE_IMPOSSIBLE_P_BATTERY_VALUE(Doc.of(OpenemsType.BOOLEAN) //
+		IGNORE_IMPOSSIBLE_P_BATTERY_VALUE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Ignore impossible battery power")), //
-		HAS_UNEXPECTED_MAX_VOLTAGE(Doc.of(OpenemsType.BOOLEAN) //
+		HAS_UNEXPECTED_MAX_VOLTAGE(Doc.of(OpenemsType.BOOLEAN)//
 				.text("Max voltage value is manipulated by goodwe. The goodwe is using this internally to allow grid feed in having 100% SoC")), //
 
 		// GoodWe Analysis Channels (48xxx)
@@ -2265,5 +2270,23 @@ public interface GoodWe extends OpenemsComponent {
 	 */
 	public default void _setImpossibleFeneconHomeCombination(boolean value) {
 		this.getImpossibleFeneconHomeCombinationChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Genset Operating Mode. See {@link ChannelId#GENSET_OPERATING_MODE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getGensetOperatingMode() {
+		return this.getGensetOperatingModeChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GENSET_OPERATING_MODE}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getGensetOperatingModeChannel() {
+		return this.channel(ChannelId.GENSET_OPERATING_MODE);
 	}
 }

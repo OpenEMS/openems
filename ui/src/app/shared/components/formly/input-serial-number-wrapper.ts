@@ -78,8 +78,8 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
     protected onCheckboxChange(checked: boolean): void {
         this.props.checkbox.value = checked;
 
-        if (this.props.checkbox.updateFn) {
-            this.props.checkbox.updateFn(checked);
+        if (this.props.checkbox.onValueChanged) {
+            this.props.checkbox.onValueChanged(checked);
         }
     }
 }

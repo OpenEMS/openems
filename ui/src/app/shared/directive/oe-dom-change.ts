@@ -1,28 +1,40 @@
-import { Directive, ElementRef, EventEmitter, Output } from "@angular/core";
+import { Directive, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from "@angular/core";
 
-/**
- * Used to react to dom changes on this element
- */
 @Directive({
     selector: "[ngDomChange]",
     standalone: true,
 })
-export class DomChangeDirective {
+export class DomChangeDirective implements OnChanges, OnDestroy {
+    @Output() public ngDomChange = new EventEmitter<MutationRecord>();
 
-    @Output()
-    public ngDomChange = new EventEmitter();
+    @Input() public ngDomChangeObserveAttributes: boolean = true;
 
     private changes: MutationObserver;
 
-    constructor(private elementRef: ElementRef) {
-        const element = this.elementRef.nativeElement;
-
-        this.changes = new MutationObserver((mutations: MutationRecord[]) => {
-            mutations.forEach((mutation: MutationRecord) => this.ngDomChange.emit(mutation));
+    constructor(private elementRef: ElementRef<HTMLElement>) {
+        this.changes = new MutationObserver((mutations) => {
+            for (const m of mutations) { this.ngDomChange.emit(m); }
         });
 
-        this.changes.observe(element, {
-            attributes: true,
+        this.startObserving();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if ("ngDomChangeObserveAttributes" in changes) {
+            this.startObserving();
+        }
+    }
+
+    ngOnDestroy(): void {
+        this.changes.disconnect();
+    }
+
+    private startObserving(): void {
+        const el = this.elementRef.nativeElement;
+        this.changes.disconnect();
+
+        this.changes.observe(el, {
+            attributes: this.ngDomChangeObserveAttributes,
             childList: true,
             characterData: true,
             subtree: true,

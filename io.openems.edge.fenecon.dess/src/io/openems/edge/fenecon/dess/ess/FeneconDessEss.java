@@ -1,5 +1,7 @@
 package io.openems.edge.fenecon.dess.ess;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -44,21 +46,22 @@ public interface FeneconDessEss extends AsymmetricEss, SymmetricEss, OpenemsComp
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SYSTEM_STATE(Doc.of(SystemState.values())), //
-		ORIGINAL_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+		ORIGINAL_ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_WATT_HOURS)),
-		ORIGINAL_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
+		ORIGINAL_ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_WATT_HOURS)),
 		BSMU_WORK_STATE(Doc.of(BsmuWorkState.values()) //
 				.<FeneconDessEss>onChannelChange((self, value) -> {
 					// on each change set Grid-Mode channel
 					BsmuWorkState state = value.asEnum();
-					self._setGridMode(switch (state) {
-					case ON_GRID -> GridMode.ON_GRID;
-					case OFF_GRID -> GridMode.OFF_GRID;
-					case FAULT, UNDEFINED, BEING_ON_GRID, BEING_PRE_CHARGE, BEING_STOP, DEBUG, INIT, LOW_CONSUMPTION,
-							PRE_CHARGE ->
-						GridMode.UNDEFINED;
-					});
+					setValue(self, SymmetricEss.ChannelId.GRID_MODE, //
+							switch (state) {
+							case ON_GRID -> GridMode.ON_GRID;
+							case OFF_GRID -> GridMode.OFF_GRID;
+							case FAULT, UNDEFINED, BEING_ON_GRID, BEING_PRE_CHARGE, BEING_STOP, DEBUG, INIT,
+									LOW_CONSUMPTION, PRE_CHARGE ->
+								GridMode.UNDEFINED;
+							});
 				})), //
 		STACK_CHARGE_STATE(Doc.of(StackChargeState.values())); //
 

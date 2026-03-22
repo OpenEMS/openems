@@ -12,7 +12,10 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Stream;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.DurationUnit;
@@ -28,6 +31,11 @@ public class DateUtils {
 	 * {@link DateTimeFormatter} with inclusively 24:00 which is converted to 00:00.
 	 */
 	public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+	/**
+	 * Total number of 15-minute intervals (quarter-hours) in a day (96).
+	 */
+	public static final int QUARTERS_PER_DAY = 96;
 
 	private DateUtils() {
 	}
@@ -355,6 +363,19 @@ public class DateUtils {
 	}
 
 	/**
+	 * Safely finds the max value of all values.
+	 *
+	 * @param values the {@link Instant} values
+	 * @return the max value; or null if all values are null
+	 */
+	public static Instant max(Instant... values) {
+		return Stream.of(values) //
+				.filter(Objects::nonNull) //
+				.max(Comparator.naturalOrder()) //
+				.orElse(null);
+	}
+
+	/**
 	 * Calculates the duration from the current time until the next quarter hour.
 	 *
 	 * @param clock the Clock to use for the current time
@@ -364,6 +385,18 @@ public class DateUtils {
 		var now = ZonedDateTime.now(clock);
 		var nextQuarter = roundDownToQuarter(now).plusMinutes(15);
 		return Duration.between(now, nextQuarter);
+	}
+
+	// TODO: Unit-Tests
+	/**
+	 * Returns the index of the quarter-hour slot in which the given
+	 * {@link LocalTime} falls within a day.
+	 *
+	 * @param time the {@link LocalTime} to convert
+	 * @return the quarter-hour index (0-95)
+	 */
+	public static int toQuarterIndex(LocalTime time) {
+		return time.getHour() * 4 + Math.floorDiv(time.getMinute(), 15);
 	}
 
 	/**
@@ -391,6 +424,28 @@ public class DateUtils {
 		var firstDowInMonth = date.with(TemporalAdjusters.firstInMonth(dow));
 		long weeksBetween = ChronoUnit.WEEKS.between(firstDowInMonth, date);
 		return (int) weeksBetween + 1;
+	}
+
+	/**
+	 * Checks if the given Time is after or equals the other time.
+	 * 
+	 * @param valueThatShouldBeAfter Value that must be greater or equals
+	 * @param valueToCheckAgainst    Value to check against
+	 * @return Check result
+	 */
+	public static boolean isAfterOrEquals(Instant valueThatShouldBeAfter, Instant valueToCheckAgainst) {
+		return !valueThatShouldBeAfter.isBefore(valueToCheckAgainst);
+	}
+
+	/**
+	 * Checks if the given Time is before or equals the other time.
+	 *
+	 * @param valueThatShouldBeBefore Value that must be lower or equals
+	 * @param valueToCheckAgainst    Value to check against
+	 * @return Check result
+	 */
+	public static boolean isBeforeOrEquals(Instant valueThatShouldBeBefore, Instant valueToCheckAgainst) {
+		return !valueThatShouldBeBefore.isAfter(valueToCheckAgainst);
 	}
 
 	private static final <T> T parseDateOrNull(//
@@ -436,5 +491,4 @@ public class DateUtils {
 					+ " [" + value + "] " + e.getMessage());
 		}
 	}
-
 }

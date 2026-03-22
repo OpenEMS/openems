@@ -3,7 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
 import { TotalChartComponent } from "./chart/totalchart.component";
 import { FlatComponent } from "./flat/flat";
-import { OverviewComponent } from "./overview/overview";
+import { ControllerChannelThresholdOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -13,12 +13,12 @@ import { OverviewComponent } from "./overview/overview";
     declarations: [
         FlatComponent,
         TotalChartComponent,
-        OverviewComponent,
+        ControllerChannelThresholdOverviewComponent,
     ],
     exports: [
         FlatComponent,
         TotalChartComponent,
-        OverviewComponent,
+        ControllerChannelThresholdOverviewComponent,
     ],
 })
 export class ChannelThreshold { }

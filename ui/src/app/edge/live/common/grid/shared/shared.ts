@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
@@ -235,16 +235,17 @@ export namespace SharedGrid {
         if (gridMeters == null) {
             return null;
         }
+        const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge);
 
         return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("GENERAL.GRID"), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [
                 ...gridMeters
-                    .map(el => new NavigationTree(el.id + "/phase-accurate", { baseString: el.id + "/phase-accurate" },
-                        { name: "oe-grid", color: "dark" }, gridMeters.length === 1 ? translate.instant("EDGE.HISTORY.PHASE_ACCURATE") : el.alias, "label",
-                        edge.roleIsAtLeast(Role.INSTALLER)
-                            ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", [], null)]
-                            : [],
-                        null)),
+                    .map(el => gridMeters.length === 1
+                        ? NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, el.id + "/phase-accurate", "dark", currentAndVoltage)
+                        : new NavigationTree(el.id + "/phase-accurate", { baseString: el.id + "/phase-accurate" },
+                            { name: "oe-grid", color: "dark" }, el.alias, "label",
+                            currentAndVoltage,
+                            null)),
                 new NavigationTree(
                     "external-limitation", { baseString: "external-limitation" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"), "label", [],
                     null),

@@ -6,7 +6,7 @@ import { TotalChartComponent } from "./chart/chart";
 import { ChartComponent } from "./details/chart/chart";
 import { DetailsOverviewComponent } from "./details/details.overview";
 import { FlatComponent } from "./flat/flat";
-import { OverviewComponent } from "./overview/overview";
+import { ControllerIoDigitalOutputOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -16,14 +16,14 @@ import { OverviewComponent } from "./overview/overview";
     ],
     declarations: [
         FlatComponent,
-        OverviewComponent,
+        ControllerIoDigitalOutputOverviewComponent,
         TotalChartComponent,
         DetailsOverviewComponent,
         ChartComponent,
     ],
     exports: [
         FlatComponent,
-        OverviewComponent,
+        ControllerIoDigitalOutputOverviewComponent,
         TotalChartComponent,
         DetailsOverviewComponent,
         ChartComponent,
