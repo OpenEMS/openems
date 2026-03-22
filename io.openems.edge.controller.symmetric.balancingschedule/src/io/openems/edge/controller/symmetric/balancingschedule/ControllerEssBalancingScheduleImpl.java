@@ -131,18 +131,8 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 		this._setNoActiveSetpoint(false);
 		int gridConnSetPoint = gridConnSetPointOpt.get();
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = this.ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return;
 		}
 
@@ -154,8 +144,8 @@ public class ControllerEssBalancingScheduleImpl extends AbstractOpenemsComponent
 		/*
 		 * set result
 		 */
-		this.ess.setActivePowerEqualsWithPid(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEqualsWithFilter(calculatedPower);
+		this.ess.setReactivePowerEqualsWithoutFilter(0);
 	}
 
 	@Override

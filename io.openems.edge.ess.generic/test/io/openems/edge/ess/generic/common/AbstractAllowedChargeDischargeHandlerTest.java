@@ -5,26 +5,30 @@ import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeH
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
 import org.junit.Test;
 
+import io.openems.common.test.TestUtils;
 import io.openems.edge.battery.test.DummyBattery;
 import io.openems.edge.batteryinverter.test.DummyManagedSymmetricBatteryInverter;
-import io.openems.edge.common.filter.Pt1filter;
+import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.startstop.StartStop;
-import io.openems.edge.common.type.TypeUtils;
 
 public class AbstractAllowedChargeDischargeHandlerTest {
 
 	@Test
 	public void testCalculateMaxCurrent() {
+		final var clock = TestUtils.createDummyClock();
 		final var battery = new DummyBattery("batter0");
 		final var batteryInverter = new DummyManagedSymmetricBatteryInverter("batteryInverter0");
-		final var cycleTime = 500; // [ms]
-		final var pt1Filter = new Pt1filter(VOLTAGE_CONTROL_FILTER_TIME_CONSTANT, cycleTime);
-		Supplier<Integer> maxCurrent = () -> calculateMaxCurrent(battery, batteryInverter, cycleTime, pt1Filter, //
-				TypeUtils::min, TypeUtils::subtract, true /* invert */);
+		final var pt1Filter = new PT1Filter(clock, VOLTAGE_CONTROL_FILTER_TIME_CONSTANT);
+		Supplier<Integer> maxCurrent = () -> {
+			clock.leap(500, ChronoUnit.MILLIS);
+			return calculateMaxCurrent(battery, batteryInverter, pt1Filter, //
+					Math::min, (a, b) -> a - b, true /* invert */);
+		};
 
 		// Without data
 		assertNull(maxCurrent.get());
@@ -50,14 +54,14 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(102, maxCurrent.get().intValue());
+		assertEquals(103, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-45);
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(98, maxCurrent.get().intValue());
+		assertEquals(99, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-40);

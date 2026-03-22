@@ -19,11 +19,11 @@ public class ModbusRecordChannelTest {
 	private class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
 
 		public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-			WRITE_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			WRITE_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(WRITE_ONLY)),
-			READ_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			READ_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(AccessMode.READ_ONLY)),
-			READ_WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			READ_WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(READ_WRITE)); //
 
 			private final Doc doc;

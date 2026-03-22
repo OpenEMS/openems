@@ -32,6 +32,7 @@ import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.app.evse.AppEvseCluster;
 import io.openems.edge.app.evse.EvseProps;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
@@ -147,8 +148,22 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
+					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
+					if (existingEvcs.isEmpty()) {
+						return;
+					}
+
+					final var evcsExistsExpression = existingEvcs.stream().map(OpenemsComponent::id) //
+							.map(Exp::staticValue) //
+							.collect(Exp.toArrayExpression()) //
+							.every(v -> v.notEqual(Exp.currentModelValue(EVCS_ID)));
+
+					final var isEvcsExpression = Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS));
+
+					final var expression = evcsExistsExpression.and(isEvcsExpression);
+
+					field.onlyShowIf(expression);
 				})), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		// Properties for P40 app

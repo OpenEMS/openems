@@ -3,6 +3,7 @@ package io.openems.common.bridge.http.api;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import io.openems.common.types.HttpStatus;
 
@@ -38,6 +39,24 @@ public record HttpResponse<T>(//
 	 */
 	public <O> HttpResponse<O> withData(O newData) {
 		return new HttpResponse<O>(this.status(), this.header(), newData);
+	}
+
+	/**
+	 * Creates a new {@link HttpResponse} with the given header and all other fields
+	 * from the current instance passed to the created object.
+	 *
+	 * @param key    the key of the header
+	 * @param values the values of the header; null if header should be removed
+	 * @return the new {@link HttpResponse} object
+	 */
+	public HttpResponse<T> withHeader(String key, List<String> values) {
+		final var header = new TreeMap<>(this.header());
+		if (values != null) {
+			header.put(key, values);
+		} else {
+			header.remove(key);
+		}
+		return new HttpResponse<>(this.status(), Collections.unmodifiableMap(header), this.data());
 	}
 
 }

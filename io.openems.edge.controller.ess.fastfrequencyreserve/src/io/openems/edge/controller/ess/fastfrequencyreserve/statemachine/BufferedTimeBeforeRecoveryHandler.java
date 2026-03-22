@@ -34,7 +34,7 @@ public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Conte
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+		context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 		final var now = Instant.now(context.clock);
 		this.bufferedTimeBeforeRecoveryStartTime = now;
 		this.bufferedTimeBeforeRecoveryState = new BufferedTimeBeforeRecoveryState(
@@ -60,7 +60,7 @@ public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Conte
 	private SubState getNextSubState(Context context) throws OpenemsNamedException {
 		return switch (this.bufferedTimeBeforeRecoveryState.subState) {
 		case HOLD_BUFFERED_TIME_BEFORE_RECOVERY -> {
-			context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+			context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 			var bufferedDurationExpiration = this.calculateBufferedDurationExpiration(context);
 			if (bufferedDurationExpiration >= BUFFER_DURATION_THRESHOLD_SECONDS) {
 				yield SubState.BUFFERED_TIME_RECOVERY;
@@ -69,7 +69,7 @@ public class BufferedTimeBeforeRecoveryHandler extends StateHandler<State, Conte
 		}
 		case BUFFERED_TIME_RECOVERY -> {
 			var minPowerEss = this.calculateMinPower(context.ess);
-			context.ess.setActivePowerEquals(minPowerEss);
+			context.ess.setActivePowerEqualsWithoutFilter(minPowerEss);
 			var bufferedRecoveryExpiration = this.calculateBufferedRecoveryExpiration(context);
 			if (bufferedRecoveryExpiration >= RECOVERY_DURATION_THRESHOLD_MINUTES) {
 				yield SubState.FINISH_BUFFERED_TIME_BEFORE_RECOVERY;

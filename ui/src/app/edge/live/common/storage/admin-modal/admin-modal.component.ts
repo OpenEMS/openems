@@ -1,14 +1,17 @@
 // @ts-strict-ignore
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { ModalController } from "@ionic/angular";
+import { AlertController, ModalController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
+import { SohDeterminationService } from "src/app/edge/live/common/soh/service/soh-determination.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
@@ -16,6 +19,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { environment, Environment } from "src/environments";
+import { SohCycleSectionComponent } from "../../soh/components/soh-cycle-section/soh-cycle-section";
 import { StorageSystemComponent } from "./storage-system/storage-system";
 
 @Component({
@@ -25,6 +29,7 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
     imports: [
         CommonUiModule,
         StorageSystemComponent,
+        SohCycleSectionComponent,
         HelpButtonComponent,
         ReactiveFormsModule,
         FormsModule,
@@ -32,7 +37,6 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
         PipeComponentsModule,
         ComponentsBaseModule,
         ModalComponentsModule,
-
         LocaleProvider,
         LiveDataServiceProvider,
     ],
@@ -71,6 +75,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
     public isLastElement = Utils.isLastElement;
 
     public formGroup: FormGroup = new FormGroup({});
+    protected readonly Converter = Converter;
     protected isAtLeastInstaller: boolean;
     protected isTargetTimeInValid: Map<string, boolean> = new Map();
     protected controllerIsRequiredEdgeVersion: boolean = false;
@@ -80,6 +85,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
     protected chargerComponents!: EdgeConfig.Component[];
     protected batteryInverters: EdgeConfig.Component[] = [];
     protected batteryInverterIdsByEssId: { [essId: string]: string[] } = {};
+    protected spinnerId: string = uuidv4();
 
     protected readonly environment: Environment = environment;
 
@@ -87,13 +93,19 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         public service: Service,
         public translate: TranslateService,
         public modalCtrl: ModalController,
+        public alertCtrl: AlertController,
         public websocket: Websocket,
         public formBuilder: FormBuilder,
+        protected sohDeterminationService: SohDeterminationService,
     ) { }
 
     ngOnInit() {
         this.edge.getFirstValidConfig(this.websocket).then(config => {
             this.config = config;
+
+            // Initialize SoH cycle state tracking
+            this.sohDeterminationService.initializeSohTracking(config, this.edge);
+
             this.essComponents = this.config
                 .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
                 .filter(component => component.isEnabled && !this.config
@@ -123,8 +135,9 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
             const emergencyReserveCtrl = this.config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
             const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
+            const essSohCycleCtrl = this.config.getComponentsByFactory("Controller.Ess.SoH.Cycle");
             this.hasRequiredEdgeVersion = this.edge.isVersionAtLeast("2024.12.3");
-            const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl].filter(component => component.isEnabled).reduce((result, component) => {
+            const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl, ...essSohCycleCtrl].filter(component => component.isEnabled).reduce((result, component) => {
                 const essId = component.properties["ess.id"];
                 if (result[essId] == null) {
                     result[essId] = [];
@@ -148,6 +161,19 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "_PropertyTargetSoc"),
                     new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
+                );
+            }
+            for (const essId in essSohCycleCtrl) {
+                const controller = essSohCycleCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                    new ChannelAddress(controller.id, "_PropertyLogVerbosity"),
+                    new ChannelAddress(controller.id, "StateMachine"),
+                    new ChannelAddress(controller.id, "SohPercent"),
+                    new ChannelAddress(controller.id, "MeasuredCapacity"),
+                    new ChannelAddress(controller.id, "IsBatteryBalanced"),
+                    new ChannelAddress(controller.id, "IsMeasured"),
                 );
             }
             for (const batteryInverter of this.batteryInverters) {
@@ -183,6 +209,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                         reserveSoc: new FormControl(reserveSoc),
                                     }),
                                 );
+
                             } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
 
                                 const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
@@ -228,6 +255,8 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                         expectedStartOfPreparation: new FormControl(expectedStartOfPreparation),
                                     }),
                                 );
+                            } else if (controller.factoryId == "Controller.Ess.SoH.Cycle") {
+                                this.addSohCycleFormGroup(currentData, controller, controllerFrmGrp);
                             }
                         }
                         controls.addControl(essId, controllerFrmGrp);
@@ -286,6 +315,16 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            const essSohCycleController = (essGroups.get("essSohCycleController") as FormGroup)?.controls ?? {};
+            for (const essGroup of Object.keys(essSohCycleController)) {
+                if (essSohCycleController[essGroup].dirty) {
+                    if (updateArray.get(essSohCycleController["controllerId"].value)) {
+                        updateArray.get(essSohCycleController["controllerId"].value).push(new Map().set(essGroup, essSohCycleController[essGroup].value));
+                    } else {
+                        updateArray.set(essSohCycleController["controllerId"].value, [new Map().set(essGroup, essSohCycleController[essGroup].value)]);
+                    }
+                }
+            }
         }
 
         for (const controllerId of updateArray.keys()) {
@@ -322,6 +361,41 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.edge.unsubscribeChannels(this.websocket, "storage");
+    }
+
+    /**
+     * Add SoH cycle controller form group with channel data
+     */
+    private addSohCycleFormGroup(
+        currentData: any,
+        controller: EdgeConfig.Component,
+        controllerFrmGrp: FormGroup,
+    ): void {
+        this.service.startSpinnerTransparentBackground(this.spinnerId);
+        const enabled = currentData.channel[controller.id + "/_PropertyEnabled"] == 1;
+        const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"];
+        const stateMachine = currentData.channel[controller.id + "/StateMachine"];
+        const stateMachineDisplay = this.sohDeterminationService.getStateMachineName(stateMachine);
+        const sohPercent = currentData.channel[controller.id + "/SohPercent"];
+        const logVerbosity = currentData.channel[controller.id + "/_PropertyLogVerbosity"];
+        const measuredCapacity = currentData.channel[controller.id + "/MeasuredCapacity"];
+        const isBatteryBalanced = currentData.channel[controller.id + "/IsBatteryBalanced"] == 1;
+        const isMeasured = currentData.channel[controller.id + "/IsMeasured"] == 1;
+
+        controllerFrmGrp.addControl("essSohCycleController",
+            this.formBuilder.group({
+                controllerId: new FormControl(controller.id),
+                enabled: new FormControl(enabled),
+                isRunning: new FormControl(isRunning),
+                stateMachine: new FormControl(stateMachine),
+                stateMachineDisplay: new FormControl(stateMachineDisplay),
+                sohPercent: new FormControl(sohPercent),
+                logVerbosity: new FormControl(logVerbosity),
+                measuredCapacity: new FormControl(measuredCapacity),
+                isBatteryBalanced: new FormControl(isBatteryBalanced),
+                isMeasured: new FormControl(isMeasured),
+            }),
+        );
     }
 
 }

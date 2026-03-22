@@ -3,6 +3,9 @@ package io.openems.edge.controller.evse.cluster;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.openems.common.utils.IntUtils.minInt;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import java.time.ZonedDateTime;
 import java.util.stream.Stream;
@@ -51,12 +54,16 @@ public class EshUtils {
 					.map(p -> {
 						final var csc = clusterCsc.getCsc(p.componentId());
 						final var scheduledMode = mode.getMode(p.componentId());
-						final var remainingSessionEnergy = p.sessionEnergyLimit() > 0 //
-								? Math.max(0, p.sessionEnergyLimit() - csc.getSessionEnergy()) //
-								: null;
 						final var abilities = p.combinedAbilities();
-						final int maxEnergy = TypeUtils.min(remainingSessionEnergy,
+
+						// Evaluate Energy limit
+						final var energyLimit = minInt(//
+								p.combinedAbilities().electricVehicleAbilities().capacity(), //
+								p.sessionEnergyLimit());
+						final var remainingSessionEnergy = max(0, energyLimit - csc.getSessionEnergy());
+						final int maxEnergy = min(remainingSessionEnergy,
 								period.duration().convertPowerToEnergy(abilities.applySetPoint().max()));
+
 						final int energyInModeMinimum = period.duration()
 								.convertPowerToEnergy(abilities.applySetPoint().min());
 						final var actualMode = abilities.isReadyForCharging() && !p.appearsToBeFullyCharged() //
@@ -90,7 +97,7 @@ public class EshUtils {
 				this.csc = csc;
 				this.scheduledMode = scheduledMode;
 				this.actualMode = actualMode;
-				this.energyInModeMinimum = Math.min(energyInModeMinimum, maxEnergy);
+				this.energyInModeMinimum = min(energyInModeMinimum, maxEnergy);
 				this.maxEnergy = maxEnergy;
 			}
 		}
@@ -114,7 +121,7 @@ public class EshUtils {
 		}
 
 		protected void distributeSurplusEnergy(DistributionStrategy distributionStrategy) {
-			var totalExcessEnergy = Math.max(0, this.surplusEnergy - this.sumActualEnergies());
+			var totalExcessEnergy = max(0, this.surplusEnergy - this.sumActualEnergies());
 
 			// TODO consider distributionStrategy
 			this.distributeEnergyEqual(totalExcessEnergy);
@@ -140,7 +147,7 @@ public class EshUtils {
 			var remaining = initialDistributableEnergy;
 			for (var e : entries) {
 				var before = e.actualEnergy;
-				var after = TypeUtils.fitWithin(0, e.maxEnergy, before + Math.min(remaining, equalEnergy));
+				var after = TypeUtils.fitWithin(0, e.maxEnergy, before + min(remaining, equalEnergy));
 				remaining -= after - before;
 
 				e.actualEnergy = after;

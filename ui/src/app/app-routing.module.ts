@@ -3,8 +3,6 @@ import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/r
 import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
-import { DetailsOverviewComponent } from "./edge/history/common/production/details/details.overview";
-import { CommonProductionOverviewComponent as ProductionChartOverviewComponent } from "./edge/history/common/production/overview/overview";
 import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
 import { ControllerEnerixOverviewComponent as EnerixOverviewComponent } from "./edge/history/Controller/EnerixControl/overview/overview";
 import { ControllerEssGridOptimizedChargeOverviewComponent as GridOptimizedChargeChartOverviewComponent } from "./edge/history/Controller/Ess/GridoptimizedCharge/overview/overview";
@@ -27,6 +25,8 @@ import { CommonConsumptionDetailsOverviewComponent } from "./edge/live/common/co
 import { CommonGridDetailsExternalLimitationOverviewComponent } from "./edge/live/common/grid/history/details/external-limitation/overview/details.overview";
 import { CommonGridDetailsPhaseAccurateOverviewComponent } from "./edge/live/common/grid/history/details/phase-accurate/overview/details.overview";
 import { CommonGridOverviewComponent } from "./edge/live/common/grid/history/overview/overview";
+import { CommonProductionHistoryOverviewComponent } from "./edge/live/common/production/history/overview/overview";
+import { CommonProductionDetailsOverviewComponent } from "./edge/live/common/production/history/phase-accurate/overview/overview";
 import { CommonSelfconsumptionOverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/live/common/selfconsumption/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
@@ -66,8 +66,8 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: "gridchart/externalLimitation", component: CommonGridDetailsExternalLimitationOverviewComponent },
         { path: "gridchart/:componentId", component: CommonGridDetailsPhaseAccurateOverviewComponent },
         { path: "gridchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
-        { path: "productionchart", component: ProductionChartOverviewComponent },
-        { path: "productionchart/:componentId", component: DetailsOverviewComponent },
+        { path: "productionchart", component: CommonProductionHistoryOverviewComponent },
+        { path: "productionchart/:componentId", component: CommonProductionDetailsOverviewComponent },
         { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
         { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
         { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },

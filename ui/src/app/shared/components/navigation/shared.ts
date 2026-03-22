@@ -1,6 +1,9 @@
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "../../type/role";
 import { TEnumKeys, TPartialBy } from "../../type/utility";
 import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { Edge } from "../edge/edge";
 
 export enum NavigationId {
     LIVE = "live",
@@ -11,7 +14,6 @@ type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "
 export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
-
     constructor(
         public id: NavigationId | string,
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
@@ -24,14 +26,16 @@ export class NavigationTree {
 
         /** Use null for nested node */
         public parent: NavigationTree | null,
+        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
+        public priorization: "HIGH" | "LOW" = "HIGH",
     ) { }
 
     /**
-     * Creates new navigation tree instance from existing navigation tree object
-     *
-     * @param navigationTree
-     * @returns the new navigationTree
-     */
+     * Creates new navigation tree instance from existing navigation tree object.
+    *
+    * @param navigationTree
+    * @returns the new navigationTree
+    */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
         if (!navigationTree) {
             return null;
@@ -41,6 +45,27 @@ export class NavigationTree {
 
     public static dummy() {
         return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
+    }
+
+    /**
+     * Reorders the navigation tree children by its {@link priorization} from HIGH to LOW.
+     *
+     * @param node the node
+     * @returns
+     */
+    public reorderByPriorization(node: NavigationTree): void {
+        if (node == null || !Array.isArray(node.children)) {
+            return;
+        }
+
+        // First reorder deeper levels
+        node.children.forEach(child => this.reorderByPriorization(child));
+
+        // Explicit grouping (safer than comparator)
+        const high = node.children.filter(c => c.priorization === "HIGH");
+        const low = node.children.filter(c => c.priorization === "LOW");
+
+        node.children = [...high, ...low];
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
@@ -231,6 +256,7 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
+            this.priorization,
         ];
     }
 
@@ -372,10 +398,20 @@ export namespace NavigationConstants {
         "Common_Selfconsumption",
         "Consumption",
         "Grid",
+        "Common_Production",
     ];
 
     /**
      * The widget factories to show in new navigation
      */
-    export const newWidgets: Widget["name"][] = ["System.Fenecon.Industrial.L"];
+    export const newWidgets: Widget["name"][] = [];
+
+    export namespace CommonNodes {
+        export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
+        export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
+            return edge.roleIsAtLeast(Role.INSTALLER)
+                ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
+                : [];
+        }
+    }
 }

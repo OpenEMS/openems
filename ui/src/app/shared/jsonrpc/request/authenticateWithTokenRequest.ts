@@ -19,7 +19,7 @@ import { JsonrpcRequest } from "../base";
  */
 export class AuthenticateWithTokenRequest extends JsonrpcRequest {
 
-    private static METHOD: string = "authenticateWithToken";
+    public static METHOD: string = "authenticateWithToken";
 
     public constructor(
         public override readonly params: {
