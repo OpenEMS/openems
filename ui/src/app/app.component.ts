@@ -54,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
         private routeService: RouteService,
         private layoutRefresh: LayoutRefreshService,
     ) {
-        service.setLang(Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language));
+        service.setLang(Language.getCurrentLanguage());
 
         this.subscription.add(
             this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
