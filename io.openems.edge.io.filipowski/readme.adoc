@@ -1,18 +1,68 @@
-= Filipowski (F&F) Analog Output
+= Filipowski (F&F) Analog Output MR-AO-1
 
-This bundle implements the MR-AO-1 analog output module, which has four possible analog outputs.
+Integrates the Filipowski (F&F) MR-AO-1 analog output module into OpenEMS for control of four-channel analog voltage outputs via Modbus communication.
 
-Compatible with
-- https://www.fif.com.pl/en/io-extension-modules/408-analog-voltage-output-mr-ao-1.html[MR-AO-1]
+== Overview
 
-Implemented Natures
-- AnalogOutput
+This bundle provides integration for the Filipowski (F&F) MR-AO-1 analog output module, a Modbus-based device that provides four independent analog voltage output channels. The component enables remote control and monitoring of analog outputs with precise voltage regulation suitable for industrial automation and control applications.
 
-Default Configuration
- - Baud rate: 9600
- - Data bits: 8
- - Parity: NONE
- - Start bits: 1
- - *Stop bits: 2*
+The MR-AO-1 module communicates via Modbus TCP/IP protocol over standard networks. The integration allows configuration of individual output channels independently, with each channel configurable as a separate OpenEMS component for flexible system design.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.analog.filipowski.mr[Source Code icon:github[]]
+The module supports standard Modbus Unit-ID configuration and integrates seamlessly with OpenEMS Edge's Modbus bridge infrastructure for reliable communication over networked systems.
+
+== Supported Devices
+
+* https://www.fif.com.pl/en/io-extension-modules/408-analog-voltage-output-mr-ao-1.html[F&F MR-AO-1 Analog Output Module icon:external-link[]] - Four-channel analog voltage output
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== F&F MR-AO-1 Analog Output
+
+*Name*: IO F&F Filipowski MR-AO-1
+
+*Factory-PID*: `io.openems.edge.io.filipowski.analogmr`
+
+.Implemented Natures/Interfaces
+* AnalogOutput
+* ModbusComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "analogIo0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `analogOutput` (AnalogOutput): ID of the analog output channel to control (default: OUTPUT_1) - Supported values: OUTPUT_1, OUTPUT_2, OUTPUT_3, OUTPUT_4
+* `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 100)
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Network connectivity: F&F MR-AO-1 module must be reachable via Modbus TCP/IP on the network
+* Modbus bridge: A Modbus TCP bridge component must be configured and enabled
+* Local Network: Module must be on the same network as OpenEMS Edge
+
+=== Device Setup
+. Ensure the F&F MR-AO-1 module is connected to the network and powered
+. Configure the Modbus TCP bridge in OpenEMS with the device IP address and port (default: 502)
+. Set the correct Modbus Unit-ID in the component configuration (verify with device documentation or web interface)
+. Configure individual output channels as needed (typically one component per output channel)
+. Verify network connectivity: `ping` the device IP address to confirm reachability
+
+=== Default Configuration
+* Baud rate: 9600
+* Data bits: 8
+* Parity: NONE
+* Start bits: 1
+* Stop bits: 2
+
+== Known Limitations
+
+* **Single Channel per Component**: Each OpenEMS component instance controls one analog output channel; multiple components are required for multi-channel control
+* **Modbus TCP Only**: Communication uses Modbus TCP/IP protocol only; other fieldbus protocols are not supported
+* **Unit-ID Configuration**: Modbus Unit-ID must match device configuration; incorrect settings will prevent communication
+* **No Real-Time Events**: Updates are polling-based; real-time event notification is not supported
+* **Fixed Voltage Range**: Output voltage range is fixed by hardware specification; no software-based range limiting available
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.filipowski[Source Code icon:github[]]
