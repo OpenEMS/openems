@@ -1,5 +1,6 @@
 package io.openems.edge.evcs.cluster;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
@@ -59,8 +60,8 @@ import io.openems.edge.meter.api.PhaseRotation;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements MetaEvcs, OpenemsComponent, ManagedEvcsCluster, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
+public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent implements MetaEvcs, OpenemsComponent,
+		ManagedEvcsCluster, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
@@ -185,7 +186,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 				this.sortedEvcss.add(evcs);
 			}
 		}
-		this._setEvcsCount(this.evcsIds.length);
+		setValue(this, ManagedEvcsCluster.ChannelId.EVCS_COUNT, this.evcsIds.length);
 	}
 
 	/**
@@ -233,7 +234,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	}
 
 	private void updateChannels() {
-		Optional<Integer> maximumAllowedPowerToDistribute = this.getMaximumAllowedPowerToDistributeChannel().getNextWriteValueAndReset();
+		Optional<Integer> maximumAllowedPowerToDistribute = this.getMaximumAllowedPowerToDistributeChannel()
+				.getNextWriteValueAndReset();
 		if (maximumAllowedPowerToDistribute.isPresent()) {
 
 			// We have to treat values below 0 as no limit and set channel to null.
@@ -241,7 +243,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			// means no new value.
 
 			int value = maximumAllowedPowerToDistribute.get();
-			this._setMaximumAllowedPowerToDistribute(value < 0 ? null : value);
+			setValue(this, ManagedEvcsCluster.ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, value < 0 ? null : value);
 		}
 	}
 
@@ -283,10 +285,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		}
 
 		this._setActivePower(activePower.calculate());
-		this._setEvcsBlockedChargePower(blockedActivePower.calculate());
+		setValue(this, EvcsClusterPeakShaving.ChannelId.EVCS_BLOCKED_CHARGE_POWER, blockedActivePower.calculate());
 		this._setFixedMinimumHardwarePower(minFixedHardwarePower.calculate());
 		this._setFixedMaximumHardwarePower(maxFixedHardwarePower.calculate());
-		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(minHardwarePower.calculate());
+		setValue(this, Evcs.ChannelId.MINIMUM_HARDWARE_POWER, minHardwarePower.calculate());
 		var maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
 		if (maximalUsedHardwarePower == null) {
 			maximalUsedHardwarePower = this.getMaximumPowerToDistribute();
@@ -294,7 +296,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(maximalUsedHardwarePower);
 		this._setMinimumPower(minPower.calculate());
 		this.currentEvcsClusterState = evcsClusterStatus.calculate();
-		this._setEvcsClusterStatus(this.currentEvcsClusterState);
+		setValue(this, EvcsClusterPeakShaving.ChannelId.EVCS_CLUSTER_STATUS, this.currentEvcsClusterState);
 	}
 
 	/**
@@ -468,7 +470,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	/**
 	 * Sorted list of the EVCSs in the cluster.
 	 *
-	 * <p>List of EVCSs that should be considered in the cluster sorted by
+	 * <p>
+	 * List of EVCSs that should be considered in the cluster sorted by
 	 * prioritisation.
 	 *
 	 * @return Sorted EVCS list
@@ -480,7 +483,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	/**
 	 * Maximum power to distribute.
 	 *
-	 * <p>Calculate the maximum power to distribute, like excess power or excess power
+	 * <p>
+	 * Calculate the maximum power to distribute, like excess power or excess power
 	 * + storage.
 	 *
 	 * @return Maximum Power in Watt
@@ -512,7 +516,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						+ this.config.hardwarePowerLimitPerPhase() * THREE_PHASE.getValue()
 						+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
 
-		int maximumPowerToDistribute =  allowedChargePower > 0 ? allowedChargePower : 0;
+		int maximumPowerToDistribute = allowedChargePower > 0 ? allowedChargePower : 0;
 
 		this.logInfoInDebugmode(this.log, "EVCS Charge maximum power to distribute: " + maximumPowerToDistribute);
 
@@ -539,7 +543,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	/**
 	 * Maximum available grid power.
 	 * 
-	 * <p>Calculate the maximum available power from the grid. This value is used as a
+	 * <p>
+	 * Calculate the maximum available power from the grid. This value is used as a
 	 * fallback option when it becomes negative.
 	 * 
 	 * @return Current grid power in W
@@ -554,7 +559,8 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	/**
 	 * Check if the cluster should wait for last changes.
 	 * 
-	 * <p>Since the charging stations and each car have their own response time until
+	 * <p>
+	 * Since the charging stations and each car have their own response time until
 	 * they charge at the set power, the cluster waits until everything runs
 	 * normally or exceptionally wrong.
 	 * 

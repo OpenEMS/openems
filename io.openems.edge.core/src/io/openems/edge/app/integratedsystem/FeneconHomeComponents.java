@@ -6,7 +6,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
@@ -23,9 +22,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
-import io.openems.edge.core.appmanager.dependency.Task;
-import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
@@ -574,8 +570,7 @@ public final class FeneconHomeComponents {
 	 * 
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration stateLed(String ioId)
-			throws OpenemsNamedException {
+	public static DependencyDeclaration stateLed(String ioId) throws OpenemsNamedException {
 
 		return new DependencyDeclaration("STATE_LED", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
@@ -665,17 +660,13 @@ public final class FeneconHomeComponents {
 	 * @return the {@link DependencyDeclaration}
 	 */
 	public static DependencyDeclaration sohCycle() {
-		return new DependencyDeclaration("ESS_SOH_CYCLE",
-				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING,
-				DependencyDeclaration.UpdatePolicy.NEVER,
-				DependencyDeclaration.DeletePolicy.IF_MINE,
+		return new DependencyDeclaration("ESS_SOH_CYCLE", DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING,
+				DependencyDeclaration.UpdatePolicy.NEVER, DependencyDeclaration.DeletePolicy.IF_MINE,
 				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES,
 				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED,
-				DependencyDeclaration.AppDependencyConfig.create()
-						.setAppId(AppSohCycle.APP_ESS_SOH_CYCLE)
+				DependencyDeclaration.AppDependencyConfig.create().setAppId(AppSohCycle.APP_ESS_SOH_CYCLE)
 						.setProperties(JsonUtils.buildJsonObject()
-								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0")
-								.build())
+								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0").build())
 						.build());
 	}
 

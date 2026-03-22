@@ -16,15 +16,14 @@ import io.openems.edge.common.channel.value.Value;
 public interface ManagedEvcsCluster extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.accessMode(AccessMode.READ_WRITE) //
+		MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.text("Maximum power allowed to distribute for all evcs in this cluster.")),
-		EVCS_COUNT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.NONE) //
-				.text("Connect EVCS on this cluster.")),
-		;
+		EVCS_COUNT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.NONE)//
+				.text("Connect EVCS on this cluster."));
 
 		private final Doc doc;
 
@@ -58,16 +57,6 @@ public interface ManagedEvcsCluster extends Evcs {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setMaximumAllowedPowerToDistribute(Integer value) {
-		this.getMaximumAllowedPowerToDistributeChannel().setNextValue(value);
-	}
-
-	/**
 	 * Sets maximum allowed power to distribute in [W] on
 	 * {@link ChannelId#MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE} Channel.
 	 *
@@ -88,23 +77,11 @@ public interface ManagedEvcsCluster extends Evcs {
 	}
 
 	/**
-	 * Gets the evcs count. See
-	 * {@link ChannelId#EVCS_COUNT}.
+	 * Gets the evcs count. See {@link ChannelId#EVCS_COUNT}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
 	public default Value<Integer> getEvcsCount() {
 		return this.getEvcsCountChannel().value();
 	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EVCS_COUNT} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setEvcsCount(Integer value) {
-		this.getEvcsCountChannel().setNextValue(value);
-	}
-
 }
