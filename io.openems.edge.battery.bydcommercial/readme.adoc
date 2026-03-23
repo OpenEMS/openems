@@ -1,6 +1,90 @@
-= BYD Battery-Box Commercial
+= BYD Battery-Box Commercial C130
 
-Implemented Natures::
-- Battery
+Commercial-grade lithium battery rack system with scalable capacity.
+
+== Overview
+
+This bundle provides integration with the BYD Battery-Box Commercial C130 system, a modular lithium battery storage solution designed for commercial and industrial energy management. The system is scalable through stacking multiple battery modules and communicates via Modbus for precise charge/discharge control and monitoring.
+
+The Battery-Box Commercial is suitable for peak shaving, time-of-use arbitrage, and backup power applications in commercial facilities.
+
+== Supported Devices
+
+.BYD Battery-Box Commercial C130
+* **Type**: Lithium iron phosphate (LiFePO4) battery rack
+* **Capacity**: Scalable (per module, stackable up to 20 modules)
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
+* **Modular Design**: Up to 20 slaves in one rack system
+* **Documentation**: https://www.byd.com/[BYD icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_byd_c130,BYD Battery-Box Commercial C130>>
+
+*Name*: Battery BYD Battery-Box Commercial C130
+
+*Factory-PID*: `Byd.BatteryBox.Commercial.C130`
+
+.Implemented Natures/Interfaces
+* BydBatteryBoxCommercialC130
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for the BYD Battery-Box Commercial C130 battery rack system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and supports multi-module rack configurations with up to 20 slaves.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "battery0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the master device (default: 1)
+* `numberOfSlaves` (Integer): Number of slave modules in this rack (min: 1, max: 20) (default: 20)
+
+.Example Configuration
+For a commercial battery rack with 4 modules:
+* `id`: "battery0"
+* `alias`: "BYD Commercial Battery"
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1
+* `numberOfSlaves`: 4
+
+[[_byd_c130]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* BYD Battery-Box Commercial C130 device must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and battery
+* Device must be properly addressed on Modbus bus
+* All slave modules must be electrically connected and powered
+
+== Features
+
+* Modular scalable battery capacity (up to 20 modules per rack)
+* Advanced cell balancing and thermal management
+* Precise charge/discharge power control
+* Real-time state of charge and health monitoring
+* Multi-phase temperature monitoring
+* Safety management with cell-level monitoring
+* Automatic start/stop control
+* Compatible with most energy management controllers
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* All modules in a rack must use same configuration
+* Module count must match actual physical installation
+* Requires qualified technician for hardware installation
+* Maximum 20 modules per rack (additional racks require separate component instances)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bydcommercial[Source Code icon:github[]]
