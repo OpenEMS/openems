@@ -1,6 +1,207 @@
 = Soltaro Battery Rack
 
-Implemented Natures::
-- Battery
+Modular lithium battery storage system with multiple hardware versions.
+
+== Overview
+
+This bundle provides integration with the Soltaro battery rack system, a scalable lithium-based energy storage solution offering both single-rack and clustered configurations. Multiple hardware versions (A, B, C) are supported to accommodate different system architectures and performance requirements.
+
+Soltaro batteries are suitable for commercial energy storage, peak shaving, demand response, and renewable energy time-shifting applications.
+
+== Supported Devices
+
+.Soltaro Single Rack Systems
+* **Version A**: Legacy single-rack configuration
+* **Version B**: Mid-generation single-rack system
+* **Version C**: Latest generation single-rack system
+* **Typical Use**: Residential/small commercial
+* **Scalability**: Single unit or stacked configurations
+
+.Soltaro Cluster Systems
+* **Version B**: Multi-module clustered configuration
+* **Version C**: Latest generation clustered system
+* **Typical Use**: Commercial/industrial energy storage
+* **Scalability**: Multiple racks coordinated as single system
+
+.Common Features
+* **Type**: Modular lithium battery storage
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Energy storage, peak shaving, arbitrage
+* **Documentation**: https://www.soltaro.com/[Soltaro icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_soltaro_single_a,Soltaro Single Rack Version A>>
+
+*Name*: BMS Soltaro Single Rack Version A
+
+*Factory-PID*: `Bms.Soltaro.SingleRack.VersionA`
+
+.Implemented Natures/Interfaces
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for Soltaro single-rack battery system Version A. Manages charging and discharging, monitors state of charge, temperature, and cell health.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "battery0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior (default: AUTO)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 0)
+
+[[_soltaro_single_a]]
+
+=== <<_soltaro_single_b,Soltaro Single Rack Version B>>
+
+*Name*: BMS Soltaro Single Rack Version B
+
+*Factory-PID*: `Bms.Soltaro.SingleRack.VersionB`
+
+.Implemented Natures/Interfaces
+* BatterySoltaroSingleRackVersionB
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for Soltaro single-rack battery system Version B. Mid-generation hardware with improved battery management and monitoring capabilities.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "battery0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior (default: AUTO)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 0)
+
+[[_soltaro_single_b]]
+
+=== <<_soltaro_single_c,Soltaro Single Rack Version C>>
+
+*Name*: BMS Soltaro Single Rack Version C
+
+*Factory-PID*: `Bms.Soltaro.SingleRack.VersionC`
+
+.Implemented Natures/Interfaces
+* BatterySoltaroSingleRackVersionC
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for Soltaro single-rack battery system Version C. Latest generation hardware with advanced thermal management and cell monitoring.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "battery0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior (default: AUTO)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 0)
+
+[[_soltaro_single_c]]
+
+=== <<_soltaro_cluster_b,Soltaro Cluster Version B>>
+
+*Name*: BMS Soltaro Cluster Version B
+
+*Factory-PID*: `Bms.Soltaro.Cluster.VersionB`
+
+.Implemented Natures/Interfaces
+* SoltaroCluster
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for Soltaro multi-rack clustered battery system Version B. Coordinates multiple battery racks as single logical system for larger energy storage deployments.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "battery0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior (default: AUTO)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 0)
+
+[[_soltaro_cluster_b]]
+
+=== <<_soltaro_cluster_c,Soltaro Cluster Version C>>
+
+*Name*: Battery Soltaro Cluster Version C
+
+*Factory-PID*: `Battery.Soltaro.Cluster.VersionC`
+
+.Implemented Natures/Interfaces
+* BatterySoltaroClusterVersionC
+* SoltaroCluster
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+
+*Description*: Modbus interface for Soltaro multi-rack clustered battery system Version C. Latest generation clustered configuration with advanced inter-rack coordination and thermal management.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "battery0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior (default: AUTO)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 0)
+
+[[_soltaro_cluster_c]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* Soltaro battery rack(s) must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and battery
+* Battery must be properly addressed on Modbus bus
+* Device firmware should be current
+* For cluster systems: all racks must be electrically connected and synchronized
+
+== Features
+
+* Multiple hardware versions supported (A, B, C)
+* Single-rack and multi-rack (cluster) configurations
+* Precise charge/discharge power control
+* Real-time state of charge and health monitoring
+* Advanced cell-level monitoring and balancing
+* Thermal management and monitoring
+* Automatic start/stop control
+* Scalable architecture for large deployments
+* Compatible with most energy management controllers
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* Hardware versions are not interchangeable - correct version must be selected
+* Cluster systems must have all racks at same firmware version
+* Battery health and degradation depends on device firmware accuracy
+* Maximum charge/discharge rates fixed by hardware specifications
+* Thermal management depends on adequate cooling in deployment
+* Single racks cannot be dynamically converted to cluster mode
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.soltaro[Source Code icon:github[]]
