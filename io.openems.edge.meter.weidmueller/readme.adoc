@@ -1,6 +1,79 @@
 = Weidmueller 525 Meter
 
-Implemented Natures:
-- ElectricityMeter
+Three-phase energy meter by Weidmueller with Modbus TCP/RTU communication.
+
+== Overview
+
+This bundle provides integration with the Weidmueller 525 energy meter, a three-phase electricity meter with Modbus connectivity. The component reads power, energy, voltage, current and other electrical parameters over Modbus for accurate monitoring of electrical systems.
+
+The Weidmueller 525 is a DIN-rail mounted device suitable for panel installation in industrial and commercial environments.
+
+== Supported Devices
+
+.Weidmueller 525
+* **Type**: Three-phase electricity meter
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Grid, production, or consumption monitoring
+* **Documentation**: https://www.weidmueller.com/[Weidmueller icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_weidmueller_525,Weidmueller 525>>
+
+*Name*: Meter Weidmueller 525
+
+*Factory-PID*: `Meter.Weidmueller.525`
+
+.Implemented Natures/Interfaces
+* MeterWeidmueller525
+* ElectricityMeter
+* OpenemsComponent
+* ModbusComponent
+* ModbusSlave
+
+*Description*: Modbus interface for the Weidmueller 525 three-phase energy meter. Reads active power, reactive power, apparent power, energy counters, voltages, currents and power factor on all three phases.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the device (default: 1)
+* `invert` (Boolean): Invert all power/current values and swap production/consumption energy (default: false)
+
+.Example Configuration
+For a grid meter connected to Modbus bridge "modbus0":
+* `type`: "GRID"
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1 (or as configured on device)
+
+[[_weidmueller_525]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* Weidmueller 525 meter must be accessible at the configured Modbus Unit-ID
+* Modbus TCP or RTU communication working
+* Device must be properly networked and addressed
+
+== Features
+
+* Three-phase power and energy measurement
+* Active, reactive, and apparent power tracking
+* Per-phase voltage, current and power factor
+* Accumulating energy counters
+* Configurable meter type (grid, production, consumption)
+* Power value inversion for compatibility with different installations
+
+== Known Limitations
+
+* Requires active Modbus connection - no local storage
+* Modbus timeouts will cause temporary data unavailability
+* Power inversion applies to all phases together (phase-specific inversion not supported)
+* Unit-ID must match device configuration (typically 1, but verify with device settings)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.weidmueller[Source Code icon:github[]]
