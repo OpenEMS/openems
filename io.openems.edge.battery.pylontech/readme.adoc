@@ -1,9 +1,95 @@
-= Battery Pylontech Powercube M2
+= Pylontech Powercube M2 Battery
 
+Industrial-grade lithium battery system with advanced thermal and cell management.
 
-* Implemented Natures
-** Battery
-** OpenemsComponent
-** StartStoppable
+== Overview
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech.powercubeM2[Source Code icon:github[]]
+This bundle provides integration with the Pylontech Powercube M2 battery system, a high-performance lithium-based energy storage solution designed for commercial and industrial energy management. The system communicates via Modbus for precise charge/discharge control, detailed health monitoring, and thermal management.
+
+The Pylontech Powercube M2 is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power applications.
+
+== Supported Devices
+
+.Pylontech Powercube M2
+* **Type**: Industrial lithium battery system
+* **Capacity**: Configurable per system design
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
+* **Cell Management**: Advanced battery management system (BMS)
+* **Thermal**: Integrated thermal management
+* **Documentation**: https://www.pylontech.com.cn/[Pylontech icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_pylontech_m2,Pylontech Powercube M2>>
+
+*Name*: Battery Pylontech Powercube M2
+
+*Factory-PID*: `Battery.Pylontech`
+
+.Implemented Natures/Interfaces
+* ModbusComponent
+* OpenemsComponent
+* Battery
+* EventHandler
+* ModbusSlave
+* StartStoppable
+* PylontechPowercubeM2Battery
+
+*Description*: Modbus interface for the Pylontech Powercube M2 battery system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and health status. Provides automatic start/stop control for operational optimization and safety.
+
+*Note*: This implementation is tested and validated for the Pylontech Powercube M2 model. Compatibility with other Pylontech battery models has not been verified.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "battery0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the battery device (default: 1)
+
+.Example Configuration
+For a Pylontech Powercube M2 battery system:
+* `id`: "battery0"
+* `alias`: "Pylontech Battery"
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1
+* `startStop`: "AUTO"
+
+[[_pylontech_m2]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* Pylontech Powercube M2 battery device must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and battery
+* Battery must be properly addressed on Modbus bus
+* Device firmware should be current
+* Proper electrical installation with qualified technician
+
+== Features
+
+* Industrial-grade lithium battery storage
+* Advanced battery management system (BMS)
+* Precise charge/discharge power control
+* Real-time state of charge and health monitoring
+* Cell-level voltage and temperature monitoring
+* Thermal management and monitoring
+* Automatic start/stop control for safety and optimization
+* High charge/discharge efficiency
+* Compatible with most energy management controllers
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* Only validated for Pylontech Powercube M2 model (other models not tested)
+* Battery health and degradation reporting depends on device firmware
+* Maximum charge/discharge rates fixed by battery hardware
+* Requires proper electrical installation with qualified technician
+* Thermal management depends on adequate cooling in deployment environment
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech[Source Code icon:github[]]
