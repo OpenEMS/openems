@@ -1,5 +1,7 @@
 package io.openems.edge.bosch.bpts5hybrid.core;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -16,7 +18,11 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.edge.bosch.bpts5hybrid.ess.BoschBpts5HybridEss;
 import io.openems.edge.bosch.bpts5hybrid.meter.BoschBpts5HybridMeter;
 import io.openems.edge.bosch.bpts5hybrid.pv.BoschBpts5HybridPv;
@@ -36,14 +42,23 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 		implements BoschBpts5HybridCore, OpenemsComponent, EventHandler {
 
+	private final Logger log = LoggerFactory.getLogger(BoschBpts5HybridCoreImpl.class);
+
 	private final AtomicReference<BoschBpts5HybridEss> ess = new AtomicReference<>();
 	private final AtomicReference<BoschBpts5HybridPv> pv = new AtomicReference<>();
 	private final AtomicReference<BoschBpts5HybridMeter> meter = new AtomicReference<>();
+	private final BoschBpts5HybridApiClient apiClient = new BoschBpts5HybridApiClient();
 
 	@Reference
 	private ConfigurationAdmin cm;
 
-	private BoschBpts5HybridReadWorker worker = null;
+	@Reference
+	private BridgeHttpFactory httpBridgeFactory;
+
+	private BridgeHttp httpBridge;
+	private String baseUrl;
+	private int refreshIntervalSeconds;
+	private long lastRefreshTime = 0;
 
 	public BoschBpts5HybridCoreImpl() {
 		super(//
@@ -57,30 +72,113 @@ public class BoschBpts5HybridCoreImpl extends AbstractOpenemsComponent
 		if (!config.enabled()) {
 			return;
 		}
-		this.worker = new BoschBpts5HybridReadWorker(this, config.ipaddress(), config.interval());
-		this.worker.activate(config.id());
+		this.baseUrl = "http://" + config.ipaddress();
+		this.refreshIntervalSeconds = config.interval();
+		this.httpBridge = this.httpBridgeFactory.get();
+
+		// Initial connect to get WUI_SID
+		this.httpBridge.get(this.baseUrl).thenAccept(response -> {
+			try {
+				this.apiClient.processConnectResponse(response.data());
+			} catch (Exception e) {
+				this.log.warn("Initial connect to Bosch BPT-S 5 failed: " + e.getMessage());
+			}
+		});
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		if (this.worker != null) {
-			this.worker.deactivate();
+		if (this.httpBridge != null) {
+			this.httpBridgeFactory.unget(this.httpBridge);
+			this.httpBridge = null;
 		}
 		super.deactivate();
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled() || this.worker == null) {
+		if (!this.isEnabled() || this.httpBridge == null) {
 			return;
 		}
 
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.worker.triggerNextRun();
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
+			this.pollData();
 			break;
 		}
+	}
+
+	private void pollData() {
+		var now = System.currentTimeMillis();
+		if (now - this.lastRefreshTime < this.refreshIntervalSeconds * 1000L) {
+			return;
+		}
+		this.lastRefreshTime = now;
+
+		if (!this.apiClient.isConnected()) {
+			// Reconnect
+			this.httpBridge.get(this.baseUrl).thenAccept(response -> {
+				try {
+					this.apiClient.processConnectResponse(response.data());
+				} catch (Exception e) {
+					this.log.warn("Reconnect to Bosch BPT-S 5 failed: " + e.getMessage());
+					this._setSlaveCommunicationFailed(true);
+				}
+			});
+			return;
+		}
+
+		// Retrieve values via POST
+		this.httpBridge.post(this.apiClient.getValuesUrl(this.baseUrl), BoschBpts5HybridApiClient.getPostRequestData())
+				.thenAccept(response -> {
+					try {
+						this.apiClient.processValuesResponse(response.data());
+						this.updateChannels();
+					} catch (Exception e) {
+						this.log.warn("Error reading values from Bosch BPT-S 5: " + e.getMessage());
+						this._setSlaveCommunicationFailed(true);
+					}
+				});
+
+		// Retrieve battery status via GET
+		this.httpBridge.get(this.apiClient.getBatteryStatusUrl(this.baseUrl)).thenAccept(response -> {
+			try {
+				var status = this.apiClient.processBatteryStatusResponse(response.data());
+				this._setSlaveCommunicationFailed(status != 0);
+			} catch (Exception e) {
+				this.log.warn("Error reading battery status from Bosch BPT-S 5: " + e.getMessage());
+				this._setSlaveCommunicationFailed(true);
+			}
+		});
+	}
+
+	private void updateChannels() {
+		this.getEss().ifPresent(ess -> {
+			if (this.apiClient.getCurrentDischargePower() > 0) {
+				ess._setActivePower(
+						this.apiClient.getCurrentDischargePower() + this.apiClient.getCurrentVerbrauchVonPv());
+			} else {
+				var currentDirectUsageOfPv = this.apiClient.getCurrentVerbrauchVonPv()
+						+ this.apiClient.getCurrentEinspeisung();
+				ess._setActivePower(currentDirectUsageOfPv);
+			}
+			ess._setSoc(this.apiClient.getCurrentSoc());
+		});
+
+		this.getPv().ifPresent(pv -> {
+			pv._setActualPower(this.apiClient.getCurrentPvProduction());
+		});
+
+		this.getMeter().ifPresent(meter -> {
+			if (this.apiClient.getCurrentStromAusNetz() > 0) {
+				meter._setActivePower(this.apiClient.getCurrentStromAusNetz());
+			} else if (this.apiClient.getCurrentEinspeisung() > 0) {
+				meter._setActivePower(-1 * this.apiClient.getCurrentEinspeisung());
+			} else {
+				meter._setActivePower(0);
+			}
+		});
 	}
 
 	@Override
