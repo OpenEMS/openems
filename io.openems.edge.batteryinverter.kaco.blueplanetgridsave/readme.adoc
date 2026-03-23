@@ -1,12 +1,102 @@
 = KACO blueplanet gridsave
 
-* Applies to
-** KACO blueplanet gridsave 50.0 TL3
-** KACO blueplanet gridsave 92.0 TL3
+Three-phase battery inverter with integrated grid management and safety features.
 
-* Implemented Natures
-** StartStoppable
-** SymmetricBatteryInverter
-** ManagedSymmetricBatteryInverter
+== Overview
+
+This bundle provides integration with the KACO blueplanet gridsave battery inverter family, a line of three-phase AC/DC converters designed for residential and commercial energy storage applications. The inverters support SunSpec Modbus protocol for advanced communication and grid synchronization with configurable grid code settings.
+
+KACO blueplanet gridsave is suitable for solar battery storage, peak shaving, and residential energy management systems requiring precise grid synchronization and safety compliance.
+
+== Supported Devices
+
+.KACO blueplanet gridsave Series
+* **KACO blueplanet gridsave 50.0 TL3**: 50 kW three-phase inverter
+* **KACO blueplanet gridsave 92.0 TL3**: 92 kW three-phase inverter
+
+.Common Features
+* **Type**: Three-phase battery inverter
+* **Communication**: Modbus TCP/RTU (SunSpec)
+* **Typical Use**: Battery energy storage, solar integration
+* **Grid Connection**: Three-phase AC grid
+* **Grid Codes**: Configurable (VDE-AR-N 4105, etc.)
+* **Documentation**: https://www.kaco.de/[KACO icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_kaco_gridsave,KACO blueplanet gridsave>>
+
+*Name*: Battery-Inverter KACO blueplanet gridsave
+
+*Factory-PID*: `Battery-Inverter.Kaco.BlueplanetGridsave`
+
+.Implemented Natures/Interfaces
+* BatteryInverterKacoBlueplanetGridsave
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* ModbusSlave
+* OpenemsComponent
+* TimedataProvider
+* StartStoppable
+* BatteryInverterErrorAcknowledge
+
+*Description*: SunSpec Modbus interface for KACO blueplanet gridsave battery inverters. Manages bidirectional AC/DC power flow, monitors inverter status, temperature, and grid conditions. Supports automatic start/stop control, grid code compliance, and watchdog timer for safety.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `activateWatchdog` (Boolean): Enable watchdog timer for safety (default: true)
+* `gridCode` (GridCode): Grid code setting for compliance (default: VDE_4105)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+
+.Example Configuration
+For a KACO blueplanet gridsave 50.0 TL3 with German grid code:
+* `id`: "batteryInverter0"
+* `alias`: "KACO blueplanet gridsave"
+* `modbus_id`: "modbus0"
+* `gridCode`: "VDE_4105"
+* `activateWatchdog`: true
+
+[[_kaco_gridsave]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* KACO blueplanet gridsave inverter must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and inverter
+* Device must be properly addressed on Modbus bus
+* AC grid connection must be present and stable
+* Battery energy storage system must be connected to DC inputs
+* Firmware on inverter should be current
+* Grid code setting must match local regulations
+
+== Features
+
+* Three-phase battery inverter with bidirectional power flow
+* SunSpec Modbus protocol for advanced integration
+* Automatic AC/DC power conversion and control
+* Real-time grid synchronization
+* Temperature monitoring and thermal management
+* Watchdog timer for enhanced safety
+* Configurable grid codes for regulatory compliance (VDE-AR-N 4105, etc.)
+* Error acknowledgement and fault handling
+* Time-of-use capable with timedata provider
+* Compatible with battery energy storage systems
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* AC grid must be present for grid-tied operation
+* Grid code setting must be properly configured for compliance
+* Maximum power ratings fixed by hardware (50 kW or 92 kW)
+* Watchdog timer resets on Modbus communication - communication gaps trigger shutdown
+* Three-phase connection required (single-phase not supported)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.kaco.blueplanetgridsave[Source Code icon:github[]]
