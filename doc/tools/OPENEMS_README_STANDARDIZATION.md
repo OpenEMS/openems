@@ -300,7 +300,7 @@ current and other electrical parameters over Modbus.
 
 == Components
 
-=== <<_weidmueller_525,Weidmueller 525>>
+=== Weidmueller 525
 *Name*: Meter Weidmueller 525
 *Factory-PID*: `Meter.Weidmueller.525`
 .Implemented Natures/Interfaces

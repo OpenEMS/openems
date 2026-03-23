@@ -21,7 +21,7 @@ OneWire thermometers are low-cost, accurate temperature sensors useful for monit
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_onewire_thermometer,OneWire Thermometer>>
+=== OneWire Thermometer
 
 *Name*: OneWire Thermometer
 
@@ -46,8 +46,6 @@ For a temperature sensor on OneWire bus "onewire0":
 * `bridge_id`: "onewire0"
 * `address`: "28.0C00000012AB" (specific device address)
 * `alias`: "Battery Temperature"
-
-[[_onewire_thermometer]]
 
 == Prerequisites / Dependencies
 

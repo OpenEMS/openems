@@ -23,7 +23,7 @@ REFUstore 88K is suitable for solar battery storage, peak shaving, and residenti
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_refustore_88k,REFUstore 88K>>
+=== REFUstore 88K
 
 *Name*: Battery-Inverter REFUstore88k
 
@@ -59,8 +59,6 @@ For a REFUstore 88K inverter:
 * `modbusUnitId`: 1
 * `startStop`: "AUTO"
 * `watchdoginterval`: 60
-
-[[_refustore_88k]]
 
 == Prerequisites / Dependencies
 

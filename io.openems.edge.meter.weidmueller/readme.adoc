@@ -20,7 +20,7 @@ The Weidmueller 525 is a DIN-rail mounted device suitable for panel installation
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_weidmueller_525,Weidmueller 525>>
+=== Weidmueller 525
 
 *Name*: Meter Weidmueller 525
 
@@ -50,8 +50,6 @@ For a grid meter connected to Modbus bridge "modbus0":
 * `type`: "GRID"
 * `modbus_id`: "modbus0"
 * `modbusUnitId`: 1 (or as configured on device)
-
-[[_weidmueller_525]]
 
 == Prerequisites / Dependencies
 

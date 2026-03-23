@@ -21,7 +21,7 @@ The EFR4001IP is a compact three-phase meter suitable for industrial and commerc
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_ziehl_efr4001ip,Ziehl EFR4001IP>>
+=== Ziehl EFR4001IP
 
 *Name*: Meter Ziehl EFR4001IP
 
@@ -50,8 +50,6 @@ For a grid meter connected to Modbus bridge "modbus0":
 * `modbus_id`: "modbus0"
 * `modbusUnitId`: 1 (or as configured on device)
 * `meterType`: "GRID"
-
-[[_ziehl_efr4001ip]]
 
 == Prerequisites / Dependencies
 

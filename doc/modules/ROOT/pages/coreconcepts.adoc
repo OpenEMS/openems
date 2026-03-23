@@ -31,9 +31,9 @@ More bundle naming conventions are:
 
 * Bundle names ending with `*.api` are for xref:#_nature[Natures and APIs]. Examples are:
 `io.openems.edge.controller.api`::
-  for xref:edge/controller.adoc[Controllers]
+  for Controllers
 `io.openems.edge.scheduler.api`::
-  for xref:edge/scheduler.adoc[Schedulers]
+  for Schedulers
 `...`::
 
 * Bundle names ending with `*.core` are for shared and helper OSGi services. Examples are:
@@ -117,9 +117,7 @@ Natures extend normal Java interfaces with 'Channels'.
 If a Component implements a Nature it also needs to provide the required Channels.
 For example the Energy Storage System (ESS) Simulator link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.simulator/src/io/openems/edge/simulator/ess/symmetric/reacting/EssSymmetric.java[Simulator.EssSymmetric.Reacting icon:code[]] implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.ess.api/src/io/openems/edge/ess/api/SymmetricEss.java[Ess interface icon:code[]] and therefore needs to provide a `Soc` Channel that provides the current 'State of Charge' of the battery.
 
-xref:edge/controller.adoc[Controllers] are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.
-
-// TODO: add link to all Natures below. Existing Nature implementations are described below.
+Controllers are written against Nature implementations. Example: A Controller can be used with any ESS, because it can be sure that it provides all the data the Controller requires for its algorithm.
 
 == Channel Address
 
@@ -129,10 +127,26 @@ Example: the state of charge ("Soc") of the first energy storage system ("ess0")
 
 == Scheduler
 
-The Scheduler handles the order, in which Controllers are executed. For details see xref:edge/controller.adoc[Scheduler and Controller] below.
-
-// TODO: add link to all Schedulers below. Existing Scheduler implementations are described below.
+The Scheduler handles the order, in which Controllers are executed.
 
 == Controller
 
-The actual business logic or algorithms are wrapped as 'Controllers'. i.e. they implement the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.api/src/io/openems/edge/controller/api/Controller.java[Controller interface icon:code[]]. Each Controller holds one specific, encapsulated task.
+A OpenEMS Edge Controller holds the actual business logic or the actual algorithm that controls hardware. It implements the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.api/src/io/openems/edge/controller/api/Controller.java[Controller interface icon:code[]]. Each Controller holds one specific, encapsulated task.
+
+The logic of each active Controller is executed regularly on every Cycle, i.e. once per second.
+
+On each execution cycle, e.g. once every second, the EMS can send a control command, which allows two different ways of controlling the hardware:
+
+- **Control by setpoint**
++
+In “control by setpoint” mode, the EMS calculates setpoint commands and sends them to the hardware for immediate execution.
++
+_Example:_ A power smoothing algorithm uses the current and previous output power values of a photovoltaics system. By applying its configured maximum defined ramp rate it deduces that the energy storage systems needs to be discharged with 150 kW to compensate a suddenly reduced output power. It therefore sends a setpoint for "discharge with 150 kW" to the ESS for immediate execution.
+
+- **Control by parameterization**
++
+In “control by parameterization” mode, the EMS sends the configuration parameters for control algorithms embedded into the hardware for internal execution.
++
+_Example:_ In a Virtual Inertia Ancillary Services application,     the EMS sends the configuration parameters for the control characteristics to the ESS. The ESS uses this parameter set for its internal, high-performance algorithm.
+
+The following Controllers are implemented in the OpenEMS standard codebase. The links point directly to the source code.

@@ -44,14 +44,14 @@ The RevolutionPi DigitalIO board provides the following channel configuration:
 * Input voltage: 24V DC nominal
 * Input impedance: High (suitable for dry contacts and optoisolated inputs)
 * Response time: < 10ms (depends on polling cycle)
-* Addressed as: `{id}/DigitalInput{1..14}`
+* Addressed as: `\{id\}/DigitalInput\{1..14\}`
 
 .Digital Output Channels (14 channels)
 * 14 independent digital output channels
 * Output voltage: 24V DC nominal
 * Output current: Typically 500mA per channel
 * Total module current: Limited by RevolutionPi power supply
-* Addressed as: `{id}/DigitalOutput{1..14}`
+* Addressed as: `\{id\}/DigitalOutput\{1..14\}`
 
 == Prerequisites / Dependencies
 

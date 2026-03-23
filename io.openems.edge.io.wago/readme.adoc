@@ -48,18 +48,18 @@ This bundle implements the following OpenEMS Component:
 The component dynamically creates channels based on the WAGO device configuration. Channel names follow this naming convention:
 
 .WAGO 750-523 "1-channel relay output"
-* `{id}/RelayM{X}` - Relay output on extension X
-* `{id}/RelayM{X}Hand` - Manual switch state on extension X
+* `\{id\}/RelayM\{X\}` - Relay output on extension X
+* `\{id\}/RelayM\{X\}Hand` - Manual switch state on extension X
 
 .WAGO 750-501 "2-channel digital output"
-* `{id}/DigitalOutputM{X}C1` - First digital output on extension X
-* `{id}/DigitalOutputM{X}C2` - Second digital output on extension X
+* `\{id\}/DigitalOutputM\{X\}C1` - First digital output on extension X
+* `\{id\}/DigitalOutputM\{X\}C2` - Second digital output on extension X
 
 .WAGO 750-400 "2-channel digital input"
-* `{id}/DigitalInputM{X}C1` - First digital input on extension X
-* `{id}/DigitalInputM{X}C2` - Second digital input on extension X
+* `\{id\}/DigitalInputM\{X\}C1` - First digital input on extension X
+* `\{id\}/DigitalInputM\{X\}C2` - Second digital input on extension X
 
-Where `{id}` is the Component-ID (default: "io0") and `{X}` is the extension number (M1, M2, M3, etc.).
+Where `\{id\}` is the Component-ID (default: "io0") and `\{X\}` is the extension number (M1, M2, M3, etc.).
 
 == Prerequisites / Dependencies
 

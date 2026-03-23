@@ -56,8 +56,6 @@ For a Samsung ESS on phase L1:
 * `ip`: "192.168.1.100"
 * `phase`: "L1"
 
-[[_samsung_ess]]
-
 === <<_samsung_grid_meter,Samsung ESS Grid-Meter>>
 
 *Name*: Samsung ESS Grid-Meter

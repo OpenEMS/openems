@@ -39,7 +39,7 @@ This bundle implements the following OpenEMS Component with individual configura
 
 == Module Channel Naming
 
-The UR20 fieldbus coupler dynamically creates channels based on connected modules. Channel names follow this pattern: `{component-id}/{channel-type}M{module-position}C{channel-number}`
+The UR20 fieldbus coupler dynamically creates channels based on connected modules. Channel names follow this pattern: `\{component-id\}/\{channel-type\}M\{module-position\}C\{channel-number\}`
 
 Assumptions for all examples below:
 * Component-ID is `io0`

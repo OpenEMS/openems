@@ -4,16 +4,36 @@
 * OpenEMS Edge
 ** xref:edge/architecture.adoc[Architecture]
 ** xref:edge/configuration.adoc[Configuration]
-** xref:edge/nature.adoc[Nature]
-** xref:edge/scheduler.adoc[Scheduler]
-** xref:edge/controller.adoc[Controller]
-** xref:edge/bridge.adoc[Bridge]
+** Nature
++
+--
+include::pages/edge/nature.d/_nav.adoc[]
+--
+** Scheduler
++
+--
+include::pages/edge/scheduler.d/_nav.adoc[]
+--
+** Controller
++
+--
+include::pages/edge/controller.d/_nav.adoc[]
+--
+** Bridge
++
+--
+include::pages/edge/bridge.d/_nav.adoc[]
+--
 ** Device & Service
 +
 --
 include::pages/edge/device_service.d/_nav.adoc[]
 --
-** xref:edge/timedata.adoc[Timedata]
+** Timedata
++
+--
+include::pages/edge/timedata.d/_nav.adoc[]
+--
 ** xref:edge/implement.adoc[Implementing a Device]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
 ** Deploy
@@ -35,7 +55,11 @@ include::pages/edge/device_service.d/_nav.adoc[]
 ** xref:backend/backend-to-backend.adoc[Backend-to-Backend]
 ** xref:backend/metadata.adoc[Metadata]
 ** xref:backend/timedata.adoc[Timedata]
-** xref:backend/service.adoc[Service]
+** Service
++
+--
+include::pages/backend/service.d/_nav.adoc[]
+--
 ** Deploy
 *** xref:backend/deploy/systemd.adoc[Deploy on Debian/Ubuntu]
 *** xref:backend/deploy/docker.adoc[Deploy to Docker]
