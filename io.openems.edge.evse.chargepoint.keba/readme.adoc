@@ -1,5 +1,194 @@
-= EVSE Charge-Point KEBA KeContact P30 and P40
+= KEBA KeContact Charging Station
 
-Provides implementations for KEBA P30 via UDP protocol and KEBA P40 via Modbus/TCP protocol.
+Modular AC charging station family with Modbus and UDP protocol support.
+
+== Overview
+
+This bundle provides integration with KEBA KeContact charging stations, a family of professional AC electric vehicle chargers. The bundle supports both UDP communication (P30 series) and Modbus protocol (P40 series), allowing flexible deployment options for residential, commercial, and public charging scenarios.
+
+KEBA KeContact is suitable for commercial charging networks, workplace charging, public installations, and site energy management requiring reliable EV charging integration.
+
+== Supported Devices
+
+.KEBA KeContact Series
+* **P30 Series**: Residential/commercial AC charger with UDP communication
+* **P40 Series**: Professional AC charger with Modbus TCP support
+
+.Common Features
+* **Type**: Three-phase or single-phase AC charging station
+* **Typical Power**: 3.7 kW to 22 kW configurable
+* **Protocols**: UDP (P30) or Modbus TCP (P40)
+* **Typical Use**: Commercial charging, workplace, public charging
+* **Connector**: Type 2 (Mennekes) standard
+* **Documentation**: https://www.keba.com/[KEBA icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_evse_keba_modbus,EVSE Charge-Point KEBA Modbus (P40)>>
+
+*Name*: EVSE Charge-Point KEBA Modbus
+
+*Factory-PID*: `Evse.ChargePoint.Keba.Modbus`
+
+.Implemented Natures/Interfaces
+* EvseKeba
+* EvseChargePoint
+* ElectricityMeter
+* OpenemsComponent
+* TimedataProvider
+* EventHandler
+* ModbusComponent
+
+*Description*: Modbus interface for KEBA P40 charging station. Provides charging point functionality with real-time power measurement. Supports single-phase or three-phase wiring configurations with phase rotation support.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `readOnly` (Boolean): Read-only or managed control (required)
+* `wiring` (SingleOrThreePhase): SINGLE_PHASE or THREE_PHASE (required)
+* `phaseRotation` (PhaseRotation): Phase order (default: L1_L2_L3)
+* `logVerbosity` (LogVerbosity): Debug logging level (default: DEBUG_LOG)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 1)
+
+[[_evse_keba_modbus]]
+
+=== <<_evse_keba_udp,EVSE Charge-Point KEBA UDP (P30)>>
+
+*Name*: EVSE Charge-Point KEBA UDP
+
+*Factory-PID*: `Evse.ChargePoint.Keba.UDP`
+
+.Implemented Natures/Interfaces
+* KebaUdp
+* EvseKeba
+* EvseChargePoint
+* ElectricityMeter
+* OpenemsComponent
+* TimedataProvider
+* EventHandler
+
+*Description*: UDP interface for KEBA P30 charging station. Provides charging point functionality with UDP-based communication for simpler network setups.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `ip` (String): IP address of the charging station (required)
+* `port` (Integer): UDP port (default: 7090)
+* `readOnly` (Boolean): Read-only or managed control
+
+[[_evse_keba_udp]]
+
+=== <<_evcs_keba_modbus,EVCS KEBA P40 Modbus>>
+
+*Name*: EVCS KEBA P40
+
+*Factory-PID*: `Evcs.Keba.P40`
+
+.Implemented Natures/Interfaces
+* EvcsKeba
+* ManagedEvcs
+* Evcs
+* DeprecatedEvcs
+* ElectricityMeter
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* ModbusComponent
+* TimedataProvider
+
+*Description*: EVCS interface for KEBA P40 via Modbus. Manages dynamic charging control for energy management system integration.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `modbus_id` (String): Modbus bridge ID (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID (default: 1)
+
+[[_evcs_keba_modbus]]
+
+=== <<_evcs_keba_udp,EVCS KEBA KeContact UDP (P30)>>
+
+*Name*: EVCS KEBA KeContact
+
+*Factory-PID*: `Evcs.Keba.KeContact`
+
+.Implemented Natures/Interfaces
+* KebaUdp
+* ManagedEvcs
+* Evcs
+* DeprecatedEvcs
+* ElectricityMeter
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+
+*Description*: EVCS interface for KEBA P30 via UDP. Manages dynamic charging control and integration with energy management systems.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID
+* `alias` (String): Human-readable alias
+* `enabled` (Boolean): Enable/disable (default: true)
+* `ip` (String): IP address of the charging station (required)
+* `port` (Integer): UDP port (default: 7090)
+
+[[_evcs_keba_udp]]
+
+== Prerequisites / Dependencies
+
+=== For Modbus (P40) Components
+
+* Modbus bridge component configured and running
+* KEBA P40 charger installed and powered on
+* Modbus TCP communication working
+* Device properly addressed on Modbus bus
+* Network connectivity to Modbus bridge
+
+=== For UDP (P30) Components
+
+* KEBA P30 charger installed and powered on
+* Network connectivity and IP address accessible
+* UDP port 7090 (or configured port) open
+* Device firmware should be current
+
+== Features
+
+* Modular protocol support (Modbus or UDP)
+* Real-time power consumption monitoring
+* Dynamic charging current control
+* Single-phase or three-phase operation
+* Phase rotation support
+* Integration with energy management systems
+* Demand response capable
+* Time-of-use charging support
+* Comprehensive status monitoring
+* Support for both residential and commercial models
+
+== Known Limitations
+
+* P30 and P40 require different configuration (cannot mix in single component)
+* Modbus components require active bridge connection
+* UDP components require network connectivity
+* Phase configuration must match electrical installation
+* Charging current limited by hardware capabilities
+* Modbus communication may have latency vs UDP
+* UDP is simpler but less reliable than Modbus for industrial use
+
+== Protocol Selection
+
+Choose protocol based on your KEBA model and infrastructure:
+
+.Protocol Comparison
+* **UDP (P30)**: Simple network setup, suitable for residential installations
+* **Modbus (P40)**: Industrial-grade reliability, suitable for commercial deployments
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.keba[Source Code icon:github[]]
