@@ -1,7 +1,100 @@
 = Sinexcel Battery Inverter
 
-Implemented Natures::
-- SymmetricEss
-- ManagedSymmetricEss
+Hybrid battery inverter with grid-tied and off-grid operation capability.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.sinexcel[Source Code icon:github[]]
+== Overview
+
+This bundle provides integration with the Sinexcel battery inverter, a flexible AC/DC converter designed for both grid-tied and off-grid energy storage applications. The inverter supports multiple country codes for regulatory compliance and includes emergency power functionality for backup scenarios.
+
+Sinexcel inverters are suitable for hybrid solar battery systems, off-grid installations, peak shaving, and microgrid applications requiring flexible energy management.
+
+== Supported Devices
+
+.Sinexcel Battery Inverter Series
+* **Type**: Hybrid battery inverter (grid-tied and off-grid capable)
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Hybrid systems, off-grid backup, microgrids
+* **Operation**: Grid-tied or islanded mode
+* **Emergency Power**: Configurable backup power support
+* **Country Codes**: Germany, Spain, UK, and others
+* **Documentation**: https://www.sinexcel.com/[Sinexcel icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_sinexcel,Sinexcel Battery Inverter>>
+
+*Name*: Battery-Inverter Sinexcel
+
+*Factory-PID*: `Battery-Inverter.Sinexcel`
+
+.Implemented Natures/Interfaces
+* BatteryInverterSinexcel
+* OffGridBatteryInverter
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* OpenemsComponent
+* TimedataProvider
+* StartStoppable
+
+*Description*: Modbus interface for Sinexcel hybrid battery inverters. Manages bidirectional AC/DC power flow for both grid-tied and off-grid operation, monitors inverter status and parameters, and supports emergency power switching for backup scenarios. Country code settings ensure regulatory compliance across different markets.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbus_id` (String): ID of the Modbus bridge to use (required, no default)
+* `countryCode` (CountryCode): Grid code/country setting for compliance (default: GERMANY)
+* `emergencyPower` (EnableDisable): Enable or disable emergency power function (default: DISABLE)
+
+.Example Configuration
+For a Sinexcel inverter in Germany with emergency power enabled:
+* `id`: "batteryInverter0"
+* `alias`: "Sinexcel Hybrid Inverter"
+* `modbus_id`: "modbus0"
+* `countryCode`: "GERMANY"
+* `emergencyPower`: "ENABLE"
+* `startStop`: "AUTO"
+
+[[_sinexcel]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running
+* Sinexcel inverter must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and inverter
+* For grid-tied operation: AC grid connection must be present and stable
+* For off-grid operation: Battery energy storage and loads must be connected
+* Country code setting must match local grid regulations
+* Firmware on inverter should be current
+
+== Features
+
+* Hybrid operation (grid-tied and off-grid capable)
+* Bidirectional AC/DC power conversion
+* Modbus protocol for integration with energy management systems
+* Multiple country code presets for regulatory compliance
+* Emergency power function for backup scenarios
+* Real-time monitoring of inverter status and power flow
+* Automatic start/stop control
+* Time-of-use capability with timedata provider
+* Temperature monitoring
+* Grid synchronization with automatic detection
+* Islanding detection for off-grid operation
+
+== Known Limitations
+
+* Requires active Modbus connection for operation
+* Modbus timeouts will cause temporary data unavailability
+* Country code must be properly set for grid compliance
+* Emergency power mode has specific activation/deactivation sequences
+* Switching between grid-tied and off-grid modes requires careful coordination
+* Power ratings fixed by hardware specifications
+* Off-grid operation depends on battery state of charge
+* Grid-tied operation requires stable AC grid
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.sinexcel[Source Code icon:github[]]
