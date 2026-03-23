@@ -1,8 +1,78 @@
-= Discovergy Smart-Meter
+= Discovergy Smart Meter
 
-Reads data of a Discovergy Smart-Meter via online REST-Api. See https://api.discovergy.com for details.
+Cloud-based smart meter integration via REST API for energy monitoring.
 
-Implemented Natures:
-- ElectricityMeter
+== Overview
+
+This bundle provides integration with Discovergy smart meters, enabling remote energy monitoring through Discovergy's cloud-based REST API. Discovergy is a German smart meter provider that offers granular energy consumption data with remote reading capabilities.
+
+The component connects to my.discovergy.com using credentials to fetch real-time meter readings and historical energy data. This allows OpenEMS to integrate with cloud-based smart meter infrastructure without requiring local hardware connections, making it ideal for installations where direct meter access is not available.
+
+== Supported Devices
+
+* https://www.discovergy.com/[Discovergy Smart Meters icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== Discovergy Smart Meter
+
+*Name*: Meter Discovergy
+
+*Factory-PID*: `Meter.Discovergy`
+
+.Implemented Natures/Interfaces
+* MeterDiscovergy
+* ElectricityMeter
+* OpenemsComponent
+* EventHandler
+* ComponentJsonApi
+
+*Description*: Cloud-based smart meter integration via REST API for energy monitoring.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `email` (String): E-mail address for my.discovergy.com login (required)
+* `password` (String): Password for my.discovergy.com login - encrypted (required)
+* `meterId` (String): Internal meter ID (32-character hex string, optional)
+* `serialNumber` (String): Serial number of meter (e.g., 12345678, optional)
+* `fullSerialNumber` (String): Full serial number of meter (e.g., 1ESY1234567890, optional)
+
+*Note*: Either `meterId`, `serialNumber`, or `fullSerialNumber` must be configured to identify the meter.
+
+== Prerequisites / Dependencies
+
+* Active Discovergy account at https://my.discovergy.com
+* Internet connectivity to access Discovergy REST API
+* Valid meter credentials and meter identification (serial number or meter ID)
+* Discovergy cloud account with API access enabled
+
+== Features
+
+* Real-time meter reading via REST API
+* Cloud-based energy monitoring without local hardware
+* Support for multiple meter identification methods
+* Automatic meter data synchronization
+* Historical energy data access
+* JSON API for web interface integration
+
+== Known Limitations
+
+* Cloud-based only - requires internet connectivity
+* API calls depend on Discovergy service availability
+* Data refresh rate limited by API polling interval
+* Some detailed meter data may not be available via public API
+* Requires Discovergy cloud account - cannot be used for local-only meter access
+* Default meter type is GRID - configure appropriately for your installation
+
+== API Documentation
+
+More information about the Discovergy API is available at:
+https://api.discovergy.com[Discovergy API icon:external-link[]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.discovergy[Source Code icon:github[]]
