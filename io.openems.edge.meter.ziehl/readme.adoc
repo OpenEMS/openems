@@ -1,10 +1,81 @@
-= Meter Ziehl EFR4001IP
+= Ziehl EFR4001IP Meter
 
-Implemented Natures:
-- ElectricityMeter
+Three-phase energy meter by Ziehl with Modbus TCP/RTU communication.
 
-For details, see https://www.ziehl.com/de/produkte/detail/EFR4001IP-362.
+== Overview
 
-Modbus Protocol: https://www.ziehl.com/de/produkte/dl/Betriebsanleitung_Modbus-3585/?task=download
+This bundle provides integration with the Ziehl EFR4001IP energy meter, a three-phase electricity meter with Modbus connectivity. The component reads power, energy, voltage, current and other electrical parameters over Modbus for accurate monitoring of electrical systems.
+
+The EFR4001IP is a compact three-phase meter suitable for industrial and commercial energy management applications.
+
+== Supported Devices
+
+.Ziehl EFR4001IP
+* **Type**: Three-phase electricity meter
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Grid, production, or consumption monitoring
+* **Datasheet**: https://www.ziehl.com/de/produkte/detail/EFR4001IP-362[EFR4001IP Product Page icon:external-link[]]
+* **Modbus Protocol**: https://www.ziehl.com/de/produkte/dl/Betriebsanleitung_Modbus-3585/?task=download[Modbus Documentation icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_ziehl_efr4001ip,Ziehl EFR4001IP>>
+
+*Name*: Meter Ziehl EFR4001IP
+
+*Factory-PID*: `Meter.Ziehl.EFR4001IP`
+
+.Implemented Natures/Interfaces
+* ElectricityMeter
+* MeterZiehlEfr4001Ip
+* ModbusComponent
+* OpenemsComponent
+
+*Description*: Modbus interface for the Ziehl EFR4001IP three-phase energy meter. Reads active power, reactive power, apparent power, energy counters, voltages, currents and power factor on all three phases.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the device (default: 1)
+* `meterType` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert all power/current values and swap production/consumption energy (default: false)
+
+.Example Configuration
+For a grid meter connected to Modbus bridge "modbus0":
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1 (or as configured on device)
+* `meterType`: "GRID"
+
+[[_ziehl_efr4001ip]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* Ziehl EFR4001IP meter must be accessible at the configured Modbus Unit-ID
+* Modbus TCP or RTU communication working
+* Device must be properly networked and addressed
+* Firmware on device should be up to date
+
+== Features
+
+* Three-phase power and energy measurement
+* Active, reactive, and apparent power tracking
+* Per-phase voltage, current and power factor
+* Accumulating energy counters
+* Configurable meter type (grid, production, consumption)
+* Power value inversion for compatibility with different installations
+* High accuracy measurement per EN 62053 standards
+
+== Known Limitations
+
+* Requires active Modbus connection - no local storage
+* Modbus timeouts will cause temporary data unavailability
+* Power inversion applies to all phases together (phase-specific inversion not supported)
+* Unit-ID must match device configuration (typically 1, but verify with device settings)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.ziehl[Source Code icon:github[]]
