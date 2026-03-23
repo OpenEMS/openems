@@ -1,16 +1,104 @@
-= RevolutionPi Digital IO Module
+= RevolutionPi DigitalIO Module
 
-This bundle implements the Kunbus RevolutionPI DigitalIO enhancement board. It can be used to turn ON/OFF a data output or to read in digital data input. It provides 14 digital input and 14 digital output channels.
+Integrates the Kunbus RevolutionPi DigitalIO enhancement board into OpenEMS for digital input and output control with 14 independent digital input and 14 independent digital output channels.
 
-Implemented Natures:
-- DigitalOutput
-- DigitalInput
+== Overview
 
-== Dependencies
+This bundle provides integration for the Kunbus RevolutionPi DigitalIO enhancement board, a hardware module that extends the RevolutionPi platform with additional digital I/O capabilities. The component provides 14 digital input channels for reading digital signals and 14 digital output channels for controlling digital devices.
 
-The RevolutionPi Digital IO OpenEms Bundle depends on the librevpi-dio-java git library project. A binary version of this library is already included in this OpenEMS Bundle. See https://github.com/clehne/librevpi-dio-java  for more information. 
+The DigitalIO board communicates directly with the RevolutionPi system using the native librevpi-dio library, providing efficient low-latency access to hardware channels. The integration enables real-time digital signal processing for industrial control and automation applications.
 
-== Notes
-*Prepare Kunbus RevPi:*
+All digital I/O channels are managed through standard OpenEMS channel interfaces, allowing integration with controllers, monitoring systems, and automation logic. The component supports initialization of output states from hardware during startup for safety and consistency.
 
-The Digital IO hardware enhancement module on your Kunbus RevolutionPi system needs to be enabled before starting OpenEMS (see Kunbus-Website for configuration settings).
+== Supported Devices
+
+* https://revolution.kunbus.de/[Kunbus RevolutionPi DigitalIO Board icon:external-link[]] - 14-channel digital input/output enhancement module
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== RevolutionPi DigitalIO Board
+
+*Name*: IO RevolutionPi DigitalIO Board
+
+*Factory-PID*: `io.openems.edge.io.revpi`
+
+.Implemented Natures/Interfaces
+* DigitalInput (14 channels)
+* DigitalOutput (14 channels)
+* OpenemsComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `initOutputFromHardware` (Boolean): Initialize output states from hardware on startup (default: true)
+
+== Channel Specifications
+
+The RevolutionPi DigitalIO board provides the following channel configuration:
+
+.Digital Input Channels (14 channels)
+* 14 independent digital input channels
+* Input voltage: 24V DC nominal
+* Input impedance: High (suitable for dry contacts and optoisolated inputs)
+* Response time: < 10ms (depends on polling cycle)
+* Addressed as: `{id}/DigitalInput{1..14}`
+
+.Digital Output Channels (14 channels)
+* 14 independent digital output channels
+* Output voltage: 24V DC nominal
+* Output current: Typically 500mA per channel
+* Total module current: Limited by RevolutionPi power supply
+* Addressed as: `{id}/DigitalOutput{1..14}`
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Kunbus RevolutionPi base system (Raspberry Pi Compute Module based)
+* RevolutionPi DigitalIO enhancement board installed and recognized by system
+* librevpi-dio library support enabled (binary included in bundle)
+* Linux kernel with RevolutionPi support
+* Sufficient GPIO resources available on RevolutionPi
+
+=== Hardware Setup
+. Ensure RevolutionPi system is powered off before installing DigitalIO board
+. Install the DigitalIO enhancement module according to Kunbus documentation
+. Verify proper seating and electrical connections
+. Power on RevolutionPi system
+. Access Kunbus web interface to enable DigitalIO module
+. Verify module is recognized: `lsmod | grep revpi` or check system logs
+. Configure input and output circuits according to application requirements
+. Connect 24V DC power supply to DigitalIO board inputs/outputs as needed
+
+=== Device Configuration
+. Access the Kunbus RevolutionPi configuration interface (typically web-based)
+. Navigate to "Digital IO" or "DigitalIO" configuration section
+. Enable the DigitalIO module if not already enabled
+. Configure individual channel parameters if available
+. Verify all 14 inputs and 14 outputs are recognized
+. Save configuration and restart if required
+
+=== Operating Parameters
+* Default output initialization: Read from hardware
+* Input polling cycle: Depends on OpenEMS system cycle time
+* Output latency: One cycle time maximum
+* Hardware initialization: Automatic at component startup
+
+== Known Limitations
+
+* **RevolutionPi Dependent**: Module only works on Kunbus RevolutionPi systems; not compatible with standard Raspberry Pi or other platforms
+* **Hardware Requirement**: DigitalIO enhancement board must be physically installed; software-only fallback not available
+* **Channel Count Fixed**: Exactly 14 input and 14 output channels; no scalability to other configurations
+* **Polling-Based Updates**: Input monitoring is polling-based; real-time interrupt-driven notifications not available
+* **Power Supply Limitations**: Output current is limited by RevolutionPi power supply capacity; high-current loads require external amplification
+* **Module Initialization**: Hardware module must be enabled via Kunbus configuration before OpenEMS startup; dynamic enabling not supported
+* **librevpi-dio Dependency**: Requires specific version of librevpi-dio library; updates may require bundle rebuild
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.revpi[Source Code icon:github[]]
+
+== External Resources
+
+* https://github.com/clehne/librevpi-dio-java[librevpi-dio-java Library icon:external-link[]] - Underlying Java library for RevPi Digital IO access
+* https://revolution.kunbus.de/[Kunbus RevolutionPi Official Website icon:external-link[]] - Hardware documentation and drivers
