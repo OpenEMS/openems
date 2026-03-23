@@ -1,4 +1,4 @@
-= Device and Service
+= Devices & Services
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
