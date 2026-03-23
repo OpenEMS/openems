@@ -1,3 +1,131 @@
 = Bosch BPT-S 5 Hybrid
 
+Hybrid energy storage system with integrated PV charger and battery storage.
+
+== Overview
+
+This bundle provides integration with the Bosch BPT-S 5 Hybrid system, a combined battery energy storage and DC PV charger designed for residential energy management. The bundle consists of three components that work together to manage battery storage, PV input charging, and core communication with the device.
+
+The Bosch BPT-S 5 offers integrated AC/DC conversion with native energy management for solar self-consumption and grid services.
+
+== Supported Devices
+
+.Bosch BPT-S 5 Hybrid
+* **Type**: Hybrid battery storage system with DC PV charger
+* **Capacity**: 5 kWh (typical)
+* **Communication**: Proprietary (via Core component)
+* **AC Power**: 5 kW (typical)
+* **DC Power**: 5 kW PV input
+* **Typical Use**: Residential self-consumption, battery storage
+* **Documentation**: https://www.bosch.com/[Bosch icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_bosch_core,Bosch BPT-S 5 Hybrid Core>>
+
+*Name*: Bosch BPT-S 5 Hybrid Core
+
+*Factory-PID*: `Bosch.BPTS5Hybrid.Core`
+
+.Implemented Natures/Interfaces
+* BoschBpts5HybridCore
+* OpenemsComponent
+* EventHandler
+
+*Description*: Core communication component for the Bosch BPT-S 5 Hybrid system. Handles all device communication and coordinates data between ESS and PV components. Must be configured before ESS and PV components.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "boschBpts5hybridCore0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+
+.Example Configuration
+* `id`: "boschBpts5hybridCore0"
+* `alias`: "Bosch BPT-S 5 Core"
+* `enabled`: true
+
+[[_bosch_core]]
+
+=== <<_bosch_ess,Bosch BPT-S 5 ESS>>
+
+*Name*: Bosch BPT-S 5 ESS
+
+*Factory-PID*: `Bosch.BPTS5Hybrid.Ess`
+
+.Implemented Natures/Interfaces
+* BoschBpts5HybridEss
+* SymmetricEss
+* OpenemsComponent
+
+*Description*: Energy storage system (ESS) component for the Bosch BPT-S 5 Hybrid. Manages battery charging/discharging control and monitoring. Depends on the Core component for device communication.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "ess0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `core_id` (String): Component ID of the Core component (default: "boschBpts5hybridCore0")
+
+.Example Configuration
+* `id`: "ess0"
+* `alias`: "Bosch BPT-S 5 Battery"
+* `core_id`: "boschBpts5hybridCore0"
+
+[[_bosch_ess]]
+
+=== <<_bosch_pv,Bosch BPT-S 5 PV>>
+
+*Name*: Bosch BPT-S 5 PV
+
+*Factory-PID*: `Bosch.BPTS5Hybrid.Pv`
+
+.Implemented Natures/Interfaces
+* BoschBpts5HybridPv
+* EssDcCharger
+* OpenemsComponent
+
+*Description*: PV DC charger component for the Bosch BPT-S 5 Hybrid. Handles DC power input from solar panels and controls charging of the battery. Depends on the Core component for device communication.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "charger0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `core_id` (String): Component ID of the Core component (default: "boschBpts5hybridCore0")
+
+.Example Configuration
+* `id`: "charger0"
+* `alias`: "Bosch BPT-S 5 PV Charger"
+* `core_id`: "boschBpts5hybridCore0"
+
+[[_bosch_pv]]
+
+== Prerequisites / Dependencies
+
+* Bosch BPT-S 5 Hybrid device must be physically installed and powered on
+* Device communication interface must be properly connected (USB or network)
+* All three components (Core, ESS, PV) should be configured together
+* Core component must be configured and running before ESS and PV components
+* System must be in communication with the device before controllers can operate
+
+== Features
+
+* Integrated battery storage and PV charging management
+* Symmetric AC/DC power conversion
+* Real-time energy monitoring
+* Battery state of charge tracking
+* DC PV input current/voltage monitoring
+* Native integration with OpenEMS energy management
+
+== Known Limitations
+
+* Requires active device communication - no local storage or operation
+* All three components must be used together - cannot operate independently
+* Device communication timeouts will cause temporary data unavailability
+* PV charger operates only in DC mode (requires AC inverter output for grid connection)
+* Battery capacity and power ratings fixed by hardware (5 kWh typical)
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bosch.bpts5hybrid[Source Code icon:github[]]
