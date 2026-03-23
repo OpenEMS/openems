@@ -1,3 +1,93 @@
-= Battery FENECON Commercial
+= FENECON Commercial Battery
+
+High-performance lithium battery system for commercial and industrial energy storage.
+
+== Overview
+
+This bundle provides integration with the FENECON Commercial Battery (of year 2024), a modular lithium-based energy storage system designed for commercial and industrial applications. The system communicates via Modbus for precise charge/discharge control, thermal management, and state monitoring.
+
+The FENECON Commercial Battery is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power in commercial facilities.
+
+== Supported Devices
+
+.FENECON Commercial Battery
+* **Type**: Modular lithium-based battery storage
+* **Capacity**: Scalable by configuration
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
+* **Control**: Modbus-based charge/discharge management
+* **Auxiliary**: Relay-based start/stop control
+* **Documentation**: https://www.fenecon.de/[FENECON icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_fenecon_commercial,FENECON Commercial Battery>>
+
+*Name*: Battery FENECON Commercial
+
+*Factory-PID*: `Battery.Fenecon.Commercial`
+
+.Implemented Natures/Interfaces
+* BatteryFeneconCommercial
+* Battery
+* ModbusComponent
+* OpenemsComponent
+* EventHandler
+* ModbusSlave
+* StartStoppable
+
+*Description*: Modbus interface for the FENECON Commercial Battery system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and health status. Supports relay-based automatic start/stop control for safety and operational optimization.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "battery0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the battery device (default: 1)
+* `batteryStartStopRelay` (String): IO channel for automatic start/stop relay control (default: "io0/Relay7")
+
+.Example Configuration
+For a FENECON Commercial Battery with automatic start/stop:
+* `id`: "battery0"
+* `alias`: "FENECON Commercial Battery"
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1
+* `batteryStartStopRelay`: "io0/Relay7"
+
+[[_fenecon_commercial]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* FENECON Commercial Battery device must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and battery
+* IO component with relay output must be configured (for start/stop control)
+* Battery must be properly addressed on Modbus bus
+* Device firmware should be up to date
+
+== Features
+
+* Modular and scalable battery capacity
+* Advanced battery management system (BMS)
+* Precise charge/discharge power control
+* Real-time state of charge and health monitoring
+* Temperature monitoring and thermal management
+* Cell balancing and safety management
+* Automatic start/stop control via relay
+* Comprehensive cell voltage and current monitoring
+* Compatible with most energy management controllers
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* Start/stop relay control requires IO component configuration
+* Battery health and degradation reporting depends on device firmware
+* Maximum charge/discharge rates fixed by battery hardware specifications
+* Requires proper electrical installation with qualified technician
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.commercial[Source Code icon:github[]]
