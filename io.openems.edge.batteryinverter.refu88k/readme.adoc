@@ -1,8 +1,98 @@
 = REFUstore 88K
 
-Implemented Natures::
-- SymmetricEss
-- ManagedSymmetricEss
+Single-phase battery inverter with integrated energy management.
 
-https://www.refu.com/storage-solutions/?L=1[Manufacturer Product Page]
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.refu88[Source Code icon:github[]]
+== Overview
+
+This bundle provides integration with the REFUstore 88K battery inverter, a single-phase AC/DC converter designed for residential energy storage applications. The inverter communicates via Modbus for precise power control and monitoring with built-in safety features including watchdog timer and power timeout detection.
+
+REFUstore 88K is suitable for solar battery storage, peak shaving, and residential energy management systems requiring reliable battery storage integration.
+
+== Supported Devices
+
+.REFUstore 88K
+* **Type**: Single-phase battery inverter
+* **Capacity**: 88 kWh energy storage (battery-dependent)
+* **Power**: 8-10 kW (typical)
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Residential battery storage, solar integration
+* **Grid Connection**: Single-phase AC
+* **Documentation**: https://www.refu.com/storage-solutions/?L=1[REFU Storage Solutions icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_refustore_88k,REFUstore 88K>>
+
+*Name*: Battery-Inverter REFUstore88k
+
+*Factory-PID*: `Battery-Inverter.Refu.REFUstore88k`
+
+.Implemented Natures/Interfaces
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* OpenemsComponent
+* BatteryInverterRefuStore88k
+* TimedataProvider
+* StartStoppable
+
+*Description*: Modbus interface for the REFUstore 88K battery inverter. Manages bidirectional AC/DC power flow, monitors inverter status, temperature, and operating conditions. Supports automatic start/stop control, watchdog timer for safety, and time-of-use capability.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the inverter (required, no default)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `timeLimitNoPower` (Integer): Time limit in seconds when no power applied before action (default: 60)
+* `watchdoginterval` (Integer): Watchdog timer interval in seconds, 0 to disable (default: 0)
+
+.Example Configuration
+For a REFUstore 88K inverter:
+* `id`: "batteryInverter0"
+* `alias`: "REFUstore Battery"
+* `modbus_id`: "modbus0"
+* `modbusUnitId`: 1
+* `startStop`: "AUTO"
+* `watchdoginterval`: 60
+
+[[_refustore_88k]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge component must be configured and running (e.g., `modbus0`)
+* REFUstore 88K inverter must be physically installed and powered on
+* Modbus TCP or RTU communication working between system and inverter
+* Device must be properly addressed on Modbus bus with correct Unit-ID
+* AC grid connection must be present for grid-tied operation
+* Battery energy storage system must be connected
+* Firmware on inverter should be current
+
+== Features
+
+* Single-phase battery inverter with bidirectional power flow
+* Modbus protocol for integration with energy management systems
+* Automatic AC/DC power conversion and control
+* Real-time monitoring of inverter status and parameters
+* Watchdog timer for enhanced safety (configurable interval)
+* Power timeout detection and handling
+* Automatic start/stop control
+* Time-of-use capability with timedata provider
+* Temperature monitoring
+* Compatible with various battery storage systems
+
+== Known Limitations
+
+* Requires active Modbus connection - no local operation
+* Modbus timeouts will cause temporary data unavailability
+* Single-phase only (three-phase not supported)
+* AC grid must be present for operation
+* Watchdog timer resets on Modbus communication
+* Power timeout is fixed at configured interval - cannot be dynamically adjusted
+* Maximum power limited by hardware (8-10 kW typical)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu88k[Source Code icon:github[]]
