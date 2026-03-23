@@ -1,12 +1,108 @@
-= Eastron/Microcare SDM 630, SDM72D-M-2 and SDM 120 Meter
+= Eastron / Microcare SDM Meters
 
-This implementation is functionally compatible with a number of energy meters with the names:
+Integration with Eastron/Microcare SDM630 and SDM120 electricity meters via Modbus protocol.
 
-- SDM 630
-- SDM 120
-- SDM72D-M-2 (compatible with SDM630 implementation)
+== Overview
 
-Implemented Natures:
-- ElectricityMeter
+This bundle provides integration with Eastron and Microcare energy meters, supporting both three-phase (SDM630, SDM72D-M-2) and single-phase (SDM120) installations. The components communicate with meters through the Modbus TCP protocol, enabling real-time energy monitoring and comprehensive data collection in OpenEMS.
+
+Eastron meters are widely deployed in residential, commercial, and industrial installations. They support energy consumption, production, or grid measurement depending on configuration.
+
+== Supported Devices
+
+* https://www.eastroneurope.com/[Eastron SDM 630 icon:external-link[]]
+* https://www.eastroneurope.com/[Eastron SDM 120 icon:external-link[]]
+* https://www.eastroneurope.com/[Microcare SDM72D-M-2 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_sdm630_meter,Eastron SDM630 Three-Phase Meter>>
+
+*Name*: Meter Eastron SDM 630 / SDM72D-M-2
+
+*Factory-PID*: `Meter.Microcare.SDM630`
+
+.Implemented Natures/Interfaces
+* MeterEastronSdm630
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+* TimedataProvider
+* EventHandler
+
+*Description*: Three-phase electricity meter via Modbus protocol. Compatible with SDM630 and SDM72D-M-2 models.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+* `phaseRotation` (Enum): Phase rotation - L1_L2_L3 or L1_L3_L2 (default: L1_L2_L3)
+
+[[_sdm630_meter]]
+
+=== <<_sdm120_meter,Eastron SDM120 Single-Phase Meter>>
+
+*Name*: Meter Eastron SDM 120
+
+*Factory-PID*: `Meter.Eastron.SDM120`
+
+.Implemented Natures/Interfaces
+* MeterEastronSdm120
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+* TimedataProvider
+* EventHandler
+
+*Description*: Single-phase electricity meter via Modbus protocol.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_sdm120_meter]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
+* Modbus TCP connectivity to the Eastron meter
+* Correct Modbus Unit ID configured on the meter (default: 1)
+* Proper power wiring (single-phase for SDM120, three-phase for SDM630)
+
+== Features
+
+* Real-time power measurement (active, reactive, apparent)
+* Per-phase voltage, current, and power factor (SDM630)
+* Energy counters (cumulative consumption/production)
+* Frequency measurement
+* Comprehensive meter data logging
+* Optional value inversion for reversed wiring
+* Phase rotation detection (SDM630)
+
+== Known Limitations
+
+* Meter type must be pre-configured - cannot be changed dynamically
+* Modbus communication is required - no alternative protocols supported
+* SDM120 is single-phase only - use SDM630 for three-phase installations
+* Invert option affects all power measurements and energy counters
+* Default Modbus Unit ID is 1 - verify correct address for your meter
+* Phase rotation option requires proper meter wiring configuration (SDM630)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.eastron[Source Code icon:github[]]
