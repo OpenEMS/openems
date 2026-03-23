@@ -7,9 +7,10 @@ import io.openems.common.exceptions.OpenemsException;
 
 public class BoschBpts5HybridApiClient {
 
+	protected static final String GET_VALUES_URL_PART = "/cgi-bin/ipcclient.fcgi?";
+
 	private static final String POST_REQUEST_DATA = "action=get.hyb.overview&flow=1";
 	private static final String REQUEST_LOG_BOOK_VIEW = "&action=get.logbookview&page=0&id=&type=BATTERY&dtype=";
-	static final String GET_VALUES_URL_PART = "/cgi-bin/ipcclient.fcgi?";
 
 	private String wuiSid = "";
 	private Integer pvLeistungWatt = Integer.valueOf(0);

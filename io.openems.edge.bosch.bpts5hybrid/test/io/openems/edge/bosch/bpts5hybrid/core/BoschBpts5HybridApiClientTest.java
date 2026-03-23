@@ -64,8 +64,14 @@ public class BoschBpts5HybridApiClientTest {
 
 	@Test
 	public void testProcessValuesResponseWithAllFields() throws Exception {
-		// Format: pipe-separated values, indices: [2]=pvPower, [3]=soc, [10]=chargePower,
-		// [11]=einspeisung, [12]=verbrauchVonPv, [13]=verbrauchVonBatterie, [14]=stromAusNetz
+		// Format: pipe-separated values, indices:
+		// [2]=pvPower
+		// [3]=soc
+		// [10]=chargePower
+		// [11]=einspeisung
+		// [12]=verbrauchVonPv
+		// [13]=verbrauchVonBatterie
+		// [14]=stromAusNetz
 		var body = "x|x|1.5kW|85|x|x|x|x|x|x|0.8kW|0.3kW|0.5kW|0.2kW|0.1kW";
 		this.sut.processValuesResponse(body);
 
