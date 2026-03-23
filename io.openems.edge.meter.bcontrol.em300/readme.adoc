@@ -1,6 +1,58 @@
-= B-Control | TQ-Systems EM300 Meter
+= B-Control / TQ-Systems EM300 Meter
 
-Implemented Natures:
-- ElectricityMeter
+Three-phase energy meter for power and energy measurement via Modbus protocol.
+
+== Overview
+
+This bundle provides integration with B-Control/TQ-Systems EM300 energy meters, which measure three-phase power consumption and production in residential and commercial installations. The component communicates with the meter through the Modbus TCP protocol, enabling real-time energy monitoring, power factor measurement, and data collection in OpenEMS.
+
+The EM300 meter supports measurement of grid consumption, production, or consumption energy depending on configuration. Power values can be inverted for specific wiring scenarios where the meter is oriented to measure in the opposite direction.
+
+== Supported Devices
+
+* https://www.tq-systems.com/[B-Control / TQ-Systems EM300 Meter icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== B-Control EM300 Meter
+
+*Name*: Meter B-Control EM300
+
+*Factory-PID*: `Meter.BControl.EM300`
+
+.Implemented Natures/Interfaces
+* MeterBControlEM300
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Three-phase energy meter for power and energy measurement via Modbus protocol.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+== Prerequisites / Dependencies
+
+* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
+* Modbus TCP connectivity to the EM300 meter
+* Correct Modbus Unit ID configured on the meter
+* Proper power wiring (if inverting is needed, verify wiring before enabling)
+
+== Known Limitations
+
+* Meter type must be pre-configured - cannot be changed dynamically
+* Modbus communication is required - no alternative protocols supported
+* Invert option affects all power measurements and swaps production/consumption energy counters
+* Modbus response time depends on network connectivity and meter load
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bcontrol.em300[Source Code icon:github[]]
