@@ -1,12 +1,128 @@
-= Siemens Meter
+= Siemens Energy Meters
 
-* Applies to
-** Siemens PAC1600
-** Siemens PAC2200
-** Siemens PAC3200
-** Siemens PAC4200
+Integration with Siemens PAC series and SICAM energy meters via Modbus protocol.
 
-* Implemented Natures
-** ElectricityMeter
+== Overview
+
+This bundle provides integration with Siemens energy meters, supporting multiple PAC models (PAC1600, PAC2200, PAC3200, PAC4200) and SICAM T7KG966 meters. The components communicate with meters through the Modbus TCP protocol, enabling real-time energy monitoring, power measurement, and comprehensive data collection in OpenEMS.
+
+Siemens meters are industrial-grade energy measurement devices designed for reliable energy accounting in commercial and industrial installations.
+
+== Supported Devices
+
+* https://www.siemens.com/[Siemens PAC1600 icon:external-link[]]
+* https://www.siemens.com/[Siemens PAC2200 icon:external-link[]]
+* https://www.siemens.com/[Siemens PAC3200 icon:external-link[]]
+* https://www.siemens.com/[Siemens PAC4200 icon:external-link[]]
+* https://www.siemens.com/[Siemens SICAM T7KG966 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_pac1600_meter,Siemens PAC1600 Meter>>
+
+*Name*: Meter Siemens PAC1600
+
+*Factory-PID*: `Meter.Siemens.PAC1600`
+
+.Implemented Natures/Interfaces
+* MeterSiemensPac1600
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Energy meter for energy measurement via Modbus protocol.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power and current values (default: false)
+
+[[_pac1600_meter]]
+
+=== <<_pac2200_meter,Siemens PAC2200 Meter>>
+
+*Name*: Meter Siemens PAC2200
+
+*Factory-PID*: `Meter.Siemens`
+
+.Implemented Natures/Interfaces
+* MeterSiemensPac2200
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Energy meter for energy measurement via Modbus protocol.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power and current values (default: false)
+
+[[_pac2200_meter]]
+
+=== <<_sicam_meter,Siemens SICAM T7KG966 Meter>>
+
+*Name*: Meter Siemens SICAM T7KG966
+
+*Factory-PID*: `Meter.Siemens.SICAMT7KG966`
+
+.Implemented Natures/Interfaces
+* MeterSiemensSicamt7kg966
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Industrial energy meter for energy measurement via Modbus protocol.
+
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power and current values (default: false)
+
+[[_sicam_meter]]
+
+== Prerequisites / Dependencies
+
+* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
+* Modbus TCP connectivity to the Siemens meter
+* Correct Modbus Unit ID configured on the meter (default: 1)
+* Proper three-phase power wiring
+
+== Features
+
+* Three-phase power measurement with individual phase data
+* Reactive and apparent power measurement
+* Power factor measurement per phase and overall
+* Energy counters (cumulative consumption/production)
+* Frequency measurement
+* Industrial-grade reliability
+* Comprehensive meter data logging
+
+== Known Limitations
+
+* Meter type must be pre-configured - cannot be changed dynamically
+* Modbus communication is required - no alternative protocols supported
+* Invert option affects all power and current measurements
+* Default Modbus Unit ID is 1 - verify correct address on your meter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.siemens[Source Code icon:github[]]
