@@ -398,12 +398,15 @@ tasks.register('copyBundleReadmes') {
 		def targetScheduler = basePath + "edge/scheduler.adoc.d"
 		def targetNature = basePath + "edge/nature.adoc.d"
 		def targetBridge = basePath + "edge/bridge.adoc.d"
-		def targetDeviceService = basePath + "edge/device_service.adoc.d"
+		def targetDeviceService = "edge/device_service.d"
 		def targetTimedata = basePath + "edge/timedata.adoc.d"
 		def targetBackendService = basePath + "backend/service.adoc.d"
 
 		// initialize target files and directories
-		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata, targetBackendService].each { target ->
+		[targetDeviceService].each { target ->
+			delete fileTree(dir: basePath + target, include: '**/*.adoc')
+		}
+		[targetController, targetScheduler, targetNature, targetBridge, targetTimedata, targetBackendService].each { target ->
 			delete fileTree(dir: target, include: '**/*.adoc')
 			new File(target + "/_include.adoc").write('')
 		}
@@ -459,18 +462,30 @@ tasks.register('copyBundleReadmes') {
 						throw new Exception("Bundle type is unknown for " + bundle)
 					}
 
-					// copy the readme file to "target.d" folder
+					// copy the readme file to "target" folder
+					def readmeFile = bundle + ".adoc"
 					copy {
 						from (sourceFile.toPath())
-						into (target)
+						into (basePath + target)
 						rename { fileName ->
-							return bundle + ".adoc"
+							return readmeFile
 						}
 					}
 
 					// append content of source file to target file
-					File targetFile = new File(target + "/_include.adoc")
-					targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
+					if(target == targetDeviceService) {
+						def readmePath = target + "/" + readmeFile
+						def nav = new File(basePath + target + "/_nav.adoc")
+						def title // parse title from first line
+						file(basePath + readmePath).withReader { r ->
+							title = r.readLine().replaceFirst(/^= /, "")
+						}
+						nav.append("\n* xref:" + readmePath + "[" + title + "]\n")
+
+					} else {
+						File targetFile = new File(target + "/_include.adoc")
+						targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
+					}
 				}
 			}
 		}
