@@ -29,7 +29,6 @@ public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 			io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) throws OpenemsException {
 		super(activeModels, firstInitialChannelIds, furtherInitialChannelIds);
-		this._setGridMode(GridMode.ON_GRID);
 	}
 
 	/**
