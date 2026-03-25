@@ -4,10 +4,8 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 
-import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -16,7 +14,6 @@ import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.LongReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.solaredge.charger.SolarEdgeCharger;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
@@ -563,134 +560,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		}
 
 	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerWriteChannel getActiveExportPowerLimitChannel() {
-		return this.channel(ChannelId.ACTIVE_EXPORT_POWER_LIMIT);
-	}
-	
-	/**
-	 * Gets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getActiveExportPowerLimit() {
-		return this.getActiveExportPowerLimitChannel().value();
-	}
-
-	/**
-	 * Sets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
-	 *
-	 * @param value the Integer value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActiveExportPowerLimit(Integer value) throws OpenemsNamedException {
-		this.getActiveExportPowerLimitChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Sets the Active Export Power Limit in [W]. See {@link ChannelId#ACTIVE_EXPORT_POWER_LIMIT}.
-	 *
-	 * @param value the int value
-	 * @throws OpenemsNamedException on error
-	 */
-	public default void setActiveExportPowerLimit(int value) throws OpenemsNamedException {
-		this.getActiveExportPowerLimitChannel().setNextWriteValue(value);
-	}	
-
-	/**
-	 * Gets the Channel for {@link ChannelId#STORAGE_CONTROL_MODE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<SeControlMode> getStorageControlModeChannel() {
-		return this.channel(ChannelId.STORAGE_CONTROL_MODE);
-	}	
-
-	/**
-	 * See {@link ChannelId#STORAGE_CONTROL_MODE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default SeControlMode getStorageControlMode() {
-		return this.getStorageControlModeChannel().value().asEnum();
-	}	
-
-	/**
-	 * Gets the Channel for {@link ChannelId#STORAGE_AC_CHARGE_POLICY}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<AcChargePolicy> getStorageAcChargePolicyChannel() {
-		return this.channel(ChannelId.STORAGE_AC_CHARGE_POLICY);
-	}
-
-	/**
-	 * AC charge policy {@link ChannelId#STORAGE_AC_CHARGE_POLICY}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default AcChargePolicy getStorageAcChargePolicy() {
-		return this.getStorageAcChargePolicyChannel().value().asEnum();
-	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#STORAGE_AC_CHARGE_LIMIT}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<AcChargePolicy> getStorageAcChargeLimitChannel() {
-		return this.channel(ChannelId.STORAGE_AC_CHARGE_LIMIT);
-	}
-
-	/**
-	 * AC charge policy {@link ChannelId#STORAGE_AC_CHARGE_LIMIT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default SeControlMode getStorageAcChargeLimit() {
-		return this.getStorageAcChargeLimitChannel().value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#STORAGE_BACKUP_RESERVED_SETTING}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<AcChargePolicy> getStorageBackupReservedSettingChannel() {
-		return this.channel(ChannelId.STORAGE_BACKUP_RESERVED_SETTING);
-	}
-
-	/**
-	 * See {@link ChannelId#STORAGE_BACKUP_RESERVED_SETTING}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default SeControlMode getStorageBackupReservedSetting() {
-		return this.getStorageBackupReservedSettingChannel().value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<CommandMode> getStorageChargeDischargeDefaultModeChannel() {
-		return this.channel(ChannelId.STORAGE_CHARGE_DISCHARGE_DEFAULT_MODE);
-	}
-
-	/**
-	 * See {@link ChannelId#CHARGE_DISCHARGE_DEFAULT_MODE}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default SeControlMode getStorageChargeDischargeDefaultMode() {
-		return this.getStorageChargeDischargeDefaultModeChannel().value().asEnum();
-	}
 
 	/**
 	 * Gets the Channel for {@link ChannelId#BATTERY1_MAX_CHARGE_CONTINUES_POWER}.
@@ -709,8 +578,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	public default Value<Integer> getBattery1MaxChargeContinuesPower() {
 		return this.getBattery1MaxChargeContinuesPowerChannel().value();
 	}
-	
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#BATTERY1_MAX_DISCHARGE_CONTINUES_POWER}.
 	 *
@@ -727,97 +595,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 */
 	public default Value<Integer> getBattery1MaxDischargeContinuesPower() {
 		return this.getBattery1MaxDischargeContinuesPowerChannel().value();
-	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_MAX_CHARGE_PEAK_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getBattery1MaxChargePeakPowerChannel() {
-		return this.channel(ChannelId.BATTERY1_MAX_CHARGE_PEAK_POWER);
-	}
-
-	/**
-	 * See {@link ChannelId#BATTERY1_MAX_CHARGE_PEAK_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBattery1MaxChargePeakPower() {
-		return this.getBattery1MaxChargePeakPowerChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_MAX_DISCHARGE_PEAK_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getBattery1MaxDischargePeakPowerChannel() {
-		return this.channel(ChannelId.BATTERY1_MAX_DISCHARGE_PEAK_POWER);
-	}
-
-	/**
-	 * See {@link ChannelId#BATTERY1_MAX_DISCHARGE_PEAK_POWER}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBattery1MaxDischargePeakPower() {
-		return this.getBattery1MaxDischargePeakPowerChannel().value();
-	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_ACTUAL_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getBattery1ActualPowerChannel() {
-		return this.channel(ChannelId.BATTERY1_ACTUAL_POWER);
-	}
-
-	/**
-	 * AC-Power produced by ESS. See {@link ChannelId#BATTERY1_ACTUAL_POWER}
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getBattery1ActualPower() {
-		return this.getBattery1ActualPowerChannel().value();
-	}	
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_LIFETIME_EXPORT_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	public default LongReadChannel getBattery1LifetimeExportEnergyChannel() {
-		return this.channel(ChannelId.BATTERY1_LIFETIME_EXPORT_ENERGY);
-	}
-
-	/**
-	 * Gets the Actual Energy in [Wh_Σ]. See
-	 * {@link ChannelId#BATTERY1_LIFETIME_EXPORT_ENERGY}
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Long> getBattery1LifetimeExportEnergy() {
-		return this.getBattery1LifetimeExportEnergyChannel().value();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_LIFETIME_IMPORT_ENERGY}.
-	 *
-	 * @return the Channel
-	 */
-	public default LongReadChannel getBattery1LifetimeImportEnergyChannel() {
-		return this.channel(ChannelId.BATTERY1_LIFETIME_IMPORT_ENERGY);
-	}
-
-	/**
-	 * See {@link ChannelId#BATTERY1_LIFETIME_IMPORT_ENERGY}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Long> getBattery1LifetimeImportEnergy() {
-		return this.getBattery1LifetimeImportEnergyChannel().value();
 	}
 
 	/**
@@ -837,7 +614,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	public default Value<Float> getInverterPowerLimit() {
 		return this.getInverterPowerLimitChannel().value();
 	}
-	
+
 	/**
 	 * Gets the Channel for {@link ChannelId#ACTIVE_PRODUCTION_ENERGY}.
 	 *
@@ -855,7 +632,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	public default Value<Long> getActiveProductionEnergy() {
 		return this.getActiveProductionEnergyChannel().value();
 	}	
-	
+
 	/**
 	 * Adds DC-charger to ESS hybrid system. Represents PV production
 	 * 
@@ -883,8 +660,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 * @return UnitId for ESS from config
 	 */
 	public Integer getUnitId();
-	
-	
+
 	/**
 	 * Gets the PV production from chargers ACTUAL_POWER. Returns null if the PV
 	 * production is not available.
@@ -899,17 +675,5 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 * @return {@link Integer}
 	 */
 	public Integer getSurplusPower();
-
-	/**
-	 * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
-	 * of this Component.
-	 *
-	 * @param accessMode filters the Modbus-Records that should be shown
-	 * @return the {@link ModbusSlaveNatureTable}
-	 */
-	public default ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
-		return ModbusSlaveNatureTable.of(SolarEdgeEss.class, accessMode, 100) //
-				.build();
-	}
 	
 }

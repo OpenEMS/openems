@@ -10,7 +10,7 @@ public  enum BatteryStatus implements OptionsEnum {
 	SE_BATT_STATUS_CHARGE(3, "Charge"), //
 	SE_BATT_STATUS_DISCHARGE(4, "Discharge"), //
 	SE_BATT_STATUS_FAULT(5, "Fault"), //
-	// 6 doesn´t exist
+	// 6 doesn't exist
 	SE_BATT_STATUS_IDLE(7, "Idle"); //
 			
 

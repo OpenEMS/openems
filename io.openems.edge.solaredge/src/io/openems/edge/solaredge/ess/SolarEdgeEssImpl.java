@@ -68,6 +68,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.cycle.Cycle;
 import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
@@ -104,7 +105,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
 				OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider, CycleProvider {
 
-	private static final SunSpecModel S_101_WITHOUT_EVENTS =
+	protected static final SunSpecModel S_101_WITHOUT_EVENTS =
 			FilteredSunSpecModel.withoutPoints(
 					DefaultSunSpecModel.S_101,
 					DefaultSunSpecModel.S101.EVT1,
@@ -115,7 +116,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 					DefaultSunSpecModel.S101.EVT_VND4
 			);
 
-	private static final SunSpecModel S_102_WITHOUT_EVENTS =
+	protected static final SunSpecModel S_102_WITHOUT_EVENTS =
 			FilteredSunSpecModel.withoutPoints(
 					DefaultSunSpecModel.S_102,
 					DefaultSunSpecModel.S102.EVT1,
@@ -126,7 +127,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 					DefaultSunSpecModel.S102.EVT_VND4
 			);
 
-	private static final SunSpecModel S_103_WITHOUT_EVENTS =
+	protected static final SunSpecModel S_103_WITHOUT_EVENTS =
 			FilteredSunSpecModel.withoutPoints(
 					DefaultSunSpecModel.S_103,
 					DefaultSunSpecModel.S103.EVT1,
@@ -245,7 +246,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 		this.addStaticModbusTasks(this.getModbusProtocol());
 	}
 	
-	//@Override
+	@Override
 	protected void onSunSpecInitializationCompleted() {
 		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");	
 
@@ -589,7 +590,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	@Override
 	public SinglePhase getPhase() {
 		return this.singlePhase;
-	}	
+	}
 	
 	@Override
 	public Timedata getTimedata() {
@@ -616,7 +617,8 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				HybridEss.getModbusSlaveNatureTable(accessMode), //
-				this.getModbusSlaveNatureTable(accessMode)
+				ModbusSlaveNatureTable.of(SolarEdgeEssImpl.class, accessMode, 300) //
+					.build()
 		);
 	}
 

@@ -1,20 +1,18 @@
-package io.openems.edge.solaredge.ess;
+package io.openems.edge.bridge.modbus.sunspec.ess;
 
-import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.type.Phase.SingleOrAllPhase;
-import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig.Builder;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
-		private String id;
-		private boolean pvExportLimit;
+		private String id = null;
+		private boolean readOnly;
 		private String modbusId = null;
 		private int modbusUnitId;
-		private ControlMode controlMode;
-		private SingleOrAllPhase phase;
+		private int readFromModbusBlock;
 
 		private Builder() {
 		}
@@ -23,11 +21,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
-		public Builder setPvExportLimit(boolean pvExportLimit) {
-			this.pvExportLimit = pvExportLimit;
+
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
 			return this;
-		}		
+		}
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
@@ -38,16 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
-		public Builder setPhase(SingleOrAllPhase phase) {
-			this.phase = phase;
+
+		public Builder setReadFromModbusBlock(int readFromModbusBlock) {
+			this.readFromModbusBlock = readFromModbusBlock;
 			return this;
 		}
-		
-		public Builder setControlMode(ControlMode controlMode) {
-			this.controlMode = controlMode;
-			return this;
-		}		
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -56,7 +49,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	/**
 	 * Create a Config builder.
-	 * 
+	 *
 	 * @return a {@link Builder}
 	 */
 	public static Builder create() {
@@ -69,15 +62,20 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
-	
+
 	@Override
-	public boolean pvExportLimit() {
-		return this.builder.pvExportLimit;
+	public boolean readOnly() {
+		return this.builder.readOnly;
 	}
-	
+
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
+	}
+
+	@Override
+	public int readFromModbusBlock() {
+		return this.builder.readFromModbusBlock;
 	}
 
 	@Override
@@ -89,15 +87,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
-	
-	@Override
-	public ControlMode controlMode() {
-		return this.builder.controlMode;
-	}
-
-	@Override
-	public SingleOrAllPhase phase() {
-		return this.builder.phase;
-	}	
-
 }
