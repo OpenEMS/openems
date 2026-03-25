@@ -18,7 +18,7 @@ import io.openems.edge.ess.api.SymmetricEss;
  * calculating the Ess-Channels based on the Channels of the Battery and
  * Battery-Inverter. Takes care of registering and unregistering listeners.
  */
-public class AbstractChannelManager<ESS extends SymmetricEss & CycleProvider, BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
+public class AbstractChannelManager<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends SymmetricBatteryInverter>
 		extends AbstractChannelListenerManager {
 
 	private final ESS parent;
@@ -105,8 +105,7 @@ public class AbstractChannelManager<ESS extends SymmetricEss & CycleProvider, BA
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.CHARGE_MAX_CURRENT,
 				ignored -> this.allowedChargeDischargeHandler.accept(clockProvider, battery, inverter));
 		this.addOnSetNextValueListener(battery, Battery.ChannelId.VOLTAGE, //
-				ignored -> this.allowedChargeDischargeHandler //
-						.calculateVoltageRegulationLimits(clockProvider, battery, inverter));
+				ignored -> this.allowedChargeDischargeHandler.calculateVoltageRegulationLimits(battery, inverter));
 		this.addCopyListener(battery, //
 				Battery.ChannelId.CAPACITY, //
 				SymmetricEss.ChannelId.CAPACITY);

@@ -3,6 +3,8 @@ package io.openems.edge.timedata.rrd4j.version;
 import static java.lang.Math.min;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 import org.osgi.service.component.ComponentContext;
@@ -12,7 +14,11 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.rrd4j.core.DsDef;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
+import org.rrd4j.core.RrdFileBackendFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.edge.timedata.rrd4j.Rrd4jConstants;
 import io.openems.edge.timedata.rrd4j.Rrd4jSupplier;
 
@@ -23,12 +29,16 @@ import io.openems.edge.timedata.rrd4j.Rrd4jSupplier;
 )
 public final class Version3 extends AbstractVersion implements Version {
 
+	private static final long MINIMUM_FREE_DISK_SPACE = 100 /* MB */ * 1024 /* kB */ * 1024 /* bytes */; // in bytes
+
 	public static record StaticConfigurationConstants(//
 			int numberOfRowsCumulatedValues, //
 			int numberOfRowsAverageMinuteValues //
 	) {
 
 	}
+
+	private final Logger log = LoggerFactory.getLogger(Version3.class);
 
 	private final StaticConfigurationConstants constants;
 
@@ -67,6 +77,22 @@ public final class Version3 extends AbstractVersion implements Version {
 		rrdDef.addArchive(channelDef.consolFun(), 0.5, 1, //
 				isCumulated ? this.constants.numberOfRowsCumulatedValues()
 						: this.constants.numberOfRowsAverageMinuteValues());
+
+		if (config.factory() instanceof RrdFileBackendFactory) {
+			final var path = OpenemsConstants.getOpenemsDataDir();
+			try {
+				final var fileStore = Files.getFileStore(Path.of(path));
+				final var availableSpace = fileStore.getUsableSpace();
+				if (availableSpace < MINIMUM_FREE_DISK_SPACE) {
+					this.log.warn("Not enough disk space for RRD4J database at {}: {} bytes", config.path(),
+							availableSpace);
+					throw new IOException("Not enough free space on disk to create RRD4J database at " + path);
+				}
+			} catch (Exception e) {
+				this.log.warn("Unable to determine disk space for RRD4J database at {}", path);
+				throw new RuntimeException(e);
+			}
+		}
 
 		return RrdDb.getBuilder() //
 				.setBackendFactory(config.factory()) //

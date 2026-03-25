@@ -107,6 +107,8 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.ProHybrid.10", "") //
+			.put("App.FENECON.ProHybrid.GW", "") //
+			.put("App.FENECON.ProHybrid.9.10", "") //
 			.put("App.System.Fenecon.Home", "") //
 			.put("App.TimeOfUseTariff.AncillaryCosts", "") //
 			.put("App.TimeOfUseTariff.LuoxEnergy", "") //
@@ -157,11 +159,14 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.put("App.LoadControl.ManualRelayControl", "") //
 			.put("App.LoadControl.ThresholdControl", "") //
 			.put("App.Meter.Shelly", "") //
+			.put("App.Meter.Shelly.Meter", "") //
 			.put("App.Meter.Socomec", "") //
 			.put("App.Meter.CarloGavazzi", "") //
 			.put("App.Meter.PqPlus", "") //
 			.put("App.Meter.Janitza", "") //
 			.put("App.GridMeter.Janitza", "") //
+			.put("App.GridMeter.GoodWe", "") //
+			.put("App.GridMeter.Kdk", "") //
 			.put("App.Meter.Discovergy", "")//
 			.put("App.Meter.PhoenixContact", "")//
 			.put("App.Meter.Eastron", "")//

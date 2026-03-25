@@ -35,9 +35,10 @@ export type TPropType<TObj, TProp extends keyof TObj> = TObj[TProp];
 /** Creates new number type, that only accepts numbers in a range  */
 export type TRange<N extends number, Acc extends number[] = []> = Acc["length"] extends N
     ? Acc[number]
-    : TRange<N, [...Acc, Acc["length"]]>;
+    : TRange<N, [...Acc, (Acc["length"])]>;
 
 export type TIntRange<F extends number, T extends number> = Exclude<TRange<T>, TRange<F>>;
+
 
 /** Empty Obj */
 export type EmptyObj = Record<PropertyKey, never>;
@@ -49,6 +50,7 @@ export type TSignalValue<T> = T extends Signal<infer V> ? V : never;
 
 /** Creates a union type from enum keys */
 export type TEnumKeys<T extends Record<string, string | number>> = Extract<keyof T, string>;
+export type TEnumValues<T extends Record<string, string | number>> = T[keyof T];
 
 /** Creates a type from an array for one element */
 export type TArrayElement<ArrayType extends readonly unknown[]> =

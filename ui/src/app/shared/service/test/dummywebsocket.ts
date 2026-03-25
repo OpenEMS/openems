@@ -13,7 +13,7 @@ export class DummyWebsocket implements WebsocketInterface {
         throw new Error("Method not implemented.");
     }
 
-    public sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    public sendStateFullRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
         return new Promise((accept, reject) => {
             reject("DummyComponent");
         });

@@ -1,0 +1,8 @@
+@if (isInitialized) {
+<oe-chart [title]="'GENERAL.PRODUCTION' | translate" [period]="service.historyPeriod.value" [(showPhases)]="showPhases"
+    [showTotal]="false" (setShowTotal)="setShowTotal($event)">
+    <oe-common-production-total-chart [isOnlyChart]="true" [showTotal]="showTotal" [showPhases]="showPhases">
+    </oe-common-production-total-chart>
+    <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+</oe-chart>
+}

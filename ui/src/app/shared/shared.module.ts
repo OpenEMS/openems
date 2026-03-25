@@ -49,7 +49,7 @@ import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
-import { AppStateTracker } from "./ngrx-store/states";
+import { AppStateTracker } from "./ngrx-store/app-state-tracker";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
 import { RouteService } from "./service/route.service";
