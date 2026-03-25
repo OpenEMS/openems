@@ -61,21 +61,6 @@ For EACH component, create a subsection:
 
 [[_component_id]]
 
-== Prerequisites / Dependencies
-
-List of external dependencies:
-- Bridge components
-- Other required services
-- Network/hardware requirements
-
-== Features
-
-Bullet list of key capabilities.
-
-== Known Limitations
-
-Bullet list of known constraints or edge cases.
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.BUNDLE[Source Code icon:github[]]
 ```
 
@@ -180,9 +165,9 @@ Use the standard template above, filling in:
 2. **Overview** - What does this do? Why would someone use it?
 3. **Supported Devices** - Model names, protocols, typical applications
 4. **Components** - One subsection per OSGi component with all metadata
-5. **Prerequisites** - What must be configured first?
-6. **Features** - Key capabilities
-7. **Known Limitations** - Constraints or gotchas
+5. *(Optional)* **Prerequisites** - What must be configured first?
+6. *(Optional)* **Features** - Key capabilities
+7. *(Optional)* **Known Limitations** - Constraints or gotchas
 
 ### Step 4: Build and Verify
 
@@ -389,9 +374,9 @@ Bundle: `io.openems.edge.kostal`
 - [ ] Created overview explaining bundle purpose
 - [ ] Listed all supported devices/models
 - [ ] Created one subsection per component with all metadata
-- [ ] Added prerequisites/dependencies section
-- [ ] Added features section
-- [ ] Added known limitations section
+- [ ] (Optional) Added prerequisites/dependencies section
+- [ ] (Optional) Added features section
+- [ ] (Optional) Added known limitations section
 - [ ] Verified all xref anchors use correct format
 - [ ] Verified all lists use `*` bullets and `.Title` format
 - [ ] Verified all external links include `icon:external-link[]` or `icon:github[]`

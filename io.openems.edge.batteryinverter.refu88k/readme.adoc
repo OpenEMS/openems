@@ -58,34 +58,4 @@ For a REFUstore 88K inverter:
 * `startStop`: "AUTO"
 * `watchdoginterval`: 60
 
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running (e.g., `modbus0`)
-* REFUstore 88K inverter must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and inverter
-* Device must be properly addressed on Modbus bus with correct Unit-ID
-* AC grid connection must be present for grid-tied operation
-* Battery energy storage system must be connected
-* Firmware on inverter should be current
-
-== Features
-
-* Modbus protocol for integration with energy management systems
-* Automatic AC/DC power conversion and control
-* Real-time monitoring of inverter status and parameters
-* Watchdog timer for enhanced safety (configurable interval)
-* Power timeout detection and handling
-* Automatic start/stop control
-* Time-of-use capability with timedata provider
-* Temperature monitoring
-* Compatible with various battery storage systems
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will cause temporary data unavailability
-* AC grid must be present for operation
-* Watchdog timer resets on Modbus communication
-* Power timeout is fixed at configured interval - cannot be dynamically adjusted
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu88k[Source Code icon:github[]]

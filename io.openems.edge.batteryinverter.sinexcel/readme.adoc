@@ -62,39 +62,4 @@ For a Sinexcel inverter in Germany with emergency power enabled:
 
 [[_sinexcel]]
 
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running
-* Sinexcel inverter must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and inverter
-* For grid-tied operation: AC grid connection must be present and stable
-* For off-grid operation: Battery energy storage and loads must be connected
-* Country code setting must match local grid regulations
-* Firmware on inverter should be current
-
-== Features
-
-* Hybrid operation (grid-tied and off-grid capable)
-* Bidirectional AC/DC power conversion
-* Modbus protocol for integration with energy management systems
-* Multiple country code presets for regulatory compliance
-* Emergency power function for backup scenarios
-* Real-time monitoring of inverter status and power flow
-* Automatic start/stop control
-* Time-of-use capability with timedata provider
-* Temperature monitoring
-* Grid synchronization with automatic detection
-* Islanding detection for off-grid operation
-
-== Known Limitations
-
-* Requires active Modbus connection for operation
-* Modbus timeouts will cause temporary data unavailability
-* Country code must be properly set for grid compliance
-* Emergency power mode has specific activation/deactivation sequences
-* Switching between grid-tied and off-grid modes requires careful coordination
-* Power ratings fixed by hardware specifications
-* Off-grid operation depends on battery state of charge
-* Grid-tied operation requires stable AC grid
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.sinexcel[Source Code icon:github[]]

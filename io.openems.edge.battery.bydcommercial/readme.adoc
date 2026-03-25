@@ -20,7 +20,7 @@ This bundle provides integration with the BYD Battery-Box Commercial C130 system
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_byd_c130,BYD Battery-Box Commercial C130>>
+=== BYD Battery-Box Commercial C130
 
 *Name*: Battery BYD Battery-Box Commercial C130
 
@@ -54,35 +54,5 @@ For a commercial battery rack with 4 modules:
 * `modbus_id`: "modbus0"
 * `modbusUnitId`: 1
 * `numberOfSlaves`: 4
-
-[[_byd_c130]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running (e.g., `modbus0`)
-* BYD Battery-Box Commercial C130 device must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and battery
-* Device must be properly addressed on Modbus bus
-* All slave modules must be electrically connected and powered
-
-== Features
-
-* Modular scalable battery capacity (up to 20 modules per rack)
-* Advanced cell balancing and thermal management
-* Precise charge/discharge power control
-* Real-time state of charge and health monitoring
-* Multi-phase temperature monitoring
-* Safety management with cell-level monitoring
-* Automatic start/stop control
-* Compatible with most energy management controllers
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will cause temporary data unavailability
-* All modules in a rack must use same configuration
-* Module count must match actual physical installation
-* Requires qualified technician for hardware installation
-* Maximum 20 modules per rack (additional racks require separate component instances)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bydcommercial[Source Code icon:github[]]

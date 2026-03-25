@@ -103,29 +103,4 @@ This bundle implements the following OpenEMS Components:
 
 [[_bosch_pv]]
 
-== Prerequisites / Dependencies
-
-* Bosch BPT-S 5 Hybrid device must be physically installed and powered on
-* Device communication interface must be properly connected (USB or network)
-* All three components (Core, ESS, PV) should be configured together
-* Core component must be configured and running before ESS and PV components
-* System must be in communication with the device before controllers can operate
-
-== Features
-
-* Integrated battery storage and PV charging management
-* Symmetric AC/DC power conversion
-* Real-time energy monitoring
-* Battery state of charge tracking
-* DC PV input current/voltage monitoring
-* Native integration with OpenEMS energy management
-
-== Known Limitations
-
-* Requires active device communication - no local storage or operation
-* All three components must be used together - cannot operate independently
-* Device communication timeouts will cause temporary data unavailability
-* PV charger operates only in DC mode (requires AC inverter output for grid connection)
-* Battery capacity and power ratings fixed by hardware (5 kWh typical)
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bosch.bpts5hybrid[Source Code icon:github[]]

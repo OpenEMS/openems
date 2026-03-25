@@ -1,26 +1,175 @@
 = Fronius
 
-== PV Inverter
+Solar PV inverter and smart meter integration by Fronius.
 
-Tested on
+== Overview
 
-- Fronius Symo
+This bundle provides integration with Fronius photovoltaic (PV) inverter systems and Fronius Smart Meter devices. Fronius is an Austrian manufacturer of solar inverters and energy management solutions. The integration enables monitoring of solar production via the PV inverter and energy measurement via the Smart Meter using Modbus communication.
 
-Implemented Natures:
+The bundle supports two main components:
+* **PV Inverter** - Monitors and can limit solar generation from Fronius Symo and compatible inverters
+* **Smart Meter** - Reads three-phase grid power measurement from Fronius Smart Meter
 
-- ElectricityMeter
-- ManagedSymmetricPvInverter
+== Supported Devices
 
-== Smart Meter
+.Fronius PV Inverter
+* Model: Fronius Symo (and compatible models)
+* Type: Grid-connected solar inverter
+* Communication: Modbus TCP/RTU via SunSpec register map
+* Power Rating: 3-27 kW typical
+* Features: Real-time power monitoring, active power limitation
+* Firmware: Current versions supporting SunSpec protocol
 
-Tested on
+.Fronius Smart Meter
+* Models: 63A-3, TS 65A-3
+* Type: Three-phase AC electricity meter
+* Communication: Modbus TCP/RTU via SunSpec register map
+* Rated Current: 63-65 A per phase
+* Features: Real-time power and energy measurement
+* Configuration: Must use SunSpec Model Type *float* (not integer)
+* Typical Use: Grid power measurement, export/import monitoring
 
-- Fronius Smart Meter 63A-3, TS 65A-3
+== Components
 
-Note: The SmartMeter must be configured to use the Sunspec Model Type *float*.
+[[_pv_inverter_fronius]]
+=== PV-Inverter Fronius
 
-Implemented Natures:
+*Name*: PV-Inverter Fronius
+*Factory-PID*: `PV-Inverter.Fronius`
 
-- ElectricityMeter
+.Implemented Natures/Interfaces
+* `ManagedSymmetricPvInverter` - Managed (controllable) PV inverter
+* `ElectricityMeter` - Power measurement interface
+* `ModbusComponent` - Modbus protocol integration
+* `OpenemsComponent` - OpenEMS component lifecycle
+
+*Description*:
+Integration for Fronius solar PV inverters. Monitors real-time solar generation power and allows active power limitation to reduce feed-in to the grid. Communicates via Modbus using industry-standard SunSpec register map for interoperability.
+
+*Configuration*:
+
+.Configuration Parameters
+* `id` (String): Unique component identifier; default: `"pvInverter0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `readOnly` (Boolean): Read-only mode (no power limitation commands sent); default: `true`
+* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
+* `modbusUnitId` (Integer): Modbus Unit-ID of the inverter; default: `1`
+
+.Example Configuration
+[source,json]
+----
+{
+  "id": "pvInverter0",
+  "alias": "Fronius Symo 10.0-3-M",
+  "enabled": true,
+  "readOnly": false,
+  "modbus_id": "modbus0",
+  "modbusUnitId": 1
+}
+----
+
+[[_meter_fronius]]
+=== Meter Fronius
+
+*Name*: Meter Fronius
+*Factory-PID*: `Meter.Fronius`
+
+.Implemented Natures/Interfaces
+* `ElectricityMeter` - Three-phase power meter interface
+* `ModbusComponent` - Modbus protocol integration
+* `OpenemsComponent` - OpenEMS component lifecycle
+* `ModbusSlave` - Modbus slave functionality
+
+*Description*:
+Integration for Fronius Smart Meter devices. Measures three-phase AC power and energy values (production, consumption, active/reactive power) via Modbus. Commonly used to measure grid power when Fronius inverters are present in the installation.
+
+*Configuration*:
+
+.Configuration Parameters
+* `id` (String): Unique component identifier; default: `"meter0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `type` (MeterType): Meter role (GRID, PRODUCTION, CONSUMPTION); default: `GRID`
+* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
+* `modbusUnitId` (Integer): Modbus Unit-ID of the meter; default: `240`
+* `invert` (Boolean): Invert power values and swap directions; default: `false`
+
+.Example Configuration
+[source,json]
+----
+{
+  "id": "meter0",
+  "alias": "Fronius Smart Meter 63A",
+  "enabled": true,
+  "type": "GRID",
+  "modbus_id": "modbus0",
+  "modbusUnitId": 240,
+  "invert": false
+}
+----
+
+== Important Configuration Notes
+
+=== Smart Meter SunSpec Configuration
+
+The Fronius Smart Meter **must be configured to use SunSpec Model Type float** (not integer). This is a critical setting:
+
+* Access Fronius Smart Meter web interface
+* Navigate to Settings → Communication
+* Set SunSpec Model Type to "float" (not "integer")
+* Save and restart meter if necessary
+
+Without this configuration, the OpenEMS integration will not read correct values.
+
+=== Read-Only Mode vs Managed Mode
+
+PV Inverter has two operating modes:
+
+* **Read-Only Mode** (`readOnly: true`): Only monitors solar generation, no commands sent to inverter
+* **Managed Mode** (`readOnly: false`): Allows OpenEMS controllers to limit active power output
+
+Start with read-only mode for testing, then enable managed mode if power limitation is needed.
+
+=== Meter Type Selection
+
+Choose the appropriate meter type based on what the Smart Meter measures:
+
+* **GRID** - Measures grid connection point (typical for monitoring building load)
+* **PRODUCTION** - Measures solar generation (if placed at PV output)
+* **CONSUMPTION** - Measures consumption from the meter
+
+== Integration Architecture
+
+Typical Fronius installation:
+
+```
+PV Array
+   ↓
+Fronius Symo Inverter ← Modbus → OpenEMS
+   ↓
+Grid/Building
+   ↓
+Fronius Smart Meter ← Modbus → OpenEMS
+```
+
+Use cases:
+* Monitor solar production: Configure PV inverter component with read-only
+* Measure grid power: Configure Smart Meter as GRID type
+* Limit solar feed-in: Enable managed mode on PV inverter in ES controller
+* Load balancing: Use both components for complete energy visibility
+
+== Related Bundles
+
+* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Required for communication
+* xref:../../io.openems.edge.pvinverter.api/readme.adoc[PV Inverter API] - Interface definition
+* xref:../../io.openems.edge.meter.api/readme.adoc[Meter API] - Meter interface definition
+* xref:../../io.openems.edge.controller.pvinverter.selltogridlimit/readme.adoc[Sell-to-Grid Limit] - Example controller
+
+== External Resources
+
+* Fronius Website: https://www.fronius.com/[Fronius icon:external-link[]]
+* SunSpec Alliance: https://sunspec.org/[SunSpec icon:external-link[]]
+* Modbus SunSpec Protocol: https://sunspec.org/sunspec-modbus-standard/[SunSpec Modbus Standard icon:external-link[]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fronius[Source Code icon:github[]]

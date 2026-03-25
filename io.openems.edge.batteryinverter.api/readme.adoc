@@ -116,18 +116,4 @@ Battery Inverter + Battery component together provide ESS functionality:
 * Grid support services
 * Off-grid capability
 
-.Controller Integration
-ESS Controllers use `ManagedSymmetricBatteryInverter.run()` to:
-* Command charge/discharge power
-* Set reactive power for grid support
-* Manage battery based on SOC and constraints
-* Respond to frequency events
-
-.Monitoring & Diagnostics
-Applications use read-only channels from `SymmetricBatteryInverter` to:
-* Display real-time power values
-* Track cumulative energy
-* Monitor inverter temperatures and voltages
-* Log efficiency metrics
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.api[Source Code icon:github[]]

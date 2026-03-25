@@ -8,22 +8,11 @@ This bundle provides integration with the FENECON Commercial Battery (of year 20
 
 The FENECON Commercial Battery is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power in commercial facilities.
 
-== Supported Devices
-
-.FENECON Commercial Battery
-* **Type**: Modular lithium-based battery storage
-* **Capacity**: Scalable by configuration
-* **Communication**: Modbus TCP/RTU
-* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
-* **Control**: Modbus-based charge/discharge management
-* **Auxiliary**: Relay-based start/stop control
-* **Documentation**: https://www.fenecon.de/[FENECON icon:external-link[]]
-
 == Components
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_fenecon_commercial,FENECON Commercial Battery>>
+=== FENECON Commercial Battery
 
 *Name*: Battery FENECON Commercial
 
@@ -57,37 +46,5 @@ For a FENECON Commercial Battery with automatic start/stop:
 * `modbus_id`: "modbus0"
 * `modbusUnitId`: 1
 * `batteryStartStopRelay`: "io0/Relay7"
-
-[[_fenecon_commercial]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running (e.g., `modbus0`)
-* FENECON Commercial Battery device must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and battery
-* IO component with relay output must be configured (for start/stop control)
-* Battery must be properly addressed on Modbus bus
-* Device firmware should be up to date
-
-== Features
-
-* Modular and scalable battery capacity
-* Advanced battery management system (BMS)
-* Precise charge/discharge power control
-* Real-time state of charge and health monitoring
-* Temperature monitoring and thermal management
-* Cell balancing and safety management
-* Automatic start/stop control via relay
-* Comprehensive cell voltage and current monitoring
-* Compatible with most energy management controllers
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will cause temporary data unavailability
-* Start/stop relay control requires IO component configuration
-* Battery health and degradation reporting depends on device firmware
-* Maximum charge/discharge rates fixed by battery hardware specifications
-* Requires proper electrical installation with qualified technician
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.commercial[Source Code icon:github[]]

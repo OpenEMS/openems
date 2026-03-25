@@ -172,36 +172,4 @@ This bundle implements the following OpenEMS Components:
 
 [[_soltaro_cluster_c]]
 
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running (e.g., `modbus0`)
-* Soltaro battery rack(s) must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and battery
-* Battery must be properly addressed on Modbus bus
-* Device firmware should be current
-* For cluster systems: all racks must be electrically connected and synchronized
-
-== Features
-
-* Multiple hardware versions supported (A, B, C)
-* Single-rack and multi-rack (cluster) configurations
-* Precise charge/discharge power control
-* Real-time state of charge and health monitoring
-* Advanced cell-level monitoring and balancing
-* Thermal management and monitoring
-* Automatic start/stop control
-* Scalable architecture for large deployments
-* Compatible with most energy management controllers
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will cause temporary data unavailability
-* Hardware versions are not interchangeable - correct version must be selected
-* Cluster systems must have all racks at same firmware version
-* Battery health and degradation depends on device firmware accuracy
-* Maximum charge/discharge rates fixed by hardware specifications
-* Thermal management depends on adequate cooling in deployment
-* Single racks cannot be dynamically converted to cluster mode
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.soltaro[Source Code icon:github[]]

@@ -192,25 +192,6 @@ new FC3ReadRegistersTask(0x0000, Priority.HIGH, //
 * Graceful defective component handling
 * Runtime logging level adjustment
 * Modbus function code flexibility (FC1-FC6, FC15-FC16)
-* Support for 16-bit and 32-bit registers
-* Write coils and holding registers
-* Bit-level field access from registers
-
-== Known Limitations
-
-* Single master only (Modbus RTU is inherently single-master)
-* 125 millisecond minimum cycle time recommended (typical 500ms)
-* Defective component max backoff is 5 minutes
-* Task execution order within same priority not guaranteed
-* No connection pooling (direct socket per bridge)
-* Limited to 65535 registers per device (Modbus addressing limit)
-
-== Related Bundles
-
-* xref:../../io.openems.edge.bridge.mqtt/readme.adoc[MQTT Bridge] - Alternative for MQTT-capable devices
-* xref:../../io.openems.edge.bridge.http/readme.adoc[HTTP Bridge] - Alternative for REST API devices
-* xref:../../io.openems.edge.common/readme.adoc[Common Components] - Modbus element definitions
-* Most hardware bundles - Implement ModbusComponent (meters, inverters, batteries)
 
 == Use Cases
 

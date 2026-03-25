@@ -8,22 +8,11 @@ This bundle provides integration with the Pylontech Powercube M2 battery system,
 
 The Pylontech Powercube M2 is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power applications.
 
-== Supported Devices
-
-.Pylontech Powercube M2
-* **Type**: Industrial lithium battery system
-* **Capacity**: Configurable per system design
-* **Communication**: Modbus TCP/RTU
-* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
-* **Cell Management**: Advanced battery management system (BMS)
-* **Thermal**: Integrated thermal management
-* **Documentation**: https://www.pylontech.com.cn/[Pylontech icon:external-link[]]
-
 == Components
 
 This bundle implements the following OpenEMS Components:
 
-=== <<_pylontech_m2,Pylontech Powercube M2>>
+=== Pylontech Powercube M2
 
 *Name*: Battery Pylontech Powercube M2
 
@@ -58,38 +47,5 @@ For a Pylontech Powercube M2 battery system:
 * `modbus_id`: "modbus0"
 * `modbusUnitId`: 1
 * `startStop`: "AUTO"
-
-[[_pylontech_m2]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running (e.g., `modbus0`)
-* Pylontech Powercube M2 battery device must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and battery
-* Battery must be properly addressed on Modbus bus
-* Device firmware should be current
-* Proper electrical installation with qualified technician
-
-== Features
-
-* Industrial-grade lithium battery storage
-* Advanced battery management system (BMS)
-* Precise charge/discharge power control
-* Real-time state of charge and health monitoring
-* Cell-level voltage and temperature monitoring
-* Thermal management and monitoring
-* Automatic start/stop control for safety and optimization
-* High charge/discharge efficiency
-* Compatible with most energy management controllers
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will cause temporary data unavailability
-* Only validated for Pylontech Powercube M2 model (other models not tested)
-* Battery health and degradation reporting depends on device firmware
-* Maximum charge/discharge rates fixed by battery hardware
-* Requires proper electrical installation with qualified technician
-* Thermal management depends on adequate cooling in deployment environment
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech[Source Code icon:github[]]
