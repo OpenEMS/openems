@@ -138,7 +138,7 @@ public class ControllerEssReactivePowerVoltageCharacteristicImpl extends Abstrac
 		this._setCalculatedPower(power);
 
 		// Apply Power
-		this.ess.setReactivePowerEquals(power);
+		this.ess.setReactivePowerEqualsWithoutFilter(power);
 	}
 
 }

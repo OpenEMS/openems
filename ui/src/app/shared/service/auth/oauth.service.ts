@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { Router } from "@angular/router";
 import { App, URLOpenListenerEvent } from "@capacitor/app";
 import { CookieService } from "ngx-cookie-service";
@@ -9,16 +9,24 @@ import { JsonRpcUtils } from "../../jsonrpc/jsonrpcutils";
 import { User } from "../../jsonrpc/shared";
 import { States } from "../../ngrx-store/states";
 import { Language } from "../../type/language";
+import { TSignalValue } from "../../type/utility";
 import { StringUtils } from "../../utils/string/string.utils";
 import { Service } from "../service";
 import { UserService } from "../user.service";
 import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
+
+export enum AUTHENTICATION_STATE {
+    NOT_AUTHENTICATED,
+    AUTHENTICATING,
+    AUTHENTICATED,
+}
 
 @Injectable({ providedIn: "root" })
 export class OAuthService {
 
     public static readonly REFRESH_TOKEN: string = "refresh_token";
 
+    private state: WritableSignal<AUTHENTICATION_STATE> = signal(AUTHENTICATION_STATE.NOT_AUTHENTICATED);
     private service: Service = inject(Service);
     private cookieService: CookieService = inject(CookieService);
     private router: Router = inject(Router);
@@ -61,12 +69,15 @@ export class OAuthService {
         * @returns
         */
     public async startOAuth(): Promise<void> {
+        this.state.set(AUTHENTICATION_STATE.AUTHENTICATING);
 
         const tokenResponse = await this.getTokenByRefreshToken();
         if (tokenResponse == null) {
+            this.state.set(AUTHENTICATION_STATE.NOT_AUTHENTICATED);
             return;
         }
-        this.completeAuthentication(tokenResponse);
+        await this.completeAuthentication(tokenResponse);
+        this.state.set(AUTHENTICATION_STATE.AUTHENTICATED);
     }
 
     /**
@@ -111,41 +122,47 @@ export class OAuthService {
      *
      * @param tokenResponse the token response from authentication
     */
-    public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse) {
-        const user = User.from(tokenResponse.result.user);
-        if (user == null) {
-            this.service.websocket.logout();
-            return;
-        }
+    public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse): Promise<void> {
 
-        this.userService.currentUser.set(user);
+        return new Promise<void>((res) => {
 
-        this.service.websocket.state.set(States.AUTHENTICATED);
-        this.service.websocket.status = "online";
+            const user = User.from(tokenResponse.result.user);
+            if (user == null) {
+                this.service.websocket.logout();
+                res();
+                return;
+            }
 
-        this.service.metadata.next({
-            user: user,
-            edges: {},
-        });
+            this.userService.currentUser.set(user);
 
-        const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? this?.userService?.currentUser()?.language?.toLocaleLowerCase()) ?? Language.DEFAULT;
-        localStorage.LANGUAGE = language.key;
-        this.service.setLang(language);
-        this.service.websocket.status = "online";
+            this.service.websocket.state.set(States.AUTHENTICATED);
 
-        const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
-        if (initialUrl == null) {
+            this.service.metadata.next({
+                user: user,
+                edges: {},
+            });
+
+            const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? this?.userService?.currentUser()?.language?.toLocaleLowerCase()) ?? Language.DEFAULT;
+            localStorage.LANGUAGE = language.key;
+            this.service.setLang(language);
+
+            const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
+            if (initialUrl == null) {
+                this.router.navigate(["/overview"]);
+                res();
+                return;
+            }
+
+            const isAuthenticatedNavi = initialUrl?.toString()?.split("/")?.length > 2;
+            if (isAuthenticatedNavi && initialUrl != null) {
+                this.router.navigate([initialUrl.toString().split("?")[0]], { queryParams: initialUrl.queryParams });
+                res();
+                return;
+            }
+
             this.router.navigate(["/overview"]);
-            return;
-        }
-
-        const isAuthenticatedNavi = initialUrl?.toString()?.split("/")?.length > 2;
-        if (isAuthenticatedNavi && initialUrl != null) {
-            this.router.navigate([initialUrl.toString().split("?")[0]], { queryParams: initialUrl.queryParams });
-            return;
-        }
-
-        this.router.navigate(["/overview"]);
+            res();
+        });
     }
 
     /**
@@ -190,6 +207,11 @@ export class OAuthService {
 
         this.setTokens(response.result);
         return response;
+    }
+
+
+    public getCurrentState(): TSignalValue<typeof this.state> {
+        return this.state.asReadonly()();
     }
 
     /**

@@ -5,7 +5,6 @@ import { environment } from "src/environments";
 import { NavigationId, NavigationTree } from "../components/navigation/shared";
 import { EdgeConfig } from "../shared";
 import { Role } from "../type/role";
-import { ArrayUtils } from "../utils/array/array.utils";
 import { AuthenticateResponse } from "./response/authenticateResponse";
 
 export type Edges = [{
@@ -46,19 +45,10 @@ export class User {
      * @returns the user if passed User is valid, else null
      */
     public static from(user: AuthenticateResponse["result"]["user"]): User | null {
-        if (!user || !(ArrayUtils.containsAll({ strings: Object.keys(user), arr: User.getPropertyKeys() }))) {
+        if (user == null) {
             return null;
         }
-        return new User(user.id, user.name, user.globalRole, user.language, user.hasMultipleEdges, user.settings ?? {});
-    }
-
-    /**
-     * Gets the user properties
-     *
-     * @returns all keys
-     */
-    private static getPropertyKeys(): string[] {
-        return Object.keys(new this("", "", "admin", "", false, {}));
+        return new User(user.id, user.name, user.globalRole ?? "guest", user.language ?? null, user.hasMultipleEdges ?? false, user.settings ?? {});
     }
 
     /**

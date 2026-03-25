@@ -5,6 +5,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_CONTROLLERS;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
@@ -222,7 +223,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			SinglePhaseEss.initializeCopyPhaseChannel(this, this.singlePhase);
 		}
 
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID); // Has no Backup function
 
 		if (this.batteryInverter == null) {
 			this.logError(this.log, "ESS->BatteryInverter not yet activated ");
@@ -346,8 +347,8 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		}
 		this.logDebug(this.log,
 				"Getting max. Charge/Discharge power values: " + maxChargePower + "/" + maxDischargePower + "W");
-		this._setAllowedChargePower(-maxChargePower);
-		this._setAllowedDischargePower(maxDischargePower);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, -maxChargePower);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, maxDischargePower);
 		this._setMaxApparentPower(maxApparentPower);
 
 		this.operationalValuesOk = true;
@@ -518,8 +519,10 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 
 		this.logDebug(this.log, "Symm. PowerWanted after clamp and AC-Out adjustment: " + activePowerTarget);
 
-		this._setAllowedChargePower(this.maxChargePower * -1); // Negative for charging
-		this._setAllowedDischargePower(this.maxDischargePower); // Positive for discharging
+		// Negative for charging
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, this.maxChargePower * -1);
+		// Positive for discharging
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, this.maxDischargePower);
 
 		// if we are in symmetric mode we have to device the wanted power by 3
 		// In single phase

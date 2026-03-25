@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, AfterViewChecked } from "@angular/core";
+import { AfterViewChecked, Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";

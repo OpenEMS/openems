@@ -25,7 +25,7 @@ public interface Cycle extends OpenemsComponent {
 		 * <li>Type: Integer
 		 * </ul>
 		 */
-		MEASURED_CYCLE_TIME(Doc.of(OpenemsType.LONG) //
+		MEASURED_CYCLE_TIME(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.MILLISECONDS)),
 		/**
 		 * A configured Controller is not executed because it is disabled.

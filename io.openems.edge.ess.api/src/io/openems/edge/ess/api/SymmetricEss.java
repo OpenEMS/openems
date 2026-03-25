@@ -1,5 +1,7 @@
 package io.openems.edge.ess.api;
 
+import java.util.function.Consumer;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
@@ -30,9 +32,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0..100
 		 * </ul>
 		 */
-		SOC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		SOC(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("State of Charge of the energy storage system")), //
 		/**
 		 * Capacity.
@@ -45,8 +47,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 *
 		 * @since 2019.5.0
 		 */
-		CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Grid-Mode.
@@ -57,8 +59,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(Doc.of(GridMode.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		GRID_MODE(Doc.of(GridMode.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current power grid mode; 1:On-Grid, 2:Off-Grid")), //
 		/**
 		 * Active Power.
@@ -70,12 +72,12 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Discharge or charging Power (including DC-PV power, if applicable)."
 						+ " For the actual charging or discharging power of the battery, please refer to address"
-						+ " \"ess0/DcDischargePower\". Negative values for charge; positive for discharge.") //
+						+ " \"ess0/DcDischargePower\". Negative values for charge; positive for discharge.")//
 		),
 		/**
 		 * Reactive Power.
@@ -86,9 +88,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: var
 		 * </ul>
 		 */
-		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current value of the reactive power")//
 		),
 		/**
@@ -102,8 +104,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE) //
+		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Charge Energy.
@@ -114,8 +116,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Active Discharge Energy.
@@ -126,8 +128,8 @@ public interface SymmetricEss extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
+		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)),
 		/**
 		 * Min Cell Voltage.
@@ -141,9 +143,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 *
 		 * @since 2019.12.0
 		 */
-		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		MIN_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Minimum cell voltage")), //
 		/**
 		 * Max Cell Voltage.
@@ -157,9 +159,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 *
 		 * @since 2019.17.0
 		 */
-		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		MAX_CELL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Maximum cell voltage")), //
 		/**
 		 * Min Cell Temperature.
@@ -173,9 +175,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 *
 		 * @since 2019.17.0
 		 */
-		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		MIN_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Minimum cell temperature")), //
 		/**
 		 * Max Cell Temperature.
@@ -189,9 +191,9 @@ public interface SymmetricEss extends OpenemsComponent {
 		 *
 		 * @since 2019.17.0
 		 */
-		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		MAX_CELL_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Maximum cell temperature")); //
 
 		private final Doc doc;
@@ -320,13 +322,26 @@ public interface SymmetricEss extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#GRID_MODE}
-	 * Channel.
-	 *
-	 * @param value the next value
+	 * Returns true if {@link GridMode} is {@link GridMode#ON_GRID} or
+	 * {@link GridMode#UNDEFINED}.
+	 * 
+	 * <p>
+	 * If {@link GridMode} is {@link GridMode#UNDEFINED}, a warning message is
+	 * logged.
+	 * 
+	 * @param logWarn a consumer for logging a warning message
+	 * @return true or false
 	 */
-	public default void _setGridMode(GridMode value) {
-		this.getGridModeChannel().setNextValue(value);
+	public default boolean isOnGridOrUndefined(Consumer<String> logWarn) {
+		return switch (this.getGridMode()) {
+		case UNDEFINED -> {
+			logWarn.accept("Grid-Mode is [UNDEFINED]");
+			yield true;
+		}
+		case ON_GRID -> true;
+		case OFF_GRID -> false;
+		case OFF_GRID_GENSET -> false;
+		};
 	}
 
 	/**

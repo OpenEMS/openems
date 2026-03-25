@@ -19,6 +19,7 @@ public enum CountryCode {
 	SE("Sweden"), //
 	LT("Lithuania"), //
 	CZ("Czechia"), //
+	BE("Belgium"), //
 
 	;
 

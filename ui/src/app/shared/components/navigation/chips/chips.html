@@ -1,10 +1,61 @@
-@if(isVisible){
-  @for(child of children; track child){
-    <ion-chip tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);"
-      style="background: var(--ion-background-color-card-header);">
-      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'"
-        [size]="child.icon?.size ?? 'small'"></ion-icon>
-      <ion-label>{{child.label}}</ion-label>
-    </ion-chip>
-  }
+@if(navigationService.position() === 'left'){
+    <ion-item button (click)="navigateToRoot()" (keydown.enter)="navigateToRoot()">
+        <ion-icon class="ion-padding-right" name="home-outline" size="small"></ion-icon>
+        <ion-label>{{"EDGE.INDEX.ENERGYMONITOR.TITLE" | translate}}</ion-label>
+    </ion-item>
+    <ng-template #accordionGroup let-items="items">
+
+    @if(items !== null){
+        <ion-accordion-group [value]="currentUrl" expand="compact" multiple="true">
+            @for(child of items; track i; let i = $index ){
+            @if(child?.children?.length === 0){
+            <ion-item button class="ion-no-padding ion-padding-left" lines="none"
+                (click)="child?.children?.length > 0 ? '': navigateAbsolutly(child)">
+                <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"
+                    size="small"></ion-icon>
+                <ion-label
+                    [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder': 'inherit'">{{child.label}}</ion-label>
+            </ion-item>
+            } @else {
+            <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end"
+                [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline': ''">
+                <ion-item [slot]="'header'" (click)="child?.children?.length > 0 ? '': navigateAbsolutly(child)">
+                    <ion-grid class="ion-no-padding" (click)="navigateAbsolutly(child)">
+                        <ion-row class="ion-no-padding">
+                            <ion-col class="ion-no-padding">
+                                <ion-item class="ion-no-padding" lines="none">
+                                    <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''"
+                                        [color]="child.icon?.color ?? ''" size="small"></ion-icon>
+                                    <ion-label
+                                        [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder': 'inherit'">{{child.label}}</ion-label>
+                                </ion-item>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                </ion-item>
+
+                @if(child?.children?.length > 0){
+                <div class="ion-padding-left" slot="content">
+                    <ng-template
+                        *ngTemplateOutlet="accordionGroup; context: {items: child?.children ?? [], parentUrl:  child.routerLink.baseString}"></ng-template>
+                </div>
+                }
+            </ion-accordion>
+            }
+            }
+        </ion-accordion-group>
+    }
+    </ng-template>
+    <ng-template *ngTemplateOutlet="accordionGroup; context: {items: absoluteChildren}"></ng-template>
+}
+
+@if(navigationService.position() === 'bottom'){
+    @for(child of children; track child){
+        <ion-chip tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);"
+            style="background: var(--ion-background-color-card-header);">
+            <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'"
+                [size]="child.icon?.size ?? 'small'"></ion-icon>
+            <ion-label>{{child.label}}</ion-label>
+        </ion-chip>
+    }
 }

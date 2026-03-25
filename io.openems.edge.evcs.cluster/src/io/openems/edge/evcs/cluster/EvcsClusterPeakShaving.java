@@ -14,19 +14,26 @@ import io.openems.edge.evcs.api.MetaEvcs;
 public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		EVCS_CLUSTER_STATUS(Doc.of(EvcsClusterStatus.values()) //
+		EVCS_CLUSTER_STATUS(Doc.of(EvcsClusterStatus.values())//
 				.text("Status calculated from all given Evcss.")),
-		EVCS_BLOCKED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH)), //
-		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Maximum power to distribute, for all given Evcss.")),
-		MAXIMUM_AVAILABLE_ESS_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Maximum available ess power.")),
-		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT).text("Maximum available grid power.")),
-		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT)
+		EVCS_BLOCKED_CHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)),
+		MAXIMUM_POWER_TO_DISTRIBUTE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Maximum power to distribute, for all given Evcss.")),
+		MAXIMUM_AVAILABLE_ESS_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Maximum available ess power.")),
+		MAXIMUM_AVAILABLE_GRID_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Maximum available grid power.")),
+		USED_ESS_MAXIMUM_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.text("Dynamic maximum discharge power, that could be limited by us to ensure the possibility to discharge the battery."));
 
 		private final Doc doc;
@@ -61,16 +68,6 @@ public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EVCS_CLUSTER_STATUS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setEvcsClusterStatus(EvcsClusterStatus value) {
-		this.getEvcsClusterStatusChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#EVCS_BLOCKED_CHARGE_POWER}.
 	 *
 	 * @return the Channel
@@ -87,25 +84,5 @@ public interface EvcsClusterPeakShaving extends MetaEvcs, OpenemsComponent {
 	 */
 	public default Value<Integer> getEvcsBlockedChargePower() {
 		return this.getEvcsBlockedChargePowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EVCS_BLOCKED_CHARGE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setEvcsBlockedChargePower(Integer value) {
-		this.getEvcsBlockedChargePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EVCS_BLOCKED_CHARGE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setEvcsBlockedChargePower(int value) {
-		this.getEvcsBlockedChargePowerChannel().setNextValue(value);
 	}
 }

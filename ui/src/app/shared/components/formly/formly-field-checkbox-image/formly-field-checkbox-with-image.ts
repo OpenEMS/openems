@@ -16,6 +16,10 @@ import { FormlyUtils } from "../formly-utils";
             max-width: 10rem;
             height: auto;
         }
+        .resize-image {
+            max-width: 20rem;
+            height: auto;
+        }
         .input-box {
             border: 0.1em solid var(--ion-color-dark);
             border-radius: 0.125rem;
@@ -35,6 +39,12 @@ import { FormlyUtils } from "../formly-utils";
             margin-left: 0.25rem;
             color: var(--ion-color-medium-shade);
             cursor: help;
+        }
+        @media (max-width: 600px) {
+            .resize-image {
+                max-width: 10rem;
+                height: auto;
+            }
         }
     `,
     standalone: false,

@@ -232,7 +232,7 @@
 	com.opencsv;version='[5.9.0,5.9.1)',\
 	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
 	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
-	com.squareup.okio;version='[3.16.4,3.16.5)',\
+	com.squareup.okio;version='[3.17.0,3.17.1)',\
 	com.sun.jna;version='[5.18.1,5.18.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
@@ -432,7 +432,7 @@
 	io.openems.edge.victron;version=snapshot,\
 	io.openems.edge.weather.api;version=snapshot,\
 	io.openems.edge.weather.openmeteo;version=snapshot,\
-	io.openems.j2mod;version='[3.2.2,3.2.3)',\
+	io.openems.j2mod;version='[3.3.0,3.3.1)',\
 	io.openems.oem.openems;version=snapshot,\
 	io.openems.shared.influxdb;version=snapshot,\
 	io.openems.wrapper.Java-WebSocket;version=snapshot,\
@@ -479,13 +479,9 @@
 	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.eclipse.jetty.client;version='[9.4.28,9.4.29)',\
-	org.eclipse.jetty.http;version='[9.4.28,9.4.29)',\
-	org.eclipse.jetty.io;version='[9.4.28,9.4.29)',\
-	org.eclipse.jetty.util;version='[9.4.28,9.4.29)',\
 	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
 	org.eclipse.paho.mqttv5.client;version='[1.2.5,1.2.6)',\
-	org.jetbrains.kotlin.osgi-bundle;version='[2.3.10,2.3.11)',\
+	org.jetbrains.kotlin.osgi-bundle;version='[2.3.20,2.3.21)',\
 	org.jsoup;version='[1.22.1,1.22.2)',\
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\

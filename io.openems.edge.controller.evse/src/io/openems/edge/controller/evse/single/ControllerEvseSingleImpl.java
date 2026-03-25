@@ -146,15 +146,20 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 				.getCurrentState() == State.FINISHED_ENERGY_SESSION_LIMIT;
 		final var chargePointAbilities = this.chargePoint.getChargePointAbilities();
 		final var activePower = this.chargePoint.getActivePower().get();
+
 		final var sessionEnergy = this.getSessionEnergy().orElse(0);
+		final var sessionEnergyLimit = this.config.manualEnergySessionLimit() < 1 //
+				? null // No Session Energy Limit configured
+				: this.config.manualEnergySessionLimit();
+
 		final var electricVehicleAbilities = this.electricVehicle.getElectricVehicleAbilities();
 		final var combinedAbilities = CombinedAbilities.createFrom(chargePointAbilities, electricVehicleAbilities) //
 				.setIsReadyForCharging(!isSessionLimitReached) //
 				.build();
 
-		return new Params(this.id(), this.config.mode(), activePower, sessionEnergy,
-				this.config.manualEnergySessionLimit(), this.history, this.config.phaseSwitching(), combinedAbilities,
-				this.tasks);
+		return new Params(this.id(), this.config.mode(), activePower, //
+				sessionEnergy, sessionEnergyLimit, //
+				this.history, this.config.phaseSwitching(), combinedAbilities, this.tasks);
 	}
 
 	@Override

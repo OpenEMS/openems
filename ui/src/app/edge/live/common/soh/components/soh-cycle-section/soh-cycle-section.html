@@ -1,0 +1,85 @@
+@if (isSohCycleAvailable) {
+  <ng-container id="soh-controller-section">
+    <ion-grid class="ion-no-padding soh-section-margin-top">
+      <ion-row>
+        <ion-col >
+          <ion-item-divider color="light">
+            <span translate>STORAGE.ADMIN_MODAL.SOH.TITLE</span>
+            (<small translate>STORAGE.ADMIN_MODAL.SOH.TITLE_TIP</small>)
+          </ion-item-divider>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    @if (isSohCycleLoading) {
+      <ion-item lines="none" class="soh-spinner-wrapper">
+        <ngx-spinner [name]="spinnerId"></ngx-spinner>
+      </ion-item>
+    } @else {
+        <ion-grid class="full_width soh-section-margin-top">
+          <ion-row>
+            <ion-col size="auto">
+              <ion-icon name="information-outline" size="large"></ion-icon>
+            </ion-col>
+            <ion-col>
+              <ion-note class="ion-text-wrap ion-align-items-center">
+                <ion-text>
+                  <small translate>
+                    STORAGE.ADMIN_MODAL.SOH.INFO
+                  </small>
+                </ion-text>
+              </ion-note>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        @if (isDebugLogEnabled) {
+          <div class="soh-debug-block">
+            <h3>Debugging</h3>
+            <pre>{{sohCycleController | json }}</pre>
+
+            <oe-modal-line [name]="'STATE_MACHINE' | translate"
+              [formGroup]="sohCycleControllerFormGroup"
+              controlName="stateMachineDisplay" [control]="{ type: 'TEXT' }" leftColumnWidth="100">
+            </oe-modal-line>
+
+          </div>
+        }
+        @if (isSohCycleRunning) {
+          @if (isSohCycleRunningWithError) {
+            <ion-item lines="none" class="soh-status soh-status--error">
+              <ion-text>
+                <strong translate>STORAGE.ADMIN_MODAL.SOH.ERROR</strong>
+              </ion-text>
+            </ion-item>
+          } @else {
+            <ion-item lines="none" class="soh-status soh-status--running">
+              <ion-text>
+                <i translate>STORAGE.ADMIN_MODAL.SOH.CAPACITY_MEASURING</i>
+              </ion-text>
+            </ion-item>
+          }
+        } @else {
+          <ion-grid class="soh-restart-block ion-no-padding" id="restart-block">
+            @if (isSohCycleCapacityMeasured) {
+                <oe-modal-line [name]="'STORAGE.ADMIN_MODAL.SOH.SOH_PERCENT' | translate"
+                  [formGroup]="sohCycleControllerFormGroup" controlName="sohPercent"
+                  [control]="{ type: 'TEXT', valueConverter: Converter.STATE_IN_PERCENT }">
+                </oe-modal-line>
+                <oe-modal-line [name]="'STORAGE.ADMIN_MODAL.SOH.MEASURED_CAPACITY' | translate"
+                  [formGroup]="sohCycleControllerFormGroup"
+                  controlName="measuredCapacity" [control]="{ type: 'TEXT', valueConverter: Converter.TO_WATT_HOURS }">
+                </oe-modal-line>
+                <ion-item lines="none" class="soh-restart-action">
+                  <ion-button translate (click)="showRestartConfirmation()">
+                    STORAGE.ADMIN_MODAL.BUTTONS.RESTART</ion-button>
+                </ion-item>
+            } @else {
+              <ion-item lines="none" class="soh-restart-action">
+                <ion-button translate (click)="startSohCycle()">
+                  STORAGE.ADMIN_MODAL.BUTTONS.START</ion-button>
+              </ion-item>
+            }
+          </ion-grid>
+        }
+      }
+  </ng-container>
+}

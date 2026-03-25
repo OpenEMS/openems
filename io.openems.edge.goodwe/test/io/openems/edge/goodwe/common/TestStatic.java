@@ -246,7 +246,7 @@ public class TestStatic {
 
 		var dcPower = 200_000; // W
 		var powerMode = EmsPowerMode.AUTO;
-		var powerSet = 0;
+		var powerSet = 0L;
 
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 50 /* SoC */,
 				25 /* batteryCurrent */, powerMode, powerSet));
@@ -258,7 +258,7 @@ public class TestStatic {
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, 2, powerMode, powerSet));
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 2, 0, powerMode, powerSet));
 		assertEquals(dcPower,
-				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, 1000));
+				(int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 95, 0, EmsPowerMode.CHARGE_BAT, 1000L));
 
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, null, 0, powerMode, powerSet));
 		assertEquals(dcPower, (int) AbstractGoodWe.ignoreImpossibleMinPower(dcPower, 0, null, powerMode, powerSet));
@@ -281,10 +281,8 @@ public class TestStatic {
 	public void testCalculateDcLimitation() {
 		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(0, 230, 30_000));
 		assertEquals(11500, (int) AbstractGoodWe.calculateDcLimitation(50, 230, 30_000));
-		assertEquals(9000,
-				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatChargeP));
-		assertEquals(6600,
-				(int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatDischargeP));
+		assertEquals(9000, (int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatChargeP));
+		assertEquals(6600, (int) AbstractGoodWe.calculateDcLimitation(50, 230, FENECON_GEN2_6K.maxBatDischargeP));
 		assertEquals(0, (int) AbstractGoodWe.calculateDcLimitation(50, null, 30_000));
 		assertEquals(20000, (int) AbstractGoodWe.calculateDcLimitation(50, 400, 30_000));
 		assertEquals(-800, (int) AbstractGoodWe.calculateDcLimitation(-2, 400, 30_000));

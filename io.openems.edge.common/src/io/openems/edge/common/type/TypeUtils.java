@@ -321,17 +321,6 @@ public class TypeUtils {
 	}
 
 	/**
-	 * Safely add Integers. If one of them is null it is considered '0'. If all of
-	 * them are null, 'null' is returned.
-	 *
-	 * @param values the {@link Integer} values
-	 * @return the sum
-	 */
-	public static Integer sumInt(List<Integer> values) {
-		return sum(values.toArray(Integer[]::new));
-	}
-
-	/**
 	 * Safely add Longs. If one of them is null it is considered '0'. If all of them
 	 * are null, 'null' is returned.
 	 *
@@ -340,28 +329,6 @@ public class TypeUtils {
 	 */
 	public static Long sumLong(List<Long> values) {
 		return sum(values.toArray(Long[]::new));
-	}
-
-	/**
-	 * Safely add Integers. If one of them is null it is considered '0'. If all of
-	 * them are null, 'null' is returned.
-	 *
-	 * @param values the {@link Integer} values
-	 * @return the sum
-	 */
-	public static Integer sum(Integer... values) {
-		Integer result = null;
-		for (Integer value : values) {
-			if (value == null) {
-				continue;
-			}
-			if (result == null) {
-				result = value;
-			} else {
-				result += value;
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -594,26 +561,6 @@ public class TypeUtils {
 	/**
 	 * Safely finds the max value of all values.
 	 *
-	 * @param values the {@link Integer} values
-	 * @return the max value; or null if all values are null
-	 */
-	public static Integer max(Integer... values) {
-		Integer result = null;
-		for (Integer value : values) {
-			if (value != null) {
-				if (result == null) {
-					result = value;
-				} else {
-					result = Math.max(result, value);
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Safely finds the max value of all values.
-	 *
 	 * @param values the {@link Float} values
 	 * @return the max value; or null if all values are null
 	 */
@@ -626,24 +573,6 @@ public class TypeUtils {
 				} else {
 					result = Math.max(result, value);
 				}
-			}
-		}
-		return result;
-	}
-
-	/**
-	 * Safely finds the min value of all values.
-	 *
-	 * @param values the {@link Integer} values
-	 * @return the min value; or null if all values are null
-	 */
-	public static Integer min(Integer... values) {
-		Integer result = null;
-		for (Integer value : values) {
-			if (result != null && value != null) {
-				result = Math.min(result, value);
-			} else if (value != null) {
-				result = value;
 			}
 		}
 		return result;

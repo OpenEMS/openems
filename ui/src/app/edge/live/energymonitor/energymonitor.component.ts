@@ -30,7 +30,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
                 ? [new ChannelAddress("_sum", "EssMinDischargePower"), new ChannelAddress("_sum", "EssMaxDischargePower")]
                 : [new ChannelAddress("_sum", "EssMaxApparentPower")];
 
-            this.dataService.getValues([
+            this.dataService.subscribeChannels([
                 // Ess
                 new ChannelAddress("_sum", "EssSoc"), new ChannelAddress("_sum", "EssActivePower"),
                 ...essMinMaxChannels,
