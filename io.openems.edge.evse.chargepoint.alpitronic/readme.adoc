@@ -16,7 +16,6 @@ Alpitronic Hypercharger is suitable for public fast-charging networks, fleet ope
 * **Protocol**: Modbus TCP/RTU
 * **Typical Use**: Public fast charging, fleet charging, grid integration
 * **Power**: 50-150 kW depending on model
-* **Voltage**: 500V DC
 * **Communication**: Modbus or direct interface
 * **Firmware**: 1.7.2 and higher
 * **Documentation**: https://www.alpitronic.com/[Alpitronic icon:external-link[]]

@@ -1,6 +1,182 @@
-= Http
+= HTTP Bridge
 
-Http is a widely used standard for web communication. It is used for some hardware devices like electric meters, relays and so on.
-The standard architecture used by the devices are RESTful api's.
+HTTP bridge for periodic communication with REST API endpoints.
+
+== Overview
+
+The HTTP Bridge provides cycle-synchronized HTTP communication with remote devices and services using REST APIs. It enables OpenEMS components to periodically fetch data from HTTP endpoints and handle responses asynchronously. The bridge is widely used to integrate hardware devices like electric meters, relays, inverters, and other devices that expose RESTful APIs.
+
+Key capabilities:
+* Cycle-synchronized periodic HTTP requests (every N cycles)
+* Configurable connect and read timeouts
+* Automatic error handling and retry logic
+* JSON parsing support for structured data
+* Custom headers and HTTP method support
+
+== Architecture
+
+The HTTP Bridge consists of:
+
+* *HttpBridgeCycleService*: Main interface for cycle-based HTTP operations
+* *CycleSubscriber*: Manages cycle events and triggers scheduled requests
+* *HttpBridgeCycleServiceImpl*: Implementation managing request queue and execution
+
+== Core Interfaces
+
+[[_http_bridge_cycle_service]]
+=== HttpBridgeCycleService
+
+*Purpose*: Provides cycle-synchronized HTTP communication with remote endpoints.
+
+*Key Features*:
+* `subscribeCycle(int cycle, String url, Consumer<HttpResponse<String>>)` - Fetch every N cycles
+* `subscribeEveryCycle(String url, Consumer<HttpResponse<String>>)` - Fetch every cycle
+* `subscribeCycle(CycleEndpoint endpoint)` - Advanced configuration with custom callbacks
+* `subscribeJsonCycle(...)` - Convenience methods with automatic JSON parsing
+* `removeCycleEndpoint(CycleEndpoint)` - Cancel subscriptions
+
+*Usage Pattern*:
+```java
+httpBridgeCycleService.subscribeEveryCycle("http://device.local/status", 
+  response -> {
+    // Process response data
+    String data = response.data();
+  },
+  error -> {
+    // Handle error
+    logger.warn("HTTP request failed: " + error);
+  }
+);
+```
+
+*Cycle Scheduling*:
+* If cycle=1: Fetch every OpenEMS cycle
+* If cycle=5: Fetch every 5th cycle (reduced polling)
+* If request takes longer than cycle period: Wait for completion, then schedule next
+
+[[_cycle_endpoint]]
+=== CycleEndpoint
+
+Configuration record for a single HTTP subscription:
+
+*Fields*:
+* `cycle` (int): How many cycles to wait between requests (minimum 1)
+* `endpoint` (Supplier<Endpoint>): Supplies the HTTP endpoint to fetch
+* `onResult` (Consumer<HttpResponse<String>>): Callback for successful responses
+* `onError` (Consumer<HttpError>): Callback for errors
+
+*Usage*:
+```java
+var endpoint = new CycleEndpoint(
+  5,  // Every 5 cycles
+  () -> new Endpoint("http://device.local/api/status", HttpMethod.GET, ...),
+  response -> processData(response.data()),
+  error -> logError(error)
+);
+httpBridgeCycleService.subscribeCycle(endpoint);
+```
+
+[[_cycle_subscriber]]
+=== CycleSubscriber
+
+*Purpose*: Singleton OSGi component that listens to cycle events and triggers scheduled HTTP requests.
+
+*Behavior*:
+* Subscribes to `TOPIC_CYCLE_BEFORE_PROCESS_IMAGE` and `TOPIC_CYCLE_AFTER_PROCESS_IMAGE` events
+* Maintains countdown timers for each registered endpoint
+* Executes requests when cycle count reaches zero
+* Automatically resets countdown for next interval
+
+== Supported HTTP Methods
+
+* `GET` - Retrieve data (default)
+* `POST` - Send data with request body
+* `PUT` - Update resources
+* `DELETE` - Remove resources
+* `PATCH` - Partial updates
+
+== Configuration
+
+Cycle timing configuration (in OpenEMS edge config):
+
+```json
+{
+  "cycle": 500,  // 500ms cycle time
+  "endpoints": [
+    {
+      "cycle": 1,    // Every 500ms (every cycle)
+      "url": "http://device.local/status"
+    },
+    {
+      "cycle": 10,   // Every 5 seconds (10 cycles)
+      "url": "http://device.local/metrics"
+    }
+  ]
+}
+```
+
+== Error Handling
+
+HTTP errors are categorized:
+
+* `TimeoutError` - Connection or read timeout exceeded
+* `UnknownError` - Unexpected exception during request
+* `StatusCodeError` - Server returned non-2xx status code
+* Custom error handlers process each error type
+
+Example error handling:
+
+```java
+error -> {
+  if (error instanceof HttpError.TimeoutError) {
+    logger.warn("Device unreachable: " + error.getMessage());
+  } else if (error instanceof HttpError.StatusCodeError) {
+    logger.error("Server error: " + error.getMessage());
+  }
+}
+```
+
+== JSON Support
+
+Convenience methods for automatic JSON parsing:
+
+```java
+httpBridgeCycleService.subscribeJsonEveryCycle("http://api.local/data",
+  response -> {
+    JsonElement data = response.data();  // Already parsed
+    processJson(data);
+  },
+  error -> handleError(error)
+);
+```
+
+== Use Cases
+
+* **Electric Meters** - Polling meter APIs for energy readings
+* **Inverters** - Fetching inverter status and power values
+* **Weather Services** - Getting weather data for PV forecasting
+* **Remote Monitoring** - Collecting metrics from external systems
+* **Configuration Updates** - Fetching configuration from remote servers
+* **Device Integration** - Communicating with HTTP-enabled hardware
+
+== Prerequisites
+
+* Stable network connection to remote HTTP endpoints
+* Firewall rules allowing outbound HTTP/HTTPS traffic
+* Remote endpoints must respond within configured timeout (default 5 seconds)
+
+== Known Limitations
+
+* Synchronous request handling (requests block until complete)
+* No built-in request body templating or complex transformations
+* No SSL/TLS certificate validation customization
+* Request queue is not persisted (lost on restart)
+* No exponential backoff for failed requests
+
+== Related Bundles
+
+* xref:../../io.openems.common.bridge.http/readme.adoc[Common HTTP Bridge] - Shared HTTP utilities
+* xref:../../io.openems.edge.meter.discovergy/readme.adoc[Discovergy Meter] - Example HTTP integration
+* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Alternative for Modbus devices
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.http[Source Code icon:github[]]

@@ -1,3 +1,151 @@
-= Battery
+= Battery API
 
-A battery that is connected to a battery inverter.
+Interface definitions for battery implementations and battery protection features.
+
+== Overview
+
+This bundle provides the core interfaces and protection utilities for battery implementations in OpenEMS. It defines the Battery interface that all battery storage components must implement, as well as battery protection mechanisms including voltage protection, current limiting, and forced charge/discharge capabilities.
+
+The Battery API is the foundation for all battery storage integrations, ensuring consistent behavior and safety features across different hardware implementations.
+
+== Core Interfaces
+
+=== Battery
+
+Base interface that all battery storage implementations must implement. Defines the contract for battery control and monitoring including state of charge, power flow, and operational status.
+
+.Implemented Features
+* StartStoppable: Battery can be started and stopped
+* OpenemsComponent: Standard OpenEMS component integration
+* State of charge tracking
+* Power limits and current handling
+* Error reporting and acknowledgement
+
+=== BatteryErrorAcknowledge
+
+Interface for acknowledging and handling battery errors. Allows systems to report and clear battery-related faults and warnings.
+
+.Functionality
+* Error acknowledgement mechanism
+* Fault status reporting
+* Safety-critical error handling
+
+== Battery Protection
+
+The bundle includes comprehensive battery protection utilities:
+
+=== BatteryProtection
+
+Main protection coordinator that manages all battery safety mechanisms.
+
+.Protection Features
+* Voltage monitoring and limits (min/max cell voltages)
+* Temperature monitoring
+* Current limiting for charge and discharge
+* Force charge/discharge control
+* Protection definition and status reporting
+
+=== Voltage Protection (BatteryVoltageProtection)
+
+Monitors and enforces battery voltage limits.
+
+.Features
+* Minimum voltage protection (cell under-voltage)
+* Maximum voltage protection (cell over-voltage)
+* Configurable voltage thresholds
+* Automatic current limiting when limits approached
+
+=== Current Limiting (ChargeMaxCurrentHandler, DischargeMaxCurrentHandler)
+
+Dynamically limits charge and discharge current based on:
+
+.Limiting Factors
+* Battery state of charge
+* Temperature conditions
+* Voltage limits
+* Cell balance requirements
+
+=== Force Control (ForceCharge, ForceDischarge)
+
+Allows forcing charge or discharge operations for specific scenarios:
+
+.Use Cases
+* Emergency energy injection
+* Load balancing
+* Grid support services
+* Battery conditioning
+
+== Components vs. Devices
+
+*Important distinction*:
+
+* **Battery (interface)**: Abstract definition of battery capabilities
+* **Device implementations**: Specific battery products (Samsung, BYD, etc.) that implement the Battery interface
+* **This bundle**: Provides only interfaces and protection utilities - no actual device drivers
+
+Device-specific implementations live in separate bundles like `io.openems.edge.battery.samsung`, `io.openems.edge.battery.bydcommercial`, etc.
+
+== Test Utilities
+
+=== DummyBattery
+
+Test implementation of the Battery interface for development and testing purposes.
+
+.Capabilities
+* Simulated battery behavior
+* Configurable state of charge
+* Mock power flow
+* Testing of battery control logic
+
+== Prerequisites / Dependencies
+
+* None - this is a pure API bundle providing only interfaces
+* Consumed by battery implementations and controllers
+* Provides utilities for any component needing battery protection features
+
+== Related Bundles
+
+* `io.openems.edge.battery.samsung` - Samsung ESS implementation
+* `io.openems.edge.battery.bydcommercial` - BYD Commercial implementation
+* `io.openems.edge.battery.fenecon.commercial` - FENECON Commercial implementation
+* `io.openems.edge.battery.pylontech` - Pylontech implementation
+* `io.openems.edge.battery.soltaro` - Soltaro implementation
+* Any battery controller using battery protection features
+
+== Use Cases for Battery API
+
+=== For Battery Implementers
+
+Use this API when:
+* Creating a new battery device driver
+* Implementing battery-specific features
+* Integrating a new battery hardware with OpenEMS
+
+Key interfaces to implement:
+* `Battery` - Main battery interface
+* `BatteryErrorAcknowledge` - Error handling
+
+=== For Controllers and Energy Management
+
+Use these utilities when:
+* Controlling battery charge/discharge
+* Implementing battery protection logic
+* Managing battery safety constraints
+* Force charging/discharging for specific scenarios
+
+Key utilities to use:
+* `BatteryProtection` - Comprehensive protection
+* `BatteryVoltageProtection` - Voltage monitoring
+* `CurrentHandlers` - Dynamic current limits
+* `ForceCharge`/`ForceDischarge` - Forced operations
+
+== Best Practices
+
+* Always implement the Battery interface for new battery drivers
+* Use BatteryProtection for all safety-critical operations
+* Respect current limits enforced by protection handlers
+* Implement proper error handling with BatteryErrorAcknowledge
+* Test with DummyBattery before hardware integration
+* Monitor voltage and temperature constraints
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.api[Source Code icon:github[]]

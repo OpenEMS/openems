@@ -4,20 +4,18 @@ Single-phase battery inverter with integrated energy management.
 
 == Overview
 
-This bundle provides integration with the REFUstore 88K battery inverter, a single-phase AC/DC converter designed for residential energy storage applications. The inverter communicates via Modbus for precise power control and monitoring with built-in safety features including watchdog timer and power timeout detection.
+This bundle provides integration with the REFUstore 88K battery inverter, a three-phase AC/DC converter designed for residential energy storage applications. The inverter communicates via Modbus for precise power control and monitoring with built-in safety features including watchdog timer and power timeout detection.
 
 REFUstore 88K is suitable for solar battery storage, peak shaving, and residential energy management systems requiring reliable battery storage integration.
 
 == Supported Devices
 
 .REFUstore 88K
-* **Type**: Single-phase battery inverter
-* **Capacity**: 88 kWh energy storage (battery-dependent)
-* **Power**: 8-10 kW (typical)
+* **Type**: Three-phase battery inverter
+* **Power**: 88 kW (typical)
 * **Communication**: Modbus TCP/RTU
 * **Typical Use**: Residential battery storage, solar integration
-* **Grid Connection**: Single-phase AC
-* **Documentation**: https://www.refu.com/storage-solutions/?L=1[REFU Storage Solutions icon:external-link[]]
+* **Documentation**: https://refu.com/[REFU Storage Solutions icon:external-link[]]
 
 == Components
 
@@ -72,7 +70,6 @@ For a REFUstore 88K inverter:
 
 == Features
 
-* Single-phase battery inverter with bidirectional power flow
 * Modbus protocol for integration with energy management systems
 * Automatic AC/DC power conversion and control
 * Real-time monitoring of inverter status and parameters
@@ -87,10 +84,8 @@ For a REFUstore 88K inverter:
 
 * Requires active Modbus connection - no local operation
 * Modbus timeouts will cause temporary data unavailability
-* Single-phase only (three-phase not supported)
 * AC grid must be present for operation
 * Watchdog timer resets on Modbus communication
 * Power timeout is fixed at configured interval - cannot be dynamically adjusted
-* Maximum power limited by hardware (8-10 kW typical)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu88k[Source Code icon:github[]]

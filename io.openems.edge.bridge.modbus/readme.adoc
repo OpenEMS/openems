@@ -1,48 +1,223 @@
-= Modbus
+= Modbus Bridge
 
-Modbus is a widely used standard for fieldbus communications. It is used by all kinds of hardware devices like photovoltaics inverters, electric meters, and so on.
+Master bridge for Modbus/TCP and Modbus/RTU communication with industrial devices.
 
-== Modbus/TCP
+== Overview
 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusTcpImpl.java[Bridge Modbus/TCP] for fieldbus communication via TCP/IP network.
+Modbus is a widely-used industrial communication standard for fieldbus communications. The Modbus Bridge enables OpenEMS to communicate with all kinds of hardware devices like photovoltaic inverters, electric meters, battery systems, and other industrial equipment that support Modbus protocol.
 
-== Modbus/RTU
+The bridge manages:
+* Modbus task execution scheduling and prioritization
+* Read and write request coordination across all Modbus components
+* Automatic defective component handling and retry logic
+* Cycle-synchronized communication timing
+* Detailed logging and debugging capabilities
 
-https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.bridge.modbus/src/io/openems/edge/bridge/modbus/BridgeModbusSerialImpl.java[Bridge Modbus/RTU Serial] for fieldbus communication via RS485 serial bus.
+Two transport protocols are supported:
+* **Modbus/TCP** - Network-based communication via TCP/IP
+* **Modbus/RTU** - Serial-based communication via RS485 or RS232
 
-== Implementation details
+== Components
 
-OpenEMS Components that use Modbus communication, must implement the `ModbusComponent` interface and provide a `ModbusProtocol`. A protocol uses the notion of a `Task` to define an individual Modbus Read or Write request that can cover multiple Modbus Registers or Coils depending on the Modbus function code. It is possible to add or remove tasks to/from a protocol at runtime or to change the execution `Priority`. The Modbus Bridge (`Bridge Modbus/RTU Serial` or `Bridge Modbus/TCP`) collects all protocols and manages the execution of Tasks.
+[[_bridge_modbus_tcp]]
+=== Bridge Modbus/TCP
 
-=== Execution of Modbus Tasks
+*Name*: Bridge Modbus/TCP
+*Factory-PID*: `Bridge.Modbus.Tcp`
 
-Execution of Modbus Tasks is managed by the `ModbusWorker`. It...
-- executes Write-Tasks as early as possible (directly after the EXECUTE_WRITE event)
-- executes Read-Tasks as late as possible to have values available exactly when they are needed (i.e. just before the BEFORE_PROCESS_IMAGE event). To achieve this, the ModbusWorker evaluates all execution times and 'learns' an ideal delay time, that is applied on every Cycle - the 'CycleDelay'
-- handles defective ModbusComponents (i.e. ones where tasks have repeatedly failed) and delays reading from/writing to those components in order to avoid having defective components block the entire communication bus. Maximum delay is 5 minutes for read from defective components. ModbusComponents can trigger a retry from a defective Component by calling the `retryModbusCommunication()` method.
+*Purpose*: Master bridge for Modbus/TCP network communication.
 
-=== Priority
+*Use Cases*:
+* Network-connected industrial devices
+* Distributed systems across network segments
+* Devices with native Ethernet interfaces
+* Preferred for modern installations
 
-Read-Tasks can have two different priorities, that are defined in the ModbusProtocol definition:
-- `HIGH`: the task is executed once every Cycle
-- `LOW`: only one task of all defined LOW priority tasks of all components registered on the same bridge is executed per Cycle
-Write-Tasks always have `HIGH` priority, i.e. a set-point is always executed as-soon-as-possible - as long as the Component is not marked as defective
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Unique bridge identifier; default: `"modbusTcp0"`
+* `ip` (String): IP address of Modbus master; default: `"192.168.1.100"`
+* `port` (Integer): TCP port number; default: `502` (standard Modbus port)
+* `logVerbosity` (LogVerbosity): Logging detail level; default: `NONE`
+* `unitId` (Integer): Default Modbus Unit-ID; default: `1`
 
-=== Channels
+[[_bridge_modbus_serial]]
+=== Bridge Modbus/RTU Serial
 
-Each Modbus Bridge provides Channels for more detailed information:
-- `CycleTimeIsTooShort`: the configured global Cycle-Time is too short to execute all planned tasks in one Cycle
-- `CycleDelay`: see 'CycleDelay' in the 'ModbusWorker' description above
+*Name*: Bridge Modbus/RTU
+*Factory-PID*: `Bridge.Modbus.Serial`
 
-=== Logging
+*Purpose*: Master bridge for Modbus/RTU serial communication via RS485 or RS232.
 
-Often it is useful to print detailed logging information on the Console for debugging purposes. Logging can be enabled on Task level in the definition of the ModbusProtocol by adding `.debug()` or globally per Modbus Bridge via the `LogVerbosity` configuration parameter:
+*Use Cases*:
+* Legacy equipment with serial interfaces
+* Short-distance installations (under 1km)
+* Isolated systems without network connectivity
+* Multi-drop serial bus configurations
 
-- `NONE`: Show no logs
-- `DEBUG_LOG`: Shows basic logging information via the Controller.Debug.Log
-- `READS_AND_WRITES`: Show logs for all read and write requests
-- `READS_AND_WRITES_VERBOSE`: Show logs for all read and write requests, including actual hex or binary values of request and response
-- `READS_AND_WRITES_DURATION`: Show logs for all read and write requests, including actual duration time per request
-- `READS_AND_WRITES_DURATION_TRACE_EVENTS`: Show logs for all read and write requests, including actual duration time per request & trace the internal Event-based State-Machine
+*Configuration*:
+.Configuration Parameters
+* `id` (String): Unique bridge identifier; default: `"modbusSerial0"`
+* `serialPort` (String): Serial port name; examples: `"/dev/ttyUSB0"`, `"COM3"`
+* `baudRate` (Integer): Baud rate; default: `9600` (typical: 9600, 19200, 38400)
+* `stopBits` (Integer): Stop bits (1 or 2); default: `1`
+* `parity` (String): Parity (NONE, ODD, EVEN); default: `NONE`
+* `logVerbosity` (LogVerbosity): Logging detail level; default: `NONE`
 
-The log level via configuration parameter may be changed at any time during runtime without side-effects on the communication.
+.Example Configuration
+[source,json]
+----
+{
+  "id": "modbusSerial0",
+  "serialPort": "/dev/ttyUSB0",
+  "baudRate": 19200,
+  "stopBits": 1,
+  "parity": "EVEN",
+  "logVerbosity": "DEBUG_LOG"
+}
+----
+
+== Architecture
+
+=== ModbusComponent Integration
+
+Components that use Modbus communication must:
+
+1. Implement the `ModbusComponent` interface
+2. Provide a `ModbusProtocol` that defines read/write tasks
+3. Register with the bridge at startup
+4. Handle Modbus responses and errors
+
+*Example*:
+```java
+public class MyDevice implements ModbusComponent {
+  @Override
+  protected ModbusProtocol defineModbusProtocol() {
+    return new ModbusProtocol(this, //
+      new FC3ReadRegistersTask(0x0000, Priority.HIGH, //
+        m(Channel1, new UnsignedWordElement(0x0000)), //
+        m(Channel2, new SignedWordElement(0x0001)) //
+      ) //
+    );
+  }
+}
+```
+
+=== Task Execution Model
+
+The **ModbusWorker** manages task execution:
+
+.Write Tasks
+* Executed as early as possible (directly after `EXECUTE_WRITE` event)
+* Always HIGH priority
+* Ensures set-points applied immediately
+* Defective components delay all writes to them
+
+.Read Tasks
+* Executed as late as possible (just before `BEFORE_PROCESS_IMAGE` event)
+* Prioritized by configured Priority level
+* Cycle delay automatically learned to optimize timing
+* Defective components gradually delay up to 5 minutes
+
+*Priority Levels*:
+* `HIGH` - Executed every cycle (typical for control feedback)
+* `LOW` - Round-robin execution (one LOW task per cycle per component)
+
+=== Defective Component Handling
+
+If a component repeatedly fails:
+
+1. Bridge marks component as "defective"
+2. Read tasks gradually delayed (backoff up to 5 minutes)
+3. Prevents defective components from blocking entire bus
+4. Component can request retry via `retryModbusCommunication()`
+5. After successful retry, normal scheduling resumes
+
+=== Cycle Management
+
+*Channels Provided by Bridge*:
+
+* `CycleTimeIsTooShort` - Indicates global cycle-time is too short for all tasks
+* `CycleDelay` - Auto-learned delay time (in ms) for optimal read timing
+* Task count - Number of active read/write tasks
+
+*Timing Optimization*:
+
+The ModbusWorker "learns" an ideal delay time each cycle:
+* Measures time to execute all write tasks
+* Calculates when read tasks should start
+* Automatically applies CycleDelay for just-in-time reads
+
+== Logging and Debugging
+
+=== LogVerbosity Levels
+
+Configure via the `LogVerbosity` parameter (can be changed at runtime):
+
+* `NONE` - No logs (default)
+* `DEBUG_LOG` - Basic logging via Controller.Debug.Log
+* `READS_AND_WRITES` - Log all read and write requests
+* `READS_AND_WRITES_VERBOSE` - Include hex/binary values in logs
+* `READS_AND_WRITES_DURATION` - Include execution time per request
+* `READS_AND_WRITES_DURATION_TRACE_EVENTS` - Full trace including internal state machine
+
+=== Per-Task Debug Logging
+
+Enable in ModbusProtocol definition:
+
+```java
+new FC3ReadRegistersTask(0x0000, Priority.HIGH, //
+  m(MyChannel, new UnsignedWordElement(0x0000)) //
+).debug()  // Enable debug logging for this task
+```
+
+== Prerequisites
+
+* For Modbus/TCP:
+  * Network connectivity to device
+  * Device must accept Modbus/TCP connections on port 502 (or configured port)
+  * Firewall rules allowing outbound TCP connections
+
+* For Modbus/RTU:
+  * Serial port available on system (`/dev/ttyUSB0`, `COM3`, etc.)
+  * Correct baud rate, parity, and stop bits configured
+  * RS485 or RS232 cabling properly terminated
+  * Single master on serial bus (Modbus RTU limitation)
+
+== Features
+
+* Dual transport support (TCP and RTU)
+* Automatic cycle-delay optimization for minimal latency
+* Priority-based task scheduling (HIGH/LOW)
+* Graceful defective component handling
+* Runtime logging level adjustment
+* Modbus function code flexibility (FC1-FC6, FC15-FC16)
+* Support for 16-bit and 32-bit registers
+* Write coils and holding registers
+* Bit-level field access from registers
+
+== Known Limitations
+
+* Single master only (Modbus RTU is inherently single-master)
+* 125 millisecond minimum cycle time recommended (typical 500ms)
+* Defective component max backoff is 5 minutes
+* Task execution order within same priority not guaranteed
+* No connection pooling (direct socket per bridge)
+* Limited to 65535 registers per device (Modbus addressing limit)
+
+== Related Bundles
+
+* xref:../../io.openems.edge.bridge.mqtt/readme.adoc[MQTT Bridge] - Alternative for MQTT-capable devices
+* xref:../../io.openems.edge.bridge.http/readme.adoc[HTTP Bridge] - Alternative for REST API devices
+* xref:../../io.openems.edge.common/readme.adoc[Common Components] - Modbus element definitions
+* Most hardware bundles - Implement ModbusComponent (meters, inverters, batteries)
+
+== Use Cases
+
+* **Energy Management** - Read/write to battery inverters and ESS systems
+* **Monitoring** - Continuous polling of meters and inverters
+* **Control** - Setting power setpoints and operating parameters
+* **Data Collection** - Gathering historical data from industrial devices
+* **Legacy Integration** - Connecting older devices with Modbus-only interfaces
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.modbus[Source Code icon:github[]]

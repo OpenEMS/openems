@@ -6,8 +6,6 @@ Commercial-grade lithium battery rack system with scalable capacity.
 
 This bundle provides integration with the BYD Battery-Box Commercial C130 system, a modular lithium battery storage solution designed for commercial and industrial energy management. The system is scalable through stacking multiple battery modules and communicates via Modbus for precise charge/discharge control and monitoring.
 
-The Battery-Box Commercial is suitable for peak shaving, time-of-use arbitrage, and backup power applications in commercial facilities.
-
 == Supported Devices
 
 .BYD Battery-Box Commercial C130
