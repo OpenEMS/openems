@@ -70,8 +70,6 @@ public class AbstractSunSpecEssTest {
 					"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK)) {
 				return;
 			}		
-
-			this._setGridMode(GridMode.ON_GRID);
 		}
 
 		@Override
