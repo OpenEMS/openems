@@ -69,7 +69,6 @@ export class FlatComponent extends AbstractFlatWidget {
         const result = [
             this.chargePoint.powerChannel,
             new ChannelAddress(this.component.id, "Phases"),
-            new ChannelAddress(this.component.id, "Plug"),
             new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, "State"),
             new ChannelAddress(this.component.id, "EnergySession"),
@@ -78,6 +77,11 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, "MaximumHardwarePower"),
             new ChannelAddress(this.component.id, "SetChargePowerLimit"),
         ];
+
+        // Plug is only available on certain EVCS implementations (e.g. Keba)
+        if (this.component.channels?.["Plug"] != null) {
+            result.push(new ChannelAddress(this.component.id, "Plug"));
+        }
 
         const controllers = this.config.getComponentsByFactory("Controller.Evcs");
         for (const controller of controllers) {
