@@ -127,15 +127,23 @@ export class ModalComponent extends AbstractModal {
 
         channels.push(
             new ChannelAddress(this.component.id, "Phases"),
-            new ChannelAddress(this.component.id, "Plug"),
             new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, "State"),
             new ChannelAddress(this.component.id, "EnergySession"),
             new ChannelAddress(this.component.id, "MinimumHardwarePower"),
             new ChannelAddress(this.component.id, "MaximumHardwarePower"),
             new ChannelAddress(this.component.id, "SetChargePowerLimit"),
-            new ChannelAddress(this.component.id, "_PropertyReadOnly"),
         );
+
+        // Plug is only available on certain EVCS implementations (e.g. Keba)
+        if (this.component.channels?.["Plug"] != null) {
+            channels.push(new ChannelAddress(this.component.id, "Plug"));
+        }
+
+        // _PropertyReadOnly only exists on components with a readOnly config property
+        if (this.component.channels?.["_PropertyReadOnly"] != null) {
+            channels.push(new ChannelAddress(this.component.id, "_PropertyReadOnly"));
+        }
 
         if (this.controller == null) {
             return channels;
