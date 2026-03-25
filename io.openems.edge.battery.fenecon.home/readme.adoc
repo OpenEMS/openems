@@ -12,7 +12,6 @@ The FENECON Home battery is a residential battery energy storage system. This bu
 * Type: Lithium-ion residential battery storage
 * Capacity: Modular, tower-based architecture
 * Communication: Modbus/TCP or Modbus/RTU
-* Voltage: 48V DC system
 * Features: State machine, critical voltage protection, thermal management
 
 == Components
@@ -73,25 +72,6 @@ Key Features:
 * Modbus device at configured Unit-ID responding to Modbus registers
 * IO relay output configured if automatic startup is desired
 * FENECON Home battery hardware with compatible firmware
-
-== Features
-
-* Real-time voltage monitoring (tower and module level)
-* Temperature monitoring and thermal protection
-* Charge/discharge power measurement and control
-* Capacity and state-of-charge (SOC) monitoring
-* State machine for safe operation (Undefined → GoRunning → Running → Stopped)
-* Critical minimum voltage detection and logging
-* Automatic startup relay control
-* Modbus slave interface for external monitoring
-
-== Known Limitations
-
-* Single tower/module configuration per instance (tower count is fixed after initialization)
-* Modbus communication latency affects real-time responsiveness
-* State machine transitions may delay power commands by one cycle
-* Critical voltage threshold (default 2800mV) is system-wide, not per-module
-* Thermal limits are fixed based on hardware configuration
 
 == Related Bundles
 

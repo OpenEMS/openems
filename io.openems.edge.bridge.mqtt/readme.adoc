@@ -1,5 +1,217 @@
-= MQTT
+= MQTT Bridge
 
-This implementation provides MQTT communication support for OpenEMS Edge with MQTT 3.1, 3.1.1, and 5.0 via Eclipse Paho client.
+Message broker connection for IoT and telemetry communication.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.http[Source Code icon:github[]]
+== Overview
+
+The MQTT Bridge provides MQTT (Message Queuing Telemetry Transport) connectivity for OpenEMS Edge systems. It enables lightweight publish-subscribe communication with MQTT brokers, supporting MQTT versions 3.1, 3.1.1, and 5.0 via Eclipse Paho client. This bridge is ideal for IoT integration, remote monitoring, telemetry collection, and inter-system communication in scalable, distributed architectures.
+
+MQTT is a perfect alternative to direct device protocols when devices support broker-based communication or when working with cloud platforms, IoT hubs, and distributed systems.
+
+== Components
+
+[[_bridge_mqtt]]
+=== Bridge MQTT
+
+*Name*: Bridge MQTT
+*Factory-PID*: `Bridge.Mqtt`
+
+*Purpose*: MQTT broker connection and message routing for OpenEMS components.
+
+*Use Cases*:
+* IoT platform integration (AWS IoT, Azure IoT Hub, Google Cloud IoT)
+* MQTT-enabled sensor and actuator networks
+* Multi-building energy management via MQTT
+* Remote monitoring and telemetry collection
+* Inter-OpenEMS communication (multiple systems)
+* Home automation and smart home systems
+
+*Configuration*:
+
+.Connection Parameters
+* `id` (String): Unique bridge identifier; default: `"mqtt0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `mqttVersion` (MqttVersion): Protocol version (V3_1, V3_1_1, V5_0); default: `V3_1_1`
+
+.Broker Connection
+* `host` (String): MQTT broker hostname or IP; default: `"localhost"`
+* `port` (Integer): MQTT broker port; default: `1883` (use 8883 for TLS)
+* `secureConnect` (Boolean): Use SSL/TLS encryption; default: `false`
+
+.Authentication
+* `username` (String): Broker authentication username (optional)
+* `password` (String): Broker authentication password (optional)
+* `clientId` (String): Unique client identifier; if empty, auto-generated
+
+.Session Management
+* `cleanSession` (Boolean): Start with clean session (no persistent subscriptions); default: `true`
+* `keepAliveInterval` (Integer): Keep-alive interval in seconds (0=disabled); default: `60`
+* `connectionTimeout` (Integer): Connection timeout in seconds; default: `30`
+
+.Reconnection
+* `autoReconnect` (Boolean): Automatically reconnect on failure; default: `true`
+* `reconnectDelayMs` (Integer): Initial reconnect delay (ms); default: `1000`
+* `maxReconnectDelayMs` (Integer): Maximum reconnect delay (ms); default: `30000`
+
+.Last Will & Testament (LWT)
+* `lwtTopic` (String): Topic for LWT message (optional)
+* `lwtMessage` (String): Message to send when connection lost
+* `lwtQos` (QoS): QoS level for LWT (AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE); default: `AT_LEAST_ONCE`
+* `lwtRetained` (Boolean): Retain LWT message; default: `false`
+
+.SSL/TLS Certificates
+* `trustStorePath` (String): Path to trust store file for server verification (optional)
+* `trustStorePassword` (String): Trust store password (optional)
+* `keyStorePath` (String): Path to client certificate key store (optional)
+* `keyStorePassword` (String): Key store password (optional)
+
+.Debugging
+* `debugMode` (Boolean): Enable debug logging for MQTT communication; default: `false`
+
+.Example Configuration
+[source,json]
+----
+{
+  "id": "mqtt0",
+  "alias": "Cloud MQTT Broker",
+  "enabled": true,
+  "mqttVersion": "V3_1_1",
+  "host": "mqtt.example.com",
+  "port": 8883,
+  "secureConnect": true,
+  "username": "openems_edge",
+  "password": "secure_password",
+  "clientId": "openems-edge-001",
+  "cleanSession": false,
+  "keepAliveInterval": 60,
+  "autoReconnect": true,
+  "lwtTopic": "openems/edge/status",
+  "lwtMessage": "offline",
+  "lwtRetained": true,
+  "trustStorePath": "/etc/ssl/certs/ca-certificates.crt"
+}
+----
+
+== MQTT Protocol Features
+
+=== Quality of Service (QoS)
+
+Three QoS levels available:
+
+* `AT_MOST_ONCE` (0) - Fire-and-forget (fastest, no guarantee)
+* `AT_LEAST_ONCE` (1) - Message guaranteed to arrive at least once (default)
+* `EXACTLY_ONCE` (2) - Message guaranteed exactly once (slowest, for critical data)
+
+=== Topic Structure
+
+MQTT uses hierarchical topic organization with `/` separators:
+
+```
+openems/building1/meter1/power
+openems/building1/inverter1/soc
+openems/building1/battery1/temperature
+```
+
+=== Message Retention
+
+Retained messages persist on broker:
+* Last message on topic is stored
+* New subscribers receive last retained message
+* Useful for state information (on/off, status)
+* Caution: Large retained messages consume broker memory
+
+=== Last Will & Testament (LWT)
+
+Automatic notification when client disconnects unexpectedly:
+
+```
+Connection lost → Broker publishes LWT message to specified topic
+Topics often used: "openems/edge/status", messages: "online", "offline"
+```
+
+== Supported MQTT Versions
+
+=== MQTT 3.1 & 3.1.1
+* Stable, widely supported
+* Good for legacy systems and public brokers
+* Default for most installations
+
+=== MQTT 5.0
+* Enhanced features (message properties, improved error handling)
+* Better for high-performance scenarios
+* Requires broker supporting MQTT 5.0
+
+== Prerequisites
+
+* MQTT broker accessible and running (Mosquitto, EMQ, HiveMQ, etc.)
+* Network connectivity to broker (firewall rules allowing port 1883 or 8883)
+* For SSL/TLS: Valid certificates and trust store configured
+* For authentication: Valid credentials on broker
+* Optional: Last Will topic configured on broker if needed
+
+== Features
+
+* Support for MQTT 3.1, 3.1.1, and 5.0 protocols
+* SSL/TLS encryption for secure communication
+* Username/password and certificate-based authentication
+* Automatic reconnection with configurable backoff
+* Last Will & Testament for offline notifications
+* Publish/subscribe messaging patterns
+* Per-message QoS configuration
+* Message retention support
+* Keep-alive mechanism to detect stale connections
+* Debug logging for troubleshooting
+
+== Known Limitations
+
+* Single broker connection per bridge (no failover between brokers)
+* Topic subscription limited by broker capabilities
+* Message size limited by broker (typically 256MB max)
+* Network latency affects publish/subscribe timing
+* Persistent session requires broker support (MQTT 3.1.1+)
+* Large message volumes may impact OpenEMS cycle performance
+* No message encryption at application level (use TLS)
+
+== Integration Examples
+
+=== Cloud Platform Integration
+```
+OpenEMS → MQTT Bridge → Cloud MQTT Service (AWS IoT, Azure IoT)
+```
+
+=== Multi-Building Systems
+```
+Building 1 OpenEMS → MQTT Broker ← Building 2 OpenEMS
+                   ← Building 3 OpenEMS
+(All systems publish/subscribe to central broker)
+```
+
+=== Home Automation
+```
+OpenEMS → MQTT Bridge → Home Assistant / OpenHAB
+(Display energy data in home automation dashboard)
+```
+
+=== IoT Sensor Integration
+```
+WiFi Sensors → MQTT Broker ← OpenEMS (receives sensor data)
+```
+
+== Related Bundles
+
+* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Industrial protocol alternative
+* xref:../../io.openems.edge.bridge.http/readme.adoc[HTTP Bridge] - REST API alternative
+* xref:../../io.openems.edge.bridge.mbus/readme.adoc[M-Bus Bridge] - Meter protocol
+* xref:../../io.openems.backend.uiwebsocket/readme.adoc[UI WebSocket] - Backend communication
+
+== Common MQTT Brokers
+
+* **Mosquitto** - Open source, lightweight, popular
+* **EMQ X** - Enterprise, scalable, clustering support
+* **HiveMQ** - Professional, enterprise features
+* **AWS IoT Core** - Managed service
+* **Azure IoT Hub** - Azure cloud platform
+* **Google Cloud IoT** - Google cloud platform
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.mqtt[Source Code icon:github[]]

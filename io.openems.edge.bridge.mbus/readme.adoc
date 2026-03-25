@@ -1,13 +1,226 @@
-= M-Bus
+= M-Bus Bridge
 
-M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.																										
+Serial bridge for meter communication using the M-Bus standard.
 
-== Setup note
+== Overview
 
-This bridge depends on jMbus, a user guide for it can be found at https://www.openmuc.org/m-bus/user-guide/.
+M-Bus (Meter-Bus) is an international standard (EN 13757-2) for fieldbus communication with meter devices. The M-Bus Bridge enables OpenEMS to read data from M-Bus compatible meters such as water meters, gas meters, heat meters, and other utility meters via serial connection.
 
-Note: For jMbus to work you need to install the native part of RxTx which is a library for serial port
-communication jMbus is dependent on. See paragraph 2.5 for further information.
+M-Bus is ideal for:
+* Reading utility meters (water, gas, heat, electricity)
+* Remote meter data collection
+* Utility billing and energy management
+* Building-level consumption monitoring
+* Small industrial sites with metered devices
 
-For Linux users: In case the RxTx library cannot be found under /usr/lib/jni you can try to move all .so files of that directory to
-/usr/lib (see https://community.openems.io/t/loading-library-from-external-jar/134/3[OpenEMS Community]).
+The bridge uses the jMbus library for protocol implementation and RxTx for serial port communication.
+
+== Components
+
+[[_bridge_mbus]]
+=== Bridge M-Bus
+
+*Name*: Bridge M-Bus
+*Factory-PID*: `Bridge.Mbus`
+
+*Purpose*: Master bridge for M-Bus serial communication with utility and facility meters.
+
+*Use Cases*:
+* Reading water meter consumption
+* Monitoring gas meter usage
+* Heat meter energy readings
+* Electricity meter data collection (where available)
+* Multi-meter installations
+* Building energy accounting systems
+
+*Configuration*:
+
+.Configuration Parameters
+* `id` (String): Unique bridge identifier; default: `"mbus0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `portName` (String): Serial port device name; default: `"/dev/ttyUSB0"`
+  - Linux examples: `/dev/ttyUSB0`, `/dev/ttyS0`, `/dev/ttyACM0`
+  - Windows examples: `COM1`, `COM3`
+* `baudrate` (Integer): Serial communication speed in bps; default: `2400`
+  - Standard M-Bus rates: 300, 2400, 9600, 19200
+
+.Example Configuration
+[source,json]
+----
+{
+  "id": "mbus0",
+  "alias": "Meter Data Collector",
+  "enabled": true,
+  "portName": "/dev/ttyUSB0",
+  "baudrate": 2400
+}
+----
+
+== M-Bus Protocol
+
+=== Physical Layer
+
+M-Bus uses:
+* **Serial Communication**: RS-232 or RS-485
+* **Standard Speed**: 2400 baud (most common)
+* **Alternative Speeds**: 300, 9600, 19200 baud
+* **Addressing**: Primary (1-250) and secondary addressing
+
+=== Meter Reading Process
+
+1. Bridge sends M-Bus request to meter at configured address
+2. Meter responds with stored consumption data
+3. Bridge parses data records (volumes, temperatures, counters)
+4. OpenEMS components receive meter values
+
+=== Data Types
+
+Common M-Bus data records:
+* **Volume**: Consumption total (water, gas, etc.)
+* **Mass**: Weight measurements
+* **Temperature**: Ambient or process temperature
+* **Pressure**: System pressure
+* **Energy**: Heat or electrical energy
+* **Power**: Current consumption rate
+* **Time**: Timestamp of reading
+
+== Prerequisites
+
+=== Hardware
+* M-Bus compatible meter with serial interface
+* USB-to-M-Bus adapter or RS-232/RS-485 interface
+* Serial cable or M-Bus cable properly terminated
+
+=== Software Dependencies
+* jMbus library (included in bundle)
+* RxTx native library for serial port communication
+
+=== System Configuration
+
+.Linux Installation (RxTx Native Library)
+```bash
+# Install RxTx native library
+sudo apt-get install librxtx-java
+
+# Typical location: /usr/lib/jni/librxtxSerial.so
+# If not found, check: /usr/share/java/rxtx/
+
+# If library not in standard location, copy to /usr/lib:
+sudo cp /usr/share/java/rxtx/librxtxSerial.so /usr/lib/
+```
+
+.Serial Port Permissions (Linux)
+```bash
+# Add user to dialout group for serial port access
+sudo usermod -a -G dialout $USER
+
+# Log out and back in, or use:
+newgrp dialout
+
+# Verify permissions
+ls -l /dev/ttyUSB0
+```
+
+.Windows Installation
+* RxTx should be included with Java installation
+* Verify serial port available in Device Manager
+* Grant OpenEMS process permissions to serial port
+
+== Features
+
+* Standard M-Bus protocol support (EN 13757-2)
+* Primary and secondary meter addressing
+* Multi-meter support (multiple bridges or addresses)
+* Variable-length data record parsing
+* Support for all M-Bus data types
+* Error detection and retry logic
+* Serial port configuration (baud rate, 8 bits, no parity)
+
+== Known Limitations
+
+* Serial port communication is inherently single-threaded
+* Meter response timeout can delay OpenEMS cycles (adjust via read timeout)
+* One bridge = one serial port = sequential meter reads
+* M-Bus primary addresses limited to 1-250
+* Large meter networks may require multiple serial ports/bridges
+* No encryption at M-Bus protocol level
+* Meter reading latency depends on meter response time (typically 100-500ms)
+
+== Troubleshooting
+
+=== RxTx Library Not Found
+**Error**: "UnsatisfiedLinkError: Native library not found"
+
+**Solution**:
+1. Verify RxTx installation: `find /usr -name "librxtxSerial.so*"`
+2. Copy to standard location: `sudo cp /usr/lib/jni/librxtxSerial.so /usr/lib/`
+3. Check LD_LIBRARY_PATH includes /usr/lib
+4. Restart OpenEMS
+
+=== Serial Port Not Found
+**Error**: "Port /dev/ttyUSB0 not found"
+
+**Solution**:
+1. Verify device plugged in: `ls -l /dev/ttyUSB*`
+2. Check permissions: `ls -l /dev/ttyUSB0` (should be readable)
+3. Add user to dialout group: `sudo usermod -a -G dialout $USER`
+4. Try different port name (ttyACM0, ttyS0, COM1)
+
+=== No Meter Response
+**Error**: "Timeout reading meter data"
+
+**Solution**:
+1. Verify meter address (try different primary addresses 0-250)
+2. Check physical connection and cable termination
+3. Test with dedicated M-Bus reader tool
+4. Verify baud rate matches meter setting
+5. Check meter has fresh batteries/power supply
+
+=== Permission Denied
+**Error**: "Permission denied opening /dev/ttyUSB0"
+
+**Solution**:
+```bash
+# Add current user to dialout group
+sudo usermod -a -G dialout $(whoami)
+sudo reboot  # Or use: newgrp dialout
+```
+
+== Integration Examples
+
+=== Single Water Meter
+```
+Serial Port → M-Bus Bridge → Water Meter (Primary Addr 0) → Volume readings
+```
+
+=== Multi-Meter Building
+```
+Serial Port → M-Bus Bridge
+  ├→ Water Meter (Addr 0)
+  ├→ Gas Meter (Addr 1)
+  ├→ Heat Meter (Addr 2)
+  └→ Electricity Meter (Addr 3)
+```
+
+=== Multi-Port System
+```
+Port 1 (ttyUSB0) → Bridge 1 → Water/Gas meters
+Port 2 (ttyUSB1) → Bridge 2 → Heat/Electricity meters
+```
+
+== Related Bundles
+
+* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Alternative protocol
+* xref:../../io.openems.edge.bridge.http/readme.adoc[HTTP Bridge] - For REST API meters
+* xref:../../io.openems.edge.meter.api/readme.adoc[Meter API] - Meter component interface
+* Meter implementations (ABB, Janitza, etc.) - Example M-Bus meter readers
+
+== External Resources
+
+* M-Bus Standard: https://en.wikipedia.org/wiki/M-Bus[Wikipedia M-Bus]
+* jMbus Project: https://www.openmuc.org/m-bus/[OpenMuc M-Bus]
+* jMbus User Guide: https://www.openmuc.org/m-bus/user-guide/[OpenMuc User Guide icon:external-link[]]
+* RxTx Project: https://github.com/NeuronRobotics/nrjavaserial[NeuronRobotics nrjavaserial]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.mbus[Source Code icon:github[]]

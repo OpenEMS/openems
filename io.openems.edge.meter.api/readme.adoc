@@ -18,8 +18,8 @@ The primary interface that all electricity meter implementations must implement.
 * Active Power (W) - Real power output/input
 * Reactive Power (var) - Reactive power measurement
 * Apparent Power (VA) - Total power including reactive
-* Voltage measurement (V) - Line-to-neutral and line-to-line
-* Current measurement (A) - Per phase
+* Voltage measurement (V) - Line-to-neutral and overall
+* Current measurement (A) - Per phase and overall
 * Power factor - Per phase and overall
 * Frequency - Grid frequency
 * Energy measurements (Wh) - Cumulative consumption/production
@@ -28,7 +28,6 @@ The primary interface that all electricity meter implementations must implement.
 * GRID - Grid connection meter
 * PRODUCTION - Photovoltaic production meter
 * CONSUMPTION - Building consumption meter
-* BATTERY - Battery energy meter
 
 === SinglePhaseMeter
 
