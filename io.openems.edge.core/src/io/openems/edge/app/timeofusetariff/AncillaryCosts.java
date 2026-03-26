@@ -56,8 +56,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "image": base64,
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
-    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"CONTROL_MODE": {@link ControlMode}
+    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}

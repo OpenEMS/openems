@@ -1,20 +1,68 @@
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { StringUtils } from "src/app/shared/utils/string/string.utils";
-import { NavigationComponent } from "../../navigation.component";
+import { NavigationComponent } from "../../action-sheet-modal";
 import { NavigationService } from "../../service/navigation.service";
 
 export namespace ViewUtils {
 
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
-        const headers = Array.from(document.querySelectorAll("ion-header"));
-        const footers = Array.from(document.querySelectorAll("ion-footer"));
-        const footerSubnavigation = Array.from(document.querySelectorAll("oe-footer-subnavigation"));
+        const bars = getVisibleBars();
 
-        const headerHeight = headers.reduce((sum, el) => sum + el.clientHeight, 0);
-        const footerHeight = [...footerSubnavigation, ...footers].reduce((sum, el) => sum + el.clientHeight, 0);
+        const header = bars.headers;
+        const footers = bars.footers;
+
+        const headerHeight = header.reduce((sum, el) => sum + el.clientHeight, 0);
+        const footerHeight = footers.reduce((sum, el) => sum + el.clientHeight, 0);
 
         return { header: headerHeight, footer: footerHeight };
+    }
+
+
+    // Ionic cached pages remain in the DOM even after navigating back.
+    // This becomes a problem when reloading on routes like history/autarchy or history/production:
+    // After a reload, the previous route's <ion-footer> or <oe-footer-subnavigation>
+    // stays in the DOM (but is visually hidden). When returning to the Energy Monitor page,
+    // these cached elements would still be detected and included in the height calculation.
+    function getVisibleBars(): { headers: HTMLElement[]; footers: HTMLElement[] } {
+        const allHeaders = Array.from(
+            document.querySelectorAll<HTMLElement>("ion-header")
+        );
+
+        const allIonFooters = Array.from(
+            document.querySelectorAll<HTMLElement>("ion-footer")
+        );
+
+        const standaloneFooters = allIonFooters.filter(
+            f => !f.closest("oe-footer-subnavigation")
+        );
+
+        const footersSource =
+            standaloneFooters.length > 0 ? standaloneFooters : allIonFooters;
+
+        const isVisible = (el: HTMLElement) => {
+            const rect = el.getBoundingClientRect();
+
+            if (rect.width === 0 || rect.height === 0) {
+                return false;
+            }
+            const style = window.getComputedStyle(el);
+            if (style.display === "none") {
+                return false;
+            }
+            if (style.visibility !== "visible") {
+                return false;
+            }
+            if (parseFloat(style.opacity || "1") === 0) {
+                return false;
+            }
+
+            return true;
+        };
+
+        return {
+            headers: allHeaders.filter(isVisible),
+            footers: footersSource.filter(isVisible),
+        };
     }
 
     export function getViewHeightInPx(position: TSignalValue<NavigationService["position"]> | null) {
@@ -22,7 +70,6 @@ export namespace ViewUtils {
         if (position == null || position == "disabled") {
             return window.innerHeight - header - footer;
         }
-
         if (position === "bottom") {
             const actionSheetModal = getActionSheetModalHeightInPx();
             return window.innerHeight - header - footer - actionSheetModal;
@@ -46,24 +93,22 @@ export namespace ViewUtils {
     * Gets the available chart content height in [vh].
     *
     * @param windowHeight the window height
+    * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
     * @returns the available height
     */
-    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null) {
-        const rawViewHeight = ViewUtils.getViewHeightInPx(position);
-        const ionPaddingInPx: string = getComputedStyle(document.documentElement).getPropertyValue("--ion-padding");
-        const ionPadding: number = NumberUtils.parseNumberSafelyOrElse(
-            StringUtils.splitByGetIndexSafely(ionPaddingInPx, "px", 0)
-            , 0);
-        if (position === "bottom") {
-            return NumberUtils.multiplySafely(
-                NumberUtils.divideSafely(
-                    NumberUtils.subtractSafely(
-                        rawViewHeight,
-                        NumberUtils.multiplySafely(ionPadding,
-                            5 /** Needed only for chart height purposes, TODO: find way to get the chart padding async dynamically*/)),
-                    windowHeight),
-                100);
+    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+        let viewHeight = ViewUtils.getViewHeightInPx(position);
+
+        if (customChartHeightPercentage != null) {
+            viewHeight = viewHeight * (customChartHeightPercentage / 100);
         }
-        return null;
+
+        return NumberUtils.multiplySafely(
+            NumberUtils.divideSafely(
+                NumberUtils.subtractSafely(
+                    viewHeight,
+                ),
+                windowHeight),
+            100);
     }
 }

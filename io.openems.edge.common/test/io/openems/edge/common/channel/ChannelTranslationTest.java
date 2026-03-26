@@ -10,11 +10,11 @@ import io.openems.common.session.Language;
 public class ChannelTranslationTest {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		TEST_CHANNEL(Doc.of(Level.WARNING) //
+		TEST_CHANNEL(Doc.of(Level.WARNING)//
 				.translationKey(ChannelTranslationTest.class, "Test.TestChannel")), //
-		ONLY_ENGLISH(Doc.of(Level.INFO) //
+		ONLY_ENGLISH(Doc.of(Level.INFO)//
 				.translationKey(ChannelTranslationTest.class, "Test.OnlyEnglish")), //
-		NO_TRANSLATION(Doc.of(Level.OK) //
+		NO_TRANSLATION(Doc.of(Level.OK)//
 				.text("No Translation")),;
 
 		private final Doc doc;

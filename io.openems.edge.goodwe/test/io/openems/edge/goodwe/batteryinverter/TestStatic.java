@@ -38,7 +38,7 @@ public class TestStatic {
 
 		// Force-Discharge is active
 		assertNull(GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(-2, 466), 5000, MAX_DC_CURRENT));
-		
+
 		// Surplus Power is Production Power minus Max Charge Power
 		assertEquals(5680, (int) GoodWeBatteryInverterImpl.calculateSurplusPower(new BatteryData(20, 466) /* 9320 */,
 				15000, MAX_DC_CURRENT));

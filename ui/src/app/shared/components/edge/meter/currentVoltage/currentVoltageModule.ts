@@ -4,6 +4,7 @@ import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { FooterNavigationModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { ChartModule } from "../../../chart/chart.module";
 import { ComponentsBaseModule } from "../../../components.module";
@@ -29,12 +30,13 @@ import { CurrentAndVoltageOverviewComponent } from "./overview/currentVoltage.ov
         ChartModule,
         PickdateModule,
         ComponentsBaseModule,
-    ],
-    declarations: [
-        CurrentAndVoltageOverviewComponent,
+        CommonUiModule,
         CurrentVoltageOverviewComponent,
         CurrentVoltageAsymmetricChartComponent,
         CurrentVoltageSymmetricChartComponent,
+    ],
+    declarations: [
+        CurrentAndVoltageOverviewComponent,
     ],
     exports: [
         CurrentAndVoltageOverviewComponent,

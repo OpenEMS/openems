@@ -2,15 +2,17 @@ package io.openems.edge.app.integratedsystem;
 
 import java.util.ResourceBundle;
 
+import com.google.gson.JsonObject;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
 import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.hardware.IoGpio;
@@ -22,9 +24,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
-import io.openems.edge.core.appmanager.dependency.Task;
-import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
@@ -149,26 +148,8 @@ public final class FeneconHomeComponents {
 	) {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
-				"GoodWe.BatteryInverter", JsonUtils.buildJsonObject() //
-						.addProperty("enabled", true) //
-						.addProperty("backupEnable", //
-								hasEmergencyReserve ? "ENABLE" : "DISABLE") //
-						.addProperty("controlMode", "SMART") //
-						// Value got migrated to Meta#maximumGridFeedInLimit
-						.addProperty("feedPowerPara", -1) //
-						.addProperty("modbus.id", modbusIdExternal) //
-						.addProperty("modbusUnitId", 247) //
-						.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
-						.addProperty("safetyCountry", safetyCountry) //
-						.addProperty("setfeedInPowerSettings", feedInSetting) //
-						.addProperty("rcrEnable",
-								feedInType == ExternalLimitationType.EXTERNAL_LIMITATION
-										|| feedInType == ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION
-												? "ENABLE"
-												: "DISABLE") //
-						.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
-						.addPropertyIfNotNull("gridCode", gridCode) //
-						.build());
+				"GoodWe.BatteryInverter", getBatteryInverterConfig(hasEmergencyReserve, feedInType, modbusIdExternal,
+						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode));
 	}
 
 	/**
@@ -353,41 +334,6 @@ public final class FeneconHomeComponents {
 							b.addProperty("invalidateElementsAfterReadErrors", 1) //
 									.addProperty("logVerbosity", "NONE");
 						}).build());
-	}
-
-	/**
-	 * Creates a default predictor component for a FENECON Home.
-	 *
-	 * @param bundle the translation bundle
-	 * @param t      the current {@link ConfigurationTarget}
-	 * @return the {@link Component}
-	 */
-	public static EdgeConfig.Component predictor(//
-			final ResourceBundle bundle, //
-			final ConfigurationTarget t //
-	) {
-		return new EdgeConfig.Component("predictor0",
-				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.predictor0.alias"),
-				"Predictor.PersistenceModel", //
-				JsonUtils.buildJsonObject() //
-						.addProperty("enabled", true) //
-						.onlyIf(t == ConfigurationTarget.ADD, b -> b//
-								.add("channelAddresses", JsonUtils.buildJsonArray() //
-										.add("_sum/ProductionActivePower") //
-										.add("_sum/ConsumptionActivePower") //
-										.build())) //
-						.build());
-	}
-
-	/**
-	 * Creates a default predictor task for a PersistenceModel Predictor.
-	 * 
-	 * @return the {@link Task}
-	 */
-	public static Task<PredictorManagerByCentralOrderConfiguration> persistencePredictorTask() {
-		return Tasks.predictorManagerByCentralOrder(//
-				new PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent("predictor0",
-						"Predictor.PersistenceModel"));
 	}
 
 	/**
@@ -608,8 +554,7 @@ public final class FeneconHomeComponents {
 	 * 
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration stateLed(String ioId)
-			throws OpenemsNamedException {
+	public static DependencyDeclaration stateLed(String ioId) throws OpenemsNamedException {
 
 		return new DependencyDeclaration("STATE_LED", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
@@ -689,6 +634,26 @@ public final class FeneconHomeComponents {
 						.setAppId("App.Ess.PrepareBatteryExtension") //
 						.setProperties(JsonUtils.buildJsonObject() //
 								.addProperty(PrepareBatteryExtension.Property.TARGET_SOC.name(), 30) //
+								.build())
+						.build());
+	}
+
+	/**
+	 * Creates a default SoH Cycle dependency for a FENECON Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration sohCycle() {
+		return new DependencyDeclaration("ESS_SOH_CYCLE", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.NEVER, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId(AppSohCycle.APP_ESS_SOH_CYCLE) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0") //
 								.build())
 						.build());
 	}
@@ -828,6 +793,23 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a default predictionDefault dependency for a FENECON Home.
+	 *
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration predictionDefault() {
+		return new DependencyDeclaration("PREDICTION_DEFAULT", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+				DependencyDeclaration.AppDependencyConfig.create()//
+						.setAppId("App.Prediction.Default")//
+						.build());
+	}
+
+	/**
 	 * Creates a default predictionUnmanagedConsumption dependency for a FENECON
 	 * Home.
 	 *
@@ -843,6 +825,48 @@ public final class FeneconHomeComponents {
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.Prediction.UnmanagedConsumption") //
 						.build());
+	}
+
+	/**
+	 * Gets the config of the GoodWe battery inverter as a {@link JsonObject}.
+	 * 
+	 * @param hasEmergencyReserve      if the system has emergency reserve enabled
+	 * @param feedInType               the {@link ExternalLimitationType}
+	 * @param modbusIdExternal         the id of the external modbus bridge
+	 * @param shadowManagementDisabled if shadowmanagement is disabled
+	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param feedInSetting            the feedInSetting
+	 * @param naProtectionEnabled      if NA-protection is enabled
+	 * @param gridCode                 the grid code
+	 * @return the {@link JsonObject}
+	 */
+	public static JsonObject getBatteryInverterConfig(final boolean hasEmergencyReserve, //
+			final ExternalLimitationType feedInType, //
+			final String modbusIdExternal, //
+			final boolean shadowManagementDisabled, //
+			final SafetyCountry safetyCountry, //
+			final String feedInSetting, //
+			final boolean naProtectionEnabled, //
+			final String gridCode) {
+		return JsonUtils.buildJsonObject() //
+				.addProperty("enabled", true) //
+				.addProperty("backupEnable", //
+						hasEmergencyReserve ? "ENABLE" : "DISABLE") //
+				.addProperty("controlMode", "SMART") //
+				// Value got migrated to Meta#maximumGridFeedInLimit
+				.addProperty("feedPowerPara", -1) //
+				.addProperty("modbus.id", modbusIdExternal) //
+				.addProperty("modbusUnitId", 247) //
+				.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
+				.addProperty("safetyCountry", safetyCountry) //
+				.addProperty("setfeedInPowerSettings", feedInSetting) //
+				.addProperty("rcrEnable",
+						feedInType == ExternalLimitationType.EXTERNAL_LIMITATION
+								|| feedInType == ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION ? "ENABLE"
+										: "DISABLE") //
+				.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
+				.addPropertyIfNotNull("gridCode", gridCode) //
+				.build();
 	}
 
 	private FeneconHomeComponents() {

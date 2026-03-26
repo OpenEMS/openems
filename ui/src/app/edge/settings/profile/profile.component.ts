@@ -6,6 +6,7 @@ import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { LocationModel } from "src/app/shared/components/system-location-validator/system-location-validator.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetSetupProtocolCoreInfoRequest, GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
@@ -20,6 +21,7 @@ import { environment } from "../../../../environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
 import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxRequest";
+import { LocationComponent } from "./location/location";
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
 
 @Component({
@@ -34,6 +36,7 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
         LiveDataServiceProvider,
         LocaleProvider,
         HelpButtonComponent,
+        LocationComponent,
     ],
 })
 export class ProfileComponent implements OnInit {
@@ -41,17 +44,17 @@ export class ProfileComponent implements OnInit {
     private static readonly SELECTOR = "profile";
 
     public environment = environment;
-
     public edge: Edge | null = null;
     public config: EdgeConfig | null = null;
     public subscribedChannels: ChannelAddress[] = [];
-
     public components: CategorizedComponents[] | null = null;
 
     protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
     protected spinnerId: string = ProfileComponent.SELECTOR;
     protected isLoading: WritableSignal<boolean> = signal(true);
     protected isAtLeastOwner: boolean = false;
+    protected locationModel: LocationModel | null = null;
+
     private routeService: RouteService = inject(RouteService);
     private navCtrl: NavController = inject(NavController);
 
@@ -60,7 +63,7 @@ export class ProfileComponent implements OnInit {
         private route: ActivatedRoute,
         public popoverController: PopoverController,
         private translate: TranslateService,
-        private websocket: Websocket,
+        protected websocket: Websocket,
         private platFormService: PlatFormService,
     ) {
         effect(() => {
@@ -94,6 +97,15 @@ export class ProfileComponent implements OnInit {
                 const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter", "_serialNumber"];
                 this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
                 await this.setLatestSetupProtocolData();
+
+                const metaProperties = this.config.getComponentProperties("_meta");
+
+                this.locationModel = {
+                    street: "",
+                    zip: metaProperties["postcode"] ?? "",
+                    city: metaProperties["placeName"] ?? "",
+                    country: "",
+                };
             });
         });
     }
@@ -118,6 +130,10 @@ export class ProfileComponent implements OnInit {
                 console.warn(reason);
             });
         });
+    }
+
+    protected onLocationUpdated() {
+        this.service.toast(this.translate.instant("PROFILE.SYSTEM_LOCATION_VALIDATOR.SUCCESS_MESSAGE"), "success");
     }
 
     /**

@@ -78,6 +78,7 @@ public enum SafetyCountry implements OptionsEnum {
 	AUSTRALIA_AUSGRID(0x47, "Australia Ausgrid"), //
 	AUSTRALIA_ESSENTIAL(0x48, "Australia Essential"), //
 	AUSTRALIA_PWCORE_CITI_PW(0x49, "Australia Pwcore_CitiPW"), //
+	GERMANY_VDE_4110(0x4E, "Germany VDE 4110") //
 
 	// TODO: No Grid connection standards given by GoodWe
 	// CHINA_HONGKONG(0x31, "China Hongkong"), //

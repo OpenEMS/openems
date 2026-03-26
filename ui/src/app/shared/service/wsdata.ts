@@ -25,11 +25,11 @@ export class WsData {
     public sendRequest<T extends JsonrpcResponseSuccess = JsonrpcResponseSuccess>(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<T> {
         if (environment.debugMode) {
             if (request instanceof EdgeRpcRequest) {
-                console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
+                console.info(this.getLogPrefix() + " Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
             } else if (request instanceof AuthenticateWithPasswordRequest) {
-                console.info("Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
+                console.info(this.getLogPrefix() + " Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
             } else {
-                console.info("Request      [" + request.method + "]", request.params);
+                console.info(this.getLogPrefix() + " Request      [" + request.method + "]", request.params);
             }
         }
 

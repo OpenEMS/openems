@@ -18,6 +18,8 @@ import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_ESS_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_TO_GRID_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER;
 import static io.openems.edge.common.sum.Sum.ChannelId.UNMANAGED_PRODUCTION_ACTIVE_POWER;
+import static io.openems.edge.common.test.TestUtils.withValue;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -25,6 +27,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.filter.DisabledRampFilter;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
@@ -112,5 +115,41 @@ public class SumImplTest {
 				.output(ESS_TO_CONSUMPTION_POWER, 0) //
 				.output(GRID_TO_ESS_POWER, 0) //
 		);
+	}
+
+	@Test
+	public void testDebugLog() throws OpenemsException, Exception {
+		final var sut = new SumImpl();
+		assertEquals("State:Ok", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.ESS_SOC, 50);
+		assertEquals("State:Ok Ess SoC:50 %", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.ESS_ACTIVE_POWER, 1234);
+		withValue(sut, Sum.ChannelId.ESS_SOC, null);
+		assertEquals("State:Ok Ess L:1234 W", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.ESS_SOC, 50);
+		assertEquals("State:Ok Ess SoC:50 %|L:1234 W", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.GRID_ACTIVE_POWER, 5678);
+		assertEquals("State:Ok Ess SoC:50 %|L:1234 W Grid:5678 W", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.GRID_GENSET_ACTIVE_POWER, 555);
+		assertEquals("State:Ok Ess SoC:50 %|L:1234 W Grid:5678 W Genset:555 W", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.PRODUCTION_ACTIVE_POWER, 7777);
+		assertEquals("State:Ok Ess SoC:50 %|L:1234 W Grid:5678 W Genset:555 W Production:7777 W", sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.PRODUCTION_AC_ACTIVE_POWER, 3333);
+		withValue(sut, Sum.ChannelId.PRODUCTION_DC_ACTUAL_POWER, 4444);
+		assertEquals(
+				"State:Ok Ess SoC:50 %|L:1234 W Grid:5678 W Genset:555 W Production Total:7777 W,AC:3333 W,DC:4444 W",
+				sut.debugLog());
+
+		withValue(sut, Sum.ChannelId.CONSUMPTION_ACTIVE_POWER, 1111);
+		assertEquals(
+				"State:Ok Ess SoC:50 %|L:1234 W Grid:5678 W Genset:555 W Production Total:7777 W,AC:3333 W,DC:4444 W Consumption:1111 W",
+				sut.debugLog());
 	}
 }

@@ -17,8 +17,6 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.squareup.retrofit2:converter-scalars;version='3.0.0',\
 	com.squareup.retrofit2:retrofit;version='3.0.0',\
 	com.sun.activation.javax.activation;version='1.2.0',\
-	de.bytefish:pgbulkinsert;version='8.1.6',\
-	de.bytefish:pgbulkinsert;version='8.1.8',\
 	eu.chargetime.ocpp:common;version='1.0.2',\
 	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
 	eu.chargetime.ocpp:v1_6;version='1.1.0',\
@@ -30,13 +28,14 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	io.helins:linux-io;version='0.0.4',\
 	io.jenetics:jenetics;version='8.3.0',\
 	io.reactivex.rxjava3.rxjava;version='3.1.8',\
-	org.dhatim:fastexcel-reader;version='0.18.4',\
-	org.dhatim:fastexcel;version='0.18.4',\
+	org.dhatim:fastexcel-reader;version='0.20.0',\
+	org.dhatim:fastexcel;version='0.20.0',\
 	org.eclipse.paho.mqttv5.client;version='1.2.5',\
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.9.0',\
-	com.auth0:auth0;version='3.2.0',\
+	com.auth0:auth0;version='3.3.0',\
 	com.auth0:java-jwt;version='4.5.0',\
 	com.auth0:jwks-rsa;version='0.23.0',\
+	org.jfree:jfreechart;version='1.5.6',\
 	org.tribuo:tribuo-common-tree;version='4.3.2',\
 	org.tribuo:tribuo-core;version='4.3.2',\
 	org.tribuo:tribuo-data;version='4.3.2',\

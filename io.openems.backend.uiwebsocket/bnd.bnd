@@ -7,8 +7,11 @@ Bundle-Version: 1.0.0.${tstamp}
 	${buildpath},\
 	io.openems.backend.authentication.api,\
 	io.openems.backend.common,\
+	io.openems.backend.metrics.prometheus,\
 	io.openems.common,\
 	io.openems.wrapper.Java-WebSocket,\
+	io.prometheus.metrics-core,\
+	io.prometheus.metrics-model,\
 
 -testpath: \
 	${testpath}

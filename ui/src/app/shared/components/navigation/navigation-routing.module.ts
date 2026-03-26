@@ -5,13 +5,21 @@ import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/cons
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
 import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
 import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
+import { CommonProductionDetailsComponent } from "src/app/edge/live/common/production/details/details";
+import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
+import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
+import { CommonProductionHomeComponent } from "src/app/edge/live/common/production/new-navigation/new-navigation";
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/pages/phase-switching/phase-switching";
-import { AddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/add/add-task.component";
-import { ScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
-import { EditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit-task.component";
+import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
+import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
+import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
+import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
+import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
+import { SchedulerJsCalendarAddTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/add/add";
+import { SchedulerJsCalendarEditTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
@@ -37,10 +45,10 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/energy-limit", component: EvseEnergyLimitComponent },
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
     { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
-    { path: "evse/:componentId/schedule", component: ScheduleComponent },
-    { path: "evse/:componentId/schedule/task/:taskId", component: EditTaskComponent },
+    { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
+    { path: "evse/:componentId/schedule/task/:taskId", component: EvseEditTaskComponent },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
-    { path: "evse/:componentId/schedule/add-task", component: AddTaskComponent },
+    { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
     { path: "navigation-info", component: NavigationInfoComponent },
     {
         path: "evse/:componentId/car/update/:appId",
@@ -63,10 +71,19 @@ export const newNavigationRoutes: Routes = [
     { path: "common/grid/history/:componentId/phase-accurate", component: CommonGridPhaseAccurateOverviewComponent },
     { path: "common/grid/history/:componentId/phase-accurate/current-voltage", component: CurrentVoltageOverviewComponent },
 
-    { path: "common/production", component: CommonAutarchyHomeComponent },
-    { path: "common/production/history", component: CommonAutarchyHistoryComponent },
+    { path: "common/production", component: CommonProductionHomeComponent },
+    { path: "common/production/details", component: CommonProductionDetailsComponent },
+    { path: "common/production/history", component: CommonProductionHistoryComponent },
+    { path: "common/production/history/phase-accurate", component: CommonProductionDetailsComponent },
+    { path: "common/production/history/:componentId/phase-accurate", component: CommonProductionSingleHistoryOverviewComponent },
+    { path: "common/production/history/:componentId/phase-accurate/current-voltage", component: CurrentVoltageOverviewComponent },
+
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
+    { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/task/:taskId", component: SchedulerJsCalendarEditTaskComponent },
     ...history(true),
 ];
 

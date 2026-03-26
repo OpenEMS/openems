@@ -1,0 +1,12 @@
+<ion-item>
+    <ion-label>{{"JS_SCHEDULE.ROTATION" | translate}}</ion-label>
+    <ion-select [multiple]="true" slot="end" class="ion-padding-left"
+        [placeholder]="('JS_SCHEDULE.WEEK_DAY'| translate)" interface="popover" class="ion-background-transparent"
+        justify="start" [value]="recurrenceRuleByDay()?.byDay" (ionDismiss)="setDays($event)">
+        @for (option of daySelection; track option) {
+        <ion-select-option class="ion-full-width" [value]="option.key" labelPlacement="end" justify="start">
+            {{ option.label }}
+        </ion-select-option>
+        }
+    </ion-select>
+</ion-item>

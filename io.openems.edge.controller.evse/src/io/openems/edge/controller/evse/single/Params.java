@@ -33,9 +33,9 @@ public record Params(//
 		 */
 		int sessionEnergy, //
 		/**
-		 * The configured Session-Energy Limit; 0 is no limit.
+		 * The configured Session-Energy Limit; possibly null.
 		 */
-		int sessionEnergyLimit, //
+		Integer sessionEnergyLimit, //
 		/**
 		 * History data
 		 */
@@ -61,7 +61,7 @@ public record Params(//
 		 */
 		JSCalendar.Tasks<Payload> tasks) {
 
-	public Params(String componentId, Mode mode, Integer activePower, int sessionEnergy, int sessionEnergyLimit,
+	public Params(String componentId, Mode mode, Integer activePower, int sessionEnergy, Integer sessionEnergyLimit,
 			History history, PhaseSwitching phaseSwitching, CombinedAbilities combinedAbilities,
 			JSCalendar.Tasks<Payload> tasks) {
 		this(componentId, mode, activePower, sessionEnergy, sessionEnergyLimit, history, Hysteresis.from(history),
@@ -80,7 +80,7 @@ public record Params(//
 					json.getEnum("mode", Mode.class), //
 					json.getOptionalInt("activePower").orElse(null), //
 					json.getInt("sessionEnergy"), //
-					json.getInt("sessionEnergyLimit"), //
+					json.getOptionalInt("sessionEnergyLimit").orElse(null), //
 					new History(), // TODO
 					json.getEnum("phaseSwitching", PhaseSwitching.class), //
 					json.getObject("combinedAbilities", CombinedAbilities.serializer()), //

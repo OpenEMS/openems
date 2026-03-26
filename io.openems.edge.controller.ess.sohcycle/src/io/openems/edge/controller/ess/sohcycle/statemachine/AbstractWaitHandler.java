@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
+import static io.openems.edge.controller.ess.sohcycle.EssSohCycleConstants.WAIT_DURATION_MINUTES;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -11,7 +13,6 @@ import io.openems.edge.common.statemachine.StateHandler;
 
 public abstract class AbstractWaitHandler extends StateHandler<StateMachine.State, Context> {
 	private static final Logger log = LoggerFactory.getLogger(AbstractWaitHandler.class);
-	private static final int WAIT_DURATION_MINUTES = 30;
 
 	protected abstract StateMachine.State getNextStateAfterWait();
 

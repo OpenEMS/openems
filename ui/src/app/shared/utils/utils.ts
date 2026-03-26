@@ -5,7 +5,7 @@ import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
-import { EvcsComponent } from "../components/edge/components/evcsComponent";
+import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -426,6 +426,8 @@ export class Utils {
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
                 case 3:
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+                case 5:
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
                 default: // Usually "1"
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
             }
@@ -521,8 +523,7 @@ export class Utils {
             } else {
                 return /* min 0 */ Math.max(0,
                     /* max 100 */ Math.min(100,
-                        /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
-                    ));
+                        /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100));
             }
 
         } else {
@@ -886,6 +887,7 @@ export namespace TimeOfUseTariffUtils {
         DelayDischarge = 0,
         Balancing = 1,
         ChargeGrid = 3,
+        PeakShaving = 5,
     }
 
     /**
@@ -925,6 +927,7 @@ export namespace TimeOfUseTariffUtils {
         const dischargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
         const chargeConsumptionLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
         const balancingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
+        const peakShavingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
         const gridBuyLabel = translate.instant("GENERAL.GRID_BUY");
 
         // Switch case to handle different labels
@@ -935,6 +938,7 @@ export namespace TimeOfUseTariffUtils {
             case dischargeLabel:
             case chargeConsumptionLabel:
             case balancingLabel:
+            case peakShavingLabel:
                 return label + ": " + formatNumber(value, locale, ChartConstants.NumberFormat.TWO) + " " + currencyLabel;
 
             default:

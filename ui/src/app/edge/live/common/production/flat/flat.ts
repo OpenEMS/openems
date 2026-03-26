@@ -5,7 +5,7 @@ import { EdgeConfig, Utils } from "src/app/shared/shared";
 import { ModalComponent } from "../modal/modal";
 
 @Component({
-    selector: "Common_Production",
+    selector: "oe-common-production",
     templateUrl: "./flat.html",
     standalone: false,
 })

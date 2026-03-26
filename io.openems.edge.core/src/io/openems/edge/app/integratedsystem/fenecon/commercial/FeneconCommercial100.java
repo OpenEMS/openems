@@ -19,12 +19,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
@@ -35,6 +35,16 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmer
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.genset;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.stsBox;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocEnd;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocStart;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetEnableCharge;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetMaxPower;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetPreheatingTime;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRatedPower;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRunTime;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.isGensetInstalled;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -83,6 +93,7 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -119,6 +130,19 @@ public class FeneconCommercial100
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
 		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
 		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED)), //
+
+		IS_GENSET_INSTALLED(isGensetInstalled(EMERGENCY_RESERVE_ENABLED)), //
+		GENSET_ID(AppDef.componentId("meter1").wrapField((app, property, l, parameter, field) -> {
+			field.onlyShowIf(Exp.currentModelValue(EMERGENCY_RESERVE_ENABLED).notNull()
+					.and(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull()));
+		})), //
+		GENSET_RATED_POWER(gensetRatedPower(IS_GENSET_INSTALLED)), //
+		GENSET_PREHEATING_TIME(gensetPreheatingTime(IS_GENSET_INSTALLED)), //
+		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
+		GENSET_ENABLE_CHARGE(gensetEnableCharge(IS_GENSET_INSTALLED)), //
+		GENSET_MAX_POWER(gensetMaxPower(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_START(gensetChargeSocStart(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_END(gensetChargeSocEnd(GENSET_ENABLE_CHARGE)), //
 
 		SHADOW_MANAGEMENT_DISABLED(shadowManagementDisabled()), //
 		;
@@ -221,6 +245,7 @@ public class FeneconCommercial100
 			final var modbusIdExternal = "modbus1";
 			final var modbusIdExternalMeters = "modbus2";
 			final var gridMeterId = "meter0";
+			final var stsBoxId = "stsBox0";
 
 			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
 
@@ -248,25 +273,48 @@ public class FeneconCommercial100
 			final var deviceHardware = this.appManagerUtil
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
+			final var isGensetInstalled = this.getBoolean(p, FeneconCommercial100.Property.IS_GENSET_INSTALLED);
+			final var gensetId = this.getId(t, p, FeneconCommercial100.Property.GENSET_ID);
+			final var gensetRatedPower = this.getInt(p, FeneconCommercial100.Property.GENSET_RATED_POWER);
+			final var gensetPreheatingTime = this.getInt(p, FeneconCommercial100.Property.GENSET_PREHEATING_TIME);
+			final var gensetRunTime = this.getInt(p, FeneconCommercial100.Property.GENSET_RUN_TIME);
+			final var gensetEnableCharge = this.getBoolean(p, FeneconCommercial100.Property.GENSET_ENABLE_CHARGE);
+			final var gensetMaxPower = this.getInt(p, FeneconCommercial100.Property.GENSET_MAX_POWER);
+			final var gensetSocStart = this.getInt(p, FeneconCommercial100.Property.GENSET_CHARGE_SOC_START);
+			final var gensetSocEnd = this.getInt(p, FeneconCommercial100.Property.GENSET_CHARGE_SOC_END);
+
 			final var components = Lists.newArrayList(//
-					battery(bundle, batteryId, modbusIdInternal), //
-					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
-							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection, gridCode), //
-					ess(bundle, essId, batteryId, batteryInverterId), //
-					io(bundle, modbusIdInternal), //
-					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
-					modbusInternal(bundle, t, modbusIdInternal), //
-					modbusExternal(bundle, t, modbusIdExternal), //
-					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
-					predictor(bundle, t), //
-					ctrlEssSurplusFeedToGrid(bundle, essId), //
-					power() //
-			);
+					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
+					ComponentDef.from(batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType,
+							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection,
+							gridCode)), //
+					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
+					ComponentDef.from(io(bundle, modbusIdInternal)), //
+					ComponentDef
+							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
+					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
+					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
+					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
+					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
+					ComponentDef.from(power()), //
+					genset(bundle, gensetId, modbusIdInternal), //
+					stsBox(bundle, //
+							stsBoxId, //
+							modbusIdInternal, //
+							isGensetInstalled ? gensetId : null, //
+							gensetRatedPower, //
+							gensetPreheatingTime, //
+							gensetRunTime, //
+							gensetEnableCharge, //
+							gensetSocStart, //
+							gensetSocEnd, //
+							gensetMaxPower //
+			));
 
 			if (hasEmergencyReserve) {
-				components.add(emergencyMeter(bundle, modbusIdExternal));
-				components.add(
-						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc));
+				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
+				components.add(ComponentDef.from(
+						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc)));
 			}
 
 			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
@@ -276,13 +324,15 @@ public class FeneconCommercial100
 				}
 				final var chargerId = "charger" + i;
 				final var chargerAlias = this.getString(p, this.pvDefs.get(MPPT_ALIAS.apply(i)));
-				components.add(charger(chargerId, chargerAlias, batteryInverterId, i));
+				components.add(ComponentDef.from(charger(chargerId, chargerAlias, batteryInverterId, i)));
 			}
 
 			final var dependencies = Lists.newArrayList(//
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension(), //
+					sohCycle(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption()//
 			);
 
@@ -301,14 +351,13 @@ public class FeneconCommercial100
 					"ctrlEssSurplusFeedToGrid0", "Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
 
 			if (feedInType == ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) {
-				components.add(dynamicRippleControlReceiverComponent(bundle, gpioId.get()));
+				components.add(ComponentDef.from(dynamicRippleControlReceiverComponent(bundle, gpioId.get())));
 				schedulerComponents.add(dynamicRippleControlReceiverScheduler(this.getAppId()));
 			}
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.componentFromComponentConfig(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};
@@ -321,20 +370,41 @@ public class FeneconCommercial100
 						Property.HAS_EMERGENCY_RESERVE, //
 						Property.EMERGENCY_RESERVE_ENABLED, //
 						Property.EMERGENCY_RESERVE_SOC, //
+						Property.IS_GENSET_INSTALLED, //
+						Property.GENSET_ID, //
+						Property.GENSET_RATED_POWER, //
+						Property.GENSET_PREHEATING_TIME, //
+						Property.GENSET_RUN_TIME, //
+						Property.GENSET_ENABLE_CHARGE, //
+						Property.GENSET_MAX_POWER, //
+						Property.GENSET_CHARGE_SOC_START, //
+						Property.GENSET_CHARGE_SOC_END, //
 						Property.SHADOW_MANAGEMENT_DISABLED //
 				).allMatch(t -> p != t)).toList());
 
 		for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
-			builder.add(this.pvDefs.get(HAS_MPPT.apply(i)));
-			builder.add(this.pvDefs.get(MPPT_ALIAS.apply(i)));
+			builder //
+					.add(this.pvDefs.get(HAS_MPPT.apply(i)))//
+					.add(this.pvDefs.get(MPPT_ALIAS.apply(i)));
 		}
 
-		builder.add(Property.HAS_EMERGENCY_RESERVE);
-		builder.add(Property.EMERGENCY_RESERVE_ENABLED);
-		builder.add(Property.EMERGENCY_RESERVE_SOC);
-		builder.add(Property.SHADOW_MANAGEMENT_DISABLED);
+		builder //
+				.add(Property.HAS_EMERGENCY_RESERVE)//
+				.add(Property.EMERGENCY_RESERVE_ENABLED)//
+				.add(Property.EMERGENCY_RESERVE_SOC)//
+				.add(Property.IS_GENSET_INSTALLED)//
+				.add(Property.GENSET_ID)//
+				.add(Property.GENSET_RATED_POWER)//
+				.add(Property.GENSET_PREHEATING_TIME)//
+				.add(Property.GENSET_RUN_TIME)//
+				.add(Property.GENSET_ENABLE_CHARGE)//
+				.add(Property.GENSET_MAX_POWER)//
+				.add(Property.GENSET_CHARGE_SOC_START)//
+				.add(Property.GENSET_CHARGE_SOC_END)//
+				.add(Property.SHADOW_MANAGEMENT_DISABLED);
 
-		return builder.build().toArray(PropertyParent[]::new);
+		return builder.build() //
+				.toArray(PropertyParent[]::new);
 	}
 
 	@Override
@@ -352,7 +422,6 @@ public class FeneconCommercial100
 
 	public interface PropertyParent
 			extends Type<FeneconCommercial100.PropertyParent, FeneconCommercial100, BundleParameter> {
-
 	}
 
 	private static final class ParentPropertyImpl
@@ -362,7 +431,5 @@ public class FeneconCommercial100
 				AppDef<? super FeneconCommercial100, ? super PropertyParent, ? super BundleParameter> def) {
 			super(name, def, Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle));
 		}
-
 	}
-
 }

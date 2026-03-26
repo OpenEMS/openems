@@ -42,7 +42,6 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
@@ -58,8 +57,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"BIDDING_ZONE": {@link BiddingZone},
-    	"CONTROL_MODE": {@link ControlMode}
+    	"BIDDING_ZONE": {@link BiddingZone}
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -86,18 +84,8 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 					field.setOptions(BiddingZone.optionsFactory(), l);
 				})),
 
-		RESOLUTION(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".resolution.label") //
-				.setTranslatedDescriptionWithAppPrefix(".resolution.description") //
-				.setRequired(true)//
-				.setDefaultValue(Resolution.QUARTERLY)//
-				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Resolution.optionsFactory(), l);
-					final var isInBiddingZone = Exp
-							.array(Exp.staticValue(BiddingZone.GERMANY), Exp.staticValue(BiddingZone.AUSTRIA))
-							.some(t -> t.equal(Exp.currentModelValue(BIDDING_ZONE)));
-					field.onlyShowIf(isInBiddingZone);
-				}))), //
+		@Deprecated
+		RESOLUTION(defaultDef()), //
 
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 
@@ -216,6 +204,9 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		SWEDEN_SE4("sweden_se4"), //
 		BELGIUM("belgium"), //
 		NETHERLANDS("netherlands"), //
+		CZECHIA("czechia"), //
+		LITHUANIA("lithuania"), //
+		GREECE("greece"), //
 		;
 
 		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.biddingZone.option.";
@@ -223,34 +214,6 @@ public class EntsoE extends AbstractOpenemsAppWithProps<EntsoE, Property, Type.P
 		private final String translationKey;
 
 		private BiddingZone(String translationKey) {
-			this.translationKey = TRANSLATION_PREFIX + translationKey;
-		}
-
-		@Override
-		public final String getTranslation(Language l) {
-			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
-			return TranslationUtil.getTranslation(bundle, this.translationKey);
-		}
-
-		/**
-		 * Creates a {@link OptionsFactory} of this enum.
-		 * 
-		 * @return the {@link OptionsFactory}
-		 */
-		public static final OptionsFactory optionsFactory() {
-			return OptionsFactory.of(values());
-		}
-	}
-
-	public enum Resolution implements TranslatableEnum {
-		HOURLY("hourly"), //
-		QUARTERLY("quarterly");
-
-		private static final String TRANSLATION_PREFIX = "App.TimeOfUseTariff.ENTSO-E.resolution.option.";
-
-		private final String translationKey;
-
-		private Resolution(String translationKey) {
 			this.translationKey = TRANSLATION_PREFIX + translationKey;
 		}
 

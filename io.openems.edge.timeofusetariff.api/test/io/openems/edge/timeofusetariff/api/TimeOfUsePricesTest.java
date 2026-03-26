@@ -67,7 +67,7 @@ public class TimeOfUsePricesTest {
 		x.put(base, null);
 
 		// Fills up to 5 keys
-		assertEquals(5, sut.toMapWithAllQuarters().size());
+		assertEquals(5, sut.toMapWithAllTimes().size());
 	}
 
 	@Test

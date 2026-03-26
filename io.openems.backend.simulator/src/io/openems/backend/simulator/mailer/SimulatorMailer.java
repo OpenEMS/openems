@@ -1,6 +1,8 @@
 package io.openems.backend.simulator.mailer;
 
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -10,10 +12,9 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
-import io.openems.backend.common.metadata.Mailer;
+import io.openems.backend.common.mail.MailContext;
+import io.openems.backend.common.mail.Mailer;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -33,7 +34,8 @@ public class SimulatorMailer extends AbstractOpenemsBackendComponent implements 
 	}
 
 	@Override
-	public void sendMail(ZonedDateTime sendAt, String templateId, JsonElement params) {
+	public CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String templateId, List<MailContext> params) {
 		this.log.info("[{}]: Mail(sendAt: {}, templateId: {}, params: {})", this.id, sendAt, templateId, params);
+		return CompletableFuture.completedFuture(params.size());
 	}
 }

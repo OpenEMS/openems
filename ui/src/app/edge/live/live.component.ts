@@ -4,10 +4,12 @@ import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+
 
 @Component({
     selector: "live",
@@ -37,16 +39,22 @@ export class LiveComponent implements OnDestroy {
         private router: Router,
         protected navigationService: NavigationService,
         private userService: UserService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
 
         effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
+
+            if (edge === null) {
+                return;
+            }
+
             this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
-            this.service.getConfig().then(config => {
+            edge?.getFirstValidConfig(websocket)?.then(async config => {
                 this.config = config;
-                this.widgets = navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
+                this.widgets = await navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
             });
             this.checkIfRefreshNeeded();
         });
@@ -56,6 +64,7 @@ export class LiveComponent implements OnDestroy {
         if (this.widgets?.list) {
             this.showNewFooter = this.widgets?.list.filter(item => item.name == "Evse.Controller.Single" || item.name == "Controller.IO.Heating.Room")?.length > 0;
         }
+        this.layoutRefresh.request(300);
     }
 
     ionViewWillLeave() {

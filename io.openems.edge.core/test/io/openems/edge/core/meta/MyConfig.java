@@ -79,6 +79,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMaximumGridFeedInLimit(int maximumGridFeedInLimit) {
+			this.maximumGridFeedInLimit = maximumGridFeedInLimit;
+			return this;
+		}
+
 		public Builder setGridSoftLimit(String gridSoftLimit) {
 			this.gridSoftLimit = gridSoftLimit;
 			return this;
