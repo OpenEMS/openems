@@ -18,6 +18,7 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.Phase.SinglePhase;
@@ -46,6 +47,7 @@ public class SolarEdgeEssImplTest {
 		var ess = new SolarEdgeEssImpl();
 		ess.addCharger(charger);
 		final var componentTest = new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -111,6 +113,7 @@ public class SolarEdgeEssImplTest {
 
 		// Test SinglePhase Inverter with SingleOrAllPhase.L1 configuration
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -130,6 +133,7 @@ public class SolarEdgeEssImplTest {
 
 		// Test SinglePhase Inverter with SingleOrAllPhase.ALL configuration
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -149,6 +153,7 @@ public class SolarEdgeEssImplTest {
 
 		// Test SinglePhase Inverter with SingleOrAllPhase.L2 configuration
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -168,6 +173,7 @@ public class SolarEdgeEssImplTest {
 
 		// Test SplitPhase Inverter with SingleOrAllPhase.L3 configuration (SplitPhase not supported -> Warning are expected)
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -187,6 +193,7 @@ public class SolarEdgeEssImplTest {
 
 		// Test ThreePhase Inverter with SingleOrAllPhase.ALL configuration
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -221,6 +228,7 @@ public class SolarEdgeEssImplTest {
 	public void testGetPhaseL1() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -241,6 +249,7 @@ public class SolarEdgeEssImplTest {
 	public void testGetPhaseL2() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -261,6 +270,7 @@ public class SolarEdgeEssImplTest {
 	public void testGetPhaseL3() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -281,6 +291,7 @@ public class SolarEdgeEssImplTest {
 	public void testGetPhaseAll() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -332,6 +343,7 @@ public class SolarEdgeEssImplTest {
 	public void testApplyPvExportLimit() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		final var componentTest = new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -366,6 +378,7 @@ public class SolarEdgeEssImplTest {
 	public void testApplyPvExportLimitClampsNegativeValuesToZero() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		final var componentTest = new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -400,6 +413,7 @@ public class SolarEdgeEssImplTest {
 	public void testApplyPvExportLimitFailed() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		final var componentTest = new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
@@ -432,6 +446,7 @@ public class SolarEdgeEssImplTest {
 	public void testApplyPvExportLimitDisabled() throws Exception {
 		var ess = new SolarEdgeEssImpl();
 		final var componentTest = new ComponentTest(ess) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //

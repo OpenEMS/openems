@@ -16,6 +16,7 @@ import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
@@ -31,6 +32,8 @@ import io.openems.edge.solaredge.enums.SeControlMode;
 import io.openems.edge.common.channel.BooleanReadChannel;
 
 public class ApplyPowerHandlerTest {
+
+	private static final int CYCLE_TIME = 1000;
 
 	@Test
 	public void testApply() throws Exception {
@@ -49,6 +52,7 @@ public class ApplyPowerHandlerTest {
 		ess.addCharger(charger);
 		final var componentTest = new ComponentTest(ess) //
 				.addReference("power", power) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //
@@ -84,10 +88,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -102,10 +106,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -123,10 +127,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -141,10 +145,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, null), //
 				/* essActivePower */ new Value<Integer>(null, null), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -161,10 +165,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -181,10 +185,10 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 
-		assertTrue(power.isPidEnabled());
+		assertTrue(power.isFilterEnabled());
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
@@ -228,7 +232,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.AUTO.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(3000, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -241,7 +245,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.DISCHARGE_BAT.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(0, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -254,7 +258,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.CHARGE_BAT.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(1300, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -267,7 +271,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.DISCHARGE_BAT.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(0, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -280,7 +284,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.CHARGE_BAT.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(300, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -293,7 +297,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(CommandMode.AUTO.getValue(), (int) commandMode.getNextWriteValue().orElse(0));
 		assertEquals(3000, (int) chargeLimit.getNextWriteValue().orElse(0));
@@ -313,7 +317,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 
@@ -323,7 +327,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 		assertFalse(smartModeNotWorkingWithPidFilter.getNextValue().get());
 
@@ -333,7 +337,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ true //
+				/* isFilterEnabled */ true //
 		);
 		assertTrue(smartModeNotWorkingWithPidFilter.getNextValue().get());
 	}
@@ -352,7 +356,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -363,7 +367,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(acChargeNotEnabledWarning.getNextValue().get());
 		
@@ -374,7 +378,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -385,7 +389,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertEquals(true, acChargeNotEnabledWarning.getNextValue().get());
 
@@ -396,7 +400,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(acChargeNotEnabledWarning.getNextValue().get());
 		
@@ -407,7 +411,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -418,7 +422,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -429,7 +433,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(acChargeNotEnabledWarning.getNextValue().get());
 		
@@ -440,7 +444,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -451,7 +455,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(acChargeNotEnabledWarning.getNextValue().get());
 
@@ -462,7 +466,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(acChargeNotEnabledWarning.getNextValue().get());
 	}
@@ -481,7 +485,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -492,7 +496,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -503,7 +507,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -514,7 +518,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -525,7 +529,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -536,7 +540,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -547,7 +551,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -558,7 +562,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -569,7 +573,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -580,7 +584,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -591,7 +595,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -602,7 +606,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -613,7 +617,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 
@@ -624,7 +628,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(remoteControlNotEnabledWarning.getNextValue().get());
 	}
@@ -643,7 +647,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 
@@ -654,7 +658,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		
@@ -665,7 +669,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.REMOTE, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 
@@ -676,7 +680,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.INTERNAL, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(noSmartMeterDetected.getNextValue().get());
 
@@ -687,7 +691,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<Integer>(null, 420), //
-				/* isPidEnabled */ false //
+				/* isFilterEnabled */ false //
 		);
 		assertTrue(noSmartMeterDetected.getNextValue().get());
 	}
@@ -709,6 +713,7 @@ public class ApplyPowerHandlerTest {
 		ess.addCharger(charger);
 		final var componentTest = new ComponentTest(ess) //
 				.addReference("power", power) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //
@@ -745,7 +750,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<>(null, 420), //
-				/* isPidEnabled */ true
+				/* isFilterEnabled */ true
 		);
 
 		assertTrue(smartModeNotWorkingWithPidFilter.getNextValue().get());
@@ -762,7 +767,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<>(null, 420), //
-				/* isPidEnabled */ true
+				/* isFilterEnabled */ true
 		);
 
 		assertTrue(smartModeNotWorkingWithPidFilter.getNextValue().get());
@@ -779,7 +784,7 @@ public class ApplyPowerHandlerTest {
 				ControlMode.SMART, //
 				/* gridActivePower */ new Value<Integer>(null, 250), //
 				/* essActivePower */ new Value<>(null, 420), //
-				/* isPidEnabled */ true
+				/* isFilterEnabled */ true
 		);
 
 		assertTrue(smartModeNotWorkingWithPidFilter.getNextValue().get());

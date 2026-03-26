@@ -12,6 +12,7 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.common.test.DummyCycle;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
@@ -22,6 +23,8 @@ import io.openems.edge.solaredge.charger.SolarEdgeChargerImpl;
 import io.openems.edge.solaredge.enums.ControlMode;
 
 public class IgnoreMinPowerConverterTest {
+
+	private static final int CYCLE_TIME = 1000;
 
 	@Test
 	public void test() throws Exception {
@@ -38,6 +41,7 @@ public class IgnoreMinPowerConverterTest {
 		solarEdge.addCharger(charger);
 		final var componentTest = new ComponentTest(solarEdge) //
 				.addReference("power", new DummyPower()) //
+				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("sum", new DummySum()) //

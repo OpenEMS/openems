@@ -1,5 +1,6 @@
 package io.openems.edge.solaredge.ess;
 
+import static io.openems.common.utils.IntUtils.maxInt;
 import static java.lang.Math.round;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -7,7 +8,6 @@ import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.value.Value;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.solaredge.enums.AcChargePolicy;
 import io.openems.edge.solaredge.enums.CommandMode;
 import io.openems.edge.solaredge.enums.ControlMode;
@@ -41,7 +41,7 @@ public class ApplyPowerHandler {
 		this.checkControlModeRequiresSmartMeter(solarEdge, controlMode);
 
 		// get pv production
-		int pvProduction = TypeUtils.max(0, solarEdge.getPvProduction());
+		int pvProduction = maxInt(0, solarEdge.getPvProduction());
 
 		final ApplyPowerHandler.Result apply;
 		if (gridActivePower.isDefined() && essActivePower.isDefined()) {

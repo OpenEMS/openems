@@ -1,8 +1,11 @@
 package io.openems.edge.solaredge.ess;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.component.ClockProvider;
-import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
 import io.openems.edge.solaredge.charger.SolarEdgeCharger;
 import io.openems.edge.battery.api.Battery;
@@ -40,7 +43,7 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		// PV-Production
 		Integer pvProduction = 0;
 		for (SolarEdgeCharger charger : parent.chargers) {
-			pvProduction = TypeUtils.sum(pvProduction, charger.getActualPowerChannel().getNextValue().orElse(0));
+			pvProduction = sumInteger(pvProduction, charger.getActualPowerChannel().getNextValue().orElse(0));
 		}
 		
 		// Block battery charging on battery full
@@ -58,7 +61,7 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		var acAllowedChargePower = batteryAllowedChargePower - pvProduction;
 		
 		// Calculates Maximum Allowed AC-Discharge Power as positive numbers
-		var acAllowedDischargePower = TypeUtils.min(batteryAllowedDischargePower + pvProduction,parent.getMaxApparentPower().orElse(0));
+		var acAllowedDischargePower = Math.min(batteryAllowedDischargePower + pvProduction,parent.getMaxApparentPower().orElse(0));
 
 		// Inverter limits
 		var maxApparentPower = parent.getMaxApparentPower().orElse(0);
@@ -82,7 +85,7 @@ public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischarg
 		}
 
 		// Apply AllowedChargePower and AllowedDischargePower
-		this.parent._setAllowedChargePower(acAllowedChargePower * -1 /* invert charge power */);
-		this.parent._setAllowedDischargePower(acAllowedDischargePower);
+		setValue(this.parent, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, acAllowedChargePower * -1 /* invert charge power */);
+		setValue(this.parent, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, acAllowedDischargePower);
 	}
 }

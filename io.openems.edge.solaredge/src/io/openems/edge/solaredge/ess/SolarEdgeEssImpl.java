@@ -1,7 +1,5 @@
 package io.openems.edge.solaredge.ess;
 
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
@@ -11,8 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.time.temporal.ChronoUnit.MILLIS;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -83,7 +83,6 @@ import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.solaredge.charger.SolarEdgeCharger;
 import io.openems.edge.timedata.api.Timedata;
@@ -103,7 +102,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 })
 public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss, ManagedSinglePhaseEss, SinglePhaseEss,
 				ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss, SymmetricEss, HybridEss, ModbusComponent,
-				OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider, CycleProvider {
+				OpenemsComponent, EventHandler, ModbusSlave, TimedataProvider {
 
 	protected static final SunSpecModel S_101_WITHOUT_EVENTS =
 			FilteredSunSpecModel.withoutPoints(
@@ -240,9 +239,9 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			return;
 		}
 		
-		this.pvProductionAverageCalculator = new AverageCalculator(120 * 1000 / this.getCycleTime()); // 120s average
+		this.pvProductionAverageCalculator = new AverageCalculator(120 * 1000 / this.cycle.getCycleTime()); // 120s average
 		
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 		this.addStaticModbusTasks(this.getModbusProtocol());
 	}
 	
@@ -432,7 +431,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		// Apply Power Set-Point
 		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.power.isPidEnabled()); 
+				this.getActivePower(), this.power.isFilterEnabled());
 	}
 	
 	@Override
@@ -482,7 +481,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			 * Therefore, we must add the battery power to the DCW value from 1 second ago to obtain the PV power.
 			 * 
 			 */
-			var cycleTimeSeconds = Math.max(1, this.getCycleTime() / 1000); // minimum 1 second
+			var cycleTimeSeconds = Math.max(1, this.cycle.getCycleTime() / 1000); // minimum 1 second
 			var retrievePastSeconds = Math.min(cycleTimeSeconds, 1) * 2; // twice the cycle time or 2*1 second
 			var pastActiveDcPowerValues = activeDcPowerChannel.getPastValues()
 					.tailMap(LocalDateTime.now(this.componentManager.getClock()).minusSeconds(retrievePastSeconds), true); //
@@ -617,7 +616,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				SymmetricEss.getModbusSlaveNatureTable(accessMode), //
 				HybridEss.getModbusSlaveNatureTable(accessMode), //
-				ModbusSlaveNatureTable.of(SolarEdgeEssImpl.class, accessMode, 300) //
+				ModbusSlaveNatureTable.of(SolarEdgeEssImpl.class, accessMode, 100) //
 					.build()
 		);
 	}
@@ -652,7 +651,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 	public Integer getPvProduction() {
 		Integer productionPower = null;
 		for (SolarEdgeCharger charger : this.chargers) {
-			productionPower = TypeUtils.sum(productionPower, charger.getActualPower().get());
+			productionPower = sumInteger(productionPower, charger.getActualPower().get());
 		}
 		return productionPower;
 	}
@@ -682,7 +681,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			// PV-Production
 			Integer pvProduction = 0;
 			for (SolarEdgeCharger charger : this.chargers) {
-				pvProduction = TypeUtils.sum(pvProduction, charger.getActualPowerChannel().getNextValue().getOrError());
+				pvProduction = sumInteger(pvProduction, charger.getActualPowerChannel().getNextValue().getOrError());
 			}
 
 			var dcBatteryActualPower = activeDcPowerChannel.getNextValue().getOrError() - pvProduction;
@@ -729,11 +728,6 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 			this.calculateDcChargeEnergy.update(dcDischargePower * -1);
 			this.calculateDcDischargeEnergy.update(0);
 		}		
-	}
-
-	@Override
-	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 	
 	/**

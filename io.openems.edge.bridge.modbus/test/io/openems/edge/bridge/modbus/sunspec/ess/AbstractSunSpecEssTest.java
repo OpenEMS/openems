@@ -28,7 +28,6 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
