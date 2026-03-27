@@ -35,6 +35,7 @@ The bundle supports two main components:
 === PV-Inverter Fronius
 
 *Name*: PV-Inverter Fronius
+
 *Factory-PID*: `PV-Inverter.Fronius`
 
 .Implemented Natures/Interfaces
@@ -58,6 +59,7 @@ Integration for Fronius solar PV inverters. Monitors real-time solar generation 
 === Meter Fronius
 
 *Name*: Meter Fronius
+
 *Factory-PID*: `Meter.Fronius`
 
 .Implemented Natures/Interfaces

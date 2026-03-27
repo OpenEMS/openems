@@ -19,6 +19,7 @@ Common use cases:
 === Bridge OneWire
 
 *Name*: Bridge OneWire
+
 *Factory-PID*: `Bridge.Onewire`
 
 *Purpose*: Master bridge for 1-Wire communication with temperature and sensor devices.

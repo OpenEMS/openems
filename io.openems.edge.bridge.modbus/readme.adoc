@@ -23,6 +23,7 @@ Two transport protocols are supported:
 === Bridge Modbus/TCP
 
 *Name*: Bridge Modbus/TCP
+
 *Factory-PID*: `Bridge.Modbus.Tcp`
 
 *Purpose*: Master bridge for Modbus/TCP network communication.
@@ -44,6 +45,7 @@ Two transport protocols are supported:
 === Bridge Modbus/RTU Serial
 
 *Name*: Bridge Modbus/RTU
+
 *Factory-PID*: `Bridge.Modbus.Serial`
 
 *Purpose*: Master bridge for Modbus/RTU serial communication via RS485 or RS232.

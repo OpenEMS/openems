@@ -14,6 +14,7 @@ MQTT is a perfect alternative to direct device protocols when devices support br
 === Bridge MQTT
 
 *Name*: Bridge MQTT
+
 *Factory-PID*: `Bridge.Mqtt`
 
 *Purpose*: MQTT broker connection and message routing for OpenEMS components.

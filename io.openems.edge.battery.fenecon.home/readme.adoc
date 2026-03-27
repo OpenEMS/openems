@@ -20,6 +20,7 @@ The FENECON Home battery is a residential battery energy storage system. This bu
 === Battery FENECON Home
 
 *Name*: Battery FENECON Home
+
 *Factory-PID*: `Battery.Fenecon.Home`
 
 .Implemented Natures/Interfaces

@@ -21,6 +21,7 @@ The bridge uses the jMbus library for protocol implementation and RxTx for seria
 === Bridge M-Bus
 
 *Name*: Bridge M-Bus
+
 *Factory-PID*: `Bridge.Mbus`
 
 *Purpose*: Master bridge for M-Bus serial communication with utility and facility meters.
