@@ -91,109 +91,110 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 			.build();
 
 	private final Map<String, String> appToWebsiteUrl = new ImmutableMap.Builder<String, String>() //
+			.put("App.Api.ModbusRtu.ReadOnly", "") //
+			.put("App.Api.ModbusRtu.ReadWrite", "") //
+			.put("App.Api.ModbusTcp.ReadOnly", "") //
+			.put("App.Api.ModbusTcp.ReadWrite", "") //
+			.put("App.Api.RestJson.ReadOnly", "") //
+			.put("App.Api.RestJson.ReadWrite", "") //
+			.put("App.Cloud.Clever-PV", "") //
+			.put("App.Cloud.EnerixControl", "") //
+			.put("App.Ess.FixActivePower", "") //
+			.put("App.Ess.FixStateOfCharge", "") //
+			.put("App.Ess.Limiter14a", "") //
+			.put("App.Ess.PowerPlantController", "") //
+			.put("App.Ess.PrepareBatteryExtension", "") //
+			.put("App.Ess.SohCycle", "") //
+			.put("App.Evcs.Abl.ReadOnly", "")//
+			.put("App.Evcs.Alpitronic", "") //
+			.put("App.Evcs.Cluster", "") //
+			.put("App.Evcs.Goe.ReadOnly", "") //
+			.put("App.Evcs.HardyBarth", "") //
+			.put("App.Evcs.HardyBarth.ReadOnly", "") //
+			.put("App.Evcs.Heidelberg.ReadOnly", "") //
+			.put("App.Evcs.IesKeywatt", "") //
+			.put("App.Evcs.Keba", "") //
+			.put("App.Evcs.Keba.ReadOnly", "") //
+			.put("App.Evcs.Mennekes.ReadOnly", "") //
+			.put("App.Evcs.Webasto.Next", "") //
+			.put("App.Evcs.Webasto.Unite", "") //
+			.put("App.Evse.ChargePoint.Keba", "") //
+			.put("App.Evse.ChargePoint.Mennekes", "") //
+			.put("App.Evse.Controller.Cluster", "") //
+			.put("App.Evse.ElectricVehicle.Generic", "") //
+			.put("App.FENECON.Commercial.100", "") //
+			.put("App.FENECON.Commercial.50.Gen3", "https://fenecon.de/fenecon-commercial-50/") //
+			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
+			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
+			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
 			.put("App.FENECON.Home", "https://fenecon.de/fenecon-home-10/") //
 			.put("App.FENECON.Home.20", "https://fenecon.de/fenecon-home-20-30/") //
 			.put("App.FENECON.Home.30", "https://fenecon.de/fenecon-home-20-30/") //
-			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home10.Gen2", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Home15", "https://fenecon.de/fenecon-home-6-10-15/") //
-			.put("App.FENECON.Commercial.50.Gen3", "https://fenecon.de/fenecon-commercial-50/") //
-			.put("App.FENECON.Commercial.92", "https://fenecon.de/fenecon-commercial-92/") //
-			.put("App.FENECON.Commercial.100", "") //
-			.put("App.FENECON.Commercial.92.ClusterMaster", "") //
-			.put("App.FENECON.Commercial.92.ClusterSlave", "") //
+			.put("App.FENECON.Home6", "https://fenecon.de/fenecon-home-6-10-15/") //
 			.put("App.FENECON.Industrial.L.ILK710", "https://fenecon.de/fenecon-industrial-l/") //
 			.put("App.FENECON.Industrial.S.ISK010", "https://fenecon.de/fenecon-industrial-s/") //
-			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.Industrial.S.ISK011", "https://fenecon.de/fenecon-industrial-s/") //
+			.put("App.FENECON.Industrial.S.ISK110", "https://fenecon.de/fenecon-industrial-s/") //
 			.put("App.FENECON.ProHybrid.10", "") //
-			.put("App.FENECON.ProHybrid.GW", "") //
 			.put("App.FENECON.ProHybrid.9.10", "") //
+			.put("App.FENECON.ProHybrid.GW", "") //
+			.put("App.GridMeter.GoodWe", "") //
+			.put("App.GridMeter.Janitza", "") //
+			.put("App.GridMeter.Kdk", "") //
+			.put("App.Hardware.IoGpio", "") //
+			.put("App.Hardware.KMtronic8Channel", "") //
+			.put("App.Heat.Askoma.ReadOnly", "") //
+			.put("App.Heat.CHP", "") //
+			.put("App.Heat.HeatPump", "") //
+			.put("App.Heat.HeatingElement", "") //
+			.put("App.Heat.MyPv.ReadOnly", "") //
+			.put("App.LoadControl.ManualRelayControl", "") //
+			.put("App.LoadControl.ThresholdControl", "") //
+			.put("App.Meter.CarloGavazzi", "") //
+			.put("App.Meter.Discovergy", "")//
+			.put("App.Meter.Eastron", "")//
+			.put("App.Meter.Janitza", "") //
+			.put("App.Meter.Kdk", "")//
+			.put("App.Meter.PhoenixContact", "")//
+			.put("App.Meter.PqPlus", "") //
+			.put("App.Meter.Shelly", "") //
+			.put("App.Meter.Shelly.Meter", "") //
+			.put("App.Meter.Socomec", "") //
+			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
+			.put("App.OpenemsHardware.CM3", "") //
+			.put("App.OpenemsHardware.CM4", "") //
+			.put("App.OpenemsHardware.CM4Max", "") //
+			.put("App.OpenemsHardware.CM4S", "") //
+			.put("App.OpenemsHardware.CM4S.Gen2", "") //
+			.put("App.OpenemsHardware.Compulab", "") //
+			.put("App.PeakShaving.PeakShaving", "") //
+			.put("App.PeakShaving.PhaseAccuratePeakShaving", "") //
+			.put("App.PeakShaving.TimeSlotPeakShaving", "")//
+			.put("App.Prediction.Default", "") //
+			.put("App.Prediction.UnmanagedConsumption", "") //
+			.put("App.PvInverter.Fronius", "") //
+			.put("App.PvInverter.Kaco", "") //
+			.put("App.PvInverter.Kostal", "") //
+			.put("App.PvInverter.Sma", "") //
+			.put("App.PvInverter.SolarEdge", "") //
+			.put("App.PvSelfConsumption.GridOptimizedCharge", "") //
+			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
 			.put("App.System.Fenecon.Home", "") //
 			.put("App.TimeOfUseTariff.AncillaryCosts", "") //
-			.put("App.TimeOfUseTariff.LuoxEnergy", "") //
 			.put("App.TimeOfUseTariff.Awattar", "") //
 			.put("App.TimeOfUseTariff.ENTSO-E", "") //
 			.put("App.TimeOfUseTariff.GroupeE", "") //
 			.put("App.TimeOfUseTariff.Hassfurt", "") //
+			.put("App.TimeOfUseTariff.LuoxEnergy", "") //
 			.put("App.TimeOfUseTariff.OctopusGo", "") //
 			.put("App.TimeOfUseTariff.OctopusHeat", "") //
 			.put("App.TimeOfUseTariff.RabotCharge", "") //
 			.put("App.TimeOfUseTariff.Stromdao", "") //
 			.put("App.TimeOfUseTariff.Swisspower", "") //
 			.put("App.TimeOfUseTariff.Tibber", "") //
-			.put("App.Cloud.EnerixControl", "") //
-			.put("App.Cloud.Clever-PV", "") //
-			.put("App.Api.ModbusTcp.ReadOnly", "") //
-			.put("App.Api.ModbusTcp.ReadWrite", "") //
-			.put("App.Api.ModbusRtu.ReadOnly", "") //
-			.put("App.Api.ModbusRtu.ReadWrite", "") //
-			.put("App.Api.RestJson.ReadOnly", "") //
-			.put("App.Api.RestJson.ReadWrite", "") //
 			.put("App.Timedata.InfluxDb", "")//
-			.put("App.Evcs.Abl.ReadOnly", "")//
-			.put("App.Evcs.Alpitronic", "") //
-			.put("App.Evcs.Cluster", "") //
-			.put("App.Evcs.HardyBarth", "") //
-			.put("App.Evcs.HardyBarth.ReadOnly", "") //
-			.put("App.Evcs.IesKeywatt", "") //
-			.put("App.Evcs.Keba", "") //
-			.put("App.Evcs.Keba.ReadOnly", "") //
-			.put("App.Evcs.Goe.ReadOnly", "") //
-			.put("App.Evcs.Heidelberg.ReadOnly", "") //
-			.put("App.Evcs.Mennekes.ReadOnly", "") //
-			.put("App.Evcs.Webasto.Next", "") //
-			.put("App.Evcs.Webasto.Unite", "") //
-			.put("App.Hardware.IoGpio", "") //
-			.put("App.Evse.ElectricVehicle.Generic", "") //
-			.put("App.Evse.ChargePoint.Keba", "") //
-			.put("App.Evse.Controller.Cluster", "") //
-			.put("App.Hardware.KMtronic8Channel", "") //
-			.put("App.Heat.HeatPump", "") //
-			.put("App.Heat.CHP", "") //
-			.put("App.Heat.HeatingElement", "") //
-			.put("App.Heat.Askoma.ReadOnly", "") //
-			.put("App.Heat.MyPv.ReadOnly", "") //
-			.put("App.PvSelfConsumption.GridOptimizedCharge", "") //
-			.put("App.PvSelfConsumption.SelfConsumptionOptimization", "") //
-			.put("App.LoadControl.ManualRelayControl", "") //
-			.put("App.LoadControl.ThresholdControl", "") //
-			.put("App.Meter.Shelly", "") //
-			.put("App.Meter.Shelly.Meter", "") //
-			.put("App.Meter.Socomec", "") //
-			.put("App.Meter.CarloGavazzi", "") //
-			.put("App.Meter.PqPlus", "") //
-			.put("App.Meter.Janitza", "") //
-			.put("App.GridMeter.Janitza", "") //
-			.put("App.GridMeter.GoodWe", "") //
-			.put("App.GridMeter.Kdk", "") //
-			.put("App.Meter.Discovergy", "")//
-			.put("App.Meter.PhoenixContact", "")//
-			.put("App.Meter.Eastron", "")//
-			.put("App.Meter.Kdk", "")//
-			.put("App.OpenemsHardware.BeagleBoneBlack", "") //
-			.put("App.OpenemsHardware.Compulab", "") //
-			.put("App.OpenemsHardware.CM3", "") //
-			.put("App.OpenemsHardware.CM4", "") //
-			.put("App.OpenemsHardware.CM4Max", "") //
-			.put("App.OpenemsHardware.CM4S", "") //
-			.put("App.OpenemsHardware.CM4S.Gen2", "") //
-			.put("App.PvInverter.Fronius", "") //
-			.put("App.PvInverter.Kaco", "") //
-			.put("App.PvInverter.Kostal", "") //
-			.put("App.PvInverter.Sma", "") //
-			.put("App.PvInverter.SolarEdge", "") //
-			.put("App.PeakShaving.PeakShaving", "") //
-			.put("App.PeakShaving.PhaseAccuratePeakShaving", "") //
-			.put("App.PeakShaving.TimeSlotPeakShaving", "")//
-			.put("App.Ess.FixActivePower", "") //
-			.put("App.Ess.FixStateOfCharge", "") //
-			.put("App.Ess.PowerPlantController", "") //
-			.put("App.Ess.PrepareBatteryExtension", "") //
-			.put("App.Ess.Limiter14a", "") //
-			.put("App.Prediction.Default", "") //
-			.put("App.Prediction.UnmanagedConsumption", "") //
-			.put("App.Ess.SohCycle", "") //
 			.build();
 
 	@Override

@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
@@ -157,9 +158,6 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.webastoNext(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.webastoUnite(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.evcsCluster(t), true, new JsonObject()));
-			this.apps.add(new TestTranslation(Apps.kebaEvse(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("ELECTRIC_VEHICLE_ID", UUID.randomUUID().toString()) //
-					.build()));
 			this.apps.add(new TestTranslation(Apps.clusterEvse(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.genericVehicle(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
@@ -292,7 +290,12 @@ public class TestTranslations {
 					.addProperty("HAS_DC_PV1", "false") //
 					.addProperty("DC_PV1_ALIAS", "charger1") //
 					.build()));
-			return this.apps.stream().map(TestTranslation::app).toList();
+			;
+			var availableApps = new ArrayList<OpenemsApp>();
+			availableApps.addAll(this.apps.stream().map(TestTranslation::app).toList());
+			availableApps.add(Apps.mennekesEvse(t));
+			availableApps.add(Apps.kebaEvse(t));
+			return availableApps;
 		}, null, new AppManagerTestBundle.PseudoComponentManagerFactory());
 	}
 
@@ -311,6 +314,7 @@ public class TestTranslations {
 	// most testable Apps.
 	public void testOemWebsiteUrl() throws Exception {
 		var dummyOem = new DummyOpenemsEdgeOem();
+		this.addEvseApps();
 		var missing = this.apps.stream() //
 				.map(TestTranslation::app) //
 				.map(OpenemsApp::getAppId) //
@@ -319,11 +323,28 @@ public class TestTranslations {
 		assertTrue("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]", missing.isEmpty());
 	}
 
+	private void addEvseApps() throws OpenemsNamedException {
+		UUID vehicleInstanceId = UUID.randomUUID();
+
+		var vehicleApp = this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "key", "", new JsonObject()));
+		vehicleInstanceId = vehicleApp.instance().instanceId;
+
+		this.apps.add(new TestTranslation(Apps.mennekesEvse(this.testBundle), true, JsonUtils.buildJsonObject() //
+				.addProperty("ELECTRIC_VEHICLE_ID", vehicleInstanceId.toString()) //
+				.build()));
+		this.apps.add(new TestTranslation(Apps.kebaEvse(this.testBundle), true, JsonUtils.buildJsonObject() //
+				.addProperty("ELECTRIC_VEHICLE_ID", vehicleInstanceId.toString()) //
+				.build()));
+	}
+
 	private void testTranslations(Language l) throws Exception {
 		final var debugTranslator = TranslationUtil.enableDebugMode();
 
 		this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.OpenemsHardware.CM4S.Gen2", "key", "", new JsonObject()));
+
+		this.addEvseApps();
 
 		for (var entry : this.apps) {
 			final var app = entry.app();

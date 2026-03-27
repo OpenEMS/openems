@@ -53,6 +53,7 @@ import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
 import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
 import io.openems.edge.app.evse.AppEvseCluster;
 import io.openems.edge.app.evse.AppKebaEvse;
+import io.openems.edge.app.evse.AppMennekesEvse;
 import io.openems.edge.app.evse.vehicle.AppGenericVehicle;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
@@ -803,6 +804,16 @@ public final class Apps {
 	 */
 	public static final MennekesEvcsReadOnly mennekesEvcsReadOnlyEvcs(AppManagerTestBundle t) {
 		return app(t, MennekesEvcsReadOnly::new, "App.Evcs.Mennekes.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppMennekesEvse}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppMennekesEvse mennekesEvse(AppManagerTestBundle t) {
+		return app(t, AppMennekesEvse::new, AppMennekesEvse.APP_EVSE_MENNEKES);
 	}
 
 	/**

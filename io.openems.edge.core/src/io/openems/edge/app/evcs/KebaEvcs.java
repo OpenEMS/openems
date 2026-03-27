@@ -304,7 +304,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					components.add(//
 							new EdgeConfig.Component(//
 									modbusId, //
-									TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.modbus.alias"), //
+									TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.communication.alias"), //
 									"Bridge.Modbus.Tcp", //
 									JsonUtils.buildJsonObject() //
 											.addProperty("ip", ip) //

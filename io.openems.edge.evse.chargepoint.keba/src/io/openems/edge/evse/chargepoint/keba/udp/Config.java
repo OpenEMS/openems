@@ -20,13 +20,13 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this Charge-Point is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this Charge-Point is read only.")
 	boolean readOnly() default false;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.", required = true)
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.")
 	String ip() default "192.168.25.11";
 
-	@AttributeDefinition(name = "Hardware Wiring", description = "", required = true)
+	@AttributeDefinition(name = "Hardware Wiring", description = "")
 	SingleOrThreePhase wiring() default SingleOrThreePhase.THREE_PHASE;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
