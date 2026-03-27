@@ -20,7 +20,7 @@
             <ion-accordion [value]="child.routerLink.baseString" toggleIconSlot="end"
               [toggleIcon]="child?.children?.length > 0 ? 'chevron-down-outline': ''">
               <ion-item lines="none" [slot]="'header'" (click)="child?.children?.length > 0 ? '': navigateAbsolutly(child)">
-                <ion-grid class="ion-no-padding">
+                <ion-grid class="ion-no-padding" (click)="navigateAbsolutly(child)">
                   <ion-row class="ion-no-padding">
                     <ion-col class="ion-no-padding">
                       <ion-item class="ion-no-padding">
