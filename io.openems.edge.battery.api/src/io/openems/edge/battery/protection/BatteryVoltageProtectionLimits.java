@@ -1,8 +1,11 @@
 package io.openems.edge.battery.protection;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
+
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+import io.openems.common.utils.IntUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.common.type.TypeUtils;
 
@@ -32,7 +35,7 @@ public final class BatteryVoltageProtectionLimits<T extends Battery & BatteryVol
 	 * parameters.
 	 */
 	public void updateLimits() {
-		this.updateDynamicVoltageLimits(TypeUtils::sum, true, this.battery::_setChargeMaxVoltage, Math::min,
+		this.updateDynamicVoltageLimits(IntUtils::sumInteger, true, this.battery::_setChargeMaxVoltage, Math::min,
 				((BatteryVoltageProtection) this.battery)::_setBvpChargeBms);
 		this.updateDynamicVoltageLimits(TypeUtils::subtract, false, this.battery::_setDischargeMinVoltage, Math::max,
 				((BatteryVoltageProtection) this.battery)::_setBvpDischargeBms);
@@ -89,7 +92,7 @@ public final class BatteryVoltageProtectionLimits<T extends Battery & BatteryVol
 				isCharging //
 						? this.specification.maximumChargeVoltage() //
 						: this.specification.minimumDischargeVoltage(), //
-				TypeUtils.sum(//
+				sumInteger(//
 						batteryVoltage, //
 						TypeUtils.multiply(//
 								bvpLimit, //

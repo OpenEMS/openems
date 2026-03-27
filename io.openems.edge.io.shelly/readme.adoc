@@ -7,13 +7,18 @@ Compatible with
 - https://www.shelly.com/de/products/shelly-1-gen4[Shelly 1]
 - https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5]
 - https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
+- https://www.shelly.com/de/products/shelly-3em-63w-gen3[Shelly 3EM Gen3 3-Phase-Meter (63W & 63T)]
 - https://www.shelly.com/de/products/shelly-plug-s-gen3[Shelly Plug S]
 - https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S]
-- https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM 3-Phase Meter]
+- https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM 3-Phase Meter (120A, 400A, 3CT 63)]
 - https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM]
 - https://www.shelly.com/de/products/shop/shelly-pro-3-1[Shelly Pro 3]
 - https://www.shelly.com/de/products/shelly-plus-pm-mini[Shelly Plus PM Mini Gen2]
 - https://www.shelly.com/de/products/shelly-pm-mini-gen3[Shelly Plus PM Mini Gen3]
+- https://www.shelly.com/de/products/shelly-pro-1pm[Shelly Pro 1PM]
+- https://www.shelly.com/de/products/shelly-pro-2pm[Shelly Pro 2PM]
+- https://www.shelly.com/de/products/shelly-pro-4pm[Shelly Pro 4PM]
+-
 
 NOTE: Connecting to devices having a password set in their UI is currently not supported.
 

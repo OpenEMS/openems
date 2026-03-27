@@ -4,6 +4,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.bui
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -32,7 +33,6 @@ import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.GridBuySoftLimit;
@@ -145,7 +145,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
-		this.energyScheduleHandler.triggerReschedule("TimeOfUseTariffControllerImpl::modified()");
+		this.energyScheduleHandler.triggerReschedule("TimeOfUseTariffControllerImpl::modified()",
+				OPTIMIZE_CURRENT_PERIOD);
 	}
 
 	private synchronized void applyConfig(Config config) {
@@ -162,8 +163,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	protected void deactivate() {
 		super.deactivate();
 	}
-
-	private final PidFilter pidFilter = new PidFilter();
 
 	@Override
 	public void run() throws OpenemsNamedException {
@@ -233,15 +232,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this._setQuarterlyPrices(this.timeOfUseTariff.getPrices().getFirst());
 
 		// Apply ActivePower set-point
-		if (am.setPoint() != null) {
-			if (am.setPoint() == 0) {
-				// No need to react on lazy behavior of a meter as the target is always the same
-				// (At the same time it would cause problems for lazy inverters)
-				this.ess.setActivePowerEquals(am.setPoint());
-			} else {
-				ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
-			}
-		}
+		this.ess.setActivePowerEqualsWithFilter(am.setPoint());
 	}
 
 	@Override

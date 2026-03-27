@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "Standort",
+        "SYSTEM_LOCATION": "Speicherstandort",
+        "VALIDATED": "Validiert",
+        "NOT_VALIDATED": "Bitte validiere den Speicherstandort",
+        "TO_VALIDATION": "Zur Validierung",
+        "EDIT": "Bearbeiten",
+        "EDIT_CARD_TITLE": "Standortvalidierung des Speichers",
+        "EDIT_CARD_SUBTITLE": "Für Service und Garantiezwecke werden Standortangaben validiert.",
+        "EDIT_CARD_INFO": "Für die Standortvalidierung deines Speichers wird nur der Längen- und Breitengrad gespeichert.",
+        "LONGITUDE": "Längengrad",
+        "LATITUDE": "Breitengrad",
+        "ADRESS_IS_VALIDATED": "Standort ist bereits validiert.",
+        "SUCCESSFULL_VALIDATION": "Erfolgreich validiert!"
+    }
+}

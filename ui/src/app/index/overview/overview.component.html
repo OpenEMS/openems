@@ -19,9 +19,9 @@
                   </ion-card-content>
                 } @else {
                   <ion-item color="warning" lines="full">
-                    <ion-icon slot="start" name="oe-error"></ion-icon>
-                    <ion-label class="ion-text-wrap ion-text-center"
-                      [translateParams]="{edgeShortName: environment.edgeShortName}">{{"INDEX.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
+                    <ion-icon slot="start" name="alert-circle-outline"></ion-icon>
+                    <ion-label
+                      class="ion-text-wrap ion-text-center">{{"INDEX.NO_EDGE_FOR_USER" | translate: {edgeShortName: environment.edgeShortName} }}</ion-label>
                   </ion-item>
                   <ion-card-content class="ion-text-center">
                     <p translate [translateParams]="{edgeShortName: environment.edgeShortName}">
@@ -50,12 +50,12 @@
               <ion-row class="ion-justify-content-center">
                 <ion-col>
                   <ion-list lines="full">
-                    @if (loading) {
+                    @if (loading()) {
                       <ion-item lines="none">
                         <ion-spinner [name]="'crescent'"></ion-spinner>
                       </ion-item>
                     }
-                    @for (edge of filteredEdges; track edge; let i = $index) {
+                    @for (edge of filteredEdges; track edge.id; let i = $index) {
                       <ion-item lines="inset" [routerLink]="['/device', edge.id]"
                         [color]="edge.isOnline ? null : 'light'" (click)="getAndSubscribeEdge(edge)">
                         <ion-label>

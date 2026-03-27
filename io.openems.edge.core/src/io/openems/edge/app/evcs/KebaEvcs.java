@@ -1,12 +1,12 @@
 package io.openems.edge.app.evcs;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -32,6 +32,7 @@ import io.openems.edge.app.evcs.KebaEvcs.Property;
 import io.openems.edge.app.evse.AppEvseCluster;
 import io.openems.edge.app.evse.EvseProps;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
@@ -61,6 +62,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags.SwitchFlag;
 import io.openems.edge.core.appmanager.formly.Exp;
+import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
 
@@ -98,11 +100,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		ALIAS(alias()), //
 
 		ARCHITECTURE_TYPE(EvcsProps.architectureType(EVCS_ID)), //
-		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)//
-				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
-				})), //
+		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)), //
 		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
 				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
@@ -117,10 +115,21 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					field.onlyShowIf(hardwareType.or(architectureType));
 				}))), //
 
-		READ_ONLY(EvcsProps.readOnly().wrapField((app, property, l, parameter, field) -> {
-			field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-					.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
-		})), //
+		READ_ONLY(EvcsProps.readOnly()//
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
+				})), //
+		HAS_S10_PHASE_SWITCHING(AppDef.copyOfGeneric(defaultDef())//
+				.setTranslatedLabel("App.Evse.Keba.s10phaseswitch.label") //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					final var hardwareType = Exp.currentModelValue(HARDWARE_TYPE)//
+							.equal(Exp.staticValue(KebaHardwareType.P30));
+					final var architectureType = Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE));
+					field.onlyShowIf(hardwareType.and(architectureType));
+				})//
+				.setDefaultValue(false)),
 		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
 				.setRequired(true) //
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
@@ -139,8 +148,22 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID))
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
-							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
+					final var existingEvcs = EvcsProps.getEvcsComponents(app.getComponentUtil());
+					if (existingEvcs.isEmpty()) {
+						return;
+					}
+
+					final var evcsExistsExpression = existingEvcs.stream().map(OpenemsComponent::id) //
+							.map(Exp::staticValue) //
+							.collect(Exp.toArrayExpression()) //
+							.every(v -> v.notEqual(Exp.currentModelValue(EVCS_ID)));
+
+					final var isEvcsExpression = Exp.currentModelValue(ARCHITECTURE_TYPE)//
+							.equal(Exp.staticValue(EMobilityArchitectureType.EVCS));
+
+					final var expression = evcsExistsExpression.and(isEvcsExpression);
+
+					field.onlyShowIf(expression);
 				})), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		// Properties for P40 app
@@ -263,33 +286,45 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				}
 			}
 			case EVSE -> {
-				// Modbus Component
-				var modbusId = this.getId(t, p, Property.MODBUS_ID);
-				var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 				var wiring = this.getEnum(p, SingleOrThreePhase.class, Property.WIRING);
-				var vehicleId = UUID.fromString(this.getString(p, Property.ELECTRIC_VEHICLE_ID));
-				components.add(//
-						new EdgeConfig.Component(//
-								modbusId, //
-								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.modbus.alias"), //
-								"Bridge.Modbus.Tcp", //
-								JsonUtils.buildJsonObject() //
-										.addProperty("ip", ip) //
-										.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("port", 502)) //
-										.build() //
-				));
-				components.add(//
-						new EdgeConfig.Component(//
-								evcsId, //
-								alias, //
-								"Evse.ChargePoint.Keba.Modbus", //
-								JsonUtils.buildJsonObject() //
-										.addProperty("modbus.id", modbusId)//
-										.addProperty("wiring", wiring) //
-										.addProperty("phaseRotation", phaseRotation) //
-										.addProperty("modbusUnitId", modbusUnitId) //
-										.build()));
-
+				switch (hardwareType) {
+				case P30 -> {
+					var p30hasS10PhaseSwitching = this.getBoolean(p, Property.HAS_S10_PHASE_SWITCHING);
+					components.add(new EdgeConfig.Component(evcsId, alias, "Evse.ChargePoint.Keba.UDP",
+							JsonUtils.buildJsonObject().addProperty("ip", ip)//
+									.addProperty("wiring", wiring) //
+									.addProperty("phaseRotation", phaseRotation) //
+									.addProperty("p30hasS10PhaseSwitching", p30hasS10PhaseSwitching) //
+									.build())); //
+				}
+				case P40 -> {
+					// Modbus Component
+					var modbusId = this.getId(t, p, Property.MODBUS_ID);
+					var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
+					components.add(//
+							new EdgeConfig.Component(//
+									modbusId, //
+									TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.modbus.alias"), //
+									"Bridge.Modbus.Tcp", //
+									JsonUtils.buildJsonObject() //
+											.addProperty("ip", ip) //
+											.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("port", 502)) //
+											.build() //
+					));
+					components.add(//
+							new EdgeConfig.Component(//
+									evcsId, //
+									alias, //
+									"Evse.ChargePoint.Keba.Modbus", //
+									JsonUtils.buildJsonObject() //
+											.addProperty("modbus.id", modbusId)//
+											.addProperty("wiring", wiring) //
+											.addProperty("phaseRotation", phaseRotation) //
+											.addProperty("modbusUnitId", modbusUnitId) //
+											.build()));
+				}
+				}
+				var vehicleId = this.getUuid(p, Property.ELECTRIC_VEHICLE_ID);
 				var instance = this.appManagerUtil.findInstanceById(vehicleId);
 				var vehicleComponentId = "";
 				if (instance.isPresent()) {

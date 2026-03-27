@@ -106,6 +106,20 @@ public class Types {
 		}
 
 		/**
+		 * Stream all entries as {@link Map.Entry} with active power greater than 0 and isReadyForCharging = true.
+		 *
+		 * @return {@link Stream} of {@link Map.Entry}s with Instant keys and Entry values
+		 */
+		public synchronized Stream<Map.Entry<Instant, Entry>> streamAllWithActivePowerAndReadyForCharging() {
+			if (this.entries.isEmpty()) {
+				return Stream.empty();
+			}
+			return this.entries.entrySet().stream()
+					.filter(e -> e.getValue().activePower != null && e.getValue().activePower > 0)
+					.filter(e -> e.getValue().isReadyForCharging);
+		}
+
+		/**
 		 * True if all Entries are populated.
 		 * 
 		 * @return true or false

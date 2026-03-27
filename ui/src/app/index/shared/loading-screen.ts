@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, effect } from "@angular/core";
 
-import { AppStateTracker } from "src/app/shared/ngrx-store/states";
+import { AppStateTracker } from "src/app/shared/ngrx-store/app-state-tracker";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { Environment, environment } from "src/environments";
 import { Service, Websocket } from "../../shared/shared";
@@ -24,7 +24,7 @@ export class LoadingScreenComponent {
     ) {
 
         effect(() => {
-            this.backendState = this.appStateTracker.loadingState();
+            this.backendState = appStateTracker.loadingState();
             switch (this.backendState) {
                 case "loading":
                     this.service.startSpinner(this.spinnerId);

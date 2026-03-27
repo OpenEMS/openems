@@ -5,7 +5,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { GridOptimizedChargeChartComponent } from "./chart/chart";
 import { SellToGridLimitChartComponent } from "./chart/sellToGridLimitChart.component";
 import { FlatComponent } from "./flat/flat";
-import { OverviewComponent } from "./overview/overview";
+import { ControllerEssGridOptimizedChargeOverviewComponent as ControllerEssGridoptimizedChargeOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -14,13 +14,13 @@ import { OverviewComponent } from "./overview/overview";
     ],
     declarations: [
         FlatComponent,
-        OverviewComponent,
+        ControllerEssGridoptimizedChargeOverviewComponent,
         GridOptimizedChargeChartComponent,
         SellToGridLimitChartComponent,
     ],
     exports: [
         FlatComponent,
-        OverviewComponent,
+        ControllerEssGridoptimizedChargeOverviewComponent,
         GridOptimizedChargeChartComponent,
         SellToGridLimitChartComponent,
     ],

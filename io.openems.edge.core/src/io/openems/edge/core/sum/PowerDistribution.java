@@ -1,5 +1,6 @@
 package io.openems.edge.core.sum;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -74,12 +75,12 @@ public record PowerDistribution(//
 
 	protected void updateChannels(SumImpl sum) {
 		// Power
-		sum.channel(Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_POWER).setNextValue(this.productionToConsumption);
-		sum.channel(Sum.ChannelId.PRODUCTION_TO_GRID_POWER).setNextValue(this.productionToGrid);
-		sum.channel(Sum.ChannelId.PRODUCTION_TO_ESS_POWER).setNextValue(this.productionToEss);
-		sum.channel(Sum.ChannelId.GRID_TO_CONSUMPTION_POWER).setNextValue(this.gridToConsumption);
-		sum.channel(Sum.ChannelId.ESS_TO_CONSUMPTION_POWER).setNextValue(this.essToConsumption);
-		sum.channel(Sum.ChannelId.GRID_TO_ESS_POWER).setNextValue(this.gridToEss);
+		setValue(sum, Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_POWER, this.productionToConsumption);
+		setValue(sum, Sum.ChannelId.PRODUCTION_TO_GRID_POWER, this.productionToGrid);
+		setValue(sum, Sum.ChannelId.PRODUCTION_TO_ESS_POWER, this.productionToEss);
+		setValue(sum, Sum.ChannelId.GRID_TO_CONSUMPTION_POWER, this.gridToConsumption);
+		setValue(sum, Sum.ChannelId.ESS_TO_CONSUMPTION_POWER, this.essToConsumption);
+		setValue(sum, Sum.ChannelId.GRID_TO_ESS_POWER, this.gridToEss);
 
 		// Energy
 		sum.calculateProductionToConsumptionEnergy.update(this.productionToConsumption);

@@ -33,7 +33,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -129,13 +128,26 @@ public class EssClusterImpl extends AbstractOpenemsComponent implements EssClust
 
 	@Override
 	public int getPowerPrecision() {
-		Integer result = null;
-		for (var ess : this.esss) {
-			if (ess instanceof ManagedSymmetricEss ase) {
-				result = TypeUtils.min(result, ase.getPowerPrecision());
-			}
-		}
-		return TypeUtils.orElse(result, 1);
+		return calculateMinPowerPrecision(this.esss);
+	}
+
+	/**
+	 * Calculates the minimum PowerPrecision of all ESS in the Cluster.
+	 * 
+	 * <p>
+	 * If there are no ESS or if no ESS has a PowerPrecision, the default value of 1
+	 * is returned.
+	 * 
+	 * @param esss a List of ESS
+	 * @return minimum PowerPrecision
+	 */
+	protected static int calculateMinPowerPrecision(List<SymmetricEss> esss) {
+		return Math.max(1, esss.stream() //
+				.filter(ManagedSymmetricEss.class::isInstance) //
+				.map(ManagedSymmetricEss.class::cast) //
+				.mapToInt(ManagedSymmetricEss::getPowerPrecision) //
+				.min() //
+				.orElse(1));
 	}
 
 	@Override

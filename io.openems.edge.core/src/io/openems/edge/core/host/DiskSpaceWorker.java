@@ -17,7 +17,7 @@ import io.openems.common.worker.AbstractWorker;
 public class DiskSpaceWorker extends AbstractWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
-	private static final long MINIMUM_FREE_DISK_SPACE = 50 /* MB */ * 1024 /* kB */ * 1024 /* bytes */; // in bytes
+	private static final long MINIMUM_FREE_DISK_SPACE = 100 /* MB */ * 1024 /* kB */ * 1024 /* bytes */; // in bytes
 
 	private final Logger log = LoggerFactory.getLogger(DiskSpaceWorker.class);
 

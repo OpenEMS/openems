@@ -22,7 +22,7 @@ public class PreActivationHandler extends StateHandler<State, Context> {
 		if (this.isActivationTime(context)) {
 			return State.ACTIVATION_TIME;
 		} else {
-			ess.setActivePowerEquals(minPowerEss);
+			ess.setActivePowerEqualsWithoutFilter(minPowerEss);
 			return State.PRE_ACTIVATION_STATE;
 		}
 	}

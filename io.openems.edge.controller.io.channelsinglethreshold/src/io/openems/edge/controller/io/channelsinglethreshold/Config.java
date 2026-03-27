@@ -38,5 +38,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour is inverted, i.e. the output is switched OFF if the value of the input channel is below the configured threshold")
 	boolean invert() default false;
 
+	@AttributeDefinition(name = "Fallback output on undefined input", description = "Output value when the input channel has no value (e.g. data source unavailable). Default: false (OFF).")
+	boolean fallbackOutput() default false;
+
 	String webconsole_configurationFactory_nameHint() default "Controller IO Channel Single Threshold [{id}]";
 }

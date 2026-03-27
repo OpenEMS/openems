@@ -1,7 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -14,7 +14,10 @@ export namespace SharedConsumption {
     export function getNavigationTree(edge: Edge, config: EdgeConfig, translate: TranslateService): ConstructorParameters<typeof NavigationTree> | null {
         const evcss: EvcsComponent[] = EvcsComponent.getComponents(config, edge);
         const consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+            .filter(component => component.isEnabled
+                && config.isTypeConsumptionMetered(component)
+                && evcss.every(evcs => component.id !== evcs.id));
+
         const heatComponents = config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(component =>
                 !(component.factoryId === "Controller.Heat.Heatingelement") &&
@@ -23,7 +26,7 @@ export namespace SharedConsumption {
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
         return new NavigationTree("consumption", { baseString: "common/consumption" }, { name: "oe-consumption", color: "warning" }, translate.instant("GENERAL.CONSUMPTION"), "label", [
-            new NavigationTree("details", { baseString: "details" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", [], null),
+            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning"),
             getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
         ], null).toConstructorParams();
     }
@@ -36,7 +39,7 @@ export namespace SharedConsumption {
 
     function getHistorySingleComponentNavigationTree(edge: Edge, sum: EdgeConfig.Component, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[], translate: TranslateService): NavigationTree[] {
         return [
-            new NavigationTree(sum.id + "/details", { baseString: sum.id + "/details" }, { name: "stats-chart-outline", color: "warning" }, sum.alias, "label", [], null),
+            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/details", "warning"),
             ...[...evcsComponents, ...heatComponents, ...consumptionMeterComponents].map(el => (
                 new NavigationTree(el.id + "/details", { baseString: el.id + "/details" }, { name: "stats-chart-outline", color: "warning" }, el.alias, "label", [
                     ...(edge.roleIsAtLeast(Role.INSTALLER) ?
@@ -270,4 +273,3 @@ export namespace SharedConsumption {
         };
     }
 }
-
