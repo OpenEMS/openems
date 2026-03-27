@@ -1,33 +1,31 @@
 package io.openems.edge.evse.chargepoint.bender;
 
-import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
-import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static io.openems.edge.common.type.Phase.SinglePhase.L2;
 import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 import static io.openems.edge.meter.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.OpenemsType;
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
-import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, EvseChargePointBender {
+
+	private static final SemanticVersion OUTDATED_VERSION = new SemanticVersion(1, 5, 0);
 
 	protected AbstractEvseChargePointBender(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
@@ -104,13 +102,13 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	}
 
 	/**
-	 * Calculates if ev is connected from ocpp state.
+	 * Calculates if ev is connected from the {@link VehicleState}.
 	 * 
 	 * @return is the vehicle connected
 	 */
 	public boolean isEvConnected() {
 		var rawState = this.getVehicleState();
-		return interpreteState(rawState);
+		return rawState.isEvConnected();
 	}
 
 	/**
@@ -120,46 +118,44 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	 */
 	public boolean isReadyForCharging() {
 		var rawState = this.getVehicleState();
-		return interpreteState(rawState);
-	}
-
-	protected static boolean interpreteState(VehicleState rawState) {
-		return switch (rawState) {
-		case STATE_C, STATE_D, STATE_B -> true;
-		case STATE_A, STATE_E, UNDEFINED -> false;
-		};
+		return rawState.isReadyForCharging();
 	}
 
 	/**
-	 * Tries to read the SoftwareVersion and tries to parse it. If Software is not
-	 * outdated appends read tasks to modbus protocol.
-	 * 
-	 * @throws OpenemsException on error
+	 * Helper Method that handles a Softwareversion check. Sets
+	 * {@link EvseChargePoint.ChannelId.FIRMWARE_OUTDATED}
+	 *
 	 */
-	public void handleSoftwareVersion() throws OpenemsException {
-		readElementsOnce(FC3, this.getModbusProtocol(), ModbusUtils::retryOnNull, new UnsignedWordElement(153),
-				new UnsignedWordElement(154), new UnsignedWordElement(155)).thenAccept(t -> {
-					var result = t.values();
-					var firmwareVersion = parseFirmwareVersion(result);
-
-					setValue(this, EvseChargePointBender.ChannelId.FIRMWARE_VERSION, firmwareVersion.toString());
-					final var outdated = !firmwareVersion.isAtLeast(SemanticVersion.fromString("1.5.21"));
-					setValue(this, EvseChargePointBender.ChannelId.FIRMWARE_OUTDATED, outdated);
-				});
+	public void updateSoftwareVersionOutdated() {
+		setValue(this, EvseChargePointBender.ChannelId.FIRMWARE_OUTDATED, isSoftwareOutdated(//
+				this::getSoftwareVersionMajor, //
+				this::getSoftwareVersionMinor, //
+				this::getSoftwareVersionPatch, //
+				this));
 	}
 
-	protected static SemanticVersion parseFirmwareVersion(List<Integer> result) {
-		if (result.size() != 3) {
-			return SemanticVersion.ZERO;
-		}
-		Integer major = TypeUtils.getAsType(OpenemsType.INTEGER, result.get(0));
-		Integer minor = TypeUtils.getAsType(OpenemsType.INTEGER, result.get(1));
-		Integer patch = TypeUtils.getAsType(OpenemsType.INTEGER, result.get(2));
-		if (major == null || minor == null || patch == null) {
-			return SemanticVersion.ZERO;
-		}
-
-		return new SemanticVersion(major, minor, patch, "");
+	/**
+	 * Checks if the Software Version provided by Suppliers is Outdated.
+	 *
+	 * @param valMajor {@link Supplier} for major Software Version
+	 * @param valMinor {@link Supplier} for minor Software Version
+	 * @param valPatch {@link Supplier} for patch Software Version
+	 * @param cp       the {@link AbstractEvseChargePointBender}
+	 * @return is software outdated
+	 */
+	public static boolean isSoftwareOutdated(Supplier<Value<Integer>> valMajor, Supplier<Value<Integer>> valMinor,
+			Supplier<Value<Integer>> valPatch, AbstractEvseChargePointBender cp) {
+		final var result = new AtomicBoolean(false);
+		valMajor.get().ifPresent(major -> {
+			valMinor.get().ifPresent(minor -> {
+				valPatch.get().ifPresent(patch -> {
+					var version = new SemanticVersion(major, minor, patch);
+					setValue(cp, EvseChargePointBender.ChannelId.FIRMWARE_VERSION, version.toString());
+					result.set(!version.isAtLeast(OUTDATED_VERSION));
+				});
+			});
+		});
+		return result.get();
 	}
 
 }

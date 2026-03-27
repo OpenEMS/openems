@@ -120,8 +120,6 @@ public class EvcsMennekesImpl extends AbstractMennekes
 		 */
 		Evcs.addCalculatePowerLimitListeners(this);
 		this.applyConfig(config);
-
-		this.handleSoftwareVersion();
 	}
 
 	@Modified

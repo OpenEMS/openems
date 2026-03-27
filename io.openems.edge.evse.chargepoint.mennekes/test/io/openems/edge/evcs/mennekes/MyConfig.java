@@ -2,8 +2,6 @@ package io.openems.edge.evcs.mennekes;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.type.Phase.SingleOrThreePhase;
-import io.openems.edge.evse.chargepoint.mennekes.common.LogVerbosity;
 import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")

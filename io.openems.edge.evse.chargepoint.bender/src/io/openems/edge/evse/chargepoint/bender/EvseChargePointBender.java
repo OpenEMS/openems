@@ -13,6 +13,7 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface EvseChargePointBender extends OpenemsComponent {
@@ -21,7 +22,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 
 		FIRMWARE_VERSION(Doc.of(STRING)//
 				.unit(NONE)//
-				.persistencePriority(HIGH) //
+				.persistencePriority(HIGH)//
 				.text("Readable Firmware Version")),
 		FIRMWARE_OUTDATED(Doc.of(Level.INFO)//
 				.translationKey(EvseChargePointBender.class, "firmwareOutdated")),
@@ -72,7 +73,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 		ERR_NO_POWER(Doc.of(Level.WARNING)//
 				.translationKey(EvseChargePointBender.class, "errNoPower")), //
 		VEHICLE_STATE(Doc.of(VehicleState.values())//
-				.initialValue(VehicleState.UNDEFINED) //
+				.initialValue(VehicleState.UNDEFINED)//
 				.persistencePriority(HIGH)), //
 		SAFE_CURRENT(Doc.of(FLOAT)//
 				.unit(AMPERE)), //
@@ -82,14 +83,17 @@ public interface EvseChargePointBender extends OpenemsComponent {
 				.unit(AMPERE)), //
 		CHARGE_DURATION(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
-		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)), //
-		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)), //
-		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)), //
+		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)//
+				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)//
+				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)//
+				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
 		SOFTWARE_VERSION_BUILD(Doc.of(INTEGER)), //
 		MAX_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), // , //
+				.persistencePriority(HIGH)), //
 		MIN_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), // , //
+				.persistencePriority(HIGH)), //
 		;
 
 		private final Doc doc;
@@ -129,7 +133,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 * @return the Value as {@link OcppState}
 	 */
 	public default OcppState getOcppStatus() {
-		return this.getOcppStatusChannel().getNextValue().asEnum();
+		return this.getOcppStatusChannel().value().asEnum();
 	}
 
 	/**
@@ -147,7 +151,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 * @return the Value as {@link OcppState}
 	 */
 	public default VehicleState getVehicleState() {
-		return this.getVehicleStatusChannel().getNextValue().asEnum();
+		return this.getVehicleStatusChannel().value().asEnum();
 	}
 
 	/**
@@ -165,7 +169,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 * @return the Value
 	 */
 	public default Integer getMaxCurrent() {
-		return this.getMaxCurrentChannel().getNextValue().orElse(null);
+		return this.getMaxCurrentChannel().value().orElse(null);
 	}
 
 	/**
@@ -183,7 +187,61 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 * @return the Value
 	 */
 	public default Integer getMinCurrent() {
-		return this.getMinCurrentChannel().getNextValue().orElse(null);
+		return this.getMinCurrentChannel().value().orElse(null);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOFTWARE_VERSION_MINOR}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSoftwareVersionMinorChannel() {
+		return this.channel(ChannelId.SOFTWARE_VERSION_MINOR);
+	}
+
+	/**
+	 * Gets the Value for {@link ChannelId#SOFTWARE_VERSION_MINOR}.
+	 * 
+	 * @return the Value
+	 */
+	public default Value<Integer> getSoftwareVersionMinor() {
+		return this.getSoftwareVersionMinorChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOFTWARE_VERSION_MAJOR}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSoftwareVersionMajorChannel() {
+		return this.channel(ChannelId.SOFTWARE_VERSION_MAJOR);
+	}
+
+	/**
+	 * Gets the Value for {@link ChannelId#SOFTWARE_VERSION_MAJOR}.
+	 * 
+	 * @return the Value
+	 */
+	public default Value<Integer> getSoftwareVersionMajor() {
+		return this.getSoftwareVersionMajorChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#SOFTWARE_VERSION_PATCH}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getSoftwareVersionPatchChannel() {
+		return this.channel(ChannelId.SOFTWARE_VERSION_PATCH);
+	}
+
+	/**
+	 * Gets the Value for {@link ChannelId#SOFTWARE_VERSION_PATCH}.
+	 * 
+	 * @return the Value
+	 */
+	public default Value<Integer> getSoftwareVersionPatch() {
+		return this.getSoftwareVersionPatchChannel().value();
 	}
 
 }

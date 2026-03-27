@@ -102,7 +102,6 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 			return;
 		}
 
-		this.handleSoftwareVersion();
 	}
 
 	@Modified
