@@ -16,7 +16,7 @@ import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-servi
 import { ChannelAddress, EdgeConfig, Logger, Service } from "src/app/shared/shared";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 
@@ -127,7 +127,6 @@ export class ChartComponent extends AbstractHistoryChart {
 
         return Object.entries(this.evcss)
             .map(([_key, component]) => {
-                console.log("component", component, this.evcss);
                 return Name.METER_ALIAS_OR_ID(component);
             });
     }

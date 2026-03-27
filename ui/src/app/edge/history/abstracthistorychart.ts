@@ -12,7 +12,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 

@@ -73,4 +73,22 @@ export class ObjectUtils {
         }
         return result;
     }
+
+    /**
+     * Parses a object from string.
+     *
+     * @param inputStr the string to convert into an object
+     * @returns
+     */
+    public static parseFromString<T extends Record<string, unknown>>(inputStr: string | null): T | null {
+        if (inputStr == null) {
+            return null;
+        }
+
+        try {
+            return JSON.parse(inputStr);
+        } catch {
+            return null;
+        }
+    }
 }

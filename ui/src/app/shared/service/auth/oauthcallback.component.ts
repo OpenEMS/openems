@@ -37,6 +37,7 @@ import { OAuthService } from "./oauth.service";
 })
 export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
 
+    public static readonly OAUTH_CALLBACK: string = "oauthcallback";
     protected spinnerId: string = uuidv4();
     private oauthService: OAuthService = inject(OAuthService);
 

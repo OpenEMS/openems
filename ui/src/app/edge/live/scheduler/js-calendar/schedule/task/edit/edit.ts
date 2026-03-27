@@ -56,8 +56,7 @@ export class SchedulerJsCalendarEditTaskComponent extends JsCalendarEditTaskComp
     }
 
 
-    public override async ionViewWillEnter(): Promise<void> {
-        await super.ionViewWillEnter();
+    public ionViewWillEnter() {
         this.controllerOptions = SharedSchedulerJsCalendar.getControllerOptions(this.service);
     }
 

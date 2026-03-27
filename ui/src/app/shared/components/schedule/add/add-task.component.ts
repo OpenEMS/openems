@@ -1,4 +1,5 @@
-import { Component, model } from "@angular/core";
+import { Location } from "@angular/common";
+import { Component, inject, model } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -27,6 +28,7 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
     public startTime = model<string | null>(null);
     public endTime = model<string | null>(null);
     public recurrenceRuleByDay = model<JsCalendar.Task["recurrenceRules"][number] | null>(null);
+    private location: Location = inject(Location);
 
     protected override updateComponent(config: EdgeConfig): void {
         const componentId = this.routeService.getRouteParam<string>("componentId");
@@ -55,7 +57,7 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
         const recurrenceRuleByDay = this.recurrenceRuleByDay();
         const localDateTime = JsCalendar.Utils.formatIsoLocalDateTime(startDate);
 
-        if (localDateTime == null) {
+        if (localDateTime == null || recurrenceRuleByDay == null) {
             return;
         }
 
@@ -85,6 +87,7 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
 
         this.service.toast(this.translate.instant("JS_SCHEDULE.ADD_SUCCESS"), "success");
         this.resetFields();
+        this.location.back();
     }
 
     private validateInputs(): boolean {

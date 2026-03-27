@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
 
 @Component({

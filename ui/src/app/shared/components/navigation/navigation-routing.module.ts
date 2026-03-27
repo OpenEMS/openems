@@ -46,7 +46,7 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
     { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
     { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
-    { path: "evse/:componentId/schedule/task/:taskId", component: EvseEditTaskComponent },
+    { path: "evse/:componentId/schedule/edit-task", component: EvseEditTaskComponent },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
     { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
     { path: "navigation-info", component: NavigationInfoComponent },
@@ -83,7 +83,7 @@ export const newNavigationRoutes: Routes = [
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
-    { path: ":componentId/scheduler-js-calendar/schedule/task/:taskId", component: SchedulerJsCalendarEditTaskComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/edit-task", component: SchedulerJsCalendarEditTaskComponent },
     ...history(true),
 ];
 

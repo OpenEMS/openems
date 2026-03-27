@@ -6,7 +6,7 @@ import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/resp
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { HistoryUtils } from "src/app/shared/utils/utils";
 
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";

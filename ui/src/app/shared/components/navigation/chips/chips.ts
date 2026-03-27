@@ -31,7 +31,7 @@ export class NavigationChipsComponent {
         effect(() => {
             const currentNode = navigationService.currentNode();
 
-            this.children = currentNode?.getChildren() ?? [];
+            this.children = this.filterVisibleNodes(currentNode?.getChildren() ?? []);
             this.currentUrl = currentNode?.routerLink.baseString.split("/").reduce((acc: string[], curr) => {
                 const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
                 acc.push(path);
@@ -39,8 +39,27 @@ export class NavigationChipsComponent {
             }, []) ?? [];
             this.isVisible = this.children.length > 0;
         });
-        const absoluteNavigationTree = NavigationTree.of(NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationService.navigationTree())));
-        this.absoluteChildren = absoluteNavigationTree?.getChildren() ?? [];
+
+        effect(() => {
+            const navigationTree = this.navigationService.navigationTree();
+            const absoluteNavigationTree = NavigationTree.of(NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)));
+            this.absoluteChildren = this.filterVisibleNodes(absoluteNavigationTree?.getChildren() ?? []);
+        });
+    }
+
+    /**
+     * Filters out the nodes to hide in navigation.
+     *
+     * @param nodes the navigation tree nodes
+     * @returns the adjusted nodes
+     */
+    public filterVisibleNodes(nodes: NavigationTree[]): NavigationTree[] {
+        return nodes
+            .filter(node => node.showOrder !== "HIDE") // keep only visible nodes
+            .map(node => ({
+                ...node,
+                children: node.children ? this.filterVisibleNodes(node.children) : [],
+            })) as NavigationTree[];
     }
 
     /**
@@ -56,10 +75,10 @@ export class NavigationChipsComponent {
 
     /**
      * Navigates absolutely to passed link.
-     *
-     * @param link the link segment to navigate to
-     * @returns
-     */
+    *
+    * @param link the link segment to navigate to
+    * @returns
+    */
     public async navigateAbsolutly(node: NavigationTree): Promise<void> {
         this.navigateAbsolute.emit(node);
         this.layoutRefresh.request(500);
@@ -67,10 +86,10 @@ export class NavigationChipsComponent {
 
     /**
      * Navigates absolutely to passed link.
-     *
-     * @param link the link segment to navigate to
-     * @returns
-     */
+    *
+    * @param link the link segment to navigate to
+    * @returns
+    */
     public async navigateToRoot(): Promise<void> {
         const node = this.navigationService.navigationTree();
         this.navigateAbsolute.emit(node);

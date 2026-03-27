@@ -27,7 +27,7 @@ import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
