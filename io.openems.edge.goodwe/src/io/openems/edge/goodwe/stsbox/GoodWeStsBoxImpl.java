@@ -2,7 +2,7 @@ package io.openems.edge.goodwe.stsbox;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.common.utils.StringUtils.isNullOrEmpty;
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
@@ -130,9 +130,7 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(47748, 47755),
 						m(GoodWeStsBox.ChannelId.OPEN_VOLTAGE, new UnsignedWordElement(47756)),
 						m(GoodWeStsBox.ChannelId.CLOSED_VOLTAGE, new UnsignedWordElement(47757)),
-						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758),
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_1,
-										ElementToChannelConverter.MULTIPLY(60))),
+						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758)),
 						m(GoodWeStsBox.ChannelId.GENSET_RATED_POWER, new UnsignedWordElement(47759),
 								ElementToChannelConverter.SCALE_FACTOR_1)),
 
@@ -160,9 +158,7 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 						new DummyRegisterElement(47748, 47755),
 						m(GoodWeStsBox.ChannelId.OPEN_VOLTAGE, new UnsignedWordElement(47756)),
 						m(GoodWeStsBox.ChannelId.CLOSED_VOLTAGE, new UnsignedWordElement(47757)),
-						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758),
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_1,
-										ElementToChannelConverter.MULTIPLY(60))),
+						m(GoodWeStsBox.ChannelId.GENSET_RUN_TIME, new UnsignedWordElement(47758)),
 						m(GoodWeStsBox.ChannelId.GENSET_RATED_POWER, new UnsignedWordElement(47759),
 								ElementToChannelConverter.SCALE_FACTOR_1)) //
 		);
@@ -185,8 +181,17 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 
 		// configureChannelsFromConfigValues
 		if (this.config.portMultiplexingMode() != MultiplexingMode.UNDEFINED) {
-			setValue(this, GoodWeStsBox.ChannelId.PORT_MUTLIPLEXING_MODE, this.config.portMultiplexingMode());
+			setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.PORT_MUTLIPLEXING_MODE), //
+					this.config.portMultiplexingMode());
 		}
+
+		final var gensetInstalled = this.genset == null //
+				? GensetInstalledStatus.NOT_INSTALLED //
+				: GensetInstalledStatus.INSTALLED;
+
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_START_MODE_SELECTION), //
+				gensetInstalled);
+
 		switch (this.config.portMultiplexingMode()) {
 		case UNDEFINED, BACKUP, LARGE_LOAD //
 			-> doNothing();
@@ -196,21 +201,27 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void configureChannelsForGensetMode() throws OpenemsNamedException {
-		final var gensetInstalled = this.genset == null //
-				? GensetInstalledStatus.NOT_INSTALLED
-				: GensetInstalledStatus.INSTALLED;
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_START_MODE_SELECTION, gensetInstalled);
-		setValue(this, GoodWeStsBox.ChannelId.PORT_MUTLIPLEXING_MODE, this.config.portMultiplexingMode());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_RATED_POWER, this.config.ratedPower());
-		setValue(this, GoodWeStsBox.ChannelId.DELAY_BEFORE_LOAD, this.config.preheatingTime());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_RUN_TIME, this.config.runtime());
-		setValue(this, GoodWeStsBox.ChannelId.ONE_CLICK_ENABLE, this.config.enableCharge());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_CHARGE_LIMIT, this.config.maxPowerPercent());
-		setValue(this, GoodWeStsBox.ChannelId.OPEN_VOLTAGE, this.config.chargeSocStart());
-		setValue(this, GoodWeStsBox.ChannelId.CLOSED_VOLTAGE, this.config.chargeSocEnd());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_LOWER_VOLTAGE_LIMIT, this.config.voltageLowerLimit());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_UPPER_VOLTAGE_LIMIT, this.config.voltageUpperLimit());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_UPPER_FREQUENCY_LIMIT, this.config.frequencyUpperLimit());
-		setValue(this, GoodWeStsBox.ChannelId.GENSET_LOWER_FREQUENCY_LIMIT, this.config.frequencyLowerLimit());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_RATED_POWER), //
+				this.config.ratedPower());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.DELAY_BEFORE_LOAD), //
+				this.config.preheatingTime());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_RUN_TIME), //
+				Math.round(this.config.runtime() / 6.0F));
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.ONE_CLICK_ENABLE), //
+				this.config.enableCharge());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_CHARGE_LIMIT), //
+				this.config.maxPowerPercent());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.OPEN_VOLTAGE), //
+				this.config.chargeSocStart());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.CLOSED_VOLTAGE), //
+				this.config.chargeSocEnd());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_LOWER_VOLTAGE_LIMIT), //
+				this.config.voltageLowerLimit());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_UPPER_VOLTAGE_LIMIT), //
+				this.config.voltageUpperLimit());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_UPPER_FREQUENCY_LIMIT), //
+				this.config.frequencyUpperLimit());
+		setWriteValueIfNotRead(this.channel(GoodWeStsBox.ChannelId.GENSET_LOWER_FREQUENCY_LIMIT), //
+				this.config.frequencyLowerLimit());
 	}
 }

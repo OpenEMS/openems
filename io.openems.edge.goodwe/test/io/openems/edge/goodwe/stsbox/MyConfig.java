@@ -16,7 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private MultiplexingMode portMultiplexingMode;
 		private int ratedPower;
 		private int preheatingTimeSeconds;
-		private int runtimeHours;
+		private int runtime;
 		private EnableDisable enableCharge;
 		private int chargeSocStart;
 		private int chargeSocEnd;
@@ -65,8 +65,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setRuntimeHours(int runtimeHours) {
-			this.runtimeHours = runtimeHours;
+		public Builder setRuntime(int runtime) {
+			this.runtime = runtime;
 			return this;
 		}
 
@@ -163,7 +163,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public int runtime() {
-		return this.builder.runtimeHours;
+		return this.builder.runtime;
 	}
 
 	@Override
