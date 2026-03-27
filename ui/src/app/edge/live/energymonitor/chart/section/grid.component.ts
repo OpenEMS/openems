@@ -153,9 +153,16 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     protected getImagePath(): string {
         if (this.gridMode === GridMode.OFF_GRID) {
             return environment.icons.COMMON.OFFGRID;
-        } else if (this.restrictionMode === 1) {
+        }
+
+        if (this.gridMode === GridMode.GENERATOR) {
+            return environment.icons.COMMON.GENERATOR;
+        }
+
+        if (this.restrictionMode === 1) {
             return environment.icons.COMMON.GRID_RESTRICTION;
         }
+
         return environment.icons.COMMON.GRID;
     }
 

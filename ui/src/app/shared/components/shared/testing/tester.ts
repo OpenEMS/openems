@@ -37,7 +37,9 @@ export class OeFormlyViewTester {
              */
             case "children-line": {
                 const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
-
+                if (tmp == null) {
+                    return null; // filter did not pass
+                }
                 // Prepare result
                 const result: OeFormlyViewTester.Field.ChildrenLine = {
                     type: field.type,
@@ -429,6 +431,7 @@ export namespace OeFormlyViewTester {
             name: string,
             value?: string,
             indentation?: TextIndentation,
+            filter?: (currentData: CurrentData) => boolean,
         };
 
         export type ChildrenLine = {
@@ -469,6 +472,16 @@ export namespace OeFormlyViewTester {
     export function applyLineWithChildren(field: OeFormlyField.ChildrenLine, context: Context): { rawValue: number | null, value: string }
         | null {
 
+        // Apply filter
+        if (field.filter && field.channel) {
+            const rawValues = field.channel.toString() in context ? context[field.channel.toString()] : null;
+            const isVisible = field.filter(rawValues) ?? null;
+
+            if (isVisible == false) {
+                return null;
+            }
+        }
+
         let value: string | null = null;
         let rawValue: number | null = null;
 
@@ -487,7 +500,7 @@ export namespace OeFormlyViewTester {
         };
     }
 
-    export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
+    export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string, currentData: CurrentData } {
 
         // Read values from channels
         const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
@@ -498,7 +511,6 @@ export namespace OeFormlyViewTester {
             return null;
         }
 
-
         // Apply converter
         const value: string = field.value
             ? field.value(currentData)
@@ -507,6 +519,7 @@ export namespace OeFormlyViewTester {
         return {
             rawValues: rawValues,
             value: value,
+            currentData: currentData,
         };
     }
 }

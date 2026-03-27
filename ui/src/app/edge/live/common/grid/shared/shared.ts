@@ -7,7 +7,7 @@ import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, RippleControlReceiverRestrictionLevel } from "src/app/shared/shared";
-import { ChartAnnotationState } from "src/app/shared/type/general";
+import { ChartAnnotationState, GridMode } from "src/app/shared/type/general";
 import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.component";
@@ -15,37 +15,35 @@ import { transformRcrValues } from "../history/shared-grid";
 
 export namespace SharedGrid {
 
+    export const GRID_MODE_IS_GENERATOR: Filter = (value): boolean => value !== GridMode.GENERATOR;
+
     export function getFormlyView(config: EdgeConfig | null, role: Role, translate: TranslateService): OeFormlyView {
 
         AssertionUtils.assertIsDefined(config);
 
         // Grid-Mode
-        const lines: OeFormlyField[] = [{
-            type: "channel-line",
-            name: translate.instant("GENERAL.OFF_GRID"),
-            channel: "_sum/GridMode",
-            filter: Filter.GRID_MODE_IS_OFF_GRID,
-            converter: Converter.HIDE_VALUE,
-        }];
+        const lines: OeFormlyField[] = [];
 
         const gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
 
         // Sum Channels (if more than one meter)
         if (gridMeters.length > 1) {
-            getLines(config, translate, lines);
+            setLines(config, translate, lines);
 
             lines.push(
                 {
-                    type: "channel-line",
+                    type: "value-from-channels-line",
                     name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
-                    channel: "_sum/GridActivePower",
-                    converter: Converter.GRID_SELL_POWER_OR_ZERO,
+                    channelsToSubscribe: [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMode")],
+                    value: (data) => Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
+                    filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                 },
                 {
-                    type: "channel-line",
+                    type: "value-from-channels-line",
                     name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
-                    channel: "_sum/GridActivePower",
-                    converter: Converter.GRID_BUY_POWER_OR_ZERO,
+                    channelsToSubscribe: [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMode")],
+                    value: (data) => Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
+                    filter: (currentData: CurrentData) => { console.log("test", currentData.allComponents["_sum/GridMode"]); return currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR; },
                 },
                 {
                     type: "horizontal-line",
@@ -58,20 +56,22 @@ export namespace SharedGrid {
         for (const meter of gridMeters) {
             if (gridMeters.length === 1) {
                 // Two lines if there is only one meter (= same visualization as with Sum Channels)
-                getLines(config, translate, lines);
+                setLines(config, translate, lines);
 
                 lines.push(
                     {
-                        type: "channel-line",
+                        type: "value-from-channels-line",
                         name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
-                        channel: meter.id + "/ActivePower",
-                        converter: Converter.GRID_SELL_POWER_OR_ZERO,
+                        channelsToSubscribe: [new ChannelAddress(meter.id, "ActivePower"), new ChannelAddress("_sum", "GridMode")],
+                        value: (data) => Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
+                        filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                     {
-                        type: "channel-line",
+                        type: "value-from-channels-line",
                         name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
-                        channel: meter.id + "/ActivePower",
-                        converter: Converter.GRID_BUY_POWER_OR_ZERO,
+                        channelsToSubscribe: [new ChannelAddress(meter.id, "ActivePower"), new ChannelAddress("_sum", "GridMode")],
+                        value: (data) => Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
+                        filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                 );
 
@@ -120,7 +120,8 @@ export namespace SharedGrid {
                     channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
                     converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("GENERAL.PHASE") + " " + phase),
                 },
-
+                filter: GRID_MODE_IS_GENERATOR,
+                channel: new ChannelAddress("_sum", "GridMode"),
                 indentation: TextIndentation.SINGLE,
                 children: generatePhasesLineItems(role, phase, component),
             });
@@ -149,7 +150,7 @@ export namespace SharedGrid {
         return children;
     }
 
-    export function getLines(config: EdgeConfig, translate: TranslateService, lines: OeFormlyField[]) {
+    export function setLines(config: EdgeConfig, translate: TranslateService, lines: OeFormlyField[]) {
         const is14aEnabled = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
         const limiter14aValue = "4,2 kW";
         const isRcrEnabled = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");

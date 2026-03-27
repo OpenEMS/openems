@@ -682,6 +682,8 @@
     "NUMBER_OF_COMPONENTS": "Anzahl der Komponenten",
     "OFF": "Aus",
     "OFF_GRID": "Keine Netzverbindung!",
+    "GENERATOR_SUPPLY": "Generatorversorgung",
+    "GENERATOR_ON": "Generator aktiv",
     "OK": "ok",
     "ON": "An",
     "OPEN": "Öffnen",

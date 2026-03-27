@@ -317,8 +317,11 @@ export namespace OeFormlyField {
         type: "children-line",
         name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
         indentation?: TextIndentation,
-        children: Item[],
-    };
+        children: Item[]
+    }
+        & (
+            | { filter: (value: number | null) => boolean, channel: ChannelAddress }
+        );
 
     export type ChannelLine = {
         type: "channel-line",

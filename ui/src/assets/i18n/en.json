@@ -681,6 +681,8 @@
     "NUMBER_OF_COMPONENTS": "Number of Components",
     "OFF": "Off",
     "OFF_GRID": "No Grid Connection!",
+    "GENERATOR_SUPPLY": "Generator supply",
+    "GENERATOR_ON": "Generator active",
     "OK": "ok",
     "ON": "On",
     "OPEN": "Open",
