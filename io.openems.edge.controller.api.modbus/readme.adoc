@@ -1,29 +1,276 @@
-= Api Modbus
+[[_api_modbus]]
+= API Modbus
 
-The OpenEMS Edge Modbus-Slave-API is provided by the "Modbus-API Controller".
-As the Modbus protocol is widely used in industrial monitoring and automation, this allows for easy access to OpenEMS channels from external systems.
-
-The configuration of the Modbus-API controller defines which OpenEMS Components should be exported and made available via the API.
-It then generates a dynamic Modbus protocol that is structured in address blocks that map to OpenEMS Components and Modbus register addresses that map to OpenEMS channels.
-
-The modbus table is designed in a way that allows dynamic parsing of all available registers. 
-
-The following example describes a Controller that is configured to export the Sum-Component (`_sum`). By reading the headers of the individual blocks, the entire Modbus protocol can be parsed dynamically:
-
-. Register `0` identifies the system as an OpenEMS by the hash value `0x17ed6201`.
-
-. Register `1` shows the length of the first block. Adding the length (`199`) the current address (`1`) gives the starting address of the next block (`200`).
-
-. Register `200` gives a string with fixed length of 16 characters with the Component-ID.
-
-. Register `216` shows the length of the complete block. Adding the length (`300`) to the starting address of the block (`200`) gives the starting address of the next block (`500`) and so forth.
-
-. Register `220` identifies the first sub-block as Nature `OpenemsComponent`. The length of the sub-block follows in Register `221` and gives the starting address of the next sub-block (`300`) and so on.
-
-Instead of parsing the Modbus protocol, it is also possible to download the EMS specific Excel file via OpenEMS UI "System Profile" menu. An example export is available in the 'doc' folder of this bundle.
-
-To communicate with specific channels, it is then sufficient to read or write to the matching registers, e.g.
-- Read register `302 _sum/EssSoc` to get the total average state of charge of the ESS.
-- Write to register `806 ess0/SetActivePowerEquals` to trigger charging or discharging of the ESS with ID `ess0`.
+Exposes OpenEMS channels as a Modbus/TCP or Modbus/RTU slave interface with read-only or read-write access.
+This enables external systems to monitor and control OpenEMS Edge via the widely-used Modbus industrial protocol.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.modbus[Source Code icon:github[]]
+
+== Overview
+
+The Modbus API Controller provides a Modbus slave server that dynamically exposes OpenEMS components and channels to external Modbus clients (SCADA, PLC, HMI systems).
+
+.Key Capabilities
+* **Dynamic Protocol Generation**: Automatically structures selected components into Modbus register blocks
+* **Self-Describing Layout**: Register headers allow clients to parse protocol without predefined knowledge
+* **Multiple Transports**: TCP (Ethernet), RTU (serial) support
+* **Access Control**: Read-only or read-write modes per controller instance
+* **Flexible Component Selection**: Choose which components to expose via configuration
+* **Timeout Management**: Automatic timeout for writes from external systems
+* **Excel Export**: Generate component/channel mappings for documentation
+
+== Supported Protocols
+
+* **Modbus/TCP**: Over Ethernet, port configurable
+* **Modbus/RTU**: Over serial connections (COM1, COM2, etc.)
+
+== Components
+
+[[_component_controller_api_modbus_tcp_readwrite]]
+=== Controller.Api.ModbusTcp.ReadWrite
+
+.Description
+Modbus/TCP slave server with read-write access to configured components.
+External clients can read all channels and write to channels designated in the `writeChannels` configuration.
+
+.Factory-PID
+`Controller.Api.ModbusTcp.ReadWrite`
+
+.Service Binding
+Implements:
+
+* `io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiModbusTcpReadWrite`
+* `io.openems.edge.controller.api.Controller`
+* `io.openems.edge.common.component.OpenemsComponent`
+* `io.openems.edge.common.jsonapi.ComponentJsonApi`
+* `io.openems.edge.timedata.api.TimedataProvider`
+
+.Channels
+
+[cols="1,2,1"]
+|===
+| Channel ID | Description | Type
+
+| `overrideStatus` | Status of channel overrides (ACTIVE/INACTIVE) | Enum (Status)
+| `cumulatedActiveTime` | Total time with active overrides | Long (seconds)
+| `cumulatedInactiveTime` | Total time without active overrides | Long (seconds)
+| `api_workerLog` | Logs write-command execution | String
+|===
+
+.Configuration Parameters
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `id` | Unique component identifier | String | `ctrlApiModbusTcp0`
+| `alias` | Human-readable component name | String | ModbusTcp Read-Write
+| `enabled` | Enable/disable the controller | Boolean | `true`
+| `port` | Port for TCP server to listen on | Integer | `502`
+| `component_ids` | List of component IDs to expose (e.g., `["_sum", "ess0", "meter0"]`) | String[] | `["_sum"]`
+| `writeChannels` | List of channels that can be written via Modbus (format: `componentId/channelId`) | String[] | (empty)
+| `apiTimeout` | Timeout for write operations (seconds) | Integer | `60`
+| `maxConcurrentConnections` | Maximum simultaneous client connections | Integer | `20`
+| `logVerbosity` | Log level (NONE, TRACE, DEBUG) | Enum | `NONE`
+|===
+
+[[_component_controller_api_modbus_tcp_readonly]]
+=== Controller.Api.ModbusTcp.ReadOnly
+
+.Description
+Modbus/TCP slave server with read-only access to configured components.
+External clients can only read channels; writes are rejected.
+
+.Factory-PID
+`Controller.Api.ModbusTcp.ReadOnly`
+
+.Configuration Parameters
+Same as ReadWrite, except no `writeChannels` parameter.
+
+[[_component_controller_api_modbus_rtu_readwrite]]
+=== Controller.Api.ModbusRtu.ReadWrite
+
+.Description
+Modbus/RTU slave server over serial connection with read-write access.
+Communicates with serial-connected devices (industrial controllers, gateways).
+
+.Factory-PID
+`Controller.Api.ModbusRtu.ReadWrite`
+
+.Configuration Parameters
+Same as TCP ReadWrite, plus:
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `port` | Serial port device name (e.g., `/dev/ttyUSB0`, `COM1`) | String | `/dev/ttyUSB0`
+| `baudRate` | Serial connection speed | Integer | `9600`
+| `stopBits` | Number of stop bits (1 or 2) | Integer | `1`
+|===
+
+[[_component_controller_api_modbus_rtu_readonly]]
+=== Controller.Api.ModbusRtu.ReadOnly
+
+.Description
+Modbus/RTU slave server over serial connection with read-only access.
+
+.Factory-PID
+`Controller.Api.ModbusRtu.ReadOnly`
+
+== Configuration Examples
+
+.Modbus/TCP Read-Write (SCADA Integration)
+[source,json]
+----
+{
+  "id": "ctrlModbusTcp0",
+  "alias": "SCADA Gateway",
+  "enabled": true,
+  "port": 502,
+  "component_ids": ["_sum", "ess0", "meter0", "pvInverter0"],
+  "writeChannels": ["ess0/SetActivePowerEquals", "ess0/SetReactivePowerEquals"],
+  "apiTimeout": 60,
+  "maxConcurrentConnections": 20,
+  "logVerbosity": "NONE"
+}
+----
+
+.Modbus/RTU Read-Only (Legacy Serial Device)
+[source,json]
+----
+{
+  "id": "ctrlModbusRtu0",
+  "alias": "Serial Gateway",
+  "enabled": true,
+  "port": "/dev/ttyUSB0",
+  "baudRate": 9600,
+  "stopBits": 1,
+  "component_ids": ["_sum", "meter0"],
+  "apiTimeout": 60,
+  "logVerbosity": "NONE"
+}
+----
+
+== Register Layout
+
+The Modbus protocol is self-describing through dynamic register headers:
+
+=== Protocol Structure
+
+. **Register 0**: OpenEMS identifier hash (`0x17ed6201`)
+. **Register 1**: Length of first block header
++
+Adding length to current address gives next block start address.
+
+. **Register 200** (example block): 16-character fixed-length Component-ID string
+
+. **Register 216** (example block): Block length (register count)
+
+. **Register 220** (example block): Sub-block nature identifier (`OpenemsComponent`, `State`, `Power`)
+
+. **Register 221** (example block): Sub-block length
+
+This structure allows Modbus clients to:
+1. Detect OpenEMS by hash in register 0
+2. Parse all available components by following block headers
+3. Map registers to channels dynamically
+
+=== Example Parsing
+
+For a controller configured with component `_sum`:
+
+* Register `0`: `0x17ed6201` (OpenEMS magic number)
+* Register `1`: `199` (first block length)
+* Registers `1-199`: Component `_sum` data
+* Register `200`: Start of next component (if configured)
+
+=== Channel Address Calculation
+
+To read/write specific channels:
+
+1. Locate component in register map by parsing headers
+2. Find channel offset within component block
+3. Read/write to register address = component_start + channel_offset
+
+Example:
+* Read register `302` to get `_sum/EssSoc` (total ESS state of charge)
+* Write to register `806` to set `ess0/SetActivePowerEquals` (control charging/discharging)
+
+== Write Channel Configuration
+
+The `writeChannels` parameter controls which channels external systems can modify.
+Syntax: `componentId/channelId`
+
+[source]
+----
+writeChannels = [
+  "ess0/SetActivePowerEquals",
+  "ess0/SetReactivePowerEquals",
+  "charger0/SetChargingPower",
+  "heatpump0/SetTargetTemperature"
+]
+----
+
+Only channels explicitly listed can be written. All other channels are read-only.
+
+== Data Export
+
+Instead of parsing the Modbus protocol manually, download the component/channel mapping from OpenEMS UI:
+
+1. Open UI → System → System Profile
+2. Export as Excel file
+3. Maps all registers to components and channels
+4. Example file included in bundle's `doc` folder
+
+== Timeout Behavior
+
+When an external system writes to a channel via Modbus:
+
+1. Value is set in OpenEMS with a write timestamp
+2. If no new write received within `apiTimeout` seconds, the previous value expires
+3. Channel reverts to default or last cycled value
+4. Prevents "stuck" values if Modbus client crashes or loses connection
+
+== Error Handling
+
+[cols="1,2"]
+|===
+| Condition | Handling
+
+| Modbus client writes to read-only channel (ReadOnly mode) | Request rejected, exception returned to client
+| Write channel timeout expires | Previous value is cleared
+| Modbus format error | Exception sent to client, connection may close
+| Component not found | Returns zero/empty for that block
+| Concurrent write to same channel | Last write wins
+|===
+
+== Related Components
+
+* <<_bridge_modbus,Modbus Bridge>> - Master mode for reading external devices
+* <<_controller_api,Controller API>> - Base controller interface definition
+* <<_api_backend,API Backend>> - Alternative remote API via WebSocket
+* <<_controller_api_rest,API REST>> - Alternative REST/HTTP interface
+
+== Performance Considerations
+
+* **TCP Connections**: Each connection uses system resources; limit via `maxConcurrentConnections`
+* **Register Parsing**: Dynamic protocol generation is one-time on startup; no runtime overhead
+* **Write Operations**: Subject to cycle time (typically ~500ms); writes applied next cycle
+* **Serial (RTU)**: Slower than TCP; baud rate directly affects throughput
+
+For many components, consider spreading across multiple Modbus controllers on different ports.
+
+== Troubleshooting
+
+.Modbus client cannot connect
+Check firewall rules, verify port is not in use, confirm `enabled: true`.
+
+.Write operations fail or timeout
+Ensure channel is listed in `writeChannels`. Check channel name spelling (case-sensitive).
+
+.Serial (RTU) connection fails
+Verify device exists (`ls /dev/ttyUSB0`), check baud rate matches device, confirm user has serial port permissions (`sudo usermod -a -G dialout $USER`).
+
+.Register offsets seem wrong
+Register layout is dynamic per configuration. Re-export from UI or parse protocol headers to verify addresses.

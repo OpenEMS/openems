@@ -1,5 +1,136 @@
-= Api Backend
+[[_api_backend]]
+= API Backend
 
-Connects to OpenEMS Backend and sends all Channel data regularly. It is implemented as a Controller, as Channels can be written from OpenEMS Backend. 
+Connects to an OpenEMS Backend server and sends all Channel data regularly.
+This controller manages the bidirectional communication between the Edge and Backend, enabling remote monitoring, control, and configuration updates.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.backend[Source Code icon:github[]]
+
+== Overview
+
+The API Backend controller is implemented as a WebSocket client that maintains a persistent connection to an OpenEMS Backend server.
+It handles:
+
+* **Channel Data Transmission**: Sends all Edge channel values at configurable persistence priority levels
+* **Command Reception**: Receives and executes control commands from the Backend
+* **Historic Data Resending**: Automatically resends missed data when connection is restored
+* **Configuration Updates**: Notifies Backend of any Edge configuration changes
+* **Request/Response Handling**: Processes JSON-RPC requests from Backend via specialized handlers
+
+.Key Capabilities
+* Proxy support (HTTP/HTTPS/SOCKS)
+* Configurable data aggregation and persistence priorities
+* Automatic reconnection with exponential backoff
+* Historic data buffering and resending
+* Debug logging mode for troubleshooting
+* EventHandler integration for lifecycle management
+
+== Supported Connections
+
+* OpenEMS Backend (via WebSocket over TCP)
+* Proxy connections (HTTP, HTTPS, SOCKS protocols)
+* TLS/SSL encrypted connections
+* Custom URI configuration
+
+== Components
+
+[[_component_controller_api_backend]]
+=== Controller.Api.Backend
+
+.Description
+Implements the main Backend API controller service that maintains WebSocket connection and handles all communication.
+
+.Factory-PID
+`Controller.Api.Backend`
+
+.Channels
+
+[cols="1,2,1"]
+|===
+| Channel ID | Description | Type
+
+| `api_workerLog` | Logs of write-commands via API worker | String
+| `unableToSend` | Warning when channel data cannot be sent to Backend | State/Warning
+| `lastSuccessfulResend` | Timestamp of last successful historic data resend | Long (seconds)
+| `runFailed` | Failure indicator for controller cycle execution | State/Fault
+|===
+
+.Configuration Parameters
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `id` | Unique component identifier | String | `ctrlBackend0`
+| `alias` | Human-readable component name | String | (component-id)
+| `enabled` | Enable/disable the controller | Boolean | `true`
+| `apikey` | API key for Backend authentication (required) | Password | (required)
+| `uri` | Backend WebSocket URI (e.g., wss://backend.example.com:8080) | String | (empty)
+| `proxyAddress` | Proxy server IP or hostname | String | (empty)
+| `proxyPort` | Proxy server port | Integer | `0`
+| `proxyType` | Proxy protocol type (HTTP, HTTPS, SOCKS) | String | `HTTP`
+| `apiTimeout` | Timeout for Backend-set channel updates (seconds) | Integer | `60`
+| `persistencePriority` | Minimum persistence priority for regular channel updates | Enum | `HIGH`
+| `aggregationPriority` | Minimum persistence priority for aggregated values | Enum | `LOW`
+| `resendPriority` | Minimum persistence priority for historic resend | Enum | `HIGH`
+| `debugMode` | Enable verbose debug logging | Boolean | `false`
+|===
+
+== WebSocket Communication Model
+
+The controller operates in a pull-push model:
+
+.Data Flow
+1. **After Cycle**: Each cycle, channel values meeting persistence priority threshold are collected
+2. **Aggregation**: Values are optionally aggregated over time before transmission
+3. **Transmission**: Data is sent as JSON-RPC notifications to Backend
+
+== Persistence Priority System
+
+The controller uses a hierarchy to control which channels are sent:
+
+[cols="1,2"]
+|===
+| Priority | Usage
+
+| `VERY_HIGH` | Always sent (connection status, critical errors)
+| `HIGH` | Regular monitoring (power values, SOC, temperatures)
+| `MEDIUM` | Diagnostic data (efficiency metrics, ramp rates)
+| `LOW` | Statistical data (aggregated values, trends)
+|===
+
+Configure `persistencePriority` to filter which channels are transmitted on every cycle.
+Lower priority channels can be aggregated and sent less frequently via `aggregationPriority`.
+
+== Historic Data Resending
+
+When the Edge loses connection to Backend:
+
+1. Channel data is buffered locally with timestamps
+2. Upon reconnection, the controller attempts to resend buffered data
+3. `ResendHistoricDataWorker` processes historic batches
+4. Only channels matching `resendPriority` are included
+5. `lastSuccessfulResend` channel marks the latest timestamp
+
+This ensures no data loss during brief connection interruptions.
+
+== Error Handling
+
+The controller implements automatic recovery:
+
+[cols="1,2"]
+|===
+| Error | Handling Strategy
+
+| Connection Lost | Automatic reconnection with exponential backoff (max ~5 min)
+| Backend Timeout | Channel update timeout (`apiTimeout` seconds)
+| Invalid Command | Logged to `api_workerLog` channel, execution skipped
+| Proxy Unavailable | Connection attempt retries with backoff
+| Serialization Error | Logged as warning, data skipped, cycle continues
+|===
+
+When unable to send data, the `unableToSend` warning channel is set and persisted for diagnosis.
+
+For high-frequency data (>100 channels), consider increasing cycle time or enabling aggregation.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.backend[Source Code icon:github[]]

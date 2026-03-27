@@ -1,5 +1,599 @@
-= Api Websocket
+[[_api_websocket]]
+= API WebSocket
 
-Provides a JSON/REST implementation via HTTP Websocket for OpenEMS Edge. It provides access to Channels and JSON-RPC Requests from an external device via Websocket. This Controller is used for local connection of OpenEMS UI.
+Provides a real-time bidirectional JSON/WebSocket interface for OpenEMS Edge.
+This is the primary protocol used by OpenEMS UI for live monitoring and control.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.websocket[Source Code icon:github[]]
+
+== Overview
+
+The WebSocket API Controller establishes WebSocket connections over HTTP to provide real-time channel updates and handle JSON-RPC requests.
+This protocol is optimized for:
+
+* **Live Dashboard UIs**: Real-time channel updates without polling
+* **Responsive Control**: Immediate feedback on channel changes
+* **Efficient Communication**: Binary WebSocket protocol with minimal overhead
+* **UI Compatibility**: Native WebSocket support in all modern browsers
+* **Bidirectional Messaging**: Server-initiated notifications and client requests
+
+.Key Capabilities
+* Real-time channel update notifications
+* JSON-RPC request/response handling
+* Edge configuration synchronization
+* User authentication and authorization
+* Thread-pooled request handling
+* Component configuration queries
+* Debug logging mode
+
+== Components
+
+[[_component_controller_api_websocket]]
+=== Controller.Api.Websocket
+
+.Description
+WebSocket server that maintains multiple client connections for UI and external systems.
+Broadcasts channel updates and handles incoming JSON-RPC commands.
+
+.Factory-PID
+`Controller.Api.Websocket`
+
+.Service Binding
+Implements:
+
+* `io.openems.edge.controller.api.websocket.ControllerApiWebsocket`
+* `io.openems.edge.controller.api.Controller`
+* `io.openems.edge.common.component.OpenemsComponent`
+* `org.osgi.service.event.EventHandler`
+
+.Interface Constants
+
+[cols="1,2"]
+|===
+| Constant | Value
+
+| `EDGE_ID` | `0`
+| `EDGE_COMMENT` | (empty string)
+| `EDGE_PRODUCT_TYPE` | (empty string)
+| `SUM_STATE` | `OK` (Level)
+| `DEFAULT_PORT` | `8075`
+|===
+
+.Event Subscriptions
+
+[cols="1,2"]
+|===
+| Event Topic | Purpose
+
+| `TOPIC_CONFIG_UPDATE` | Notifies clients when Edge configuration changes
+| `TOPIC_CHANNEL_UPDATE` | Broadcasts channel value updates to clients
+| `TOPIC_CYCLE_AFTER_PROCESS_IMAGE` | Sends periodic synchronization after cycle completion
+|===
+
+== Configuration
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `id` | Unique component identifier | String | `ctrlApiWebsocket0`
+| `alias` | Human-readable component name | String | (component-id)
+| `enabled` | Enable/disable the controller | Boolean | `true`
+| `port` | WebSocket server port | Integer | `8085`
+| `apiTimeout` | Timeout for channel writes from UI (seconds) | Integer | `60`
+| `debugMode` | Enable verbose debug logging | Boolean | `false`
+|===
+
+== Configuration Example
+
+.Basic Setup (Local UI)
+[source,json]
+----
+{
+  "id": "ctrlApiWebsocket0",
+  "alias": "OpenEMS UI Gateway",
+  "enabled": true,
+  "port": 8085,
+  "apiTimeout": 60,
+  "debugMode": false
+}
+----
+
+.High-Concurrency Setup
+[source,json]
+----
+{
+  "id": "ctrlApiWebsocket0",
+  "alias": "WebSocket Server",
+  "enabled": true,
+  "port": 8085,
+  "apiTimeout": 30,
+  "debugMode": false
+}
+----
+
+== Connection
+
+=== WebSocket URL
+
+[source]
+----
+ws://[username:password@]<IP>:8085
+wss://[username:password@]<IP>:8085  (secured)
+----
+
+.URL Components
+* `username`: Optional; if omitted use `x`
+* `password`: User password (required for authentication)
+* `<IP>`: Edge machine IP or hostname
+* `8085`: Configured WebSocket port
+
+.Examples
+* `ws://x:user@192.168.1.100:8085`
+* `ws://x:admin@openems.local:8085`
+* `wss://edge0:password@192.168.1.100:8085` (with TLS)
+
+=== Authentication
+
+WebSocket connections use HTTP Basic Authentication. Credentials are sent in the connection URL or HTTP headers.
+
+Format:
+[source]
+----
+Authorization: Basic base64(username:password)
+----
+
+Connection is rejected if credentials are invalid.
+
+== Message Protocol
+
+=== JSON-RPC Notifications (Server → Client)
+
+The WebSocket server broadcasts notifications when events occur.
+
+==== ChannelUpdateNotification
+
+Sent whenever a channel value changes or at least once per cycle:
+
+[source,json]
+----
+{
+  "method": "subscribedChannels",
+  "params": {
+    "channels": {
+      "_sum/GridActivePower": 2500,
+      "_sum/EssSoc": 85.5,
+      "ess0/Soc": 82.0,
+      "meter0/ActivePower": 1200
+    }
+  }
+}
+----
+
+==== EdgeConfigNotification
+
+Sent when component configuration changes (startup or dynamic changes):
+
+[source,json]
+----
+{
+  "method": "edgeConfig",
+  "params": {
+    "components": [
+      {
+        "id": "_sum",
+        "alias": "Summary",
+        "properties": {
+          "enabled": true
+        },
+        "channels": [
+          {
+            "id": "GridActivePower",
+            "type": "INTEGER",
+            "unit": "W",
+            "accessMode": "RO"
+          }
+        ]
+      },
+      {
+        "id": "ess0",
+        "alias": "Battery",
+        "type": "io.openems.edge.ess.api.ManagedSymmetricEss",
+        "channels": [...]
+      }
+    ]
+  }
+}
+----
+
+==== EdgeRpcNotification
+
+Sent as response to JSON-RPC requests from clients:
+
+[source,json]
+----
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {
+    "method": "getEdgeConfig",
+    "result": {...}
+  }
+}
+----
+
+=== JSON-RPC Requests (Client → Server)
+
+Clients send JSON-RPC requests to query data or trigger actions.
+
+==== subscribeChannels
+
+Subscribe to specific channel updates. Only subscribed channels are sent in subsequent notifications.
+
+[source,json]
+----
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "method": "subscribeChannels",
+  "params": {
+    "channels": [
+      "_sum/GridActivePower",
+      "_sum/EssSoc",
+      "ess0/Soc",
+      "meter0/ActivePower"
+    ]
+  }
+}
+----
+
+Response:
+[source,json]
+----
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "result": {}
+}
+----
+
+==== getEdgeConfig
+
+Get complete Edge configuration at any time:
+
+[source,json]
+----
+{
+  "id": 2,
+  "jsonrpc": "2.0",
+  "method": "getEdgeConfig",
+  "params": {}
+}
+----
+
+Response returns full configuration (same as `edgeConfig` notification).
+
+==== getChannelValues
+
+Query current values of specific channels:
+
+[source,json]
+----
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "method": "getChannelValues",
+  "params": {
+    "channels": [
+      "_sum/GridActivePower",
+      "ess0/Soc"
+    ]
+  }
+}
+----
+
+Response:
+[source,json]
+----
+{
+  "id": 3,
+  "jsonrpc": "2.0",
+  "result": {
+    "_sum/GridActivePower": 2500,
+    "ess0/Soc": 82.0
+  }
+}
+----
+
+==== setChannelValues
+
+Write values to writable channels:
+
+[source,json]
+----
+{
+  "id": 4,
+  "jsonrpc": "2.0",
+  "method": "setChannelValues",
+  "params": {
+    "ess0/SetActivePowerEquals": 5000,
+    "io0/Relay1": true
+  }
+}
+----
+
+Response:
+[source,json]
+----
+{
+  "id": 4,
+  "jsonrpc": "2.0",
+  "result": {}
+}
+----
+
+==== componentJsonApi
+
+Forward JSON-RPC call to a specific component:
+
+[source,json]
+----
+{
+  "id": 5,
+  "jsonrpc": "2.0",
+  "method": "componentJsonApi",
+  "params": {
+    "componentId": "ctrlApiModbusTcp0",
+    "payload": {
+      "method": "getModbusProtocol",
+      "params": {}
+    }
+  }
+}
+----
+
+Response contains component-specific data.
+
+==== updateComponentConfig
+
+Modify component configuration:
+
+[source,json]
+----
+{
+  "id": 6,
+  "jsonrpc": "2.0",
+  "method": "updateComponentConfig",
+  "params": {
+    "componentId": "ctrlDebugLog0",
+    "properties": [
+      {
+        "name": "enabled",
+        "value": true
+      }
+    ]
+  }
+}
+----
+
+Response:
+[source,json]
+----
+{
+  "id": 6,
+  "jsonrpc": "2.0",
+  "result": {}
+}
+----
+
+== Client Implementation Example
+
+=== JavaScript (Browser)
+
+[source,javascript]
+----
+class OpenEMSClient {
+  constructor(url) {
+    this.url = url;
+    this.ws = null;
+    this.requestId = 0;
+    this.pendingRequests = new Map();
+  }
+
+  connect() {
+    this.ws = new WebSocket(this.url);
+    this.ws.onopen = () => console.log("Connected");
+    this.ws.onmessage = (event) => this.handleMessage(JSON.parse(event.data));
+    this.ws.onerror = (error) => console.error("WebSocket error:", error);
+    this.ws.onclose = () => console.log("Disconnected");
+  }
+
+  handleMessage(msg) {
+    if (msg.id && this.pendingRequests.has(msg.id)) {
+      const resolve = this.pendingRequests.get(msg.id);
+      this.pendingRequests.delete(msg.id);
+      resolve(msg.result || msg.error);
+    } else if (msg.method === "subscribedChannels") {
+      console.log("Channel update:", msg.params.channels);
+    } else if (msg.method === "edgeConfig") {
+      console.log("Configuration updated");
+    }
+  }
+
+  send(method, params = {}) {
+    const id = ++this.requestId;
+    const request = { id, jsonrpc: "2.0", method, params };
+    this.ws.send(JSON.stringify(request));
+    return new Promise(resolve => {
+      this.pendingRequests.set(id, resolve);
+    });
+  }
+
+  async subscribeChannels(channels) {
+    return this.send("subscribeChannels", { channels });
+  }
+
+  async getEdgeConfig() {
+    return this.send("getEdgeConfig", {});
+  }
+
+  async setChannelValue(channel, value) {
+    return this.send("setChannelValues", { [channel]: value });
+  }
+}
+
+// Usage
+const client = new OpenEMSClient("ws://x:user@localhost:8085");
+client.connect();
+
+setTimeout(async () => {
+  await client.subscribeChannels(["_sum/GridActivePower", "_sum/EssSoc"]);
+  await client.setChannelValue("ess0/SetActivePowerEquals", 5000);
+}, 1000);
+----
+
+=== Python
+
+[source,python]
+----
+import asyncio
+import json
+import websockets
+import base64
+
+class OpenEMSClient:
+    def __init__(self, url, username, password):
+        self.url = url
+        self.auth_header = f"Basic {base64.b64encode(f'{username}:{password}'.encode()).decode()}"
+        self.request_id = 0
+
+    async def connect(self):
+        self.ws = await websockets.connect(
+            self.url,
+            extra_headers={"Authorization": self.auth_header}
+        )
+        await self.listen()
+
+    async def listen(self):
+        async for message in self.ws:
+            data = json.loads(message)
+            self.handle_message(data)
+
+    def handle_message(self, msg):
+        if msg.get("method") == "subscribedChannels":
+            print("Channels:", msg["params"]["channels"])
+
+    async def send(self, method, params=None):
+        self.request_id += 1
+        request = {
+            "id": self.request_id,
+            "jsonrpc": "2.0",
+            "method": method,
+            "params": params or {}
+        }
+        await self.ws.send(json.dumps(request))
+
+    async def subscribe_channels(self, channels):
+        await self.send("subscribeChannels", {"channels": channels})
+
+    async def set_channel_value(self, channel, value):
+        await self.send("setChannelValues", {channel: value})
+
+# Usage
+async def main():
+    client = OpenEMSClient("ws://localhost:8085", "x", "user")
+    await client.connect()
+
+asyncio.run(main())
+----
+
+== Event Model
+
+The WebSocket API is event-driven:
+
+1. **Client connects**: Server sends initial `edgeConfig` with all components
+2. **Client subscribes**: Client sends `subscribeChannels` with desired channel list
+3. **Channel changes**: Server broadcasts `subscribedChannels` with updated values
+4. **Config changes**: Server broadcasts `edgeConfig` when components are added/removed
+5. **Cycle completion**: Server sends periodic updates even if no changes occurred
+
+## Thread Pool
+
+The server uses a thread pool to handle multiple concurrent WebSocket connections:
+
+* Default pool size: 10 threads
+* Each thread can handle multiple client connections
+* Threads are named: `Controller.Api.Websocket:<component-id>-<number>`
+
+For high client concurrency, verify thread pool size is adequate.
+
+== Timeout Behavior
+
+When a UI writes to a channel via WebSocket:
+
+1. Write is applied immediately within current cycle
+2. Write timestamp is recorded
+3. If no new write within `apiTimeout` seconds, the value expires
+4. Channel reverts to default or last cycled value
+5. Prevents "stuck" values if UI client crashes
+
+== Error Handling
+
+[cols="1,2"]
+|===
+| Error | Handling
+
+| Authentication failed | Connection rejected with 401 Unauthorized
+| JSON parsing error | Error response with validation message
+| Channel not found | Error response, write/read skipped
+| Access denied (read-only channel write) | Error response, write rejected
+| JSON-RPC method not found | Error response with method name
+| Concurrent write conflict | Last write wins
+|===
+
+Error response format:
+[source,json]
+----
+{
+  "id": 1,
+  "jsonrpc": "2.0",
+  "error": {
+    "code": -1,
+    "message": "Channel not found: component/channel"
+  }
+}
+----
+
+== Related Components
+
+* <<_api_rest,API REST>> - HTTP REST alternative
+* <<_api_mqtt,API MQTT>> - MQTT publish/subscribe alternative
+* <<_api_modbus,API Modbus>> - Industrial protocol alternative
+* <<_api_backend,API Backend>> - Backend remote connection
+* <<_controller_api,Controller API>> - Base controller interface
+
+## Performance Considerations
+
+* **Connection Limit**: OS file descriptor limits; verify with `ulimit -n`
+* **Message Size**: Large configuration updates create larger messages; bandwidth may be bottleneck
+* **Cycle Frequency**: Real-time updates every cycle (~500ms); high channel count increases message volume
+* **Client Count**: Each client connection uses memory and thread resources; limit concurrent clients if needed
+
+For many concurrent UIs, consider load-balancing across multiple Edge instances or using REST API for non-real-time queries.
+
+## Troubleshooting
+
+.Cannot connect to WebSocket
+Verify port is correct, firewall allows WebSocket traffic (port 8085), service is enabled and started.
+
+.Connection drops frequently
+Check network stability, increase `apiTimeout` if network is slow, review server logs for errors.
+
+.Slow updates or high latency
+Check channel subscription list (too many channels?), verify network bandwidth, review thread pool utilization.
+
+.Authentication fails
+Check username/password are correct, user exists in OpenEMS configuration, credentials are base64-encoded properly.
+
+.UI shows stale data
+Channel may have expired due to `apiTimeout`. Verify UI is actively sending writes/subscriptions.
