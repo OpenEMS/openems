@@ -446,7 +446,8 @@
                     "SWITCH_ON_COM_SHORT": "Befehl",
                     "SWITCH_ON_REC": "Einschaltempfehlung",
                     "SWITCH_ON_REC_SHORT": "Empfehlung",
-                    "UNDEFINED": "Nicht definiert"
+                    "UNDEFINED": "Nicht definiert",
+                    "OPERATING_STATUS": "Betriebszustand"
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",

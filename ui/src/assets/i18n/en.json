@@ -447,7 +447,8 @@
                     "SWITCH_ON_COM_SHORT": "Command",
                     "SWITCH_ON_REC": "Switch-on recommendation",
                     "SWITCH_ON_REC_SHORT": "Recommendation",
-                    "UNDEFINED": "Undefined"
+                    "UNDEFINED": "Undefined",
+                    "OPERATING_STATUS": "Operating status"
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Active (Minimum runtime)",

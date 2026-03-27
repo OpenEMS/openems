@@ -17,6 +17,7 @@ export class HelpButtonComponent implements OnChanges {
     /** Overwrites default docs link */
     @Input() public useDefaultPrefix: boolean = true;
     @Input() public key: keyof typeof environment.links | null = null;
+    @Input() public color: string = "var(--ion-title-color)";
 
     protected link: string | null = null;
 

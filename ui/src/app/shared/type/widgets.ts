@@ -5,6 +5,7 @@ import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
+import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
@@ -59,7 +60,14 @@ export class Widgets {
     }
 
     public static getControllerNavigationTree(edge: Edge, widget: Widget, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+        const component = config.getComponentSafely(widget.componentId);
+        if (component === null) {
+            return null;
+        }
+
         switch (widget.name) {
+            case "Controller.Io.HeatPump.SgReady":
+                return SharedControllerIoHeatpump.getNavigationTree(translate, component);
             case "Scheduler.JSCalendar":
                 return SharedSchedulerJsCalendar.getNavigationTree(translate, widget.componentId);
             case "Evse.Controller.Single":

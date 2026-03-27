@@ -13,11 +13,12 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "controller-io-heatpump-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
         CommonUiModule,
@@ -97,19 +98,6 @@ export class ChartComponent extends AbstractHistoryChart {
         };
     }
 
-    /**
-     * Converts the number to have a max value
-     *
-     * @param value the value
-     * @param atMost the max number to be allowed
-     * @returns the value
-     */
-    private static CONVERT_NUMBER_TO_BE_AT_MOST = (value: number | null, atMost: number) => {
-        if (value == null) {
-            return value;
-        }
-        return Math.min(value, atMost);
-    };
 
     /**
      * Sanitizes channel data
@@ -143,7 +131,7 @@ export class ChartComponent extends AbstractHistoryChart {
                             return null;
                         }
                         const diff: number = Utils.orElse(Utils.subtractSafely(ONE_DAY_IN_S, summarizedData[index]), 0) as number;
-                        return ChartComponent.CONVERT_NUMBER_TO_BE_AT_MOST(summarizedData[index] > DAY_MINUS_ONE_MINUTE_IN_S ? Utils.addSafely(el, diff) : el, ONE_DAY_IN_S);
+                        return NumberUtils.convertNumberToBeAtMost(summarizedData[index] > DAY_MINUS_ONE_MINUTE_IN_S ? Utils.addSafely(el, diff) : el, ONE_DAY_IN_S);
                     });
                     break;
                 case DefaultTypes.PeriodString.YEAR:
@@ -156,7 +144,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         const MONTH_IN_S = Utils.multiplySafely(daysInMonth + 1, ONE_DAY_IN_S);
                         const MONTH_MINUS_ONE_HOUR = Utils.orElse(Utils.subtractSafely(Utils.multiplySafely(daysInMonth + 1, ONE_DAY_IN_S), ONE_HOUR), MONTH_IN_S);
                         const diff = Utils.subtractSafely(MONTH_IN_S, summarizedData[index]);
-                        return ChartComponent.CONVERT_NUMBER_TO_BE_AT_MOST(summarizedData[index] > MONTH_MINUS_ONE_HOUR ? Utils.addSafely(el, diff) : el, MONTH_IN_S);
+                        return NumberUtils.convertNumberToBeAtMost(summarizedData[index] > MONTH_MINUS_ONE_HOUR ? Utils.addSafely(el, diff) : el, MONTH_IN_S);
                     });
                     break;
             }

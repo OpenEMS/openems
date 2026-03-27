@@ -12,9 +12,10 @@ import { PickdateComponentModule } from "src/app/shared/components/pickdate/pick
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { Service } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
+import { SharedControllerIoHeatpump } from "../../shared/shared";
 import { ChartComponent } from "../chart/chart";
-import de from "./i18n/de.json";
-import en from "./i18n/en.json";
+import de from "../shared/i18n/de.json";
+import en from "../shared/i18n/en.json";
 @Component({
     selector: "controller-io-heatpump-overview",
     templateUrl: "./overview.html",
@@ -31,12 +32,7 @@ import en from "./i18n/en.json";
 })
 export class ControllerIoHeatpumpOverviewComponent extends AbstractHistoryChartOverview {
 
-    protected readonly STATES: string = `
-    1.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK")}
-    2.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION")} 
-    3.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC")} 
-    4.${this.translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM")}
-    `;
+    protected readonly STATES = SharedControllerIoHeatpump.getHeatPumpStates(this.translate);
     protected chartType: "line" | "bar" = "line";
 
     constructor(
@@ -48,7 +44,6 @@ export class ControllerIoHeatpumpOverviewComponent extends AbstractHistoryChartO
         super(service, route, modalCtrl);
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
-
                 translate.setTranslation(lang, translation, shouldMerge);
             }
         });

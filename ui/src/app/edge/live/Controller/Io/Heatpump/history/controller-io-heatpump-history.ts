@@ -7,6 +7,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
+import { ControllerIoHeatpumpHistoryComponent } from "./new-navigation/new-navigation";
 import { ControllerIoHeatpumpOverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
@@ -26,16 +27,16 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         HistoryDataErrorModule,
         NgxSpinnerModule,
-    ],
-    declarations: [
+        ControllerIoHeatpumpHistoryComponent,
     ],
     exports: [
         RouterModule,
+        ControllerIoHeatpumpHistoryComponent,
     ],
     schemas: [
         CUSTOM_ELEMENTS_SCHEMA,
     ],
 })
-export class HeatPumpModule {
+export class HeatPumpHistory {
 }
 

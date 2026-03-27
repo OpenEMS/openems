@@ -98,6 +98,7 @@ export namespace ViewUtils {
     */
     export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
         let viewHeight = ViewUtils.getViewHeightInPx(position);
+        const legendHeight = getLegendHeight();
 
         if (customChartHeightPercentage != null) {
             viewHeight = viewHeight * (customChartHeightPercentage / 100);
@@ -106,9 +107,18 @@ export namespace ViewUtils {
         return NumberUtils.multiplySafely(
             NumberUtils.divideSafely(
                 NumberUtils.subtractSafely(
-                    viewHeight,
+                    viewHeight, legendHeight
                 ),
                 windowHeight),
             100);
+    }
+
+    function getLegendHeight() {
+        const chartLegend = document.querySelector<HTMLElement>("oe-chart-legend");
+        if (chartLegend == null) {
+            return 0;
+        }
+        const legendRow = chartLegend.querySelector<HTMLElement>("ion-row");
+        return legendRow?.clientHeight ?? 0;
     }
 }

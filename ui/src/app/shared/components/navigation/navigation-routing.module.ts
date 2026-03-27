@@ -15,6 +15,9 @@ import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/p
 import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
+import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
+import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
+import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -80,6 +83,9 @@ export const newNavigationRoutes: Routes = [
 
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
+    { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
+    { path: "controller/heatpump/:componentId/details", component: ControllerIoHeatpumpSettingsComponent },
+    { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },

@@ -523,6 +523,23 @@ export namespace Converter {
     export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
         return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
     };
+
+    export const CONTROLLER_PROPERTY_MODES = (translate: TranslateService): Converter => {
+        return (raw): string => {
+            return IF_STRING(raw, (value) => {
+                switch (value) {
+                    case "AUTOMATIC":
+                        return translate.instant("GENERAL.AUTOMATIC");
+                    case "MANUAL":
+                        return translate.instant("GENERAL.MANUALLY");
+                    case "MANUAL_ON":
+                        return translate.instant("GENERAL.ON");
+                    case "MANUAL_OFF":
+                        return translate.instant("GENERAL.OFF");
+                }
+            });
+        };
+    };
 }
 
 export enum State {

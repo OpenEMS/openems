@@ -1,7 +1,38 @@
 <formly-form [form]="form" [fields]="[]" [model]="model"></formly-form>
 
-@if (props && props.options[0].component) {
+@if (props && props.options && props.options[0]?.component) {
   <oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)">
+
+    @if (props.attributes.title || props.attributes.helpKey) {
+      <ion-toolbar color="transparent">
+        <ion-grid class="ion-no-padding">
+          <ion-row class="ion-justify-content-center ion-align-items-center">
+            @if (props.attributes.title) {
+              <ion-col [size]="service.isSmartphoneResolution ? 1 : 3">
+              </ion-col>
+              <ion-col [size]="service.isSmartphoneResolution ? 10 : 5.7">
+                <div class="custom-title" [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }"
+                style="text-align: center;">
+                  {{ props.attributes.title }}
+                </div>
+              </ion-col>
+            }
+
+            @if (props.attributes.helpKey) {
+              <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
+                <ion-buttons
+                  [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'">
+                  <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear"
+                    style="color: var(--ion-text-color);"
+                    [useDefaultPrefix]="props.attributes.useDefaultPrefix ?? false"></oe-help-button>
+                </ion-buttons>
+              </ion-col>
+            }
+          </ion-row>
+        </ion-grid>
+      </ion-toolbar>
+    }
+
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ion-grid>
       <ion-row class="ion-justify-content-center">
@@ -9,11 +40,11 @@
           @for (entry of props.options; track entry) {
             @for (line of entry.lines; track line) {
               @switch (line.type) {
-                @case('advanced-electricity-meter-line'){
+                @case('advanced-electricity-meter-line') {
                   <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
                 }
 
-                @case('advanced-ess-charger-line'){
+                @case('advanced-ess-charger-line') {
                   <oe-ess-charger [component]="line.component"></oe-ess-charger>
                 }
 
@@ -23,6 +54,7 @@
                     [channelAddress]="line.channel" [converter]="line.converter">
                   </oe-modal-line>
                 }
+
                 <!-- OeFormlyField.ChildrenLine -->
                 @case ('children-line') {
                   <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name">
@@ -34,31 +66,38 @@
                     }
                   </oe-modal-line>
                 }
+
                 <!-- OeFormlyField.SvgLine -->
                 @case ('image-line') {
                   <oe-img [img]="line.img">
                   </oe-img>
                 }
+
                 <!-- OeFormlyField.InfoLine -->
                 @case ('info-line') {
-                  <oe-modal-info-line [info]="line.name" [rowStyle]="line.style">
+                  <oe-modal-info-line [info]="line.name" [icon]="line.icon" [rowStyle]="line.style">
                   </oe-modal-info-line>
                 }
+
                 <!-- OeFormlyField.HorizontalLine -->
                 @case ('horizontal-line') {
                   <oe-modal-horizontal-line></oe-modal-horizontal-line>
                 }
+
                 @case ('value-from-channels-line') {
                   <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe"
                     [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null"
-                    [name]="line.name"></oe-modal-value-line>
+                    [name]="line.name">
+                  </oe-modal-value-line>
                 }
+
                 <!-- FormGrouped -->
                 @case ('value-from-form-control-line') {
                   <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
                     [control]="{type: 'TEXT', valueConverter: line.converter}">
                   </oe-modal-line>
                 }
+
                 @case ('radio-buttons-from-form-control-line') {
                   @if (form.controls[line.controlName] !== null) {
                     <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
@@ -67,11 +106,13 @@
                     </oe-modal-buttons>
                   }
                 }
+
                 @case ('button-from-form-control-line') {
                   <oe-modal-line [name]="line.name" [formGroup]="form" [component]="component"
                     [control]="{type: 'BUTTON', button: line.button}">
                   </oe-modal-line>
                 }
+
                 @case ('buttons-from-form-control-line') {
                   @if (form.controls[line.controlName] !== null) {
                     <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
@@ -79,10 +120,30 @@
                     </oe-modal-buttons>
                   }
                 }
+
                 <!-- OeFormlyField.RangeButtonFromFormControlLine -->
                 @case ('range-button-from-form-control-line') {
                   <oe-modal-line [controlName]="line.controlName"
                     [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
+                  </oe-modal-line>
+                }
+
+                <!-- OeFormlyField.ToggleLine -->
+                @case ('toggle-line') {
+                  <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{type: 'TOGGLE'}"
+                    [formGroup]="form" leftColumnWidth="100">
+                  </oe-modal-line>
+                }
+
+                @case ('input-line') {
+                  <oe-modal-line [name]="line.name" [controlName]="line.controlName"
+                    [control]="{type: 'INPUT', properties: line.properties}" [formGroup]="form" leftColumnWidth="50">
+                  </oe-modal-line>
+                }
+
+                @case ('select-line') {
+                  <oe-modal-line [name]="line.name" [controlName]="line.controlName"
+                    [control]="{type: 'SELECT', options: line.options}" [formGroup]="form" leftColumnWidth="50">
                   </oe-modal-line>
                 }
 
