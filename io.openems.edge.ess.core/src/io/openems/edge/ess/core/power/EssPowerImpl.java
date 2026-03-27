@@ -128,7 +128,8 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 				OPTIMIZE_BY_MOVING_TOWARDS_TARGET, //
 				OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER, //
 				OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
-				OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL //
+				OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
+				OPTIMIZE_BY_PREFERRING_DC_POWER //
 			-> new PowerDistributionHandlerV1(//
 					config.strategy(), config.symmetricMode(), config.debugMode(), //
 					() -> this.esss, //

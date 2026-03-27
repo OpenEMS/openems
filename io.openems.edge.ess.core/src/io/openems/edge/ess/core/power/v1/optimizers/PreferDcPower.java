@@ -1,7 +1,7 @@
-package io.openems.edge.ess.core.power.optimizers;
+package io.openems.edge.ess.core.power.v1.optimizers;
 
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
-import static io.openems.edge.ess.core.power.data.ConstraintUtil.createSimpleConstraint;
+import static io.openems.edge.ess.core.power.v1.data.ConstraintUtil.createSimpleConstraint;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,9 +23,9 @@ import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
-import io.openems.edge.ess.core.power.data.TargetDirection;
-import io.openems.edge.ess.core.power.solver.CalculatePowerExtrema;
-import io.openems.edge.ess.core.power.solver.ConstraintSolver;
+import io.openems.edge.ess.core.power.v1.data.TargetDirection;
+import io.openems.edge.ess.core.power.v1.solver.CalculatePowerExtrema;
+import io.openems.edge.ess.core.power.v1.solver.ConstraintSolver;
 import io.openems.edge.ess.power.api.Coefficients;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.Inverter;
@@ -360,7 +360,7 @@ public class PreferDcPower {
 					result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 							createSimpleConstraint(coefficients, //
 									inv.toString() + ": Set ActivePower " + direction.name() + " value", //
-									inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, essPowerRequired[i]));
+									inv.getEssId(), inv.getPhase(), Pwr.ACTIVE, Relationship.EQUALS, (int) essPowerRequired[i]));
 				}
 			}
 
@@ -894,7 +894,7 @@ public class PreferDcPower {
 				result = addContraintIfProblemStillSolves(result, constraints, coefficients,
 						createSimpleConstraint(coefficients, //
 								inv.toString() + ": Set ReactivePower " + reactiveDirection.name() + " value", //
-								inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, essReactivePowerRequired[i]));
+								inv.getEssId(), inv.getPhase(), Pwr.REACTIVE, Relationship.EQUALS, (int) essReactivePowerRequired[i]));
 			}
 		}
 
@@ -964,11 +964,11 @@ public class PreferDcPower {
 		var noPowerSetPoint = Double.NaN;
 
 		return allConstraints.stream()//
-				.filter(constraint -> constraint.getRelationship() == Relationship.EQUALS)
-				.filter(constraint -> constraint.getCoefficients().length == 1)
-				.filter(constraint -> clusterEssId.equals(constraint.getCoefficients()[0].getCoefficient().getEssId()))
-				.filter(constraint -> constraint.getCoefficients()[0].getCoefficient().getPwr() == pwr)
-				.mapToDouble(constraint -> constraint.getValue().get())//
+				.filter(constraint -> constraint.relationship == Relationship.EQUALS)
+				.filter(constraint -> constraint.coefficients.length == 1)
+				.filter(constraint -> clusterEssId.equals(constraint.coefficients[0].getCoefficient().getEssId()))
+				.filter(constraint -> constraint.coefficients[0].getCoefficient().getPwr() == pwr)
+				.mapToDouble(constraint -> constraint.value)//
 				.findFirst()//
 				.orElse(noPowerSetPoint);
 	}
