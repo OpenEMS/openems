@@ -1,5 +1,75 @@
-= Meter
+= Meter API
 
-link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.meter.api/src/io/openems/edge/meter/api/ElectricityMeter.java[ElectricityMeter icon:code[]]::
-An electricity meter.
-// TODO add channels
+Defines standard interfaces and channel definitions for electricity meter implementations.
+
+== Overview
+
+This bundle provides the core API interfaces for electricity meter components in OpenEMS. It defines the standard contract that all meter implementations must follow, including the `ElectricityMeter` interface and common channel definitions for meter measurements.
+
+This is an API/contract bundle - it does not implement any concrete meter components itself. Instead, it provides the foundation that device-specific meter bundles implement (such as ABB, Janitza, Eastron, etc.).
+
+== Interfaces
+
+=== ElectricityMeter
+
+The primary interface that all electricity meter implementations must implement.
+
+*Features*:
+* Active Power (W) - Real power output/input
+* Reactive Power (var) - Reactive power measurement
+* Apparent Power (VA) - Total power including reactive
+* Voltage measurement (V) - Line-to-neutral and overall
+* Current measurement (A) - Per phase and overall
+* Power factor - Per phase and overall
+* Frequency - Grid frequency
+* Energy measurements (Wh) - Cumulative consumption/production
+
+*Meter Types*:
+* GRID - Grid connection meter
+* PRODUCTION - Photovoltaic production meter
+* CONSUMPTION - Building consumption meter
+
+=== SinglePhaseMeter
+
+Interface for single-phase electricity meter implementations.
+
+=== PhaseRotation
+
+Enumeration for three-phase system phase rotation detection (forward or backward).
+
+== Usage
+
+Meter implementations extend the `ElectricityMeter` interface to provide:
+
+* Real-time power measurements (active, reactive, apparent)
+* Per-phase voltage, current, and power factor
+* Cumulative energy counters
+* Grid frequency measurement
+* Specific protocol implementations (Modbus, M-Bus, REST, etc.)
+
+Example implementations include:
+* `io.openems.edge.meter.abb` - ABB B23 M-Bus meter
+* `io.openems.edge.meter.janitza` - Janitza energy meters
+* `io.openems.edge.meter.eastron` - Eastron SDM meters
+* `io.openems.edge.meter.virtual` - Virtual/calculated meters
+
+== Channel Definitions
+
+The ElectricityMeter interface defines standard channels for:
+
+* `ActivePower` (INT: watts)
+* `ReactivePower` (INT: var)
+* `ApparentPower` (INT: VA)
+* `Frequency` (INT: mHz)
+* Voltage channels (per phase and overall)
+* Current channels (per phase)
+* Power factor channels (per phase and overall)
+* Energy counters (Wh and kWh)
+
+All implementations provide consistent channel naming and types across different meter hardware.
+
+== Prerequisites / Dependencies
+
+No direct runtime dependencies. This is a pure API definition bundle used as a compile-time dependency by meter implementations.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.api[Source Code icon:github[]]

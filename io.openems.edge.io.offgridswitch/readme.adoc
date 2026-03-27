@@ -1,5 +1,99 @@
-= Emergency Power Switch
+= Off-Grid Switch (Emergency Power Switch)
 
-This implements a Emergency Power Switch (German: Netztrennstelle).
+Integrates an off-grid switching system into OpenEMS for managing grid disconnection and grounding contactors to safely transition systems between grid-connected and off-grid operation modes.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.iooffgridswitch[Source Code icon:github[]]
+== Overview
+
+This bundle implements an Emergency Power Switch (German: Netztrennstelle) for managing safe transitions between grid-connected and off-grid operation modes. The component monitors grid status, controls main and grounding contactors, and ensures proper interlocking logic to prevent dangerous electrical conditions during mode transitions.
+
+The off-grid switch communicates via digital input and output channels connected to relay-based contactor control systems. The component implements safety-critical logic to manage the sequence of operations, monitoring grid status and providing feedback on contactor positions through digital inputs.
+
+This is typically used in hybrid renewable energy systems, microgrids, and backup power installations where safe disconnection from the grid and activation of backup power sources is critical for system stability and safety.
+
+== Supported Devices
+
+The off-grid switch component interfaces with standard industrial contactors and relay systems. Common configurations include:
+
+* Industrial main contactors (400V/16A rated)
+* Grounding contactors (safety-rated)
+* Grid status monitoring relays
+* Digital I/O modules (typically DIN rail mounted)
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== Off-Grid Switch
+
+*Name*: IO Off Grid Switch
+
+*Factory-PID*: `io.openems.edge.io.offgridswitch`
+
+.Implemented Natures/Interfaces
+* OffGridSwitch
+* OpenemsComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "offGridSwitch0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `inputMainContactor` (String): Digital input channel for main contactor status (default: "io0/DigitalInputM1C1")
+* `inputGridStatus` (String): Digital input channel for grid status monitoring (default: "io0/DigitalInputM1C2")
+* `inputGroundingContactor` (String): Digital input channel for grounding contactor status (default: "io0/DigitalInputM1C3")
+* `outputMainContactor` (String): Digital output channel to control main contactor (default: "io0/DigitalOutputM1C1")
+* `outputGroundingContactor` (String): Digital output channel to control grounding contactor (default: "io0/DigitalOutputM1C2")
+
+== Operating Modes
+
+The off-grid switch manages the following operational states:
+
+.Grid-Connected Mode
+* Main contactor: CLOSED (grid connected)
+* Grounding contactor: OPEN (not grounded)
+* System draws/injects power from/to grid
+
+.Off-Grid Mode
+* Main contactor: OPEN (disconnected from grid)
+* Grounding contactor: CLOSED (system grounded for safety)
+* System operates on backup power sources
+
+.Transition Sequence
+. Monitor grid status for loss of grid voltage
+. If grid loss detected: Open main contactor first
+. Then close grounding contactor for safety
+. Activate backup power sources
+. Reverse sequence for reconnection to grid
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Digital I/O module with sufficient inputs and outputs (minimum 3 inputs, 2 outputs)
+* Industrial contactors rated for the system voltage and current
+* Safety interlocking relays to prevent simultaneous main and grounding contactor closure
+* Backup power source controller (if not using grid-only mode)
+* Grid monitoring capability (optional but recommended)
+
+=== Electrical Safety Requirements
+* All contactor circuits must include manual disconnects accessible to authorized personnel
+* Emergency stop buttons should be interlocked with the off-grid switch logic
+* Proper grounding must be installed and verified per electrical codes
+* Contactors should be sized for system requirements with sufficient safety margin
+* All wiring must comply with electrical safety standards (IEC, NEC, or equivalent)
+
+=== Hardware Setup
+. Install industrial contactors (main and grounding) with appropriate ratings
+. Connect contactor coils to the digital output channels (with protective relays)
+. Connect contactor position feedback (auxiliary contacts) to digital input channels
+. Connect grid status monitoring circuit to dedicated digital input channel
+. Verify interlocking logic prevents simultaneous main and grounding contactor activation
+. Test all emergency stop and manual disconnect functions
+. Verify grounding paths are properly installed and low resistance
+
+=== System Configuration
+. Map digital I/O channels to the correct contactor inputs and outputs
+. Configure grid loss detection threshold and debounce time
+. Set contactor switching delay parameters for safe mode transitions
+. Define backup power source switching logic
+. Test mode transitions under controlled conditions before deployment
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.offgridswitch[Source Code icon:github[]]

@@ -1,6 +1,42 @@
-= https://www.plexlog.de/web/pldatenlogger/[Plexlog Datalogger]
+= Plexlog Datalogger
 
-Implemented Natures:
-- ElectricityMeter
+Energy data logger for solar installations with remote monitoring via Modbus protocol.
+
+== Overview
+
+This bundle provides integration with Plexlog datalogger systems, which are designed for solar PV installation monitoring and energy logging. The component communicates with the Plexlog datalogger through the Modbus TCP protocol, enabling real-time solar production monitoring and comprehensive energy data collection in OpenEMS.
+
+Plexlog dataloggers are commonly used in residential and commercial solar installations for detailed performance monitoring and energy accounting.
+
+== Supported Devices
+
+* https://www.plexlog.de/web/pldatenlogger/[Plexlog Datalogger icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== Plexlog Datalogger
+
+*Name*: Meter Plexlog Datalogger
+
+*Factory-PID*: `Meter.Plexlog.Datalogger`
+
+.Implemented Natures/Interfaces
+* MeterPlexlogDatalogger
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+
+*Description*: Energy data logger for solar installations with remote monitoring via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the datalogger (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power and current, swap production/consumption energy (default: false)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.plexlog[Source Code icon:github[]]
