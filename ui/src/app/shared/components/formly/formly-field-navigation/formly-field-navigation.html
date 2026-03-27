@@ -10,13 +10,13 @@
             @for (line of entry.lines; track line) {
               @switch (line.type) {
                 @case('advanced-electricity-meter-line'){
-                    <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
+                  <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
                 }
 
                 @case('advanced-ess-charger-line'){
-                    <oe-ess-charger [component]="line.component"></oe-ess-charger>
+                  <oe-ess-charger [component]="line.component"></oe-ess-charger>
                 }
-                
+
                 <!-- OeFormlyField.ChannelLine -->
                 @case ('channel-line') {
                   <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name"
@@ -36,8 +36,8 @@
                 }
                 <!-- OeFormlyField.SvgLine -->
                 @case ('image-line') {
-                    <oe-img [img]="line.img">
-                    </oe-img>
+                  <oe-img [img]="line.img">
+                  </oe-img>
                 }
                 <!-- OeFormlyField.InfoLine -->
                 @case ('info-line') {
@@ -62,9 +62,15 @@
                 @case ('radio-buttons-from-form-control-line') {
                   @if (form.controls[line.controlName] !== null) {
                     <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
-                      [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null" [control]="{type: 'RADIO'}">
+                      [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null"
+                      [control]="{type: 'RADIO'}">
                     </oe-modal-buttons>
                   }
+                }
+                @case ('button-from-form-control-line') {
+                  <oe-modal-line [name]="line.name" [formGroup]="form" [component]="component"
+                    [control]="{type: 'BUTTON', button: line.button}">
+                  </oe-modal-line>
                 }
                 @case ('buttons-from-form-control-line') {
                   @if (form.controls[line.controlName] !== null) {
