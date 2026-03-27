@@ -53,12 +53,11 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
             }
         });
 
-        const context = effect(async () => {
+        effect(async () => {
             const status = this.service.websocket.state();
             this.service.startSpinner(this.spinnerId, { fullScreen: true });
             if (States.isAtLeast(status, States.WEBSOCKET_CONNECTED)) {
                 await OAuthCallBackComponent.processQueryParams(this.route, this.oauthService);
-                context.destroy();
             };
         });
     }

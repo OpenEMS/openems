@@ -31,7 +31,6 @@ import { CommonSelfconsumptionOverviewComponent as SelfconsumptionChartOverviewC
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
-import { LoadingScreenComponent } from "./index/shared/loading-screen";
 import { CurrentAndVoltageOverviewComponent } from "./shared/components/edge/meter/currentVoltage/overview/currentVoltage.overview";
 import { DataService } from "./shared/components/shared/dataservice";
 import { suffixMatcher } from "./shared/guards/url-matcher";
@@ -82,9 +81,8 @@ export const history: (/** Determines if titles in headers can be set */ customH
 export const routes: Routes = [
 
     // TODO should be removed in the future
-    { path: "", redirectTo: oauthRedirectFunction("index"), pathMatch: "full" },
+    { path: "", redirectTo: oauthRedirectFunction("login"), pathMatch: "full" },
     { path: "oauthcallback", component: OAuthCallBackComponent },
-    { path: "index", component: LoadingScreenComponent },
     { path: "login", component: LoginComponent, data: { navbarTitle: environment.uiTitle } },
 
     { path: "overview", component: OverViewComponent },
