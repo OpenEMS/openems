@@ -1,4 +1,4 @@
-= Battery BMW
+= BMW Battery
 
 BMW i3 battery rack system integration.
 

@@ -1,4 +1,4 @@
-= Battery FENECON Home
+= FENECON Home Battery
 
 Interface for FENECON Home battery systems.
 

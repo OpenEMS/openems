@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff Stadtwerk Hassfurt
+= Stadtwerk Hassfurt
 
 Retrieves the hourly prices from the Stadtwerk Hassfurt API and converts them into quarterly prices. The current implementation supports both "haStrom Flex" and "haStrom Flex Pro" models provided by Stadtwerk Hassfurt.
 

@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff Awattar
+= Awattar
 
 Retrieves the hourly prices from the Awattar API and converts them into quarterly prices. Prices are updated every day at 14:00 and stored locally.
 

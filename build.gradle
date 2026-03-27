@@ -394,11 +394,14 @@ tasks.register('copyBundleReadmes') {
 	doLast {
 		// define target files
 		def targets = [
+			core: "edge/core.d",
 			controller: "edge/controller.d",
 			scheduler: "edge/scheduler.d",
 			nature: "edge/nature.d",
 			bridge: "edge/bridge.d",
 			deviceService: "edge/device_service.d",
+			predictor: "edge/predictor.d",
+			tariff: "edge/tariff.d",
 			timedata: "edge/timedata.d",
 			backendService: "backend/service.d"
 		]
@@ -423,11 +426,17 @@ tasks.register('copyBundleReadmes') {
 					}
 
 					def bundle = sourceFile.getParentFile().getName()
+					if(bundle in ["io.openems.edge.core", "io.openems.edge.system.fenecon"]) {
+						return // ignore
+					}
 					def targetKey = null
 
 					if(bundle.startsWith("io.openems.edge.")) {
 						def edgeBundle = bundle.substring("io.openems.edge.".length())
-						if(edgeBundle.endsWith(".api")) {
+						if(edgeBundle in ["energy", "evcs.ocpp.common", "ess.cluster", "evcs.cluster", "evcs.core",
+						"evse.electricvehicle", "ess.generic", "evcs.ocpp.server", "simulator", "pvinverter.cluster"]) {
+							targetKey = 'core'
+						} else if(edgeBundle.endsWith(".api")) {
 							targetKey = 'nature'
 						} else if(edgeBundle.startsWith("controller.")) {
 							targetKey = 'controller'
@@ -435,6 +444,10 @@ tasks.register('copyBundleReadmes') {
 							targetKey = 'scheduler'
 						} else if(edgeBundle.startsWith("bridge.")) {
 							targetKey = 'bridge'
+						} else if(edgeBundle.startsWith("predictor.")) {
+							targetKey = 'predictor'
+						} else if(edgeBundle.startsWith("timeofusetariff.")) {
+							targetKey = 'tariff'
 						} else if(edgeBundle.startsWith("timedata.")) {
 							targetKey = 'timedata'
 						} else {

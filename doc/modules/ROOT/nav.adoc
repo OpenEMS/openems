@@ -29,10 +29,25 @@ include::pages/edge/bridge.d/_nav.adoc[]
 --
 include::pages/edge/device_service.d/_nav.adoc[]
 --
+** Predictors
++
+--
+include::pages/edge/predictor.d/_nav.adoc[]
+--
+** Time-of-Use-Tariffs
++
+--
+include::pages/edge/tariff.d/_nav.adoc[]
+--
 ** Timedata
 +
 --
 include::pages/edge/timedata.d/_nav.adoc[]
+--
+** Core Services
++
+--
+include::pages/edge/core.d/_nav.adoc[]
 --
 ** xref:edge/implement.adoc[Implementing a Device]
 ** xref:edge/build.adoc[Build OpenEMS Edge]
