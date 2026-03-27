@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
-import io.openems.common.types.Tuple;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
@@ -167,25 +166,56 @@ public class EshUtils {
 		}
 	}
 
-	protected static Tuple<ImmutableTable<String, ZonedDateTime, Mode>, ImmutableTable<String, ZonedDateTime, Smart>> parseTasks(
-			GlobalOptimizationContext goc, ClusterEshConfig clusterConfig) {
+	/**
+	 * Result of {@link EshUtils#parseTasks}.
+	 *
+	 * @param manualModes    periods with a fixed {@link Mode} override
+	 * @param smartPayloads  periods covered by a Smart task
+	 * @param smartDeadlines last period of each Smart task that carries a
+	 *                       {@code sessionEnergyMinimum > 0}, mapped to that
+	 *                       minimum in [Wh]. The optimizer must accumulate at least
+	 *                       this much session energy by (and including) that period.
+	 */
+	public static record ParsedTasks(//
+			ImmutableTable<String, ZonedDateTime, Mode> manualModes, //
+			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads, //
+			ImmutableTable<String, ZonedDateTime, Integer> smartDeadlines) {
+	}
+
+	protected static ParsedTasks parseTasks(GlobalOptimizationContext goc, ClusterEshConfig clusterConfig) {
 		final var firstTime = goc.periods().getFirst().time();
 		final var lastTime = goc.periods().getLast().time();
 
 		final var manualModes = ImmutableTable.<String, ZonedDateTime, Mode>builder();
 		final var smartPayloads = ImmutableTable.<String, ZonedDateTime, Payload.Smart>builder();
+		final var smartDeadlines = ImmutableTable.<String, ZonedDateTime, Integer>builder();
+
 		for (var p : clusterConfig.singleParams().values()) {
 			for (var ot : p.tasks().getOneTasksBetween(firstTime, lastTime)) {
+				ZonedDateTime lastSmartT = null;
+				Payload.Smart lastSmartPayload = null;
+
 				for (var t = ot.start(); t.isBefore(lastTime) && t.isBefore(ot.end()); t = t.plusMinutes(15)) {
 					switch (ot.payload()) {
 					case Payload.Manual m -> manualModes.put(p.componentId(), t, m.mode());
-					case Payload.Smart s -> smartPayloads.put(p.componentId(), t, s);
+					case Payload.Smart s -> {
+						smartPayloads.put(p.componentId(), t, s);
+						lastSmartT = t;
+						lastSmartPayload = s;
+					}
 					case null -> System.out.println("Task has no payload: " + ot.toString());
 					}
 				}
+
+				// Record the deadline for Smart tasks that require a minimum session energy.
+				// The deadline is the last 15-min period inside the task window.
+				if (lastSmartT != null && lastSmartPayload != null
+						&& lastSmartPayload.sessionEnergyMinimum() > 0) {
+					smartDeadlines.put(p.componentId(), lastSmartT, lastSmartPayload.sessionEnergyMinimum());
+				}
 			}
 		}
-		return Tuple.of(manualModes.build(), smartPayloads.build());
+		return new ParsedTasks(manualModes.build(), smartPayloads.build(), smartDeadlines.build());
 	}
 
 	protected static Modes<SingleModes> generateModes(ClusterEshConfig clusterConfig,
@@ -236,6 +266,14 @@ public class EshUtils {
 		final var fromManualMode = clusterCoc.manualModes().get(p.componentId(), period.time());
 		if (fromManualMode != null) {
 			return fromManualMode;
+		}
+		// 2.5th Priority: Window-boundary guard for Smart tasks.
+		// If this component has Smart tasks but the current period is NOT inside any
+		// Smart task window, the optimizer is not allowed to schedule charging here.
+		// Fall back to the configured mode (typically ZERO for postponed charging).
+		if (!clusterCoc.smartPayloads().row(p.componentId()).isEmpty()
+				&& clusterCoc.smartPayloads().get(p.componentId(), period.time()) == null) {
+			return p.mode();
 		}
 		// 3rd Priority: Simulated SingleMode
 		if (simulatedMode != null) {

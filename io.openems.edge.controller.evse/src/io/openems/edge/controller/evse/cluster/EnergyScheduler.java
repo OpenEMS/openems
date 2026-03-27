@@ -30,7 +30,9 @@ public class EnergyScheduler {
 			ClusterEshConfig clusterConfig, //
 			Modes<SingleModes> modes, //
 			ImmutableTable<String, ZonedDateTime, Mode> manualModes, //
-			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads) {
+			ImmutableTable<String, ZonedDateTime, Payload.Smart> smartPayloads, //
+			/** Deadline periods for postponed charging: (componentId, deadlineTime) → sessionEnergyMinimum [Wh] */
+			ImmutableTable<String, ZonedDateTime, Integer> smartDeadlines) {
 	}
 
 	/**
@@ -115,13 +117,14 @@ public class EnergyScheduler {
 
 					// Parse OneTasks with Payload.Manual, i.e. Periods with predefined Mode
 					final var t = parseTasks(goc, clusterConfig);
-					final var manualModes = t.a();
-					final var smartPayloads = t.b();
+					final var manualModes = t.manualModes();
+					final var smartPayloads = t.smartPayloads();
+					final var smartDeadlines = t.smartDeadlines();
 
 					// Generate Modes
 					final var modes = generateModes(clusterConfig, smartPayloads);
 
-					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads);
+					return new OptimizationContext(clusterConfig, modes, manualModes, smartPayloads, smartDeadlines);
 				})
 
 				.setModes((goc, coc) -> coc.modes()) //
@@ -149,6 +152,17 @@ public class EnergyScheduler {
 					ed.initializeSetPoints();
 					ed.distributeSurplusEnergy(DistributionStrategy.EQUAL_POWER);
 					ed.applyChargeEnergy(ef);
+
+					// Postponed charging: enforce minimum session energy at deadline periods.
+					// smartDeadlines is keyed (componentId → deadlineTime → minimumEnergy).
+					// column(period.time()) returns all components whose deadline is this period.
+					coc.smartDeadlines().column(period.time()).forEach((componentId, minimumEnergy) -> {
+						final var componentCsc = csc.getCsc(componentId);
+						if (componentCsc != null && componentCsc.getSessionEnergy() < minimumEnergy) {
+							fitness.addHardConstraintViolation();
+						}
+					});
+
 					return mode;
 				})
 
