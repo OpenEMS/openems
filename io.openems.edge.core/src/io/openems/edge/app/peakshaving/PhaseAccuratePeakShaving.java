@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.ComponentProps;
@@ -132,13 +131,6 @@ public class PhaseAccuratePeakShaving
 			@Reference ComponentUtil componentUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

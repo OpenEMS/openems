@@ -4,7 +4,6 @@ import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;

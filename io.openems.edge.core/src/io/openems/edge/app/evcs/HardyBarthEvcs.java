@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -548,13 +547,6 @@ public class HardyBarthEvcs
 									.addIp("Evcs", "192.168.25.10/24")))) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

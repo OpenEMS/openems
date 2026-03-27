@@ -318,7 +318,7 @@ public class TestTranslations {
 		var missing = this.apps.stream() //
 				.map(TestTranslation::app) //
 				.map(OpenemsApp::getAppId) //
-				.filter(appId -> dummyOem.getAppWebsiteUrl(appId) == null) //
+				.filter(appId -> dummyOem.getAppWebsiteUrl(appId, Language.DE) == null) //
 				.toList();
 		assertTrue("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]", missing.isEmpty());
 	}

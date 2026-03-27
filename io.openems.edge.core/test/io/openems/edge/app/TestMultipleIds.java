@@ -60,7 +60,7 @@ public class TestMultipleIds extends AbstractEnumOpenemsApp<Property> implements
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
 		return AppDescriptor.create() //
 				.build();
 	}
