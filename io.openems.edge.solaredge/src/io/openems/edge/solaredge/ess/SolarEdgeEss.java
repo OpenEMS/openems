@@ -76,7 +76,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * external controller
 		 * </ul>
 		 */
-		STORAGE_CONTROL_MODE(Doc.of(SeControlMode.values()).accessMode(AccessMode.READ_ONLY)),	
+		STORAGE_CONTROL_MODE(Doc.of(SeControlMode.values())),
 		
 		/**
 		 * Defines the AC charge policy for the storage system.
@@ -91,7 +91,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * system's year-to-date production, also for ITC regulation in the US.
 		 * </ul>
 		 */
-		STORAGE_AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values()).accessMode(AccessMode.READ_ONLY)),
+		STORAGE_AC_CHARGE_POLICY(Doc.of(AcChargePolicy.values())),
 
 		/**
 		 * Storage AC Charge Limit is used to set the AC charge limit according to the
@@ -100,7 +100,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 */
 		STORAGE_AC_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH).accessMode(AccessMode.READ_ONLY)), // defined in external
+				.persistencePriority(PersistencePriority.HIGH)), // defined in external
 
 		/**
 		 * Storage Backup Reserved Setting sets the percentage of reserved battery SOE
@@ -116,7 +116,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 */
 		STORAGE_BACKUP_RESERVED_SETTING(Doc.of(OpenemsType.INTEGER) // Percent. Relevant only for inverters with backup functionality.
 				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.HIGH).accessMode(AccessMode.READ_ONLY)),	
+				.persistencePriority(PersistencePriority.HIGH)),
 		
 		/**
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
@@ -148,7 +148,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * loads consumption. Discharging to the grid is not allowed. 7 – Maximize
 		 * self-consumption
 		 */
-		STORAGE_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(CommandMode.values()).accessMode(AccessMode.READ_ONLY)),	
+		STORAGE_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(CommandMode.values())),
 
 		/**
 		 * Remote Control Command Timeout sets the operating timeframe for the
@@ -419,7 +419,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_STATUS(Doc.of(BatteryStatus.values()).accessMode(AccessMode.READ_ONLY)),		
+		BATTERY1_STATUS(Doc.of(BatteryStatus.values())),
 
 		/**
 		 * Inverter Actual DC Power.
@@ -472,7 +472,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),		
+		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER)),
 		
 		/**
 		 * Export Control Mode.
@@ -483,7 +483,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),
+		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER)),
 		
 		/**
 		 * Export Control Limit Mode.
@@ -494,7 +494,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */		
-		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_ONLY)),	
+		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER)),
 		
 		/**
 		 * Export Control Site Limit.
