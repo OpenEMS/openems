@@ -43,6 +43,7 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -181,6 +182,10 @@ public class PeakShaving extends AbstractOpenemsAppWithProps<PeakShaving, Proper
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //
+					.onlyIf(t != ConfigurationTarget.VALIDATE,
+							b -> b.addTask(Tasks.schedulerByCentralOrder(
+									new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlPeakShavingId,
+											"Controller.Symmetric.PeakShaving", this.getAppId()))))
 					.build();
 		};
 	}

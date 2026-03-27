@@ -1,6 +1,7 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.deinstallableSelfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
@@ -171,7 +172,7 @@ public class FeneconCommercial92
 			);
 
 			final var dependencies = Lists.newArrayList(//
-					FeneconHomeComponents.selfConsumptionOptimization(t, essId, gridMeterId), //
+					deinstallableSelfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
 					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId), //

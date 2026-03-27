@@ -127,6 +127,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
 					.thenByFactoryId("Controller.TimeslotPeakshaving") //
 					.thenByFactoryId("Controller.Clever-PV") //
+					.thenByFactoryId("Controller.Symmetric.PeakShaving") //
+					.thenByFactoryId("Controller.Asymmetric.PeakShaving") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}
