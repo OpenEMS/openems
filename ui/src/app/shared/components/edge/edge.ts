@@ -30,7 +30,7 @@ import { ChannelAddress, EdgePermission, SystemLog, Websocket } from "../../shar
 import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { StringUtils } from "../../utils/string/string.utils";
 import { NavigationId, NavigationTree } from "../navigation/shared";
 import { Name } from "../shared/name";
@@ -594,25 +594,6 @@ export class Edge {
             }
 
             switch (component.factoryId) {
-                case "Evse.Controller.Single":
-                    navigationTree.setChild(NavigationId.LIVE,
-                        new NavigationTree(
-                            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-                                ...(this.roleIsAtLeast(Role.ADMIN)
-                                    ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
-                                    : []),
-
-                                new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
-                                new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null),
-                                new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                                ], null),
-                                new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
-                                ...(this.roleIsAtLeast(Role.OWNER)
-                                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic", queryParams: { componentId: component.getPropertyFromComponent<string>("electricVehicle.id") } }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
-                                    : []),
-                            ], navigationTree));
-                    break;
                 case "Controller.IO.Heating.Room":
                     navigationTree.setChild(NavigationId.LIVE,
                         new NavigationTree(
@@ -622,7 +603,7 @@ export class Edge {
             }
         }
         navigationTree.setChild(NavigationId.LIVE, new NavigationTree("navigation-info", { baseString: "navigation-info" }, { name: "information-outline" }, translate.instant("GENERAL.HELP"), "label", [], null, "LOW"));
-        navigationTree.reorderByPriorization(navigationTree);
+        navigationTree.reorderByShowOrder(navigationTree);
         return navigationTree;
     }
 

@@ -27,6 +27,8 @@ export namespace ChartConstants {
 
         public static Datasets = class {
 
+            public static readonly DEFAULT_BORDER_DASH: number[] = [10, 10];
+
             public static POINT_STYLE = (dataset: HistoryUtils.DisplayValue<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
                 const res = ChartConstants.Plugins.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
                 return {

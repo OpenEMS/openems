@@ -10,12 +10,18 @@ import org.junit.Test;
 public class TimeSpanTests {
 	@Test
 	public void testTimeSpan() {
-		final var span1 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T12:00:00Z"), Instant.parse("2026-02-03T18:00:00Z"));
-		final var span2 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T13:00:00Z"), Instant.parse("2026-02-03T13:15:00Z"));
-		final var span3 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T17:00:00Z"), Instant.parse("2026-02-03T18:00:00Z"));
-		final var span4 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T18:00:00Z"), Instant.parse("2026-02-03T18:15:00Z"));
-		final var span5 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T20:00:00Z"), Instant.parse("2026-02-03T21:00:00Z"));
-		final var span6 = io.openems.common.utils.TimeSpan.between(Instant.parse("2026-02-03T12:00:00Z"), Instant.parse("2026-02-03T12:00:01Z"));
+		final var span1 = TimeSpan.between(Instant.parse("2026-02-03T12:00:00Z"),
+				Instant.parse("2026-02-03T18:00:00Z"));
+		final var span2 = TimeSpan.between(Instant.parse("2026-02-03T13:00:00Z"),
+				Instant.parse("2026-02-03T13:15:00Z"));
+		final var span3 = TimeSpan.between(Instant.parse("2026-02-03T17:00:00Z"),
+				Instant.parse("2026-02-03T18:00:00Z"));
+		final var span4 = TimeSpan.between(Instant.parse("2026-02-03T18:00:00Z"),
+				Instant.parse("2026-02-03T18:15:00Z"));
+		final var span5 = TimeSpan.between(Instant.parse("2026-02-03T20:00:00Z"),
+				Instant.parse("2026-02-03T21:00:00Z"));
+		final var span6 = TimeSpan.between(Instant.parse("2026-02-03T12:00:00Z"),
+				Instant.parse("2026-02-03T12:00:01Z"));
 
 		assertFalse(span1.getEndExclusive().isAfter(span4.getStartInclusive()));
 

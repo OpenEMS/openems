@@ -22,4 +22,4 @@ import { CommonAutarchyHomeComponent } from "./new-navigation/new-navigation";
         CommonAutarchyHomeComponent,
     ],
 })
-export class Common_Autarchy { }
+export class CommonAutarchy { }

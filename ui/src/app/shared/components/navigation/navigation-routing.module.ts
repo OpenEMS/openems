@@ -15,6 +15,9 @@ import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/p
 import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
+import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
+import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
+import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -46,7 +49,7 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
     { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
     { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
-    { path: "evse/:componentId/schedule/task/:taskId", component: EvseEditTaskComponent },
+    { path: "evse/:componentId/schedule/edit-task", component: EvseEditTaskComponent },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
     { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
     { path: "navigation-info", component: NavigationInfoComponent },
@@ -80,10 +83,13 @@ export const newNavigationRoutes: Routes = [
 
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
+    { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
+    { path: "controller/heatpump/:componentId/details", component: ControllerIoHeatpumpSettingsComponent },
+    { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
-    { path: ":componentId/scheduler-js-calendar/schedule/task/:taskId", component: SchedulerJsCalendarEditTaskComponent },
+    { path: ":componentId/scheduler-js-calendar/schedule/edit-task", component: SchedulerJsCalendarEditTaskComponent },
     ...history(true),
 ];
 

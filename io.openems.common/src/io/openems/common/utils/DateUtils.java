@@ -441,7 +441,7 @@ public class DateUtils {
 	 * Checks if the given Time is before or equals the other time.
 	 *
 	 * @param valueThatShouldBeBefore Value that must be lower or equals
-	 * @param valueToCheckAgainst    Value to check against
+	 * @param valueToCheckAgainst     Value to check against
 	 * @return Check result
 	 */
 	public static boolean isBeforeOrEquals(Instant valueThatShouldBeBefore, Instant valueToCheckAgainst) {

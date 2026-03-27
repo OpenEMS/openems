@@ -431,7 +431,7 @@ public abstract class AbstractOpenemsAppWithProps<//
 		}
 		return flags.toArray(Flag[]::new);
 	}
-
+	
 	protected OpenemsAppStatus getStatus() {
 		return OpenemsAppStatus.STABLE;
 	}

@@ -36,8 +36,9 @@ export class OAuthService {
     constructor() {
         App.addListener("appUrlOpen", (data: URLOpenListenerEvent) => {
             const isApp = this.platformService.getIsApp();
+            const code = OAuthService.getCode(data);
             if (isApp) {
-                this.router.navigate(["/oauthcallback"], { queryParams: { code: data.url.split("code=")[1] ?? null } });
+                this.router.navigate(["/oauthcallback"], { queryParams: { code: code ?? null } });
             }
         });
     }
@@ -61,6 +62,30 @@ export class OAuthService {
     */
     public static getOem() {
         return { oem: environment.theme.toLowerCase() };
+    }
+
+    /**
+     * Gets the code from url queryParams.
+     *
+     * @param data the data
+     * @returns the code if available in event, else null
+     */
+    private static getCode(data: URLOpenListenerEvent) {
+        const dataQueryParams = StringUtils.splitBy(data.url, "?");
+
+        if (dataQueryParams == null || dataQueryParams.length < 1) {
+            return null;
+        }
+
+        const searchParams = new URLSearchParams(dataQueryParams[1]);
+        const code = searchParams.get("code");
+
+        if (code == null || code.length === 0) {
+            return null;
+        }
+
+        const indexOfFragment = code.indexOf("#") > 0 ? code.indexOf("#") : null;
+        return code.substring(0, indexOfFragment ?? code.length);
     }
 
     /**

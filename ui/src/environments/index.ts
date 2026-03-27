@@ -30,6 +30,7 @@ export interface Environment {
         readonly "COMMON": {
             readonly "CONSUMPTION": string,
             readonly "SELFCONSUMPTION": string,
+            readonly "GENERATOR": string,
             readonly "GRID": string,
             readonly "GRID_STORAGE": string,
             readonly "GRID_RESTRICTION": string,

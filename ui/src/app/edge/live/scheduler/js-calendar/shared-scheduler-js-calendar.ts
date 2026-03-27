@@ -12,7 +12,11 @@ export namespace SharedSchedulerJsCalendar {
 
     export function getNavigationTree(translate: TranslateService, componentId: EdgeConfig.Component["id"]): ConstructorParameters<typeof NavigationTree> | null {
         return new NavigationTree(componentId + "/scheduler-js-calendar", { baseString: componentId + "/scheduler-js-calendar" }, { name: "battery-full-outline", color: "medium" }, "Serieller Multi Use", "label", [
-            new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), "label", [], null),
+            new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), "label", [
+                new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
+                new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
+
+            ], null),
         ], null).toConstructorParams();
     }
 

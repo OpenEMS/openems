@@ -33,13 +33,13 @@ import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 	@AttributeDefinition(name = "Port Multiplexing Mode", description = "The mode of the multiplexing port")
 	MultiplexingMode portMultiplexingMode() default MultiplexingMode.GENSET;
 
-	@AttributeDefinition(name = "Genset Rated Power", description = "Nominal genset power in kilowatts. Allowed range: 0–50000 W.")
+	@AttributeDefinition(name = "Genset Rated Power", description = "Nominal genset power in watt. Allowed range: 0–50000 W.")
 	int ratedPower() default 0;
 
 	@AttributeDefinition(name = "Preheating Time", description = "Genset preheating time in seconds. Allowed range: 10–300 s.")
 	int preheatingTime() default 10;
 
-	@AttributeDefinition(name = "Runtime", description = "Maximum genset runtime in hours. Allowed range: 0–1440 m.")
+	@AttributeDefinition(name = "Runtime", description = "Maximum genset runtime in minutes. Allowed range: 0–1440 minutes (24 hours).")
 	int runtime() default 0;
 
 	@AttributeDefinition(name = "Enable Charging from Genset", description = "Controls whether charging from the Genset is enabled.")

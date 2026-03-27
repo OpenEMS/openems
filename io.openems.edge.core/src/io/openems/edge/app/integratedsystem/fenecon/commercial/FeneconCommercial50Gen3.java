@@ -6,6 +6,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.deinstallableSelfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.emergencyMeter;
@@ -21,7 +22,6 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusI
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
@@ -68,7 +68,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -84,7 +83,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -96,7 +94,6 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
-import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
@@ -227,13 +224,6 @@ public class FeneconCommercial50Gen3 extends
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
 	}
@@ -361,21 +351,13 @@ public class FeneconCommercial50Gen3 extends
 			}
 
 			final var dependencies = Lists.newArrayList(//
+					deinstallableSelfConsumptionOptimization(t, essId, gridMeterId), //
 					gridOptimizedCharge(t), //
 					prepareBatteryExtension(), //
 					sohCycle(), //
 					predictionDefault(), //
 					predictionUnmanagedConsumption() //
 			);
-
-			if (t == ConfigurationTarget.ADD) {
-				dependencies.add(selfConsumptionOptimization(t, essId, gridMeterId,
-						DependencyDeclaration.DependencyDeletePolicy.ALLOWED));
-			} else {
-				dependencies.add(selfConsumptionOptimization(t, essId, gridMeterId,
-						DependencyDeclaration.DependencyDeletePolicy.ALLOWED) //
-						.withCreatePolicy(DependencyDeclaration.CreatePolicy.NEVER));
-			}
 
 			final var gpioId = FunctionUtils
 					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));

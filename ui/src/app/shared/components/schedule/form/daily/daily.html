@@ -18,7 +18,8 @@
                 (ionChange)="setTime($event, startTime)"
                 [formatOptions]="{ time: { hour: '2-digit', minute: '2-digit', }}">
                 <ion-buttons slot="buttons">
-                    <ion-button color="danger" (click)="startTimePicker.cancel()" translate>GENERAL.CANCEL</ion-button>
+                    <ion-button color="danger" (click)="startTimePicker.cancel(true)"
+                        translate>GENERAL.CANCEL</ion-button>
                     <ion-button fill="solid" color="primary"
                         (click)="startTimePicker.confirm(); startTimePicker.cancel(true);"
                         translate>GENERAL.OK</ion-button>

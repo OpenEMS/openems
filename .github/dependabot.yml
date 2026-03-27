@@ -38,6 +38,17 @@ updates:
       auth0:
         patterns:
           - "com.auth0:*"
+      mockito:
+        patterns:
+          - "org.mockito:*"
+      junit:
+        patterns:
+          - "org.junit.jupiter:*"
+          - "org.junit.platform:*"
+          - "org.junit.vintage:*"
+      bytebuddy:
+        patterns:
+          - "net.bytebuddy:*"
 
   - package-ecosystem: npm
     directory: "/ui"

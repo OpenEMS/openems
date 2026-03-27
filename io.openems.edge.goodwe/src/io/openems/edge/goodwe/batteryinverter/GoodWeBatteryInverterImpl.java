@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.batteryinverter;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
@@ -588,7 +589,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
 
 		// Set SoC within [1;100] to avoid force-charge internally by PCS at 0 %
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, TypeUtils.fitWithin(1, 100, battery.getSoc().orElse(1)));
+		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, fitWithin(1, 100, battery.getSoc().orElse(1)));
 		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, battery.getSoh().orElse(100));
 
 		// Average Min/Max Cell Temperature; defaults to 0
@@ -648,7 +649,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	protected static int preprocessAmpereValue47900(Value<Integer> v, int maxDcCurrent) {
-		return TypeUtils.fitWithin(0, maxDcCurrent, v.orElse(0));
+		return fitWithin(0, maxDcCurrent, v.orElse(0));
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)

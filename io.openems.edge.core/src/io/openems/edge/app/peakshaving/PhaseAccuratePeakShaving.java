@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.ComponentProps;
@@ -134,13 +134,6 @@ public class PhaseAccuratePeakShaving
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.PEAK_SHAVING };
 	}
@@ -183,6 +176,10 @@ public class PhaseAccuratePeakShaving
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //
+					.onlyIf(t != ConfigurationTarget.VALIDATE,
+							b -> b.addTask(Tasks.schedulerByCentralOrder(
+									new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlPeakShavingId,
+											"Controller.Asymmetric.PeakShaving", this.getAppId()))))
 					.build();
 		};
 	}

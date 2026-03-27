@@ -47,8 +47,7 @@ export class SchedulerJsCalendarAddTaskComponent extends JsCalendarAddTaskCompon
         this.payload.update(el => { el.setValue({ controllerIds: [event.detail.value] as string[] }); return el; });
     }
 
-    public override async ionViewWillEnter(): Promise<void> {
-        await super.ionViewWillEnter();
+    public ionViewWillEnter() {
         this.controllerOptions = SharedSchedulerJsCalendar.getControllerOptions(this.service);
     }
 }

@@ -33,6 +33,8 @@ export class WsData {
             }
         }
 
+        const sanitizedRequest: Exclude<JsonrpcRequest, "requiredState"> = request;
+
         // create Promise
         let promiseResolve: (value?: JsonrpcResponseSuccess | PromiseLike<JsonrpcResponseSuccess>) => void;
         let promiseReject: (reason?: any) => void;
@@ -42,18 +44,18 @@ export class WsData {
         });
 
         // check for existing Promise with this JSON-RPC Request ID
-        if (request.id in this.requestPromises) {
+        if (sanitizedRequest.id in this.requestPromises) {
             promiseReject("ID already exists"); // TODO JSONRPC_ID_NOT_UNIQUE(4000)
 
         } else {
-            this.requestPromises[request.id] = { resolve: promiseResolve, reject: promiseReject };
-            ws.next(request);
+            this.requestPromises[sanitizedRequest.id] = { resolve: promiseResolve, reject: promiseReject };
+            ws.next(sanitizedRequest);
         }
 
         promise.then((response) => {
             if (environment.debugMode) {
-                if (request instanceof EdgeRpcRequest) {
-                    console.info(this.getLogPrefix() + " Response     [" + request.params.payload.method + ":" + request.params.edgeId + "]", response.result["payload"]["result"]);
+                if (sanitizedRequest instanceof EdgeRpcRequest) {
+                    console.info(this.getLogPrefix() + " Response     [" + sanitizedRequest.params.payload.method + ":" + sanitizedRequest.params.edgeId + "]", response.result["payload"]["result"]);
                 } else {
                     console.info(this.getLogPrefix() + " Response     [" + request.method + "]", response.result);
                 }

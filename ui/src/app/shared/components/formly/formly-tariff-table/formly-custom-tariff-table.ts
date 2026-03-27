@@ -3,7 +3,7 @@ import { FieldType } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Service } from "src/app/shared/shared";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 
 interface YearData {
     year: number;
