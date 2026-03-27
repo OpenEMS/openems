@@ -134,6 +134,7 @@ export abstract class AbstractHistoryChart {
             const formatNumber = this.formatNumber;
             const colors = this.colors;
             const translate = this.translate;
+            let lastLabel: string | null = null;
             this.service.getConfig().then((conf) => {
 
                 options = NewAbstractHistoryChart.getDefaultXAxisOptions(this.xAxisType, this.service, this.labels);
@@ -157,6 +158,10 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
+                    if (lastLabel == label) {
+                        return null;
+                    }
+                    lastLabel = label;
                     return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", translate, conf);
                 };
 
@@ -183,23 +188,51 @@ export abstract class AbstractHistoryChart {
 
                         const color = colors[index];
 
-                        if (!color) {
-                            return;
-                        }
+                        const backgroundColor =
+                            color?.backgroundColor ??
+                            (typeof dataset.backgroundColor === "string" ? dataset.backgroundColor : undefined);
+
+                        const borderColor =
+                            color?.borderColor ??
+                            (typeof dataset.borderColor === "string" ? dataset.borderColor : undefined);
 
                         // Set colors manually
-                        dataset.backgroundColor = color.backgroundColor ?? dataset.backgroundColor;
-                        dataset.borderColor = color.borderColor ?? dataset.borderColor;
+                        dataset.backgroundColor = backgroundColor;
+                        dataset.borderColor = borderColor;
 
+                        const existingItem = chartLegendLabelItems.find(item => item.text === dataset.label);
+
+                        if (existingItem != null) {
+                            existingItem.datasetIndex = index;
+                            existingItem.hidden = !chart.isDatasetVisible(index);
+
+                            const color = colors[index];
+
+                            const borderColor =
+                                color?.borderColor ??
+                                (Array.isArray(dataset.borderColor)
+                                    ? dataset.borderColor[0]
+                                    : dataset.borderColor);
+
+                            existingItem.fillStyle = borderColor;
+                            existingItem.strokeStyle = borderColor;
+
+                            if (dataset["borderDash"] != null) {
+                                // Keep legend marker solid even if the dataset line is dashed.
+                                existingItem.lineDash = [];
+                            }
+
+                            return;
+                        }
                         chartLegendLabelItems.push({
                             text: dataset.label,
                             datasetIndex: index,
-                            fillStyle: color.backgroundColor,
+                            fillStyle: backgroundColor,
                             fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
                             hidden: !chart.isDatasetVisible(index),
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
-                            strokeStyle: color.borderColor,
+                            strokeStyle: borderColor,
                             ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
