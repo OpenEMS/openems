@@ -489,8 +489,9 @@ public class HardyBarthEvcs
 				if (numberOfChargingStations == 2) {
 					final var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
 					final var ipCp2 = this.getString(p, SubPropertySecondChargepoint.IP_CP_2);
+					final var aliasCp2 = this.getString(p, SubPropertySecondChargepoint.ALIAS_CP_2);
 
-					components.add(new EdgeConfig.Component(evcsIdCp2, alias, "Evse.ChargePoint.HardyBarth",
+					components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, "Evse.ChargePoint.HardyBarth",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ip", ipCp2) //
 									.addPropertyIfNotNull("phaseRotation", phaseRotation) //
@@ -511,7 +512,7 @@ public class HardyBarthEvcs
 
 					var ctrlSingleIdCp2 = this.getId(t, p, Property.CTRL_SINGLE_ID_CP_2);
 
-					components.add(new EdgeConfig.Component(ctrlSingleIdCp2, alias, "Evse.Controller.Single",
+					components.add(new EdgeConfig.Component(ctrlSingleIdCp2, aliasCp2, "Evse.Controller.Single",
 							JsonUtils.buildJsonObject()//
 									.addProperty("electricVehicle.id", vehicleComponentIdCp2)//
 									.addProperty("chargePoint.id", evcsIdCp2)//
