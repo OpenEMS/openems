@@ -1,12 +1,10 @@
 = FENECON Commercial Battery
 
-High-performance lithium battery system for commercial and industrial energy storage.
+High-performance lithium battery system for commercial and industrial energy storage (of year 2024).
 
 == Overview
 
 This bundle provides integration with the FENECON Commercial Battery (of year 2024), a modular lithium-based energy storage system designed for commercial and industrial applications. The system communicates via Modbus for precise charge/discharge control, thermal management, and state monitoring.
-
-The FENECON Commercial Battery is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power in commercial facilities.
 
 == Components
 
@@ -29,8 +27,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for the FENECON Commercial Battery system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and health status. Supports relay-based automatic start/stop control for safety and operational optimization.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "battery0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -38,13 +35,5 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
 * `modbusUnitId` (Integer): Modbus Unit-ID of the battery device (default: 1)
 * `batteryStartStopRelay` (String): IO channel for automatic start/stop relay control (default: "io0/Relay7")
-
-.Example Configuration
-For a FENECON Commercial Battery with automatic start/stop:
-* `id`: "battery0"
-* `alias`: "FENECON Commercial Battery"
-* `modbus_id`: "modbus0"
-* `modbusUnitId`: 1
-* `batteryStartStopRelay`: "io0/Relay7"
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.commercial[Source Code icon:github[]]

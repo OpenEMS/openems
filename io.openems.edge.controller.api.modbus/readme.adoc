@@ -118,40 +118,6 @@ Modbus/RTU slave server over serial connection with read-only access.
 .Factory-PID
 `Controller.Api.ModbusRtu.ReadOnly`
 
-== Configuration Examples
-
-.Modbus/TCP Read-Write (SCADA Integration)
-[source,json]
-----
-{
-  "id": "ctrlModbusTcp0",
-  "alias": "SCADA Gateway",
-  "enabled": true,
-  "port": 502,
-  "component_ids": ["_sum", "ess0", "meter0", "pvInverter0"],
-  "writeChannels": ["ess0/SetActivePowerEquals", "ess0/SetReactivePowerEquals"],
-  "apiTimeout": 60,
-  "maxConcurrentConnections": 20,
-  "logVerbosity": "NONE"
-}
-----
-
-.Modbus/RTU Read-Only (Legacy Serial Device)
-[source,json]
-----
-{
-  "id": "ctrlModbusRtu0",
-  "alias": "Serial Gateway",
-  "enabled": true,
-  "port": "/dev/ttyUSB0",
-  "baudRate": 9600,
-  "stopBits": 1,
-  "component_ids": ["_sum", "meter0"],
-  "apiTimeout": 60,
-  "logVerbosity": "NONE"
-}
-----
-
 == Register Layout
 
 The Modbus protocol is self-describing through dynamic register headers:
@@ -231,46 +197,3 @@ When an external system writes to a channel via Modbus:
 2. If no new write received within `apiTimeout` seconds, the previous value expires
 3. Channel reverts to default or last cycled value
 4. Prevents "stuck" values if Modbus client crashes or loses connection
-
-== Error Handling
-
-[cols="1,2"]
-|===
-| Condition | Handling
-
-| Modbus client writes to read-only channel (ReadOnly mode) | Request rejected, exception returned to client
-| Write channel timeout expires | Previous value is cleared
-| Modbus format error | Exception sent to client, connection may close
-| Component not found | Returns zero/empty for that block
-| Concurrent write to same channel | Last write wins
-|===
-
-== Related Components
-
-* <<_bridge_modbus,Modbus Bridge>> - Master mode for reading external devices
-* <<_controller_api,Controller API>> - Base controller interface definition
-* <<_api_backend,API Backend>> - Alternative remote API via WebSocket
-* <<_controller_api_rest,API REST>> - Alternative REST/HTTP interface
-
-== Performance Considerations
-
-* **TCP Connections**: Each connection uses system resources; limit via `maxConcurrentConnections`
-* **Register Parsing**: Dynamic protocol generation is one-time on startup; no runtime overhead
-* **Write Operations**: Subject to cycle time (typically ~500ms); writes applied next cycle
-* **Serial (RTU)**: Slower than TCP; baud rate directly affects throughput
-
-For many components, consider spreading across multiple Modbus controllers on different ports.
-
-== Troubleshooting
-
-.Modbus client cannot connect
-Check firewall rules, verify port is not in use, confirm `enabled: true`.
-
-.Write operations fail or timeout
-Ensure channel is listed in `writeChannels`. Check channel name spelling (case-sensitive).
-
-.Serial (RTU) connection fails
-Verify device exists (`ls /dev/ttyUSB0`), check baud rate matches device, confirm user has serial port permissions (`sudo usermod -a -G dialout $USER`).
-
-.Register offsets seem wrong
-Register layout is dynamic per configuration. Re-export from UI or parse protocol headers to verify addresses.

@@ -6,8 +6,6 @@ Industrial-grade lithium battery system with advanced thermal and cell managemen
 
 This bundle provides integration with the Pylontech Powercube M2 battery system, a high-performance lithium-based energy storage solution designed for commercial and industrial energy management. The system communicates via Modbus for precise charge/discharge control, detailed health monitoring, and thermal management.
 
-The Pylontech Powercube M2 is suitable for peak shaving, demand response, time-of-use arbitrage, and backup power applications.
-
 == Components
 
 This bundle implements the following OpenEMS Components:
@@ -31,21 +29,12 @@ This bundle implements the following OpenEMS Components:
 
 *Note*: This implementation is tested and validated for the Pylontech Powercube M2 model. Compatibility with other Pylontech battery models has not been verified.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "battery0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
 * `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
 * `modbusUnitId` (Integer): Modbus Unit-ID of the battery device (default: 1)
-
-.Example Configuration
-For a Pylontech Powercube M2 battery system:
-* `id`: "battery0"
-* `alias`: "Pylontech Battery"
-* `modbus_id`: "modbus0"
-* `modbusUnitId`: 1
-* `startStop`: "AUTO"
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech[Source Code icon:github[]]

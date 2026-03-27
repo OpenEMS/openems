@@ -40,8 +40,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: OCPP interface for ABL electric vehicle charging stations. Controls charging current, monitors power consumption, and reports charging status. Enables dynamic charging based on grid conditions and energy availability. Extends AbstractOcppEvcsComponent for standard OCPP functionality.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -52,52 +51,6 @@ This bundle implements the following OpenEMS Components:
 * `maxHwCurrent` (Integer): Maximum charging current in mA (default: 32000)
 * `minHwCurrent` (Integer): Minimum charging current in mA (default: 6000)
 
-.Example Configuration
-For an ABL charging station at a commercial site:
-* `id`: "evcs0"
-* `alias`: "ABL Charging Station"
-* `ocpp_id`: "chargepoint001"
-* `connectorId`: 1
-* `logicalId`: "evse100"
-* `limitId`: "limit100"
-* `maxHwCurrent`: 32000
-* `minHwCurrent`: 6000
-
 [[_abl_ocpp]]
-
-== Prerequisites / Dependencies
-
-* OCPP central system (server) must be configured and running
-* ABL charging station must be networked and registered with OCPP server
-* Network connectivity between OpenEMS and OCPP server
-* OCPP chargepoint identifier must match device configuration
-* OCPP connector ID must match physical connector (1 for single-connector, 1-2 for dual-connector)
-* ABL device must be commissioned and accessible via web administration interface
-* Logical ID and Limit ID must be configured in device
-* Current limits must match device capabilities and electrical installation
-
-== Features
-
-* Dynamic EV charging control based on grid signals
-* Real-time power consumption monitoring
-* OCPP protocol support for standardized communication
-* Multiple connector support (single or dual)
-* Configurable charge current limits (min/max)
-* Compatible with most OCPP central systems
-* Integration with energy management systems for demand response
-* Time-of-use charging support
-* Vehicle identification and charging history
-* Fault detection and error reporting
-
-== Known Limitations
-
-* Requires active OCPP connection to central system
-* OCPP server unavailability prevents charging operations
-* Charging current control limited to min/max hardware capabilities
-* Smart charging function not included (basic OCPP control only)
-* Only works with OCPP-enabled ABL charging stations (non-OCPP models not supported)
-* Dual-connector models require separate component instance per connector
-* Network communication delays may affect responsiveness
-* Charging profiles must be configured in OCPP central system
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.ocpp.abl[Source Code icon:github[]]

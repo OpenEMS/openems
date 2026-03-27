@@ -33,7 +33,7 @@ The FENECON Home battery is a residential battery energy storage system. This bu
 *Description*: 
 Main component for FENECON Home battery integration. Communicates via Modbus to the battery management system (BMS), monitors voltages and temperatures, and manages charging/discharging operations through a state machine.
 
-Key Features:
+.Key Features
 * Real-time voltage and temperature monitoring per tower and module
 * State machine management (Undefined → GoRunning → Running → Stopped)
 * Critical minimum voltage protection
@@ -41,9 +41,7 @@ Key Features:
 * Module-level cell voltage monitoring
 * Temperature-based protection and limiting
 
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique component identifier; default: `"battery0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
@@ -51,32 +49,5 @@ Key Features:
 * `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
 * `modbusUnitId` (Integer): Modbus device Unit-ID; default: `1`
 * `batteryStartUpRelay` (String): IO channel to control battery startup relay; default: `"io0/Relay4"`
-
-.Example Configuration
-[source,json]
-----
-{
-  "id": "battery0",
-  "alias": "FENECON Home Battery",
-  "enabled": true,
-  "startStop": "AUTO",
-  "modbus_id": "modbus0",
-  "modbusUnitId": 1,
-  "batteryStartUpRelay": "io0/Relay4"
-}
-----
-
-== Prerequisites
-
-* Modbus bridge (`io.openems.edge.bridge.modbus`) configured and connected to the battery system
-* Modbus device at configured Unit-ID responding to Modbus registers
-* IO relay output configured if automatic startup is desired
-* FENECON Home battery hardware with compatible firmware
-
-== Related Bundles
-
-* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Required for communication
-* xref:../../io.openems.edge.battery.api/readme.adoc[Battery API] - Defines battery interface
-* xref:../../io.openems.edge.io.api/readme.adoc[IO API] - For relay control
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.home[Source Code icon:github[]]

@@ -1,6 +1,6 @@
 = Battery BMW
 
-BMW commercial battery rack system integration.
+BMW i3 battery rack system integration.
 
 == Overview
 
@@ -27,46 +27,12 @@ The battery communicates via Modbus protocol for standard industrial integration
 *Description*:
 Main component for BMW battery system integration. Communicates via Modbus to read battery status and control charging/discharging operations. Includes HTTP-based token authentication for secure device access and state machine management for safe operation. Monitors state-of-charge with configurable limits and supports both grid-connected and island operation modes.
 
-Key Features:
-* State machine management (Undefined → Running → Stopped)
-* SOC (State of Charge) monitoring with limits (4% minimum, 96% maximum)
-* Charge/discharge power control via Modbus
-* Real-time voltage, current, and temperature monitoring
-* Battery protection with automatic limiting
-* HTTP API authentication via token
-* Multi-register Modbus communication
-* Inner resistance compensation (200 mOhm)
-
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique component identifier; default: `"battery0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
 * `startStop` (StartStopConfig): Start/stop behavior (AUTO, START, STOP); default: `AUTO`
 * `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
 * `modbusUnitId` (Integer): Modbus device Unit-ID; required, no default
-
-.Example Configuration
-[source,json]
-----
-{
-  "id": "battery0",
-  "alias": "BMW Battery Storage",
-  "enabled": true,
-  "startStop": "AUTO",
-  "modbus_id": "modbus0",
-  "modbusUnitId": 1
-}
-----
-
-== Prerequisites
-
-* Modbus bridge (`io.openems.edge.bridge.modbus`) configured and connected to the battery system
-* HTTP bridge (`io.openems.edge.bridge.http`) configured for API authentication
-* Modbus device at configured Unit-ID responding to Modbus registers
-* BMW battery hardware with compatible firmware
-* Valid API credentials for authentication
-* Network connectivity between OpenEMS and battery system
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bmw[Source Code icon:github[]]

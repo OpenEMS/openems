@@ -22,7 +22,7 @@ Base interface for symmetric battery inverters.
 
 *Purpose*: Read-only interface providing monitoring channels for inverter state and power values.
 
-*Key Channels*:
+.*Key Channels*
 * `GRID_MODE` (Enum): 0=Undefined, 1=On-Grid, 2=Off-Grid
 * `ACTIVE_POWER` (Integer, W): Positive=Discharge, Negative=Charge
 * `REACTIVE_POWER` (Integer, var): Reactive power output
@@ -90,9 +90,8 @@ Device-specific battery inverter implementations:
 
 .Implemented In
 * `io.openems.edge.batteryinverter.kaco.blueplanetgridsave` - KACO blueplanet gridsave 50/80
-* `io.openems.edge.batteryinverter.refu88k` - REFUgio 88K hybrid inverter
+* `io.openems.edge.batteryinverter.refu88k` - REFU 88K hybrid inverter
 * `io.openems.edge.batteryinverter.sinexcel` - Sinexcel inverter
-* `io.openems.edge.bosch.bpts5hybrid` - Bosch BPTS5 Hybrid inverter
 
 Test implementations:
 
@@ -100,12 +99,6 @@ Test implementations:
 * `DummyManagedSymmetricBatteryInverter` - Test double for managed symmetric
 * `DummyOffGridBatteryInverter` - Test double for off-grid
 * Located in `io.openems.edge.batteryinverter.test` subpackage
-
-== Related Bundles & Interfaces
-
-* xref:../../io.openems.edge.battery.api/readme.adoc[Battery API] - Pairs with this API to form ESS
-* xref:../../io.openems.edge.ess.api/readme.adoc[ESS API] - Higher-level energy storage interface
-* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Common communication for inverters
 
 == Use Cases
 

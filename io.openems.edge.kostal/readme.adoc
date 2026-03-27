@@ -37,8 +37,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 
 *Description*: Core communication component. Always required to establish communication with the inverter.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "kostalPiko0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -59,8 +58,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 
 *Description*: Energy storage system component for battery control and monitoring.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -81,8 +79,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 
 *Description*: DC Charger/MPP tracker for photovoltaic system.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -102,8 +99,7 @@ The PIKO family components communicate via HTTP/REST API to the inverter.
 
 *Description*: Grid meter component for monitoring grid power.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -131,8 +127,7 @@ The Plenticore family components communicate via Modbus TCP.
 
 *Description*: Hybrid energy storage system (battery) with management capabilities.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -162,8 +157,7 @@ The Plenticore family components communicate via Modbus TCP.
 
 *Description*: Hybrid inverter component for photovoltaic production monitoring and power limiting.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "pvInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -188,8 +182,7 @@ The Plenticore family components communicate via Modbus TCP.
 
 *Description*: Smart Energy Meter (KSEM) for grid or inverter-based energy monitoring.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -200,24 +193,5 @@ The Plenticore family components communicate via Modbus TCP.
 * `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
 
 [[_plenticore_ksem]]
-
-== Prerequisites / Dependencies
-
-*For KOSTAL PIKO*:
-* Network connectivity to PIKO inverter
-* Known IP address and port of inverter
-
-*For KOSTAL Plenticore*:
-* Modbus TCP bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* Modbus connectivity to Plenticore inverter and KSEM (if used)
-* Proper Modbus Unit IDs configured on devices
-
-== Known Limitations
-
-* PIKO components use REST API communication - HTTP connectivity required
-* Plenticore components use Modbus - proper Modbus configuration required
-* Read-only mode recommended for safety - read-write mode requires careful consideration
-* Battery SoC minimum and watchdog settings are important for system stability
-* KSEM can read from grid, inverter, or battery depending on configuration
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal[Source Code icon:github[]]

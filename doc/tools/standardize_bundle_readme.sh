@@ -220,34 +220,11 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: What this component does and why you'd use it.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "meter0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
 * `custom_param` (Type): Description (default: value)
-
-.Example Configuration
-* `id`: "meter0"
-* `custom_param`: value
-
-[[_component_id]]
-
-== Prerequisites / Dependencies
-
-* External service/bridge required
-* Other components that must be configured first
-
-== Features
-
-* Feature 1
-* Feature 2
-* Feature 3
-
-== Known Limitations
-
-* Limitation 1
-* Limitation 2
 
 https://github.com/OpenEMS/openems/tree/develop/BUNDLE_NAME[Source Code icon:github[]]
 

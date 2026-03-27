@@ -29,27 +29,12 @@ This bundle implements the following OpenEMS Component:
 
 *Description*: Three-phase electricity meter for energy measurement via M-Bus protocol.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `primaryAddress` (Integer): M-Bus primary address of the meter device (default: 10)
 * `mbus_id` (String): ID of M-Bus bridge for communication (default: "mbus0")
 * `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
-
-== Prerequisites / Dependencies
-
-* M-Bus bridge configured and running (e.g., `io.openems.edge.bridge.mbus`)
-* M-Bus connectivity to the ABB B23 meter
-* Correct M-Bus primary address configured (typically 10, but may vary by installation)
-* Physical M-Bus connection to meter device
-
-== Known Limitations
-
-* Meter type must be pre-configured - cannot be changed dynamically
-* M-Bus communication is serial-based - ensure proper serial interface is configured
-* Primary address collision with other M-Bus devices must be avoided
-* Meter requires proper M-Bus termination (120 Ω resistor at line end)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.abb[Source Code icon:github[]]

@@ -34,8 +34,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Single-phase electricity meter for single-phase installations via Modbus protocol.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -61,8 +60,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Three-phase electricity meter for three-phase installations via Modbus protocol. Supports EM330 and EM340 models.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -72,29 +70,5 @@ This bundle implements the following OpenEMS Components:
 * `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
 
 [[_em300_meter]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* Modbus TCP connectivity to the Carlo Gavazzi meter
-* Correct Modbus Unit ID configured on the meter
-* Proper power wiring (single-phase for EM100, three-phase for EM300)
-
-== Features
-
-* Real-time power measurement (active, reactive, apparent)
-* Per-phase voltage, current, and power factor (EM300)
-* Energy counters (cumulative consumption/production)
-* Frequency measurement
-* Comprehensive meter data logging
-* Optional value inversion for reversed wiring
-
-== Known Limitations
-
-* Meter type must be pre-configured - cannot be changed dynamically
-* Modbus communication is required - no alternative protocols supported
-* EM100 is single-phase only - use EM300 for three-phase installations
-* Invert option affects all power measurements and energy counters
-* Modbus Unit ID varies by installation - verify with meter configuration
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.carlo.gavazzi[Source Code icon:github[]]

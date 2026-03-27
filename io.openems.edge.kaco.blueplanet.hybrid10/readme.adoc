@@ -29,8 +29,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 
 *Description*: Core communication component. Always required to establish communication with the hardware device.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "kacoCore0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -53,8 +52,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 
 *Description*: Implements energy storage system component for battery control. Supports both read-only (fast internal control) and read-write (slow external control) modes.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -80,8 +78,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 
 *Description*: Implements DC Charger/MPP tracker for photovoltaic system. Note that there is only one instance for both MPP trackers because the inverter does not provide separated power values.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -103,8 +100,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 
 *Description*: Implements the inverter as pure photovoltaics inverter. Use this instead of Ess+Charger if you are using the inverter purely as PV inverter without a battery.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "pvInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -127,8 +123,7 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 
 *Description*: Implements the grid meter (product name "VECTIS" or "blueplanet hy-switch") connected to the inverter for grid monitoring.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -136,14 +131,6 @@ This bundle implements the following OpenEMS Components, each with its own Facto
 * `external` (Boolean): Enable external sensors on VECTIS meter (default: false)
 
 [[_grid_meter]]
-
-== Prerequisites / Dependencies
-
-* Modbus TCP connection to the inverter with known IP address
-* Proprietary `identkey` from Katek Memmingen GmbH
-* Inverter serial number and user password/key
-* The `io.openems.edge.katek.edcom` LGPL library (provides EDCOM protocol implementation)
-* Network connectivity between OpenEMS and the KACO inverter
 
 == License
 
@@ -154,6 +141,5 @@ This bundle is provided under the EPL (Eclipse Public License), but depends on t
 * `identkey` (Partner ID) is required and must be obtained from Katek Memmingen GmbH
 * Charger component provides combined power values for both MPP trackers (not individual tracking)
 * Read-only mode recommended for most use cases; read-write mode should be used with caution
-* External sensor configuration on VECTIS requires hardware modification
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kaco.blueplanet.hybrid10[Source Code icon:github[]]

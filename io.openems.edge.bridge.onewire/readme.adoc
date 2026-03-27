@@ -23,9 +23,7 @@ Common use cases:
 
 *Purpose*: Master bridge for 1-Wire communication with temperature and sensor devices.
 
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique bridge identifier; default: `"onewire0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
@@ -175,4 +173,3 @@ Each 1-Wire device has a unique 64-bit address in hexadecimal format:
 Store these addresses for configuring thermometer components.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.onewire[Source Code icon:github[]]
-----

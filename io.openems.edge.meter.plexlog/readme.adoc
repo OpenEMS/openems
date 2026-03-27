@@ -30,8 +30,7 @@ This bundle implements the following OpenEMS Component:
 
 *Description*: Energy data logger for solar installations with remote monitoring via Modbus protocol.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -39,27 +38,5 @@ This bundle implements the following OpenEMS Component:
 * `modbusUnitId` (Integer): Modbus Unit ID of the datalogger (default: 1)
 * `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
 * `invert` (Boolean): Invert power and current, swap production/consumption energy (default: false)
-
-== Prerequisites / Dependencies
-
-* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* Modbus TCP connectivity to the Plexlog datalogger
-* Correct Modbus Unit ID configured on the datalogger
-* Network connectivity to solar installation monitoring system
-
-== Features
-
-* Solar production monitoring
-* Real-time energy measurement
-* Energy logging and data collection
-* Remote monitoring capabilities
-* Integration with solar installation systems
-
-== Known Limitations
-
-* Meter type must be pre-configured - cannot be changed dynamically
-* Modbus communication is required - no alternative protocols supported
-* Invert option affects all power measurements and energy counters
-* Modbus Unit ID varies by installation - verify correct address
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.plexlog[Source Code icon:github[]]

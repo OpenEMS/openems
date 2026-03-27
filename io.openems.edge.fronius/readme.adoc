@@ -46,28 +46,13 @@ The bundle supports two main components:
 *Description*:
 Integration for Fronius solar PV inverters. Monitors real-time solar generation power and allows active power limitation to reduce feed-in to the grid. Communicates via Modbus using industry-standard SunSpec register map for interoperability.
 
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique component identifier; default: `"pvInverter0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
 * `readOnly` (Boolean): Read-only mode (no power limitation commands sent); default: `true`
 * `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
 * `modbusUnitId` (Integer): Modbus Unit-ID of the inverter; default: `1`
-
-.Example Configuration
-[source,json]
-----
-{
-  "id": "pvInverter0",
-  "alias": "Fronius Symo 10.0-3-M",
-  "enabled": true,
-  "readOnly": false,
-  "modbus_id": "modbus0",
-  "modbusUnitId": 1
-}
-----
 
 [[_meter_fronius]]
 === Meter Fronius
@@ -84,9 +69,7 @@ Integration for Fronius solar PV inverters. Monitors real-time solar generation 
 *Description*:
 Integration for Fronius Smart Meter devices. Measures three-phase AC power and energy values (production, consumption, active/reactive power) via Modbus. Commonly used to measure grid power when Fronius inverters are present in the installation.
 
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique component identifier; default: `"meter0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`
@@ -94,20 +77,6 @@ Integration for Fronius Smart Meter devices. Measures three-phase AC power and e
 * `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
 * `modbusUnitId` (Integer): Modbus Unit-ID of the meter; default: `240`
 * `invert` (Boolean): Invert power values and swap directions; default: `false`
-
-.Example Configuration
-[source,json]
-----
-{
-  "id": "meter0",
-  "alias": "Fronius Smart Meter 63A",
-  "enabled": true,
-  "type": "GRID",
-  "modbus_id": "modbus0",
-  "modbusUnitId": 240,
-  "invert": false
-}
-----
 
 == Important Configuration Notes
 
@@ -130,46 +99,5 @@ PV Inverter has two operating modes:
 * **Managed Mode** (`readOnly: false`): Allows OpenEMS controllers to limit active power output
 
 Start with read-only mode for testing, then enable managed mode if power limitation is needed.
-
-=== Meter Type Selection
-
-Choose the appropriate meter type based on what the Smart Meter measures:
-
-* **GRID** - Measures grid connection point (typical for monitoring building load)
-* **PRODUCTION** - Measures solar generation (if placed at PV output)
-* **CONSUMPTION** - Measures consumption from the meter
-
-== Integration Architecture
-
-Typical Fronius installation:
-
-```
-PV Array
-   ↓
-Fronius Symo Inverter ← Modbus → OpenEMS
-   ↓
-Grid/Building
-   ↓
-Fronius Smart Meter ← Modbus → OpenEMS
-```
-
-Use cases:
-* Monitor solar production: Configure PV inverter component with read-only
-* Measure grid power: Configure Smart Meter as GRID type
-* Limit solar feed-in: Enable managed mode on PV inverter in ES controller
-* Load balancing: Use both components for complete energy visibility
-
-== Related Bundles
-
-* xref:../../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge] - Required for communication
-* xref:../../io.openems.edge.pvinverter.api/readme.adoc[PV Inverter API] - Interface definition
-* xref:../../io.openems.edge.meter.api/readme.adoc[Meter API] - Meter interface definition
-* xref:../../io.openems.edge.controller.pvinverter.selltogridlimit/readme.adoc[Sell-to-Grid Limit] - Example controller
-
-== External Resources
-
-* Fronius Website: https://www.fronius.com/[Fronius icon:external-link[]]
-* SunSpec Alliance: https://sunspec.org/[SunSpec icon:external-link[]]
-* Modbus SunSpec Protocol: https://sunspec.org/sunspec-modbus-standard/[SunSpec Modbus Standard icon:external-link[]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.fronius[Source Code icon:github[]]

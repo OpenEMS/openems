@@ -80,13 +80,4 @@ The default GPIO path `/sys/class/gpio` is appropriate for standard Linux GPIO a
 * Custom GPIO virtualization layers
 * Testing and simulation environments
 
-== Known Limitations
-
-* **Root/GPIO Group Permissions**: GPIO operations require elevated privileges; typical user access is not supported
-* **GPIO Pin Conflicts**: Multiple components cannot access the same GPIO pin simultaneously; coordination is required
-* **Static Configuration**: Hardware type must be pre-configured; dynamic hardware detection is not supported
-* **No Interrupt Support**: GPIO events are poll-based; real-time interrupt-driven notifications are not available
-* **Linux-Only**: Windows and other operating systems are not supported; Linux kernel is required
-* **Limited Debugging**: GPIO state visibility is limited to Linux filesystem inspection
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.gpio[Source Code icon:github[]]

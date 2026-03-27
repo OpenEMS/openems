@@ -31,8 +31,7 @@ This bundle implements the following OpenEMS Component:
 
 *Description*: Three-phase energy meter for power and energy measurement via Modbus protocol.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -40,19 +39,5 @@ This bundle implements the following OpenEMS Component:
 * `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
 * `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
 * `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
-
-== Prerequisites / Dependencies
-
-* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* Modbus TCP connectivity to the EM300 meter
-* Correct Modbus Unit ID configured on the meter
-* Proper power wiring (if inverting is needed, verify wiring before enabling)
-
-== Known Limitations
-
-* Meter type must be pre-configured - cannot be changed dynamically
-* Modbus communication is required - no alternative protocols supported
-* Invert option affects all power measurements and swaps production/consumption energy counters
-* Modbus response time depends on network connectivity and meter load
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bcontrol.em300[Source Code icon:github[]]

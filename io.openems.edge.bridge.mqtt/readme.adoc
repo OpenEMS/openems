@@ -18,9 +18,7 @@ MQTT is a perfect alternative to direct device protocols when devices support br
 
 *Purpose*: MQTT broker connection and message routing for OpenEMS components.
 
-*Configuration*:
-
-.Connection Parameters
+.*Configuration*:
 * `id` (String): Unique bridge identifier; default: `"mqtt0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`

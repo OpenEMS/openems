@@ -33,9 +33,7 @@ The bridge uses the jMbus library for protocol implementation and RxTx for seria
 * Multi-meter installations
 * Building energy accounting systems
 
-*Configuration*:
-
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique bridge identifier; default: `"mbus0"`
 * `alias` (String): Human-readable name; default: same as id
 * `enabled` (Boolean): Enable/disable this component; default: `true`

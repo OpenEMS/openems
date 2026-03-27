@@ -31,36 +31,12 @@ This bundle implements the following OpenEMS Component:
 
 *Description*: Bidirectional three-phase electricity meter for consumption and production measurement via Modbus protocol.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
 * `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
 * `type` (Enum): Meter type - GRID, PRODUCTION, CONSUMPTION, or CONSUMPTION_METERED (default: CONSUMPTION_METERED)
-
-== Prerequisites / Dependencies
-
-* Modbus bridge configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* Modbus TCP connectivity to the DRT428M-2 meter
-* Correct Modbus Unit ID configured on the meter (typically 1, but verify in meter settings)
-* DIN rail mounting and proper three-phase wiring
-
-== Features
-
-* Bidirectional energy measurement (import and export)
-* Calibrated accuracy for certified metering
-* S0 impulse output for pulse counting
-* RS485 communication interface
-* Three-phase power measurement with individual phase monitoring
-* Power factor measurement
-
-== Known Limitations
-
-* Meter type must be pre-configured - cannot be changed dynamically
-* Modbus communication is required - no alternative protocols supported
-* S0 impulse output is not directly integrated (separate pulse counter bridge required)
-* Modbus response time depends on network connectivity and meter load
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bgetech[Source Code icon:github[]]

@@ -45,8 +45,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: SunSpec Modbus interface for KACO blueplanet gridsave battery inverters. Manages bidirectional AC/DC power flow, monitors inverter status, temperature, and grid conditions. Supports automatic start/stop control, grid code compliance, and watchdog timer for safety.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "batteryInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -54,14 +53,6 @@ This bundle implements the following OpenEMS Components:
 * `activateWatchdog` (Boolean): Enable watchdog timer for safety (default: true)
 * `gridCode` (GridCode): Grid code setting for compliance (default: VDE_4105)
 * `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
-
-.Example Configuration
-For a KACO blueplanet gridsave 50.0 TL3 with German grid code:
-* `id`: "batteryInverter0"
-* `alias`: "KACO blueplanet gridsave"
-* `modbus_id`: "modbus0"
-* `gridCode`: "VDE_4105"
-* `activateWatchdog`: true
 
 [[_kaco_gridsave]]
 

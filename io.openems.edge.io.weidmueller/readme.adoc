@@ -28,8 +28,7 @@ This bundle implements the following OpenEMS Component with individual configura
 * DigitalInput
 * DigitalOutput
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "io0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -75,18 +74,5 @@ Example: UR20-8DO-P (8 Digital Outputs)
 |`io0/DigitalOutputM1C7` |Input/Output |Digital output #7
 |`io0/DigitalOutputM1C8` |Input/Output |Digital output #8
 |=======
-
-== Prerequisites / Dependencies
-
-* Modbus bridge must be configured and running (e.g., `io.openems.edge.bridge.modbus`)
-* UR20 fieldbus coupler hardware with Modbus TCP capability
-* Network connectivity to the UR20 device
-* Proper module configuration on the UR20 coupler must match the expected channel layout
-
-== Known Limitations
-
-* Module configuration is read-only through this component - modules must be configured through Weidmüller configuration tools
-* Channels are dynamically created based on coupler configuration at startup
-* Changes to module configuration require restart of the component
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.weidmueller[Source Code icon:github[]]

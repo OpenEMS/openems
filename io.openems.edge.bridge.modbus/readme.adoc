@@ -33,8 +33,7 @@ Two transport protocols are supported:
 * Devices with native Ethernet interfaces
 * Preferred for modern installations
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique bridge identifier; default: `"modbusTcp0"`
 * `ip` (String): IP address of Modbus master; default: `"192.168.1.100"`
 * `port` (Integer): TCP port number; default: `502` (standard Modbus port)
@@ -55,27 +54,13 @@ Two transport protocols are supported:
 * Isolated systems without network connectivity
 * Multi-drop serial bus configurations
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Unique bridge identifier; default: `"modbusSerial0"`
 * `serialPort` (String): Serial port name; examples: `"/dev/ttyUSB0"`, `"COM3"`
 * `baudRate` (Integer): Baud rate; default: `9600` (typical: 9600, 19200, 38400)
 * `stopBits` (Integer): Stop bits (1 or 2); default: `1`
 * `parity` (String): Parity (NONE, ODD, EVEN); default: `NONE`
 * `logVerbosity` (LogVerbosity): Logging detail level; default: `NONE`
-
-.Example Configuration
-[source,json]
-----
-{
-  "id": "modbusSerial0",
-  "serialPort": "/dev/ttyUSB0",
-  "baudRate": 19200,
-  "stopBits": 1,
-  "parity": "EVEN",
-  "logVerbosity": "DEBUG_LOG"
-}
-----
 
 == Architecture
 

@@ -6,16 +6,6 @@ Commercial-grade lithium battery rack system with scalable capacity.
 
 This bundle provides integration with the BYD Battery-Box Commercial C130 system, a modular lithium battery storage solution designed for commercial and industrial energy management. The system is scalable through stacking multiple battery modules and communicates via Modbus for precise charge/discharge control and monitoring.
 
-== Supported Devices
-
-.BYD Battery-Box Commercial C130
-* **Type**: Lithium iron phosphate (LiFePO4) battery rack
-* **Capacity**: Scalable (per module, stackable up to 20 modules)
-* **Communication**: Modbus TCP/RTU
-* **Typical Use**: Commercial energy storage, peak shaving, arbitrage
-* **Modular Design**: Up to 20 slaves in one rack system
-* **Documentation**: https://www.byd.com/[BYD icon:external-link[]]
-
 == Components
 
 This bundle implements the following OpenEMS Components:
@@ -37,8 +27,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for the BYD Battery-Box Commercial C130 battery rack system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and supports multi-module rack configurations with up to 20 slaves.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "battery0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -46,13 +35,5 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
 * `modbusUnitId` (Integer): Modbus Unit-ID of the master device (default: 1)
 * `numberOfSlaves` (Integer): Number of slave modules in this rack (min: 1, max: 20) (default: 20)
-
-.Example Configuration
-For a commercial battery rack with 4 modules:
-* `id`: "battery0"
-* `alias`: "BYD Commercial Battery"
-* `modbus_id`: "modbus0"
-* `modbusUnitId`: 1
-* `numberOfSlaves`: 4
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bydcommercial[Source Code icon:github[]]

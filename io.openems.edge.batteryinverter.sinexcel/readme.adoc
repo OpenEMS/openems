@@ -41,8 +41,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Sinexcel hybrid battery inverters. Manages bidirectional AC/DC power flow for both grid-tied and off-grid operation, monitors inverter status and parameters, and supports emergency power switching for backup scenarios. Country code settings ensure regulatory compliance across different markets.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "batteryInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -50,15 +49,6 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of the Modbus bridge to use (required, no default)
 * `countryCode` (CountryCode): Grid code/country setting for compliance (default: GERMANY)
 * `emergencyPower` (EnableDisable): Enable or disable emergency power function (default: DISABLE)
-
-.Example Configuration
-For a Sinexcel inverter in Germany with emergency power enabled:
-* `id`: "batteryInverter0"
-* `alias`: "Sinexcel Hybrid Inverter"
-* `modbus_id`: "modbus0"
-* `countryCode`: "GERMANY"
-* `emergencyPower`: "ENABLE"
-* `startStop`: "AUTO"
 
 [[_sinexcel]]
 

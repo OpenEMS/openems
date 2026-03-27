@@ -90,28 +90,4 @@ Example mapping:
 * Virtual address 101.0 (first output) → Modbus address 800 + offset
 * Virtual address 110.0 (first input) → Modbus address 880 + offset
 
-== Known Limitations
-
-* **Fixed Channel Count**: Siemens LOGO! 8 provides exactly 4 inputs and 4 outputs; no scalability to larger I/O configurations
-* **Modbus Unit-ID Matching**: Unit-ID configured in OpenEMS must exactly match LOGO! Modbus server setting; mismatch prevents communication
-* **Address Offset Configuration**: Incorrect Modbus address offsets will map to wrong virtual addresses; must be manually configured to match LOGO! setup
-* **No Hot Reload**: LOGO! device must be restarted if configuration changes; no live reconfiguration of Modbus settings
-* **Polling-Based Updates**: Input monitoring is polling-based; real-time interrupt-driven notifications not available
-* **LogoSoft Configuration Required**: Proper LOGO! configuration in LogoSoft is prerequisite; OpenEMS cannot auto-discover virtual address mappings
-* **Contact Rating Limits**: Relay contacts have fixed 16A AC rating; loads exceeding this require external contactors
-
-== LogoSoft Configuration Tips
-
-* Default Modbus Unit-ID in LogoSoft is often 255; change to 1 or your OpenEMS configuration
-* Virtual addresses must be explicitly configured in LogoSoft for Modbus access
-* Ensure Modbus TCP server is enabled before connecting OpenEMS
-* Address offsets in LOGO! configuration must match OpenEMS component configuration
-* Test Modbus connectivity with external tools (e.g., Modbus TCP clients) before deploying in OpenEMS
-* Keep LogoSoft project backed up for future reference and reconfiguration
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.siemenslogo[Source Code icon:github[]]
-
-== External Resources
-
-* https://new.siemens.com/en/en/products/automation/industrial-controls/logo.html[Siemens LOGO! Official Product Page icon:external-link[]] - Hardware specifications and documentation
-* Siemens LogoSoft Easy Plus - Configuration software (available from Siemens)

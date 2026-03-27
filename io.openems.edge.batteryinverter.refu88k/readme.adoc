@@ -38,8 +38,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for the REFUstore 88K battery inverter. Manages bidirectional AC/DC power flow, monitors inverter status, temperature, and operating conditions. Supports automatic start/stop control, watchdog timer for safety, and time-of-use capability.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "batteryInverter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -48,14 +47,5 @@ This bundle implements the following OpenEMS Components:
 * `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
 * `timeLimitNoPower` (Integer): Time limit in seconds when no power applied before action (default: 60)
 * `watchdoginterval` (Integer): Watchdog timer interval in seconds, 0 to disable (default: 0)
-
-.Example Configuration
-For a REFUstore 88K inverter:
-* `id`: "batteryInverter0"
-* `alias`: "REFUstore Battery"
-* `modbus_id`: "modbus0"
-* `modbusUnitId`: 1
-* `startStop`: "AUTO"
-* `watchdoginterval`: 60
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu88k[Source Code icon:github[]]

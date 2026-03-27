@@ -34,8 +34,7 @@ This bundle implements the following OpenEMS Components:
 * Calculate grid meter from consumption - production - battery: `Grid = Consumption - ESS - Production`
 * Calculate consumption from grid + production - battery: `Consumption = Grid + Production - ESS`
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -43,12 +42,6 @@ This bundle implements the following OpenEMS Components:
 * `minuend_id` (String): Component ID of the minuend meter (if empty, 0 power is assumed)
 * `subtrahends_ids` (String[]): Component IDs of meters to subtract (required)
 * `addToSum` (Boolean): Should data be added to Sum? (default: false)
-
-.Example Configuration
-To calculate Grid from Consumption - Production - ESS:
-* `minuend_id`: "consumption0" (grid consumption meter)
-* `subtrahends_ids`: ["production0", "ess0"] (production meter and battery)
-* `type`: "GRID"
 
 [[_virtual_subtract]]
 
@@ -72,8 +65,7 @@ To calculate Grid from Consumption - Production - ESS:
 * Aggregate consumption across multiple buildings or zones
 * Create average values from distributed meter readings
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -81,33 +73,6 @@ To calculate Grid from Consumption - Production - ESS:
 * `meterIds` (String[]): Component IDs of meters to sum (required)
 * `addToSum` (Boolean): Should data be added to Sum? (default: false)
 
-.Example Configuration
-To sum production from three PV systems:
-* `meterIds`: ["pv1", "pv2", "pv3"]
-* `type`: "PRODUCTION"
-
 [[_virtual_add]]
-
-== Prerequisites / Dependencies
-
-* Source meters must be configured and running in the system
-* For Virtual Subtract: minuend meter and all subtrahend meters must exist
-* For Virtual Add: all meters to be summed must exist
-* Proper component IDs must be configured for all referenced meters
-
-== Features
-
-* Arithmetic meter calculations without hardware
-* Flexible energy accounting scenarios
-* Averaging and aggregation of distributed meters
-* Support for including virtual meter in system sum
-* All standard electricity meter channels supported
-
-== Known Limitations
-
-* Virtual meters depend on source meters - if source is unavailable, virtual meter cannot calculate
-* Calculations are performed on every cycle - complex operations may impact performance
-* Virtual meters cannot be nested (used as source for another virtual meter)
-* All source meters must have same meter type for valid results
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.virtual[Source Code icon:github[]]

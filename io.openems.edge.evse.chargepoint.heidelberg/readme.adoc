@@ -41,8 +41,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Heidelberg Connect charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports both single-phase and three-phase configurations with optional dynamic phase switching for load optimization.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -54,63 +53,6 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
 * `modbusUnitId` (Integer): Modbus Unit-ID of the device (default: 1)
 
-.Example Configuration
-For a three-phase Heidelberg Connect with phase switching:
-* `id`: "evseChargePoint0"
-* `alias`: "Heidelberg Connect Charger"
-* `modbus_id`: "modbus0"
-* `modbusUnitId`: 1
-* `wiring`: "THREE_PHASE"
-* `phaseSwitching`: "AUTO"
-* `phaseRotation`: "L1_L2_L3"
-* `readOnly`: false
-
 [[_heidelberg_connect]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running
-* Heidelberg Connect charging station must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and charger
-* Device must be properly addressed on Modbus bus
-* Network connectivity from OpenEMS to Modbus bridge
-* Wiring must match configured single-phase or three-phase setting
-* Phase rotation must correspond to actual electrical installation
-* Device firmware should be current
-
-== Features
-
-* Flexible single-phase or three-phase charging (3.7-22 kW)
-* Modbus protocol for standard integration
-* Real-time power consumption monitoring
-* Dynamic charging current control
-* Optional phase switching for load optimization
-* Support for demand response and load balancing
-* Integration with energy management systems
-* Read-only or managed control modes
-* Phase rotation detection and configuration
-* Time-of-use charging capability
-* Comprehensive status monitoring
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will prevent charging operations
-* Wiring configuration must match actual installation (single vs three-phase)
-* Phase rotation must be manually configured to match installation
-* Phase switching may cause brief charging interruption during transitions
-* Charging current adjustment limited by hardware capabilities
-* Single-phase and three-phase cannot be dynamically switched without reconfiguration
-
-== Phase Switching Notes
-
-The Heidelberg Connect supports dynamic phase switching to optimize power consumption:
-
-.Phase Switching Options
-* `FORCE_THREE_PHASE`: Always use three-phase (maximum power)
-* `FORCE_SINGLE_PHASE`: Always use single-phase (lower power, less grid load)
-* `AUTO`: Automatically switch based on grid conditions and energy availability
-
-Phase switching changes may temporarily interrupt charging - plan transitions during acceptable times.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.heidelberg[Source Code icon:github[]]

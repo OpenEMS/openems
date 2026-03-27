@@ -507,20 +507,6 @@ fetch('http://localhost:8084/rest/channel/ess0/SetActivePowerEquals', {
 });
 ----
 
-== Related Components
-
-* <<_api_mqtt,API MQTT>> - Alternative MQTT-based API
-* <<_api_backend,API Backend>> - Alternative WebSocket-based API
-* <<_api_modbus,API Modbus>> - Alternative Modbus industrial protocol
-* <<_controller_api,Controller API>> - Base controller interface
-
-== Performance Considerations
-
-* **Connection Limit**: Configured per instance; increase for high-concurrency scenarios
-* **Timeout**: Write operations timeout after configured seconds; adjust if needed
-* **Regex Queries**: Complex regex patterns may impact performance; test before production
-* **Authentication**: Basic auth requires credentials with each request; consider token-based auth for high-frequency clients
-
 ## Testing Tools
 
 Popular tools for testing REST APIs:
@@ -529,17 +515,3 @@ Popular tools for testing REST APIs:
 * https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm[Restlet Client] - Chrome extension
 * https://insomnia.rest/[Insomnia] - REST client alternative to Postman
 * `curl` - Command-line HTTP client
-
-## Troubleshooting
-
-.Cannot connect - Connection refused
-Verify port is correct, firewall allows access, service is enabled and started.
-
-.Authentication fails - 401 Unauthorized
-Check username and password, ensure user exists in OpenEMS configuration.
-
-.Channel not found - 404 error
-Verify component ID and channel ID are correct (case-sensitive), check supported channels for component.
-
-.Write fails - 403 Forbidden
-Ensure controller is in read-write mode (not read-only), channel is writable, user has permissions.

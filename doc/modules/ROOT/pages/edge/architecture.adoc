@@ -156,7 +156,7 @@ e.g.:
 - io.openems.edge.battery.api - Battery interfaces
 - io.openems.edge.batteryinverter.api - Battery inverter interfaces
 - io.openems.edge.ess.api - Energy Storage System interfaces
-- io.openems.edge.evcs.api - EV Charging Station interfaces
+- io.openems.edge.evcs.api - EV Charging Station interfaces (deprecated)
 - io.openems.edge.evse.api - EV Supply Equipment interfaces
 - io.openems.edge.meter.api - Power meter interfaces
 - io.openems.edge.pvinverter.api - PV inverter interfaces

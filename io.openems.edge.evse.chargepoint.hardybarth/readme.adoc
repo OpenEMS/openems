@@ -42,8 +42,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: EVSE (Electric Vehicle Supply Equipment) interface for Hardy Barth Salia charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports read-only monitoring or managed charging control modes.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -51,14 +50,6 @@ This bundle implements the following OpenEMS Components:
 * `phaseRotation` (PhaseRotation): Phase wiring configuration - L1_L2_L3 or rotated (default: L1_L2_L3)
 * `readOnly` (Boolean): Read-only mode (monitoring only) vs managed control (required)
 * `logVerbosity` (LogVerbosity): Debug logging level - NONE, LOW, MEDIUM, HIGH (default: NONE)
-
-.Example Configuration
-For a Hardy Barth Salia charging station:
-* `id`: "evseChargePoint0"
-* `alias`: "Salia Charging Station"
-* `ip`: "192.168.25.30"
-* `phaseRotation`: "L1_L2_L3"
-* `readOnly`: false
 
 [[_evse_hardy]]
 
@@ -79,8 +70,7 @@ For a Hardy Barth Salia charging station:
 
 *Description*: EVCS (Electric Vehicle Charging Station) interface for Hardy Barth Salia. Manages dynamic charging control and enables integration with energy management systems for demand response and load optimization. Controls charging power and monitors real-time consumption.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component
@@ -89,55 +79,6 @@ For a Hardy Barth Salia charging station:
 * `readOnly` (Boolean): Control mode setting
 * `logVerbosity` (LogVerbosity): Debug logging level
 
-.Example Configuration
-* `id`: "evcs0"
-* `alias`: "Salia EVCS"
-* `ip`: "192.168.25.30"
-
 [[_evcs_hardy]]
-
-== Prerequisites / Dependencies
-
-* Hardy Barth Salia charging station must be physically installed and powered on
-* Device must be networked and accessible at configured IP address
-* Network connectivity from OpenEMS to charging station
-* IP address must be correctly configured on the device
-* Phase rotation must match electrical installation wiring
-* REST API must be accessible on the device
-* Device firmware should be current
-
-== Features
-
-* Three-phase AC charging (11-22 kW typical)
-* REST API for flexible integration
-* Real-time power consumption monitoring
-* Dynamic charging current control
-* Support for demand response and load optimization
-* Integration with energy management systems
-* Read-only or managed control modes
-* Phase rotation detection and configuration
-* Time-of-use charging capability
-* IP-based communication for simple network setup
-
-== Known Limitations
-
-* Requires active network connection - no local operation
-* Network timeouts will prevent charging operations
-* Three-phase wiring required (single-phase not supported)
-* Phase rotation must be manually configured
-* IP address-based communication may have latency
-* Charging current adjustment limited by hardware capabilities
-* REST API availability depends on device firmware
-* Logging verbosity impacts performance
-
-== Phase Rotation Notes
-
-The charging station supports different phase rotation configurations:
-
-.Phase Rotation Options
-* `L1_L2_L3`: Standard phase order
-* Other rotations: For installations with non-standard wiring
-
-Ensure the configured phase rotation matches the actual electrical installation to avoid charging issues.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.hardybarth[Source Code icon:github[]]

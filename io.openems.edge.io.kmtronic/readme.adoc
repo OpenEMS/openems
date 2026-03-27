@@ -67,39 +67,4 @@ The relay boards provide the following switching capabilities:
 * LED indicators: Per-relay status indication
 * Modbus protocol: Standard Modbus TCP/IP
 
-== Prerequisites / Dependencies
-
-=== System Requirements
-* Network connectivity: KMtronic board must be reachable via Modbus TCP/IP on the network
-* Modbus bridge: A Modbus TCP bridge component must be configured and enabled
-* Local Network: Board must be on the same network as OpenEMS Edge
-* Power supply: Appropriate power supply for the relay board (typically 12-24V DC)
-
-=== Device Setup
-. Access the KMtronic board configuration interface (typically via web browser or serial console)
-. Configure the board's IP address and network settings (DHCP or static)
-. Set the Modbus Unit-ID (typically 1, verify with device documentation)
-. Configure Modbus TCP port (default: 502)
-. Enable Modbus TCP communication protocol
-. Note the board's IP address and Unit-ID
-. Configure the OpenEMS Modbus TCP bridge to connect to the board's IP address
-. Configure the KMtronic component with the corresponding Modbus-ID and Unit-ID
-. Test connectivity by pinging the board: `ping <board-ip>`
-
-=== Wiring Considerations
-* Ensure proper grounding of all electrical connections
-* Use appropriate wire gauges for the expected load current (minimum 2.5mm² for 16A)
-* Install protective devices (fuses, circuit breakers) as required by regulations
-* Keep relay board away from heat sources and moisture
-* Ensure adequate ventilation for heat dissipation
-
-== Known Limitations
-
-* **Per-Board Configuration**: Each relay board requires a separate OpenEMS component instance; relay outputs cannot be mixed across boards
-* **No Real-Time Priority**: Relay operations are governed by Modbus polling cycle; time-critical switching may require additional hardware
-* **Stateless Relay State**: Relay states are not persisted; board restart will reset all outputs
-* **Single Modbus Address**: Each board occupies one Modbus Unit-ID; multiple boards require multiple Unit-IDs or separate Modbus connections
-* **Load Inrush Current**: High inrush current loads may affect relay lifetime; appropriate load conditioning is recommended
-* **Temperature Limitations**: Relay lifetime is temperature-dependent; operating within specified temperature range is critical
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.kmtronic[Source Code icon:github[]]

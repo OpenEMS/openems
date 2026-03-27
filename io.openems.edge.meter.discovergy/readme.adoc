@@ -31,8 +31,7 @@ This bundle implements the following OpenEMS Component:
 
 *Description*: Cloud-based smart meter integration via REST API for energy monitoring.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -51,28 +50,5 @@ This bundle implements the following OpenEMS Component:
 * Internet connectivity to access Discovergy REST API
 * Valid meter credentials and meter identification (serial number or meter ID)
 * Discovergy cloud account with API access enabled
-
-== Features
-
-* Real-time meter reading via REST API
-* Cloud-based energy monitoring without local hardware
-* Support for multiple meter identification methods
-* Automatic meter data synchronization
-* Historical energy data access
-* JSON API for web interface integration
-
-== Known Limitations
-
-* Cloud-based only - requires internet connectivity
-* API calls depend on Discovergy service availability
-* Data refresh rate limited by API polling interval
-* Some detailed meter data may not be available via public API
-* Requires Discovergy cloud account - cannot be used for local-only meter access
-* Default meter type is GRID - configure appropriately for your installation
-
-== API Documentation
-
-More information about the Discovergy API is available at:
-https://api.discovergy.com[Discovergy API icon:external-link[]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.discovergy[Source Code icon:github[]]

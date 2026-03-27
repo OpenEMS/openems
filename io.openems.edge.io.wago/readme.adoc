@@ -78,12 +78,4 @@ Where `\{id\}` is the Component-ID (default: "io0") and `\{X\}` is the extension
 . Configure the OpenEMS Modbus TCP bridge to connect to the WAGO device
 . Configure this component with the corresponding Modbus-ID
 
-== Known Limitations
-
-* **Configuration Synchronization**: Device configuration must be manually updated via the WAGO web interface and synchronized before activating this component
-* **Dynamic Updates**: Channel structure changes require component restart; hot-reloading of module configuration is not supported
-* **Modbus TCP Only**: Communication uses Modbus TCP/IP protocol only; other fieldbus protocols are not supported
-* **Module Support**: Only standard WAGO I/O modules are supported; specialized modules may require custom integration
-* **Authentication**: Requires valid credentials for the WAGO device; default credentials are often left unchanged in deployments
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.wago[Source Code icon:github[]]

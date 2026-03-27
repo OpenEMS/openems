@@ -40,8 +40,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: EVSE (Electric Vehicle Supply Equipment) interface for Alpitronic Hypercharger. Provides charging point functionality with power measurement and status monitoring. Supports both read-only monitoring and managed charging control modes.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -52,13 +51,6 @@ This bundle implements the following OpenEMS Components:
 * `maxHwPower` (Integer): Maximum charging power in W (required, default: 75000)
 * `connector` (Connector): Physical connector slot - SLOT_0, SLOT_1, SLOT_2, SLOT_3 (default: SLOT_0)
 * `debugMode` (Boolean): Enable debug logging (default: false)
-
-.Example Configuration
-For a multi-connector Alpitronic Hypercharger:
-* Connector 1: `connector`: "SLOT_0"
-* Connector 2: `connector`: "SLOT_1"
-* `minHwPower`: 5000
-* `maxHwPower`: 150000
 
 [[_evse_alpitronic]]
 
@@ -82,8 +74,7 @@ For a multi-connector Alpitronic Hypercharger:
 
 *Description*: EVCS (Electric Vehicle Charging Station) interface for Alpitronic Hypercharger. Manages dynamic charging control, monitors power consumption, and enables integration with energy management systems. Supports per-connector configuration for multi-connector units.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -104,50 +95,5 @@ For each physical connector, configure separate component:
   - `connector`: "SLOT_1"
 
 [[_evcs_alpitronic]]
-
-== Prerequisites / Dependencies
-
-* Modbus bridge component must be configured and running
-* Alpitronic Hypercharger device must be physically installed and powered on
-* Modbus TCP or RTU communication working between system and charger
-* Device firmware version 1.7.2 or higher
-* Network connectivity from OpenEMS to charger
-* Each physical connector requires separate component instance
-* Power limits must match device capabilities and electrical installation
-* Device must be properly commissioned and networked
-
-== Features
-
-* High-power DC fast charging (50-150 kW)
-* Multi-connector support (up to 4 per unit)
-* Modbus protocol for standard integration
-* Dynamic charging current control based on grid conditions
-* Real-time power and energy monitoring per connector
-* Support for demand response and load optimization
-* Integration with energy management systems
-* Per-connector independent operation
-* Charging status monitoring
-* Error detection and reporting
-
-== Known Limitations
-
-* Requires active Modbus connection - no local operation
-* Modbus timeouts will prevent charging operations
-* Each physical connector requires separate OpenEMS component configuration
-* Power output limited by hardware and grid connection
-* Firmware version must be 1.7.2 or higher
-* Network communication may introduce latency
-* Charging current adjustment only possible during charging session
-* Multiple connectors cannot share single component instance
-
-== Multi-Connector Setup
-
-If your Alpitronic Hypercharger has multiple physical connectors, configure separate components for each:
-
-.Configuration for 2-Connector Unit
-* Component 1: `Evse.ChargePoint.Alpitronic` with `connector: SLOT_0`
-* Component 2: `Evse.ChargePoint.Alpitronic` with `connector: SLOT_1`
-
-Each connector operates independently with its own charge power limits and control settings.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.alpitronic[Source Code icon:github[]]

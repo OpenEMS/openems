@@ -36,33 +36,4 @@ This bundle implements the following OpenEMS Component:
 * `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
 * `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 100)
 
-== Prerequisites / Dependencies
-
-=== System Requirements
-* Network connectivity: F&F MR-AO-1 module must be reachable via Modbus TCP/IP on the network
-* Modbus bridge: A Modbus TCP bridge component must be configured and enabled
-* Local Network: Module must be on the same network as OpenEMS Edge
-
-=== Device Setup
-. Ensure the F&F MR-AO-1 module is connected to the network and powered
-. Configure the Modbus TCP bridge in OpenEMS with the device IP address and port (default: 502)
-. Set the correct Modbus Unit-ID in the component configuration (verify with device documentation or web interface)
-. Configure individual output channels as needed (typically one component per output channel)
-. Verify network connectivity: `ping` the device IP address to confirm reachability
-
-=== Default Configuration
-* Baud rate: 9600
-* Data bits: 8
-* Parity: NONE
-* Start bits: 1
-* Stop bits: 2
-
-== Known Limitations
-
-* **Single Channel per Component**: Each OpenEMS component instance controls one analog output channel; multiple components are required for multi-channel control
-* **Modbus TCP Only**: Communication uses Modbus TCP/IP protocol only; other fieldbus protocols are not supported
-* **Unit-ID Configuration**: Modbus Unit-ID must match device configuration; incorrect settings will prevent communication
-* **No Real-Time Events**: Updates are polling-based; real-time event notification is not supported
-* **Fixed Voltage Range**: Output voltage range is fixed by hardware specification; no software-based range limiting available
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.filipowski[Source Code icon:github[]]

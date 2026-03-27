@@ -96,13 +96,4 @@ The off-grid switch manages the following operational states:
 . Define backup power source switching logic
 . Test mode transitions under controlled conditions before deployment
 
-== Known Limitations
-
-* **Manual Contactor Verification**: Contactor position feedback (inputs) must match actual physical state; no detection of mechanical failure or stuck contacts
-* **No Overcurrent Protection**: Off-grid switch does not provide overcurrent protection; separate circuit protection required
-* **Transition Time**: Mode transitions require finite time for contactor mechanical operations; immediate load transfer is not possible
-* **Single Off-Grid Switch**: System supports one primary off-grid switch; multiple switches require additional coordination logic
-* **No Synchronization Detection**: Grid voltage synchronization is not verified; out-of-phase reconnection requires external synchronization checking
-* **Manual Grid Status Override**: System relies on configured digital input for grid status; no independent voltage measurement
-
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.offgridswitch[Source Code icon:github[]]

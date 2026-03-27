@@ -36,16 +36,10 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Core communication component for the Bosch BPT-S 5 Hybrid system. Handles all device communication and coordinates data between ESS and PV components. Must be configured before ESS and PV components.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "boschBpts5hybridCore0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
-
-.Example Configuration
-* `id`: "boschBpts5hybridCore0"
-* `alias`: "Bosch BPT-S 5 Core"
-* `enabled`: true
 
 [[_bosch_core]]
 
@@ -62,17 +56,11 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Energy storage system (ESS) component for the Bosch BPT-S 5 Hybrid. Manages battery charging/discharging control and monitoring. Depends on the Core component for device communication.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `core_id` (String): Component ID of the Core component (default: "boschBpts5hybridCore0")
-
-.Example Configuration
-* `id`: "ess0"
-* `alias`: "Bosch BPT-S 5 Battery"
-* `core_id`: "boschBpts5hybridCore0"
 
 [[_bosch_ess]]
 
@@ -89,17 +77,11 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: PV DC charger component for the Bosch BPT-S 5 Hybrid. Handles DC power input from solar panels and controls charging of the battery. Depends on the Core component for device communication.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
 * `core_id` (String): Component ID of the Core component (default: "boschBpts5hybridCore0")
-
-.Example Configuration
-* `id`: "charger0"
-* `alias`: "Bosch BPT-S 5 PV Charger"
-* `core_id`: "boschBpts5hybridCore0"
 
 [[_bosch_pv]]
 

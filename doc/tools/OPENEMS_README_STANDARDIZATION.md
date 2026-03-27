@@ -50,14 +50,9 @@ For EACH component, create a subsection:
 
 *Use Cases*: (optional) Bullet list of typical use cases
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `configParam1` (Type): Description (default: value)
 * `configParam2` (Type): Description (default: value)
-
-.Example Configuration
-* `param1`: "value1"
-* `param2`: value2
 
 [[_component_id]]
 

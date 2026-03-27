@@ -4,9 +4,7 @@ Modular lithium battery storage system with multiple hardware versions.
 
 == Overview
 
-This bundle provides integration with the Soltaro battery rack system, a scalable lithium-based energy storage solution offering both single-rack and clustered configurations. Multiple hardware versions (A, B, C) are supported to accommodate different system architectures and performance requirements.
-
-Soltaro batteries are suitable for commercial energy storage, peak shaving, demand response, and renewable energy time-shifting applications.
+This bundle provides integration with the Soltaro battery rack system, a scalable lithium-based energy storage solution offering both single-rack and clustered configurations. Multiple hardware versions (A, B, C) are supported to accommodate different system architectures and firmware versions.
 
 == Supported Devices
 
@@ -14,20 +12,10 @@ Soltaro batteries are suitable for commercial energy storage, peak shaving, dema
 * **Version A**: Legacy single-rack configuration
 * **Version B**: Mid-generation single-rack system
 * **Version C**: Latest generation single-rack system
-* **Typical Use**: Residential/small commercial
-* **Scalability**: Single unit or stacked configurations
 
 .Soltaro Cluster Systems
 * **Version B**: Multi-module clustered configuration
 * **Version C**: Latest generation clustered system
-* **Typical Use**: Commercial/industrial energy storage
-* **Scalability**: Multiple racks coordinated as single system
-
-.Common Features
-* **Type**: Modular lithium battery storage
-* **Communication**: Modbus TCP/RTU
-* **Typical Use**: Energy storage, peak shaving, arbitrage
-* **Documentation**: https://www.soltaro.com/[Soltaro icon:external-link[]]
 
 == Components
 
@@ -49,8 +37,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Soltaro single-rack battery system Version A. Manages charging and discharging, monitors state of charge, temperature, and cell health.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -77,8 +64,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Soltaro single-rack battery system Version B. Mid-generation hardware with improved battery management and monitoring capabilities.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -105,8 +91,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Soltaro single-rack battery system Version C. Latest generation hardware with advanced thermal management and cell monitoring.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -133,8 +118,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Soltaro multi-rack clustered battery system Version B. Coordinates multiple battery racks as single logical system for larger energy storage deployments.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -161,8 +145,7 @@ This bundle implements the following OpenEMS Components:
 
 *Description*: Modbus interface for Soltaro multi-rack clustered battery system Version C. Latest generation clustered configuration with advanced inter-rack coordination and thermal management.
 
-*Configuration*:
-.Configuration Parameters
+.*Configuration*:
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
