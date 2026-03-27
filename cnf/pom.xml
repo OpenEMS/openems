@@ -235,7 +235,7 @@
             -->
             <groupId>io.jenetics</groupId>
             <artifactId>jenetics</artifactId>
-            <version>8.3.0</version>
+            <version>9.0.0</version>
         </dependency>
         <!-- net -->
         <dependency>
