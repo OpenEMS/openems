@@ -227,7 +227,7 @@ public class PreferDcPower {
 			// Step 1.3: Distribute remaining power using all ESS currently producing power (discharging due to PV production or constraint); distribute using order
 			if (remainingPowerRequired != 0) {
 				for (int i = 0; i < sortedInverters.size(); i++) {
-					if (essPowerRequired[i] > 0) {
+					if (essPowerRequired[i] != 0) {
 						var inv = sortedInverters.get(i);
 						var remainingUpperLimit = essUpperLimit[i] - essPowerRequired[i];
 						var logMessage = new String();
