@@ -135,7 +135,7 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 					this::_setStaticConstraintsFailed, this::_setNotSolved, //
 					this::_setSolveDuration, this::_setSolveStrategy);
 		case BALANCE //
-			-> new PowerDistributionHandlerV2(() -> this.esss);
+			-> new PowerDistributionHandlerV2(() -> this.esss, this::_setNotSolved);
 		};
 		this.powerDistributionHandler.onUpdateEsss();
 

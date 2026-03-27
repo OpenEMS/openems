@@ -1,7 +1,7 @@
 package io.openems.edge.energy.optimizer;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static java.lang.Math.max;
