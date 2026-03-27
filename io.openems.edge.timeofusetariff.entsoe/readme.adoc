@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff ENTSO-E
+= ENTSO-E / EPEX SPOT
 
 This implementation uses the https://transparency.entsoe.eu/[ENTSO-E Transparency Platform] to receive day-ahead electricity prices for European bidding zones.
 

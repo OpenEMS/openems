@@ -1,4 +1,4 @@
-= Similarday-Model Predictor
+= Similarday-Model
 
 This predictor uses "Similar day technique" for prediction. 
 This particular implementation requires mainly two inputs, which are

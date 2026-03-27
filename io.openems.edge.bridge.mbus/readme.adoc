@@ -1,13 +1,89 @@
-= M-Bus
+= M-Bus Bridge
 
-M-Bus is a widely used standard for fieldbus communication. It enables connection to M-Bus devices like meters.																										
+Serial bridge for meter communication using the M-Bus standard.
 
-== Setup note
+== Overview
 
-This bridge depends on jMbus, a user guide for it can be found at https://www.openmuc.org/m-bus/user-guide/.
+M-Bus (Meter-Bus) is an international standard (EN 13757-2) for fieldbus communication with meter devices. The M-Bus Bridge enables OpenEMS to read data from M-Bus compatible meters such as water meters, gas meters, heat meters, and other utility meters via serial connection.
 
-Note: For jMbus to work you need to install the native part of RxTx which is a library for serial port
-communication jMbus is dependent on. See paragraph 2.5 for further information.
+M-Bus is ideal for:
+* Reading utility meters (water, gas, heat, electricity)
+* Remote meter data collection
+* Utility billing and energy management
+* Building-level consumption monitoring
+* Small industrial sites with metered devices
 
-For Linux users: In case the RxTx library cannot be found under /usr/lib/jni you can try to move all .so files of that directory to
-/usr/lib (see https://community.openems.io/t/loading-library-from-external-jar/134/3[OpenEMS Community]).
+The bridge uses the jMbus library for protocol implementation and RxTx for serial port communication.
+
+== Components
+
+[[_bridge_mbus]]
+=== Bridge M-Bus
+
+*Name*: Bridge M-Bus
+
+*Factory-PID*: `Bridge.Mbus`
+
+*Purpose*: Master bridge for M-Bus serial communication with utility and facility meters.
+
+*Use Cases*:
+* Reading water meter consumption
+* Monitoring gas meter usage
+* Heat meter energy readings
+* Electricity meter data collection (where available)
+* Multi-meter installations
+* Building energy accounting systems
+
+.*Configuration*:
+* `id` (String): Unique bridge identifier; default: `"mbus0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `portName` (String): Serial port device name; default: `"/dev/ttyUSB0"`
+  - Linux examples: `/dev/ttyUSB0`, `/dev/ttyS0`, `/dev/ttyACM0`
+  - Windows examples: `COM1`, `COM3`
+* `baudrate` (Integer): Serial communication speed in bps; default: `2400`
+  - Standard M-Bus rates: 300, 2400, 9600, 19200
+
+== Prerequisites
+
+=== Hardware
+* M-Bus compatible meter with serial interface
+* USB-to-M-Bus adapter or RS-232/RS-485 interface
+* Serial cable or M-Bus cable properly terminated
+
+=== Software Dependencies
+* jMbus library (included in bundle)
+* RxTx native library for serial port communication
+
+=== System Configuration
+
+.Linux Installation (RxTx Native Library)
+```bash
+# Install RxTx native library
+sudo apt-get install librxtx-java
+
+# Typical location: /usr/lib/jni/librxtxSerial.so
+# If not found, check: /usr/share/java/rxtx/
+
+# If library not in standard location, copy to /usr/lib:
+sudo cp /usr/share/java/rxtx/librxtxSerial.so /usr/lib/
+```
+
+.Serial Port Permissions (Linux)
+```bash
+# Add user to dialout group for serial port access
+sudo usermod -a -G dialout $USER
+
+# Log out and back in, or use:
+newgrp dialout
+
+# Verify permissions
+ls -l /dev/ttyUSB0
+```
+
+.Windows Installation
+* RxTx should be included with Java installation
+* Verify serial port available in Device Manager
+* Grant OpenEMS process permissions to serial port
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.mbus[Source Code icon:github[]]

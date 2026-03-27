@@ -1,25 +1,365 @@
 = Shelly WiFi Relay Switch
 
-This bundle implements Shelly WiFi Relay Switches and Meters.
+Integrates Shelly WiFi-enabled relay switches and meters into OpenEMS for monitoring and control of electrical devices and energy production.
 
-Compatible with
+== Overview
 
-- https://www.shelly.com/de/products/shelly-1-gen4[Shelly 1]
-- https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5]
-- https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM]
-- https://www.shelly.com/de/products/shelly-3em-63w-gen3[Shelly 3EM Gen3 3-Phase-Meter (63W & 63T)]
-- https://www.shelly.com/de/products/shelly-plug-s-gen3[Shelly Plug S]
-- https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S]
-- https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM 3-Phase Meter (120A, 400A, 3CT 63)]
-- https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM]
-- https://www.shelly.com/de/products/shop/shelly-pro-3-1[Shelly Pro 3]
-- https://www.shelly.com/de/products/shelly-plus-pm-mini[Shelly Plus PM Mini Gen2]
-- https://www.shelly.com/de/products/shelly-pm-mini-gen3[Shelly Plus PM Mini Gen3]
-- https://www.shelly.com/de/products/shelly-pro-1pm[Shelly Pro 1PM]
-- https://www.shelly.com/de/products/shelly-pro-2pm[Shelly Pro 2PM]
-- https://www.shelly.com/de/products/shelly-pro-4pm[Shelly Pro 4PM]
--
+This bundle provides a comprehensive integration for Shelly devices, a popular range of WiFi-enabled smart relays, meters, and switches. Each Shelly device type is implemented as a separate OpenEMS Component with its own Factory-PID, allowing multiple devices to be configured and managed independently within OpenEMS Edge.
 
-NOTE: Connecting to devices having a password set in their UI is currently not supported.
+The bundle enables real-time monitoring of electrical parameters (voltage, current, power, energy) and remote control of relay switches. Shelly devices communicate via their native HTTP REST API, providing reliable WiFi-based communication over standard networks.
+
+All Shelly devices are accessed via their IP addresses or via mDNS autodiscovery on the local network. The integration handles polling of device status and provides channel mapping for electrical meter data and digital output control.
+
+== Supported Devices
+
+Each device type below is individually integrated with dedicated component support:
+
+* https://www.shelly.com/de/products/shelly-1-gen4[Shelly 1 Gen4 icon:external-link[]] - Single relay with optional metering - <<_shelly_1>>
+* https://www.shelly.com/de/products/shop/1xs25[Shelly 2.5 icon:external-link[]] - Dual relay switch with power metering - <<_shelly_2_5>>
+* https://www.shelly.com/en/products/shop/shelly-3-em[Shelly 3EM icon:external-link[]] - 3-phase electricity meter - <<_shelly_3em>>
+* https://www.shelly.com/de/products/shelly-3em-63w-gen3[Shelly 3EM Gen3 icon:external-link[]] - 3-phase meter Gen3 - <<_shelly_3em_gen3>>
+* https://www.shelly.com/en/products/shop/shelly-plug[Shelly Plug icon:external-link[]] - Basic relay plug with metering - <<_shelly_plug>>
+* https://www.shelly.com/de/products/shelly-plug-s-gen3[Shelly Plug S Gen3 icon:external-link[]] - Compact relay plug - <<_shelly_plug_s_gen3>>
+* https://www.shelly.com/de/products/shop/shelly-plus-1-pm[Shelly Plus 1PM icon:external-link[]] - Single relay with integrated meter - <<_shelly_plus_1pm>>
+* https://www.shelly.com/de/products/shop/shelly-plus-plug-s-1[Shelly Plus Plug S icon:external-link[]] - Improved plug with metering - <<_shelly_plus_plug_s>>
+* https://www.shelly.com/de/products/shelly-plus-pm-mini[Shelly Plus PM Mini icon:external-link[]] - Compact 2-channel meter - <<_shelly_plus_pm_mini>>
+* https://www.shelly.com/de/products/shelly-pro-1pm[Shelly Pro 1PM icon:external-link[]] - Professional single relay with metering - <<_shelly_pro_1pm>>
+* https://www.shelly.com/de/products/shelly-pro-2pm[Shelly Pro 2PM icon:external-link[]] - Professional dual relay with metering - <<_shelly_pro_2pm_device>>
+* https://www.shelly.com/de/products/shop/shelly-pro-3-1[Shelly Pro 3 icon:external-link[]] - Triple relay - <<_shelly_pro_3>>
+* https://www.shelly.com/de/products/shop/shelly-pro-3-em-120-a-1[Shelly Pro 3EM icon:external-link[]] - 3-phase meter (120A, 400A variants) - <<_shelly_pro_3em>>
+* https://www.shelly.com/de/products/shelly-pro-4pm[Shelly Pro 4PM icon:external-link[]] - Professional quad relay with metering - <<_shelly_pro_4pm_device>>
+* https://www.shelly.com/de/products/shop/shelly-outdoor-plug-s-gen3[Shelly Outdoor Plug S Gen3 icon:external-link[]] - Weather-resistant outdoor plug - <<_shelly_outdoor_plug_s_gen3>>
+
+== Components
+
+This bundle implements the following OpenEMS Components, each supporting one or multiple Shelly device types. Each component has its own Factory-PID for independent configuration and instantiation:
+
+=== Shelly 1
+
+*Name*: IO Shelly1
+
+*Factory-PID*: `io.openems.edge.io.shelly.shelly1`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly 1 device *(required)*
+
+=== Shelly 2.5
+
+*Name*: IO Shelly.25
+
+*Factory-PID*: `io.openems.edge.io.shelly.shelly25`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly 2.5 device *(required)*
+
+=== Shelly 3EM
+
+*Name*: IO Shelly.3EM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shelly3em`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (3-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly 3EM device *(required)*
+
+=== Shelly 3EM Gen3
+
+*Name*: IO Shelly.3EMG3
+
+*Factory-PID*: `io.openems.edge.io.shelly.shelly3emgen3`
+
+.Implemented Natures/Interfaces
+* ElectricityMeter (3-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly 3EM Gen3 device *(required)*
+
+=== Shelly Plug
+
+*Name*: IO Shelly.Plug
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellyplug`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* SinglePhaseMeter
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly Plug is connected to (default: L1)
+* `ip` (String): IP address of the Shelly Plug device *(required)*
+* `type` (MeterType): What is measured by this meter (default: CONSUMPTION_METERED)
+* `invert` (Boolean): Inverts power values and swaps production/consumption energy (default: false)
+
+=== Shelly Plug S Gen3
+
+*Name*: IO Shelly.PlugSG3
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellyplugsgen3`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly Plug is connected to (default: L1)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Plug S Gen3 device (optional)
+* `type` (MeterType): What is measured by this meter (default: CONSUMPTION_METERED)
+* `invert` (Boolean): Inverts power values and swaps production/consumption energy (default: false)
+* `validateDevice` (Boolean): If enabled and type is wrong, no values will be read from device (default: false)
+* `debugMode` (DebugMode): Activates debug mode (default: OFF)
+
+=== Shelly Plus 1PM
+
+*Name*: IO Shelly.Plus1PM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellyplus1pm`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly Plus 1PM device *(required)*
+
+=== Shelly Plus Plug S
+
+*Name*: IO Shelly.Plus.PlugS
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellyplusplugs`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly Plug is connected to (default: L1)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Plus Plug S device (optional)
+* `type` (MeterType): What is measured by this meter (default: CONSUMPTION_METERED)
+* `invert` (Boolean): Inverts power values and swaps production/consumption energy (default: false)
+* `validateDevice` (Boolean): If enabled and type is wrong, no values will be read from device (default: false)
+* `debugMode` (DebugMode): Activates debug mode (default: OFF)
+
+=== Shelly Plus PM Mini
+
+*Name*: IO Shelly.PlusPMMini
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypluspmmini`
+
+.Implemented Natures/Interfaces
+* SinglePhaseMeter
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "ioShellyPmMini0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly Plug is connected to (default: L1)
+* `ip` (String): IP address of the Shelly Plus PM Mini device *(required)*
+* `type` (MeterType): What is measured by this meter (default: CONSUMPTION_METERED)
+* `invert` (Boolean): Inverts power values and swaps production/consumption energy (default: false)
+
+=== Shelly Pro 1PM
+
+*Name*: IO Shelly.Pro1PM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro1pm`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* SinglePhaseMeter
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly Pro 1PM device *(required)*
+
+=== Shelly Pro 2PM Device
+
+*Name*: IO Shelly.Pro2PM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro2pm.device`
+
+.Implemented Natures/Interfaces
+* DigitalOutput (dual)
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly is connected to (default: L1)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Pro 2PM device (optional)
+* `debugMode` (DebugMode): Activates debug mode (default: OFF)
+
+*Note*: The Shelly Pro 2PM also provides a separate Terminal component for accessing individual relay terminal data.
+
+=== Shelly Pro 2PM Terminal
+
+*Name*: IO Shelly.Pro2PM.Terminal
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro2pm.terminal`
+
+.Implemented Natures/Interfaces
+* SinglePhaseMeter
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Pro 2PM device (optional)
+* `terminal` (TerminalEnum): Terminal selection (required)
+
+=== Shelly Pro 3
+
+*Name*: IO Shelly.Pro3
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro3`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly Pro 3 device *(required)*
+
+=== Shelly Pro 3EM
+
+*Name*: IO Shelly.Pro3EM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro3em`
+
+.Implemented Natures/Interfaces
+* ElectricityMeter (3-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the Shelly Pro 3EM device *(required)*
+
+=== Shelly Pro 4PM Device
+
+*Name*: IO Shelly.Pro4PM
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro4pm.device`
+
+.Implemented Natures/Interfaces
+* DigitalOutput (quad)
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly is connected to (default: L1)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Pro 4PM device (optional)
+* `debugMode` (DebugMode): Activates debug mode (default: OFF)
+
+*Note*: The Shelly Pro 4PM also provides a separate Terminal component for accessing individual relay terminal data.
+
+=== Shelly Pro 4PM Terminal
+
+*Name*: IO Shelly.Pro4PM.Terminal
+
+*Factory-PID*: `io.openems.edge.io.shelly.shellypro4pm.terminal`
+
+.Implemented Natures/Interfaces
+* SinglePhaseMeter
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Pro 4PM device (optional)
+* `terminal` (TerminalEnum): Terminal selection (required)
+
+=== Shelly Outdoor Plug S Gen3
+
+*Name*: IO Shelly.OutdoorPlugSG3
+
+*Factory-PID*: `io.openems.edge.io.shelly.outdoorplugsgen3`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ElectricityMeter (single-phase)
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SinglePhase): Which phase the Shelly Plug is connected to (default: L1)
+* `mdnsName` (String): mDNS name for device discovery (optional)
+* `ip` (String): IP address of the Shelly Outdoor Plug S Gen3 device (optional)
+* `type` (MeterType): What is measured by this meter (default: CONSUMPTION_METERED)
+* `invert` (Boolean): Inverts power values and swaps production/consumption energy (default: false)
+* `validateDevice` (Boolean): If enabled and type is wrong, no values will be read from device (default: false)
+* `debugMode` (DebugMode): Activates debug mode (default: OFF)
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Network connectivity: All Shelly devices communicate via WiFi/Ethernet and must be reachable from OpenEMS Edge on port 80 (HTTP)
+* Local Network: Shelly devices must be configured to operate on the same network as OpenEMS Edge
+
+=== Shelly Device Setup
+. Configure Shelly device IP address (static IP recommended for reliability)
+. Ensure device firmware is up-to-date (devices should support the Gen2 or Gen3 protocol versions)
+. Network accessibility: Verify device responds to HTTP requests from OpenEMS system
+
+=== No Authentication Support
+Password-protected Shelly devices are currently not supported. Ensure Shelly devices are configured without authentication or with WiFi-only access restrictions.
+
+== Known Limitations
+
+* **No HTTPS Support**: Communication with Shelly devices uses HTTP only; HTTPS is not currently supported
+* **No Authentication**: Devices with password protection cannot be accessed
+* **Polling-Based**: Status updates are polling-based (not real-time event-driven); update frequency depends on configuration
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.shelly[Source Code icon:github[]]

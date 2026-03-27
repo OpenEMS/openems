@@ -1,9 +1,42 @@
-= DRT428M-2 Meter
+= BGE-TECH DRT428M-2 Meter
 
-Reads data of a DRT428M-2 Meter. More details are present in the below link
-https://xn--stromzhler-v5a.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-geeicht/252/drt428m-2-zweirichtungs-drehstromzaehler-geeicht-fuer-din-hutschiene-mit-s0-ir-rs485#
+Three-phase bidirectional electricity meter for consumption and production measurement via Modbus protocol.
 
-Implemented Natures:
-- ElectricityMeter
+== Overview
+
+This bundle provides integration with the B+G E-Tech DRT428M-2 meter, a bidirectional three-phase electricity meter with calibrated accuracy for grid-connected installations. The component communicates with the meter through the Modbus TCP protocol, enabling real-time energy monitoring in both consumption and production directions.
+
+The DRT428M-2 is designed for DIN rail mounting and supports S0 impulse output and RS485 communication. It measures both imported and exported energy, making it suitable for installations with solar inverters or battery systems.
+
+== Supported Devices
+
+* https://xn--stromzhler-v5a.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-geeicht/252/drt428m-2-zweirichtungs-drehstromzaehler-geeicht-fuer-din-hutschiene-mit-s0-ir-rs485[B+G E-Tech DRT428M-2 Meter icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== B+G E-Tech DRT428M-2 Meter
+
+*Name*: Meter B+G E-Tech DRT428M-2
+
+*Factory-PID*: `Meter.BGE-TECH.DRT428M2`
+
+.Implemented Natures/Interfaces
+* MeterBgeTechDrt428M2
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Bidirectional three-phase electricity meter for consumption and production measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, CONSUMPTION, or CONSUMPTION_METERED (default: CONSUMPTION_METERED)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.bgetech[Source Code icon:github[]]

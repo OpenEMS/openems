@@ -1,3 +1,54 @@
-= Battery FENECON Home
+= FENECON Home Battery
+
+Interface for FENECON Home battery systems.
+
+== Overview
+
+The FENECON Home battery is a residential battery energy storage system. This bundle provides integration with FENECON Home battery via Modbus protocol, enabling monitoring and control of charge/discharge operations, voltage and temperature monitoring, and state machine management.
+
+== Supported Devices
+
+.FENECON Home Battery System
+* Type: Lithium-ion residential battery storage
+* Capacity: Modular, tower-based architecture
+* Communication: Modbus/TCP or Modbus/RTU
+* Features: State machine, critical voltage protection, thermal management
+
+== Components
+
+[[_battery_fenecon_home]]
+=== Battery FENECON Home
+
+*Name*: Battery FENECON Home
+
+*Factory-PID*: `Battery.Fenecon.Home`
+
+.Implemented Natures/Interfaces
+* `Battery` - Standard battery interface for monitoring and control
+* `ModbusComponent` - Modbus protocol integration
+* `StartStoppable` - Start/stop lifecycle management
+* `ModbusSlave` - Slave device functionality
+* `EventHandler` - Cycle event handling
+* `BatteryFeneconHome` - FENECON Home specific interface
+
+*Description*: 
+Main component for FENECON Home battery integration. Communicates via Modbus to the battery management system (BMS), monitors voltages and temperatures, and manages charging/discharging operations through a state machine.
+
+.Key Features
+* Real-time voltage and temperature monitoring per tower and module
+* State machine management (Undefined → GoRunning → Running → Stopped)
+* Critical minimum voltage protection
+* Automatic battery startup via relay control
+* Module-level cell voltage monitoring
+* Temperature-based protection and limiting
+
+.*Configuration*:
+* `id` (String): Unique component identifier; default: `"battery0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `startStop` (StartStopConfig): Start/stop behavior (AUTO, START, STOP); default: `AUTO`
+* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
+* `modbusUnitId` (Integer): Modbus device Unit-ID; default: `1`
+* `batteryStartUpRelay` (String): IO channel to control battery startup relay; default: `"io0/Relay4"`
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.fenecon.home[Source Code icon:github[]]

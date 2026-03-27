@@ -1,7 +1,45 @@
-= Meter Camille Bauer APLUS
+= Camille Bauer APLUS Meter
 
-Implementation of a Camille Bauer APLUS meter.
+Three-phase electricity meter for comprehensive energy measurement via Modbus protocol.
 
-https://camillebauer.com/produkt/aplus/
+== Overview
+
+This bundle provides integration with the Camille Bauer APLUS meter, a three-phase electricity meter designed for precise energy measurement in residential, commercial, and industrial installations. The component communicates with the meter through the Modbus TCP protocol, enabling real-time energy monitoring, power factor measurement, and detailed energy data collection in OpenEMS.
+
+The APLUS meter supports measurement of grid consumption, production, or consumption energy depending on configuration. Power values can be inverted for specific wiring scenarios, and the meter includes comprehensive data on all three phases plus cumulative values.
+
+== Supported Devices
+
+* https://camillebauer.com/produkt/aplus/[Camille Bauer APLUS Meter icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== Camille Bauer APLUS Meter
+
+*Name*: Meter Camille Bauer APLUS
+
+*Factory-PID*: `Meter.Camillebauer.Aplus`
+
+.Implemented Natures/Interfaces
+* MeterCamillebauerAplus
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+* TimedataProvider
+* EventHandler
+
+*Description*: Three-phase electricity meter for comprehensive energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 100)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.camillebauer.aplus[Source Code icon:github[]]
