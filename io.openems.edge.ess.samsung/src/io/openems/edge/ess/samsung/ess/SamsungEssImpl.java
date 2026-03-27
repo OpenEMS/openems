@@ -237,4 +237,12 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		}
 	}
 
+	/**
+	 * Gets the PV production. Returns null if the PV production is not available.
+	 *
+	 * @return production power
+	 */
+	public Integer getPvProduction() {
+		return this.latestPvPw;
+	}
 }
