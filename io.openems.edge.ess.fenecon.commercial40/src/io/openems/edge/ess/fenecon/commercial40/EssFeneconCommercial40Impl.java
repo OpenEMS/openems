@@ -861,6 +861,15 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		return this.timedata;
 	}
 
+	@Override
+	public Integer getPvProduction() {
+		Integer productionPower = null;
+		for (var charger : this.chargers) {
+			productionPower = sumInteger(productionPower, charger.getActualPower().get());
+		}
+		return productionPower;
+	}
+
 	private void calculateEnergy() {
 		/*
 		 * Calculate AC Energy
@@ -904,16 +913,4 @@ public class EssFeneconCommercial40Impl extends AbstractOpenemsModbusComponent
 		}
 	}
 
-	/**
-	 * Gets the PV production. Returns null if the PV production is not available.
-	 *
-	 * @return production power
-	 */
-	public Integer getPvProduction() {
-		Integer productionPower = null;
-		for (var charger : this.chargers) {
-			productionPower = sumInteger(productionPower, charger.getActualPower().get());
-		}
-		return productionPower;
-	}
 }

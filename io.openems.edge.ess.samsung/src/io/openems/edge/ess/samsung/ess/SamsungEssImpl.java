@@ -211,6 +211,11 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		return surplusPower > 0 ? (int) surplusPower : null;
 	}
 
+	@Override
+	public Integer getPvProduction() {
+		return this.latestPvPw;
+	}
+
 	private void calculateEnergy() {
 		// Calculate AC Energy
 		var activePower = this.getActivePowerChannel().getNextValue().get();
@@ -237,12 +242,4 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		}
 	}
 
-	/**
-	 * Gets the PV production. Returns null if the PV production is not available.
-	 *
-	 * @return production power
-	 */
-	public Integer getPvProduction() {
-		return this.latestPvPw;
-	}
 }

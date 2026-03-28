@@ -1876,16 +1876,6 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 		return productionPower;
 	}
 
-	/**
-	 * Gets the PV production from chargers ACTUAL_POWER. Returns null if the PV
-	 * production is not available.
-	 *
-	 * @return production power
-	 */
-	public Integer getPvProduction() {
-		return calculatePvProduction();
-	}
-
 	protected void updatePowerAndEnergyChannels(Integer soc, Integer batteryCurrent) {
 		final var productionPower = this.calculatePvProduction();
 		final Channel<Integer> pBattery1Channel = this.channel(GoodWe.ChannelId.P_BATTERY1);

@@ -19,7 +19,6 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	private Power power = new DummyPower();
 
 	private int powerPrecision = 1;
-	private Integer pvProduction = null;
 	private Consumer<SymmetricApplyPowerRecord> symmetricApplyPowerCallback = null;
 
 	protected AbstractDummyManagedSymmetricEss(String id,
@@ -47,11 +46,6 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	@Override
 	public final int getPowerPrecision() {
 		return this.powerPrecision;
-	}
-
-	@Override
-	public final Integer getPvProduction() {
-		return this.pvProduction;
 	}
 
 	/**
@@ -109,17 +103,6 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	 */
 	public final SELF withState(io.openems.common.channel.Level level) {
 		TestUtils.withValue(this, OpenemsComponent.ChannelId.STATE, level);
-		return this.self();
-	}
-
-	/**
-	 * Set PV Production.
-	 *
-	 * @param value the value
-	 * @return myself
-	 */
-	public final SELF withPvProduction(int value) {
-		this.pvProduction = value;
 		return this.self();
 	}
 

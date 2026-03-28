@@ -419,11 +419,7 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 						.build());
 	}
 
-	/**
-	 * Gets the PV production. Returns null if the PV production is not available.
-	 *
-	 * @return production power
-	 */
+	@Override
 	public Integer getPvProduction() {
 		var bpData = this.core.getBpData();
 		if (bpData != null) {

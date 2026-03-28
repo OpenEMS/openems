@@ -18,7 +18,7 @@ import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.core.power.MyConfig;
-import io.openems.edge.ess.test.DummyManagedSymmetricEss;
+import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
 public class PreferDcPowerTest {
@@ -40,42 +40,42 @@ public class PreferDcPowerTest {
 	public void testPreferDcPowerStrategy() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(1000) //
 				.withSoc(9);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(2000) //
 				.withSoc(9);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(3000) //
 				.withSoc(8);
-		var ess4 = new DummyManagedSymmetricEss("ess4") //
+		var ess4 = new DummyHybridEss("ess4") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(4000) //
 				.withSoc(13);
-		var ess5 = new DummyManagedSymmetricEss("ess5") //
+		var ess5 = new DummyHybridEss("ess5") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(0) //
 				.withSoc(50);
-		var ess6 = new DummyManagedSymmetricEss("ess6") //
+		var ess6 = new DummyHybridEss("ess6") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
@@ -486,21 +486,21 @@ public class PreferDcPowerTest {
 	public void testWithPowerPrecision() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(1000) //
 				.withSoc(9);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(2000) //
 				.withSoc(9);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
@@ -508,14 +508,14 @@ public class PreferDcPowerTest {
 				.withPvProduction(3000) //
 				.withPowerPrecision(100) //
 				.withSoc(8);
-		var ess4 = new DummyManagedSymmetricEss("ess4") //
+		var ess4 = new DummyHybridEss("ess4") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(4000) //
 				.withSoc(13);
-		var ess5 = new DummyManagedSymmetricEss("ess5") //
+		var ess5 = new DummyHybridEss("ess5") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
@@ -605,14 +605,14 @@ public class PreferDcPowerTest {
 		EssPower powerComponent = new EssPowerImpl();
 
 		// Test force discharge
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(2000) // Cannot charge (100% SOC) -> PvProduction as forced discharge
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(2000) //
 				.withSoc(100);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(0) //
@@ -650,14 +650,14 @@ public class PreferDcPowerTest {
 		EssPower powerComponent = new EssPowerImpl();
 
 		// Test force charge
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(0) //
 				.withSoc(100);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(-100) //
@@ -695,49 +695,49 @@ public class PreferDcPowerTest {
 	public void testFaultConditions() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(20);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(9);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(8);
-		var ess4 = new DummyManagedSymmetricEss("ess4") //
+		var ess4 = new DummyHybridEss("ess4") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(13);
-		var ess5 = new DummyManagedSymmetricEss("ess5") //
+		var ess5 = new DummyHybridEss("ess5") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(30);
-		var ess6 = new DummyManagedSymmetricEss("ess6") //
+		var ess6 = new DummyHybridEss("ess6") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(17);
-		var ess7 = new DummyManagedSymmetricEss("ess7") //
+		var ess7 = new DummyHybridEss("ess7") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withSoc(7);
-		var ess8 = new DummyManagedSymmetricEss("ess8") //
+		var ess8 = new DummyHybridEss("ess8") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(MAX_POWER) //
@@ -811,21 +811,21 @@ public class PreferDcPowerTest {
 	public void testExtremePowerLimits() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-10000) // Very limited charge power
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(50000) //
 				.withPvProduction(0) //
 				.withSoc(30);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(5000) // Very limited discharge power
 				.withMaxApparentPower(50000) //
 				.withPvProduction(0) //
 				.withSoc(45);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
@@ -873,13 +873,13 @@ public class PreferDcPowerTest {
 	public void testZeroPowerScenarios() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(60);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
@@ -1077,21 +1077,21 @@ public class PreferDcPowerTest {
 	public void testEssConstraints() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-20000) //
 				.withAllowedDischargePower(60000) //
 				.withMaxApparentPower(60000) //
 				.withPvProduction(1000) //
 				.withSoc(30);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-60000) //
 				.withAllowedDischargePower(20000) //
 				.withMaxApparentPower(60000) //
 				.withPvProduction(1000) //
 				.withSoc(70);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-40000) //
 				.withAllowedDischargePower(40000) //
@@ -1424,25 +1424,25 @@ public class PreferDcPowerTest {
 	public void testSymmetricPowerLimits() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-20000) //
 				.withAllowedDischargePower(60000) //
 				.withMaxApparentPower(60000) //
 				.withSoc(30);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-60000) //
 				.withAllowedDischargePower(20000) //
 				.withMaxApparentPower(60000) //
 				.withSoc(70);
-		var ess3 = new DummyManagedSymmetricEss("ess3") //
+		var ess3 = new DummyHybridEss("ess3") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-40000) //
 				.withAllowedDischargePower(40000) //
 				.withMaxApparentPower(40000) //
 				.withSoc(50);
-		var ess4 = new DummyManagedSymmetricEss("ess4") //
+		var ess4 = new DummyHybridEss("ess4") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-10000) //
 				.withAllowedDischargePower(10000) //
@@ -1510,7 +1510,7 @@ public class PreferDcPowerTest {
 	public void testSingleEssCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
@@ -1564,14 +1564,14 @@ public class PreferDcPowerTest {
 		EssPower powerComponent = new EssPowerImpl();
 
 		// Test extreme asymmetric limits
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(0) // Cannot charge (100% SOC)
 				.withAllowedDischargePower(MAX_POWER) //
 				.withMaxApparentPower(MAX_POWER) //
 				.withPvProduction(0) //
 				.withSoc(100);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-MAX_POWER) //
 				.withAllowedDischargePower(0) //
@@ -1626,13 +1626,13 @@ public class PreferDcPowerTest {
 	public void testReactivePowerOnly() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(60);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
@@ -1683,13 +1683,13 @@ public class PreferDcPowerTest {
 	public void testAllNaN() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
-		var ess1 = new DummyManagedSymmetricEss("ess1") //
+		var ess1 = new DummyHybridEss("ess1") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
 				.withMaxApparentPower(50000) //
 				.withSoc(60);
-		var ess2 = new DummyManagedSymmetricEss("ess2") //
+		var ess2 = new DummyHybridEss("ess2") //
 				.setPower(powerComponent) //
 				.withAllowedChargePower(-50000) //
 				.withAllowedDischargePower(50000) //
@@ -1721,7 +1721,7 @@ public class PreferDcPowerTest {
 		componentTest.next(new TestCase("#1"));
 	}
 
-	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
+	private static void expect(String description, DummyHybridEss ess, int p, int q) {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();

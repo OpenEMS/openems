@@ -21,6 +21,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.IntUtils;
 import io.openems.common.utils.IntUtils.Round;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.ess.core.power.v1.data.TargetDirection;
@@ -921,7 +922,11 @@ public class PreferDcPower {
 	}
 
 	private static Integer getPvProductionFromEss(ManagedSymmetricEss ess, Boolean debugMode) {
-		Integer pvProduction = ess.getPvProduction();
+		Integer pvProduction = switch (ess) {
+		case HybridEss he -> he.getPvProduction();
+		default -> null;
+		};
+
 		if (pvProduction == null) {
 			if (debugMode) {
 				log.info(ess.id() + " does not report PV production");
