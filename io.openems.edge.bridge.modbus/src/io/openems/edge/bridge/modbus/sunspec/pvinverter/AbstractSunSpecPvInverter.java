@@ -340,7 +340,7 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 		// Can we evaluate the InverterType from this Block?
 		Stream.of(InverterType.values()) //
-				.filter(type -> type.blocks.stream().anyMatch(t -> t.equals(model))) //
+				.filter(type -> type.blocks.stream().anyMatch(t -> t.equals(model) || t.name().equals(model.name()))) //
 				.findFirst() //
 				.ifPresent(type -> this.inverterType = type);
 	}
