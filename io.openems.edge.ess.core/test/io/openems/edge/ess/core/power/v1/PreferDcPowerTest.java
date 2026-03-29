@@ -19,6 +19,7 @@ import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.core.power.MyConfig;
 import io.openems.edge.ess.test.DummyHybridEss;
+import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.ess.test.DummyMetaEss;
 
 public class PreferDcPowerTest {
@@ -1507,6 +1508,50 @@ public class PreferDcPowerTest {
 	}
 
 	@Test
+	public void testWithNonHybridEss() throws Exception {
+		EssPower powerComponent = new EssPowerImpl();
+
+		var ess1 = new DummyHybridEss("ess1") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-10000) //
+				.withAllowedDischargePower(10000) //
+				.withMaxApparentPower(10000) //
+				.withPvProduction(1000) //
+				.withSoc(30);
+		var ess2 = new DummyManagedSymmetricEss("ess2") //
+				.setPower(powerComponent) //
+				.withAllowedChargePower(-10000) //
+				.withAllowedDischargePower(10000) //
+				.withMaxApparentPower(10000) //
+				.withSoc(70);
+
+		var ess0 = new DummyMetaEss("ess0", ess1, ess2) //
+				.setPower(powerComponent);
+
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(EssPower.SINGLETON_SERVICE_PID);
+
+		final var componentTest = new ComponentTest(powerComponent) //
+				.addReference("cm", cm) //
+				.addReference("addEss", ess0) //
+				.addReference("addEss", ess1) //
+				.addReference("addEss", ess2) //
+				.activate(MyConfig.create() //
+						.setStrategy(OPTIMIZE_BY_PREFERRING_DC_POWER) //
+						.setSymmetricMode(true) //
+						.setDebugMode(true) //
+						.setEnablePid(false) //
+						.build()); //
+
+		// Test discharge
+		expect("#1.1", ess1, 3000, 0); // gets all discharge due to pv production
+		expect("#1.2", ess2, 0, 0); // No discharge as a second inverter is not required
+
+		ess0.setActivePowerEqualsWithoutFilter(3000); // 3kW discharge
+		componentTest.next(new TestCase("#1"));
+	}
+
+	@Test
 	public void testSingleEssCluster() throws Exception {
 		EssPower powerComponent = new EssPowerImpl();
 
@@ -1722,6 +1767,15 @@ public class PreferDcPowerTest {
 	}
 
 	private static void expect(String description, DummyHybridEss ess, int p, int q) {
+		openCallbacks.incrementAndGet();
+		ess.withSymmetricApplyPowerCallback(record -> {
+			openCallbacks.decrementAndGet();
+			assertEquals(description + " for " + ess.id(), p, record.activePower());
+			assertEquals(description + " for " + ess.id(), q, record.reactivePower());
+		});
+	}
+
+	private static void expect(String description, DummyManagedSymmetricEss ess, int p, int q) {
 		openCallbacks.incrementAndGet();
 		ess.withSymmetricApplyPowerCallback(record -> {
 			openCallbacks.decrementAndGet();
