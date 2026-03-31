@@ -62,15 +62,16 @@ public final class Utils {
 	/**
 	 * Calculate Automatic Mode.
 	 * 
-	 * @param sum           the {@link Sum}
-	 * @param ess           the {@link ManagedSymmetricEss}
-	 * @param gridSoftLimit the configured Soft-Limit from Grid (or null)
-	 * @param period        the scheduled {@link Period}
-	 * @param forceMode     force a target {@link StateMachine}
+	 * @param sum           		the {@link Sum}
+	 * @param ess           		the {@link ManagedSymmetricEss}
+	 * @param gridSoftLimit 		the configured Soft-Limit from Grid (or null)
+	 * @param period        		the scheduled {@link Period}
+	 * @param forceMode     		force a target {@link StateMachine}
+	 * @param balancingGridSetpoint the target setpoint for grid during BALANCING
 	 * @return {@link ApplyMode}
 	 */
 	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer gridSoftLimit,
-			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
+			DifferentModes.Period<StateMachine, OptimizationContext> period, int balancingGridSetpoint, StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if ((period == null && forceMode == null) || gridActivePower == null || essActivePower == null) {
@@ -81,7 +82,7 @@ public final class Utils {
 		final var mode = forceMode != null //
 				? forceMode //
 				: period.mode();
-		final var pwrBalancing = gridActivePower + essActivePower;
+		final var pwrBalancing = gridActivePower + essActivePower - balancingGridSetpoint;
 		return switch (mode) {
 		case BALANCING -> new ApplyMode(BALANCING, pwrBalancing);
 		case DELAY_DISCHARGE ->
