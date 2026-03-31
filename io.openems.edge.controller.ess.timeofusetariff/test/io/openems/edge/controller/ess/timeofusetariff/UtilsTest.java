@@ -46,6 +46,7 @@ public class UtilsTest {
 								.withActivePower(-6000), //
 						/* maxChargePowerFromGrid */ 20000, //
 						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals(new ApplyMode(CHARGE_GRID, -11000), //
@@ -56,6 +57,7 @@ public class UtilsTest {
 								.withActivePower(-6000), //
 						/* maxChargePowerFromGrid */ 20000, //
 						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals(new ApplyMode(CHARGE_GRID, -1840), //
@@ -66,6 +68,7 @@ public class UtilsTest {
 								.withActivePower(-1000), //
 						/* maxChargePowerFromGrid */ 24000, //
 						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1340), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals(new ApplyMode(PEAK_SHAVING, 5000), //
@@ -76,6 +79,7 @@ public class UtilsTest {
 								.withActivePower(1000), //
 						/* maxChargePowerFromGrid */ 5000, //
 						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals(new ApplyMode(CHARGE_GRID, -4340), //
@@ -87,6 +91,7 @@ public class UtilsTest {
 								.withDcDischargePower(-1500), //
 						/* maxChargePowerFromGrid */ 24000, //
 						/* period */ mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1340), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 	}
 
@@ -100,6 +105,7 @@ public class UtilsTest {
 								.withActivePower(2500), //
 						/* maxChargePowerFromGrid */ 20000, //
 						/* period */ mockPeriod(QUARTER, DISCHARGE_GRID, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 	}
 
@@ -115,6 +121,7 @@ public class UtilsTest {
 								.withDcDischargePower(-5), //
 						/* maxChargePowerFromGrid */ 23000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		// Actually Balancing
@@ -126,6 +133,7 @@ public class UtilsTest {
 								.withActivePower(0), //
 						/* maxChargePowerFromGrid */ 23000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 		assertEquals(new ApplyMode(BALANCING, -1823), //
 				calculateAutomaticMode(//
@@ -136,6 +144,20 @@ public class UtilsTest {
 								.withDcDischargePower(23), //
 						/* maxChargePowerFromGrid */ 23000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
+						/* forceMode */ null));
+		
+		//  Balancing with balancingGridSetpoint
+		assertEquals(new ApplyMode(BALANCING, -2144), //
+				calculateAutomaticMode(//
+						/* sum */ new DummySum() //
+								.withGridActivePower(-2323), //
+						/* ess */ new DummyHybridEss("ess0") //
+								.withActivePower(500) //
+								.withDcDischargePower(23), //
+						/* maxChargePowerFromGrid */ 23000, //
+						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 321,
 						/* forceMode */ null));
 
 		// Peak-Shaving to gridSoftLimit
@@ -147,7 +169,36 @@ public class UtilsTest {
 								.withActivePower(-1500), //
 						/* maxChargePowerFromGrid */ 5000, //
 						/* period */ mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
+	}
+	
+	@Test
+	public void testCalculateBalancingGridSetpoint() {
+
+		assertEquals(new ApplyMode(BALANCING, -1321), //
+				calculateAutomaticMode(//
+						/* sum */ new DummySum() //
+								.withGridActivePower(-1000), //
+						/* ess */ new DummyManagedSymmetricEss("ess0") //
+								.withActivePower(0), //
+						/* maxChargePowerFromGrid */ 23000, //
+						/* period */ mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 321,
+						/* forceMode */ null));
+		
+		assertEquals(new ApplyMode(BALANCING, 2502), //
+				calculateAutomaticMode(//
+						/* sum */ new DummySum() //
+								.withGridActivePower(2323), //
+						/* ess */ new DummyHybridEss("ess0") //
+								.withActivePower(500) //
+								.withDcDischargePower(23), //
+						/* maxChargePowerFromGrid */ 23000, //
+						/* period */ mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 10000), //
+						/* balancingGridSetpoint */ 321,
+						/* forceMode */ null));
+
 	}
 
 	private static DifferentModes.Period<StateMachine, OptimizationContext> mockPeriod(PeriodDuration duration,
@@ -164,6 +215,7 @@ public class UtilsTest {
 						/* ess */ new DummyManagedSymmetricEss("ess0"), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 		assertEquals("Null-Check", new ApplyMode(BALANCING, null), //
 				calculateAutomaticMode(//
@@ -172,6 +224,7 @@ public class UtilsTest {
 						/* ess */ new DummyManagedSymmetricEss("ess0"), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals("BALANCING", new ApplyMode(BALANCING, 600), //
@@ -182,6 +235,7 @@ public class UtilsTest {
 								.withActivePower(500), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, BALANCING, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
@@ -192,6 +246,7 @@ public class UtilsTest {
 								.withActivePower(500), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals("DELAY_DISCHARGE to BALANCING", new ApplyMode(BALANCING, 0), //
@@ -202,6 +257,7 @@ public class UtilsTest {
 								.withActivePower(500), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, DELAY_DISCHARGE, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals("CHARGE_GRID stays CHARGE_GRID", new ApplyMode(CHARGE_GRID, -1400), //
@@ -212,6 +268,7 @@ public class UtilsTest {
 								.withActivePower(500), //
 						/* gridSoftLimit */ 2000, //
 						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 30500), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 
 		assertEquals("CHARGE_GRID to DELAY_DISCHARGE", new ApplyMode(DELAY_DISCHARGE, 0), //
@@ -222,6 +279,7 @@ public class UtilsTest {
 								.withActivePower(500), //
 						/* gridSoftLimit */ 600, //
 						mockPeriod(QUARTER, CHARGE_GRID, /* essChargeInChargeGrid */ 1000), //
+						/* balancingGridSetpoint */ 0,
 						/* forceMode */ null));
 	}
 

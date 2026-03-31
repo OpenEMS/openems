@@ -24,7 +24,7 @@ public class EnergyFlowTest {
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
 		m.addManagedConsumption("ctrl0", 300);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getConsumption());
@@ -43,7 +43,7 @@ public class EnergyFlowTest {
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
 		m.addManagedConsumption("ctrl0", 300);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getConsumption());
@@ -61,7 +61,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(100, ef.getConsumption());
@@ -79,7 +79,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 5000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(2500, ef.getConsumption());
@@ -97,7 +97,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 1800, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(4500, ef.getConsumption());
@@ -115,7 +115,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(500, ef.getConsumption());
@@ -133,7 +133,7 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 900, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(2500, ef.getConsumption());
@@ -151,13 +151,32 @@ public class EnergyFlowTest {
 				/* essMaxDischarge */ 2000, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		applyBalancing(m);
+		applyBalancing(m, 0 /* balancingGridSetpoint */);
 		var ef = m.solve();
 
 		assertEquals(4900, ef.getConsumption());
 		assertEquals(1000, ef.getProduction());
 		assertEquals(2000, ef.getEss());
 		assertEquals(1900, ef.getGrid());
+	}
+	
+	@Test
+	public void testBalancingWithBalancingGridSetpoint() throws Exception {
+		var m = new EnergyFlow.Model(//
+				/* production */ 2500, //
+				/* consumption */ 200, //
+				/* essMaxCharge */ 5000, //
+				/* essMaxDischarge */ 0, //
+				/* gridMaxBuy */ 4000, //
+				/* gridMaxSell */ 10000);
+		m.addManagedConsumption("ctrl0", 300);
+		applyBalancing(m, 123 /* balancingGridSetpoint */);
+		var ef = m.solve();
+
+		assertEquals(500, ef.getConsumption());
+		assertEquals(2500, ef.getProduction());
+		assertEquals(-2123, ef.getEss());
+		assertEquals(123, ef.getGrid());
 	}
 
 	/*
