@@ -208,6 +208,6 @@ public class EnergySchedulerTestUtils {
 		return create(Controller.ESS_GRID_OPTIMIZED_CHARGE, componentId,
 				cmp -> io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.timeofusetariff. //
-								EnergyScheduler.Config(controlMode)));
+								EnergyScheduler.Config(controlMode, 0 /* balancingGridSetpoint */)));
 	}
 }

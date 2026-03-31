@@ -16,6 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private ControlMode controlMode;
 		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
+		private int balancingGridSetpoint;
 
 		private Builder() {
 		}
@@ -52,6 +53,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMaxChargePowerFromGrid(int maxChargePowerFromGrid) {
 			this.maxChargePowerFromGrid = maxChargePowerFromGrid;
+			return this;
+		}
+
+		public Builder setBalancingGridSetpoint(int balancingGridSetpoint) {
+			this.balancingGridSetpoint = balancingGridSetpoint;
 			return this;
 		}
 
@@ -99,6 +105,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int maxChargePowerFromGrid() {
 		return this.builder.maxChargePowerFromGrid;
+	}
+
+	@Override
+	public int balancingGridSetpoint() {
+		return this.builder.balancingGridSetpoint;
 	}
 
 	@Override

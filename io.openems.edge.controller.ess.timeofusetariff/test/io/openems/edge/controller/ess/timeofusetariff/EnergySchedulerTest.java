@@ -23,7 +23,7 @@ public class EnergySchedulerTest {
 	@Test
 	public void testChargeConsumption() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new EnergyScheduler.Config(ControlMode.CHARGE_CONSUMPTION));
+				() -> new EnergyScheduler.Config(ControlMode.CHARGE_CONSUMPTION, 0 /* balancingGridSetpoint */));
 		var t = EnergyScheduleTester.from(esh);
 
 		// Initial Population: DELAY_DISCHARGE and CHARGE_GRID
@@ -50,7 +50,7 @@ public class EnergySchedulerTest {
 	@Test
 	public void testDelayDischarge() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new EnergyScheduler.Config(ControlMode.DELAY_DISCHARGE));
+				() -> new EnergyScheduler.Config(ControlMode.DELAY_DISCHARGE, 0 /* balancingGridSetpoint */));
 		var t = EnergyScheduleTester.from(esh);
 
 		// Initial Population: DELAY_DISCHARGE only
@@ -70,7 +70,7 @@ public class EnergySchedulerTest {
 	@Test
 	public void testDischargeToGrid() {
 		var esh = buildEnergyScheduleHandler(new DummyController("ctrl0"),
-				() -> new EnergyScheduler.Config(ControlMode.DISCHARGE_TO_GRID));
+				() -> new EnergyScheduler.Config(ControlMode.DISCHARGE_TO_GRID, 0 /* balancingGridSetpoint */));
 		var t = EnergyScheduleTester.from(esh);
 
 		// Initial Population: DELAY_DISCHARGE, CHARGE_GRID and DISCHARGE_GRID

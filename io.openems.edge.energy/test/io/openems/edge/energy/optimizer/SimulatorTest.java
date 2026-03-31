@@ -53,7 +53,7 @@ public class SimulatorTest {
 			io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 					.buildEnergyScheduleHandler(new DummyController("ctrlEssTimeOfUseTariff0"), //
 							() -> new io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config(
-									ControlMode.CHARGE_CONSUMPTION));
+									ControlMode.CHARGE_CONSUMPTION, 0));
 
 	protected static enum Esh2State {
 		FOO, BAR;
