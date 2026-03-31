@@ -62,16 +62,17 @@ public final class Utils {
 	/**
 	 * Calculate Automatic Mode.
 	 * 
-	 * @param sum           		the {@link Sum}
-	 * @param ess           		the {@link ManagedSymmetricEss}
-	 * @param gridSoftLimit 		the configured Soft-Limit from Grid (or null)
-	 * @param period        		the scheduled {@link Period}
-	 * @param forceMode     		force a target {@link StateMachine}
+	 * @param sum                   the {@link Sum}
+	 * @param ess                   the {@link ManagedSymmetricEss}
+	 * @param gridSoftLimit         the configured Soft-Limit from Grid (or null)
+	 * @param period                the scheduled {@link Period}
+	 * @param forceMode             force a target {@link StateMachine}
 	 * @param balancingGridSetpoint the target setpoint for grid during BALANCING
 	 * @return {@link ApplyMode}
 	 */
 	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer gridSoftLimit,
-			DifferentModes.Period<StateMachine, OptimizationContext> period, int balancingGridSetpoint, StateMachine forceMode) {
+			DifferentModes.Period<StateMachine, OptimizationContext> period, int balancingGridSetpoint,
+			StateMachine forceMode) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if ((period == null && forceMode == null) || gridActivePower == null || essActivePower == null) {

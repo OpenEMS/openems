@@ -99,7 +99,8 @@ public final class UtilsV1 {
 	 * @param maxChargePowerFromGrid     the configured max charge from grid power
 	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
 	 * @param targetState                the scheduled target {@link StateMachine}
-	 * @param balancingGridSetpoint      the target setpoint for grid during BALANCING
+	 * @param balancingGridSetpoint      the target setpoint for grid during
+	 *                                   BALANCING
 	 * @param forceState                 force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */

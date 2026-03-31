@@ -169,8 +169,10 @@ public class EnergyScheduler {
 	/**
 	 * Simulate {@link EnergyFlow} in {@link StateMachine#BALANCING}.
 	 * 
-	 * @param model the {@link EnergyFlow.Model}
-	 * @param balancingGridSetpointEnergy the target energy setpoint for grid. Positive for buy-from-grid; negative for sell-to-grid.
+	 * @param model                       the {@link EnergyFlow.Model}
+	 * @param balancingGridSetpointEnergy the target energy setpoint for grid.
+	 *                                    Positive for buy-from-grid; negative for
+	 *                                    sell-to-grid.
 	 */
 	public static void applyBalancing(EnergyFlow.Model model, int balancingGridSetpointEnergy) {
 		int target = -model.getSurplus() - balancingGridSetpointEnergy;

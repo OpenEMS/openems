@@ -159,7 +159,7 @@ public class EnergyFlowTest {
 		assertEquals(2000, ef.getEss());
 		assertEquals(1900, ef.getGrid());
 	}
-	
+
 	@Test
 	public void testBalancingWithBalancingGridSetpoint() throws Exception {
 		var m = new EnergyFlow.Model(//

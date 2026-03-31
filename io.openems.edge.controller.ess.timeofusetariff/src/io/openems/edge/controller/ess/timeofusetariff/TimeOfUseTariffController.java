@@ -17,27 +17,27 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 		/**
 		 * Current state of the Time of use tariff controller.
 		 */
-		STATE_MACHINE(Doc.of(StateMachine.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		STATE_MACHINE(Doc.of(StateMachine.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current state of the Controller")),
 
-		QUARTERLY_PRICES(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.MONEY_PER_MEGAWATT_HOUR) //
+		QUARTERLY_PRICES(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.MONEY_PER_MEGAWATT_HOUR)//
 				.text("Price of the electricity for the current Hour")//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Aggregated seconds when storage is being force charged from the grid.
 		 */
-		CHARGED_TIME(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		CHARGED_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Aggregated seconds when storage is blocked for discharge.
 		 */
-		DELAYED_TIME(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		DELAYED_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
