@@ -75,17 +75,19 @@ public final class UtilsV1 {
 	 * @param ess                    the {@link ManagedSymmetricEss}
 	 * @param ctrlLimiter14as        the list of {@link ControllerEssLimiter14a}s
 	 * @param maxChargePowerFromGrid the configured max charge from grid power
+	 * @param balancingGridSetpoint  the target setpoint for grid during BALANCING
 	 * @param forceState             force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
 	@Deprecated
 	public static ApplyMode calculateAutomaticMode(EnergyScheduleHandlerV1 esh, Sum sum, ManagedSymmetricEss ess,
-			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid, StateMachine forceState) {
+			List<ControllerEssLimiter14a> ctrlLimiter14as, int maxChargePowerFromGrid, int balancingGridSetpoint,
+			StateMachine forceState) {
 		final var targetState = getCurrentPeriodState(esh);
 		final var essChargeInChargeGrid = esh.getCurrentEssChargeInChargeGrid();
 		final var limitChargePowerFor14aEnWG = calculateLimitChargePowerFor14aEnWG(ctrlLimiter14as);
 		return calculateAutomaticMode(sum, ess, essChargeInChargeGrid, maxChargePowerFromGrid,
-				limitChargePowerFor14aEnWG, targetState, forceState);
+				limitChargePowerFor14aEnWG, targetState, balancingGridSetpoint, forceState);
 	}
 
 	/**
@@ -97,13 +99,14 @@ public final class UtilsV1 {
 	 * @param maxChargePowerFromGrid     the configured max charge from grid power
 	 * @param limitChargePowerFor14aEnWG Limit Charge Power for §14a EnWG
 	 * @param targetState                the scheduled target {@link StateMachine}
+	 * @param balancingGridSetpoint      the target setpoint for grid during BALANCING
 	 * @param forceState                 force a target {@link StateMachine}
 	 * @return {@link ApplyMode}
 	 */
 	@Deprecated
 	protected static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer essChargeInChargeGrid,
 			int maxChargePowerFromGrid, int limitChargePowerFor14aEnWG, StateMachine targetState,
-			StateMachine forceState) {
+			int balancingGridSetpoint, StateMachine forceState) {
 		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
 		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
 		if (gridActivePower == null || essActivePower == null) {
