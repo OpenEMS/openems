@@ -43,6 +43,43 @@ public enum Unit {
 	 */
 	TENTHOUSANDTH("0.1‰"),
 
+	// ##########
+	// Rate of change per time
+	// ##########
+	// Represents how many percent/permille of the nominal X changes per time.
+
+	/**
+	 * Unit of the rate of change per second of the nominal power [%Pn/s].
+	 */
+	PERCENT_PN_PER_SECOND("%Pn/s"),
+
+	/**
+	 * Unit of the rate of change per second of the nominal power [‰Pn/s].
+	 */
+	PROMILLE_PN_PER_SECOND("‰Pn/s", PERCENT_PN_PER_SECOND, -1),
+
+	/**
+	 * Unit of percentage of power relative to nominal power per minute [%Pn/min].
+	 */
+	PERCENT_PN_PER_MINUTE("%Pn/min"),
+
+	/**
+	 * Unit of per mille of power relative to nominal power per minute [‰Pn/min].
+	 */
+	PROMILLE_PN_PER_MINUTE("‰Pn/min", PERCENT_PN_PER_MINUTE, -1),
+
+	/**
+	 * Unit of the power change per second in percent as a fraction of nominal power
+	 * [%ln/s].
+	 */
+	PERCENT_LN_PER_SECOND("%ln/s"),
+
+	/**
+	 * Unit of the power change per second in permille as a fraction of nominal
+	 * power [‰ln/s].
+	 */
+	PROMILLE_LN_PER_SECOND("‰ln/s", PERCENT_LN_PER_SECOND, -1),
+
 	/**
 	 * On or Off.
 	 */
@@ -87,6 +124,26 @@ public enum Unit {
 	 */
 	KILOVOLT_AMPERE("kVA", VOLT_AMPERE, 3),
 
+	/**
+	 * Percentage of nominal power [%Pn].
+	 */
+	PERCENT_PN("%Pn"),
+
+	/**
+	 * Per mille of nominal power [‰Pn].
+	 */
+	PROMILLE_PN("‰Pn", PERCENT_PN, -1),
+
+	/**
+	 * Reactive power per percentage of nominal power [Qmax/1%Pn].
+	 */
+	QMAX_PER_PERCENT_PN("Qmax/1%Pn"),
+
+	/**
+	 * Reactive power per decipercent of nominal power [Qmax/10%Pn].
+	 */
+	QMAX_PER_DECIPERCENT_PN("Qmax/10%Pn"),
+
 	// ##########
 	// Voltage
 	// ##########
@@ -110,6 +167,26 @@ public enum Unit {
 	 * Unit of Voltage [uV].
 	 */
 	MICROVOLT("uV", VOLT, -6),
+
+	/**
+	 * Unit of Voltage relative to nominal voltage [%Vn].
+	 */
+	PERCENT_VN("%Vn"),
+
+	/**
+	 * Unit of Voltage relative to nominal voltage [‰Vn].
+	 */
+	PROMILLE_VN("‰Vn", PERCENT_VN, -1),
+
+	/**
+	 * Unit of reactive-power change percent voltage change [Qmax/1%Vn].
+	 */
+	QMAX_PER_PERCENT_VN("Qmax/1%Vn"),
+
+	/**
+	 * Unit of reactive-power change 0.1 percent voltage change [Qmax/10%Vn].
+	 */
+	QMAX_PER_DECIPERCENT_VN("Qmax/10%Vn", QMAX_PER_PERCENT_VN, -1),
 
 	// ##########
 	// Current
@@ -220,6 +297,16 @@ public enum Unit {
 	 * Unit of Frequency [mHz].
 	 */
 	MILLIHERTZ("mHz", HERTZ, -3),
+
+	/**
+	 * Unit of difference of the Frequency [Hz].
+	 */
+	PERCENT_PER_HERTZ("%/Hz"),
+
+	/**
+	 * Unit of difference of the Frequency [Hz] in Thousandth.
+	 */
+	PROMILLE_PER_HERTZ("‰/Hz", PERCENT_PER_HERTZ, -1),
 
 	// ##########
 	// Temperature
@@ -409,7 +496,10 @@ public enum Unit {
 				KILOWATT_HOURS, MICROOHM, MILLIAMPERE_HOURS, MILLIOHM, MILLISECONDS, MINUTE, THOUSANDTH,
 				VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS, WATT_HOURS_BY_WATT_PEAK, CUMULATED_WATT_HOURS, BAR,
 				MILLIBAR, TENTHOUSANDTH, DEZIAMPERE, DEZIVOLT, GRAMS_PER_CUBIC_METER, PARTS_PER_MILLION, KILOJOULE,
-				KILOJOULES_PER_KILOGRAM -> //
+				KILOJOULES_PER_KILOGRAM, PERCENT_VN, PROMILLE_VN, PERCENT_PN, PROMILLE_PN, PERCENT_PN_PER_SECOND,
+				PROMILLE_PN_PER_SECOND, PERCENT_PER_HERTZ, PROMILLE_PER_HERTZ, PERCENT_LN_PER_SECOND,
+				PROMILLE_LN_PER_SECOND, QMAX_PER_PERCENT_VN, QMAX_PER_DECIPERCENT_VN, QMAX_PER_PERCENT_PN,
+				QMAX_PER_DECIPERCENT_PN, PERCENT_PN_PER_MINUTE, PROMILLE_PN_PER_MINUTE -> //
 			value + " " + this.symbol;
 
 		case ON_OFF -> //

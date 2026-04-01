@@ -1,10 +1,11 @@
 // @ts-strict-ignore
-import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, HostListener, Input, Renderer2, untracked } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, HostListener, input, Input, Renderer2, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { RouteService } from "src/app/shared/service/route.service";
 import { Edge, EdgeConfig, Service, Websocket } from "../../../shared";
+import { HelpButtonComponent } from "../../modal/help-button/help-button";
 import { NavigationComponent } from "../action-sheet-modal";
 import { NavigationService } from "../service/navigation.service";
 import { ViewUtils } from "./shared/shared";
@@ -29,6 +30,11 @@ export enum Status {
             ion-grid {
                 display: inline !important;
             }
+            .floating-btn {
+                position: fixed;
+                bottom: 5%;
+                right: 10%;
+            }
         }
     `],
     standalone: false,
@@ -37,6 +43,7 @@ export class NavigationPageComponent implements AfterViewInit {
 
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup | null = null;
+    protected helpKey = input<HelpButtonComponent["key"]>();
 
     protected contentHeight: number | null = null;
     protected actionSheetModalHeight: number = 0;

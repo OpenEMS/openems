@@ -27,7 +27,7 @@ import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
@@ -49,6 +49,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
     /** Title for Chart, diplayed above the Chart */
     @Input() public chartTitle: string = "";
+
+    /** Optional chart height in percent (0–100) of the available view height. */
+    @Input() public customChartHeightPercentage?: number;
 
     /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
     @Input() public component: EdgeConfig.Component;
@@ -491,7 +494,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         };
 
         options.plugins.tooltip.callbacks.afterTitle = function (items: Chart.TooltipItem<any>[]) {
-            const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+            const locale: string = Language.geti18nLocale();
 
             if (items?.length === 0) {
                 return null;
@@ -632,7 +635,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      * @returns the chart options {@link Chart.ChartOptions}
      */
     public static getYAxisOptions(options: Chart.ChartOptions, element: HistoryUtils.yAxes, translate: TranslateService, chartType: "line" | "bar", datasets: Chart.ChartDataset[], showYAxisType?: boolean, formatNumber?: HistoryUtils.ChartData["tooltip"]["formatNumber"]): Chart.ChartOptions {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.geti18nLocale();
         const baseConfig = ChartConstants.DEFAULT_Y_SCALE_OPTIONS(element, translate, chartType, datasets, showYAxisType, formatNumber);
 
         switch (element.unit) {
@@ -784,7 +787,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      * @returns a string, that is either the baseName, if no suffix is provided, or a baseName with a formatted number
      */
     public static getTooltipsLabelName(baseName: string, unit: YAxisType, suffix?: number | string): string {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.geti18nLocale();
         if (suffix != null) {
             if (typeof suffix === "string") {
                 return baseName + " " + suffix;
@@ -819,7 +822,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
      * @returns the tooltips suffix
      */
     public static getToolTipsSuffix(label: any, value: number, format: string, title: YAxisType, chartType: "bar" | "line", translate: TranslateService, config: EdgeConfig): string {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.geti18nLocale();
         const prefix: string = label.split(":")[0];
         let suffix: string;
         switch (title) {
@@ -1057,7 +1060,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     ngAfterViewInit() {
-        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
         this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
@@ -1078,7 +1081,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     protected getChartHeight(): number | null {
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
     }
 
     protected updateChart() {
@@ -1144,7 +1147,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                                     this.initializeChart();
                                 }
                                 resolve(responseToReturn);
-                            }).catch(() => {
+                            }).catch((error) => {
+                                if (error instanceof JsonrpcResponseError) {
+                                    this.errorResponse = error;
+                                }
                                 this.initializeChart();
                             });
                     })

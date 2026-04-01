@@ -542,14 +542,20 @@ public class DelayCharge {
 	protected static int calculateAvailEnergy(Integer[] quarterHourlyProduction, Integer[] quarterHourlyConsumption,
 			Clock clock, int targetMinute) {
 
+		// Return zero when prediction data is empty
+		if (quarterHourlyProduction.length == 0 || quarterHourlyConsumption.length == 0) {
+			return 0;
+		}
+
 		ZonedDateTime now = ZonedDateTime.now(clock);
 		ZonedDateTime predictionStartQuarterHour = DelayCharge.roundZonedDateTimeDownTo15Minutes(now);
 
 		int dailyStartIndex = predictionStartQuarterHour.get(MINUTE_OF_DAY) / 15;
 		int dailyEndIndex = DelayCharge.getAsZonedDateTime(targetMinute, clock).get(MINUTE_OF_DAY) / 15;
 
-		// Relevant quarter hours
-		int endIndex = dailyEndIndex - dailyStartIndex;
+		// Relevant quarter hours, clamped to available prediction data
+		int endIndex = min(dailyEndIndex - dailyStartIndex,
+				min(quarterHourlyProduction.length, quarterHourlyConsumption.length));
 
 		float productionEnergyTotal = 0;
 		float consumptionEnergyTotal = 0;
@@ -558,7 +564,7 @@ public class DelayCharge {
 		 * Summarize and calculate every quarterly power, if there is more than one
 		 * quarter hour left
 		 */
-		if (endIndex > 0) {
+		if (endIndex > 1) {
 			List<Integer> productionList = Arrays.asList(quarterHourlyProduction).subList(1, endIndex);
 			List<Integer> consumptionList = Arrays.asList(quarterHourlyConsumption).subList(1, endIndex);
 

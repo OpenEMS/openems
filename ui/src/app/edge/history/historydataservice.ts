@@ -25,7 +25,7 @@ export class HistoryDataService extends DataService {
         super(service);
     }
 
-    public getValues(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
+    public subscribeChannels(channelAddresses: ChannelAddress[], edge: Edge, componentId: string) {
 
         for (const channelAddress of channelAddresses) {
             this.channelAddresses[channelAddress.toString()] = channelAddress;
@@ -75,7 +75,7 @@ export class HistoryDataService extends DataService {
     }
 
     public override refresh(ev: CustomEvent) {
-        this.getValues(Object.values(this.channelAddresses), this.edge, "");
+        this.subscribeChannels(Object.values(this.channelAddresses), this.edge, "");
         setTimeout(() => {
             (ev.target as HTMLIonRefresherElement).complete();
         }, 1000);

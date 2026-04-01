@@ -39,6 +39,8 @@ import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.dependency.Dependency;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse.Version;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
@@ -65,6 +67,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private final ComponentUtil componentUtil;
 	private final AppManagerImpl appManager;
 	private final OpenemsEdgeOem oem;
+	private final SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
 
 	@Activate
 	public SwitchArchitecture(//
@@ -72,13 +75,15 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 			@Reference ComponentManager componentManager, //
 			@Reference ComponentUtil componentUtil, //
 			@Reference AppManagerImpl appManager, //
-			@Reference OpenemsEdgeOem oem //
+			@Reference OpenemsEdgeOem oem, //
+			@Reference SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask //
 	) {
 		this.oem = oem;
 		this.appManagerUtil = appManagerUtil;
 		this.componentManager = componentManager;
 		this.componentUtil = componentUtil;
 		this.appManager = appManager;
+		this.schedulerByCentralOrderAggregateTask = schedulerByCentralOrderAggregateTask;
 	}
 
 	@Override
@@ -178,7 +183,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		this.deleteComponentIfPresent(user, "ctrlEvseCluster0");
 
 		var clusterInstanceId = UUID.randomUUID();
-		this.migrateEvseToEvcsApps(user, appInstances, evcsIds, clusterInstanceId, response);
+		final var schedulerComponents = this.migrateEvseToEvcsApps(user, appInstances, evcsIds, clusterInstanceId,
+				response);
 		this.clusterApp(user, instantiatedApps, appInstances, response, evcsIds, clusterInstanceId);
 
 		final var vehicleAppsToDelete = this.findVehicleAppsToDelete(instantiatedApps, appInstances);
@@ -187,6 +193,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		// central way to work with it.
 		this.updateEnergyScheduler(user, io.openems.edge.energy.api.Version.V1_ESS_ONLY);
 		this.updateAppConfigurationForEvseToEvcs(user, instantiatedApps, response, vehicleAppsToDelete);
+		this.schedulerByCentralOrderAggregateTask.fixSchedulerOrder(user, schedulerComponents);
 	}
 
 	/**
@@ -215,6 +222,7 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// Remove deleted components from the scheduler
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, deletedComponentIds);
+		this.appManager._setAppsNotSyncedWithBackend(true);
 	}
 
 	private void clusterApp(User user, final ArrayList<OpenemsAppInstance> instantiatedApps,
@@ -263,23 +271,21 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		}
 	}
 
-	private void migrateEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
-			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response, int i, int size)
-			throws OpenemsNamedException {
-		switch (instance.appId) {
-		case "App.Evcs.Keba" ->
-			this.migrateKebaEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, i, size);
+	private List<SchedulerByCentralOrderConfiguration.SchedulerComponent> migrateEvseToEvcs(User user,
+			OpenemsAppInstance instance, JsonArrayBuilder evcsIds, UUID clusterInstanceId,
+			ArrayList<OpenemsAppInstance> response, int size) throws OpenemsNamedException {
+		return switch (instance.appId) {
+		case "App.Evcs.Keba" -> this.migrateKebaEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, size);
 		case "App.Evcs.HardyBarth" ->
-			this.migrateHardyBarthEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, i, size);
-		default -> {
-			// do nothing
-		}
-		}
+			this.migrateHardyBarthEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, size);
+		default -> Collections.emptyList();
+		};
 	}
 
-	private void migrateHardyBarthEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
-			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response, int index, int size)
-			throws OpenemsNamedException {
+	private List<SchedulerByCentralOrderConfiguration.SchedulerComponent> migrateHardyBarthEvseToEvcs(User user,
+			OpenemsAppInstance instance, JsonArrayBuilder evcsIds, UUID clusterInstanceId,
+			ArrayList<OpenemsAppInstance> response, int size) throws OpenemsNamedException {
+		final var schedulerComponentsToUpdate = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
 		final var singleId = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID"));
 		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))//
@@ -316,6 +322,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				new CreateComponentConfig.Request("Controller.Evcs", //
 						evcsCtrlProperties));
 		evcsIds.add(evcsId);
+		schedulerComponentsToUpdate.add(new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlEvcsId,
+				"Controller.Evcs", "App.Evcs.HardyBarth"));
 
 		final var instancePropertiesBuilder = JsonUtils.buildJsonObject();
 		instancePropertiesBuilder //
@@ -358,6 +366,9 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 					.addProperty("CTRL_EVCS_ID_CP_2", ctrlEvcsId) //
 					.addProperty("IP_CP_2", ipCp2) //
 					.addProperty("ALIAS_CP_2", aliasCp2);
+
+			schedulerComponentsToUpdate.add(new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlEvcsId,
+					"Controller.Evcs", "App.Evcs.HardyBarth"));
 		}
 
 		instancePropertiesBuilder//
@@ -377,11 +388,14 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		final var newInstance = new OpenemsAppInstance("App.Evcs.HardyBarth", instance.alias, instance.instanceId,
 				instancePropertiesBuilder.build(), dependencies);
 		response.add(newInstance);
+
+		return schedulerComponentsToUpdate;
 	}
 
-	private void migrateKebaEvseToEvcs(User user, OpenemsAppInstance instance, JsonArrayBuilder evcsIds,
-			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response, int i, int size)
-			throws OpenemsNamedException {
+	private List<SchedulerByCentralOrderConfiguration.SchedulerComponent> migrateKebaEvseToEvcs(User user,
+			OpenemsAppInstance instance, JsonArrayBuilder evcsIds, UUID clusterInstanceId,
+			ArrayList<OpenemsAppInstance> response, int size) throws OpenemsNamedException {
+		final var schedulerComponentsToUpdate = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();
 		final var evcsId = JsonUtils.getAsString(instance.properties.get("EVCS_ID"));
 		final var singleId = JsonUtils.getAsString(instance.properties.get("CTRL_SINGLE_ID"));
 		final var phaseRotation = JsonUtils.getAsOptionalString(instance.properties.get("PHASE_ROTATION"))//
@@ -442,6 +456,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		this.componentManager.handleCreateComponentConfigRequest(user,
 				new CreateComponentConfig.Request("Controller.Evcs", //
 						evcsCtrlProperties));
+		schedulerComponentsToUpdate.add(new SchedulerByCentralOrderConfiguration.SchedulerComponent(ctrlEvcsId,
+				"Controller.Evcs", "App.Evcs.Keba"));
 
 		evcsIds.add(evcsId);
 
@@ -473,6 +489,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 				dependencies); //
 
 		response.add(newInstance);
+
+		return schedulerComponentsToUpdate;
 	}
 
 	private String getNextEvcsControllerId() {
@@ -690,7 +708,6 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 
 		// THEN delete chargepoint
 		this.deleteComponentIfPresent(user, evcsId);
-		this.componentManager.handleDeleteComponentConfigRequest(user, new DeleteComponentConfig.Request(evcsId));
 		final var hardwareType = JsonUtils
 				.getAsOptionalEnum(KebaHardwareType.class, instance.properties.get("HARDWARE_TYPE"))//
 				.orElse(KebaHardwareType.P30); // Assume P30 for old apps without hardware_type property
@@ -769,12 +786,16 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 		}
 	}
 
-	private void migrateEvseToEvcsApps(User user, List<OpenemsAppInstance> appInstances, JsonArrayBuilder evcsIds,
-			UUID clusterInstanceId, ArrayList<OpenemsAppInstance> response) throws OpenemsNamedException {
+	private List<SchedulerByCentralOrderConfiguration.SchedulerComponent> migrateEvseToEvcsApps(User user,
+			List<OpenemsAppInstance> appInstances, JsonArrayBuilder evcsIds, UUID clusterInstanceId,
+			ArrayList<OpenemsAppInstance> response) throws OpenemsNamedException {
+		final var schedulerComponents = new ArrayList<SchedulerByCentralOrderConfiguration.SchedulerComponent>();
 		for (int i = 0; i < appInstances.size(); i++) {
 			final var instance = appInstances.get(i);
-			this.migrateEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, i, appInstances.size());
+			schedulerComponents.addAll(
+					this.migrateEvseToEvcs(user, instance, evcsIds, clusterInstanceId, response, appInstances.size()));
 		}
+		return schedulerComponents;
 	}
 
 	private void migrateEvcsToEvseApps(User user, List<OpenemsAppInstance> appInstances,
@@ -831,10 +852,8 @@ public final class SwitchArchitecture implements ComponentJsonApi {
 	private List<String> collectDeletedEvcsControllerIds(List<OpenemsAppInstance> appInstances) {
 		var deletedCtrlEvcsIds = new ArrayList<String>();
 		for (var instance : appInstances) {
-			var ctrlEvcsId = JsonUtils.getAsOptionalString(instance.properties.get("CTRL_EVCS_ID"));
-			if (ctrlEvcsId.isPresent()) {
-				deletedCtrlEvcsIds.add(ctrlEvcsId.get());
-			}
+			JsonUtils.getAsOptionalString(instance.properties, "CTRL_EVCS_ID").ifPresent(deletedCtrlEvcsIds::add);
+			JsonUtils.getAsOptionalString(instance.properties, "CTRL_EVCS_ID_CP_2").ifPresent(deletedCtrlEvcsIds::add);
 		}
 		return deletedCtrlEvcsIds;
 	}

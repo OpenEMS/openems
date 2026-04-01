@@ -1,0 +1,17 @@
+<ion-list>
+    <ion-label>
+        {{"EVSE_SINGLE.SCHEDULE.NEXT_TASKS" | translate}}
+    </ion-label>
+    @for (item of oneTasks; track item) {
+        <ion-item>
+            <ion-label>
+                {{ item.start | date:'EEE MMM d HH:mm' }}
+                -
+                {{ item.end | date:'EEE MMM d HH:mm' }}
+            </ion-label>
+            <ion-label slot="end">
+                {{ item.duration }}
+            </ion-label>
+        </ion-item>
+    }
+</ion-list>

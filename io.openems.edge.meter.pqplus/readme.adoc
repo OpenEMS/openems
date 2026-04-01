@@ -1,14 +1,74 @@
-= PQ-Plus Meters UMD96 | UMD97
+= PQ-Plus UMD96 / UMD97 Power Meters
 
-Implemented Natures:
-- ElectricityMeter
+Integration with PQ-Plus UMD series power quality analyzers via Modbus protocol.
 
-Details of the meter is present in 
+== Overview
 
-UMD 96
-- https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/
+This bundle provides integration with PQ-Plus UMD series power meters, supporting both UMD96 and UMD97 models for comprehensive energy and power quality monitoring. The components communicate with meters through the Modbus TCP protocol, enabling real-time power analysis, energy monitoring, and detailed data collection in OpenEMS.
 
-UMD 97
-- https://www.pq-plus.de/en/products/hardware-components/umd-97/
+PQ-Plus meters are professional power quality analyzers designed for detailed monitoring in commercial and industrial installations.
+
+== Supported Devices
+
+* https://www.pq-plus.de/produkte/hardwarekomponenten/umd-96/[PQ-Plus UMD 96 icon:external-link[]]
+* https://www.pq-plus.de/en/products/hardware-components/umd-97/[PQ-Plus UMD 97 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_umd96_meter,PQ-Plus UMD 96 Power Meter>>
+
+*Name*: Meter PQ-Plus UMD 96
+
+*Factory-PID*: `Meter.PqPlus.UMD96`
+
+.Implemented Natures/Interfaces
+* MeterPqplusUmd96
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* TimedataProvider
+* EventHandler
+
+*Description*: Power quality analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_umd96_meter]]
+
+=== <<_umd97_meter,PQ-Plus UMD 97 Power Meter>>
+
+*Name*: Meter PQ-Plus UMD 97
+
+*Factory-PID*: `Meter.PqPlus.UMD97`
+
+.Implemented Natures/Interfaces
+* MeterPqplusUmd97
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* TimedataProvider
+* EventHandler
+
+*Description*: Power quality analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_umd97_meter]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.pqplus[Source Code icon:github[]]

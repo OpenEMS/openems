@@ -17,6 +17,9 @@ export class FlatComponent extends AbstractFlatWidget {
     protected chargedConsumptionActiveTimeOverPeriod: number | null = null;
 
     override getChannelAddresses(): ChannelAddress[] {
+        if (this.componentId == null) {
+            return [];
+        }
         return [
             new ChannelAddress(this.componentId, "DelayedTime"),
             new ChannelAddress(this.componentId, "ChargedTime"),

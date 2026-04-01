@@ -1,5 +1,7 @@
 package io.openems.edge.evcs.cluster;
 
+import static io.openems.common.utils.IntUtils.maxInteger;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.evcs.api.Phases.THREE_PHASE;
@@ -9,6 +11,7 @@ import static java.lang.Math.round;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -36,13 +39,13 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.ManagedEvcs;
+import io.openems.edge.evcs.api.ManagedEvcsCluster;
 import io.openems.edge.evcs.api.MetaEvcs;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.PhaseRotation;
@@ -55,26 +58,16 @@ import io.openems.edge.meter.api.PhaseRotation;
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS, //
+		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
 })
-public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
-		implements MetaEvcs, OpenemsComponent, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
+public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent implements MetaEvcs, OpenemsComponent,
+		ManagedEvcsCluster, Evcs, ElectricityMeter, EventHandler, EvcsClusterPeakShaving,
 		/*
 		 * Cluster is not a Controller, but we need to be placed at the correct position
 		 * in the Cycle by the Scheduler to be able to read the actually available ESS
 		 * power
 		 */
 		Controller {
-
-	/**
-	 * Guaranteed minimum charge power.
-	 *
-	 * <p>
-	 * Minimum charge power that will be used by every EV that is able to charge
-	 * with that minimum.
-	 *
-	 * @return Minimum guaranteed power in Watt
-	 */
-	private static final int MINIMUM_CHARGE_POWER_GUARANTEE = 4500;
 
 	private final Logger log = LoggerFactory.getLogger(EvcsClusterPeakShavingImpl.class);
 
@@ -103,7 +96,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	@Reference
+	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	private SymmetricEss ess;
 
 	@Reference
@@ -115,6 +108,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
 				EvcsClusterPeakShaving.ChannelId.values(), //
+				ManagedEvcsCluster.ChannelId.values(), //
 				Controller.ChannelId.values() //
 		);
 	}
@@ -192,6 +186,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 				this.sortedEvcss.add(evcs);
 			}
 		}
+		setValue(this, ManagedEvcsCluster.ChannelId.EVCS_COUNT, this.evcsIds.length);
 	}
 
 	/**
@@ -224,13 +219,31 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
+			this.updateChannels();
+			break;
 
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_CONTROLLERS:
 			this.calculateChannelValues();
 			this.limitEvcss();
 			break;
+
 		default:
 			break;
+		}
+	}
+
+	private void updateChannels() {
+		Optional<Integer> maximumAllowedPowerToDistribute = this.getMaximumAllowedPowerToDistributeChannel()
+				.getNextWriteValueAndReset();
+		if (maximumAllowedPowerToDistribute.isPresent()) {
+
+			// We have to treat values below 0 as no limit and set channel to null.
+			// null cannot be transported over an optional in this case, as null
+			// means no new value.
+
+			int value = maximumAllowedPowerToDistribute.get();
+			setValue(this, ManagedEvcsCluster.ChannelId.MAXIMUM_ALLOWED_POWER_TO_DISTRIBUTE, value < 0 ? null : value);
 		}
 	}
 
@@ -272,10 +285,10 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		}
 
 		this._setActivePower(activePower.calculate());
-		this._setEvcsBlockedChargePower(blockedActivePower.calculate());
+		setValue(this, EvcsClusterPeakShaving.ChannelId.EVCS_BLOCKED_CHARGE_POWER, blockedActivePower.calculate());
 		this._setFixedMinimumHardwarePower(minFixedHardwarePower.calculate());
 		this._setFixedMaximumHardwarePower(maxFixedHardwarePower.calculate());
-		this.channel(Evcs.ChannelId.MINIMUM_HARDWARE_POWER).setNextValue(minHardwarePower.calculate());
+		setValue(this, Evcs.ChannelId.MINIMUM_HARDWARE_POWER, minHardwarePower.calculate());
 		var maximalUsedHardwarePower = maxHardwarePowerOfAll.calculate();
 		if (maximalUsedHardwarePower == null) {
 			maximalUsedHardwarePower = this.getMaximumPowerToDistribute();
@@ -283,7 +296,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		this.channel(Evcs.ChannelId.MAXIMUM_HARDWARE_POWER).setNextValue(maximalUsedHardwarePower);
 		this._setMinimumPower(minPower.calculate());
 		this.currentEvcsClusterState = evcsClusterStatus.calculate();
-		this._setEvcsClusterStatus(this.currentEvcsClusterState);
+		setValue(this, EvcsClusterPeakShaving.ChannelId.EVCS_CLUSTER_STATUS, this.currentEvcsClusterState);
 	}
 
 	/**
@@ -318,6 +331,11 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 		if (unavailablePower > 0 && this.lastLimit != null) {
 			this.logInfoInDebugmode("Reducing last limit by " + unavailablePower + " W");
 			totalPowerLimit = this.lastLimit.intValue() - unavailablePower;
+		}
+
+		int maximumAllowedPowerToDistribute = getMaximumAllowedPowerToDistribute().orElse(-1);
+		if (maximumAllowedPowerToDistribute >= 0) {
+			totalPowerLimit = Math.min(totalPowerLimit, maximumAllowedPowerToDistribute);
 		}
 
 		this.lastLimit = Integer.valueOf(totalPowerLimit);
@@ -358,7 +376,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 					case ERROR, STARTING, UNDEFINED, ENERGY_LIMIT_REACHED //
 						-> managedEvcs.setChargePowerLimit(0);
 					case NOT_READY_FOR_CHARGING //
-						-> managedEvcs.setChargePowerLimit(MINIMUM_CHARGE_POWER_GUARANTEE);
+						-> managedEvcs.setChargePowerLimit(this.config.minimumGuaranteeChargePower());
 					case READY_FOR_CHARGING -> {
 						// Check if there is enough power for an initial charge
 						if (totalPowerLimit - initialChargePower - this.getActivePower().orElse(0) >= guaranteedPower) {
@@ -472,15 +490,17 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return Maximum Power in Watt
 	 */
 	public int getMaximumPowerToDistribute() {
+
 		// Calculate maximum ess power
-		var essDischargePower = this.sum.getEssActivePower().orElse(0);
-		var essActivePowerDC = this.sum.getProductionDcActualPower().orElse(0);
+		var essDischargePower = (this.ess == null) ? 0 : this.sum.getEssActivePower().orElse(0);
+		var essActivePowerDC = (this.ess == null) ? 0 : this.sum.getProductionDcActualPower().orElse(0);
 		var maxAvailableStoragePower = this.maxEssDischargePower - (essDischargePower - essActivePowerDC);
 		this.channel(EvcsClusterPeakShaving.ChannelId.MAXIMUM_AVAILABLE_ESS_POWER)
 				.setNextValue(maxAvailableStoragePower);
 
 		// Calculate maximum grid power
 		var gridPower = this.getGridPower();
+
 		var maxAvailableGridPower = (this.config.hardwarePowerLimitPerPhase() * THREE_PHASE.getValue()) - gridPower;
 		this.channel(EvcsClusterPeakShaving.ChannelId.MAXIMUM_AVAILABLE_GRID_POWER).setNextValue(maxAvailableGridPower);
 
@@ -496,7 +516,11 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 						+ this.config.hardwarePowerLimitPerPhase() * THREE_PHASE.getValue()
 						+ "]  -  Maximum of all three phases * 3 [" + gridPower + "]");
 
-		return allowedChargePower > 0 ? allowedChargePower : 0;
+		int maximumPowerToDistribute = allowedChargePower > 0 ? allowedChargePower : 0;
+
+		this.logInfoInDebugmode(this.log, "EVCS Charge maximum power to distribute: " + maximumPowerToDistribute);
+
+		return maximumPowerToDistribute;
 	}
 
 	/**
@@ -505,7 +529,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return calculated grid power
 	 */
 	private int getGridPower() {
-		var maxPowerOnPhase = TypeUtils.max(//
+		var maxPowerOnPhase = maxInteger(//
 				this.meter.getActivePowerL1().get(), //
 				this.meter.getActivePowerL2().get(), //
 				this.meter.getActivePowerL3().get());
@@ -559,7 +583,7 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 	 * @return Guaranteed power that should/can be used.
 	 */
 	private int getGuaranteedPower(Evcs evcs) {
-		var minGuarantee = MINIMUM_CHARGE_POWER_GUARANTEE;
+		var minGuarantee = this.config.minimumGuaranteeChargePower();
 		int minHW = evcs.getMinimumHardwarePower().orElse(minGuarantee);
 		int evcsMaxPower = evcs.getMaximumPower().orElse(//
 				evcs.getMaximumHardwarePower().orElse(Evcs.DEFAULT_MAXIMUM_HARDWARE_POWER));
@@ -579,12 +603,14 @@ public class EvcsClusterPeakShavingImpl extends AbstractOpenemsComponent
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		// Read maximum ESS Discharge power at the current position in the Cycle
-		this.maxEssDischargePower = switch (this.ess) {
-		case ManagedSymmetricEss e //
-			-> e.getPower().getMaxPower(e, ALL, ACTIVE);
-		case SymmetricEss e //
-			-> e.getMaxApparentPower().orElse(0);
-		};
+		if (this.ess != null) {
+			// Read maximum ESS Discharge power at the current position in the Cycle
+			this.maxEssDischargePower = switch (this.ess) {
+			case ManagedSymmetricEss e //
+				-> e.getPower().getMaxPower(e, ALL, ACTIVE);
+			case SymmetricEss e //
+				-> e.getMaxApparentPower().orElse(0);
+			};
+		}
 	}
 }

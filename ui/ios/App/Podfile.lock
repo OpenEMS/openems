@@ -1,26 +1,28 @@
 PODS:
-  - Capacitor (7.0.1):
+  - Capacitor (7.5.0):
     - CapacitorCordova
-  - CapacitorApp (7.0.0):
+  - CapacitorApp (7.1.2):
     - Capacitor
   - CapacitorBlobWriter (0.0.1):
     - Capacitor
     - GCDWebServer (~> 3.0)
   - CapacitorCommunityFileOpener (7.0.1):
     - Capacitor
-  - CapacitorCordova (7.0.1)
-  - CapacitorFilesystem (7.0.0):
+  - CapacitorCordova (7.5.0)
+  - CapacitorFilesystem (7.1.8):
     - Capacitor
+    - IONFilesystemLib (~> 1.1.1)
   - CapacitorIosAutofillSavePassword (5.0.0):
     - Capacitor
-  - CapacitorSecureStoragePlugin (0.11.0):
+  - CapacitorSecureStoragePlugin (0.12.0):
     - Capacitor
     - SwiftKeychainWrapper
-  - CapacitorSplashScreen (7.0.0):
+  - CapacitorSplashScreen (7.0.5):
     - Capacitor
   - GCDWebServer (3.5.4):
     - GCDWebServer/Core (= 3.5.4)
   - GCDWebServer/Core (3.5.4)
+  - IONFilesystemLib (1.1.1)
   - SwiftKeychainWrapper (4.0.1)
 
 DEPENDENCIES:
@@ -37,6 +39,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - GCDWebServer
+    - IONFilesystemLib
     - SwiftKeychainWrapper
 
 EXTERNAL SOURCES:
@@ -60,16 +63,17 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/splash-screen"
 
 SPEC CHECKSUMS:
-  Capacitor: 23fff43571a4d1e3ee7d67b5a3588c6e757c2913
-  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
+  Capacitor: 5f723a6113395cfef3bbabf0d2b8e9ca1201c681
+  CapacitorApp: 6b89831465d6bc99bc89779b1b7f5327e33011ce
   CapacitorBlobWriter: 110eeaf80611f19bf01a8a05ff3672149ed0baad
   CapacitorCommunityFileOpener: 9611c9d1595de7b50571717d443bb718a304b5eb
-  CapacitorCordova: 63d476958d5022d76f197031e8b7ea3519988c64
-  CapacitorFilesystem: 2881ad012b5c8d0ffbfed1216aadfc2cca16d5b5
+  CapacitorCordova: ae35646a9b46cfd00d637f195509c86594026aad
+  CapacitorFilesystem: f54cd6b76be06fa7ceb219cf313d32e0d626ea87
   CapacitorIosAutofillSavePassword: 6e7c37a13e6970bd31141371abb9e64eae882698
-  CapacitorSecureStoragePlugin: 8019bd11de7d5832a87c1bb320750dd6cef792d7
-  CapacitorSplashScreen: f4e58cc02aafd91c7cbaf32a3d1b44d02a115125
+  CapacitorSecureStoragePlugin: 90465f0c8ce4a0e81467653c0b91b5010a201f99
+  CapacitorSplashScreen: b3d12b4324d93ce605fe57f05a199ade7f26189e
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
+  IONFilesystemLib: dfa8706539ac9ab77ccfd6e5b3830ce9b5e57f6c
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
 
 PODFILE CHECKSUM: e8b3294015da7cef114fa9d4a7e1d29a6bd61512

@@ -1,10 +1,74 @@
-= Carlo Gavazzi EM300 Meter
+= Carlo Gavazzi Electricity Meters
 
-Applies to
-- CARLO GAVAZZI EM330
-- CARLO GAVAZZI EM340
+Integration with Carlo Gavazzi EM100 and EM300 series electricity meters via Modbus protocol.
 
-Implemented Natures:
-- ElectricityMeter
+== Overview
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.carlo.gavazzi.em300[Source Code icon:github[]]
+This bundle provides integration with Carlo Gavazzi electricity meters, supporting both single-phase (EM100 series) and three-phase (EM300 series) installations. The components communicate with meters through the Modbus TCP protocol, enabling real-time energy monitoring, power measurement, and comprehensive data collection in OpenEMS.
+
+Carlo Gavazzi meters are known for reliable energy measurement and are widely deployed in residential, commercial, and industrial installations. They support energy consumption, production, or grid measurement depending on configuration.
+
+== Supported Devices
+
+* https://www.carlogavazzi.com/[Carlo Gavazzi EM100 Series icon:external-link[]]
+* https://www.carlogavazzi.com/[Carlo Gavazzi EM300 Series icon:external-link[]]
+* https://www.carlogavazzi.com/[Carlo Gavazzi EM330 icon:external-link[]]
+* https://www.carlogavazzi.com/[Carlo Gavazzi EM340 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_em100_meter,Carlo Gavazzi EM100 Single-Phase Meter>>
+
+*Name*: Meter Carlo Gavazzi EM100
+
+*Factory-PID*: `Meter.CarloGavazzi.EM100`
+
+.Implemented Natures/Interfaces
+* MeterCarloGavazziEm100
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+
+*Description*: Single-phase electricity meter for single-phase installations via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_em100_meter]]
+
+=== <<_em300_meter,Carlo Gavazzi EM300 Three-Phase Meter>>
+
+*Name*: Meter Carlo Gavazzi EM300
+
+*Factory-PID*: `Meter.CarloGavazzi.EM300`
+
+.Implemented Natures/Interfaces
+* MeterCarloGavazziEm300
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+
+*Description*: Three-phase electricity meter for three-phase installations via Modbus protocol. Supports EM330 and EM340 models.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_em300_meter]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.carlo.gavazzi[Source Code icon:github[]]

@@ -175,7 +175,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", ALL, REACTIVE, EQUALS, 0d);
+		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", ALL, REACTIVE, EQUALS, 0);
 
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
 			return new BatteryInverterConstraint[] { noReactivePower };
@@ -184,7 +184,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
 				noReactivePower, //
-				new BatteryInverterConstraint("Refu inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("Refu inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 

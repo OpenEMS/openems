@@ -4,6 +4,8 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.DoubleUtils.getOrNull;
 import static io.openems.common.utils.FunctionUtils.doNothing;
+import static io.openems.common.utils.IntUtils.maxInt;
+import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.edge.energy.api.EnergyConstants.SCHEDULE_PERIODS_ON_EMPTY;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
@@ -468,10 +470,9 @@ public class GocUtils {
 					.map(i -> i.atZone(clock.getZone())) //
 					.orElse(startTime.plusMinutes(SCHEDULE_PERIODS_ON_EMPTY * 15));
 
-			final var gridLimit = this.meta.getMaximumGridFeedInLimitValue().orElse(0);
 			final var grid = new Grid(//
-					/* maxBuyPower */ gridLimit, //
-					/* maxSellPOwer */ gridLimit, //
+					/* maxBuyPower */ this.meta.getGridBuyHardLimit(), //
+					/* maxSellPower */ this.meta.getGridSellHardLimit(), //
 					/* gridBuySoftLimit */ this.meta.getGridBuySoftLimit());
 			final var gridBuySoftLimits = grid.gridBuySoftLimit() //
 					.getOneTasksBetween(startTime, endTime.plusMinutes(15));
@@ -509,9 +510,9 @@ public class GocUtils {
 				var essInitialEnergy = socToEnergy(essCapacity, essSoc);
 
 				// Power Values for scheduling battery for individual periods.
-				var maxDischargePower = TypeUtils.max(1000 /* at least 1000 W */, //
+				var maxDischargePower = maxInt(1000 /* at least 1000 W */, //
 						this.sum.getEssMaxDischargePower().get());
-				var maxChargePower = TypeUtils.min(-1000 /* at least 1000 W */, //
+				var maxChargePower = minInt(-1000 /* at least 1000 W */, //
 						this.sum.getEssMinDischargePower().get());
 
 				ess = new Ess(essInitialEnergy, essCapacity, abs(maxChargePower), maxDischargePower);

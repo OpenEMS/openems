@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 
 @Component({
     selector: "formly-range-type",

@@ -5,7 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { YAxisType } from "src/app/shared/utils/utils";
 
-import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
+import { ChannelAddress, ChartConstants, Edge, EdgeConfig, Service, Utils } from "../../../shared/shared";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 
 @Component({
@@ -150,7 +150,7 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
                     datasets.push({
                         label: this.translate.instant("GENERAL.CHARGE"),
                         data: chargeData,
-                        borderDash: [10, 10],
+                        borderDash: ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
                     });
                     this.colors.push({
                         backgroundColor: "rgba(0,223,0,0.05)",

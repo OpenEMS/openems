@@ -14,7 +14,7 @@ decorator = "^5.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.10.0"
+black = "^26.3.1"
 
 [tool.pytest.ini_options]
 markers = [

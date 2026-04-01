@@ -9,6 +9,7 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
@@ -104,8 +105,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
                 borderColor: ChartConstants.Colors.BLUE_GREY,
             });
@@ -116,8 +115,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: true,
                 order: 1,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
                 borderColor: ChartConstants.Colors.PURPLE,
             });
@@ -128,8 +125,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
                 borderColor: ChartConstants.Colors.BLUE,
             });
@@ -140,8 +135,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
                 hidden: false,
                 order: 1,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                 borderColor: ChartConstants.Colors.YELLOW,
             });
@@ -153,8 +146,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 hidden: true,
                 order: 1,
                 unit: YAxisType.POWER,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.GREEN, 0.2),
                 borderColor: ChartConstants.Colors.GREEN,
             });
@@ -166,8 +157,6 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 hidden: true,
                 order: 1,
                 unit: YAxisType.POWER,
-            });
-            this.colors.push({
                 backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.RED, 0.2),
                 borderColor: ChartConstants.Colors.RED,
             });
@@ -179,11 +168,8 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 data: socArray,
                 hidden: false,
                 yAxisID: ChartAxis.RIGHT,
-                borderDash: [10, 10],
                 order: 1,
                 unit: YAxisType.PERCENTAGE,
-            });
-            this.colors.push({
                 backgroundColor: "rgba(189, 195, 199,0.2)",
                 borderColor: "rgba(189, 195, 199,1)",
             });
@@ -210,6 +196,48 @@ export class SchedulePowerAndSocChartComponent extends AbstractHistoryChart impl
                 el["yAxisID"] = ChartAxis.RIGHT;
             }
             return el;
+        });
+
+        const now = new Date();
+
+        this.datasets = this.datasets.flatMap((dataset) => {
+            type DataPoint = typeof dataset.data[number];
+
+            const pastData: DataPoint[] = [];
+            const futureData: DataPoint[] = [];
+
+            let lastPastDatasetEntryIndex: number | null = null;
+
+            this.labels.forEach((timestamp, i) => {
+                const isPastOrNow = DateUtils.isDateBefore(timestamp, now);
+
+                if (isPastOrNow) {
+                    pastData.push(dataset.data[i]);
+                    futureData.push(null);
+                    lastPastDatasetEntryIndex = i;
+                } else {
+                    pastData.push(null);
+                    futureData.push(dataset.data[i]);
+                }
+            });
+
+            // include the transition point in the future dataset.
+            if (lastPastDatasetEntryIndex != null && lastPastDatasetEntryIndex >= 0) {
+                futureData[lastPastDatasetEntryIndex] = dataset.data[lastPastDatasetEntryIndex];
+            }
+
+            return [
+                {
+                    ...dataset,
+                    data: pastData,
+                    borderDash: [],
+                },
+                {
+                    ...dataset,
+                    data: futureData,
+                    borderDash: ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
+                },
+            ];
         });
 
         const rightYAxis: HistoryUtils.yAxes = { position: "right", unit: YAxisType.PERCENTAGE, yAxisId: ChartAxis.RIGHT };

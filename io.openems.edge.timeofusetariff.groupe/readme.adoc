@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff Groupe-E
+= Groupe-E
 
 This implementation uses the Groupe-E platform to receive day-ahead quarterly prices.
 

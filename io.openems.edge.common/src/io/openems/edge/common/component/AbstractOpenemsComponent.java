@@ -14,15 +14,16 @@ import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -40,7 +41,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	private static final String PROPERTY_CHANNEL_ID_PREFIX = "_PROPERTY_";
 
-	private final Logger log = LoggerFactory.getLogger(AbstractOpenemsComponent.class);
+	private final Logger log = OpenemsComponent.getComponentLogger(this);
 
 	/**
 	 * Holds all Channels by their Channel-ID String representation (in
@@ -194,7 +195,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	@Override
 	public ComponentContext getComponentContext() {
 		if (this.componentContext == null) {
-			this.logWarn(this.log,
+			this.log.warn(
 					"ComponentContext is null. Please make sure to call AbstractOpenemsComponent.activate()-method early!");
 		}
 		return this.componentContext;
@@ -256,19 +257,18 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 
 		// get Factory-PIDs in this Bundle
-		var factoryPids = mti.getFactoryPids();
-		for (String factoryPid : factoryPids) {
-			var ocd = mti.getObjectClassDefinition(factoryPid, null);
-			this.addChannelsForProperties(ocd, properties);
-		}
+		final var props = context.getProperties();
+		final var factoryPid = (String) props.get(OpenemsConstants.PROPERTY_FACTORY_PID);
+		final var pid = (String) props.get(OpenemsConstants.PROPERTY_PID);
 
-		// get Singleton PIDs in this Bundle
-		for (String pid : mti.getPids()) {
-			switch (pid) {
-			default:
-				var ocd = mti.getObjectClassDefinition(pid, null);
-				this.addChannelsForProperties(ocd, properties);
-			}
+		if (ArrayUtils.containsIgnoreNull(mti.getFactoryPids(), factoryPid)) {
+			this.addChannelsForProperties(mti.getObjectClassDefinition(factoryPid, null), properties);
+		} else if (ArrayUtils.containsIgnoreNull(mti.getPids(), pid)) {
+			this.addChannelsForProperties(mti.getObjectClassDefinition(pid, null), properties);
+		} else {
+			this.log.warn("Unable to find ObjectClassDefinition."//
+					+ " No Channels for Properties will be created."//
+					+ " You may not inherit from this superclass");
 		}
 	}
 
@@ -331,8 +331,8 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 				try {
 					value = JsonUtils.getAsType(channelType, property.getDefaultValue());
 				} catch (OpenemsNamedException | IllegalArgumentException e) {
-					this.logError(this.log, "Unable to parse Property [" + property.getId() + "] value ["
-							+ property.getDefaultValue() + "] to [" + property.getType() + "]: " + e.getMessage());
+					this.log.error("Unable to parse Property [{}] value [{}] to [{}]: {}", property.getId(),
+							property.getDefaultValue(), property.getType(), e.getMessage());
 				}
 			}
 			channel.setNextValue(value);
@@ -435,7 +435,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 				}
 			}
 		}
-		this.logInfo(this.log, message + " " + name);
+		this.log.info("{} {}", message, name);
 	}
 
 	@Override
@@ -478,6 +478,13 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a debug message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -488,6 +495,13 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an info message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -498,6 +512,13 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log a warn message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message
@@ -508,6 +529,13 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 
 	/**
 	 * Log an error message including the Component ID.
+	 * 
+	 * <p>
+	 * <strong>DEPRECATED</strong>: Use
+	 * {@link OpenemsComponent#getComponentLogger(OpenemsComponent)} or
+	 * {@link OpenemsComponent#getComponentLogger(Class, OpenemsComponent)} to
+	 * create a Logger that automatically includes the component name in all log
+	 * messages, and then use that Logger directly.
 	 *
 	 * @param log     the Logger instance
 	 * @param message the message

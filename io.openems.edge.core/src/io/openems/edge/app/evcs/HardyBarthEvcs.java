@@ -25,7 +25,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -61,6 +60,7 @@ import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.flag.Flag;
 import io.openems.edge.core.appmanager.flag.Flags.SwitchFlag;
@@ -486,22 +486,24 @@ public class HardyBarthEvcs
 				ctrlIds.add(ctrlSingleId);
 
 				if (numberOfChargingStations == 2) {
-					var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
+					final var evcsIdCp2 = this.getId(t, p, Property.EVCS_ID_CP_2);
+					final var ipCp2 = this.getString(p, SubPropertySecondChargepoint.IP_CP_2);
+					final var aliasCp2 = this.getString(p, SubPropertySecondChargepoint.ALIAS_CP_2);
 
-					components.add(new EdgeConfig.Component(evcsIdCp2, alias, "Evse.ChargePoint.HardyBarth",
+					components.add(new EdgeConfig.Component(evcsIdCp2, aliasCp2, "Evse.ChargePoint.HardyBarth",
 							JsonUtils.buildJsonObject() //
-									.addProperty("ip", ip) //
+									.addProperty("ip", ipCp2) //
 									.addPropertyIfNotNull("phaseRotation", phaseRotation) //
 									.build()));
 
-					var instanceCp2 = this.appManagerUtil.findInstanceById(vehicleId);
-					var vehicleIdCp2 = UUID
+					final var vehicleIdCp2 = UUID
 							.fromString(this.getString(p, SubPropertySecondChargepoint.ELECTRIC_VEHICLE_ID_CP_2));
+					final var instanceCp2 = this.appManagerUtil.findInstanceById(vehicleIdCp2);
 					var vehicleComponentIdCp2 = "";
-					if (instance.isPresent()) {
+					if (instanceCp2.isPresent()) {
 						var appConfiguration = this.appManagerUtil.getAppConfiguration(ConfigurationTarget.VALIDATE,
 								instanceCp2.get(), l);
-						vehicleComponentIdCp2 = appConfiguration.getComponents().stream().map(b -> b.id())
+						vehicleComponentIdCp2 = appConfiguration.getComponents().stream().map(ComponentDef::id)
 								.filter(b -> b.startsWith("evseElectricVehicle")).findFirst().get();
 					} else if (!t.isDeleteOrTest()) {
 						throw new RuntimeException("Unable to find Vehicle-App Instance");
@@ -509,7 +511,7 @@ public class HardyBarthEvcs
 
 					var ctrlSingleIdCp2 = this.getId(t, p, Property.CTRL_SINGLE_ID_CP_2);
 
-					components.add(new EdgeConfig.Component(ctrlSingleIdCp2, alias, "Evse.Controller.Single",
+					components.add(new EdgeConfig.Component(ctrlSingleIdCp2, aliasCp2, "Evse.Controller.Single",
 							JsonUtils.buildJsonObject()//
 									.addProperty("electricVehicle.id", vehicleComponentIdCp2)//
 									.addProperty("chargePoint.id", evcsIdCp2)//
@@ -545,13 +547,6 @@ public class HardyBarthEvcs
 									.addIp("Evcs", "192.168.25.10/24")))) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

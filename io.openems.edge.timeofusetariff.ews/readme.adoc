@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff Ews by EWS Schönau
+= EWS Schönau
 
 Retrieves the quarterly prices from the EWS API. Prices for the next day are updated every day between 15:00 to 17:00 and stored locally.
 

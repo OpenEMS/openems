@@ -1,9 +1,26 @@
 import { ChannelAddress } from "../type/channeladdress";
+import { ObjectUtils } from "../utils/object/object-utils";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "./base";
 
 export class JsonRpcUtils {
 
     private static THRESHOLD: number = -0.50;
+
+    /**
+     * Gets the most inner/most deeply nested request.
+     *
+     * @param request the request
+     * @returns the most inner request
+     */
+    public static getMostInnerRequest(request: JsonrpcRequest): JsonrpcRequest | null {
+        let innerReq: JsonrpcRequest | null = request;
+        let condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+        while (condition != null) {
+            innerReq = condition;
+            condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+        }
+        return innerReq;
+    }
 
     public static normalizeQueryData(data: (number | null)[]): (number | null)[] {
         return data.map(el => JsonRpcUtils.roundSlightlyNegativeValues(el));

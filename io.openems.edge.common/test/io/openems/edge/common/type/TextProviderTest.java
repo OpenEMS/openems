@@ -2,8 +2,9 @@ package io.openems.edge.common.type;
 
 import static org.junit.Assert.assertEquals;
 
-import io.openems.common.session.Language;
 import org.junit.Test;
+
+import io.openems.common.session.Language;
 
 public class TextProviderTest {
 	@Test

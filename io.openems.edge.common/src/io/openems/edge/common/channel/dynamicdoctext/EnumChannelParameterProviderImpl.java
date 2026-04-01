@@ -1,12 +1,12 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.openems.common.session.Language;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.type.TextProvider;
-
-import java.util.HashMap;
-import java.util.Map;
 
 class EnumChannelParameterProviderImpl<V extends Enum<V> & OptionsEnum> extends ChannelParameterProvider<Integer>
 		implements EnumChannelParameterProvider<V> {
@@ -66,7 +66,7 @@ class EnumChannelParameterProviderImpl<V extends Enum<V> & OptionsEnum> extends 
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new EnumChannelParameterProviderImpl<>(this.enumClass, this.channelId, this.specificMappings,
 				this.defaultText);
 	}
