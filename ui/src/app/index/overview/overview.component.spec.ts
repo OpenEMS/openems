@@ -40,6 +40,8 @@ describe("OverviewComponent", () => {
         currentUser: signal(new User("", "", "admin", "", true, { theme: Theme.LIGHT })),
     });
 
+    const routerSpyObject = jasmine.createSpyObj("Router", ["navigate"]);
+
     beforeEach(async () => {
         await TestBed.configureTestingModule({
             imports: [
@@ -58,7 +60,7 @@ describe("OverviewComponent", () => {
                 TranslateService,
                 Pagination,
                 Utils,
-                Router,
+                { provide: Router, useValue: routerSpyObject },
                 {
                     provide: ActivatedRoute,
                     useValue: {},

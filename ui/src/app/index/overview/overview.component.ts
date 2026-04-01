@@ -72,9 +72,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 this.loadNextPage();
             }
         });
-    }
 
-    ionViewWillEnter() {
         this.page = 0;
         this.limitReached = false;
     }
@@ -88,6 +86,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     ionViewWillLeave() {
         this.sub?.unsubscribe();
         this.ngOnDestroy();
+    }
+
+    ionViewWillEnter() {
+        // move edge list initialization to constructor to prevent race condition
     }
 
     /**
