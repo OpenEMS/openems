@@ -166,7 +166,7 @@ public class Data {
 	 * @return List of Constraints
 	 * @throws OpenemsException on error
 	 */
-	public List<Constraint> getConstraintsForAllInverters() throws OpenemsException {
+	public synchronized List<Constraint> getConstraintsForAllInverters() throws OpenemsException {
 		return this.getConstraintsWithoutDisabledInverters(Collections.emptyList());
 	}
 
@@ -177,7 +177,7 @@ public class Data {
 	 * @return List of {@link Constraint}s
 	 * @throws OpenemsException on error
 	 */
-	public List<Constraint> getConstraintsForInverters(Collection<Inverter> enabledInverters) throws OpenemsException {
+	public synchronized List<Constraint> getConstraintsForInverters(Collection<Inverter> enabledInverters) throws OpenemsException {
 		List<Inverter> disabledInverters = new ArrayList<>(this.inverters);
 		disabledInverters.removeAll(enabledInverters);
 		return this.getConstraintsWithoutDisabledInverters(disabledInverters);
@@ -190,7 +190,7 @@ public class Data {
 	 * @return List of Constraints
 	 * @throws OpenemsException on error
 	 */
-	public List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters)
+	public synchronized List<Constraint> getConstraintsWithoutDisabledInverters(Collection<Inverter> disabledInverters)
 			throws OpenemsException {
 		final var esss = this.esssSupplier.get();
 

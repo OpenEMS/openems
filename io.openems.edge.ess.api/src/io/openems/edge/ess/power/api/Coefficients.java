@@ -57,7 +57,7 @@ public class Coefficients {
 	 * @return the {@link Coefficient}
 	 * @throws OpenemsException on error
 	 */
-	public Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
+	public synchronized Coefficient of(String essId, SingleOrAllPhase phase, Pwr pwr) throws OpenemsException {
 		if (this.symmetricMode && phase != SingleOrAllPhase.ALL) {
 			throw new OpenemsException("Symmetric-Mode is activated. Coefficients for [" + essId + "," + phase + ","
 					+ pwr + "] is not available!");
