@@ -184,6 +184,7 @@
 	bnd.identity;id='io.openems.edge.meter.weidmueller',\
 	bnd.identity;id='io.openems.edge.meter.ziehl',\
 	bnd.identity;id='io.openems.edge.onewire.thermometer',\
+	bnd.identity;id='io.openems.edge.phoenixcontact.plcnext',\
 	bnd.identity;id='io.openems.edge.predictor.lstm',\
 	bnd.identity;id='io.openems.edge.predictor.persistencemodel',\
 	bnd.identity;id='io.openems.edge.predictor.production.linearmodel',\
@@ -391,6 +392,7 @@
 	io.openems.edge.meter.weidmueller;version=snapshot,\
 	io.openems.edge.meter.ziehl;version=snapshot,\
 	io.openems.edge.onewire.thermometer;version=snapshot,\
+	io.openems.edge.phoenixcontact.plcnext;version=snapshot,\
 	io.openems.edge.predictor.api;version=snapshot,\
 	io.openems.edge.predictor.lstm;version=snapshot,\
 	io.openems.edge.predictor.persistencemodel;version=snapshot,\
