@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
 
 @Component({
@@ -17,6 +17,7 @@ export class HelpButtonComponent implements OnChanges {
     /** Overwrites default docs link */
     @Input() public useDefaultPrefix: boolean = true;
     @Input() public key: keyof typeof environment.links | null = null;
+    @Input() public color: string = "var(--ion-title-color)";
 
     protected link: string | null = null;
 

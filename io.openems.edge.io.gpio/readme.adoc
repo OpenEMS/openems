@@ -1,12 +1,83 @@
 = GPIO (General Purpose Input/Output)
 
-This bundle implements GPIO (General Purpose Input/Output) ports using LinuxFS communication. 
-Tested mainly on Raspberry Pi based devices.
+Integrates GPIO (General Purpose Input/Output) ports into OpenEMS for digital input and output control on ARM-based single-board computers using Linux filesystem communication.
 
-== ModBerry X500 CM4
+== Overview
 
-The module supports GPIOs of all ModBerry X500 CM4 models. ModBerry is based on the Raspberry Pi Compute Module 4. 
+This bundle provides integration for GPIO (General Purpose Input/Output) ports available on ARM-based computing platforms. The component communicates with GPIO ports via Linux filesystem interfaces (/sys/class/gpio), enabling digital input and output control for automation and IoT applications.
 
-The pin out description is available in the datasheet: https://modberry.techbase.eu/wp-content/uploads/2020/11/ModBerry_500CM4_EN.pdf
+The GPIO integration supports multiple hardware platforms, with primary focus on ModBerry X500 CM4 models based on the Raspberry Pi Compute Module 4. The component provides dynamic GPIO pin discovery and management, with configurable input and output channels for flexible system integration.
+
+All GPIO operations are performed through the Linux kernel GPIO subsystem, providing reliable and standardized access to GPIO pins across compatible hardware platforms.
+
+== Supported Devices
+
+* https://modberry.techbase.eu/[ModBerry X500 CM4 Max icon:external-link[]] - Compute Module 4 industrial platform - <<_io_gpio>>
+* https://modberry.techbase.eu/[ModBerry X500 CM4 WB icon:external-link[]] - Compute Module 4 with WiFi/Bluetooth - <<_io_gpio>>
+* https://modberry.techbase.eu/[ModBerry X500 CM4S icon:external-link[]] - Compact Compute Module 4 variant - <<_io_gpio>>
+* https://modberry.techbase.eu/[ModBerry X500 CM4S-F icon:external-link[]] - Compact Compute Module 4 fanless variant - <<_io_gpio>>
+* https://modberry.techbase.eu/[ModBerry X500 CM3 icon:external-link[]] - Compute Module 3 legacy support - <<_io_gpio>>
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== IO GPIO
+
+*Name*: IO GPIO
+
+*Factory-PID*: `io.openems.edge.io.gpio`
+
+.Implemented Natures/Interfaces
+* DigitalInput
+* DigitalOutput
+* OpenemsComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `gpioPath` (String): Path to the GPIOs on the Linux filesystem (default: "/sys/class")
+* `hardwareType` (HardwareType): The hardware platform type *(required)* - Supported values: MODBERRY_X500_M40804_MAX, MODBERRY_X500_M40804_WB, MODBERRY_X500_M4S, MODBERRY_X500_M4S_F, MODBERRY_X500_M3
+
+== Hardware Platform Information
+
+=== ModBerry X500 CM4 Models
+
+The module supports all ModBerry X500 CM4 models. Each variant provides different features and form factors:
+
+* **M40804 Max**: Full-sized Compute Module 4 with maximum GPIO availability
+* **M40804 WB**: Compute Module 4 with integrated WiFi and Bluetooth connectivity
+* **M4S**: Compact form factor variant of Compute Module 4
+* **M4S-F**: Fanless compact variant for passive cooling environments
+* **M3**: Legacy support for Compute Module 3 (older generation)
+
+Pin-out descriptions and GPIO mappings are available in the ModBerry documentation:
+https://modberry.techbase.eu/wp-content/uploads/2020/11/ModBerry_500CM4_EN.pdf[ModBerry X500 CM4 Datasheet icon:external-link[]]
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Linux-based operating system with GPIO support (kernel 4.8 or later)
+* Proper GPIO kernel module loaded (`gpio-bcm2835` on Raspberry Pi)
+* File system access to `/sys/class/gpio` directory (typically requires root or GPIO group permissions)
+* ARM-based processor (Raspberry Pi Compute Module 3 or 4)
+
+=== Hardware Setup
+. Ensure the GPIO kernel module is loaded: `lsmod | grep gpio`
+. Verify GPIO filesystem is accessible: `ls /sys/class/gpio`
+. Configure appropriate user permissions for GPIO access:
+   - Option 1: Run OpenEMS as root user
+   - Option 2: Add OpenEMS user to `gpio` group: `usermod -a -G gpio openems`
+   - Option 3: Configure `udev` rules for GPIO device access
+. Identify the correct hardware type from your ModBerry platform documentation
+. Connect GPIO devices (LEDs, switches, sensors, etc.) to appropriate GPIO pins
+
+=== GPIO Path Configuration
+The default GPIO path `/sys/class/gpio` is appropriate for standard Linux GPIO access. Alternative paths may be used for:
+
+* Non-standard GPIO implementations
+* Custom GPIO virtualization layers
+* Testing and simulation environments
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.gpio[Source Code icon:github[]]

@@ -28,7 +28,7 @@ public class ActivationTimeHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+		context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 		this.activationTimeState = new ActivationTimeState(SubState.INSIDE_TIME_FRAME, Instant.now(context.clock));
 	}
 
@@ -51,17 +51,17 @@ public class ActivationTimeHandler extends StateHandler<State, Context> {
 			this.isInsideTimeFrame(context) ? SubState.FINISH_ACTIVATION : SubState.HANDLE_WAITING_FREQ_DIP;
 		case HANDLE_WAITING_FREQ_DIP -> {
 			if (this.isFrequencyDipped(context)) {
-				context.ess.setActivePowerEquals(context.dischargePower);
+				context.ess.setActivePowerEqualsWithoutFilter(context.dischargePower);
 				var time = Instant.now(context.clock);
 				this.clockActivationTime(context, time);
 				this.dipDetectedStartTime = time;
 				yield SubState.HANDLE_FREQ_DIP;
 			}
-			context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+			context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 			yield SubState.HANDLE_WAITING_FREQ_DIP;
 		}
 		case HANDLE_FREQ_DIP -> {
-			context.ess.setActivePowerEquals(context.dischargePower);
+			context.ess.setActivePowerEqualsWithoutFilter(context.dischargePower);
 			var activationExpirationTime = Duration.between(this.dipDetectedStartTime, Instant.now(context.clock))//
 					.toMillis(); //
 			if (activationExpirationTime >= context.activationRunTime.getValue()) {

@@ -1,6 +1,9 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import java.io.Serial;
+
 public class SessionExpiredException extends RuntimeException {
+	@Serial
 	private static final long serialVersionUID = 1L;
 
 	public SessionExpiredException() {

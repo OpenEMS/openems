@@ -20,10 +20,10 @@ public @interface Config {
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.")
 	boolean readOnly() default false;
 
-	@AttributeDefinition(name = "Hardware Wiring", description = "", required = true)
+	@AttributeDefinition(name = "Hardware Wiring", description = "")
 	SingleOrThreePhase wiring() default SingleOrThreePhase.THREE_PHASE;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")

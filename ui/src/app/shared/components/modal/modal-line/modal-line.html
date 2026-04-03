@@ -24,13 +24,14 @@
         </td>
         }
         @if (formGroup && control) {
-        <!-- 'Input' Line, name and changeable value -->
-        @if (control.type === 'INPUT') {
-        <td style="width: 30%" class="align_right" [formGroup]="formGroup">
-            <ion-item>
+          <!-- 'Input' Line, name and changeable value -->
+          @if (control.type === 'INPUT') {
+            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right" [formGroup]="formGroup">
+              <ion-item>
                 <ion-input class="regularFont" type="number" style="text-align: right;" tabindex="0"
-                    [formControlName]="controlName" label-placement="floating"
-                    label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;">
+                  [formControlName]="controlName" label-placement="floating"
+                  [value]="formGroup.controls[controlName].value"
+                  label="&nbsp;{{control?.properties?.unit ?? 'W' }}&nbsp;" labelPlacement="end">
                 </ion-input>
             </ion-item>
         </td>
@@ -41,33 +42,32 @@
             class="align_right">
             <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md"
                 [formControlName]="controlName">
-            </ion-toggle>
-        </td>
-        }
-        <!-- 'SELECT' Line, provides select dropdown -->
-        @if (control.type === 'SELECT') {
-        <td [formGroup]="formGroup">
-            @if (control.options) {
-            <ion-select interface="popover" [formControlName]="controlName" [okText]="'GENERAL.OK'| translate"
-                [cancelText]="'GENERAL.CANCEL'| translate" style="text-align:end">
-                @for (option of control.options; track option) {
-                <ion-select-option [value]="option.value">
-                    {{option.name}}
-                </ion-select-option>
-                }
-            </ion-select>
-            }
-        </td>
-        }
-        @if (control.type === 'TEXT') {
-        <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" [formGroup]="formGroup" class="align_right">
-            <ng-container>{{formGroup.controls[controlName].value |
+              </ion-toggle>
+            </td>
+          }
+          <!-- 'SELECT' Line, provides select dropdown -->
+          @if (control.type === 'SELECT') {
+            <td [formGroup]="formGroup" class="align_right" [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'">
+              @if (control.options) {
+                <ion-select interface="popover" [formControlName]="controlName" [okText]="'GENERAL.OK'| translate"
+                  [cancelText]="'GENERAL.CANCEL'| translate" style="text-align:end; float: right" slot="end">
+                  @for (option of control.options; track option) {
+                    <ion-select-option [value]="option.value">
+                      {{option.name}}
+                    </ion-select-option>
+                  }
+                </ion-select>
+              }
+            </td>
+          }
+          @if (control.type === 'TEXT') {
+            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" [formGroup]="formGroup" class="align_right">
+              <ng-container>{{formGroup.controls[controlName].value |
                 converter:control.valueConverter }}
-            </ng-container>
-        </td>
-        }
-
-        @if (control.type === 'BUTTON') {
+              </ng-container>
+            </td>
+          }
+          @if (control.type === 'BUTTON') {
         <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" [formGroup]="formGroup" class="align_right">
             @if(control.button?.icon){
             <ion-button slot="end" button (click)="control.button.callback()">

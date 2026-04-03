@@ -13,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int switchedLoadPower;
 		private int minimumSwitchingTime;
 		private boolean invert;
+		private boolean fallbackOutput;
 		private String[] outputChannelAddress;
 
 		private Builder() {
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
+			return this;
+		}
+
+		public Builder setFallbackOutput(boolean fallbackOutput) {
+			this.fallbackOutput = fallbackOutput;
 			return this;
 		}
 
@@ -107,6 +113,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean invert() {
 		return this.builder.invert;
+	}
+
+	@Override
+	public boolean fallbackOutput() {
+		return this.builder.fallbackOutput;
 	}
 
 	@Override

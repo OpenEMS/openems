@@ -1,18 +1,323 @@
-= Api MQTT
+[[_api_mqtt]]
+= API MQTT
 
-Publishes OpenEMS Edge data to a MQTT broker.
-
-* `edge/\{OpenEMS-Edge-ID\}/channel/\{Component-ID\}/\{Channel-ID\}`
-** Data of Channels is published on change and at least every 5 minutes to these topics.
-** Example: `edge/edge0/channel/_sum/GridActivePower`
-
-
-* `edge/\{OpenEMS-Edge-ID\}/channel/lastUpdate`
-** Timestamp of the latest data update on any of the Channel topics above.
-** Example: `edge/edge0/channel/lastUpdate`
-
-* `edge/\{OpenEMS-Edge-ID\}/edgeConfig`
-** Configuration of the OpenEMS Edge instance is published to this topic as a JsonObject.
-** Example: `edge/edge0/edgeConfig`
+Publishes OpenEMS Edge data to a MQTT broker and subscribes to control topics.
+Integrates OpenEMS with IoT platforms, cloud dashboards, and home automation systems via MQTT protocol.
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.mqtt[Source Code icon:github[]]
+
+== Overview
+
+The MQTT API Controller publishes OpenEMS channel values to a MQTT broker in real-time and exposes the Edge configuration.
+This enables:
+
+* **IoT Integration**: Connect to platforms like Home Assistant, Node-RED, Mosquitto dashboards
+* **Cloud Connectivity**: Publish to Azure IoT Hub, AWS IoT Core, Alibaba Cloud, etc.
+* **Flexible Topic Filtering**: Selective channel publication via MQTT topic subscriptions
+* **Real-Time Monitoring**: Changes published immediately; periodic updates every 5 minutes
+* **Configuration Export**: Full Edge config published as JSON for remote discovery
+* **TLS/SSL Support**: Encrypted connections with certificate authentication
+
+.Key Capabilities
+* Automatic reconnection with exponential backoff
+* Change-based and periodic publishing
+* Topic filtering with MQTT subscription patterns
+* Persistence priority filtering
+* Debug logging mode
+* Certificate-based authentication
+
+== Components
+
+[[_component_controller_api_mqtt]]
+=== Controller.Api.MQTT
+
+.Description
+MQTT client controller that maintains connection to MQTT broker and publishes/subscribes to OpenEMS channels.
+
+.Factory-PID
+`Controller.Api.MQTT`
+
+.Service Binding
+Implements:
+
+* `io.openems.edge.controller.api.mqtt.ControllerApiMqtt`
+* `io.openems.edge.controller.api.Controller`
+* `io.openems.edge.common.component.OpenemsComponent`
+* `org.osgi.service.event.EventHandler`
+
+.Interface Constants
+
+[cols="1,2"]
+|===
+| Constant | Value
+
+| `TOPIC_CHANNEL_PREFIX` | `channel`
+| `TOPIC_CHANNEL_LAST_UPDATE` | `lastUpdate`
+| `TOPIC_EDGE_CONFIG` | `edgeConfig`
+|===
+
+== Configuration
+
+[[_configuration_mqtt_basic]]
+=== Basic Configuration
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `id` | Unique component identifier | String | `ctrlControllerApiMqtt`
+| `alias` | Human-readable component name | String | (component-id)
+| `enabled` | Enable/disable the controller | Boolean | `true`
+| `clientId` | MQTT client ID for broker identification | String | `edge0`
+| `topicPrefix` | Optional prefix for all topics (format: `prefix/edge/edge0/...`) | String | (empty)
+| `uri` | MQTT broker URI (tcp://, ssl://, ws://, wss://) | String | `tcp://localhost:1883`
+| `username` | MQTT broker username (required) | String | (required)
+| `password` | MQTT broker password (required) | Password | (required)
+| `persistencePriority` | Minimum persistence priority to publish | Enum | `VERY_LOW`
+| `debugMode` | Enable verbose debug logging | Boolean | `false`
+|===
+
+[[_configuration_mqtt_security]]
+=== Security Configuration
+
+[cols="1,3,1"]
+|===
+| Parameter | Description | Type
+
+| `certPem` | Client certificate in PEM format for TLS authentication | Text
+| `privateKeyPem` | Client private key in PEM format for TLS authentication | Text
+| `trustStorePem` | Trust store (CA certificates) in PEM format | Text
+|===
+
+[[_configuration_mqtt_filtering]]
+=== Topic Filtering
+
+[cols="1,3"]
+|===
+| Parameter | Description
+
+| `topicFilters` | Array of MQTT topic subscription patterns
+|===
+
+Uses standard MQTT wildcarding:
+* `+` matches single level: `channel/_sum/+` matches `channel/_sum/GridActivePower`
+* `#` matches multiple levels: `channel/_sum/#` matches `channel/_sum/GridActivePower`, `channel/_sum/EssSoc`, etc.
+
+If not set, all channels are published.
+
+.Example Filters
+[source]
+----
+topicFilters = [
+  "channel/lastUpdate",
+  "channel/_sum/#",
+  "channel/ess0/+",
+  "edgeConfig"
+]
+----
+
+== Topic Structure
+
+The MQTT topic hierarchy is:
+
+[source]
+----
+[topicPrefix/]edge/{clientId}/channel/{componentId}/{channelId}
+[topicPrefix/]edge/{clientId}/channel/lastUpdate
+[topicPrefix/]edge/{clientId}/edgeConfig
+----
+
+=== Examples
+
+.Basic Topics (no prefix)
+[cols="1,2"]
+|===
+| Topic | Content
+
+| `edge/edge0/channel/_sum/GridActivePower` | Sum grid power (W)
+| `edge/edge0/channel/ess0/Soc` | ESS state of charge (%)
+| `edge/edge0/channel/meter0/ActivePower` | Meter power reading (W)
+| `edge/edge0/channel/lastUpdate` | Unix timestamp of latest update
+| `edge/edge0/edgeConfig` | Full Edge configuration as JSON
+|===
+
+.With Topic Prefix
+If `topicPrefix` is set to `factory1`:
+
+[cols="1,2"]
+|===
+| Topic | Content
+
+| `factory1/edge/edge0/channel/_sum/GridActivePower` | Sum grid power
+| `factory1/edge/edge0/channel/lastUpdate` | Latest update timestamp
+| `factory1/edge/edge0/edgeConfig` | Full Edge configuration
+|===
+
+== Publishing Behavior
+
+=== Channel Data Topics
+
+* Published when channel value changes
+* Also published periodically every 5 minutes (keep-alive)
+* Only channels matching `persistencePriority` threshold are published
+* JSON payload format: value or object depending on channel type
+
+.Example Channel Payload
+[source,json]
+----
+{
+  "GridActivePower": 2500,
+  "EssSoc": 85.5,
+  "GridFrequency": 50.0
+}
+----
+
+=== Last Update Topic
+
+Published alongside channel updates:
+
+[source]
+----
+edge/edge0/channel/lastUpdate: 1711611234567
+----
+
+Unix timestamp in milliseconds. Useful for detecting stale data.
+
+=== Edge Configuration Topic
+
+Published at startup and whenever Edge configuration changes:
+
+[source,json]
+----
+{
+  "components": [
+    {
+      "id": "_sum",
+      "alias": "Summary",
+      "channels": [...]
+    },
+    {
+      "id": "ess0",
+      "alias": "Battery System",
+      "channels": [...]
+    }
+  ]
+}
+----
+
+== Configuration Examples
+
+.Home Assistant Integration (TLS)
+[source,json]
+----
+{
+  "id": "ctrlMqtt0",
+  "alias": "Home Assistant Gateway",
+  "enabled": true,
+  "clientId": "openems_edge",
+  "topicPrefix": "home",
+  "uri": "mqtts://mqtt.example.com:8883",
+  "username": "openems_user",
+  "password": "secure_password",
+  "certPem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+  "privateKeyPem": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+  "trustStorePem": "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+  "topicFilters": [
+    "channel/_sum/#",
+    "channel/ess0/#",
+    "channel/meter0/#",
+    "channel/lastUpdate"
+  ],
+  "persistencePriority": "HIGH",
+  "debugMode": false
+}
+----
+
+.IoT Cloud Integration (Azure IoT Hub)
+[source,json]
+----
+{
+  "id": "ctrlMqtt0",
+  "alias": "Azure IoT Hub",
+  "enabled": true,
+  "clientId": "edge-device-001",
+  "topicPrefix": "",
+  "uri": "mqtts://openems-hub.azure-devices.net:8883",
+  "username": "openems-hub.azure-devices.net/edge-device-001/?api-version=2021-04-12",
+  "password": "shared_access_key",
+  "topicFilters": ["channel/_sum/#", "edgeConfig"],
+  "persistencePriority": "MEDIUM"
+}
+----
+
+.Simple Local Broker (no encryption)
+[source,json]
+----
+{
+  "id": "ctrlMqtt0",
+  "alias": "Local MQTT Broker",
+  "enabled": true,
+  "clientId": "openems",
+  "uri": "tcp://mosquitto.local:1883",
+  "username": "openems",
+  "password": "password123",
+  "persistencePriority": "VERY_LOW",
+  "debugMode": false
+}
+----
+
+== Persistence Priority Levels
+
+Controls which channels are published based on their configured priority:
+
+[cols="1,2"]
+|===
+| Priority | Channel Types
+
+| `VERY_LOW` | All channels published (default)
+| `LOW` | Excludes diagnostic channels
+| `MEDIUM` | Only primary control/monitoring channels
+| `HIGH` | Only critical channels (power, SOC)
+| `VERY_HIGH` | System-critical only
+|===
+
+Lower `persistencePriority` threshold = more data published.
+
+== Reconnection Strategy
+
+Automatic reconnection with exponential backoff:
+
+1. Initial reconnect delay: 5 seconds
+2. Multiplier per attempt: 1.5x
+3. Maximum delay: 5 minutes (300 seconds)
+
+Connection failures are logged; Edge continues operating independently.
+
+== Error Handling
+
+[cols="1,2"]
+|===
+| Condition | Handling
+
+| Connection failed | Automatic reconnection with backoff
+| TLS certificate invalid | Connection rejected, error logged, retry scheduled
+| Authentication failed | Connection rejected, check credentials
+| Topic subscription rejected | Logged as warning; continues publishing
+| Message publish timeout | Logged; next cycle attempts retry
+| Configuration error | Component fails to activate, check syntax
+|===
+
+== Security Considerations
+
+=== Transport Security
+
+* **tcp://** - Unencrypted (use only on trusted local networks)
+* **ssl://** and **mqtts://** - TLS encrypted (recommended)
+* **ws://** - WebSocket unencrypted
+* **wss://** - WebSocket encrypted (recommended for cloud)
+
+=== Authentication
+
+* Username/password: Basic MQTT authentication
+* Certificates: Certificate-based mutual TLS authentication
+* Token-based: Some brokers support auth tokens in username field (Azure, AWS)

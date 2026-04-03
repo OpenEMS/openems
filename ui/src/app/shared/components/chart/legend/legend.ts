@@ -7,6 +7,6 @@ import { Component, Input } from "@angular/core";
 })
 export class ChartLegendComponent {
 
-    @Input({ required: true }) public header: string | null = null;
+    @Input({ required: true }) public title: string | null = null;
     @Input({ required: true }) public description: string | null = null;
 }

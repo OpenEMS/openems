@@ -1,8 +1,70 @@
 = KMtronic Modbus Relay Board
 
-This bundle implements the Kmtronic Modbus Relay board. Relay outputs can be used to turn ON/OFF lights, motors and signal alarms. Implementations are for 4 and 8 relais.
+Integrates KMtronic Modbus-based relay boards into OpenEMS for remote switching of electrical devices, lights, motors, and alarm signals via Modbus TCP communication.
 
-Implemented Natures::
-- DigitalOutput
+== Overview
+
+This bundle provides integration for KMtronic Modbus relay boards, which are network-enabled relay controllers for industrial automation and IoT applications. The components enable remote control of relay outputs for switching electrical loads with precise timing and logging capabilities.
+
+The relay boards communicate via Modbus TCP/IP protocol over standard networks. The integration supports both 4-port and 8-port relay board models, with each relay independently controllable through OpenEMS channels. The boards function as Modbus slaves, integrating seamlessly with OpenEMS Edge's Modbus TCP infrastructure.
+
+All relay operations are logged and monitored in real-time, providing complete visibility into switching events for energy management and automation control systems.
+
+== Supported Devices
+
+* https://www.kmtronic.com/4-relays-usb-ethernet[KMtronic 4-Port Relay Board icon:external-link[]] - Four independent relay outputs - <<_kmtronic_4_port_relay_board>>
+* https://www.kmtronic.com/8-relays-usb-ethernet[KMtronic 8-Port Relay Board icon:external-link[]] - Eight independent relay outputs - <<_kmtronic_8_port_relay_board>>
+
+== Components
+
+This bundle implements the following OpenEMS Components, each supporting one relay board model:
+
+=== KMtronic 4-Port Relay Board
+
+*Name*: IO KMtronic 4-Port Relay Board
+
+*Factory-PID*: `io.openems.edge.io.kmtronic.four`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ModbusComponent
+* ModbusSlave
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 1)
+
+=== KMtronic 8-Port Relay Board
+
+*Name*: IO KMtronic 8-Port Relay Board
+
+*Factory-PID*: `io.openems.edge.io.kmtronic.eight`
+
+.Implemented Natures/Interfaces
+* DigitalOutput
+* ModbusComponent
+* ModbusSlave
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 1)
+
+== Relay Output Specifications
+
+The relay boards provide the following switching capabilities:
+
+.Relay Specifications
+* Output current: Up to 16A per relay (typical)
+* Output voltage: 220-240V AC or 48V DC (depends on board type)
+* Contact type: Normally Open (NO)
+* Switching frequency: Up to 10 Hz (depending on load)
+* LED indicators: Per-relay status indication
+* Modbus protocol: Standard Modbus TCP/IP
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.kmtronic[Source Code icon:github[]]

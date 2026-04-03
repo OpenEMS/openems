@@ -1,4 +1,4 @@
-= Regression Model Production-Predictor
+= Regression Model Production
 
 This model predicts future PV production using weather and time-related data. It employs a regression model that learns the relationship between historical PV generation and corresponding historical weather data. Based on weather forecasts and time information, the model can then estimate the expected PV output for future periods.
 

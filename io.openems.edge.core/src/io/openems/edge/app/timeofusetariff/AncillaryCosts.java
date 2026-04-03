@@ -19,7 +19,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.common.types.EdgeConfig;
@@ -56,8 +55,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "image": base64,
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
-    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"CONTROL_MODE": {@link ControlMode}
+    	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -156,13 +154,6 @@ public class AncillaryCosts extends
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

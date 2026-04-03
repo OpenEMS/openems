@@ -1,20 +1,84 @@
-= SOCOMEC Meter
+= Socomec Energy Meters
 
-Just configure `Meter.Socomec.Singlephase` or `Meter.Socomec.Threephase`. The actual type and modbus protocol of the Socomec meter is identified automatically.
+Integration with Socomec Countis and Diris energy meters via Modbus protocol with automatic type detection.
 
-* Implemented singlephase meters:
-** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e10-11-12_en.html[Socomec Countis E14]
-  
-* Implemented threephase meters:
-** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e20-21_en.html[Socomec Countis E23/E24/E27/E28]
-** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e30-31-32-33_en.html[Socomec Countis E34]
-** https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e40-41-42-44_en.html[Socomec Countis E44]
-** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a10_en.html[Socomec Diris A10]
-** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a14_en.html[Socomec Diris A14]
-** https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-b_en.html[Socomec Diris B30]
+== Overview
 
-* Implemented Natures:
-- ElectricityMeter
-- SinglephaseMeter
+This bundle provides integration with Socomec energy meters, supporting both single-phase and three-phase Countis and Diris series meters. The components communicate with meters through the Modbus TCP protocol with automatic meter type identification, enabling real-time energy monitoring and comprehensive data collection in OpenEMS.
+
+Socomec meters are professional energy measurement devices designed for reliable energy accounting in residential, commercial, and industrial installations. The bundle automatically detects the actual meter model and protocol.
+
+== Supported Devices
+
+*Single-Phase Meters*:
+* https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e10-11-12_en.html[Socomec Countis E14 icon:external-link[]]
+
+*Three-Phase Meters*:
+* https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e20-21_en.html[Socomec Countis E23/E24/E27/E28 icon:external-link[]]
+* https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e30-31-32-33_en.html[Socomec Countis E34 icon:external-link[]]
+* https://www.socomec.com/range-single-circuit-energy-meter_en.html?product=/countis-e40-41-42-44_en.html[Socomec Countis E44 icon:external-link[]]
+* https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a10_en.html[Socomec Diris A10 icon:external-link[]]
+* https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-a14_en.html[Socomec Diris A14 icon:external-link[]]
+* https://www.socomec.com/range-single-circuit-multifunction-meters_en.html?product=/diris-b_en.html[Socomec Diris B30 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_singlephase_meter,Socomec Single-Phase Meter>>
+
+*Name*: Meter Socomec Singlephase
+
+*Factory-PID*: `Meter.Socomec.Singlephase`
+
+.Implemented Natures/Interfaces
+* MeterSocomecSinglephase
+* SocomecMeter
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Single-phase Socomec meter. Actual meter type is identified automatically.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_singlephase_meter]]
+
+=== <<_threephase_meter,Socomec Three-Phase Meter>>
+
+*Name*: Meter Socomec Threephase
+
+*Factory-PID*: `Meter.Socomec.Threephase`
+
+.Implemented Natures/Interfaces
+* MeterSocomecThreephase
+* SocomecMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Three-phase Socomec meter. Actual meter type is identified automatically.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (required)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+[[_threephase_meter]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.socomec[Source Code icon:github[]]

@@ -18,7 +18,7 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.")
 	boolean readOnly() default false;
 
 	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
@@ -30,7 +30,7 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 255;
 
-	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
+	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.")
 	int minHwCurrent() default 6000;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")

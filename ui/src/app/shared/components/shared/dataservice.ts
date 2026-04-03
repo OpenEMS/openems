@@ -3,7 +3,7 @@ import { Injectable, WritableSignal, signal } from "@angular/core";
 import { Subject, takeUntil } from "rxjs";
 import { ChannelAddress, Edge, Service } from "../../shared";
 
-@Injectable()
+@Injectable({ providedIn: "root" })
 export abstract class DataService {
 
     /** Used to retrieve values */
@@ -29,7 +29,7 @@ export abstract class DataService {
    * @param edge the edge
    * @param componentId the componentId
    */
-    public abstract getValues(channelAddress: ChannelAddress[], edge: Edge, componentId?: string);
+    public abstract subscribeChannels(channelAddress: ChannelAddress[], edge: Edge, componentId?: string): void;
 
     /**
    * Unsubscribes from passed channels

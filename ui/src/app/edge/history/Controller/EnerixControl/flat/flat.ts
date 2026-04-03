@@ -13,6 +13,9 @@ export class FlatComponent extends AbstractFlatWidget {
     protected TIME_CONVERTER = this.Converter.FORMAT_SECONDS_TO_DURATION("de");
 
     protected override getChannelAddresses(): ChannelAddress[] {
+        if (this.component == null) {
+            return [];
+        }
 
         return [
             new ChannelAddress(this.component.id, "CumulatedInactiveTime"),

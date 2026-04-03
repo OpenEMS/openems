@@ -16,6 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepare
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
@@ -35,7 +36,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
@@ -47,7 +47,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -72,7 +71,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 				.setRequired(true))), //
 
 		LINK_FEED_IN(feedInLink()), //
-		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType(ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION)), //
+		FEED_IN_TYPE(externalLimitationType()), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //
@@ -141,13 +140,6 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 	) {
 		super(componentManager, context, cm, componentUtil);
 		this.appManagerUtil = appManagerUtil;
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

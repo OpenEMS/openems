@@ -3,7 +3,7 @@ package io.openems.backend.alerting;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
-import com.google.gson.JsonObject;
+import io.openems.backend.common.mail.MailContext;
 
 /**
  * Properties for one notification.
@@ -32,11 +32,11 @@ public abstract class Message implements Comparable<Message> {
 	public abstract ZonedDateTime getNotifyStamp();
 
 	/**
-	 * Get attributes as JsonObject for Mailer.
+	 * Get attributes as MailContext for Mailer.
 	 *
-	 * @return JsonObject
+	 * @return MailContext
 	 */
-	public abstract JsonObject getParams();
+	public abstract MailContext getContext();
 
 	@Override
 	public int hashCode() {

@@ -22,6 +22,14 @@ export namespace Filter {
     export const GRID_MODE_IS_OFF_GRID: Filter = (value): boolean => value === GridMode.OFF_GRID;
 
     /**
+   * Filter passes only if GridMode is OFF_GRID or GENERATOR.
+   *
+   * @param value the GridMode integer value
+   * @returns true if GridMode is OFF_GRID
+   */
+    export const GRID_MODE_IS_OFF_GRID_OR_GENERATOR: Filter = (value): boolean => value === GridMode.OFF_GRID || value === GridMode.GENERATOR;
+
+    /**
    * Filter to check if the value is not null or undefined.
    *
    * @param value the value to check

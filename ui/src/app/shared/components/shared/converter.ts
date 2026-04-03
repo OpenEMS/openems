@@ -301,6 +301,26 @@ export namespace Converter {
     };
 
     /**
+     * Converts the grid mode value into a translated label.
+     *
+     * @param translate the current language to be translated to
+     * @returns converted value
+     */
+    export const GRID_MODE_OFF_GRID_OR_GENERATOR = (translate: TranslateService): Converter => {
+        return (value: any): string => {
+            switch (value) {
+                case 2:
+                    return translate.instant("GENERAL.OFF_GRID");
+                case 3:
+                    return translate.instant("GENERAL.GENERATOR_ON");
+                case -1:
+                default:
+                    return translate.instant("");
+            }
+        };
+    };
+
+    /**
      * Calculates the otherPower: the power, that can't be assigned to a consumer
      *
      * @param evcss the evcss
@@ -321,9 +341,15 @@ export namespace Converter {
         const gridMode = currentData.allComponents["_sum/GridMode"];
         const restrictionMode14a = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"] ?? Limiter14aRestriction.NO_RESTRICTION;
         const restrictionModeRcr = currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"] ?? RippleControlReceiverRestrictionLevel.NO_RESTRICTION;
+
+        if (gridMode === GridMode.GENERATOR) {
+            return translate.instant("GENERAL.GENERATOR_SUPPLY");
+        }
+
         if (gridMode === GridMode.OFF_GRID) {
             return translate.instant("GRID_STATES.OFF_GRID");
         }
+
         if (restrictionMode14a) {
             return translate.instant(restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION
                 ? "GRID_STATES.GRID_LIMITATION"
@@ -496,6 +522,23 @@ export namespace Converter {
 
     export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
         return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
+    };
+
+    export const CONTROLLER_PROPERTY_MODES = (translate: TranslateService): Converter => {
+        return (raw): string => {
+            return IF_STRING(raw, (value) => {
+                switch (value) {
+                    case "AUTOMATIC":
+                        return translate.instant("GENERAL.AUTOMATIC");
+                    case "MANUAL":
+                        return translate.instant("GENERAL.MANUALLY");
+                    case "MANUAL_ON":
+                        return translate.instant("GENERAL.ON");
+                    case "MANUAL_OFF":
+                        return translate.instant("GENERAL.OFF");
+                }
+            });
+        };
     };
 }
 

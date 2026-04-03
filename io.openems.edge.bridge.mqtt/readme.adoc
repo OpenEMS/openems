@@ -1,5 +1,75 @@
-= MQTT
+= MQTT Bridge
 
-This implementation provides MQTT communication support for OpenEMS Edge with MQTT 3.1, 3.1.1, and 5.0 via Eclipse Paho client.
+Message broker connection for IoT and telemetry communication.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.http[Source Code icon:github[]]
+== Overview
+
+The MQTT Bridge provides MQTT (Message Queuing Telemetry Transport) connectivity for OpenEMS Edge systems. It enables lightweight publish-subscribe communication with MQTT brokers, supporting MQTT versions 3.1, 3.1.1, and 5.0 via Eclipse Paho client. This bridge is ideal for IoT integration, remote monitoring, telemetry collection, and inter-system communication in scalable, distributed architectures.
+
+MQTT is a perfect alternative to direct device protocols when devices support broker-based communication or when working with cloud platforms, IoT hubs, and distributed systems.
+
+== Components
+
+[[_bridge_mqtt]]
+=== Bridge MQTT
+
+*Name*: Bridge MQTT
+
+*Factory-PID*: `Bridge.Mqtt`
+
+*Purpose*: MQTT broker connection and message routing for OpenEMS components.
+
+.*Configuration*:
+* `id` (String): Unique bridge identifier; default: `"mqtt0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `mqttVersion` (MqttVersion): Protocol version (V3_1, V3_1_1, V5_0); default: `V3_1_1`
+
+.Broker Connection
+* `host` (String): MQTT broker hostname or IP; default: `"localhost"`
+* `port` (Integer): MQTT broker port; default: `1883` (use 8883 for TLS)
+* `secureConnect` (Boolean): Use SSL/TLS encryption; default: `false`
+
+.Authentication
+* `username` (String): Broker authentication username (optional)
+* `password` (String): Broker authentication password (optional)
+* `clientId` (String): Unique client identifier; if empty, auto-generated
+
+.Session Management
+* `cleanSession` (Boolean): Start with clean session (no persistent subscriptions); default: `true`
+* `keepAliveInterval` (Integer): Keep-alive interval in seconds (0=disabled); default: `60`
+* `connectionTimeout` (Integer): Connection timeout in seconds; default: `30`
+
+.Reconnection
+* `autoReconnect` (Boolean): Automatically reconnect on failure; default: `true`
+* `reconnectDelayMs` (Integer): Initial reconnect delay (ms); default: `1000`
+* `maxReconnectDelayMs` (Integer): Maximum reconnect delay (ms); default: `30000`
+
+.Last Will & Testament (LWT)
+* `lwtTopic` (String): Topic for LWT message (optional)
+* `lwtMessage` (String): Message to send when connection lost
+* `lwtQos` (QoS): QoS level for LWT (AT_MOST_ONCE, AT_LEAST_ONCE, EXACTLY_ONCE); default: `AT_LEAST_ONCE`
+* `lwtRetained` (Boolean): Retain LWT message; default: `false`
+
+.SSL/TLS Certificates
+* `trustStorePath` (String): Path to trust store file for server verification (optional)
+* `trustStorePassword` (String): Trust store password (optional)
+* `keyStorePath` (String): Path to client certificate key store (optional)
+* `keyStorePassword` (String): Key store password (optional)
+
+.Debugging
+* `debugMode` (Boolean): Enable debug logging for MQTT communication; default: `false`
+
+== Supported MQTT Versions
+
+=== MQTT 3.1 & 3.1.1
+* Stable, widely supported
+* Good for legacy systems and public brokers
+* Default for most installations
+
+=== MQTT 5.0
+* Enhanced features (message properties, improved error handling)
+* Better for high-performance scenarios
+* Requires broker supporting MQTT 5.0
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.mqtt[Source Code icon:github[]]

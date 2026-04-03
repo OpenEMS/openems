@@ -2,10 +2,14 @@ import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircl
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
+    api: {
+        SYSTEM_OUTAGE: null,
+    },
     icons: {
         COMMON: {
             CONSUMPTION: "assets/img/icon/consumption.svg",
             SELFCONSUMPTION: "assets/img/icon/selfconsumption.svg",
+            GENERATOR: "assets/img/icon/generator.svg",
             GRID: "assets/img/icon/grid.svg",
             GRID_STORAGE: "assets/img/icon/gridStorage.svg",
             GRID_RESTRICTION: "assets/img/icon/gridRestriction.svg",

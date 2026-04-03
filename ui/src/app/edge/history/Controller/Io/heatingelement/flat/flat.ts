@@ -9,9 +9,13 @@ import { EdgeConfig } from "src/app/shared/shared";
 })
 export class FlatComponent extends AbstractFlatWidget {
     protected FORMAT_SECONDS_TO_DURATION = this.Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
-    protected consumptionMeter: EdgeConfig.Component =  new EdgeConfig.Component();
+    protected consumptionMeter: EdgeConfig.Component = new EdgeConfig.Component();
 
     protected override afterIsInitialized(): void {
-        this.consumptionMeter = this.config?.getComponent(this.component.properties["meter.id"]);
+        if (this.component == null) {
+            return;
+        }
+
+        this.consumptionMeter = this.config?.getComponent(this.component.properties["meter.id"]) ?? new EdgeConfig.Component();
     }
 }

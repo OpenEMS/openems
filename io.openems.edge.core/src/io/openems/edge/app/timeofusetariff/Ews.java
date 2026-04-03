@@ -20,9 +20,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
@@ -40,7 +38,6 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
-import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
@@ -157,13 +154,6 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
@@ -176,14 +166,6 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.SINGLE_IN_CATEGORY;
-	}
-
-	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create() //
-				.setCanDelete(Role.ADMIN) //
-				.setCanSee(Role.ADMIN) //
-				.build();
 	}
 
 	@Override

@@ -1,10 +1,8 @@
 import { Component, inject } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -27,7 +25,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     ],
 })
 
-export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent implements ViewWillEnter {
+export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
     public static formControlName: string = "phaseSwitching";
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
@@ -97,41 +95,6 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent impleme
         };
     }
 
-
-    public ionViewWillEnter(): void {
-        const url = this.routeService.currentUrl();
-        if (url === null) {
-            return;
-        }
-
-        const componentId = this.routeService.getRouteParam("componentId");
-        // Create a new navigation tree node for the task
-        const newNavigationTree = new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null);
-
-        // Retrieve the existing navigation tree
-        const oldNavigationTree = this.navigationService.navigationTree();
-        if (oldNavigationTree == null) {
-            return;
-        }
-
-        // Find the parent node by its ID
-        const parentNode = oldNavigationTree.getChildren()?.find(child => child.id === componentId) ?? null;
-        if (parentNode == null) {
-            console.warn("Parent node not found for componentId:", componentId);
-            return;
-        }
-
-        // Set relationships between the nodes
-        newNavigationTree.parent = parentNode;
-        parentNode.setChild("phase-switching", newNavigationTree);
-        parentNode.parent = oldNavigationTree;
-
-        // Update the navigation system with the modified tree
-        this.navigationService.navigationTree.set(oldNavigationTree);
-        this.navigationService.currentNode.set(newNavigationTree);
-    }
-
-
     protected override onCurrentData(currentData: CurrentData): void {
         this.setFormControlSafelyWithChannel<number>(this.form, EvsePhaseSwitchingComponent.formControlName, currentData, this.phaseSwitchingChannel);
     }
@@ -158,6 +121,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent impleme
         return [this.phaseSwitchingChannel];
     }
 }
+
 export enum PhaseSwitching {
     /**
      * Phase-Switching is disabled.

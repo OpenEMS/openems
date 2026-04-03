@@ -1,9 +1,40 @@
-= Battery Pylontech Powercube M2
+= Pylontech Powercube M2 Battery
 
+Industrial-grade lithium battery system with advanced thermal and cell management.
 
-* Implemented Natures
-** Battery
-** OpenemsComponent
-** StartStoppable
+== Overview
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech.powercubeM2[Source Code icon:github[]]
+This bundle provides integration with the Pylontech Powercube M2 battery system, a high-performance lithium-based energy storage solution designed for commercial and industrial energy management. The system communicates via Modbus for precise charge/discharge control, detailed health monitoring, and thermal management.
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== Pylontech Powercube M2
+
+*Name*: Battery Pylontech Powercube M2
+
+*Factory-PID*: `Battery.Pylontech`
+
+.Implemented Natures/Interfaces
+* ModbusComponent
+* OpenemsComponent
+* Battery
+* EventHandler
+* ModbusSlave
+* StartStoppable
+* PylontechPowercubeM2Battery
+
+*Description*: Modbus interface for the Pylontech Powercube M2 battery system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and health status. Provides automatic start/stop control for operational optimization and safety.
+
+*Note*: This implementation is tested and validated for the Pylontech Powercube M2 model. Compatibility with other Pylontech battery models has not been verified.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "battery0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the battery device (default: 1)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.pylontech[Source Code icon:github[]]

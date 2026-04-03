@@ -1,6 +1,9 @@
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "../../type/role";
 import { TEnumKeys, TPartialBy } from "../../type/utility";
 import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
+import { Edge } from "../edge/edge";
 
 export enum NavigationId {
     LIVE = "live",
@@ -11,7 +14,6 @@ type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "
 export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
-
     constructor(
         public id: NavigationId | string,
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
@@ -24,14 +26,16 @@ export class NavigationTree {
 
         /** Use null for nested node */
         public parent: NavigationTree | null,
+        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
+        public showOrder: "HIGH" | "LOW" | "HIDE" = "HIGH",
     ) { }
 
     /**
-     * Creates new navigation tree instance from existing navigation tree object
-     *
-     * @param navigationTree
-     * @returns the new navigationTree
-     */
+     * Creates new navigation tree instance from existing navigation tree object.
+    *
+    * @param navigationTree
+    * @returns the new navigationTree
+    */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
         if (!navigationTree) {
             return null;
@@ -41,6 +45,28 @@ export class NavigationTree {
 
     public static dummy() {
         return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
+    }
+
+    /**
+     * Reorders the navigation tree children by its {@link showOrder} from HIGH to LOW.
+     *
+     * @param node the node
+     * @returns
+     */
+    public reorderByShowOrder(node: NavigationTree): void {
+        if (node == null || !Array.isArray(node.children)) {
+            return;
+        }
+
+        // First reorder deeper levels
+        node.children.forEach(child => this.reorderByShowOrder(child));
+
+        // Explicit grouping (safer than comparator)
+        const high = node.children.filter(c => c.showOrder === "HIGH");
+        const low = node.children.filter(c => c.showOrder === "LOW");
+        const hide = node.children.filter(c => c.showOrder === "HIDE");
+
+        node.children = [...high, ...low, ...hide];
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
@@ -156,12 +182,12 @@ export class NavigationTree {
         }
 
         const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(this);
-        return findParentNode(flattenedNavigationTree, currentUrl);
+        return findParentNode(flattenedNavigationTree, currentUrl.split("?")[0]);
     }
 
     public updateNavigationTreeByAbsolutePath(
         root: NavigationTree | null, absolutePath: string, updateFn: (node: NavigationTree) => void | NavigationTree, currentPath: string = ""
-    ): boolean {
+    ) {
         if (root == null) {
             return false;
         }
@@ -231,6 +257,7 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
+            this.showOrder,
         ];
     }
 
@@ -297,6 +324,19 @@ export class NavigationTree {
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
         return this.setParentRecursively();
+    }
+
+    /**
+     * Sets the child for a given parent navigation id
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public showHiddenNode(showOrder: typeof this.showOrder = "HIGH") {
+        this.showOrder = showOrder;
+        return this;
     }
 
     public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
@@ -372,10 +412,22 @@ export namespace NavigationConstants {
         "Common_Selfconsumption",
         "Consumption",
         "Grid",
+        "Common_Production",
     ];
 
     /**
      * The widget factories to show in new navigation
      */
-    export const newWidgets: Widget["name"][] = ["System.Fenecon.Industrial.L"];
+    export const newWidgets: Widget["name"][] = [
+        "Controller.Io.HeatPump.SgReady",
+    ];
+
+    export namespace CommonNodes {
+        export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
+        export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
+            return edge.roleIsAtLeast(Role.INSTALLER)
+                ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
+                : [];
+        }
+    }
 }

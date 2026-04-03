@@ -13,7 +13,7 @@ export class RouteService {
         router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.previousUrl = this.currentUrl();
-                this.currentUrl.set(event.urlAfterRedirects);;
+                this.currentUrl.set(event.urlAfterRedirects);
             }
         });
     }

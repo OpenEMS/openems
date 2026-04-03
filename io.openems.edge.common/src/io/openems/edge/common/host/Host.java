@@ -18,7 +18,7 @@ public interface Host extends OpenemsComponent {
 	public static final String SINGLETON_COMPONENT_ID = "_host";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		DISK_IS_FULL(Doc.of(Level.INFO) //
+		DISK_IS_FULL(Doc.of(Level.INFO)//
 				.text("Disk is full")), //
 		HOSTNAME(Doc.of(OpenemsType.STRING)), //
 
@@ -28,7 +28,7 @@ public interface Host extends OpenemsComponent {
 		 * <p>
 		 * e. g. 'Raspbian GNU/Linux 11 (bullseye)' or 'Windows 11'
 		 */
-		OS_VERSION(Doc.of(OpenemsType.STRING) //
+		OS_VERSION(Doc.of(OpenemsType.STRING)//
 				.text("Operating system version")), //
 		;
 
