@@ -25,6 +25,13 @@ describe("Array-Utils", () => {
         expect(() => ArrayUtils.sortedAlphabetically(inputArr, null)).toThrow();
     });
 
+    it("+alphabetically comparator", () => {
+        const inputArr = ["A", null, "C", undefined, "B", "a", "1"];
+        const sortedArr = ["1", "A", "a", "B", "C", null, undefined];
+
+        expect([...inputArr].sort(ArrayUtils.alphabetically(a => a))).toEqual(sortedArr);
+    });
+
     describe("ReducerFunctions", () => {
 
         it("+sum", () => {

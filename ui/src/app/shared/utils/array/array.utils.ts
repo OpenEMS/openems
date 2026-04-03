@@ -62,7 +62,20 @@ export namespace ArrayUtils {
      * @returns sorted array
      */
     export function sortedAlphabetically<T>(array: T[], fn: (arg: T) => string): T[] {
-        return array.sort((a: T, b: T) => {
+        return array.sort(alphabetically(fn));
+    }
+
+    /**
+     * Creates a comparator that sorts items alphabetically by a string key returned from `fn`.
+     *
+     * The comparator places falsy keys (null, undefined or empty string) after non-falsy keys;
+     * two falsy keys compare as equal.
+     *
+     * @param fn to get a string to sort by
+     * @returns A comparator `(a, b) => number` suitable for `Array.sort`.
+     */
+    export function alphabetically<T>(fn: (arg: T) => string): (a: T, b: T) => number {
+        return (a: T, b: T) => {
             const aVal = fn(a);
             const bVal = fn(b);
             if (!aVal) {
@@ -71,7 +84,7 @@ export namespace ArrayUtils {
                 return -1;
             }
             return aVal.localeCompare(bVal, undefined, { sensitivity: "accent" });
-        });
+        };
     }
 
     /**
