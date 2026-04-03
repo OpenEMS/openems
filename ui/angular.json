@@ -139,6 +139,22 @@
                 }
               ]
             },
+            "openems-edge-dev-localhost": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/theme.ts",
+                  "with": "src/themes/openems/environments/theme.ts"
+                },
+                {
+                  "replace": "src/environments/dummy.ts",
+                  "with": "src/themes/openems/environments/edge-dev-localhost.ts"
+                },
+                {
+                  "replace": "src/environments/oem-meta.ts",
+                  "with": "src/themes/openems/environments/oem-meta.ts"
+                }
+              ]
+            },
             "openems-edge-prod": {
               "fileReplacements": [
                 {

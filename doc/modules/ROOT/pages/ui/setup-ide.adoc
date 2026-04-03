@@ -8,7 +8,7 @@
 :source-highlighter: highlight.js
 :icons: font
 
-NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the hosted version we provide at https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]].
+NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the hosted version we provide at https://openemsuilocal.consolinno.de[https://openems.netlify.app icon:external-link[]].
 
 
 == Setup Visual Studio Code
