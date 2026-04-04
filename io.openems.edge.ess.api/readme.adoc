@@ -168,3 +168,4 @@ When implementing an ESS component, choose the appropriate nature(s):
 
 Multiple natures can be combined. For example, a hybrid off-grid ESS would implement both `HybridEss` and `OffGridEss`.
 
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.api[Source Code icon:github[]]

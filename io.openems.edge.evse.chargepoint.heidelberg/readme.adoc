@@ -1,3 +1,58 @@
-= EVSE Charge-Point Heidelberg Connect
+= Heidelberg Connect Charging Station
+
+Three-phase or single-phase AC charging station with Modbus integration.
+
+== Overview
+
+This bundle provides integration with the Heidelberg Connect electric vehicle charging station, a flexible AC charging solution supporting both single-phase and three-phase configurations. The station communicates via Modbus for integration with energy management systems, offering phase-switching capability for dynamic load balancing.
+
+Heidelberg Connect is suitable for commercial charging networks, workplace charging, and residential installations requiring flexible single/three-phase charging.
+
+== Supported Devices
+
+.Heidelberg Connect Series
+* **Type**: AC charging station (single-phase or three-phase configurable)
+* **Typical Power**: 3.7 kW (1-phase) to 22 kW (3-phase)
+* **Protocol**: Modbus TCP/RTU
+* **Communication**: Modbus over Ethernet or serial
+* **Typical Use**: Commercial charging, workplace charging, residential
+* **Connector**: Type 2 (Mennekes) standard
+* **Phase Switching**: Optional dynamic phase adjustment
+* **Documentation**: https://www.heidelbergelectric.com/[Heidelberg Electric icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_heidelberg_connect,EVSE Charge-Point Heidelberg Connect>>
+
+*Name*: EVSE Charge-Point Heidelberg Connect
+
+*Factory-PID*: `Evse.ChargePoint.Heidelberg.Connect`
+
+.Implemented Natures/Interfaces
+* EvseChargePointHeidelbergConnect
+* ModbusComponent
+* OpenemsComponent
+* TimedataProvider
+* EvseChargePoint
+* EventHandler
+* ElectricityMeter
+
+*Description*: Modbus interface for Heidelberg Connect charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports both single-phase and three-phase configurations with optional dynamic phase switching for load optimization.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `readOnly` (Boolean): Read-only mode (monitoring only) vs managed control (required)
+* `debugMode` (Boolean): Enable debug logging (default: false)
+* `wiring` (SingleOrThreePhase): Hardware wiring configuration - SINGLE_PHASE or THREE_PHASE (required)
+* `phaseSwitching` (PhaseSwitching): Phase switching option - FORCE_THREE_PHASE, FORCE_SINGLE_PHASE, or AUTO (default: FORCE_THREE_PHASE)
+* `phaseRotation` (PhaseRotation): Phase order - L1_L2_L3 or rotated configurations (default: L1_L2_L3)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the device (default: 1)
+
+[[_heidelberg_connect]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.heidelberg[Source Code icon:github[]]

@@ -3,7 +3,7 @@ package io.openems.edge.energy.api.simulation;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 

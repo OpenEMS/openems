@@ -5,6 +5,8 @@ import static java.util.stream.Collectors.toSet;
 import java.util.List;
 import java.util.function.Supplier;
 
+import io.openems.common.function.BooleanConsumer;
+
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -26,12 +28,15 @@ import io.openems.edge.ess.power.api.Relationship;
 public class PowerDistributionHandlerV2 implements PowerDistributionHandler {
 
 	private final Supplier<List<ManagedSymmetricEss>> esssSupplier;
+	private final BooleanConsumer onSetNotSolved;
 	private final Coefficients coefficients = new Coefficients();
 
 	private PowerDistribution pd;
 
-	public PowerDistributionHandlerV2(Supplier<List<ManagedSymmetricEss>> esssSupplier) {
+	public PowerDistributionHandlerV2(Supplier<List<ManagedSymmetricEss>> esssSupplier,
+			BooleanConsumer onSetNotSolved) {
 		this.esssSupplier = esssSupplier;
+		this.onSetNotSolved = onSetNotSolved;
 		this.onUpdateEsss(); // Initialize
 	}
 
@@ -59,6 +64,7 @@ public class PowerDistributionHandlerV2 implements PowerDistributionHandler {
 
 		// Solve
 		this.pd.solve();
+		this.onSetNotSolved.accept(false);
 
 		// Apply Power
 		final var esss = this.esssSupplier.get();
@@ -134,6 +140,12 @@ public class PowerDistributionHandlerV2 implements PowerDistributionHandler {
 
 	@Override
 	public int getPowerExtrema(ManagedSymmetricEss ess, SingleOrAllPhase phase, Pwr pwr, GoalType goal) {
-		return 0; // TODO
+		if (this.pd == null) {
+			return 0;
+		}
+		if (pwr == Pwr.ACTIVE) {
+			return this.pd.getActivePowerExtrema(ess.id(), goal);
+		}
+		return this.pd.getReactivePowerExtrema(ess.id(), goal);
 	}
 }

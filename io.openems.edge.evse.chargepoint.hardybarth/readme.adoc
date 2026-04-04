@@ -1,7 +1,84 @@
-= EVSE Charge-Point Hardy Barth (Salia)
+= Hardy Barth Salia Charging Station
 
-This component implements the Salia charging station by the manufacturer Hardy Barth: https://www.echarge.de/de/home
+Three-phase AC charging station with REST API integration.
 
-API documentation: https://app.swaggerhub.com/apis/eChargeHardyBarth/salia_rest_api
+== Overview
+
+This bundle provides integration with the Salia charging station by Hardy Barth, a three-phase AC electric vehicle charging station designed for commercial and residential charging applications. The station communicates via REST API over IP for flexible integration with energy management systems.
+
+Hardy Barth Salia is suitable for commercial charging networks, workplace charging, and site energy management requiring three-phase charging integration.
+
+== Supported Devices
+
+.Hardy Barth Salia Series
+* **Type**: Three-phase AC charging station
+* **Typical Power**: 11-22 kW three-phase
+* **Protocol**: REST API over HTTP/HTTPS
+* **Communication**: IP network connection
+* **Typical Use**: Commercial charging, workplace charging, fleet
+* **Connector**: Type 2 (Mennekes) standard
+* **Phase**: Three-phase AC
+* **Documentation**: https://www.echarge.de/de/home[Hardy Barth / eCharge icon:external-link[]]
+* **API Docs**: https://app.swaggerhub.com/apis/eChargeHardyBarth/salia_rest_api[REST API Documentation icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_evse_hardy,EVSE Charge-Point Hardy Barth>>
+
+*Name*: EVSE Charge-Point Hardy Barth
+
+*Factory-PID*: `Evse.ChargePoint.HardyBarth`
+
+.Implemented Natures/Interfaces
+* EvseChargePointHardyBarth
+* HardyBarth
+* OpenemsComponent
+* EvseChargePoint
+* ElectricityMeter
+* TimedataProvider
+* EventHandler
+
+*Description*: EVSE (Electric Vehicle Supply Equipment) interface for Hardy Barth Salia charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports read-only monitoring or managed charging control modes.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "evseChargePoint0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the charging station (required, default: "192.168.25.30")
+* `phaseRotation` (PhaseRotation): Phase wiring configuration - L1_L2_L3 or rotated (default: L1_L2_L3)
+* `readOnly` (Boolean): Read-only mode (monitoring only) vs managed control (required)
+* `logVerbosity` (LogVerbosity): Debug logging level - NONE, LOW, MEDIUM, HIGH (default: NONE)
+
+[[_evse_hardy]]
+
+=== <<_evcs_hardy,EVCS Hardy Barth>>
+
+*Name*: EVCS Hardy Barth
+
+*Factory-PID*: `Evcs.HardyBarth`
+
+.Implemented Natures/Interfaces
+* OpenemsComponent
+* EventHandler
+* HardyBarth
+* Evcs
+* ManagedEvcs
+* DeprecatedEvcs
+* ElectricityMeter
+
+*Description*: EVCS (Electric Vehicle Charging Station) interface for Hardy Barth Salia. Manages dynamic charging control and enables integration with energy management systems for demand response and load optimization. Controls charging power and monitors real-time consumption.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component
+* `ip` (String): IP address of the charging station (required)
+* `phaseRotation` (PhaseRotation): Phase wiring configuration
+* `readOnly` (Boolean): Control mode setting
+* `logVerbosity` (LogVerbosity): Debug logging level
+
+[[_evcs_hardy]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.chargepoint.hardybarth[Source Code icon:github[]]

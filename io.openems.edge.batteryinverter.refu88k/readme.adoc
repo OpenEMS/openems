@@ -1,8 +1,51 @@
 = REFUstore 88K
 
-Implemented Natures::
-- SymmetricEss
-- ManagedSymmetricEss
+Single-phase battery inverter with integrated energy management.
 
-https://www.refu.com/storage-solutions/?L=1[Manufacturer Product Page]
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.refu88[Source Code icon:github[]]
+== Overview
+
+This bundle provides integration with the REFUstore 88K battery inverter, a three-phase AC/DC converter designed for residential energy storage applications. The inverter communicates via Modbus for precise power control and monitoring with built-in safety features including watchdog timer and power timeout detection.
+
+REFUstore 88K is suitable for solar battery storage, peak shaving, and residential energy management systems requiring reliable battery storage integration.
+
+== Supported Devices
+
+.REFUstore 88K
+* **Type**: Three-phase battery inverter
+* **Power**: 88 kW (typical)
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Residential battery storage, solar integration
+* **Documentation**: https://refu.com/[REFU Storage Solutions icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== REFUstore 88K
+
+*Name*: Battery-Inverter REFUstore88k
+
+*Factory-PID*: `Battery-Inverter.Refu.REFUstore88k`
+
+.Implemented Natures/Interfaces
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* OpenemsComponent
+* BatteryInverterRefuStore88k
+* TimedataProvider
+* StartStoppable
+
+*Description*: Modbus interface for the REFUstore 88K battery inverter. Manages bidirectional AC/DC power flow, monitors inverter status, temperature, and operating conditions. Supports automatic start/stop control, watchdog timer for safety, and time-of-use capability.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the inverter (required, no default)
+* `startStop` (StartStopConfig): Start/stop behavior - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `timeLimitNoPower` (Integer): Time limit in seconds when no power applied before action (default: 60)
+* `watchdoginterval` (Integer): Watchdog timer interval in seconds, 0 to disable (default: 0)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu88k[Source Code icon:github[]]
