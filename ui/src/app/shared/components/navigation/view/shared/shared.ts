@@ -32,13 +32,6 @@ export namespace ViewUtils {
             document.querySelectorAll<HTMLElement>("ion-footer")
         );
 
-        const standaloneFooters = allIonFooters.filter(
-            f => !f.closest("oe-footer-subnavigation")
-        );
-
-        const footersSource =
-            standaloneFooters.length > 0 ? standaloneFooters : allIonFooters;
-
         const isVisible = (el: HTMLElement) => {
             const rect = el.getBoundingClientRect();
 
@@ -46,12 +39,6 @@ export namespace ViewUtils {
                 return false;
             }
             const style = window.getComputedStyle(el);
-            if (style.display === "none") {
-                return false;
-            }
-            if (style.visibility !== "visible") {
-                return false;
-            }
             if (parseFloat(style.opacity || "1") === 0) {
                 return false;
             }
@@ -61,30 +48,35 @@ export namespace ViewUtils {
 
         return {
             headers: allHeaders.filter(isVisible),
-            footers: footersSource.filter(isVisible),
+            footers: allIonFooters.filter(isVisible),
         };
+    }
+
+    export function getWindowVisualViewPort() {
+        return window.visualViewport?.height ?? window.innerHeight;
     }
 
     export function getViewHeightInPx(position: TSignalValue<NavigationService["position"]> | null) {
         const { header, footer } = ViewUtils.getTotalHeaderFooterHeight();
+
         if (position == null || position == "disabled") {
-            return window.innerHeight - header - footer;
+            return getWindowVisualViewPort() - header - footer;
         }
         if (position === "bottom") {
             const actionSheetModal = getActionSheetModalHeightInPx();
-            return window.innerHeight - header - footer - actionSheetModal;
+            return getWindowVisualViewPort() - header - footer - actionSheetModal;
         }
 
-        return window.innerHeight - header - footer;
+        return getWindowVisualViewPort() - header - footer;
     }
 
     export function getActionSheetModalHeightInPx() {
-        return window.innerHeight * NavigationComponent.INITIAL_BREAKPOINT;
+        return getWindowVisualViewPort() * NavigationComponent.INITIAL_BREAKPOINT;
     }
 
     export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
         if (position == "bottom") {
-            return (getActionSheetModalHeightInPx() / window.innerHeight) * 100;
+            return (getActionSheetModalHeightInPx() / getWindowVisualViewPort()) * 100;
         }
         return 0;
     }
@@ -97,28 +89,6 @@ export namespace ViewUtils {
     * @returns the available height
     */
     export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
-        let viewHeight = ViewUtils.getViewHeightInPx(position);
-        const legendHeight = getLegendHeight();
-
-        if (customChartHeightPercentage != null) {
-            viewHeight = viewHeight * (customChartHeightPercentage / 100);
-        }
-
-        return NumberUtils.multiplySafely(
-            NumberUtils.divideSafely(
-                NumberUtils.subtractSafely(
-                    viewHeight, legendHeight
-                ),
-                windowHeight),
-            100);
-    }
-
-    function getLegendHeight() {
-        const chartLegend = document.querySelector<HTMLElement>("oe-chart-legend");
-        if (chartLegend == null) {
-            return 0;
-        }
-        const legendRow = chartLegend.querySelector<HTMLElement>("ion-row");
-        return legendRow?.clientHeight ?? 0;
+        return NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100);
     }
 }
