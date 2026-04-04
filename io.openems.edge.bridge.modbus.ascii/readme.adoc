@@ -1,0 +1,102 @@
+= Modbus/ASCII Serial Bridge
+
+This bundle provides a Modbus/ASCII bridge for serial communication using the Modbus/ASCII protocol. It extends the OpenEMS Modbus bundle that already provides Modbus/RTU support over a serial connection.
+
+== Overview
+
+Modbus ASCII is an alternative encoding to Modbus RTU for serial communication. While functionally equivalent, ASCII mode differs in frame format:
+
+[cols="1,1,1"]
+|===
+| Aspect | RTU | ASCII
+
+| Start delimiter | 3.5 char silence | `:` (colon)
+| End delimiter | 3.5 char silence | CR/LF
+| Data encoding | Binary | ASCII hex (2 chars per byte)
+| Error check | CRC-16 (2 bytes) | LRC (1 byte)
+|===
+
+ASCII mode is more tolerant of timing delays, making it suitable for connections with variable latency.
+
+== Usage
+
+Configure `Bridge.Modbus.Serial.Ascii` according to the requirements of your device that communicates via Modbus/ASCII. 
+The bridge's default parameters are communication port "/dev/ttyUSB0", baudrate 9600, and communication parameters 8E1 (8 data bits, Even parity, 1 stop bit).
+
+For implementation details, task execution, priority handling, and logging options, see the link:../io.openems.edge.bridge.modbus/readme.adoc[Modbus Bridge documentation].
+
+== Implemented Natures
+
+- link:../io.openems.edge.bridge.modbus/readme.adoc[BridgeModbus]
+- BridgeModbusSerialAscii
+- StartStoppable
+
+== Compatibility
+
+Any Modbus/ASCII device should work with the standard configuration. Confirmed working:
+
+[cols="1,1,1"]
+|===
+| Manufacturer | Model | Notes
+
+| ABL | eMH1 EVCC | Requires `ablCompatible = true` (non-standard `>` frame-start)
+|===
+
+== Additional Features
+
+=== Connection Health Monitoring
+
+This bridge provides additional channels for monitoring communication health:
+
+- `BytesSent` / `BytesReceived`: Total byte counters
+- `LastSuccessfulCommunication`: Timestamp of last successful transaction
+- `CommunicationErrors` / `SuccessfulTransactions`: Transaction counters
+
+=== Raw Frame Logging
+
+Set `LogVerbosity` to `READS_AND_WRITES_DURATION_TRACE_EVENTS` to enable raw frame logging for protocol debugging.
+
+=== Transport Level logging
+To observe what happens on the Modbus at the serial ASCII transport layer level, you need to add a logger configuration.
+To enable DEBUG logging for the j2mod `ModbusASCIITransport` class (j2mod is the library used to implement modbus in OpenEMS) add the following lines to the Edge config file (per default at `C:/openems/config/org/ops4j/pax/logging.config`):
+```conf
+# Enable DEBUG for j2mod ModbusASCIITransport
+log4j2.logger.j2mod.name="com.ghgande.j2mod.modbus.io.ModbusASCIITransport"
+log4j2.logger.j2mod.level="DEBUG"
+```
+
+Alternatively:
+```conf
+# Enable debug for ALL j2mod classes:
+log4j2.logger.j2mod.name="com.ghgande.j2mod"
+log4j2.logger.j2mod.level="DEBUG"
+```
+
+=== Interpreting the Logs
+The serial connection is only opened on first communication attempt, not at activation of the bridge.
+After a while you should then see:
+- Creating serial connection: port=..., encoding=ascii
+- Serial connection opened: transport=...
+- Any j2mod DEBUG messages (if logging config worked)
+
+If there are issues with the serial connection (e.g. wrong port, permission issues), you will see error messages from j2mod like:
+- Serial connection failed: port=..., exception=...
+Once the connection is established, you will see messages like:
+- Writing request: ...
+- Read response: ...
+If there are communication issues (e.g. wrong slave address, timeout), you will see error messages like:
+- Read response failed: exception=...
+
+=== ABL eMH1 Compatible Mode
+
+The ABL eMH1 EVCC wallbox deviates from the Modbus/ASCII specification: it sends `>` (0x3E) as the response frame-start character instead of the standard `:` (0x3A). The upstream j2mod library only accepts `:`, so without a workaround every response from the ABL device is discarded with an I/O read error.
+
+Enable `ablCompatible = true` in the bridge configuration to activate a transparent byte-level fix: the bridge subclasses `SerialConnection` (`AblCompatibleSerialConnection`) and overrides `readBytes()` to replace every `>` in the received byte stream with `:` before j2mod parses it.
+
+This substitution is safe for all standards-compliant devices because `>` never appears in a valid Modbus/ASCII frame — the only permitted characters in the payload are hex digits (`0`–`9`, `A`–`F`), the frame-start `:`, and the CR/LF terminator.
+
+NOTE: This option is `false` by default and should only be enabled when connecting to an ABL eMH1 or another device with the same non-standard behaviour.
+
+== Source
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.modbus.ascii
