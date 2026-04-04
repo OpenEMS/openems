@@ -307,14 +307,16 @@ public final class FunctionUtils {
 	}
 
 	/**
-	 * Runs the given function in a separate thread and cancels the execution after timeout is reached.
-	 * When timeout is reached, the executed function is interrupted and we wait 1 sec for the interrupt to finish.
+	 * Runs the given function in a separate thread and cancels the execution after
+	 * timeout is reached. When timeout is reached, the executed function is
+	 * interrupted and we wait 1 sec for the interrupt to finish.
 	 *
-	 * @param name Thread name
+	 * @param name          Thread name
 	 * @param timeoutMillis Timeout in milliseconds
-	 * @param func Function to call
+	 * @param func          Function to call
 	 * @return Result
-	 * @throws InterruptedException Thrown if the current thread is interrupted while waiting for function execution
+	 * @throws InterruptedException Thrown if the current thread is interrupted
+	 *                              while waiting for function execution
 	 */
 	public static RunWithTimeoutResult runWithTimeout(String name, long timeoutMillis, Runnable func)
 			throws InterruptedException {

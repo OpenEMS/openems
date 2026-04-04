@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.modbus;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
@@ -158,8 +156,4 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 		return this.builder.logVerbosity;
 	}
 
-	@Override
-	public String Component_target() {
-		return generateReferenceTargetFilter(this.id(), false, this.component_ids());
-	}
 }

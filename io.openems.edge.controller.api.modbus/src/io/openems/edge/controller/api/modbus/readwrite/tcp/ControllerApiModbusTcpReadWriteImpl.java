@@ -35,6 +35,7 @@ import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -64,6 +65,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("Component")
 public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusApi implements ControllerApiModbusTcpReadWrite,
 		ModbusApi, Controller, OpenemsComponent, ComponentJsonApi, TimedataProvider, ModbusSlave {
 
@@ -93,15 +95,15 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusApi imple
 	@Reference
 	private ComponentManager componentManager;
 
-	@Override
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
+	@Reference(//
+			policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
+			target = "(&(id=${config.component_ids})(enabled=true)(!(service.pid=${config.service_pid})))")
 	protected void addComponent(OpenemsComponent component) {
-		super.addComponent(component);
+		super._addComponent(component);
 	}
 
-	@Override
 	protected void removeComponent(OpenemsComponent component) {
-		super.removeComponent(component);
+		super._removeComponent(component);
 	}
 
 	public ControllerApiModbusTcpReadWriteImpl() {
@@ -117,14 +119,14 @@ public class ControllerApiModbusTcpReadWriteImpl extends AbstractModbusApi imple
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = CommonConfig.Tcp.from(config, this.metaComponent);
-		super.activate(context, this.cm, this.config, this.componentManager.getClock());
+		super.activate(context, this.config, this.componentManager.getClock());
 		this.applyConfig(config);
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) {
 		this.config = CommonConfig.Tcp.from(config, this.metaComponent);
-		super.modified(context, this.cm, this.config, this.componentManager.getClock());
+		super.modified(context, this.config, this.componentManager.getClock());
 		this.applyConfig(config);
 	}
 

@@ -1,6 +1,5 @@
 package io.openems.edge.controller.api.modbus;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 import static io.openems.edge.controller.api.modbus.CommonConfig.DEFAULT_UNIT_ID;
 
 import java.time.Clock;
@@ -14,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,14 +92,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		this.processImage = new MyProcessImage(this);
 	}
 
-	protected void activate(ComponentContext context, ConfigurationAdmin cm, CommonConfig config, Clock clock)
-			throws OpenemsException {
+	protected void activate(ComponentContext context, CommonConfig config, Clock clock) throws OpenemsException {
 		this.config = config;
 		this.clock = clock;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		final var filter = generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
-		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
 		this.apiWorker.setTimeoutSeconds(config.apiTimeout() != null //
 				? config.apiTimeout() //
@@ -116,14 +110,10 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 
 	}
 
-	protected void modified(ComponentContext context, ConfigurationAdmin cm, CommonConfig config, Clock clock)
-			throws OpenemsException {
+	protected void modified(ComponentContext context, CommonConfig config, Clock clock) {
 		this.config = config;
 		this.clock = clock;
 		super.modified(context, config.id(), config.alias(), config.enabled());
-
-		final var filter = generateReferenceTargetFilter(this.servicePid(), false, config.componentIds());
-		OpenemsComponent.updateReferenceFilterRaw(cm, this.servicePid(), "Component", filter);
 
 		if (this.config.equals(config)) {
 			return;
@@ -277,7 +267,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		this.initializeModbusRecords(config.metaComponent(), config.componentIds());
 	}
 
-	protected synchronized void addComponent(OpenemsComponent component) {
+	protected final synchronized void _addComponent(OpenemsComponent component) {
 		if (!(component instanceof ModbusSlave ms)) {
 			this.logError(this.log, "Component [" + component.id() + "] does not implement ModbusSlave");
 			this.invalidComponents.add(component);
@@ -288,7 +278,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		this.updateComponents();
 	}
 
-	protected synchronized void removeComponent(OpenemsComponent component) {
+	protected final synchronized void _removeComponent(OpenemsComponent component) {
 		this._components.remove(component);
 		if (this.invalidComponents.remove(component)) {
 			if (this.invalidComponents.isEmpty()) {
