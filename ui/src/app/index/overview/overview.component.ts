@@ -86,6 +86,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     ionViewWillLeave() {
+        this.filteredEdges = [];
         this.sub?.unsubscribe();
         this.ngOnDestroy();
     }
@@ -145,7 +146,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                             this.router.navigate(["/device", edge.id]);
                         }, 100);
                     }
-                    this.filteredEdges = edges;
                     resolve(edges);
                 }).catch((err) => {
                     reject(err);
