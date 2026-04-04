@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
@@ -26,6 +27,8 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void test() {
+		final var clock = TestUtils.createDummyClock();
+
 		var ctrl0 = createSingleCtrl() //
 				.setId(CTRL_FORCE) //
 				.setMode(Mode.FORCE) //
@@ -39,6 +42,7 @@ public class EnergySchedulerTest {
 				.setId(CTRL_SURPLUS1) //
 				.setMode(Mode.SURPLUS) //
 				.setTasks(JSCalendar.Tasks.<Payload>create() //
+						.setClock(clock) //
 						.add(t -> t //
 								.setStart("01:15") //
 								.setDuration(Duration.ofMinutes(15)) //
