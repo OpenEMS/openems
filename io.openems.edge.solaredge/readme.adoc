@@ -1,8 +1,19 @@
-= SolarEdge PV Inverter + Grid-Meter
+= SolarEdge PV Inverter + Grid-Meter + Hybrid Inverters
 
-Implementation of the SolarEdge PV inverters.
-
-Implemented Natures:
+PV-Inverter::
 - ElectricityMeter
+
+ESS::
+- HybridEss
+- SymmetricEss
+- ManagedSymmetricEss
+- AsymmetricEss
+- ManagedAsymmetricEss
+- SinglePhaseEss
+- ManagedSinglePhaseEss
+
+Charger::
+- EssDcCharger
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.solaredge[Source Code icon:github[]]
