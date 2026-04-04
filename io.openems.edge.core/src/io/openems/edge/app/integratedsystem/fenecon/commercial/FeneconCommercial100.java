@@ -126,14 +126,15 @@ public class FeneconCommercial100
 		HAS_ESS_LIMITER_14A(hasEssLimiter14a()), //
 
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
+		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)), //
 		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
 		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED)), //
 
-		IS_GENSET_INSTALLED(isGensetInstalled(EMERGENCY_RESERVE_ENABLED)), //
-		GENSET_ID(AppDef.componentId("meter1").wrapField((app, property, l, parameter, field) -> {
-			field.onlyShowIf(Exp.currentModelValue(EMERGENCY_RESERVE_ENABLED).notNull()
-					.and(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull()));
-		})), //
+		GENSET_ID(AppDef.componentId("meter1") //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(EMERGENCY_RESERVE_ENABLED).notNull()
+							.and(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull()));
+				})), //
 		GENSET_RATED_POWER(gensetRatedPower(IS_GENSET_INSTALLED)), //
 		GENSET_PREHEATING_TIME(gensetPreheatingTime(IS_GENSET_INSTALLED)), //
 		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
@@ -288,10 +289,9 @@ public class FeneconCommercial100
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
 					ComponentDef.from(power()), //
-					genset(bundle, gensetId, modbusIdInternal), //
 					stsBox(bundle, //
 							stsBoxId, //
-							modbusIdInternal, //
+							modbusIdExternal, //
 							isGensetInstalled ? gensetId : null, //
 							gensetRatedPower, //
 							gensetPreheatingTime, //
@@ -306,6 +306,10 @@ public class FeneconCommercial100
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
 				components.add(ComponentDef.from(
 						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc)));
+			}
+
+			if (isGensetInstalled) {
+				components.add(genset(bundle, gensetId, modbusIdExternal));
 			}
 
 			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {
@@ -359,9 +363,9 @@ public class FeneconCommercial100
 		final var builder = ImmutableList.<PropertyParent>builder() //
 				.addAll(Arrays.stream(Property.values()).filter(p -> Stream.of(//
 						Property.HAS_EMERGENCY_RESERVE, //
+						Property.IS_GENSET_INSTALLED, //
 						Property.EMERGENCY_RESERVE_ENABLED, //
 						Property.EMERGENCY_RESERVE_SOC, //
-						Property.IS_GENSET_INSTALLED, //
 						Property.GENSET_ID, //
 						Property.GENSET_RATED_POWER, //
 						Property.GENSET_PREHEATING_TIME, //
@@ -381,9 +385,9 @@ public class FeneconCommercial100
 
 		builder //
 				.add(Property.HAS_EMERGENCY_RESERVE)//
+				.add(Property.IS_GENSET_INSTALLED)//
 				.add(Property.EMERGENCY_RESERVE_ENABLED)//
 				.add(Property.EMERGENCY_RESERVE_SOC)//
-				.add(Property.IS_GENSET_INSTALLED)//
 				.add(Property.GENSET_ID)//
 				.add(Property.GENSET_RATED_POWER)//
 				.add(Property.GENSET_PREHEATING_TIME)//
