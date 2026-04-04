@@ -24,7 +24,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.victron.battery.VictronBattery;
 import io.openems.edge.victron.batteryinverter.statemachine.StateMachine.State;
 import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
@@ -874,20 +873,6 @@ public interface VictronBatteryInverter extends OffGridBatteryInverter, ManagedS
 	public default IntegerReadChannel getMaxChargeVoltageChannel() {
 		return this.channel(ChannelId.MAX_CHARGE_VOLTAGE);
 	}
-
-	/**
-	 * Sets the battery reference.
-	 *
-	 * @param battery the {@link VictronBattery}
-	 */
-	public void setBattery(VictronBattery battery);
-
-	/**
-	 * Unsets the battery reference.
-	 *
-	 * @param battery the {@link VictronBattery}
-	 */
-	public void unsetBattery(VictronBattery battery);
 
 	/**
 	 * Gets the maximum charge power in [W].

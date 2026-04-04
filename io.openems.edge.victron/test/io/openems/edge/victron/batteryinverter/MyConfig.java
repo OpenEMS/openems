@@ -1,8 +1,10 @@
-package io.openems.edge.victron.ess;
+package io.openems.edge.victron.batteryinverter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.victron.enums.DeviceType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,15 +13,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String alias;
 		private boolean enabled;
-		private String batteryInverterId;
-		private String batteryId;
 		private String modbusId;
 		private int modbusUnitId;
 		private SingleOrAllPhase phase;
+		private StartStopConfig startStop;
+		private DeviceType deviceType;
+		private int dcFeedInThreshold;
+		private int maxChargePower;
+		private int maxDischargePower;
 		private boolean debugMode;
 		private boolean readOnlyMode;
-		private int capacity;
-		private int maxApparentPower;
 
 		private Builder() {
 		}
@@ -39,16 +42,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setBatteryInverterId(String batteryInverterId) {
-			this.batteryInverterId = batteryInverterId;
-			return this;
-		}
-
-		public Builder setBatteryId(String batteryId) {
-			this.batteryId = batteryId;
-			return this;
-		}
-
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
@@ -64,6 +57,31 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setStartStop(StartStopConfig startStop) {
+			this.startStop = startStop;
+			return this;
+		}
+
+		public Builder setDeviceType(DeviceType deviceType) {
+			this.deviceType = deviceType;
+			return this;
+		}
+
+		public Builder setDcFeedInThreshold(int dcFeedInThreshold) {
+			this.dcFeedInThreshold = dcFeedInThreshold;
+			return this;
+		}
+
+		public Builder setMaxChargePower(int maxChargePower) {
+			this.maxChargePower = maxChargePower;
+			return this;
+		}
+
+		public Builder setMaxDischargePower(int maxDischargePower) {
+			this.maxDischargePower = maxDischargePower;
+			return this;
+		}
+
 		public Builder setDebugMode(boolean debugMode) {
 			this.debugMode = debugMode;
 			return this;
@@ -71,16 +89,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setReadOnlyMode(boolean readOnlyMode) {
 			this.readOnlyMode = readOnlyMode;
-			return this;
-		}
-
-		public Builder setCapacity(int capacity) {
-			this.capacity = capacity;
-			return this;
-		}
-
-		public Builder setMaxApparentPower(int maxApparentPower) {
-			this.maxApparentPower = maxApparentPower;
 			return this;
 		}
 
@@ -121,26 +129,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String batteryInverter_id() {
-		return this.builder.batteryInverterId;
-	}
-
-	@Override
-	public String batteryInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.batteryInverter_id());
-	}
-
-	@Override
-	public String battery_id() {
-		return this.builder.batteryId;
-	}
-
-	@Override
-	public String battery_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
-	}
-
-	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -161,6 +149,31 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public StartStopConfig startStop() {
+		return this.builder.startStop;
+	}
+
+	@Override
+	public DeviceType DeviceType() {
+		return this.builder.deviceType;
+	}
+
+	@Override
+	public int dcFeedInThreshold() {
+		return this.builder.dcFeedInThreshold;
+	}
+
+	@Override
+	public int maxChargePower() {
+		return this.builder.maxChargePower;
+	}
+
+	@Override
+	public int maxDischargePower() {
+		return this.builder.maxDischargePower;
+	}
+
+	@Override
 	public boolean debugMode() {
 		return this.builder.debugMode;
 	}
@@ -168,16 +181,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean readOnlyMode() {
 		return this.builder.readOnlyMode;
-	}
-
-	@Override
-	public int capacity() {
-		return this.builder.capacity;
-	}
-
-	@Override
-	public int maxApparentPower() {
-		return this.builder.maxApparentPower;
 	}
 
 }

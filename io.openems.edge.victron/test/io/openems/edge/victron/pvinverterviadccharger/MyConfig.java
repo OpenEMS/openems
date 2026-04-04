@@ -1,6 +1,7 @@
-package io.openems.edge.victron.battery;
+package io.openems.edge.victron.pvinverterviadccharger;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
@@ -10,8 +11,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String alias;
 		private boolean enabled;
+		private MeterType type;
 		private String modbusId;
-		private boolean debugMode;
+		private int modbusUnitId;
 
 		private Builder() {
 		}
@@ -31,13 +33,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setType(MeterType type) {
+			this.type = type;
+			return this;
+		}
+
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
 			return this;
 		}
 
-		public Builder setDebugMode(boolean debugMode) {
-			this.debugMode = debugMode;
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -78,6 +85,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public MeterType type() {
+		return this.builder.type;
+	}
+
+	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -88,8 +100,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean debugMode() {
-		return this.builder.debugMode;
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 
 }

@@ -34,8 +34,6 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.type.Phase.SinglePhase;
-import io.openems.edge.victron.battery.VictronBattery;
-import io.openems.edge.victron.batteryinverter.VictronBatteryInverter;
 import io.openems.edge.victron.enums.ActiveInactive;
 import io.openems.edge.victron.enums.ActiveInputSource;
 import io.openems.edge.victron.enums.Alarm;
@@ -1142,34 +1140,6 @@ public interface VictronEss extends OpenemsComponent, EventHandler, ModbusCompon
 	public default IntegerReadChannel getUseableSocChannel() {
 		return this.channel(ChannelId.USEABLE_SOC);
 	}
-
-	/**
-	 * Sets the battery inverter reference.
-	 *
-	 * @param batteryInverter the {@link VictronBatteryInverter}
-	 */
-	public void setBatteryInverter(VictronBatteryInverter batteryInverter);
-
-	/**
-	 * Unsets the battery inverter reference.
-	 *
-	 * @param batteryInverter the {@link VictronBatteryInverter}
-	 */
-	public void unsetBatteryInverter(VictronBatteryInverter batteryInverter);
-
-	/**
-	 * Sets the battery reference.
-	 *
-	 * @param battery the {@link VictronBattery}
-	 */
-	public void setBattery(VictronBattery battery);
-
-	/**
-	 * Unsets the battery reference.
-	 *
-	 * @param battery the {@link VictronBattery}
-	 */
-	public void unsetBattery(VictronBattery battery);
 
 	/**
 	 * Gets the phase the ESS is connected to.
