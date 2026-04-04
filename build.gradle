@@ -63,6 +63,20 @@ subprojects {
 			junitXml.required = false
 		}
 
+		// Avoid Mockito inline self-attach warning on newer JDKs by passing Mockito as javaagent.
+		doFirst {
+			def mockitoAgentJar = classpath?.files?.find { file ->
+				file.name.startsWith('mockito-core-') && file.name.endsWith('.jar')
+			}
+			if (mockitoAgentJar != null) {
+				def agentArg = "-javaagent:${mockitoAgentJar.absolutePath}"
+				if (!((jvmArgs ?: []).contains(agentArg))) {
+					jvmArgs(agentArg)
+				}
+			}
+		}
+
+
 		if (isCI) {
 			testLogging {
 				events = ["failed"]

@@ -17,6 +17,7 @@ import static io.openems.edge.energy.optimizer.app.PlotUtils.plotGlobalOptimizat
 import static java.time.Duration.ofSeconds;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -106,19 +107,10 @@ public final class AppUtils {
 	 */
 	public static JsonSerializer<GlobalOptimizationContext> globalOptimizationContextSerializer() {
 		return jsonObjectSerializer(GlobalOptimizationContext.class, json -> {
-			final var grid = json.getObject("grid", Grid.serializer());
-			final var meta = new DummyMeta() //
-					.withGridBuyHardLimit(grid.maxBuyPower()) //
-					.withGridSellHardLimit(grid.maxSellPower()) //
-					.withGridBuySoftLimit(grid.gridBuySoftLimit());
-			final var ess = json.getObject("ess", Ess.serializer());
-			final var sum = new DummySum() //
-					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
-					.withEssCapacity(ess.totalEnergy()) //
-					.withEssMaxDischargePower(ess.maxDischargePower()) //
-					.withEssMinDischargePower(-ess.maxChargePower());
-
 			// Periods: Predictions and Prices
+			final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
+					ZoneId.of(json.getString("zone")));
+			final Clock clock;
 			final TimeOfUseTariff timeOfUseTariff;
 			final PredictorManager predictorManager;
 			final ComponentManager componentManager;
@@ -126,8 +118,7 @@ public final class AppUtils {
 				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
 				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
-				final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
-						ZoneId.of(json.getString("zone")));
+
 				json.getJsonArray("periods").forEach(e -> {
 					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
 					var time = timeParser.apply(p);
@@ -141,9 +132,8 @@ public final class AppUtils {
 									PeriodDuration.QUARTER.convertEnergyToPower(consumption)));
 				});
 
-				final var clock = new TimeLeapClock(timeParser.getFirst());
+				clock = new TimeLeapClock(timeParser.getFirst());
 				componentManager = new DummyComponentManager(clock);
-
 				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
 				predictorManager = new DummyPredictorManager(//
 						new DummyPredictor("predictor0", componentManager, //
@@ -162,6 +152,19 @@ public final class AppUtils {
 				var source = j.getNullableJsonObjectPath("source").getOrNull();
 				return EnergySchedulerTestUtils.createFromJson(parentFactoryPid, parentId, source);
 			});
+
+			// Header data
+			final var grid = json.getObject("grid", Grid.serializer(clock));
+			final var meta = new DummyMeta() //
+					.withGridBuyHardLimit(grid.maxBuyPower()) //
+					.withGridSellHardLimit(grid.maxSellPower()) //
+					.withGridBuySoftLimit(grid.gridBuySoftLimit());
+			final var ess = json.getObject("ess", Ess.serializer());
+			final var sum = new DummySum() //
+					.withEssSoc(ess.currentEnergy() * 100 / ess.totalEnergy()) //
+					.withEssCapacity(ess.totalEnergy()) //
+					.withEssMaxDischargePower(ess.maxDischargePower()) //
+					.withEssMinDischargePower(-ess.maxChargePower());
 
 			final var eshs = controllers.stream() //
 					.map(EnergySchedulable::getEnergyScheduleHandler) //

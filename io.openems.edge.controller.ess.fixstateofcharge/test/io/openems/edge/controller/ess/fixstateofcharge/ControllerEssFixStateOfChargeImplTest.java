@@ -48,7 +48,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(false) //
@@ -79,7 +79,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -135,7 +135,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", timedata) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -202,7 +202,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -245,7 +245,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -288,7 +288,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -399,7 +399,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -476,7 +476,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -558,7 +558,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -642,7 +642,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -730,7 +730,7 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(FixStateOfChargeConfig.create() //
+				.activate(MyConfigFixStateOfCharge.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //

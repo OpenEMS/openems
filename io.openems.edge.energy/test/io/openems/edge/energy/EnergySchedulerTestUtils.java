@@ -1,5 +1,8 @@
 package io.openems.edge.energy;
 
+import static io.openems.common.test.TestUtils.createDummyClock;
+
+import java.time.Clock;
 import java.time.LocalTime;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -21,6 +24,8 @@ public class EnergySchedulerTestUtils {
 
 	private EnergySchedulerTestUtils() {
 	}
+
+	private static final Clock CLOCK = createDummyClock();
 
 	public static enum Controller {
 		ESS_EMERGENCY_CAPACITY_RESERVE("Controller.Ess.EmergencyCapacityReserve",
@@ -46,8 +51,9 @@ public class EnergySchedulerTestUtils {
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config.serializer())),
 		EVSE_CLUSTER("Evse.Controller.Cluster",
 				new Factory<io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig>(
-						io.openems.edge.controller.evse.cluster.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer()));
+						(comp, conf) -> io.openems.edge.controller.evse.cluster.EnergyScheduler
+								.buildEnergyScheduleHandler(comp, () -> CLOCK, conf),
+						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK)));
 
 		public final String factoryPid;
 		public final Factory<?> factory;

@@ -30,8 +30,7 @@ public class TouOctopusGoTest {
 		this.clock = TestUtils.createDummyClock();
 
 		// Setup Octopus Go schedule
-		final var schedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(this.clock) //
+		final var schedule = JSCalendar.Tasks.<Double>create(this.clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(0, 0)) //
 						.setDuration(Duration.ofHours(5)) //

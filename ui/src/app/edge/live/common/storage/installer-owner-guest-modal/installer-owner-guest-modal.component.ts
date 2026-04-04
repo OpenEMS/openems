@@ -97,6 +97,7 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
             if (this.hasRequiredEdgeVersion) {
                 channelAddresses.push(new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"));
             }
+
             for (const essId in prepareBatteryExtensionCtrl) {
                 const controller = prepareBatteryExtensionCtrl[essId];
                 channelAddresses.push(
@@ -108,6 +109,15 @@ export class InstallerOwnerGuestStorageModalComponent implements OnInit, OnDestr
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
                 );
             }
+
+            for (const essId in emergencyReserveCtrl) {
+                const controller = emergencyReserveCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyIsReserveSocEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyReserveSoc"),
+                );
+            }
+
             this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
 
             this.edge.currentData

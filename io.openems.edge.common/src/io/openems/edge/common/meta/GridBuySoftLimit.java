@@ -1,5 +1,7 @@
 package io.openems.edge.common.meta;
 
+import java.time.Clock;
+
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
@@ -25,9 +27,10 @@ public record GridBuySoftLimit(int power) {
 	 * Returns a {@link JsonSerializer} for a {@link JSCalendar.Tasks} of
 	 * {@link GridBuySoftLimit GridBuySoftLimits}.
 	 *
+	 * @param clock the {@link Clock}
 	 * @return the created {@link JsonSerializer}
 	 */
-	public static JsonSerializer<JSCalendar.Tasks<GridBuySoftLimit>> tasksSerializer() {
-		return JSCalendar.Tasks.serializer(GridBuySoftLimit.serializer());
+	public static JsonSerializer<JSCalendar.Tasks<GridBuySoftLimit>> tasksSerializer(Clock clock) {
+		return JSCalendar.Tasks.serializer(clock, GridBuySoftLimit.serializer());
 	}
 }

@@ -1,6 +1,7 @@
 package io.openems.common.jscalendar;
 
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,6 @@ import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.type.QueryHistoricTimeseriesData;
-import io.openems.common.utils.JsonUtils;
 
 /**
  * Gets the next {@link OneTask}s.
@@ -100,7 +100,7 @@ public class GetOneTasks<PAYLOAD> implements EndpointRequestType<Request, Respon
 						json.getZonedDateTime("from"), //
 						json.getZonedDateTime("to")); //
 			}, obj -> {
-				return JsonUtils.buildJsonObject() //
+				return buildJsonObject() //
 						.addProperty("from", obj.from()) //
 						.addProperty("to", obj.to()) //
 						.build();
@@ -136,7 +136,7 @@ public class GetOneTasks<PAYLOAD> implements EndpointRequestType<Request, Respon
 			return JsonSerializerUtil.<Response<PAYLOAD>>jsonObjectSerializer(//
 					json -> new Response<PAYLOAD>(//
 							json.getObject("oneTasks", OneTasks.serializer(payloadSerializer))),
-					obj -> JsonUtils.buildJsonObject() //
+					obj -> buildJsonObject() //
 							.add("oneTasks", OneTasks.serializer(payloadSerializer).serialize(obj.oneTasks)) //
 							.build());
 		}

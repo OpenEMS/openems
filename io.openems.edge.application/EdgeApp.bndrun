@@ -25,8 +25,9 @@
 	org.apache.felix.fileinstall;startlevel=13,\
 	org.ops4j.pax.logging.pax-logging-api;startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=15,\
-	io.openems.core.logger;startlevel=16,\
-	io.openems.edge.application;startlevel=17,\
+	io.openems.core.referencetarget;startlevel=16,\
+	io.openems.core.logger;startlevel=17,\
+	io.openems.edge.application;startlevel=18,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -40,6 +41,7 @@
 	bnd.identity;id='org.apache.felix.fileinstall',\
 	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.core.logger',\
+	bnd.identity;id='io.openems.core.referencetarget',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -236,8 +238,9 @@
 	com.sun.jna;version='[5.18.1,5.18.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
-	io.openems.core.logger;version=snapshot;startlevel=16,\
-	io.openems.edge.application;version=snapshot;startlevel=17,\
+	io.openems.core.logger;version=snapshot;startlevel=17,\
+	io.openems.core.referencetarget;version=snapshot;startlevel=16,\
+	io.openems.edge.application;version=snapshot;startlevel=18,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
 	io.openems.edge.battery.bydcommercial;version=snapshot,\

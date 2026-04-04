@@ -36,7 +36,6 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.utils.DateUtils;
 import io.openems.common.utils.DoubleUtils;
-import io.openems.common.utils.DoubleUtils.DoubleToDoubleFunction;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.common.meta.Meta;
@@ -69,8 +68,8 @@ public class GocUtils {
 				Integer production, Integer consumption, //
 				Double price) {
 			protected Period.Quarter toPeriodQuarter(Environment environment, int index,
-					DoubleToDoubleFunction normalizePrice) {
-				final var price = toPrice(this.price, normalizePrice);
+					Function<Double, Price> priceFactory) {
+				final var price = priceFactory.apply(this.price);
 				final var prediction = toPrediction(this.production, this.consumption, environment, price);
 
 				if (prediction != null && price != null) {
@@ -166,11 +165,6 @@ public class GocUtils {
 							(int) Math.round(consumption * factor));
 		}
 
-		private static Price toPrice(Double value, DoubleToDoubleFunction normalizer) {
-			return value == null ? null //
-					: new Price(value, normalizer.apply(value));
-		}
-
 		public Periods build() {
 			if (this.tmpPeriods.isEmpty()) {
 				return Periods.empty();
@@ -180,14 +174,18 @@ public class GocUtils {
 
 			final var priceMin = getOrNull(this.tmpPeriods.stream() //
 					.map(TmpPeriod::price) //
+					.filter(Objects::nonNull) //
 					.mapToDouble(Double::doubleValue) //
 					.min());
 			final var priceMax = getOrNull(this.tmpPeriods.stream() //
 					.map(TmpPeriod::price) //
+					.filter(Objects::nonNull) //
 					.mapToDouble(Double::doubleValue) //
 					.max());
-			final DoubleToDoubleFunction normalizePrice = p -> {
-				return DoubleUtils.normalize(p, priceMin, priceMax, 0, 1, false);
+			final Function<Double, Price> priceFactory = price -> {
+				return price != null && priceMin != null && priceMax != null //
+						? new Price(price, DoubleUtils.normalize(price, priceMin, priceMax, 0, 1, false)) //
+						: null;
 			};
 
 			final var periods = ImmutableList.<Period>builder();
@@ -196,7 +194,7 @@ public class GocUtils {
 				if (i < periodLengthHourFromIndex) {
 					// Add QUARTER
 					final var tp = this.tmpPeriods.get(i);
-					final Period.Quarter p = tp.toPeriodQuarter(this.environment, i, normalizePrice);
+					final Period.Quarter p = tp.toPeriodQuarter(this.environment, i, priceFactory);
 					periods.add(p);
 					i += 1;
 
@@ -207,7 +205,7 @@ public class GocUtils {
 						var index = i + j;
 						if (index < this.tmpPeriods.size()) {
 							var tp = this.tmpPeriods.get(index);
-							qpb.add(tp.toPeriodQuarter(this.environment, j, normalizePrice));
+							qpb.add(tp.toPeriodQuarter(this.environment, j, priceFactory));
 						}
 					}
 					final var quarterPeriods = qpb.build();
@@ -229,12 +227,13 @@ public class GocUtils {
 							.map(Period.WithPrediction::prediction) //
 							.map(Prediction::consumptionPredicted) //
 							.reduce(Integer::sum).orElse(null);
-					final var price = toPrice(getOrNull(quarterPeriods.stream() //
-							.filter(Period.WithPrice.class::isInstance) //
-							.map(Period.WithPrice.class::cast) //
-							.map(Period.WithPrice::price) //
-							.mapToDouble(Price::actual) //
-							.average()), normalizePrice);
+					final var price = priceFactory.apply(//
+							getOrNull(quarterPeriods.stream() //
+									.filter(Period.WithPrice.class::isInstance) //
+									.map(Period.WithPrice.class::cast) //
+									.map(Period.WithPrice::price) //
+									.mapToDouble(Price::actual) //
+									.average()));
 					final var prediction = toPrediction(production, consumption, this.environment, price);
 
 					final var j = periodLengthHourFromIndex + (i - periodLengthHourFromIndex) / 4;

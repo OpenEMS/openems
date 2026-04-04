@@ -28,7 +28,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.types.MeterType;
-import io.openems.edge.common.channel.calculate.CalculateAverage;
 import io.openems.edge.common.channel.calculate.CalculateIntegerSum;
 import io.openems.edge.common.channel.calculate.CalculateLongSum;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -51,7 +50,7 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.api.TariffManager;
 
 @Designate(ocd = Config.class, factory = false)
 @Component(//
@@ -70,6 +69,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 
 	@Reference
 	private ComponentManager componentManager;
+
+	@Reference
+	private TariffManager tariffManager;
 
 	protected final CalculateEnergyFromPower calculateProductionToConsumptionEnergy = new CalculateEnergyFromPower(this,
 			Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_ENERGY);
@@ -205,7 +207,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var gridActivePowerL1 = new CalculateIntegerSum();
 		final var gridActivePowerL2 = new CalculateIntegerSum();
 		final var gridActivePowerL3 = new CalculateIntegerSum();
-		final var gridBuyPrice = new CalculateAverage();
 		final var gridBuyActiveEnergy = new CalculateLongSum();
 		final var gridSellActiveEnergy = new CalculateLongSum();
 
@@ -339,13 +340,6 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 				productionDcActiveEnergy.addValue(charger.getActualEnergyChannel());
 			}
 
-			/*
-			 * Time-of-Use-Tariff
-			 */
-			case TimeOfUseTariff tou -> {
-				gridBuyPrice.addValue(tou.getPrices().getFirst());
-			}
-
 			default -> doNothing();
 			}
 		}
@@ -394,7 +388,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		setValue(this, Sum.ChannelId.GRID_ACTIVE_POWER_L2, gridActivePowerL2Sum);
 		final var gridActivePowerL3Sum = gridActivePowerL3.calculate();
 		setValue(this, Sum.ChannelId.GRID_ACTIVE_POWER_L3, gridActivePowerL3Sum);
-		setValue(this, Sum.ChannelId.GRID_BUY_PRICE, gridBuyPrice.calculate());
+		setValue(this, Sum.ChannelId.GRID_BUY_PRICE, this.tariffManager.getGridBuyDayAheadPrices().getFirst());
 
 		final var gridBuyActiveEnergySum = this.energyValuesHandler.setValue(//
 				Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, gridBuyActiveEnergy.calculate());

@@ -109,4 +109,9 @@ public class ControllerEssPrepareBatteryExtensionImpl extends AbstractFixStateOf
 	public ConfigurationAdmin getConfigurationAdmin() {
 		return this.cm;
 	}
+
+	@Override
+	public boolean isReferenceCycleEnabled() {
+		return true;
+	}
 }

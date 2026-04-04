@@ -1,15 +1,15 @@
 <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
 @if (chartTitle) {
-  <table class="full_width">
+<table class="full_width">
     <tr>
-      <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
+        <td style="width: 100%" class="ion-padding">{{chartTitle}}</td>
     </tr>
-  </table>
+</table>
 }
-<div [style.height]="(viewHeight !== null ? viewHeight : getChartHeight()) + 'vh'" id="chart-area"
-  class="semi-transparent-background">
-  <ngx-spinner [name]="spinnerId"></ngx-spinner>
-  @if (!loading) {
+<div [style.height]="(viewHeight !== null ? viewHeight : getChartHeight()) + 'dvh'" id="chart-area"
+    class="semi-transparent-background">
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    @if (!loading) {
     <canvas baseChart [datasets]="datasets" [labels]="labels" [options]="options" [type]="chartType"></canvas>
-  }
+    }
 </div>

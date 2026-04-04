@@ -267,4 +267,9 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		return this.websocket.sendRequest(request);
 	}
 
+	@Override
+	public String debugLog() {
+		return this.websocket.debugLog();
+	}
+
 }

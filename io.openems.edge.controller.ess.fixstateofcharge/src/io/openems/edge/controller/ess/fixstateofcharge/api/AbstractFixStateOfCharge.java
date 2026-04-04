@@ -40,6 +40,7 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.fixstateofcharge.ConfigFixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.Context;
+import io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
@@ -56,6 +57,12 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 
 	// Configured TargetTime as ZonedDateTime
 	private ZonedDateTime targetDateTime;
+	// Reference-cycle target (0 or 100) persisted across ticks
+	private ReferenceCycleTarget referenceCycleTarget;
+	// Reference-cycle pause start timestamp in ms (epoch), persisted across ticks
+	private Long referenceCyclePauseStartMs;
+	// Last target power persisted across ticks for dead band and state transitions
+	private Float lastTargetPower;
 
 	/**
 	 * Default power factor is applied to the maximum allowed charge power of the
@@ -181,7 +188,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			return null;
 		}
 
-		var context = new Context(this, this.config, this.getSum(), maxApparentPower.get(), socToUse,
+		var context = new Context(this, this.config, maxApparentPower.get(), socToUse,
 				this.config.getTargetSoc(), this.targetDateTime, this.getComponentManager().getClock());
 		try {
 			this.stateMachine.run(context);
@@ -590,6 +597,63 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 
 		// ReqiredTime in seconds
 		return remainingCapacity / power;
+	}
+
+	public ReferenceCycleTarget getReferenceCycleTarget() {
+		return this.referenceCycleTarget;
+	}
+
+	public void setReferenceCycleTarget(ReferenceCycleTarget referenceCycleTarget) {
+		this.referenceCycleTarget = referenceCycleTarget;
+	}
+
+	/**
+	 * Clear the reference cycle target.
+	 */
+	public void clearReferenceCycleTarget() {
+		this.referenceCycleTarget = null;
+	}
+
+	/**
+	 * Get the reference cycle pause start timestamp in ms (epoch).
+	 *
+	 * @return reference cycle pause start timestamp in ms (epoch)
+	 */
+	public Long getReferenceCyclePauseStartMs() {
+		return this.referenceCyclePauseStartMs;
+	}
+
+	/**
+	 * Set the reference cycle pause start timestamp in ms (epoch).
+	 *
+	 * @param referenceCyclePauseStartMs timestamp in ms (epoch)
+	 */
+	public void setReferenceCyclePauseStartMs(Long referenceCyclePauseStartMs) {
+		this.referenceCyclePauseStartMs = referenceCyclePauseStartMs;
+	}
+
+	/**
+	 * Clear the reference cycle pause start timestamp.
+	 */
+	public void clearReferenceCyclePauseStart() {
+		this.referenceCyclePauseStartMs = null;
+	}
+
+	public Float getLastTargetPower() {
+		return this.lastTargetPower;
+	}
+
+	public void setLastTargetPower(Float lastTargetPower) {
+		this.lastTargetPower = lastTargetPower;
+	}
+
+	/**
+	 * Determines whether the reference cycle should be executed.
+	 *
+	 * @return true if reference cycle is enabled, false otherwise
+	 */
+	public boolean isReferenceCycleEnabled() {
+		return false;
 	}
 
 }

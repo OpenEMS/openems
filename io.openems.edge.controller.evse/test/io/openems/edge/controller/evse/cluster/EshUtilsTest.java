@@ -2,10 +2,12 @@ package io.openems.edge.controller.evse.cluster;
 
 import static io.openems.edge.energy.api.test.DummyGlobalOptimizationContext.CLOCK;
 import static io.openems.edge.energy.api.test.DummyGlobalOptimizationContext.TIME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.ZonedDateTime;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -25,7 +27,7 @@ public class EshUtilsTest {
 
 	@Test
 	public void test() throws OpenemsNamedException {
-		var tasks = JSCalendar.Tasks.serializer(Payload.serializer()).deserialize("""
+		var tasks = JSCalendar.Tasks.serializer(CLOCK, Payload.serializer()).deserialize("""
 				[
 				   {
 				      "@type":"Task",
@@ -46,7 +48,8 @@ public class EshUtilsTest {
 				""");
 		var params = new Params("ctrl0", null, null, 0, 0, null, null, null, false, null, tasks);
 		var clusterEshConfig = new ClusterEshConfig(null, ImmutableMap.of("ctrl0", params));
-		var goc = new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
+		var goc = new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(),
+				ImmutableList.of(), //
 				new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 				GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
@@ -58,11 +61,19 @@ public class EshUtilsTest {
 						.add(TIME.plusMinutes(75), null, 500, 200, 122.) //
 						.add(TIME.plusMinutes(90), null, 600, 100, 121.) //
 						.add(TIME.plusMinutes(105), null, 700, 0, 121.) //
+						.add(TIME.plusMinutes(120), null, 800, 0, 121.) //
 						.build());
 
 		var t = EshUtils.parseTasks(goc, clusterEshConfig);
-		assertEquals(Mode.FORCE, t.a().get("ctrl0", ZonedDateTime.parse("2020-01-01T01:30Z")));
+		var iterator = t.a().row("ctrl0").entrySet().iterator();
+		assertOneTask(iterator.next(), "2020-01-01T01:30Z", "FORCE");
+		assertOneTask(iterator.next(), "2020-01-01T01:45Z", "FORCE");
+		assertFalse(iterator.hasNext());
 		assertTrue(t.b().isEmpty());
 	}
 
+	private static void assertOneTask(Entry<ZonedDateTime, Mode> entry, String timestamp, String mode) {
+		assertEquals(timestamp, entry.getKey().toString());
+		assertEquals(mode, entry.getValue().toString());
+	}
 }

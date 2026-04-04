@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.modbus;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import java.time.Clock;
 
 import io.openems.common.test.AbstractComponentConfig;
@@ -120,11 +118,6 @@ public class MyTcpConfig extends AbstractComponentConfig
 	@Override
 	public int maxConcurrentConnections() {
 		return this.builder.maxConcurrentConnections;
-	}
-
-	@Override
-	public String Component_target() {
-		return generateReferenceTargetFilter(this.id(), false, this.component_ids());
 	}
 
 	@Override
