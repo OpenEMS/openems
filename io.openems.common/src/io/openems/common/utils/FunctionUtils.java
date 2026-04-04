@@ -1,5 +1,6 @@
 package io.openems.common.utils;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -303,6 +304,41 @@ public final class FunctionUtils {
 	public static <T> T apply(T object, Consumer<T> applyToObject) {
 		applyToObject.accept(object);
 		return object;
+	}
+
+	/**
+	 * Runs the given function in a separate thread and cancels the execution after timeout is reached.
+	 * When timeout is reached, the executed function is interrupted and we wait 1 sec for the interrupt to finish.
+	 *
+	 * @param name Thread name
+	 * @param timeoutMillis Timeout in milliseconds
+	 * @param func Function to call
+	 * @return Result
+	 * @throws InterruptedException Thrown if the current thread is interrupted while waiting for function execution
+	 */
+	public static RunWithTimeoutResult runWithTimeout(String name, long timeoutMillis, Runnable func)
+			throws InterruptedException {
+		Thread thread = Thread.ofVirtual().name(name).start(func);
+		thread.join(timeoutMillis);
+
+		if (thread.isAlive()) {
+			var stacktrace = Arrays.toString(thread.getStackTrace());
+
+			thread.interrupt();
+			thread.join(1_000L);
+
+			return new RunWithTimeoutResult.TimeoutReached(stacktrace);
+		} else {
+			return new RunWithTimeoutResult.Success();
+		}
+	}
+
+	public static sealed interface RunWithTimeoutResult {
+		public record Success() implements RunWithTimeoutResult {
+		}
+
+		public record TimeoutReached(String stacktrace) implements RunWithTimeoutResult {
+		}
 	}
 
 	private FunctionUtils() {
