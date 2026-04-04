@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy, signal } from "@angular/core";
+import { Component, effect, model, OnDestroy, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
@@ -29,7 +29,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public loggedInUserCanInstall: boolean = false;
 
     public form: FormGroup;
-    public filteredEdges: Edge[] = [];
+    public filteredEdges = model<Edge[]>([]);
 
     protected loading = signal(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
@@ -59,7 +59,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         private platform: Platform,
     ) {
 
-        effect(() => {
+        effect(async () => {
             const user = this.userService.currentUser();
             if (user) {
                 this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
@@ -69,7 +69,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
                     ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
                 ];
-                this.loadNextPage();
+                this.filteredEdges.set(await this.loadNextPage());
             }
         });
     }
@@ -86,8 +86,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     ionViewWillLeave() {
-        this.filteredEdges = [];
+        this.filteredEdges.set([]);
         this.sub?.unsubscribe();
+        this.page = 0;
+        this.limitReached = false;
         this.ngOnDestroy();
     }
 
@@ -100,7 +102,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         setTimeout(() => {
             this.page++;
             this.loadNextPage().then((edges) => {
-                this.filteredEdges.push(...edges);
+                this.filteredEdges.update(el => { el.push(...edges); return el; });
                 infiniteScroll.target.complete();
             }).catch(() => {
                 infiniteScroll.target.complete();
@@ -137,6 +139,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
             this.service.getEdges(req)
                 .then((edges) => {
+
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
 
@@ -169,12 +172,13 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             this.searchParams = searchParams;
         }
 
-        this.filteredEdges = [];
+        this.filteredEdges.set([]);
+
         this.page = 0;
         this.limitReached = false;
 
         this.loadNextPage().then((edges) => {
-            this.filteredEdges = edges;
+            this.filteredEdges.set(edges);
         });
     }
 }
