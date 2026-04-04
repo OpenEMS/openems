@@ -19,7 +19,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
@@ -32,7 +32,7 @@ import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
 
-public class ControllerEssFixStateOfChargeImplTest {
+class ControllerEssPrepareBatteryExtensionImplTest {
 
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0") //
 			.withMaxApparentPower(10_000);
@@ -42,13 +42,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testNotRunning() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("sum", new DummySum()) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(false) //
@@ -73,13 +73,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testAllStates() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2023-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -102,6 +102,14 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 21) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 20) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 20) //
 						.output(STATE_MACHINE, State.BELOW_TARGET_SOC)) //
@@ -129,13 +137,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 		timedata.add(start.plusMinutes(60), CTRL_ESS_CAPACITY, 8_000);
 		timedata.add(start.plusMinutes(90), CTRL_ESS_CAPACITY, 8_000);
 
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", timedata) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -159,6 +167,14 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", SOC, 21) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
 				.next(new TestCase() //
+						.input("ess0", SOC, 20) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
+				.next(new TestCase()).next(new TestCase() //
 						.input("ess0", SOC, 20) //
 						.output(STATE_MACHINE, State.BELOW_TARGET_SOC)) //
 				.next(new TestCase() //
@@ -196,13 +212,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testAboveLimit() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -215,19 +231,29 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.setEndCondition(CAPACITY_CHANGED) //
 						.build())
 				.next(new TestCase() //
-						.input("ess0", SOC, 50) //
+						.input("ess0", SOC, 80) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.IDLE)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 50) //
+						.input("ess0", SOC, 80) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.IDLE)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 50) //
+						.input("ess0", SOC, 80) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 50) //
+						.input("ess0", SOC, 80) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 100) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
+				.next(new TestCase() //
+						.input("ess0", SOC, 100) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.ABOVE_TARGET_SOC) //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 500) //
@@ -239,13 +265,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testBelowLimit() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2022-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -271,6 +297,15 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 10) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase().timeleap(clock, 30, MINUTES))//
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.BELOW_TARGET_SOC) //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, -500) //
@@ -282,13 +317,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testAtLimit() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -312,6 +347,16 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", SOC, 10) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 10) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 10) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
@@ -393,13 +438,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 	@Test
 	public void testAtLimitDeadBand() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.UTC);
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -427,7 +472,17 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
-						.output(STATE_MACHINE, State.AT_TARGET_SOC) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
+				.next(new TestCase() //
+						.input("ess0", SOC, 30) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.BELOW_TARGET_SOC) //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 0) //
 						.output(DEBUG_SET_ACTIVE_POWER_RAW, 0) //
 						.output(DEBUG_SET_ACTIVE_POWER, 0)) //
@@ -470,13 +525,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 		/*
 		 * Below target SoC
 		 */
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -500,6 +555,18 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", SOC, 20) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 20) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 20) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
@@ -552,13 +619,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 		/*
 		 * Above target SoC
 		 */
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -571,17 +638,27 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.setEndCondition(CAPACITY_CHANGED) //
 						.build())
 				.next(new TestCase() //
-						.input("ess0", SOC, 40) //
+						.input("ess0", SOC, 70) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.IDLE)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 40) //
+						.input("ess0", SOC, 70) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.IDLE)) //
 				.next(new TestCase() //
-						.input("ess0", SOC, 40) //
+						.input("ess0", SOC, 70) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 70) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 100) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 40) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
@@ -632,17 +709,16 @@ public class ControllerEssFixStateOfChargeImplTest {
 
 	@Test
 	public void testLimitWithSpecifiedTimeBelowLimit() throws Exception {
-		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T08:00:00.00Z"), ZoneOffset.ofHours(1));
-		new TimeLeapClock(Instant.parse("2022-10-27T09:00:00.00Z"), ZoneOffset.ofHours(1));
+		final var clock = new TimeLeapClock(Instant.parse("2022-10-27T05:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -668,7 +744,8 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
 
-				// Start time = 2022-10-27T09:14:24+01:00, Current: 2022-10-27T09:00:00+01:00
+				// Start time with reference cycle = ~2022-10-27T07:48:36+01:00, Current:
+				// 2022-10-27T06:00:00+01:00
 				.next(new TestCase() //
 						.input("ess0", SOC, 10) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
@@ -678,42 +755,65 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.output(DEBUG_SET_ACTIVE_POWER_RAW, null) //
 						.output(DEBUG_SET_ACTIVE_POWER, null)) //
 				.next(new TestCase() //
-						.timeleap(clock, 15, MINUTES))//
+						.timeleap(clock, 2, HOURS)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -500)) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
-				.next(new TestCase()) //
+						.timeleap(clock, 5, MINUTES))//
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -5000)) //
+						.input("ess0", SOC, 10) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 30_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 1000) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, 1000) //
+						.output(DEBUG_SET_ACTIVE_POWER, 1000)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 30_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 500) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, 500) //
+						.output(DEBUG_SET_ACTIVE_POWER, 500)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 0) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 30_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 0) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, 0) //
+						.output(DEBUG_SET_ACTIVE_POWER, 0)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 10) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.input("ess0", CAPACITY, 30_000) //
 						.output(STATE_MACHINE, State.BELOW_TARGET_SOC) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -5040) //
-						.output(DEBUG_SET_ACTIVE_POWER_RAW, -5040) //
-						.output(DEBUG_SET_ACTIVE_POWER, -5040)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -500) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, -500) //
+						.output(DEBUG_SET_ACTIVE_POWER, -500)) //
+				.next(new TestCase(), 11) //
+				.next(new TestCase() //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -3286)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 10) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.input("ess0", CAPACITY, 30_000) //
+						.output(STATE_MACHINE, State.BELOW_TARGET_SOC) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -3286) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, -3286) //
+						.output(DEBUG_SET_ACTIVE_POWER, -3286)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
 						.output(STATE_MACHINE, State.AT_TARGET_SOC) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -4040)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -2286)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -3040)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -1286)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -2040)) //
-				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -1040)) //
-				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, -40)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -286)) //
 				.next(new TestCase() //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 0)) //
 				.deactivate();
@@ -724,13 +824,13 @@ public class ControllerEssFixStateOfChargeImplTest {
 		final var clock = new TimeLeapClock(Instant.parse("2022-10-26T22:00:00.00Z"), ZoneOffset.ofHours(1));
 		final var componentManager = new DummyComponentManager(clock);
 
-		new ControllerTest(new ControllerEssFixStateOfChargeImpl()) //
+		new ControllerTest(new ControllerEssPrepareBatteryExtensionImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("ess", ESS) //
-				.activate(MyConfigFixStateOfCharge.create() //
+				.activate(MyConfigPrepareBatteryExtension.create() //
 						.setId("ctrl0") //
 						.setEssId("ess0") //
 						.setRunning(true) //
@@ -771,7 +871,33 @@ public class ControllerEssFixStateOfChargeImplTest {
 				.next(new TestCase() //
 						.timeleap(clock, 7, HOURS)) //
 				.next(new TestCase() //
-						.timeleap(clock, 31, MINUTES)) //
+						.timeleap(clock, 31, MINUTES))//
+				.next(new TestCase() //
+						.input("ess0", SOC, 80) //
+						.input("ess0", CAPACITY, 30_000) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -1000) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, -1000) //
+						.output(DEBUG_SET_ACTIVE_POWER, -1000)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 100) //
+						.input("ess0", CAPACITY, 30_000) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, -500) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, -500) //
+						.output(DEBUG_SET_ACTIVE_POWER, -500)) //
+				.next(new TestCase() //
+						.input("ess0", SOC, 100) //
+						.input("ess0", CAPACITY, 30_000) //
+						.input("ess0", MAX_APPARENT_POWER, 10_000) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 0) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, 0) //
+						.output(DEBUG_SET_ACTIVE_POWER, 0)) //
+				.next(new TestCase() //
+						.timeleap(clock, 30, MINUTES)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 80) //
 						.input("ess0", CAPACITY, 30_000) //
@@ -800,24 +926,26 @@ public class ControllerEssFixStateOfChargeImplTest {
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.input("ess0", CAPACITY, 30_000) //
 						.output(STATE_MACHINE, State.ABOVE_TARGET_SOC) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 5128) //
-						.output(DEBUG_SET_ACTIVE_POWER_RAW, 5128) //
-						.output(DEBUG_SET_ACTIVE_POWER, 5128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 6000) //
+						.output(DEBUG_SET_ACTIVE_POWER_RAW, 6000) //
+						.output(DEBUG_SET_ACTIVE_POWER, 6000)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 30) //
 						.output(STATE_MACHINE, State.AT_TARGET_SOC) //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 4128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 5161)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 3128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 4161)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 2128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 3161)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 1128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 2161)) //
 				.next(new TestCase() //
-						.output("ess0", SET_ACTIVE_POWER_EQUALS, 128)) //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 1161)) //
+				.next(new TestCase() //
+						.output("ess0", SET_ACTIVE_POWER_EQUALS, 161)) //
 				.next(new TestCase() //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 0)) //
 				.deactivate();

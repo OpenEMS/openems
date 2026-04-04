@@ -5,7 +5,7 @@ import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.controller.ess.fixstateofcharge.api.EndCondition;
 
 @SuppressWarnings("all")
-public class FixStateOfChargeConfig extends AbstractComponentConfig implements ConfigFixStateOfCharge {
+public class MyConfigFixStateOfCharge extends AbstractComponentConfig implements ConfigFixStateOfCharge {
 
 	protected static class Builder {
 		private String id;
@@ -28,8 +28,8 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 			return this;
 		}
 
-		public FixStateOfChargeConfig build() {
-			return new FixStateOfChargeConfig(this);
+		public MyConfigFixStateOfCharge build() {
+			return new MyConfigFixStateOfCharge(this);
 		}
 
 		public Builder setEssId(String essId) {
@@ -94,7 +94,7 @@ public class FixStateOfChargeConfig extends AbstractComponentConfig implements C
 
 	private final Builder builder;
 
-	private FixStateOfChargeConfig(Builder builder) {
+	private MyConfigFixStateOfCharge(Builder builder) {
 		super(ConfigFixStateOfCharge.class, builder.id);
 		this.builder = builder;
 	}

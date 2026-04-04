@@ -1,8 +1,11 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge.ChannelId.EXPECTED_START_EPOCH_SECONDS;
 
+import java.time.ZonedDateTime;
+
+import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.fixstateofcharge.api.AbstractFixStateOfCharge;
@@ -10,42 +13,78 @@ import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine
 
 public class NotStartedHandler extends StateHandler<State, Context> {
 
+	private static final long THRESHOLD_SECONDS = 30; // Only update if changed by > 30 seconds
+	private Long lastSetExpectedStartEpochSeconds = null;
+
 	@Override
 	protected State runAndGetNextState(Context context) throws OpenemsNamedException {
-
-		var socState = Context.getSocState(context.soc, context.targetSoc);
-
-		/*
-		 * Switch state if no target time specified or target time already passed
-		 */
-		if (!context.considerTargetTime() || context.passedTargetTime()) {
-			return socState;
+		// Immediate start: no target time configured or target time already passed
+		if (this.shouldStartImmediately(context)) {
+			this.clearExpectedStartEpochSeconds(context);
+			return this.transitionToNextState(context);
 		}
 
-		/*
-		 * Stay in "NotStarted" if there is still enough time left until the target
-		 * time.
-		 */
-		var capacity = context.getParent().getEss().getCapacity().orElse(8_800);
-		var power = Math.round(Math.min(context.maxApparentPower * AbstractFixStateOfCharge.DEFAULT_POWER_FACTOR,
-				capacity * (1f / 3f)));
+		var calculatedStartTime = this.calculateStartTime(context);
+		var currentTime = ZonedDateTime.now(context.clock);
+		var isStillWaiting = calculatedStartTime.isAfter(currentTime);
 
-		var requiredSeconds = AbstractFixStateOfCharge.calculateRequiredTime(context.soc, context.targetSoc, capacity,
-				power, context.clock);
-
-		var startTime = context.getTargetTime().minus(requiredSeconds + context.config.getTargetTimeBuffer() * 60,
-				ChronoUnit.SECONDS);
-
-		// Start time not reached
-		var t = ZonedDateTime.now(context.clock);
-		if (startTime.isAfter(t)) {
-
-			context.getParent()._setExpectedStartEpochSeconds(startTime.toEpochSecond());
+		if (isStillWaiting) {
+			this.updateExpectedStartEpochSecondsIfChanged(context, calculatedStartTime);
 			return State.NOT_STARTED;
 		}
 
-		// Start charging/discharging the system
-		context.getParent()._setExpectedStartEpochSeconds(null);
-		return socState;
+		// Start time reached - begin charging/discharging
+		this.clearExpectedStartEpochSeconds(context);
+		return this.transitionToNextState(context);
+	}
+
+	private boolean shouldStartImmediately(Context context) {
+		return !context.considerTargetTime() || context.passedTargetTime();
+	}
+
+	private ZonedDateTime calculateStartTime(Context context) throws InvalidValueException {
+		var capacity = context.getEssCapacityForEstimationWh();
+		var bufferSeconds = context.config.getTargetTimeBuffer() * 60;
+
+		long requiredSeconds;
+		if (context.getParent().isReferenceCycleEnabled()) {
+			requiredSeconds = ReferenceCycleUtils.calculateRequiredTimeWithReferenceCycle(context);
+		} else {
+			var power = context.getTimeEstimationPowerW(capacity);
+			requiredSeconds = AbstractFixStateOfCharge.calculateRequiredTime(context.soc, context.targetSoc, capacity,
+					power, context.clock);
+		}
+
+		return context.getTargetTime().minusSeconds(requiredSeconds + bufferSeconds);
+	}
+
+	private State transitionToNextState(Context context) {
+		if (context.getParent().isReferenceCycleEnabled()) {
+			return State.REFERENCE_CYCLE;
+		}
+		return Context.getSocState(context.soc, context.targetSoc);
+	}
+
+	private void updateExpectedStartEpochSecondsIfChanged(Context context, ZonedDateTime calculatedStartTime) {
+		var newEpochSeconds = calculatedStartTime.toEpochSecond();
+
+		// If not yet set, always set the first time
+		if (this.lastSetExpectedStartEpochSeconds == null) {
+			setValue(context.getParent(), EXPECTED_START_EPOCH_SECONDS,	newEpochSeconds);
+			this.lastSetExpectedStartEpochSeconds = newEpochSeconds;
+			return;
+		}
+
+		// Only update if the change is significant (> THRESHOLD_SECONDS)
+		var difference = Math.abs(newEpochSeconds - this.lastSetExpectedStartEpochSeconds);
+		if (difference > THRESHOLD_SECONDS) {
+			setValue(context.getParent(), EXPECTED_START_EPOCH_SECONDS, newEpochSeconds);
+			this.lastSetExpectedStartEpochSeconds = newEpochSeconds;
+		}
+	}
+
+	private void clearExpectedStartEpochSeconds(Context context) {
+		setValue(context.getParent(), EXPECTED_START_EPOCH_SECONDS, null);
+		this.lastSetExpectedStartEpochSeconds = null;
 	}
 }
