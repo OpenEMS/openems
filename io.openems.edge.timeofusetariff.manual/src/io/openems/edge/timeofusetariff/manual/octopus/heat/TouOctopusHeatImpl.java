@@ -76,8 +76,7 @@ public class TouOctopusHeatImpl extends AbstractOpenemsComponent
 		}
 
 		final var clock = this.componentManager.getClock();
-		final var heatSchedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(clock) //
+		final var heatSchedule = JSCalendar.Tasks.<Double>create(clock) //
 				.add(t -> t // Lower price from 02:00 to 06:00
 						.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4))//

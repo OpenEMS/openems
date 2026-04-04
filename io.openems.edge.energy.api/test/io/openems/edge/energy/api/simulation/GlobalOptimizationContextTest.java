@@ -47,7 +47,7 @@ public class GlobalOptimizationContextTest {
 	public void before() throws OpenemsNamedException {
 		this.cm = new DummyComponentManager(CLOCK);
 		this.meta = new DummyMeta()//
-				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(CLOCK)//
 						.add(t -> t//
 								.setStart("06:00") //
 								.setDuration(Duration.ofHours(12)) //

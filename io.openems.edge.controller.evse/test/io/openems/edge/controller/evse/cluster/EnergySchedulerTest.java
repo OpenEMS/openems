@@ -41,8 +41,7 @@ public class EnergySchedulerTest {
 		var ctrl2 = createSingleCtrl() //
 				.setId(CTRL_SURPLUS1) //
 				.setMode(Mode.SURPLUS) //
-				.setTasks(JSCalendar.Tasks.<Payload>create() //
-						.setClock(clock) //
+				.setTasks(JSCalendar.Tasks.<Payload>create(clock) //
 						.add(t -> t //
 								.setStart("01:15") //
 								.setDuration(Duration.ofMinutes(15)) //
@@ -65,6 +64,7 @@ public class EnergySchedulerTest {
 
 		var ctrl = new DummyEnergySchedulable<>("Evse.Controller.Cluster", "ctrlEvseCluster0",
 				cmp -> EnergyScheduler.buildEnergyScheduleHandler(cmp, //
+						() -> clock, //
 						() -> EnergyScheduler.ClusterEshConfig.from(//
 								DistributionStrategy.EQUAL_POWER, //
 								ImmutableList.of(ctrl0.getParams(), ctrl1.getParams(), ctrl2.getParams(),

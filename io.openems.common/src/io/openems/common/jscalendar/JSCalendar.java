@@ -90,17 +90,6 @@ public class JSCalendar<PAYLOAD> {
 		 * Returns a {@link JsonSerializer} for {@link Tasks}.
 		 *
 		 * @param <PAYLOAD>         the type of the Payload
-		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static <PAYLOAD> JsonSerializer<Tasks<PAYLOAD>> serializer(JsonSerializer<PAYLOAD> payloadSerializer) {
-			return serializer(Clock.systemDefaultZone(), payloadSerializer);
-		}
-
-		/**
-		 * Returns a {@link JsonSerializer} for {@link Tasks}.
-		 *
-		 * @param <PAYLOAD>         the type of the Payload
 		 * @param clock             the {@link Clock}
 		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
 		 * @return the created {@link JsonSerializer}
@@ -142,17 +131,6 @@ public class JSCalendar<PAYLOAD> {
 		 * Parse a List of {@link Task}s without Payload from a String representing a
 		 * {@link JsonArray} - includes checks for null and empty.
 		 *
-		 * @param string the {@link JsonArray} string
-		 * @return the {@link Tasks} object
-		 */
-		public static Tasks<Void> fromStringOrEmpty(String string) {
-			return fromStringOrEmpty(Clock.systemDefaultZone(), string);
-		}
-
-		/**
-		 * Parse a List of {@link Task}s without Payload from a String representing a
-		 * {@link JsonArray} - includes checks for null and empty.
-		 *
 		 * @param clock  the {@link Clock}
 		 * @param string the {@link JsonArray} string
 		 * @return the {@link Tasks} object
@@ -162,39 +140,21 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		/**
-		 * Parse a List of {@link Task}s from a String representing a {@link JsonArray}
-		 * - includes checks for null and empty.
-		 *
-		 * @param <PAYLOAD>         the type of the Payload
-		 * @param string            the {@link JsonArray} string
-		 * @param payloadSerializer a {@link JsonSerializer} for a Payload
-		 * @return the {@link Tasks} object
-		 */
-		public static <PAYLOAD> Tasks<PAYLOAD> fromStringOrEmpty(String string,
-				JsonSerializer<PAYLOAD> payloadSerializer) {
-			return fromStringOrEmpty(Clock.systemDefaultZone(), string, payloadSerializer);
-		}
-
-		/**
 		 * Creates an empty {@link Tasks} object.
 		 *
 		 * @param <PAYLOAD> the type of the Payload
 		 * @return the {@link Tasks} object
 		 */
 		public static <PAYLOAD> Tasks<PAYLOAD> empty() {
-			return new Tasks<PAYLOAD>(ImmutableList.of());
+			return new Tasks<PAYLOAD>(Clock.systemDefaultZone(), ImmutableList.of());
 		}
 
 		public static class Builder<PAYLOAD> {
+			private final Clock clock;
 			private final ImmutableList.Builder<Task<PAYLOAD>> tasks = ImmutableList.builder();
-			private Clock clock = Clock.systemDefaultZone();
 
-			protected Builder() {
-			}
-
-			public Builder<PAYLOAD> setClock(Clock clock) {
+			protected Builder(Clock clock) {
 				this.clock = clock;
-				return this;
 			}
 
 			/**
@@ -228,11 +188,12 @@ public class JSCalendar<PAYLOAD> {
 		/**
 		 * Create a {@link Tasks} {@link Builder}.
 		 *
+		 * @param clock     the {@link Clock}
 		 * @param <PAYLOAD> the type of the Payload
 		 * @return a {@link Builder}
 		 */
-		public static <PAYLOAD> Builder<PAYLOAD> create() {
-			return new Builder<PAYLOAD>();
+		public static <PAYLOAD> Builder<PAYLOAD> create(Clock clock) {
+			return new Builder<PAYLOAD>(clock);
 		}
 
 		public final Clock clock;
@@ -241,10 +202,6 @@ public class JSCalendar<PAYLOAD> {
 		private final TreeSet<OneTask<PAYLOAD>> oneTasks;
 
 		private OneTask<PAYLOAD> lastActiveOneTask = null;
-
-		private Tasks(ImmutableList<Task<PAYLOAD>> tasks) {
-			this(Clock.systemDefaultZone(), tasks);
-		}
 
 		private Tasks(Clock clock, ImmutableList<Task<PAYLOAD>> tasks) {
 			this.clock = clock;
@@ -415,7 +372,7 @@ public class JSCalendar<PAYLOAD> {
 			if (this.tasks.isEmpty()) {
 				return new JsonArray();
 			}
-			return (JsonArray) JSCalendar.Tasks.serializer(payloadSerializer).serialize(this);
+			return (JsonArray) JSCalendar.Tasks.serializer(this.clock, payloadSerializer).serialize(this);
 		}
 
 		@Override
@@ -652,19 +609,6 @@ public class JSCalendar<PAYLOAD> {
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static <PAYLOAD> JsonSerializer<OneTasks<PAYLOAD>> serializer(
-				JsonSerializer<PAYLOAD> payloadSerializer) {
-			return serializer(Clock.systemDefaultZone(), payloadSerializer);
-		}
-
-		/**
-		 * Returns a {@link JsonSerializer} for {@link OneTasks}.
-		 *
-		 * @param <PAYLOAD>         the type of the Payload
-		 * @param clock             the {@link Clock}
-		 * @param payloadSerializer a {@link JsonSerializer} for the Payload
-		 * @return the created {@link JsonSerializer}
-		 */
-		public static <PAYLOAD> JsonSerializer<OneTasks<PAYLOAD>> serializer(Clock clock,
 				JsonSerializer<PAYLOAD> payloadSerializer) {
 			return JsonSerializerUtil.<OneTasks<PAYLOAD>>jsonArraySerializer(json -> {
 				return new OneTasks<PAYLOAD>(

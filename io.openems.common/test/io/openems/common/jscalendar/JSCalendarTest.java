@@ -84,12 +84,14 @@ public class JSCalendarTest {
 
 	@Test
 	public void testTasks_fromStringOrEmpty() {
-		assertEquals(0, Tasks.fromStringOrEmpty(null).numberOfTasks());
-		assertEquals(0, Tasks.fromStringOrEmpty("").numberOfTasks());
-		assertEquals(0, Tasks.fromStringOrEmpty("  ").numberOfTasks());
-		assertEquals(0, Tasks.fromStringOrEmpty("foo").numberOfTasks());
+		var clock = createDummyClock();
 
-		assertEquals(new JsonArray(), Tasks.fromStringOrEmpty(null).toJson(VOID_SERIALIZER));
+		assertEquals(0, Tasks.fromStringOrEmpty(clock, null).numberOfTasks());
+		assertEquals(0, Tasks.fromStringOrEmpty(clock, "").numberOfTasks());
+		assertEquals(0, Tasks.fromStringOrEmpty(clock, "  ").numberOfTasks());
+		assertEquals(0, Tasks.fromStringOrEmpty(clock, "foo").numberOfTasks());
+
+		assertEquals(new JsonArray(), Tasks.fromStringOrEmpty(clock, null).toJson(VOID_SERIALIZER));
 	}
 
 	@Test
@@ -251,8 +253,7 @@ public class JSCalendarTest {
 	public void testTasks_getOneTasksBetween() {
 		{
 			var clock = createDummyClock();
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("12:15") //
 							.addRecurrenceRule(b -> b //
@@ -345,8 +346,7 @@ public class JSCalendarTest {
 		}
 		{
 			var clock = createDummyClock();
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("11:00") //
 							.setDuration(Duration.ofHours(2)) //
@@ -371,8 +371,7 @@ public class JSCalendarTest {
 		}
 		{
 			var clock = createDummyClock();
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("11:00") //
 							.setDuration(Duration.ofHours(2)) //
@@ -416,8 +415,7 @@ public class JSCalendarTest {
 	public void testTasks_getOneTasksBetween_Monthly() {
 		var clock = createDummyClock();
 		{
-			var tasks = JSCalendar.Tasks.<Void>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<Void>create(clock) //
 					.add(t -> t //
 							.setStart("20:00") //
 							.addRecurrenceRule(b -> b //
@@ -429,8 +427,7 @@ public class JSCalendarTest {
 		}
 		{
 			// Every first Sunday of the month at 8pm
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("20:00") //
 							.addRecurrenceRule(b -> b //
@@ -459,8 +456,7 @@ public class JSCalendarTest {
 		{
 			// ONE on every first Sunday and Tuesday of the month
 			// TWO on every first Thursday
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("20:00") //
 							.addRecurrenceRule(b -> b //
@@ -492,8 +488,7 @@ public class JSCalendarTest {
 		var clock = createDummyClock();
 		{
 			// Every third Sunday of the month at 8pm
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("20:00") //
 							.addRecurrenceRule(b -> b //
@@ -521,8 +516,7 @@ public class JSCalendarTest {
 		}
 		{
 			// Every second Sunday of the month at 10am
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("10:00") //
 							.addRecurrenceRule(b -> b //
@@ -552,8 +546,7 @@ public class JSCalendarTest {
 			// Test various scenarios
 			// Second sunday at 10am, first tuesday at 3 and 6pm
 			// and first monday at 12am
-			var tasks = JSCalendar.Tasks.<StringPayload>create() //
-					.setClock(clock) //
+			var tasks = JSCalendar.Tasks.<StringPayload>create(clock) //
 					.add(t -> t //
 							.setStart("10:00") //
 							.addRecurrenceRule(b -> b //
@@ -653,7 +646,8 @@ public class JSCalendarTest {
 
 	@Test
 	public void testParseSingleTask() throws OpenemsNamedException {
-		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+		var clock = createDummyClock();
+		var sut = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -668,7 +662,8 @@ public class JSCalendarTest {
 
 	@Test
 	public void testDailyParse() {
-		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+		var clock = createDummyClock();
+		var sut = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -686,9 +681,10 @@ public class JSCalendarTest {
 
 	@Test
 	public void testMonthlyParse() {
+		var clock = createDummyClock();
 		// Every first sunday of the month at 8pm
 		// TODO Implement "interval" to support "every third month" etc.
-		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+		var sut = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -710,7 +706,8 @@ public class JSCalendarTest {
 
 	@Test
 	public void testJsonDeserializeAndSerialize() {
-		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+		var clock = createDummyClock();
+		var sut = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -758,7 +755,8 @@ public class JSCalendarTest {
 
 	@Test
 	public void testFallbackParse() {
-		var sut = JSCalendar.Tasks.fromStringOrEmpty("""
+		var clock = createDummyClock();
+		var sut = JSCalendar.Tasks.fromStringOrEmpty(clock, """
 				[
 				   {
 				      "@type":"Task",
@@ -913,8 +911,7 @@ public class JSCalendarTest {
 	@Test
 	public void testTasks_getOneTasksBetween2() {
 		var clock = new TimeLeapClock(createDummyClock().instant(), ZoneId.of("Europe/Berlin"));
-		var tasks = JSCalendar.Tasks.<JsonObject>create() //
-				.setClock(clock) //
+		var tasks = JSCalendar.Tasks.<JsonObject>create(clock) //
 				.add(t -> t //
 						.setStart("1970-01-01T07:30:00") //
 						.addRecurrenceRule(b -> b //
@@ -971,8 +968,7 @@ public class JSCalendarTest {
 	public void testTasks_withXTask() {
 		final var clock = createDummyClock();
 		final var uid0 = randomUUID();
-		final var tasks0 = JSCalendar.Tasks.<StringPayload>create() //
-				.setClock(clock) //
+		final var tasks0 = JSCalendar.Tasks.<StringPayload>create(clock) //
 				.add(t -> t //
 						.setUid(uid0) //
 						.setPayload(new StringPayload("FOO"))) //

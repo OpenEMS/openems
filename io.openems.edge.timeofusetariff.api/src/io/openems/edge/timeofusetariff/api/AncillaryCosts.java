@@ -234,8 +234,7 @@ public class AncillaryCosts {
 		 *         schedule.
 		 */
 		public JSCalendar.Tasks<Double> toSchedule(Clock clock) {
-			final var tasks = JSCalendar.Tasks.<Double>create() //
-					.setClock(clock);
+			final var tasks = JSCalendar.Tasks.<Double>create(clock);
 
 			// Process all DateRanges defined in the GridFee configuration
 			for (var dateRange : this.dateRanges) {
@@ -459,8 +458,7 @@ public class AncillaryCosts {
 	 * @throws OpenemsNamedException on error.
 	 */
 	public static JSCalendar.Tasks<Double> parseSchedule(Clock clock, JsonArray schedule) throws OpenemsNamedException {
-		final var tasks = JSCalendar.Tasks.<Double>create() //
-				.setClock(clock);
+		final var tasks = JSCalendar.Tasks.<Double>create(clock);
 
 		for (var yearData : schedule) {
 			var year = getAsInt(yearData, "year");
