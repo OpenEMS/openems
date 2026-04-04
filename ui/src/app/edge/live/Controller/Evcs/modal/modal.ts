@@ -352,7 +352,7 @@ export class ModalComponent extends AbstractModal {
     */
     private getState(enabledCharging: boolean, state: number, plug: number): string {
 
-        if (enabledCharging === false) {
+        if (this.isReadWrite === true && enabledCharging === false) {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
         }
 
