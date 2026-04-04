@@ -6,6 +6,7 @@ import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angul
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
@@ -143,7 +144,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
 
-                    if ((environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) || (user.hasMultipleEdges === false && edges.length == 1)) {
+                    if (this.shouldRedirectToFirstFems(user, edges)) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
@@ -155,6 +156,16 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 });
         }).finally(() =>
             this.loading.set(false));
+    }
+
+    protected shouldRedirectToFirstFems(user: User, edges: Edge[]): boolean {
+        return (
+            (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) ||
+            (
+                (user.globalRole === "guest" || user.globalRole === "owner") &&
+                (user.hasMultipleEdges === false && edges.length == 1)
+            )
+        );
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
