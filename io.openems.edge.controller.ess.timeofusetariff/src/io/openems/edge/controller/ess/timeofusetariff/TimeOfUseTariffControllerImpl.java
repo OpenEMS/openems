@@ -136,7 +136,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
 				() -> this.config.enabled() && this.config.mode() == Mode.AUTOMATIC //
-						? new EnergyScheduler.Config(this.config.controlMode()) //
+						? new EnergyScheduler.Config(this.config.controlMode(), this.config.balancingGridSetpoint()) //
 						: null);
 		this.applyConfig(config);
 	}
@@ -182,6 +182,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				.map(GridBuySoftLimit::power) //
 				.orElse(this.config.maxChargePowerFromGrid());
 
+		var balancingGridSetpoint = this.config.balancingGridSetpoint();
+
 		// Version and Mode given from the configuration.
 		final var am = switch (this.energyScheduler.getImplementationVersion()) {
 
@@ -191,16 +193,19 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
 						this.sum, this.ess, this.ctrlLimiter14as, //
 						this.config.maxChargePowerFromGrid(), //
+						balancingGridSetpoint, //
 						null /* forceState */);
 			case FORCE_DELAY_DISCHARGE //
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
 						this.sum, this.ess, this.ctrlLimiter14as, //
 						this.config.maxChargePowerFromGrid(), //
+						balancingGridSetpoint, //
 						StateMachine.DELAY_DISCHARGE /* forceState */);
 			case FORCE_CHARGE_GRID //
 				-> UtilsV1.calculateAutomaticMode(this.energyScheduleHandlerV1, //
 						this.sum, this.ess, this.ctrlLimiter14as, //
 						this.config.maxChargePowerFromGrid(), //
+						balancingGridSetpoint, //
 						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);
@@ -211,14 +216,17 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 			case AUTOMATIC //
 				-> calculateAutomaticMode(this.sum, this.ess, //
 						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
+						balancingGridSetpoint, //
 						null /* forceState */);
 			case FORCE_DELAY_DISCHARGE //
 				-> calculateAutomaticMode(this.sum, this.ess, //
 						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
+						balancingGridSetpoint, //
 						StateMachine.DELAY_DISCHARGE /* forceState */);
 			case FORCE_CHARGE_GRID //
 				-> calculateAutomaticMode(this.sum, this.ess, //
 						gridSoftLimit, this.energyScheduleHandler.getCurrentPeriod(), //
+						balancingGridSetpoint, //
 						StateMachine.CHARGE_GRID /* forceState */);
 			case OFF //
 				-> new ApplyMode(StateMachine.BALANCING, null);

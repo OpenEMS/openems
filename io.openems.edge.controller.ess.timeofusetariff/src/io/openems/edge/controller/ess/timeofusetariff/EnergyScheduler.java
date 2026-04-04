@@ -116,9 +116,12 @@ public class EnergyScheduler {
 						ef.setGridMaxBuy(period.gridBuySoftLimit());
 					}
 
+					var schedulerConfig = configSupplier.get();
+					int balancingGridSetpoint = schedulerConfig != null ? schedulerConfig.balancingGridSetpoint() : 0;
+
 					if (isFinalRun) {
 						// This is the final run -> post-process mode
-						mode = postProcessMode(period, gsc, coc, ef, mode);
+						mode = postProcessMode(period, gsc, coc, ef, mode, balancingGridSetpoint);
 					}
 
 					// Disallow mode CHARGE_GRID when ess is full
@@ -127,7 +130,7 @@ public class EnergyScheduler {
 						fitness.addHardConstraintViolation();
 					}
 
-					simulateMode(period, gsc, coc, ef, mode);
+					simulateMode(period, gsc, coc, ef, mode, balancingGridSetpoint);
 					return mode;
 				})
 
@@ -143,9 +146,12 @@ public class EnergyScheduler {
 	}
 
 	private static void simulateMode(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
-			EnergyFlow.Model ef, StateMachine mode) {
+			EnergyFlow.Model ef, StateMachine mode, int balancingGridSetpoint) {
 		switch (mode) {
-		case BALANCING -> applyBalancing(ef);
+		case BALANCING -> {
+			var balancingGridSetpointEnergy = period.duration().convertPowerToEnergy(balancingGridSetpoint);
+			applyBalancing(ef, balancingGridSetpointEnergy);
+		}
 		case DELAY_DISCHARGE -> applyDelayDischarge(ef);
 		case CHARGE_GRID, PEAK_SHAVING -> {
 			var chargeEnergy = min(//
@@ -163,10 +169,13 @@ public class EnergyScheduler {
 	/**
 	 * Simulate {@link EnergyFlow} in {@link StateMachine#BALANCING}.
 	 * 
-	 * @param model the {@link EnergyFlow.Model}
+	 * @param model                       the {@link EnergyFlow.Model}
+	 * @param balancingGridSetpointEnergy the target energy setpoint for grid.
+	 *                                    Positive for buy-from-grid; negative for
+	 *                                    sell-to-grid.
 	 */
-	public static void applyBalancing(EnergyFlow.Model model) {
-		int target = -model.getSurplus();
+	public static void applyBalancing(EnergyFlow.Model model, int balancingGridSetpointEnergy) {
+		int target = -model.getSurplus() - balancingGridSetpointEnergy;
 		model.setEss(target);
 	}
 
@@ -232,13 +241,13 @@ public class EnergyScheduler {
 	}
 
 	private static StateMachine postProcessMode(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
-			EnergyFlow.Model ef, StateMachine mode) {
+			EnergyFlow.Model ef, StateMachine mode, int balancingGridSetpoint) {
 		final var initialMode = mode;
-		var balancing = simulateModeWithCopy(period, gsc, coc, ef, BALANCING);
-		var delayDischarge = simulateModeWithCopy(period, gsc, coc, ef, DELAY_DISCHARGE);
+		var balancing = simulateModeWithCopy(period, gsc, coc, ef, BALANCING, balancingGridSetpoint);
+		var delayDischarge = simulateModeWithCopy(period, gsc, coc, ef, DELAY_DISCHARGE, balancingGridSetpoint);
 
 		if (mode == CHARGE_GRID) {
-			var chargeGrid = simulateModeWithCopy(period, gsc, coc, ef, CHARGE_GRID);
+			var chargeGrid = simulateModeWithCopy(period, gsc, coc, ef, CHARGE_GRID, balancingGridSetpoint);
 			if (chargeGrid.getEss() == balancing.getEss()) {
 				mode = BALANCING;
 			} else if (chargeGrid.getEss() > balancing.getEss()) {
@@ -264,14 +273,14 @@ public class EnergyScheduler {
 	}
 
 	private static EnergyFlow simulateModeWithCopy(Period period, GlobalScheduleContext gsc, OptimizationContext coc,
-			EnergyFlow.Model ef, StateMachine mode) {
+			EnergyFlow.Model ef, StateMachine mode, int balancingGridSetpoint) {
 		var efCopy = EnergyFlow.Model.copyOf(ef);
-		simulateMode(period, gsc, coc, efCopy, mode);
+		simulateMode(period, gsc, coc, efCopy, mode, balancingGridSetpoint);
 		return efCopy.solve();
 	}
 
 	// TODO maxChargePowerFromGrid is not used!
-	public static record Config(ControlMode controlMode) {
+	public static record Config(ControlMode controlMode, int balancingGridSetpoint) {
 
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Config}.
@@ -281,11 +290,13 @@ public class EnergyScheduler {
 		public static JsonSerializer<Config> serializer() {
 			return jsonObjectSerializer(Config.class, json -> {
 				return new Config(//
-						json.getEnum("controlMode", ControlMode.class) //
+						json.getEnum("controlMode", ControlMode.class), //
+						json.getInt("balancingGridSetpoint") // default
 				);
 			}, obj -> {
 				return buildJsonObject() //
 						.addProperty("controlMode", obj.controlMode) //
+						.addProperty("balancingGridSetpoint", obj.balancingGridSetpoint()) //
 						.build();
 			});
 		}
