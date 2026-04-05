@@ -25,5 +25,10 @@ public abstract class AbstractImmediateWorker extends AbstractWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	protected abstract void forever() throws Throwable;
 }

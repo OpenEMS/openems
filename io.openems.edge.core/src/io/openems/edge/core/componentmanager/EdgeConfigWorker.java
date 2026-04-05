@@ -125,6 +125,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	public synchronized void configurationEvent(ConfigurationEvent event) {
 		this.events.offer(event);
 		this.triggerNextRun();

@@ -118,6 +118,11 @@ public class AppSynchronizeWorker extends AbstractWorker {
 		return CYCLE_TIME;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 	/**
 	 * Sets if the last request was a valid response from the backend.
 	 * 

@@ -33,6 +33,11 @@ public class CycleWorker extends AbstractWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	protected void forever() {
 		final var verbosity = this.parent.getLogVerbosity();
 

@@ -30,5 +30,10 @@ public abstract class AbstractCycleWorker extends AbstractWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	protected abstract void forever() throws Throwable;
 }

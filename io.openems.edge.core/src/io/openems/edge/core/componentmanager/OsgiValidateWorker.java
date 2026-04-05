@@ -348,6 +348,11 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	public void configurationEvent(ConfigurationEvent event) {
 		// trigger immediate validation on configuration event
 		this.triggerNextRun();

@@ -108,6 +108,11 @@ public class AppValidateWorker extends AbstractWorker implements ConfigurationLi
 	}
 
 	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+	@Override
 	public void triggerNextRun() {
 		// Reset Cycle-Counter on explicit run
 		this.cycleCountDown = AppValidateWorker.INITIAL_CYCLES;

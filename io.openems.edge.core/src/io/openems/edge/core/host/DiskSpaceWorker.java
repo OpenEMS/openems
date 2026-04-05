@@ -47,4 +47,9 @@ public class DiskSpaceWorker extends AbstractWorker {
 		return CYCLE_TIME;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 }

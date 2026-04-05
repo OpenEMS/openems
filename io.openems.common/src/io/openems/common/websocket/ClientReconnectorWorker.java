@@ -259,6 +259,11 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		return THREAD_CYCLE_MILLIS;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 	/**
 	 * Gets some output that is suitable for a continuous Debug log.
 	 *

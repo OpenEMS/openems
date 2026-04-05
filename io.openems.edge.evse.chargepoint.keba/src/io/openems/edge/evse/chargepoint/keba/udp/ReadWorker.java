@@ -86,6 +86,11 @@ public class ReadWorker extends AbstractWorker {
 		return getCycleTimeLogic(this.lastReport1, this.lastReport2, this.lastReport3, LocalDateTime.now());
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
 	/**
 	 * Calculates the cycletime for given dateTimes.
 	 * 

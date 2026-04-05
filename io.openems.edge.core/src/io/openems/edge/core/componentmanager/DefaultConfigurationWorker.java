@@ -267,4 +267,10 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		return DefaultConfigurationWorker.INITIAL_WAIT_TIME;
 	}
 
+	@Override
+	protected int getMinSleepTime() {
+		return 0;
+	}
+
+
 }
