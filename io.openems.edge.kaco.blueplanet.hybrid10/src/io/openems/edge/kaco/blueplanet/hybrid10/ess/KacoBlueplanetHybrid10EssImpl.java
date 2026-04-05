@@ -418,4 +418,13 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 				ModbusSlaveNatureTable.of(KacoBlueplanetHybrid10Ess.class, accessMode, 100) //
 						.build());
 	}
+
+	@Override
+	public Integer getPvProduction() {
+		var bpData = this.core.getBpData();
+		if (bpData != null) {
+			return Math.round(bpData.inverter.getPvPower());
+		}
+		return null;
+	}
 }

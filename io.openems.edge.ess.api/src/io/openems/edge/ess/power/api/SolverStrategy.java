@@ -13,6 +13,7 @@ public enum SolverStrategy implements OptionsEnum {
 			"Optimize By Keeping Target Direction And Maximizing In Order"), //
 	OPTIMIZE_BY_KEEPING_ALL_EQUAL(3, "Optimize By Keeping All Inverters Equal"),
 	OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL(4, "Optimize By Keeping All Inverters Nearly Equal"), //
+	OPTIMIZE_BY_PREFERRING_DC_POWER(5, "Optimize By Preferring Inverter DC Power"), //
 
 	// Solvers for PowerDistributionHandlerV2
 	BALANCE(10, "Optimize by Keeping ESS in Balance");

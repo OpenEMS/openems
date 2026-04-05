@@ -4,6 +4,7 @@ import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_A
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_MOVING_TOWARDS_TARGET;
+import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_PREFERRING_DC_POWER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import io.openems.edge.ess.core.power.v1.optimizers.KeepAllNearEqual;
 import io.openems.edge.ess.core.power.v1.optimizers.KeepTargetDirectionAndMaximizeInOrder;
 import io.openems.edge.ess.core.power.v1.optimizers.MoveTowardsTarget;
 import io.openems.edge.ess.core.power.v1.optimizers.Optimizers;
+import io.openems.edge.ess.core.power.v1.optimizers.PreferDcPower;
 import io.openems.edge.ess.core.power.v1.solver.ConstraintSolver;
 import io.openems.edge.ess.core.power.v1.solver.PowerTuple;
 import io.openems.edge.ess.power.api.Constraint;
@@ -197,6 +199,14 @@ public class Solver {
 						OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
 						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
 						OPTIMIZE_BY_MOVING_TOWARDS_TARGET); // //
+
+			case OPTIMIZE_BY_PREFERRING_DC_POWER //
+				-> this.tryStrategies(targetDirection, allInverters, targetInverters, allConstraints,
+						OPTIMIZE_BY_PREFERRING_DC_POWER, //
+						OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL, //
+						OPTIMIZE_BY_KEEPING_ALL_EQUAL, //
+						OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER,
+						OPTIMIZE_BY_MOVING_TOWARDS_TARGET); //
 			};
 
 		} catch (NoFeasibleSolutionException | UnboundedSolutionException e) {
@@ -272,6 +282,10 @@ public class Solver {
 				break;
 			case OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL:
 				solution = KeepAllNearEqual.apply(this.data.getCoefficients(), this.esssSupplier.get(), allInverters,
+						allConstraints, targetDirection, this.debugMode);
+				break;
+			case OPTIMIZE_BY_PREFERRING_DC_POWER:
+				solution = PreferDcPower.apply(this.data.getCoefficients(), this.esssSupplier.get(), allInverters,
 						allConstraints, targetDirection, this.debugMode);
 				break;
 			}
