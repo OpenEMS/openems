@@ -195,6 +195,7 @@
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.kostal',\
 	bnd.identity;id='io.openems.edge.pvinverter.solarlog',\
+	bnd.identity;id='io.openems.edge.ruhfass',\
 	bnd.identity;id='io.openems.edge.scheduler.allalphabetically',\
 	bnd.identity;id='io.openems.edge.scheduler.daily',\
 	bnd.identity;id='io.openems.edge.scheduler.fixedorder',\
@@ -405,6 +406,7 @@
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\
 	io.openems.edge.pvinverter.kostal;version=snapshot,\
 	io.openems.edge.pvinverter.solarlog;version=snapshot,\
+	io.openems.edge.ruhfass;version=snapshot,\
 	io.openems.edge.scheduler.allalphabetically;version=snapshot,\
 	io.openems.edge.scheduler.api;version=snapshot,\
 	io.openems.edge.scheduler.daily;version=snapshot,\

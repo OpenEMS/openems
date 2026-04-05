@@ -1,0 +1,13 @@
+= Ruhfass
+
+See https://auto-ruhfass.de/#engineering
+
+== Ruhfass Battery RBIT
+
+Implementation of the Ruhfass Battery Translation Interface.
+
+== Ruhfass Battery Batcon
+
+Depreacted implementation of the Ruhfass Batcon.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ruhfass[Source Code icon:github[]]

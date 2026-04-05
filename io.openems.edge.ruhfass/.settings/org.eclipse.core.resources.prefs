@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+encoding//src/io/openems/edge/ruhfass/battery/rbti/Config.java=UTF-8
+encoding//src/io/openems/edge/ruhfass/battery/rbti/RuhfassBatteryRbti.java=UTF-8
+encoding//src/io/openems/edge/ruhfass/battery/rbti/RuhfassBatteryRbtiImpl.java=UTF-8
+encoding//test/io/openems/edge/ruhfass/battery/rbti/MyConfig.java=UTF-8
+encoding//test/io/openems/edge/ruhfass/battery/rbti/RuhfassBatteryRbtiImplTest.java=UTF-8
+encoding/<project>=UTF-8
+encoding/bnd.bnd=UTF-8
+encoding/readme.adoc=UTF-8
