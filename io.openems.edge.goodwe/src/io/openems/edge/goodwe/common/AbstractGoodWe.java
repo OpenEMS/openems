@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.common;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.sumInt;
@@ -13,7 +14,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;

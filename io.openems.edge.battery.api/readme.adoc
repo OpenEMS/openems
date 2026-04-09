@@ -1,3 +1,42 @@
-= Battery
+= Battery API
 
-A battery that is connected to a battery inverter.
+Interface definitions for battery implementations and battery protection features.
+
+== Overview
+
+This bundle provides the core interfaces and protection utilities for battery implementations in OpenEMS. It defines the Battery interface that all battery storage components must implement, as well as battery protection mechanisms including voltage protection, current limiting, and forced charge/discharge capabilities.
+
+The Battery API is the foundation for all battery storage integrations, ensuring consistent behavior and safety features across different hardware implementations.
+
+== Core Interfaces
+
+=== Battery
+
+Base interface that all battery storage implementations must implement. Defines the contract for battery control and monitoring including state of charge, power flow, and operational status.
+
+== Battery Protection
+
+The bundle includes comprehensive battery protection utilities:
+
+=== BatteryProtection
+
+Main protection coordinator that manages all battery safety mechanisms.
+
+.Protection Features
+* Voltage monitoring and limits (min/max cell voltages)
+* Temperature monitoring
+* Current limiting for charge and discharge
+* Force charge/discharge control
+* Protection definition and status reporting
+
+=== Voltage Protection (BatteryVoltageProtection)
+
+Monitors and enforces battery voltage limits.
+
+.Features
+* Minimum voltage protection (cell under-voltage)
+* Maximum voltage protection (cell over-voltage)
+* Configurable voltage thresholds
+* Automatic current limiting when limits approached
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.api[Source Code icon:github[]]

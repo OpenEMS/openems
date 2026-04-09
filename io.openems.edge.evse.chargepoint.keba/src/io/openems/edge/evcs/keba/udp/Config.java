@@ -19,19 +19,19 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
+	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.")
 	boolean readOnly() default false;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.", required = true)
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the charging station.")
 	String ip() default "192.168.25.11";
 
-	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.", required = true)
+	@AttributeDefinition(name = "Minimum power", description = "Minimum current of the Charger in mA.")
 	int minHwCurrent() default 6000;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
 	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
 
-	@AttributeDefinition(name = "Use display?", description = "Activates the KEBA display to show the current power or states.", required = true)
+	@AttributeDefinition(name = "Use display?", description = "Activates the KEBA display to show the current power or states.")
 	boolean useDisplay() default true;
 
 	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")

@@ -25,6 +25,9 @@ export class FlatComponent extends AbstractFlatWidget {
     };
 
     protected override getChannelAddresses() {
+        if (this.config == null) {
+            return [];
+        }
         // Get Chargers
         this.chargerComponents =
             this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
@@ -33,7 +36,7 @@ export class FlatComponent extends AbstractFlatWidget {
         // Get productionMeters
         this.productionMeterComponents =
             this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && this.config.isProducer(component));
+                .filter(component => component.isEnabled && this.config?.isProducer(component));
 
         return [];
     }

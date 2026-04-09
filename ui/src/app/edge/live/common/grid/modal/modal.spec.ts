@@ -51,8 +51,8 @@ describe("Grid - Modal", () => {
                     VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
                     VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
                     LINE_HORIZONTAL,
-                    CHANNEL_LINE("Einspeisung", "1.000 W"),
-                    CHANNEL_LINE("Bezug", "0 W"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeisung", "1.000 W"),
+                    VALUE_FROM_CHANNELS_LINE("Bezug", "0 W"),
                     PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
                     PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
                     PHASE_ADMIN("Phase L3", "-", "-", "-"),
@@ -69,8 +69,8 @@ describe("Grid - Modal", () => {
                     VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
                     VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
                     LINE_HORIZONTAL,
-                    CHANNEL_LINE("Einspeisung", "1.000 W"),
-                    CHANNEL_LINE("Bezug", "0 W"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeisung", "1.000 W"),
+                    VALUE_FROM_CHANNELS_LINE("Bezug", "0 W"),
                     PHASE_GUEST("Phase L1 Einspeisung", "500 W"),
                     PHASE_GUEST("Phase L2 Bezug", "1.500 W"),
                     PHASE_GUEST("Phase L3", "-"),
@@ -84,16 +84,15 @@ describe("Grid - Modal", () => {
                 title: "Netz",
                 lines: [
                     {
-                        type: "channel-line",
-                        name: "Keine Netzverbindung!",
-                        value: "",
+                        type: "value-from-channels-line",
+                        name: "Zustand",
+                        value: "Netzausfall",
                     },
-                    VALUE_FROM_CHANNELS_LINE("Zustand", "Netzausfall"),
                     VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
                     VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
                     LINE_HORIZONTAL,
-                    CHANNEL_LINE("Einspeisung", "1.000 W"),
-                    CHANNEL_LINE("Bezug", "0 W"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeisung", "1.000 W"),
+                    VALUE_FROM_CHANNELS_LINE("Bezug", "0 W"),
                     PHASE_ADMIN("Phase L1 Einspeisung", "230 V", "2,2 A", "500 W"),
                     PHASE_ADMIN("Phase L2 Bezug", "-", "-", "1.500 W"),
                     PHASE_ADMIN("Phase L3", "-", "-", "-"),
@@ -101,8 +100,24 @@ describe("Grid - Modal", () => {
                     LINE_INFO_PHASES_DE,
                 ],
             });
-        }
 
+            // Gridmode generator
+            expectView(EMS, Role.ADMIN, VIEW_CONTEXT({ "_sum/GridMode": GridMode.GENERATOR }), TEST_CONTEXT, {
+                title: "Netz",
+                lines: [
+                    {
+                        type: "value-from-channels-line",
+                        name: "Zustand",
+                        value: "Generatorversorgung",
+                    },
+                    VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
+                    VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
+                    LINE_HORIZONTAL,
+                    LINE_HORIZONTAL,
+                    LINE_INFO_PHASES_DE,
+                ],
+            });
+        }
         {
             // Two Meters
             const EMS = DummyConfig.from(
@@ -120,8 +135,8 @@ describe("Grid - Modal", () => {
                     VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
                     VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
                     LINE_HORIZONTAL,
-                    CHANNEL_LINE("Einspeisung", "1.000 W"),
-                    CHANNEL_LINE("Bezug", "0 W"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeisung", "1.000 W"),
+                    VALUE_FROM_CHANNELS_LINE("Bezug", "0 W"),
                     LINE_HORIZONTAL,
                     CHANNEL_LINE("meter10", "-"),
                     PHASE_ADMIN("Phase L1", "-", "-", "-"),
@@ -137,7 +152,7 @@ describe("Grid - Modal", () => {
                 ],
             });
 
-            // Owner and Guest -> two meters
+            //Owner and Guest -> two meters
             expectView(EMS, Role.GUEST, VIEW_CONTEXT(), TEST_CONTEXT, {
                 title: "Netz",
                 lines: [
@@ -145,8 +160,8 @@ describe("Grid - Modal", () => {
                     VALUE_FROM_CHANNELS_LINE("Einspeiselimitierung", "70 % (Rundsteuerempfänger 30%)"),
                     VALUE_FROM_CHANNELS_LINE("Speicherbezug Limit (§14a EnWG)", "4,2 kW"),
                     LINE_HORIZONTAL,
-                    CHANNEL_LINE("Einspeisung", "1.000 W"),
-                    CHANNEL_LINE("Bezug", "0 W"),
+                    VALUE_FROM_CHANNELS_LINE("Einspeisung", "1.000 W"),
+                    VALUE_FROM_CHANNELS_LINE("Bezug", "0 W"),
                     LINE_HORIZONTAL,
                     CHANNEL_LINE("meter10", "-"),
                     PHASE_GUEST("Phase L1", "-"),

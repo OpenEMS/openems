@@ -132,7 +132,7 @@ public class CheckRelayCount extends AbstractCheckable implements Checkable {
 			messageBuilder.append(//
 					AbstractCheckable.getTranslation(language, //
 							"Validator.Checkable.CheckRelayCount.Message.AdditionalRelay", //
-							this.relayApp.getAppDescriptor(this.oem).getWebsiteUrl(), //
+							this.relayApp.getAppDescriptor(this.oem, language).getWebsiteUrl(), //
 							this.relayApp.getName(language)) //
 			);
 		}

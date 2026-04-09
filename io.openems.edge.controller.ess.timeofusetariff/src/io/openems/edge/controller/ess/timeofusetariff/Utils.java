@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import static com.google.common.math.Quantiles.percentiles;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;

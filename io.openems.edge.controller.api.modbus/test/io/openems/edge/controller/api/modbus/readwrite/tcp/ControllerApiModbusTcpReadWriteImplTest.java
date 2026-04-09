@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -40,7 +39,6 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 		var sut = new ControllerApiModbusTcpReadWriteImpl(); //
 
 		new ControllerTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyCycle(1000)) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
 				.addReference("metaComponent", new DummyMeta()) //

@@ -28,7 +28,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * </ul>
 		 * </ul>
 		 */
-		PORT_MUTLIPLEXING_MODE(Doc.of(MultiplexingMode.values())//
+		PORT_MUTLIPLEXING_MODE(Doc.of(MultiplexingMode.values()) //
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
@@ -44,7 +44,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * </ul>
 		 * </ul>
 		 */
-		GENSET_START_MODE_SELECTION(Doc.of(GensetInstalledStatus.values())//
+		GENSET_START_MODE_SELECTION(Doc.of(GensetInstalledStatus.values()) //
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
@@ -56,7 +56,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: 0 – 50000 W
 		 * </ul>
 		 */
-		GENSET_RATED_POWER(Doc.of(OpenemsType.INTEGER)//
+		GENSET_RATED_POWER(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_WRITE)//
 				.unit(Unit.WATT)),
 
@@ -69,20 +69,21 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: 10 – 300 s
 		 * </ul>
 		 */
-		DELAY_BEFORE_LOAD(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE).unit(Unit.SECONDS)),
+		DELAY_BEFORE_LOAD(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.SECONDS)),
 
 		/**
 		 * genset Run Time.
 		 *
 		 * <ul>
 		 * <li>Type: {@link OpenemsType#INTEGER}
-		 * <li>Unit: {@link Unit#HOUR}
-		 * <li>Range: 0 – 1440 m
+		 * <li>Unit: 0.1 {@link Unit#HOUR}
+		 * <li>Range: 0 – 240 (= 0 - 24 h)
 		 * </ul>
 		 */
-		GENSET_RUN_TIME(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE).unit(Unit.MINUTE)),
+		GENSET_RUN_TIME(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
 		 * Battery Charging from genset (One-Click Enable).
@@ -97,7 +98,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * </ul>
 		 * </ul>
 		 */
-		ONE_CLICK_ENABLE(Doc.of(EnableDisable.values())//
+		ONE_CLICK_ENABLE(Doc.of(EnableDisable.values()) //
 				.accessMode(AccessMode.READ_WRITE)),
 
 		/**
@@ -109,8 +110,9 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: 0 – 100 %
 		 * </ul>
 		 */
-		GENSET_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE).unit(Unit.PERCENT)),
+		GENSET_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.PERCENT)),
 
 		/**
 		 * Battery Charge Start State of Charge (SOC).
@@ -121,8 +123,9 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: 20 – 90 %
 		 * </ul>
 		 */
-		OPEN_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE).unit(Unit.PERCENT)),
+		OPEN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.PERCENT)),
 
 		/**
 		 * Battery Charge Stop State of Charge (SOC).
@@ -133,8 +136,9 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: 40 – 95 %
 		 * </ul>
 		 */
-		CLOSED_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE).unit(Unit.PERCENT)),
+		CLOSED_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
+				.unit(Unit.PERCENT)),
 
 		/**
 		 * genset Upper Voltage Limit.
@@ -145,8 +149,8 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: typically up to 280 V
 		 * </ul>
 		 */
-		GENSET_UPPER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		GENSET_UPPER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.VOLT)),
 
 		/**
@@ -158,8 +162,8 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: typically down to 80 V
 		 * </ul>
 		 */
-		GENSET_LOWER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		GENSET_LOWER_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.VOLT)),
 
 		/**
@@ -171,8 +175,8 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: typically up to 65 Hz
 		 * </ul>
 		 */
-		GENSET_UPPER_FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		GENSET_UPPER_FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.HERTZ)),
 
 		/**
@@ -184,8 +188,8 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Range: typically down to 45 Hz
 		 * </ul>
 		 */
-		GENSET_LOWER_FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER)//
-				.accessMode(AccessMode.READ_WRITE)//
+		GENSET_LOWER_FREQUENCY_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.accessMode(AccessMode.READ_WRITE) //
 				.unit(Unit.HERTZ)),
 
 		/**
@@ -195,7 +199,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.INTEGER)//
+		VERSION(Doc.of(OpenemsType.INTEGER) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -205,7 +209,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Type: {@link OpenemsType#INTEGER}
 		 * </ul>
 		 */
-		SUB_VERSION(Doc.of(OpenemsType.INTEGER)//
+		SUB_VERSION(Doc.of(OpenemsType.INTEGER) //
 				.persistencePriority(PersistencePriority.HIGH)),
 
 		/**
@@ -215,7 +219,7 @@ public interface GoodWeStsBox extends OpenemsComponent {
 		 * <li>Type: {@link OpenemsType#STRING}
 		 * </ul>
 		 */
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
+		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
 				.persistencePriority(PersistencePriority.HIGH));
 
 		private final Doc doc;

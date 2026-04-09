@@ -1,145 +1,517 @@
-= REST-Api Controller
+[[_api_rest]]
+= API REST
 
-A REST-Api for external access to OpenEMS Edge. This Controller provides access to Channels and JSON-RPC Requests from an external device via JSON/REST. 
+Provides RESTful HTTP/JSON access to OpenEMS Edge channels and JSON-RPC methods.
+Enables external systems to monitor and control OpenEMS via standard HTTP protocol.
 
-The default port for the server is *8084*; so the default base address for REST calls is `http://x:<PASSWORD>@<IP>:8084/rest`, where
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.rest[Source Code icon:github[]]
 
-- `http` is the protocol
-- `x` is the user. Authentication in OpenEMS is via password only, so the username can be omitted.
-- `<PASSWORD>` is the user password. If no specific settings have been made, try 'user' or 'admin' here.
-- `8084` is the configured port
+== Overview
 
-A good way to test REST-Api calls is via the Chrome extension https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm[Restlet]
+The REST API Controller exposes OpenEMS channels and configuration as REST endpoints.
+External clients (web applications, mobile apps, scripts) can:
 
-For more information find the implementation  https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api.rest[Source Code icon:github[]].
+* **Read Channels**: Query current values of any channel via GET requests
+* **Write Channels**: Set channel values via POST requests (write-enabled mode only)
+* **Regex Queries**: Use regular expressions to query multiple channels in one request
+* **JSON-RPC Methods**: Execute remote procedure calls for complex operations
+* **Configuration Management**: Query and update component configuration
+* **Component Discovery**: Get full Edge configuration with components and channels
 
-Those are the available REST-Api endpoints:
+.Key Capabilities
+* HTTP/JSON REST endpoints
+* Regular expression channel queries
+* Basic authentication (password-based)
+* Read-only or read-write access modes
+* Configurable port (default 8084)
+* Connection rate limiting
+* Write timeout protection
+* Debug logging mode
 
-== Endpoint `/rest/channel/<Component-ID>/<Channel-ID>`
+== Components
 
-- `Component-ID` is the ID of the Component, e.g. "_sum", "ess0", "meter0",...
-- `Channel-ID` is the ID of the Channel, e.g. "ActivePowerL1", "Soc",...
+[[_component_controller_api_rest_readwrite]]
+=== Controller.Api.Rest.ReadWrite
 
-=== GET
+.Description
+HTTP REST server with read-write access to channels and JSON-RPC methods.
+External clients can read all channels and write to channels via POST requests.
 
-Use a HTTP request with method `GET` to read the current value of a Channel.
+.Factory-PID
+`Controller.Api.Rest.ReadWrite`
 
-*Example:* To read the current state of charge of the battery, send a GET request to http://x:user@localhost:8084/rest/channel/_sum/EssSoC. It returns a response like:
-```
+.Service Binding
+Implements:
+
+* `io.openems.edge.controller.api.rest.readwrite.ControllerApiRestReadWrite`
+* `io.openems.edge.controller.api.rest.RestApi`
+* `io.openems.edge.controller.api.Controller`
+* `io.openems.edge.common.component.OpenemsComponent`
+
+.Configuration Parameters
+
+[cols="1,3,1,1"]
+|===
+| Parameter | Description | Type | Default
+
+| `id` | Unique component identifier | String | `ctrlApiRest0`
+| `alias` | Human-readable component name | String | (component-id)
+| `enabled` | Enable/disable the controller | Boolean | `true`
+| `port` | HTTP server port | Integer | `8084`
+| `connectionlimit` | Maximum concurrent HTTP connections | Integer | `5`
+| `apiTimeout` | Timeout for channel writes (seconds) | Integer | `60`
+| `debugMode` | Enable verbose debug logging | Boolean | `false`
+|===
+
+[[_component_controller_api_rest_readonly]]
+=== Controller.Api.Rest.ReadOnly
+
+.Description
+HTTP REST server with read-only access to channels.
+External clients can only read channels; write requests are rejected.
+
+.Factory-PID
+`Controller.Api.Rest.ReadOnly`
+
+.Configuration Parameters
+Same as ReadWrite.
+
+== Base URL
+
+All REST requests use this base URL pattern:
+
+[source]
+----
+http://[username:password@]<IP>:<PORT>/rest
+----
+
+.URL Components
+* `username`: Always optional; if omitted, can be replaced with `x`
+* `password`: User password (required for authentication)
+* `<IP>`: Edge machine IP address or hostname
+* `<PORT>`: Configured port (default 8084)
+* `/rest`: REST API path prefix
+
+.Examples
+* `http://x:user@192.168.1.100:8084/rest`
+* `http://x:admin@openems.local:8084/rest`
+* `http://edge0:password@192.168.1.100:8084/rest`
+
+== REST Endpoints
+
+[[_endpoint_channel_read]]
+=== GET `/rest/channel/<Component-ID>/<Channel-ID>`
+
+Read the current value of a single channel.
+
+==== Parameters
+* `<Component-ID>`: Component identifier (e.g., `_sum`, `ess0`, `meter0`)
+* `<Channel-ID>`: Channel identifier (e.g., `ActivePowerL1`, `Soc`)
+
+==== Response
+
+[source,json]
+----
 {
-  "type":"INTEGER",
-  "accessMode":"RO",
-  "text":"",
-  "unit":"%",
-  "value":50
+  "type": "INTEGER",
+  "accessMode": "RO",
+  "text": "",
+  "unit": "%",
+  "value": 50
 }
-``` 
+----
 
-The `GET` api also understands regular expressions. Send a GET request to http://x:user@localhost:8084/rest/channel/.*/Active.*Power to read all `ActivePower` and `ReactivePower` channels of all components. It returns a response like:
+.Response Fields
+* `type`: Data type (INTEGER, LONG, FLOAT, STRING, STATE, BOOLEAN)
+* `accessMode`: Read/Write permissions (RO, RW)
+* `text`: Human-readable description
+* `unit`: Measurement unit (W, V, %, A, Hz, etc.)
+* `value`: Current channel value
 
-```
+==== Example Requests
+
+.Read ESS state of charge
+[source]
+----
+GET http://x:user@localhost:8084/rest/channel/_sum/EssSoc
+----
+
+.Read meter active power
+[source]
+----
+GET http://x:user@localhost:8084/rest/channel/meter0/ActivePower
+----
+
+[[_endpoint_channel_regex]]
+=== GET `/rest/channel/<Regex-Component>/<Regex-Channel>`
+
+Query multiple channels using regular expressions.
+
+==== Parameters
+* `<Regex-Component>`: Regular expression pattern for component IDs (e.g., `.*` for all)
+* `<Regex-Channel>`: Regular expression pattern for channel IDs (e.g., `Active.*Power` for active power channels)
+
+==== Response
+
+Returns array of matching channels:
+
+[source,json]
+----
 [
   {
-    "address":"pvInverter0/ActivePower",
-    "type":"INTEGER",
-    "accessMode":"RO",
-    "text":"",
-    "unit":"W",
-    "value":90
+    "address": "pvInverter0/ActivePower",
+    "type": "INTEGER",
+    "accessMode": "RO",
+    "text": "",
+    "unit": "W",
+    "value": 90
   },
   {
-    "address":"meter0/ActiveProductionPower",
-    "type":"INTEGER",
-    "accessMode":"RO",
-    "text":"",
-    "unit":"W",
-    "value":465
+    "address": "meter0/ActivePower",
+    "type": "INTEGER",
+    "accessMode": "RO",
+    "text": "",
+    "unit": "W",
+    "value": 465
   },
   {
-    "address":"meter0/ActivePower",
-    "type":"INTEGER",
-    "accessMode":"RO",
-    "text":"",
-    "unit":"W",
-    "value":465
-  },
-  {
-    "address":"meter0/ActiveConsumptionPower",
-    "type":"INTEGER",
-    "accessMode":"RO",
-    "text":"",
-    "unit":"W",
-    "value":0
+    "address": "ess0/ActivePower",
+    "type": "INTEGER",
+    "accessMode": "RW",
+    "text": "",
+    "unit": "W",
+    "value": -250
   }
 ]
-```
+----
 
-=== POST
+==== Example Requests
 
-Use a HTTP request with method `POST` to write a Channel.
+.Query all active power channels
+[source]
+----
+GET http://x:user@localhost:8084/rest/channel/.*/Active.*Power
+----
 
-*Example:* To switch a Digital-Output or Relay on, send a POST request to http://x:user@localhost:8084/rest/channel/io0/Relay1 with the following body:
-```
+.Query all ESS-related channels
+[source]
+----
+GET http://x:user@localhost:8084/rest/channel/ess.*/.*
+----
+
+.Query all reactive power channels
+[source]
+----
+GET http://x:user@localhost:8084/rest/channel/.*/Reactive.*Power
+----
+
+[[_endpoint_channel_write]]
+=== POST `/rest/channel/<Component-ID>/<Channel-ID>`
+
+Write a value to a writable channel (read-write mode only).
+
+==== Parameters
+* `<Component-ID>`: Component identifier
+* `<Channel-ID>`: Writable channel identifier
+
+==== Request Body
+
+[source,json]
+----
+{
+  "value": <NEW_VALUE>
+}
+----
+
+==== Response
+
+Returns 200 OK if successful. No body returned.
+
+==== Example Requests
+
+.Enable a digital output relay
+[source]
+----
+POST http://x:user@localhost:8084/rest/channel/io0/Relay1
+Content-Type: application/json
+
 {
   "value": true
 }
-```
+----
 
-== Endpoint '/jsonrpc'
+.Set ESS charging power
+[source]
+----
+POST http://x:user@localhost:8084/rest/channel/ess0/SetActivePowerEquals
+Content-Type: application/json
 
-This allows remote procedure calls (RPC) using JSON-RPC. The JSON-RPC commands need to be sent as `POST` requests with the specified body.
+{
+  "value": 5000
+}
+----
 
-NOTE: JSON-RPC usually requires the properties 'id' and 'jsonrpc'. Those can be omitted here, as they are not required for HTTP POST calls.
+.Set boolean input
+[source]
+----
+POST http://x:user@localhost:8084/rest/channel/heatpump0/Start
+Content-Type: application/json
 
-Following JSON-RPC commands are available:
+{
+  "value": false
+}
+----
 
-=== getEdgeConfig
+== JSON-RPC Endpoints
 
-Gets the current configuration of the OpenEMS Edge.
+=== POST `/rest/jsonrpc`
 
-```
+Execute JSON-RPC method calls.
+
+All JSON-RPC requests are sent as POST requests with JSON body. Standard JSON-RPC fields `id` and `jsonrpc` are optional.
+
+[[_jsonrpc_getedgeconfig]]
+==== getEdgeConfig
+
+Get complete Edge configuration including components, channels, and their metadata.
+
+===== Request
+[source,json]
+----
 {
   "method": "getEdgeConfig",
   "params": {}
 }
-```
+----
 
-=== componentJsonApi
-
-Forwards a JSON-RPC payload to a given Component, identified by its Component-ID.
-
-==== getModbusProtocol
-
-Gets the currently active Modbus-TCP protocol definition from the Modbus-TCP-Api Controller with the ID "ctrlModbusTcp0".
-
-```
+===== Response
+[source,json]
+----
 {
-  "method":"componentJsonApi",
-  "params":{
-    "componentId":"ctrlApiModbusTcp0",
-    "payload":{
-      "method":"getModbusProtocol",
-      "params":{
+  "components": [
+    {
+      "id": "_sum",
+      "alias": "Summary",
+      "type": "io.openems.edge.common.sum.Sum",
+      "channels": [
+        {
+          "id": "GridActivePower",
+          "type": "INTEGER",
+          "unit": "W",
+          "accessMode": "RO"
+        }
+      ]
+    },
+    {
+      "id": "ess0",
+      "alias": "Battery System",
+      "type": "io.openems.edge.ess.api.ManagedSymmetricEss",
+      "channels": [...]
+    }
+  ]
+}
+----
 
-      }
+[[_jsonrpc_componentjsonapi]]
+==== componentJsonApi
+
+Forward a JSON-RPC payload to a specific component.
+
+===== Request
+[source,json]
+----
+{
+  "method": "componentJsonApi",
+  "params": {
+    "componentId": "ctrlApiModbusTcp0",
+    "payload": {
+      "method": "getModbusProtocol",
+      "params": {}
     }
   }
 }
-```
+----
 
-=== updateComponentConfig
+===== Response
 
-Updates a Component configuration.
+Returns component-specific response (varies by component).
 
-```
+===== Example: Get Modbus Protocol
+[source,json]
+----
 {
-	"method": "updateComponentConfig",
-	"params": {
-		"componentId": "ctrlDebugLog0",
-		"properties": [{
- 			"name": "enabled",
-			"value": true
-		}]
-	}
+  "method": "componentJsonApi",
+  "params": {
+    "componentId": "ctrlApiModbusTcp0",
+    "payload": {
+      "method": "getModbusProtocol",
+      "params": {}
+    }
+  }
 }
-```
+----
+
+[[_jsonrpc_updatecomponentconfig]]
+==== updateComponentConfig
+
+Modify component configuration parameters.
+
+===== Request
+[source,json]
+----
+{
+  "method": "updateComponentConfig",
+  "params": {
+    "componentId": "ctrlDebugLog0",
+    "properties": [
+      {
+        "name": "enabled",
+        "value": true
+      },
+      {
+        "name": "logLevel",
+        "value": "DEBUG"
+      }
+    ]
+  }
+}
+----
+
+===== Response
+
+Returns 200 OK if successful.
+
+== Configuration Examples
+
+.Standard Read-Write Setup
+[source,json]
+----
+{
+  "id": "ctrlApiRest0",
+  "alias": "REST API Server",
+  "enabled": true,
+  "port": 8084,
+  "connectionlimit": 10,
+  "apiTimeout": 60,
+  "debugMode": false
+}
+----
+
+.High-Concurrency Read-Only Setup
+[source,json]
+----
+{
+  "id": "ctrlApiRest0",
+  "alias": "REST API (Read-Only)",
+  "enabled": true,
+  "port": 8080,
+  "connectionlimit": 50,
+  "apiTimeout": 30,
+  "debugMode": false
+}
+----
+
+== Authentication
+
+Basic HTTP authentication is used. Format:
+
+[source]
+----
+Authorization: Basic base64(username:password)
+----
+
+Usernames are typically:
+* `user` (default unprivileged)
+* `admin` (admin privileges)
+* `x` (if username is omitted)
+
+Password must match configured user password in OpenEMS.
+
+== Error Responses
+
+[cols="1,2"]
+|===
+| Status | Meaning
+
+| 200 OK | Request successful
+| 400 Bad Request | Invalid JSON format or missing required parameters
+| 401 Unauthorized | Authentication failed (invalid credentials)
+| 403 Forbidden | Access denied (insufficient permissions or read-only mode)
+| 404 Not Found | Component or channel not found
+| 408 Request Timeout | Channel write operation timed out
+| 500 Internal Server Error | Server error
+|===
+
+.Error Response Format
+[source,json]
+----
+{
+  "error": "Channel not found: component/channel"
+}
+----
+
+== Client Examples
+
+=== cURL
+
+.Read channel
+[source,bash]
+----
+curl -u x:user http://localhost:8084/rest/channel/_sum/EssSoc
+----
+
+.Write channel
+[source,bash]
+----
+curl -X POST -u x:user \
+  -H "Content-Type: application/json" \
+  -d '{"value": 5000}' \
+  http://localhost:8084/rest/channel/ess0/SetActivePowerEquals
+----
+
+.Regex query
+[source,bash]
+----
+curl -u x:user http://localhost:8084/rest/channel/.*/Active.*Power
+----
+
+.JSON-RPC call
+[source,bash]
+----
+curl -X POST -u x:user \
+  -H "Content-Type: application/json" \
+  -d '{"method":"getEdgeConfig","params":{}}' \
+  http://localhost:8084/rest/jsonrpc
+----
+
+=== JavaScript/Fetch
+
+.Read channel
+[source,javascript]
+----
+fetch('http://localhost:8084/rest/channel/_sum/EssSoc', {
+  headers: { 'Authorization': 'Basic ' + btoa('x:user') }
+}).then(r => r.json()).then(data => console.log(data.value));
+----
+
+.Write channel
+[source,javascript]
+----
+fetch('http://localhost:8084/rest/channel/ess0/SetActivePowerEquals', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Basic ' + btoa('x:user'),
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ value: 5000 })
+});
+----
+
+## Testing Tools
+
+Popular tools for testing REST APIs:
+
+* https://www.postman.com/[Postman] - Desktop client for REST testing
+* https://chrome.google.com/webstore/detail/restlet-client-rest-api-t/aejoelaoggembcahagimdiliamlcdmfm[Restlet Client] - Chrome extension
+* https://insomnia.rest/[Insomnia] - REST client alternative to Postman
+* `curl` - Command-line HTTP client

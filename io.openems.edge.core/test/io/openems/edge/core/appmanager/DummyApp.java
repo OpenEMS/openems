@@ -197,7 +197,7 @@ public class DummyApp implements OpenemsApp {
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
 		return this.appDescriptor;
 	}
 

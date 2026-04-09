@@ -7,7 +7,7 @@ import static io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycle.Chan
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MIN_CELL_VOLTAGE;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TestUtils;
 import io.openems.common.test.TimeLeapClock;

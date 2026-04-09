@@ -106,4 +106,18 @@ export namespace NumberUtils {
                 return sum;
             }, null);
     }
+
+    /**
+ * Converts the number to have a max value
+ *
+ * @param value the value
+ * @param atMost the max number to be allowed
+ * @returns the value
+ */
+    export function convertNumberToBeAtMost(value: number | null, atMost: number): number | null {
+        if (value == null) {
+            return value;
+        }
+        return Math.min(value, atMost);
+    }
 }

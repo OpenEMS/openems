@@ -1,5 +1,7 @@
 package io.openems.edge.controller.io.analog;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -23,7 +25,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.io.api.AnalogOutput;
 import io.openems.edge.timedata.api.Timedata;
@@ -133,7 +134,7 @@ public class ControllerIoAnalogImpl extends AbstractOpenemsComponent
 				excessPower = gridActivePower * -1 - essDischargePower + usedPower;
 			}
 
-			excessPower = TypeUtils.fitWithin(0, this.config.maximumPower(), excessPower);
+			excessPower = fitWithin(0, this.config.maximumPower(), excessPower);
 			this.setOutput(excessPower);
 			this.nextTarget = Instant.now(this.clock).plus(DEFAULT_DEBOUNCE_SEC, ChronoUnit.SECONDS);
 		} else {

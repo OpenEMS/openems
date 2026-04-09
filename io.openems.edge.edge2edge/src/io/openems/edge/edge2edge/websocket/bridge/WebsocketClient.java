@@ -15,6 +15,7 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
@@ -39,7 +40,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			Runnable onChannelChange //
 	) {
 		super(name, serverUri, DEFAULT_DRAFT, httpHeaders, proxy, null /* onConnectedChange */,
-				new ClientReconnectorWorker.Config(5, 10, 5, 5 * 1000));
+				new ClientReconnectorWorker.Config(5, 10, 5, FunctionUtils::doNothing));
 		this.onOpen = new OnOpen(onStateChange);
 		this.onNotification = new OnNotification(onCurrentData, onEdgeConfig, onChannelChange);
 		this.onRequest = new OnRequest();

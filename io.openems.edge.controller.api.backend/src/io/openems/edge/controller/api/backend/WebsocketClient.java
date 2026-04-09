@@ -7,11 +7,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.openems.edge.common.channel.ChannelUtils;
+import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import org.java_websocket.WebSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
+import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.WsData;
 
@@ -27,7 +30,8 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	protected WebsocketClient(ControllerApiBackendImpl parent, String name, URI serverUri,
 			Map<String, String> httpHeaders, Proxy proxy) {
-		super(name, serverUri, httpHeaders, proxy);
+		super(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, proxy, null,
+				ClientReconnectorWorker.DEFAULT_CONFIG.withEventHandler(e -> onReconnectEvent(parent, e)));
 		this.parent = parent;
 		this.onOpen = new OnOpen(parent);
 		this.onNotification = new OnNotification(parent);
@@ -37,6 +41,13 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 					+ (proxy != AbstractWebsocketClient.NO_PROXY ? " via Proxy" : "") + "]");
 			this.parent.getUnableToSendChannel().setNextValue(true);
 		};
+	}
+
+	private static void onReconnectEvent(ControllerApiBackendImpl parent,
+			ClientReconnectorWorker.WebsocketReconnectorEvent event) {
+		if (event == ClientReconnectorWorker.WebsocketReconnectorEvent.CLOSE_FAILED) {
+			ChannelUtils.setValue(parent, ControllerApiBackend.ChannelId.CONNECTION_CLOSE_FAILURE, true);
+		}
 	}
 
 	@Override

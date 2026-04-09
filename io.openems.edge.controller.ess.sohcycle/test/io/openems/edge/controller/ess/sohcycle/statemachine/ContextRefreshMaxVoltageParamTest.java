@@ -1,20 +1,18 @@
 package io.openems.edge.controller.ess.sohcycle.statemachine;
 
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.ess.sohcycle.Config;
@@ -22,7 +20,6 @@ import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
 import io.openems.edge.controller.ess.sohcycle.MyConfig;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
-@RunWith(Parameterized.class)
 public class ContextRefreshMaxVoltageParamTest {
 
     private static final String ESS_ID = "ess0";
@@ -35,28 +32,17 @@ public class ContextRefreshMaxVoltageParamTest {
     private Config config;
     private Clock clock;
 
-    @Parameters(name = "{index}: initial={0}, update={1}, expected={2}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-            // initial, update, expected stored value after refresh
-            { 3300, 3350, 3350 }, // increases
-            { 3350, 3300, 3350 }, // decreases -> keep max
-            { 3300, 3300, 3300 }, // same -> keep
-            { null, 3280, 3280 }, // start undefined -> set
-        });
+	static Stream<Arguments> data() {
+		return Stream.of(
+				// initial, update, expected stored value after refresh
+				Arguments.of(3300, 3350, 3350), // increases
+				Arguments.of(3350, 3300, 3350), // decreases -> keep max
+				Arguments.of(3300, 3300, 3300), // same -> keep
+				Arguments.of(null, 3280, 3280) // start undefined -> set
+		);
     }
 
-    private final Integer initial;
-    private final Integer update;
-    private final Integer expected;
-
-    public ContextRefreshMaxVoltageParamTest(Integer initial, Integer update, Integer expected) {
-        this.initial = initial;
-        this.update = update;
-        this.expected = expected;
-    }
-
-    @Before
+	@BeforeEach
     public void setup() {
         this.controller = new ControllerEssSohCycleImpl();
         this.ess = new DummyManagedSymmetricEss(ESS_ID) //
@@ -70,23 +56,31 @@ public class ContextRefreshMaxVoltageParamTest {
                 .build();
     }
 
-    @Test
-    public void testRefreshMaxVoltageSequence() {
+	/**
+	 * Tests refreshMeasurementChargingVoltageRange with different initial and
+	 * updated max voltage values. Verifies that the context correctly updates or
+	 * retains the max voltage based on the defined logic.
+	 * 
+	 * @param initial  Initial max voltage value (can be null to indicate undefined)
+	 * @param update   Updated max voltage value to refresh with
+	 * @param expected Expected max voltage value in the context after refresh
+	 */
+	@ParameterizedTest(name = "{index}: initial={0}, update={1}, expected={2}")
+	@MethodSource("data")
+	public void testRefreshMaxVoltageSequence(Integer initial, Integer update, Integer expected) {
         var context = new Context(this.controller, this.config, this.clock, this.ess);
-
-        // Initial
-        if (this.initial != null) {
-            TestUtils.withValue(this.ess, MAX_CELL_VOLTAGE, this.initial);
+		// Initial
+		if (initial != null) {
+			TestUtils.withValue(this.ess, MAX_CELL_VOLTAGE, initial);
             context.refreshMeasurementChargingVoltageRange();
-            assertEquals(this.initial, context.getMeasurementChargingMaxVoltage());
+			assertEquals(initial, context.getMeasurementChargingMaxVoltage());
         } else {
             // explicitly ensure it's null
             assertNull(context.getMeasurementChargingMaxVoltage());
         }
-
-        // Update
-        TestUtils.withValue(this.ess, MAX_CELL_VOLTAGE, this.update);
+		// Update
+		TestUtils.withValue(this.ess, MAX_CELL_VOLTAGE, update);
         context.refreshMeasurementChargingVoltageRange();
-        assertEquals(this.expected, context.getMeasurementChargingMaxVoltage());
+		assertEquals(expected, context.getMeasurementChargingMaxVoltage());
     }
 }

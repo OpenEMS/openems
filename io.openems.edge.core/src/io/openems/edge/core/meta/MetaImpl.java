@@ -144,8 +144,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 			final var gridBuyHardLimit = this.getGridBuyHardLimit();
 			final var raw = JSCalendar.Tasks.fromStringOrEmpty(this.componentManager.getClock(),
 					config.gridBuySoftLimit(), GridBuySoftLimit.serializer());
-			final var result = JSCalendar.Tasks.<GridBuySoftLimit>create() //
-					.setClock(raw.clock);
+			final var result = JSCalendar.Tasks.<GridBuySoftLimit>create(raw.clock);
 			// Make sure each value is <= getGridBuyHardLimit()
 			raw.tasks.stream() //
 					.map(t -> {

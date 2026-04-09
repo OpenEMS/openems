@@ -1,0 +1,89 @@
+= Reference target plugin
+
+Configuration Plugin to update a target filter for a Reference
+
+== Example
+
+Injecting a component based on a configuration Property.
+
+[source,java]
+----
+@ObjectClassDefinition(...)
+@interface Config {
+
+	@AttributeDefinition(name = "Component-ID")
+	String component_id(); // (1)
+
+}
+----
+
+[source,java]
+----
+@Designate(ocd = Config.class /* (2) */, factory = true)
+@Component(...)
+@GenerateTargetsFromReferences("component") // (3)
+public class MyOpenemsComponent extends AbstractOpenemsComponent implements OpenemsComponent {
+
+    @Reference(target = "(id=${config.component_id})")  // (4)
+    private OpenemsComponent component; // (5)
+
+    ...
+
+}
+----
+
+1. Simple Configuration Property to configure a component id for a Component.
+2. Use correct Configuration class in annotation
+3. Define for which attributes the target filter should be generated (in this example the name of the variable at point 5)
+4. Define the target filter with your variable
+5. Your variable of the injected component
+
+== Migration
+
+=== Don't use OpenemsComponent.updateReferenceFilter
+
+[source,java]
+----
+OpenemsComponent.updateReferenceFilter(...)
+----
+
+Don't use this method in a activate or modified method to update a filter based on a configuration value.
+Use the above mentioned way.
+
+=== Use correct activate Method
+
+In most cases a modbus component gets injected so the following activate is used:
+
+[source,java]
+----
+@Activate
+private void activate(ComponentContext context, Config config) throws OpenemsException {
+	if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+			"Modbus", config.modbus_id())) {
+		return;
+	}
+}
+
+----
+
+But this method
+
+[source,java]
+----
+OpenemsComponent.updateReferenceFilter(...)
+----
+
+is called which we don't want.
+
+Use the following activate:
+
+[source,java]
+----
+@Activate
+private void activate(ComponentContext context, Config config) throws OpenemsException {
+	super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+}
+----
+and after that usually the ConfigurationAdmin reference has no usage and can be removed.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.core.referencetarget[Source Code icon:github[]]

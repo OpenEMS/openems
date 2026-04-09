@@ -8,7 +8,7 @@ import { ComponentJsonApiRequest } from "../../jsonrpc/request/componentJsonApiR
 import { Service, Websocket } from "../../shared";
 import { COUNTRY_OPTIONS, CountryUtils } from "../../type/country";
 import { Language } from "../../type/language";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { Edge } from "../edge/edge";
 import { FormlyUtils } from "../formly/formly-utils";

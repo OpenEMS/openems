@@ -5,7 +5,6 @@ import java.time.ZoneOffset;
 
 import org.junit.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
@@ -27,7 +26,6 @@ public class ControllerApiModbusRtuReadWriteImplTest {
 		new ControllerTest(new ControllerApiModbusRtuReadWriteImpl()) //
 				.addReference("componentManager", new DummyComponentManager(this.clock)) //
 				.addReference("metaComponent", new DummyMeta()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.activate(MyRtuConfig.create(io.openems.edge.controller.api.modbus.readonly.rtu.Config.class) //
 						.setId(CTRL_ID) //
 						.setEnabled(false) // do not actually start server

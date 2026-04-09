@@ -1,5 +1,6 @@
 package io.openems.edge.goodwe.genset;
 
+import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
@@ -154,7 +155,7 @@ public class GoodWeStsBoxGensetMeterImpl extends AbstractOpenemsModbusComponent
 
 	protected static int calculatePower(Sum sum, Long backupPower) {
 		var ess = minInt(0, sum.getEssDischargePowerChannel().value().get());
-		var production = minInt(0, sum.getProductionActivePowerChannel().value().get());
+		var production = maxInt(0, sum.getProductionActivePowerChannel().value().get());
 		var backup = backupPower != null ? backupPower : 0;
 		var genPower = Math.max(0, backup - ess - production);
 		return (int) genPower;

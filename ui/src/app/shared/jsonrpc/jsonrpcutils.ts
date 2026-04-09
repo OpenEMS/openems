@@ -1,5 +1,5 @@
 import { ChannelAddress } from "../type/channeladdress";
-import { ObjectUtils } from "../utils/object/object.utils";
+import { ObjectUtils } from "../utils/object/object-utils";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "./base";
 
 export class JsonRpcUtils {

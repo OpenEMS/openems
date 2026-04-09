@@ -95,7 +95,6 @@ export class FlatComponent extends AbstractFlatWidget {
         this.evcsComponent = this.config.getComponent(this.component.id);
         this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] != 3 ? true : false;
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
-        this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : null, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
 
         // Check if Energy since beginning is allowed
         if (currentData.allComponents[this.chargePoint.powerChannel.toString()] > 0 || currentData.allComponents[this.component.id + "/Status"] == 2 || currentData.allComponents[this.component.id + "/Status"] == 7) {
@@ -136,6 +135,7 @@ export class FlatComponent extends AbstractFlatWidget {
             this.energySessionLimit = this.controller.properties["energySessionLimit"];
         }
 
+        this.status = this.getState(this.isChargingEnabled, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
         // Phases
         this.phases = currentData.allComponents[this.componentId + "/Phases"];
 
@@ -156,7 +156,7 @@ export class FlatComponent extends AbstractFlatWidget {
    */
     private getState(enabledCharging: boolean, state: number, plug: number): string {
 
-        if (enabledCharging === false) {
+        if (this.isReadWrite === true && enabledCharging === false) {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
         }
 

@@ -554,7 +554,7 @@ public final class FeneconHomeComponents {
 	 * 
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration stateLed(String ioId) throws OpenemsNamedException {
+	public static DependencyDeclaration stateLed(String ioId) {
 
 		return new DependencyDeclaration("STATE_LED", //
 				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
@@ -572,7 +572,7 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
-	 * Creates a default gridOptimizedCharge dependency for a FENECON Home.
+	 * Creates a default selfConsumptionOptimization dependency for a FENECON Home.
 	 *
 	 * @param t           the {@link ConfigurationTarget}
 	 * @param essId       the id of the ess
@@ -616,6 +616,30 @@ public final class FeneconHomeComponents {
 								.addProperty(SelfConsumptionOptimization.Property.METER_ID.name(), gridMeterId) //
 								.build())
 						.build());
+	}
+
+	/**
+	 * Creates a deinstallable selfConsumptionOptimization dependency for a FENECON
+	 * Home.
+	 *
+	 * @param t           the {@link ConfigurationTarget}
+	 * @param essId       the id of the ess
+	 * @param gridMeterId the id of the grid meter
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration deinstallableSelfConsumptionOptimization(//
+			final ConfigurationTarget t, //
+			final String essId, //
+			final String gridMeterId //
+	) {
+		if (t == ConfigurationTarget.ADD) {
+			return selfConsumptionOptimization(t, essId, gridMeterId,
+					DependencyDeclaration.DependencyDeletePolicy.ALLOWED);
+		} else {
+			return selfConsumptionOptimization(t, essId, gridMeterId,
+					DependencyDeclaration.DependencyDeletePolicy.ALLOWED) //
+					.withCreatePolicy(DependencyDeclaration.CreatePolicy.NEVER);
+		}
 	}
 
 	/**

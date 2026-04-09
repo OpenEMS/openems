@@ -1,5 +1,5 @@
 import { Utils } from "../../shared";
-import { ObjectUtils } from "../object/object.utils";
+import { ObjectUtils } from "../object/object-utils";
 
 export namespace ArrayUtils {
 
