@@ -127,7 +127,10 @@ export class EdgeConfig {
                 category: { title: translate.instant("SETTINGS.CATEGORY.TITLE.METER"), icon: "speedometer-outline" },
                 factories: [
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.SymmetricMeter"), // TODO replaced by ElectricityMeter
-                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter", "io.openems.edge.evcs.api.Evcs"),
+                    EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.meter.api.ElectricityMeter", [
+                        "io.openems.edge.evcs.api.Evcs",
+                        "io.openems.edge.evse.api.chargepoint.EvseChargePoint",
+                    ]),
                     EdgeConfig.getFactoriesByNature(factories, "io.openems.edge.ess.dccharger.api.EssDcCharger"),
                 ].flat(2),
             },
@@ -281,13 +284,14 @@ export class EdgeConfig {
      *
      * @param factories the given EdgeConfig.Factory
      * @param includeNature the name of the Nature to be included
-     * @param excludeNature an optional name of a Nature to be excluded
+     * @param  excludeNature an optional name of a Nature (or list of Natures) to be excluded
      */
-    public static getFactoriesByNature(factories: { [id: string]: EdgeConfig.Factory }, includeNature: string, excludeNature?: string): EdgeConfig.Factory[] {
+    public static getFactoriesByNature(factories: { [id: string]: EdgeConfig.Factory }, includeNature: string, excludeNature?: string | string[]): EdgeConfig.Factory[] {
         const result = [];
         const natures = EdgeConfig.getNaturesOfFactories(factories);
         const include = natures[includeNature];
-        const excludes = excludeNature != null && excludeNature in natures ? natures[excludeNature].factoryIds : [];
+        const const excludeNatures = excludeNature == null ? [] : Array.isArray(excludeNature) ? excludeNature : [excludeNature];
+        const excludes = excludeNatures.flatMap(n => n in natures ? natures[n].factoryIds : []);
         if (include) {
             for (const factoryId of include.factoryIds) {
                 if (excludes.includes(factoryId)) {
