@@ -90,10 +90,14 @@ public interface PowerControlUnit extends OpenemsComponent {
 		this.getMaxBuyFromGridLimitChannel().setNextValue(value);
 	}
 
+    /**
+     * Fetches fixed value from channel {@link ChannelId#MAX_BUY_FROM_GRID_LIMIT} of process image
+     *
+     * @return  value object
+     */
 	default Value<Long> getMaxBuyFromGridLimit() {
 		return this.getMaxBuyFromGridLimitChannel().value();
 	}
-
 
 	/**
 	 * Gets the Channel for {@link ChannelId#MAX_BUY_FROM_GRID_LIMIT}.
@@ -114,8 +118,40 @@ public interface PowerControlUnit extends OpenemsComponent {
 		this.getMaxSellToGridLimitChannel().setNextValue(value);
 	}
 
+    /**
+     * Fetches fixed value from channel {@link ChannelId#MAX_BUY_FROM_GRID_LIMIT} of process image
+     *
+     * @return  value object
+     */
 	default Value<Long> getMaxSellToGridLimit() {
 		return this.getMaxSellToGridLimitChannel().value();
 	}
 
+    /**
+     * Gets the Channel for {@link ChannelId#MAX_REACTIVE_POWER_LIMIT}.
+     *
+     * @return the Channel
+     */
+    default LongReadChannel getMaxReactivePowerLimitChannel() {
+        return this.channel(ChannelId.MAX_REACTIVE_POWER_LIMIT);
+    }
+
+    /**
+     * Internal method to set the 'nextValue' on
+     * {@link ChannelId#MAX_REACTIVE_POWER_LIMIT} Channel.
+     *
+     * @param value the next value in {@link long}
+     */
+    default void _setMaxReactivePowerLimit(long value) {
+        this.getMaxBuyFromGridLimitChannel().setNextValue(value);
+    }
+
+    /**
+     * Fetches fixed value from channel {@link ChannelId#MAX_REACTIVE_POWER_LIMIT} of process image
+     *
+     * @return  value object
+     */
+    default Value<Long> getMaxReactivePowerLimit() {
+        return this.getMaxBuyFromGridLimitChannel().value();
+    }
 }
