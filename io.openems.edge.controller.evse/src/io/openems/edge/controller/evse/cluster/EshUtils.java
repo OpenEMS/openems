@@ -3,6 +3,7 @@ package io.openems.edge.controller.evse.cluster;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.minInt;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -16,7 +17,6 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
 import io.openems.common.types.Tuple;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
@@ -147,7 +147,7 @@ public class EshUtils {
 			var remaining = initialDistributableEnergy;
 			for (var e : entries) {
 				var before = e.actualEnergy;
-				var after = TypeUtils.fitWithin(0, e.maxEnergy, before + min(remaining, equalEnergy));
+				var after = fitWithin(0, e.maxEnergy, before + min(remaining, equalEnergy));
 				remaining -= after - before;
 
 				e.actualEnergy = after;

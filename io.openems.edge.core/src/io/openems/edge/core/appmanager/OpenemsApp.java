@@ -66,9 +66,10 @@ public interface OpenemsApp {
 	 * Gets the {@link AppDescriptor} of the {@link OpenemsApp}.
 	 *
 	 * @param oem the {@link OpenemsEdgeOem}
+	 * @param language the {@link Language} 
 	 * @return the {@link AppDescriptor}
 	 */
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem);
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language);
 
 	/**
 	 * Gets the {@link OpenemsAppCategory} of the {@link OpenemsApp}.

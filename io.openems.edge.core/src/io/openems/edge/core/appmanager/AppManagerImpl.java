@@ -749,7 +749,7 @@ public class AppManagerImpl extends AbstractOpenemsComponent implements AppManag
 	private GetAppDescriptor.Response handleGetAppDescriptorRequest(User user, GetAppDescriptor.Request request)
 			throws OpenemsNamedException {
 		final var app = this.findAppByIdOrError(request.appId());
-		return new GetAppDescriptor.Response(app.getAppDescriptor(this.oem));
+		return new GetAppDescriptor.Response(app.getAppDescriptor(this.oem, user.getLanguage()));
 	}
 
 	/**

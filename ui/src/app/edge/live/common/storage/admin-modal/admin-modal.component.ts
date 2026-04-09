@@ -163,6 +163,15 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
                 );
             }
+
+            for (const essId in emergencyReserveCtrl) {
+                const controller = emergencyReserveCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyIsReserveSocEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyReserveSoc"),
+                );
+            }
+
             for (const essId in essSohCycleCtrl) {
                 const controller = essSohCycleCtrl[essId];
                 channelAddresses.push(
@@ -176,6 +185,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "IsMeasured"),
                 );
             }
+
             for (const batteryInverter of this.batteryInverters) {
                 channelAddresses.push(new ChannelAddress(batteryInverter.id, "ActivePower"));
                 channelAddresses.push(new ChannelAddress(batteryInverter.id, "AirTemperature"));

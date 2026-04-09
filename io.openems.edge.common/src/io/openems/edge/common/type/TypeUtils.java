@@ -746,22 +746,6 @@ public class TypeUtils {
 	/**
 	 * Fits a value within a lower and upper boundary.
 	 *
-	 * @param lowLimit  the int lower boundary
-	 * @param highLimit the int upper boundary
-	 * @param value     the int actual value
-	 * @return the adjusted int value
-	 */
-	public static int fitWithin(int lowLimit, int highLimit, int value) {
-		if (lowLimit > highLimit) {
-			throw new IllegalArgumentException("lowLimit must be <= highLimit");
-		}
-		return Math.max(lowLimit, //
-				Math.min(highLimit, value));
-	}
-
-	/**
-	 * Fits a value within a lower and upper boundary.
-	 *
 	 * @param lowLimit  the long lower boundary
 	 * @param highLimit the long upper boundary
 	 * @param value     the long actual value

@@ -12,12 +12,12 @@ public enum MeterType {
 	 * point (German: "Netzanschlusspunkt")
 	 */
 	GRID,
-	
+
 	/**
 	 * Defines a genset that is acting as a grid. (German: "Netzbildener Generator")
 	 */
 	GRID_GENSET,
-	
+
 	/**
 	 * Defines a Production-Meter, i.e. a meter that is measuring an electric
 	 * producer like a photovoltaics installation

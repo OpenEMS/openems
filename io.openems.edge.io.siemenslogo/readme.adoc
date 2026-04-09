@@ -1,7 +1,93 @@
-= Siemens LOGO!
+= Siemens LOGO! Programmable Logic Controller
 
-First you have to configure a modbus server in LogoSoft which either accepts all connection sources or you limit this to your EMS-system. Like all other modbus devices you have to configure a modbus-ID (255 is default in LogoSoft!) and a start address, e.g. 100 or use the default address 0.
+Integrates Siemens LOGO! 8 programmable logic controllers into OpenEMS for digital input/output control and relay management via Modbus TCP communication.
 
-If you don´t do any changes the addresses are configured as coils. In Logo! a virtual address (V) is written 0.0 which is the virtual address 0, Bit 0. For the connected device the coil-addresses start with 800 (first bit/coil), 801 is the second coil and so on
+== Overview
+
+This bundle provides integration for the Siemens LOGO! 8 series programmable logic controllers, compact industrial control devices commonly used in small to medium-sized automation installations. The component enables OpenEMS to communicate with LOGO! devices via Modbus TCP protocol, providing digital input monitoring and output control capabilities.
+
+The LOGO! device functions as a Modbus slave, exposing its virtual addresses (V addresses) through standard Modbus coils and discrete inputs. The integration allows OpenEMS to read input states and control relay outputs, enabling coordination with backup power systems, load management, and emergency shutdown procedures.
+
+The LOGO! platform is widely deployed in industrial environments due to its reliability, compact form factor, and extensive I/O capabilities. This integration enables OpenEMS to work alongside existing LOGO! automation logic in hybrid systems.
+
+== Supported Devices
+
+* https://new.siemens.com/en/en/products/automation/industrial-controls/logo.html[Siemens LOGO! 8 Series icon:external-link[]] - Compact programmable logic controller with 8 digital I/O
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== Siemens LOGO! 8
+
+*Name*: Siemens LOGO!
+
+*Factory-PID*: `io.openems.edge.io.siemenslogo`
+
+.Implemented Natures/Interfaces
+* DigitalInput (4 inputs)
+* DigitalOutput (4 outputs/relays)
+* ModbusComponent
+* ModbusSlave
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
+* `modbusOffsetWriteAddress` (Integer): Address offset for writing outputs/relays in Modbus - must match LOGO! configuration (default: 800) - Example: 808 for virtual address 101.0
+* `modbusOffsetReadAddress` (Integer): Address offset for reading inputs (DI1-4) in Modbus (default: 880) - Example: 808 for virtual address 110.0
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 1)
+
+== Channel Specifications
+
+The Siemens LOGO! 8 provides the following channel configuration:
+
+.Digital Input Channels (4 channels)
+* 4 digital input channels (DI1-4 on LOGO! device)
+* Input voltage: 24V DC nominal
+* Input impedance: High-impedance (suitable for dry contacts)
+* Channel addressing: Virtual addresses starting at DI1 (typically 110.0)
+* Modbus read addresses: Start at configured offset (default: 880)
+
+.Digital Output Channels / Relays (4 channels)
+* 4 relay output channels (DO1-4 on LOGO! device)
+* Output rating: 16A AC at 230V (contact rating)
+* Contact type: Normally Open (NO)
+* Channel addressing: Virtual addresses starting at DO1 (typically 101.0)
+* Modbus write addresses: Start at configured offset (default: 800)
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Siemens LOGO! 8 device with Modbus TCP server enabled
+* Network connectivity: LOGO! device reachable via Modbus TCP/IP
+* Modbus TCP bridge component configured in OpenEMS
+* Correct configuration of Modbus Unit-ID (verify with LogoSoft)
+* Modbus address offsets matching LOGO! virtual address configuration
+
+=== Device Setup
+. Connect Siemens LOGO! 8 device to network (Ethernet connection)
+. Power on LOGO! device
+. Access LogoSoft (configuration software) or LOGO! web interface
+. Enable Modbus TCP server in LOGO! configuration
+. Set desired Modbus Unit-ID (255 is typical default in LogoSoft, change to 1 or your preferred ID)
+. Configure virtual addresses for inputs (typically starting at 110.0) and outputs (typically starting at 101.0)
+. Create Modbus server instance with appropriate settings
+. Note the device IP address and configured Unit-ID
+. Configure OpenEMS Modbus TCP bridge to connect to LOGO! IP address and port (default: 502)
+. Configure component with correct address offsets matching LOGO! configuration
+
+=== Modbus Address Configuration
+The LOGO! device uses virtual addresses (V addresses) which map to Modbus coils and discrete inputs:
+
+* **Virtual Address Format**: V X.Y where X = byte, Y = bit (e.g., V110.0 = byte 110, bit 0)
+* **Modbus Coil Addresses**: Start at address 800 by default (write addresses for outputs/relays)
+* **Modbus Discrete Inputs**: Start at address 880 by default (read addresses for inputs)
+* **Custom Offsets**: Can be configured if LOGO! uses different virtual address ranges
+
+Example mapping:
+* Virtual address 101.0 (first output) → Modbus address 800 + offset
+* Virtual address 110.0 (first input) → Modbus address 880 + offset
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.siemenslogo[Source Code icon:github[]]

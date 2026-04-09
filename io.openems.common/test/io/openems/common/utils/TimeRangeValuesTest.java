@@ -93,7 +93,9 @@ public class TimeRangeValuesTest {
 				.build();
 
 		assertArrayEquals(new Integer[] { 11, 12 }, originalValues.asList(false).toArray(Integer[]::new));
-		assertArrayEquals(new Integer[] { 11, null, null, null, null, 12 }, originalValues.asList(true).toArray(Integer[]::new));
+		assertArrayEquals(//
+				new Integer[] { 11, null, null, null, null, 12 }, //
+				originalValues.asList(true).toArray(Integer[]::new));
 
 		var serializedValues = serializer.serialize(originalValues);
 		var deserializedValues = serializer.deserialize(serializedValues);

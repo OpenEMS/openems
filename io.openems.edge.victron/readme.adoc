@@ -10,4 +10,4 @@ Implementation of Victron Battery Inverter.
 Open Issues:
 * only read only implementation is tested
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.victron[Source Code icon:github[]]
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.victron[Source Code icon:github[]]

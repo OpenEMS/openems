@@ -8,7 +8,6 @@
         "EDIT": "Bearbeiten",
         "ACCEPT": "Übernehmen",
         "DELETE": "Löschen",
-        "EDIT_TASK": "Aufgabe bearbeiten",
         "START": "Start",
         "END": "Ende",
         "DURATION": "Dauer",
@@ -29,13 +28,13 @@
         "VALIDATION_ERROR_5": "Bitte Endzeit im Format HH:mm und nur in Viertelstunden (00, 15, 30 oder 45 Minuten) angeben",
         "VALIDATION_ERROR_6": "Endzeit muss nach Startzeit liegen",
         "VALIDATION_ERROR_7": "Startzeit oder Dauer fehlt",
-        "VALIDATION_ERROR_8": "Bitte Dauer angeben",
+        "VALIDATION_ERROR_8": "Bitte Wiederholung angeben",
         "VALIDATION_ERROR_9": "Mindestens einen Turnus festlegen",
-        "ADD_SUCCESS": "Task erfolgreich im Zeitplan hinzugefügt",
-        "ADD_ERROR": "Task konnte nicht hinzugefügt werden",
-        "EDIT_SUCCESS": "Task erfolgreich angepasst",
-        "EDIT_ERROR": "Task konnte nicht angepasst werden",
-        "DELETE_SUCCESS": "Task erfolgreich gelöscht",
-        "DELETE_ERROR": "Task konnte nicht gelöscht werden"
+        "ADD_SUCCESS": "Aufgabe erfolgreich im Zeitplan hinzugefügt",
+        "ADD_ERROR": "Aufgabe konnte nicht hinzugefügt werden",
+        "EDIT_SUCCESS": "Aufgabe erfolgreich angepasst",
+        "EDIT_ERROR": "Aufgabe konnte nicht angepasst werden",
+        "DELETE_SUCCESS": "Aufgabe erfolgreich gelöscht",
+        "DELETE_ERROR": "Aufgabe konnte nicht gelöscht werden"
     }
 }

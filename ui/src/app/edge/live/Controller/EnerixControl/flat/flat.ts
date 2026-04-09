@@ -49,6 +49,10 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null) {
+            return;
+        }
+
         const id = this.component.id;
         const data = currentData.allComponents;
 
@@ -71,6 +75,9 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     private mapControlMode(mode: ControlMode): State {
+        if (this.component == null) {
+            return State.OFF;
+        }
         switch (mode) {
             case ControlMode.IDLE:
                 return this.component.properties.controlMode === "REMOTE_CONTROL"

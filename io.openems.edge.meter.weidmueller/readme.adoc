@@ -1,6 +1,47 @@
 = Weidmueller 525 Meter
 
-Implemented Natures:
-- ElectricityMeter
+Three-phase energy meter by Weidmueller with Modbus TCP/RTU communication.
+
+== Overview
+
+This bundle provides integration with the Weidmueller 525 energy meter, a three-phase electricity meter with Modbus connectivity. The component reads power, energy, voltage, current and other electrical parameters over Modbus for accurate monitoring of electrical systems.
+
+The Weidmueller 525 is a DIN-rail mounted device suitable for panel installation in industrial and commercial environments.
+
+== Supported Devices
+
+.Weidmueller 525
+* **Type**: Three-phase electricity meter
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Grid, production, or consumption monitoring
+* **Documentation**: https://www.weidmueller.com/[Weidmueller icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== Weidmueller 525
+
+*Name*: Meter Weidmueller 525
+
+*Factory-PID*: `Meter.Weidmueller.525`
+
+.Implemented Natures/Interfaces
+* MeterWeidmueller525
+* ElectricityMeter
+* OpenemsComponent
+* ModbusComponent
+* ModbusSlave
+
+*Description*: Modbus interface for the Weidmueller 525 three-phase energy meter. Reads active power, reactive power, apparent power, energy counters, voltages, currents and power factor on all three phases.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the device (default: 1)
+* `invert` (Boolean): Invert all power/current values and swap production/consumption energy (default: false)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.weidmueller[Source Code icon:github[]]

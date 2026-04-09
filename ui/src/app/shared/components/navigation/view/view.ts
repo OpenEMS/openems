@@ -30,6 +30,11 @@ export enum Status {
             ion-grid {
                 display: inline !important;
             }
+            .floating-btn {
+                position: fixed;
+                bottom: 5%;
+                right: 10%;
+            }
         }
     `],
     standalone: false,

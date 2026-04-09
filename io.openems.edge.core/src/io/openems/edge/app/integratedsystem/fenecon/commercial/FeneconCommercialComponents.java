@@ -257,8 +257,9 @@ public final class FeneconCommercialComponents {
 						.addProperty("portMultiplexingMode", gensetId != null //
 								? MultiplexingMode.GENSET
 								: MultiplexingMode.UNDEFINED)
-						.onlyIf(gensetId != null, b -> b //
-								.addProperty("genset.id", gensetId))
+						.addProperty("genset.id", gensetId != null //
+								? gensetId //
+								: "") //
 						.addProperty("ratedPower", ratedPower) //
 						.addProperty("preheatingTime", preheatingTime) //
 						.addProperty("runtime", runtime) //

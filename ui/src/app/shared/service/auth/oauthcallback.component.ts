@@ -37,6 +37,7 @@ import { OAuthService } from "./oauth.service";
 })
 export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
 
+    public static readonly OAUTH_CALLBACK: string = "oauthcallback";
     protected spinnerId: string = uuidv4();
     private oauthService: OAuthService = inject(OAuthService);
 
@@ -52,12 +53,11 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
             }
         });
 
-        const context = effect(async () => {
+        effect(async () => {
             const status = this.service.websocket.state();
             this.service.startSpinner(this.spinnerId, { fullScreen: true });
             if (States.isAtLeast(status, States.WEBSOCKET_CONNECTED)) {
                 await OAuthCallBackComponent.processQueryParams(this.route, this.oauthService);
-                context.destroy();
             };
         });
     }

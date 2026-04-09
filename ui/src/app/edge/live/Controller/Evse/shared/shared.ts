@@ -1,10 +1,71 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChartDataset } from "chart.js";
+import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
+import { Name } from "src/app/shared/components/shared/name";
+import { Edge, EdgeConfig } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 import { environment } from "src/environments";
+import { EvseChargepoint } from "./evse-chargepoint";
 
 export namespace ControllerEvseSingleShared {
+
+    export function getNavigationTree(edge: Edge, translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+        const component = config.getComponentSafely(componentId);
+        const baseMode: NavigationTree["mode"] = "label";
+
+        if (component == null) {
+            return null;
+        }
+
+        return new NavigationTree(
+            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+                ...(edge.roleIsAtLeast(Role.ADMIN)
+                    ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                    : []),
+
+                new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
+                new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
+                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null, getPhaseSwitchingShowOrder(componentId, edge, config)),
+                new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
+                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
+                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
+                ], null),
+                new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
+                ...(edge.roleIsAtLeast(Role.OWNER)
+                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                    : []),
+            ], null).toConstructorParams();
+    }
+
+    /**
+     * Gets the phase switching showOrder.
+     *
+     * @param componentId the component id
+     * @param edge the current edge
+     * @param config the edge config
+     * @returns "HIDE" if phase-switching is disabled, else "LOW"
+     */
+    export function getPhaseSwitchingShowOrder(componentId: string, edge: Edge, config: EdgeConfig): NavigationTree["showOrder"] {
+
+        if (edge == null || config == null) {
+            return "HIDE";
+        }
+
+        const component = config.getComponentFromOtherComponentsProperty(componentId, "chargePoint.id") ?? null;
+
+        if (component == null) {
+            return "HIDE";
+        }
+
+        const chargePointComponent = EvseChargepoint.getEvseChargepoint(component);
+        if (!chargePointComponent?.hasPhaseSwitchingAbility()) {
+            return "HIDE";
+        }
+
+        return "LOW";
+    }
 
     /**
      * Converts a string mode to a presentable label

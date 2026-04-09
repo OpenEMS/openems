@@ -5,7 +5,6 @@ import { FilterComponent } from "./filter/filter.component";
 import { LoginComponent } from "./login.component";
 import { OverViewComponent } from "./overview/overview.component";
 import { RegistrationModule } from "./registration/registration.module";
-import { LoadingScreenComponent } from "./shared/loading-screen";
 import { SumStateComponent } from "./shared/sumState";
 
 @NgModule({
@@ -19,7 +18,6 @@ import { SumStateComponent } from "./shared/sumState";
         SumStateComponent,
         LoginComponent,
         OverViewComponent,
-        LoadingScreenComponent,
     ],
 })
 export class IndexModule { }

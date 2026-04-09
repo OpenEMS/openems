@@ -20,7 +20,7 @@ public abstract class PrefixedLogger implements Logger {
 	protected PrefixedLogger(String name) {
 		this(LoggerFactory.getLogger(Objects.requireNonNull(name)));
 	}
-	
+
 	protected PrefixedLogger(Logger logger) {
 		this.logger = logger;
 	}

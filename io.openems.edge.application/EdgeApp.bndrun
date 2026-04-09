@@ -25,8 +25,9 @@
 	org.apache.felix.fileinstall;startlevel=13,\
 	org.ops4j.pax.logging.pax-logging-api;startlevel=14,\
 	org.ops4j.pax.logging.pax-logging-log4j2;startlevel=15,\
-	io.openems.core.logger;startlevel=16,\
-	io.openems.edge.application;startlevel=17,\
+	io.openems.core.referencetarget;startlevel=16,\
+	io.openems.core.logger;startlevel=17,\
+	io.openems.edge.application;startlevel=18,\
 
 -runrequires: \
 	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\
@@ -40,6 +41,7 @@
 	bnd.identity;id='org.apache.felix.fileinstall',\
 	bnd.identity;id='org.apache.felix.metatype',\
 	bnd.identity;id='io.openems.core.logger',\
+	bnd.identity;id='io.openems.core.referencetarget',\
 	bnd.identity;id='io.openems.edge.application',\
 	bnd.identity;id='io.openems.edge.battery.bmw',\
 	bnd.identity;id='io.openems.edge.battery.bydcommercial',\
@@ -129,7 +131,6 @@
 	bnd.identity;id='io.openems.edge.evcs.goe',\
 	bnd.identity;id='io.openems.edge.evcs.goe.chargerhome',\
 	bnd.identity;id='io.openems.edge.evcs.heidelberg',\
-	bnd.identity;id='io.openems.edge.evcs.mennekes',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.abl',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.common',\
 	bnd.identity;id='io.openems.edge.evcs.ocpp.ies.keywatt.singleccs',\
@@ -139,9 +140,11 @@
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.bender',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.heidelberg',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.keba',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.mennekes',\
 	bnd.identity;id='io.openems.edge.evse.electricvehicle.generic',\
 	bnd.identity;id='io.openems.edge.fenecon.dess',\
 	bnd.identity;id='io.openems.edge.fenecon.mini',\
@@ -227,7 +230,7 @@
 	com.google.gson;version='[2.13.2,2.13.3)',\
 	com.google.guava;version='[33.5.0,33.5.1)',\
 	com.google.guava.failureaccess;version='[1.0.3,1.0.4)',\
-	com.google.protobuf;version='[4.34.0,4.34.1)',\
+	com.google.protobuf;version='[4.34.1,4.34.2)',\
 	com.opencsv;version='[5.9.0,5.9.1)',\
 	com.squareup.okhttp3;version='[5.3.2,5.3.3)',\
 	com.squareup.okhttp3.logging;version='[5.3.2,5.3.3)',\
@@ -235,8 +238,9 @@
 	com.sun.jna;version='[5.18.1,5.18.2)',\
 	io.openems.common;version=snapshot,\
 	io.openems.common.bridge.http;version=snapshot,\
-	io.openems.core.logger;version=snapshot;startlevel=16,\
-	io.openems.edge.application;version=snapshot;startlevel=17,\
+	io.openems.core.logger;version=snapshot;startlevel=17,\
+	io.openems.core.referencetarget;version=snapshot;startlevel=16,\
+	io.openems.edge.application;version=snapshot;startlevel=18,\
 	io.openems.edge.battery.api;version=snapshot,\
 	io.openems.edge.battery.bmw;version=snapshot,\
 	io.openems.edge.battery.bydcommercial;version=snapshot,\
@@ -331,7 +335,6 @@
 	io.openems.edge.evcs.goe;version=snapshot,\
 	io.openems.edge.evcs.goe.chargerhome;version=snapshot,\
 	io.openems.edge.evcs.heidelberg;version=snapshot,\
-	io.openems.edge.evcs.mennekes;version=snapshot,\
 	io.openems.edge.evcs.ocpp.abl;version=snapshot,\
 	io.openems.edge.evcs.ocpp.common;version=snapshot,\
 	io.openems.edge.evcs.ocpp.ies.keywatt.singleccs;version=snapshot,\
@@ -342,9 +345,11 @@
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.evse.api;version=snapshot,\
 	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
+	io.openems.edge.evse.chargepoint.bender;version=snapshot,\
 	io.openems.edge.evse.chargepoint.hardybarth;version=snapshot,\
 	io.openems.edge.evse.chargepoint.heidelberg;version=snapshot,\
 	io.openems.edge.evse.chargepoint.keba;version=snapshot,\
+	io.openems.edge.evse.chargepoint.mennekes;version=snapshot,\
 	io.openems.edge.evse.electricvehicle.generic;version=snapshot,\
 	io.openems.edge.fenecon.dess;version=snapshot,\
 	io.openems.edge.fenecon.mini;version=snapshot,\

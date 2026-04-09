@@ -85,7 +85,7 @@ public record GlobalOptimizationContext(//
 				.addProperty("zone", goc.clock.getZone().getId()) //
 				.addProperty("environment", goc.environment) //
 				.addProperty("startTime", goc.startTime) //
-				.add("grid", goc.grid, Grid.serializer()) //
+				.add("grid", goc.grid, Grid.serializer(goc.clock)) //
 				.add("ess", goc.ess, Ess.serializer()) //
 				.add("eshs", goc.eshs.stream() //
 						.map(EnergyScheduleHandler::toJson) //
@@ -104,19 +104,20 @@ public record GlobalOptimizationContext(//
 		/**
 		 * Returns a {@link JsonSerializer} for a {@link Grid}.
 		 * 
+		 * @param clock the {@link Clock}
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<Grid> serializer() {
+		public static JsonSerializer<Grid> serializer(Clock clock) {
 			return jsonObjectSerializer(Grid.class, json -> {
 				return new Grid(//
 						json.getInt("maxBuyPower"), //
 						json.getInt("maxSellPower"), //
-						json.getObject("gridBuySoftLimit", GridBuySoftLimit.tasksSerializer()));
+						json.getObject("gridBuySoftLimit", GridBuySoftLimit.tasksSerializer(clock)));
 			}, obj -> {
 				return buildJsonObject() //
 						.addProperty("maxBuyPower", obj.maxBuyPower) //
 						.addProperty("maxSellPower", obj.maxSellPower) //
-						.add("gridBuySoftLimit", obj.gridBuySoftLimit, GridBuySoftLimit.tasksSerializer()) //
+						.add("gridBuySoftLimit", obj.gridBuySoftLimit, GridBuySoftLimit.tasksSerializer(clock)) //
 						.build();
 			});
 		}
@@ -329,7 +330,8 @@ public record GlobalOptimizationContext(//
 				int consumptionPredicted,
 
 				/**
-				 * Consumption prediction for the Period adjusted by {@link Environment} in [Wh].
+				 * Consumption prediction for the Period adjusted by {@link Environment} in
+				 * [Wh].
 				 * 
 				 * @return the consumption prediction
 				 */

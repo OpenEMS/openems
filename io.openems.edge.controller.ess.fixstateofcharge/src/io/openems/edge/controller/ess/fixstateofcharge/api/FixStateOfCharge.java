@@ -363,36 +363,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the time when the controller is expected to charge or discharge the ess.
-	 * See {@link ChannelId#EXPECTED_START_EPOCH_SECONDS}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Long> getExpectedStartEpochSeconds() {
-		return this.getExpectedStartEpochSecondsChannel().getNextValue();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EXPECTED_START_EPOCH_SECONDS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setExpectedStartEpochSeconds(Long value) {
-		this.getExpectedStartEpochSecondsChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EXPECTED_START_EPOCH_SECONDS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setExpectedStartEpochSeconds(long value) {
-		this.getExpectedStartEpochSecondsChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CTRL_IS_BLOCKING_ESS}.
 	 *
 	 * @return the Channel

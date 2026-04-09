@@ -152,4 +152,21 @@ public class IntUtils {
 			return firstValue + remainingSum;
 		}
 	}
+
+	/**
+	 * Fits a value within a lower and upper boundary.
+	 *
+	 * @param lowLimit  the int lower boundary
+	 * @param highLimit the int upper boundary
+	 * @param value     the int actual value
+	 * @return the adjusted int value
+	 */
+	public static int fitWithin(int lowLimit, int highLimit, int value) {
+		if (lowLimit > highLimit) {
+			throw new IllegalArgumentException("fitWithin failed for value [" + value + "]: " //
+					+ "lowLimit [" + lowLimit + "] must be <= highLimit [" + highLimit + "]");
+		}
+		return Math.max(lowLimit, //
+				Math.min(highLimit, value));
+	}
 }

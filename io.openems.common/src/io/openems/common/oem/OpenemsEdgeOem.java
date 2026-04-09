@@ -1,5 +1,8 @@
 package io.openems.common.oem;
 
+import java.util.Map;
+
+import io.openems.common.session.Language;
 import io.openems.common.types.Tuple;
 
 public interface OpenemsEdgeOem {
@@ -106,7 +109,8 @@ public interface OpenemsEdgeOem {
 	/**
 	 * Gets the Website-URL for the given App-ID.
 	 * 
-	 * @param appId the App-ID
+	 * @param appId    the App-ID
+	 * @param language the language
 	 * @return
 	 *         <ul>
 	 *         <li>a proper URL (e.g. https://...)
@@ -115,7 +119,7 @@ public interface OpenemsEdgeOem {
 	 *         <li>null: App is undefined
 	 *         </ul>
 	 */
-	public String getAppWebsiteUrl(String appId);
+	public String getAppWebsiteUrl(String appId, Language language);
 
 	/**
 	 * Gets the OEM IdentKey for Kaco.BlueplanetHybrid10.Core.
@@ -186,4 +190,22 @@ public interface OpenemsEdgeOem {
 	 * @return the link
 	 */
 	public String getLink(String key);
+
+	/**
+	 * Gets the Website Link for a given {@link Language} from a given Map.
+	 * 
+	 * @param appToWebsiteUrl the map
+	 * @param appId           the id of the app
+	 * @param language        the {@link Language}
+	 * @return the url
+	 */
+	public static String getAppWebsiteUrlFromMap(//
+			Map<String, AppLink> appToWebsiteUrl, //
+			String appId, //
+			Language language//
+	) {
+		return appToWebsiteUrl.get(appId).getLinkByLanguage(language).filter(s -> !s.isBlank())
+				.or(() -> appToWebsiteUrl.get(appId).getLinkByLanguage(Language.EN).filter(s -> !s.isBlank()))
+				.orElse("");
+	}
 }

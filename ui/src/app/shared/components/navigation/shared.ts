@@ -27,7 +27,7 @@ export class NavigationTree {
         /** Use null for nested node */
         public parent: NavigationTree | null,
         /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
-        public priorization: "HIGH" | "LOW" = "HIGH",
+        public showOrder: "HIGH" | "LOW" | "HIDE" = "HIGH",
     ) { }
 
     /**
@@ -48,24 +48,25 @@ export class NavigationTree {
     }
 
     /**
-     * Reorders the navigation tree children by its {@link priorization} from HIGH to LOW.
+     * Reorders the navigation tree children by its {@link showOrder} from HIGH to LOW.
      *
      * @param node the node
      * @returns
      */
-    public reorderByPriorization(node: NavigationTree): void {
+    public reorderByShowOrder(node: NavigationTree): void {
         if (node == null || !Array.isArray(node.children)) {
             return;
         }
 
         // First reorder deeper levels
-        node.children.forEach(child => this.reorderByPriorization(child));
+        node.children.forEach(child => this.reorderByShowOrder(child));
 
         // Explicit grouping (safer than comparator)
-        const high = node.children.filter(c => c.priorization === "HIGH");
-        const low = node.children.filter(c => c.priorization === "LOW");
+        const high = node.children.filter(c => c.showOrder === "HIGH");
+        const low = node.children.filter(c => c.showOrder === "LOW");
+        const hide = node.children.filter(c => c.showOrder === "HIDE");
 
-        node.children = [...high, ...low];
+        node.children = [...high, ...low, ...hide];
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
@@ -181,12 +182,12 @@ export class NavigationTree {
         }
 
         const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(this);
-        return findParentNode(flattenedNavigationTree, currentUrl);
+        return findParentNode(flattenedNavigationTree, currentUrl.split("?")[0]);
     }
 
     public updateNavigationTreeByAbsolutePath(
         root: NavigationTree | null, absolutePath: string, updateFn: (node: NavigationTree) => void | NavigationTree, currentPath: string = ""
-    ): boolean {
+    ) {
         if (root == null) {
             return false;
         }
@@ -256,7 +257,7 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
-            this.priorization,
+            this.showOrder,
         ];
     }
 
@@ -323,6 +324,19 @@ export class NavigationTree {
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
         return this.setParentRecursively();
+    }
+
+    /**
+     * Sets the child for a given parent navigation id
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public showHiddenNode(showOrder: typeof this.showOrder = "HIGH") {
+        this.showOrder = showOrder;
+        return this;
     }
 
     public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
@@ -404,7 +418,9 @@ export namespace NavigationConstants {
     /**
      * The widget factories to show in new navigation
      */
-    export const newWidgets: Widget["name"][] = [];
+    export const newWidgets: Widget["name"][] = [
+        "Controller.Io.HeatPump.SgReady",
+    ];
 
     export namespace CommonNodes {
         export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };

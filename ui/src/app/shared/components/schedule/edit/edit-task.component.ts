@@ -1,9 +1,5 @@
 import { Location } from "@angular/common";
-import { ChangeDetectorRef, Component, Inject, inject, model } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
-import { ModalController } from "@ionic/angular";
-import { TranslateService } from "@ngx-translate/core";
+import { Component, inject, model } from "@angular/core";
 import { v4 as uuidv4 } from "uuid";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -14,15 +10,11 @@ import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { DeleteTask } from "src/app/shared/jsonrpc/request/deleteTaskRequest";
 import { GetAllTasks } from "src/app/shared/jsonrpc/request/getAllTasks";
-import { Service, Websocket } from "src/app/shared/shared";
-import { Language } from "src/app/shared/type/language";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { EdgeConfig } from "../../edge/edgeconfig";
 import { TaskFormComponent } from "../form/task-form.component";
-import de from "../i18n/de.json";
-import en from "../i18n/en.json";
 import { JsCalendarEditTaskComponent } from "../js-calendar-edit-task";
 import { JsCalendar } from "../js-calendar-task";
 
@@ -57,23 +49,6 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
 
     private location: Location = inject(Location);
 
-    constructor(
-        @Inject(Websocket) protected override websocket: Websocket,
-        @Inject(ActivatedRoute) protected override route: ActivatedRoute,
-        @Inject(Service) protected override service: Service,
-        @Inject(ModalController) public override modalController: ModalController,
-        @Inject(TranslateService) protected override translate: TranslateService,
-        @Inject(FormBuilder) public override formBuilder: FormBuilder,
-        public override ref: ChangeDetectorRef,
-    ) {
-        super(websocket, route, service, modalController, translate, formBuilder, ref);
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
-    }
-
     public override async onIsInitialized(): Promise<void> {
         const url = this.routeService.currentUrl();
         if (url === null) {
@@ -81,10 +56,10 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         }
 
         const componentId = this.routeService.getRouteParam<string>("componentId");
-        const uid = this.routeService.getRouteParam<string>("taskId");
+        const taskId = this.routeService.getQueryParam<string>("taskId");
 
         this.componentId = componentId;
-        this.uid = uid;
+        this.uid = taskId;
 
         if (this.edge === null) {
             return;

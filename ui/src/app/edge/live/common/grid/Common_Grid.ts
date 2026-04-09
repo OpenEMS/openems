@@ -24,4 +24,4 @@ import { CommonGridHomeComponent } from "./new-navigation/new-navigation";
         CommonGridHomeComponent,
     ],
 })
-export class Common_Grid { }
+export class CommonGrid { }

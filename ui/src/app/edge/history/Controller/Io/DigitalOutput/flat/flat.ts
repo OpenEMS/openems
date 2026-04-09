@@ -17,6 +17,9 @@ export class FlatComponent extends AbstractFlatWidget {
     protected readonly TextIndentation = TextIndentation;
 
     protected override afterIsInitialized(): void {
+        if (this.config == null) {
+            return;
+        }
         this.fixDigitalOutputControllers = this.config?.getComponentsByFactory("Controller.Io.FixDigitalOutput");
         this.singleThresholdControllers = this.config?.getComponentsByFactory("Controller.IO.ChannelSingleThreshold");
     }

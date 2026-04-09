@@ -18,19 +18,27 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
 import io.openems.edge.controller.api.Controller;
 
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+
 public interface ControllerApiBackend extends Controller, OpenemsComponent, EventHandler {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		API_WORKER_LOG(Doc.of(OpenemsType.STRING) //
+		API_WORKER_LOG(Doc.of(OpenemsType.STRING)//
 				.text("Logs Write-Commands via ApiWorker")), //
-		UNABLE_TO_SEND(Doc.of(Level.WARNING)
-				// Make sure this is always persisted, as it is required for resending
+		UNABLE_TO_SEND(Doc.of(Level.WARNING)// Make sure this is always persisted, as it is required for resending
 				.persistencePriority(PersistencePriority.VERY_HIGH)), //
-		LAST_SUCCESSFUL_RESEND(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_SECONDS)
-				// Make sure this is always persisted, as it is required for resending
-				.persistencePriority(PersistencePriority.VERY_HIGH) //
+		LAST_SUCCESSFUL_RESEND(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS)// Make sure this is always persisted, as it is required for resending
+				.persistencePriority(PersistencePriority.VERY_HIGH)//
 				.text("Latest timestamp of successfully resent data")), //
+
+		/**
+		 * This channel is set to true when the websocket reconnect handler can't close
+		 * the old connection. This can happen because connection.close() can deadlock
+		 * in java. The channel is used for better reporting.
+		 */
+		CONNECTION_CLOSE_FAILURE(Doc.of(BOOLEAN)), //
+
 		;
 
 		private final Doc doc;
