@@ -93,7 +93,7 @@ public sealed interface CommonConfig {
 		 */
 		public static Tcp from(io.openems.edge.controller.api.modbus.readwrite.tcp.Config src, Meta metaComponent) {
 			return new Tcp(src.id(), src.alias(), src.enabled(), metaComponent, src.component_ids(),
-					DEFAULT_API_TIMEOUT_SECONDS, src.port(), src.maxConcurrentConnections(), src.logVerbosity());
+					src.apiTimeout(), src.port(), src.maxConcurrentConnections(), src.logVerbosity());
 		}
 	}
 

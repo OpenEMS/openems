@@ -1,6 +1,7 @@
 package io.openems.common.jsonrpc.serialization;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -160,6 +161,32 @@ public final class StringPathParser {
 		public ExampleValues<LocalTime> getExample() {
 			final var timestamp = LocalTime.now();
 			return new ExampleValues<>(timestamp.format(this.formatter), timestamp);
+		}
+
+	}
+
+	public static class StringParserInstant implements StringParser<Instant> {
+
+		private final DateTimeFormatter formatter;
+
+		public StringParserInstant(DateTimeFormatter formatter) {
+			super();
+			this.formatter = formatter;
+		}
+
+		public StringParserInstant() {
+			this(DateTimeFormatter.ISO_INSTANT);
+		}
+
+		@Override
+		public Instant parse(String value) {
+			return Instant.from(this.formatter.parse(value));
+		}
+
+		@Override
+		public ExampleValues<Instant> getExample() {
+			final var timestamp = Instant.now();
+			return new ExampleValues<>(this.formatter.format(timestamp), timestamp);
 		}
 
 	}

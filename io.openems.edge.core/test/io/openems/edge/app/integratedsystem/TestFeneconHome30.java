@@ -141,16 +141,14 @@ public class TestFeneconHome30 {
 
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Initial Home 30 scheduler order",
 				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlGridOptimizedCharge0",
-				"ctrlEssSurplusFeedToGrid0",
-				"ctrlBalancing0");
+				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(homeInstance.instanceId, homeInstance.alias, fullSettings()));
 
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder("Update Home 30 to add emergency reserve",
 				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlEmergencyCapacityReserve0",
-				"ctrlGridOptimizedCharge0",
-				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
+				"ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				homeInstance.instanceId, homeInstance.alias, fullSettingsWithoutEmergencyReserve()));
@@ -158,8 +156,7 @@ public class TestFeneconHome30 {
 		this.appManagerTestBundle.scheduler.assertExactSchedulerOrder(
 				"Update Home 30 to remove EmergencyReserve Controller", //
 				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlGridOptimizedCharge0",
-				"ctrlEssSurplusFeedToGrid0",
-				"ctrlBalancing0");
+				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 	}
 
 	@Test
@@ -338,8 +335,7 @@ public class TestFeneconHome30 {
 		appManagerTestBundle.scheduler.assertExactSchedulerOrder(
 				"Failed setting initial Home 30 Scheduler configuration", //
 				"ctrlPrepareBatteryExtension0", CTRL_ESS_SOH_CYCLE_0, "ctrlEmergencyCapacityReserve0",
-				"ctrlGridOptimizedCharge0",
-				"ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
+				"ctrlGridOptimizedCharge0", "ctrlEssSurplusFeedToGrid0", "ctrlBalancing0");
 		return homeInstance;
 	}
 

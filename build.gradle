@@ -21,7 +21,7 @@ java {
 def isCI = providers.environmentVariable("CI").isPresent()
 
 if (isCI) {
-    println("CI environment detected - suppressing all compiler warnings")
+	println("CI environment detected - suppressing all compiler warnings")
 }
 
 /*
@@ -34,11 +34,11 @@ subprojects {
 	repositories {
 		mavenCentral()
 	}
-	
+
 	if (name ==~ /io.openems.(common|core|edge|oem|shared|wrapper).*/) {
 		ext.isEdge = true
 	}
-	
+
 	if (name ==~ /io.openems.(backend|common|core|oem|shared|wrapper).*/) {
 		ext.isBackend = true
 	}
@@ -56,6 +56,7 @@ subprojects {
 	}
 
 	tasks.withType(Test).configureEach {
+		useJUnitPlatform()
 		maxParallelForks = Runtime.runtime.availableProcessors() * 0.66 as Integer
 		reports {
 			html.required = false
@@ -73,7 +74,7 @@ subprojects {
 			afterSuite { desc, result ->
 				if (!desc.parent) {
 					def shortName = path.takeRight(36)
-					def padded = String.format("%36s", shortName) 
+					def padded = String.format("%36s", shortName)
 					def icon = switch(result.resultType) {
 						case org.gradle.api.tasks.testing.TestResult.ResultType.SUCCESS -> "✅"
 						case org.gradle.api.tasks.testing.TestResult.ResultType.FAILURE -> "❌"
@@ -95,11 +96,11 @@ subprojects {
 			}
 		}
 	}
-	
+
 	if (plugins.hasPlugin("biz.aQute.bnd")) {
 		apply plugin: 'checkstyle'
 		apply plugin: 'jacoco'
-		
+
 		jacocoTestReport {
 			reports {
 				xml.required = true
@@ -113,7 +114,7 @@ subprojects {
 				}))
 			}
 		}
-	
+
 		checkstyle {
 			toolVersion = '11.1.0'
 			configFile = file("${rootDir}/cnf/checkstyle.xml")
@@ -133,10 +134,6 @@ subprojects {
 			exclude '**/com/dalsemi/onewire/*'
 		}
 	}
-}
-
-tasks.named('wrapper') {
-	jarFile = rootProject.file('.gradle-wrapper/gradle-wrapper.jar')
 }
 
 tasks.register('checkstyleEdge') {
@@ -181,7 +178,7 @@ tasks.register('checkstyleAll') {
 tasks.register('testEdge') {
 	group = 'OpenEMS-Test'
 	description = 'Run JUnit tests for all Edge-Bundles'
-	
+
 	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
 		if (proj.tasks.findByName('test')) {
 			dependsOn(proj.test)
@@ -203,7 +200,7 @@ tasks.register('testBackend') {
 tasks.register('cleanEdge') {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Edge-Bundles'
-	
+
 	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
 		if (proj.tasks.findByName('clean')) {
 			dependsOn(proj.clean)
@@ -214,7 +211,7 @@ tasks.register('cleanEdge') {
 tasks.register('cleanBackend') {
 	group = 'OpenEMS-Build'
 	description = 'Clean all Backend-Bundles'
-	
+
 	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
 		if (proj.tasks.findByName('clean')) {
 			dependsOn(proj.clean)
@@ -225,7 +222,7 @@ tasks.register('cleanBackend') {
 tasks.register('assembleEdge') {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Edge-Bundles'
-	
+
 	subprojects.findAll { it.hasProperty('isEdge') }.each { proj ->
 		if (proj.tasks.findByName('assemble')) {
 			dependsOn(proj.assemble)
@@ -236,7 +233,7 @@ tasks.register('assembleEdge') {
 tasks.register('assembleBackend') {
 	group = 'OpenEMS-Build'
 	description = 'Assemble all Backend-Bundles'
-	
+
 	subprojects.findAll { it.hasProperty('isBackend') }.each { proj ->
 		if (proj.tasks.findByName('assemble')) {
 			dependsOn(proj.assemble)
@@ -260,25 +257,25 @@ tasks.register('buildComponents') {
 	}
 }
 
-task buildEdge() {
+tasks.register('buildEdge'){
 	group = 'OpenEMS-Build'
 	description = 'Build a Fat-Jar for the OpenEMS-Edge into build/openems-edge.jar'
 
 	def assemble = tasks.named('assembleEdge')
 	def export = tasks.getByPath(':io.openems.edge.application:export.EdgeApp')
 	def resolve = tasks.getByPath(':io.openems.edge.application:resolve.EdgeApp')
-	
+
 	dependsOn assemble
 	dependsOn export
 	dependsOn resolve
-	
+
 	resolve.mustRunAfter assemble
 	export.mustRunAfter resolve
-	
+
 	/* force rebuild */
 	export.outputs.upToDateWhen { false }
 	outputs.upToDateWhen { false }
-	
+
 	doLast {
 		def source = file("io.openems.edge.application/generated/distributions/executable/EdgeApp.jar")
 		def output = providers.gradleProperty('oems.edge.output')
@@ -297,21 +294,21 @@ task buildEdge() {
 	}
 }
 
-task buildBackend() {
+tasks.register('buildBackend') {
 	group = 'OpenEMS-Build'
 	description = 'Build a Fat-Jar for the OpenEMS-Backend into build/openems-backend.jar'
 
 	def assemble = tasks.named('assembleBackend')
 	def export = tasks.getByPath(':io.openems.backend.application:export.BackendApp')
 	def resolve = tasks.getByPath(':io.openems.backend.application:resolve.BackendApp')
-	
+
 	dependsOn assemble
 	dependsOn export
 	dependsOn resolve
-	
+
 	resolve.mustRunAfter assemble
 	export.mustRunAfter resolve
-	
+
 	/* force rebuild */
 	export.outputs.upToDateWhen { false }
 	outputs.upToDateWhen { false }
@@ -397,51 +394,73 @@ tasks.register('buildAggregatedJavadocs', Javadoc) {
 tasks.register('copyBundleReadmes') {
 	doLast {
 		// define target files
-		def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
-		def targetController = basePath + "edge/controller.adoc.d"
-		def targetScheduler = basePath + "edge/scheduler.adoc.d"
-		def targetNature = basePath + "edge/nature.adoc.d"
-		def targetBridge = basePath + "edge/bridge.adoc.d"
-		def targetDeviceService = basePath + "edge/device_service.adoc.d"
-		def targetTimedata = basePath + "edge/timedata.adoc.d"
-		def targetBackendService = basePath + "backend/service.adoc.d"
+		def targets = [
+			core: "edge/core.d",
+			controller: "edge/controller.d",
+			scheduler: "edge/scheduler.d",
+			nature: "edge/nature.d",
+			bridge: "edge/bridge.d",
+			deviceService: "edge/device_service.d",
+			predictor: "edge/predictor.d",
+			tariff: "edge/tariff.d",
+			timedata: "edge/timedata.d",
+			backendService: "backend/service.d"
+		]
 
 		// initialize target files and directories
-		[targetController, targetScheduler, targetNature, targetBridge, targetDeviceService, targetTimedata, targetBackendService].each { target ->
-			delete fileTree(dir: target, include: '**/*.adoc')
-			new File(target + "/_include.adoc").write('')
+		def basePath = projectDir.getPath() + "/doc/modules/ROOT/pages/"
+		targets.each { name, target ->
+			delete fileTree(dir: basePath + target, include: '**/*.adoc')
 		}
+
+		// Collect entries for all targets
+		def targetEntries = [:]
 
 		subprojects.each { proj ->
 			// in each subproject (= bundle)...
 			proj.file(".").listFiles().each { sourceFile ->
 				// find the 'readme.adoc' file
 				if(sourceFile.getName().equalsIgnoreCase("readme.adoc")) {
+					def title // parse title from first line
+					file(sourceFile).withReader { r ->
+						title = r.readLine().replaceFirst(/^= /, "")
+					}
+
 					def bundle = sourceFile.getParentFile().getName()
-					def target = null
+					if(bundle in ["io.openems.edge.core", "io.openems.edge.system.fenecon"]) {
+						return // ignore
+					}
+					def targetKey = null
 
 					if(bundle.startsWith("io.openems.edge.")) {
 						def edgeBundle = bundle.substring("io.openems.edge.".length())
-						if(edgeBundle.endsWith(".api")) {
-							target = targetNature
+						if(edgeBundle in ["energy", "evcs.ocpp.common", "ess.cluster", "evcs.cluster", "evcs.core",
+						"evse.electricvehicle", "ess.generic", "evcs.ocpp.server", "simulator", "pvinverter.cluster"]) {
+							targetKey = 'core'
+						} else if(edgeBundle.endsWith(".api")) {
+							targetKey = 'nature'
 						} else if(edgeBundle.startsWith("controller.")) {
-							target = targetController
+							targetKey = 'controller'
 						} else if(edgeBundle.startsWith("scheduler.")) {
-							target = targetScheduler
+							targetKey = 'scheduler'
 						} else if(edgeBundle.startsWith("bridge.")) {
-							target = targetBridge
+							targetKey = 'bridge'
+						} else if(edgeBundle.startsWith("predictor.")) {
+							targetKey = 'predictor'
+						} else if(edgeBundle.startsWith("timeofusetariff.")) {
+							targetKey = 'tariff'
 						} else if(edgeBundle.startsWith("timedata.")) {
-							target = targetTimedata
+							targetKey = 'timedata'
 						} else {
-							target = targetDeviceService
+							targetKey = 'deviceService'
 						}
-	
+
 					} else if(bundle.startsWith("io.openems.backend.")) {
 						def backendBundle = bundle.substring("io.openems.backend.".length())
 						if(backendBundle.startsWith("timedata.")) {
-							target = targetBackendService
+							targetKey = 'backendService'
 						} else if(backendBundle.startsWith("metadata.")) {
-							target = targetBackendService
+							targetKey = 'backendService'
 						} else {
 							return // ignore
 						}
@@ -449,33 +468,50 @@ tasks.register('copyBundleReadmes') {
 					} else if(bundle.startsWith("io.openems.common.")) {
 						def commonBundle = bundle.substring("io.openems.common.".length())
 						if(commonBundle.startsWith("bridge.")) {
-							target = targetBridge
+							return // ignore
 						}
 
 					} else if(bundle.startsWith("io.openems.wrapper")
-						|| bundle.startsWith("io.openems.oem.")) {
+							|| bundle.startsWith("io.openems.oem.")) {
 						// ignore
 						return
 					}
-	
+
 					// could we exactly evaluate the bundle type and set the targetFile?
-					if(target == null) {
+					if(targetKey == null) {
 						throw new Exception("Bundle type is unknown for " + bundle)
 					}
-	
-					// copy the readme file to "target.d" folder
+
+					def target = targets[targetKey]
+
+					// copy the bundle readme file to "target" folder
+					def readmeFile = bundle + ".adoc"
 					copy {
 						from (sourceFile.toPath())
-						into (target)
+						into (basePath + target)
 						rename { fileName ->
-							return bundle + ".adoc"
+							return readmeFile
 						}
 					}
-	
-					// append content of source file to target file
-					File targetFile = new File(target + "/_include.adoc")
-					targetFile.append("\ninclude::" + bundle + ".adoc[leveloffset=+1]\n")
+
+					// collect entries for target
+					if(!targetEntries[targetKey]) {
+						targetEntries[targetKey] = []
+					}
+
+					targetEntries[targetKey].add([path: target + "/" + readmeFile, title: title])
 				}
+			}
+		}
+
+		// Sort and write entries for all targets
+		targetEntries.each { targetKey, entries ->
+			def target = targets[targetKey]
+			// Sort xref entries alphabetically by title
+			def nav = new File(basePath + target + "/_nav.adoc")
+			nav.write("")
+			entries.sort { a, b -> a.title.compareToIgnoreCase(b.title) }.each { entry ->
+				nav.append("* xref:" + entry.path + "[" + entry.title + "]\n")
 			}
 		}
 	}
@@ -501,7 +537,7 @@ tasks.register('buildAntoraDocs') {
 			into output
 		}
 		source.deleteDir()
-		
+
 		println("Built ${output}!")
 	}
 }

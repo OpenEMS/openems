@@ -144,13 +144,34 @@ public class Rrd4jSupplier {
 				MILLIWATT, MINUTE, NONE, WATT, VOLT, VOLT_AMPERE, VOLT_AMPERE_REACTIVE, WATT_HOURS_BY_WATT_PEAK, OHM,
 				SECONDS, THOUSANDTH, WATT_HOURS, KILOWATT_HOURS, VOLT_AMPERE_HOURS, VOLT_AMPERE_REACTIVE_HOURS,
 				KILOVOLT_AMPERE_REACTIVE_HOURS, BAR, MILLIBAR, TENTHOUSANDTH, DEZIAMPERE, DEZIVOLT,
-				GRAMS_PER_CUBIC_METER, PARTS_PER_MILLION, KILOJOULE, KILOJOULES_PER_KILOGRAM ->
+				GRAMS_PER_CUBIC_METER, PARTS_PER_MILLION, KILOJOULE, KILOJOULES_PER_KILOGRAM, PERCENT_PER_HERTZ,
+				PERCENT_PN_PER_SECOND, PERCENT_PN, PERCENT_VN, PROMILLE_VN, PROMILLE_PN, PROMILLE_PN_PER_SECOND,
+				PROMILLE_PER_HERTZ, PERCENT_LN_PER_SECOND, PROMILLE_LN_PER_SECOND, QMAX_PER_PERCENT_VN,
+				QMAX_PER_DECIPERCENT_VN, QMAX_PER_PERCENT_PN, QMAX_PER_DECIPERCENT_PN, PROMILLE_PN_PER_MINUTE,
+				PERCENT_PN_PER_MINUTE ->
 			new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.AVERAGE);
 		case PERCENT -> new ChannelDef(DsType.GAUGE, 0, 100, ConsolFun.AVERAGE);
 		case ON_OFF -> new ChannelDef(DsType.GAUGE, 0, 1, ConsolFun.AVERAGE);
 		case CUMULATED_SECONDS, CUMULATED_WATT_HOURS ->
 			new ChannelDef(DsType.GAUGE, Double.NaN, Double.NaN, ConsolFun.MAX);
 		};
+	}
+
+	/**
+	 * Deletes the RrdDb file of the given RrdDb. Use with care as this can lead to
+	 * data loss.
+	 * 
+	 * @param db the RrdDb to delete
+	 * @return true if deletion was successful, false otherwise
+	 */
+	public boolean delete(RrdDb db) {
+		try {
+			db.close();
+		} catch (IOException e) {
+			return false;
+		}
+		var file = new File(db.getPath());
+		return file.delete();
 	}
 
 	/**

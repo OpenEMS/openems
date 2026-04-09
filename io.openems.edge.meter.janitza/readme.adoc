@@ -1,10 +1,169 @@
-= Janitza Meters
+= Janitza Energy Meters
 
-Implemented Meters:
-- UMG 96RM-E
-- UMG 104
-- UMG 511
-- UMG 604
-- UMG 808 (via UMG 604 Master)
+Integration with Janitza UMG series energy meters via Modbus protocol.
+
+== Overview
+
+This bundle provides integration with Janitza UMG series power analyzers and energy meters, supporting multiple models for comprehensive energy monitoring in residential, commercial, and industrial installations. The components communicate with meters through the Modbus TCP protocol, enabling real-time energy monitoring, power analysis, and detailed data collection in OpenEMS.
+
+Janitza meters are professional power quality analyzers with advanced measurement capabilities including harmonic analysis, phase rotation detection, and comprehensive energy accounting.
+
+== Supported Devices
+
+* https://www.janitza.com/[Janitza UMG 96RM-E icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 104 icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 511 icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 604 icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 801 icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 806 icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 808 (via UMG 604 Master) icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components for Janitza meters:
+
+=== Janitza UMG 96RM-E
+
+*Name*: Meter Janitza UMG 96RM-E
+
+*Factory-PID*: `Meter.Janitza.UMG96RME`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg96rme
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 104
+
+*Name*: Meter Janitza UMG 104
+
+*Factory-PID*: `Meter.Janitza.UMG104`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg104
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 511
+
+*Name*: Meter Janitza UMG 511
+
+*Factory-PID*: `Meter.Janitza.UMG511`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg511
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 604
+
+*Name*: Meter Janitza UMG 604
+
+*Factory-PID*: `Meter.Janitza.UMG604`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg604
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol. Can also act as master for UMG 808.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 801
+
+*Name*: Meter Janitza UMG 801
+
+*Factory-PID*: `Meter.Janitza.UMG801`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg801
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 806
+
+*Name*: Meter Janitza UMG 806
+
+*Factory-PID*: `Meter.Janitza.UMG806`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg806
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.janitza[Source Code icon:github[]]

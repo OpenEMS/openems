@@ -1,0 +1,14 @@
+@if(isInitialized){
+<oe-components-scheduler (schedule)="schedule" [(payload)]="payload">
+    <ng-template let-task="task">
+        <ion-row class="ion-align-items-center">
+            <ion-col>
+                <ion-label>
+                    {{task.payloadText}}
+                </ion-label>
+            </ion-col>
+        </ion-row>
+    </ng-template>
+
+</oe-components-scheduler>
+}

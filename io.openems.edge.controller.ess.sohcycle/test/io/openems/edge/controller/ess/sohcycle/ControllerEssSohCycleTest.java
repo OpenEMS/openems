@@ -7,13 +7,13 @@ import static io.openems.edge.ess.api.SymmetricEss.ChannelId.ACTIVE_DISCHARGE_EN
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_CELL_VOLTAGE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MIN_CELL_VOLTAGE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
@@ -101,8 +101,8 @@ public class ControllerEssSohCycleTest {
 						.output(STATE_MACHINE, StateMachine.State.IDLE)//
 						.onAfterControllersCallbacks(() -> {
 							var config = this.cm.getOrCreateEmptyConfiguration(controller.servicePid());
-							assertEquals("Running should switch to false after DONE->IDLE",
-									Boolean.FALSE, config.getProperties().get("isRunning"));
+							assertEquals(Boolean.FALSE, config.getProperties().get("isRunning"),
+									"Running should switch to false after DONE->IDLE");
 							this.assertMeasuredCapacity(controller, 15_000L);
 						}))
 				.deactivate();

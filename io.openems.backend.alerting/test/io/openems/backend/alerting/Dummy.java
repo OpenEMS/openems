@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,15 +18,14 @@ import java.util.concurrent.TimeUnit;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventAdmin;
 
-import com.google.gson.JsonElement;
-
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.MinuteTimer;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.mail.MailContext;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.test.DummyMetadata;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
@@ -54,8 +54,9 @@ public class Dummy {
 		public final List<Mail> sentMails = new LinkedList<>();
 
 		@Override
-		public synchronized void sendMail(ZonedDateTime sendAt, String template, JsonElement params) {
+		public synchronized CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String template, List<MailContext> context) {
 			this.sentMails.add(new Mail(sendAt, template));
+			return CompletableFuture.completedFuture(context.size());
 		}
 
 		public int getMailsCount() {

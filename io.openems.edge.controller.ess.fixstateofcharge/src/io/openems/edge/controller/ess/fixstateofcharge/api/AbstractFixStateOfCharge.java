@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 
@@ -225,10 +226,10 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		// Fit into min/max "EssPower"
 		var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 		var maxDischarge = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
-		activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
+		activePower = fitWithin(maxCharge, maxDischarge, activePower);
 
 		// Apply Power
-		ess.setActivePowerEquals(activePower);
+		ess.setActivePowerEqualsWithFilter(activePower);
 
 		// Set debug channels
 		this._setDebugSetActivePower(activePower);

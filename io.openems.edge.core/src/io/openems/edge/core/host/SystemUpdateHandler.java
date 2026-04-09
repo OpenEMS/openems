@@ -79,11 +79,11 @@ public class SystemUpdateHandler {
 							return;
 						}
 						var stdout = response.scr.stdout();
-						if (stdout.length < 1) {
+						if (stdout.isEmpty()) {
 							result.completeExceptionally(new IOException("Could not read dpkg-query result."));
 							return;
 						}
-						var currentVersion = stdout[0];
+						var currentVersion = stdout.getFirst();
 
 						// Read latest version
 						try {
@@ -181,7 +181,7 @@ public class SystemUpdateHandler {
 			final float totalNumberOfLines = script.split("\r\n|\r|\n").length;
 
 			// Make sure 'at' command is available
-			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().scr.stdout().length == 0) {
+			if (this.executeSystemCommand("which at", SHORT_TIMEOUT).get().scr.stdout().isEmpty()) {
 				this.updateState.addLog("# Command 'at' is missing");
 
 				{

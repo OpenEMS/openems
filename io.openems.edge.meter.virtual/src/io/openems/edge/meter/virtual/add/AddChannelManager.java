@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import io.openems.common.utils.IntUtils;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
@@ -13,7 +14,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 
 public class AddChannelManager extends AbstractChannelListenerManager {
 
-	public static final Function<List<Integer>, Integer> INTEGER_SUM = TypeUtils::sumInt;
+	public static final Function<List<Integer>, Integer> INTEGER_SUM = IntUtils::sumInteger;
 	public static final Function<List<Long>, Long> LONG_SUM = TypeUtils::sumLong;
 	public static final Function<List<Integer>, Integer> INTEGER_AVG = TypeUtils::averageInt;
 

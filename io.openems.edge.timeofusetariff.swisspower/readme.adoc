@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff Swisspower
+= Swisspower
 
 Retrieves the quarterly prices from the Swisspower ESIT API.
 

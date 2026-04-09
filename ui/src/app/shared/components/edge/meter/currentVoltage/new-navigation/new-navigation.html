@@ -1,14 +1,14 @@
 @if (isInitialized && isMeterAsymmetric !== null) {
-  <oe-navigation-view>
+<oe-navigation-view>
     <ion-buttons header class="ion-justify-content-center">
-      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-      <pickdate *ngIf="!ref.children.length"></pickdate>
+        <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+        <pickdate *ngIf="!ref.children.length"></pickdate>
     </ion-buttons>
     @if (isMeterAsymmetric) {
-      <currentVoltageAsymmetricChart [isOnlyChart]="true"></currentVoltageAsymmetricChart>
+    <oe-current-voltage-asymmetric-chart [isOnlyChart]="true"></oe-current-voltage-asymmetric-chart>
     }
     @if (!isMeterAsymmetric) {
-      <currentVoltageChart [isOnlyChart]="true"></currentVoltageChart>
+    <oe-current-voltage-chart [isOnlyChart]="true"></oe-current-voltage-chart>
     }
-  </oe-navigation-view>
+</oe-navigation-view>
 }

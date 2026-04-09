@@ -14,7 +14,7 @@ class DefaultChannelParameterProviderImpl<V> extends ChannelParameterProvider<V>
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new DefaultChannelParameterProviderImpl<>(this.channelId);
 	}
 }

@@ -1,39 +1,129 @@
-= OneWire
+= OneWire Bridge
 
-OneWire is a widely used protocol for home automation. It is used by sensors like thermometers.
+Serial bridge for temperature and sensor devices using the OneWire protocol.
 
-== Setup
+== Overview
 
-This implementation directly talks to the OneWire busmaster, e.g. a DS9490R USB dongle, without requiring the OneWire File System (OWFS). 
-It therefore requires the natively compiled C library by the manufacturer of the OneWire chip Maxim Integrated.
-This library is then accessed using Java JNI.
+The OneWire Bridge provides direct communication with 1-Wire (OneWire) devices such as temperature sensors, humidity monitors, and smart battery controllers. OneWire is a low-speed, single-wire protocol (plus ground) designed by Maxim Integrated for simple sensor networks.
 
-To compile the native library follow the guide on https://www.maximintegrated.com/en/design/technical-documents/app-notes/5/5917.html.
+The bridge communicates directly with a OneWire busmaster device (e.g., DS9490R USB dongle) without requiring the OneWire File System (OWFS). It accesses the native Maxim Integrated C library via Java JNI for optimal performance.
 
-. Download the OneWireViewer-Linux.zip file
-. Unzip the file (`unzip OneWireViewer-Linux.zip`)
-. Prepare compile environment (`sudo apt-get install libusb-dev build-essential`)
-. Install Java JDK (e.g. `sudo apt-get install openjdk-8-jdk`)
-. Compile (`cd OneWireViewer-Linux/PDKAdapterUSB && make && sudo make install`)
+Common use cases:
+* Temperature monitoring (thermometers at different locations)
+* Humidity and environmental sensors
+* Battery voltage and current monitoring via smart battery controllers
 
-The library needs exclusive access to the busmaster.
+== Components
 
-. Unload the default Linux driver: `rmmod ds2490`
-. Block the driver from loading on next boot `echo blacklist ds2490 > /etc/modprobe.d/ds2490.conf`
+[[_bridge_onewire]]
+=== Bridge OneWire
 
-== Identifying devices
+*Name*: Bridge OneWire
 
-The OneWire Bridge provides a JSON-RPC Request that reads all devices connected to the OneWire bus.
+*Factory-PID*: `Bridge.Onewire`
 
-Example: read via OpenEMS Backend
+*Purpose*: Master bridge for 1-Wire communication with temperature and sensor devices.
 
-[source,json]
-----
+.*Configuration*:
+* `id` (String): Unique bridge identifier; default: `"onewire0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `port` (String): OneWire adapter port identifier; default: `"USB1"`
+
+== Supported Devices
+
+.Common OneWire Sensors
+* **DS18B20** - Digital thermometer (-55°C to +125°C)
+* **DS18S20** - Digital thermometer (older model)
+* **DS2438** - Smart Battery Monitor (voltage, current, temperature)
+* **DS2450** - Quad A/D converter for analog inputs
+* **DS2413** - Dual addressable switch
+* **DS1923** - Temperature and humidity logger
+
+For complete device list, query the bridge via getDevices() JSON-RPC method (see "Identifying Devices" section).
+
+== Hardware Setup
+
+=== OneWire Adapter
+
+Supported adapters:
+* **DS9490R** - USB dongle (recommended, most common)
+* **DS9481** - Serial adapter
+* Compatible third-party 1-Wire adapters
+
+### USB Adapter Setup
+
+1. **Connect adapter** to USB port on OpenEMS system
+2. **Verify detection**: `lsusb | grep Maxim`
+3. **Configure port** in OpenEMS config (typically `USB1`, `USB2`, etc.)
+
+### Serial Adapter Setup
+
+1. **Connect adapter** to serial port (`/dev/ttyS0`, `/dev/ttyUSB0`, etc.)
+2. **Configure permissions**: `sudo chmod 666 /dev/ttyS0`
+3. **Set port** in OpenEMS config (e.g., `"/dev/ttyUSB0"`)
+
+== Native Library Installation
+
+The bridge requires the native 1-Wire library from Maxim Integrated compiled for your system.
+
+=== Linux Installation
+
+1. **Download OneWireViewer**:
+   ```bash
+   wget https://www.maximintegrated.com/.../OneWireViewer-Linux.zip
+   unzip OneWireViewer-Linux.zip
+   ```
+
+2. **Install build dependencies**:
+   ```bash
+   sudo apt-get install libusb-dev build-essential
+   sudo apt-get install openjdk-11-jdk  # or appropriate version
+   ```
+
+3. **Compile native library**:
+   ```bash
+   cd OneWireViewer-Linux/PDKAdapterUSB
+   make
+   sudo make install
+   ```
+
+4. **Configure exclusive access** (DS9490R USB only):
+   ```bash
+   # Unload default Linux driver
+   sudo rmmod ds2490
+   
+   # Block driver from loading on boot
+   echo "blacklist ds2490" | sudo tee /etc/modprobe.d/ds2490.conf
+   
+   # Reboot or apply immediately
+   sudo update-initramfs -u
+   ```
+
+=== Verification
+
+Test native library loading:
+```bash
+cd /usr/local/lib
+ls -la *1Wire*
+java -Djava.library.path=/usr/local/lib YourOpenEMSApp
+```
+
+If library not found, check LD_LIBRARY_PATH includes `/usr/local/lib`.
+
+== Device Discovery & Configuration
+
+=== Discovering Connected Devices
+
+Use the getDevices() JSON-RPC method to identify all connected 1-Wire devices:
+
+**Request via OpenEMS Backend**:
+```json
 {
   "method": "edgeRpc",
   "params": {
     "edgeId": "edge0",
-    "payload":{
+    "payload": {
       "method": "componentJsonApi",
       "params": {
         "componentId": "onewire0",
@@ -45,44 +135,42 @@ Example: read via OpenEMS Backend
     }
   }
 }
-----
+```
 
-Example Response:
-
-[source,json]
-----
+**Response Example**:
+```json
 {
-  "jsonrpc":"2.0",
-  "id":"UUID",
-  "result":{
-    "payload":{
-      "jsonrpc":"2.0",
-      "id":"UUID",
-      "result":{
-        "devices":[
-          {
-            "address":"4D0000094xxxxxxx",
-            "name":"DS18B20",
-            "alternateName":"DS1820B, DS18B20X",
-            "description":"Digital thermometer measures temperatures from -55C to 125C in 0.75 seconds (max).  +/- 0.5C accuracy between -10C and 85C. Thermometer resolution is programmable at 9, 10, 11, and 12 bits. ",
-            "details":{
-              "type":"TemperatureContainer",
-              "temperature":17.5625
-            }
-          },
-          {
-            "address":"6F0000022xxxxxxx",
-            "name":"DS2438",
-            "alternateName":"Smart Battery Monitor",
-            "description":"1-Wire device that integrates the total current charging or discharging through a battery and stores it in a register. It also returns the temperature (accurate to 2 degrees celsius), as well as the instantaneous current and voltage and also provides 40 bytes of EEPROM storage.",
-            "details":{
-              "type":"TemperatureContainer",
-              "temperature":19.3125
-            }
-          }
-        ]
+  "devices": [
+    {
+      "address": "4D0000094xxxxxxx",
+      "name": "DS18B20",
+      "description": "Digital thermometer ...",
+      "details": {
+        "type": "TemperatureContainer",
+        "temperature": 17.5625
+      }
+    },
+    {
+      "address": "6F0000022xxxxxxx",
+      "name": "DS2438",
+      "description": "Smart Battery Monitor ...",
+      "details": {
+        "type": "TemperatureContainer",
+        "temperature": 19.3125
       }
     }
-  }
+  ]
 }
-----
+```
+
+Use the **address** field to configure individual thermometer components (see `io.openems.edge.onewire.thermometer`).
+
+=== Device Addresses
+
+Each 1-Wire device has a unique 64-bit address in hexadecimal format:
+* Example: `4D0000094xxxxxxx`
+* Format: `FFXXXXXXXXXXXXXXXXXX` where FF is family code, X is unique serial
+
+Store these addresses for configuring thermometer components.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.bridge.onewire[Source Code icon:github[]]

@@ -10,6 +10,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.backend.common,\
 	io.openems.backend.metrics.prometheus,\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
 	io.openems.wrapper.aXMLRPC,\
 	io.prometheus.metrics-core,\
 	io.prometheus.metrics-model,\

@@ -36,8 +36,8 @@ public interface IoShellyPro3 extends DigitalOutput, OpenemsComponent, EventHand
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_1(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY_1(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 		/**
 		 * Holds writes to Relay Output 2 for debugging.
@@ -58,8 +58,8 @@ public interface IoShellyPro3 extends DigitalOutput, OpenemsComponent, EventHand
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_2(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY_2(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 		/**
 		 * Holds writes to Relay Output 3 for debugging.
@@ -80,8 +80,8 @@ public interface IoShellyPro3 extends DigitalOutput, OpenemsComponent, EventHand
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY_3(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY_3(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_3)),
 		/**
 		 * Slave Communication Failed Fault.

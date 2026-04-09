@@ -533,7 +533,7 @@ public final class JsonUtils {
 		 * @param value    the value
 		 * @return the {@link JsonObjectBuilder}
 		 */
-		public JsonObjectBuilder addIfNotNull(String property, JsonObject value) {
+		public JsonObjectBuilder addIfNotNull(String property, JsonElement value) {
 			if (value != null) {
 				this.add(property, value);
 			}

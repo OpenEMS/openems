@@ -1,6 +1,5 @@
 package io.openems.edge.system.fenecon.masterbox2v0.relay;
 
-import io.openems.edge.system.fenecon.masterbox2v0.relay.IoMasterBox2v0RelayImpl;
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;

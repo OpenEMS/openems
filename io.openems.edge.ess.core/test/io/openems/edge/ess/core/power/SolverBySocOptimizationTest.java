@@ -9,8 +9,8 @@ import java.util.StringJoiner;
 
 import org.junit.Test;
 
-import io.openems.edge.ess.core.power.data.TargetDirection;
-import io.openems.edge.ess.core.power.solver.nearequal.SolverBySocOptimization;
+import io.openems.edge.ess.core.power.v1.data.TargetDirection;
+import io.openems.edge.ess.core.power.v1.solver.nearequal.SolverBySocOptimization;
 
 public class SolverBySocOptimizationTest {
 

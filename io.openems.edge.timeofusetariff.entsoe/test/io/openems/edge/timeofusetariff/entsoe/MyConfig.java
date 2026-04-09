@@ -1,6 +1,7 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.EntsoeBiddingZone;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -8,8 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String securityToken;
-		private BiddingZone biddingZone;
-		private Resolution resolution;
+		private EntsoeBiddingZone biddingZone;
 		private String ancillaryCosts;
 
 		private Builder() {
@@ -25,13 +25,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setBiddingZone(BiddingZone biddingZone) {
+		public Builder setBiddingZone(EntsoeBiddingZone biddingZone) {
 			this.biddingZone = biddingZone;
-			return this;
-		}
-
-		public Builder setResolution(Resolution resolution) {
-			this.resolution = resolution;
 			return this;
 		}
 
@@ -67,13 +62,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public BiddingZone biddingZone() {
+	public EntsoeBiddingZone biddingZone() {
 		return this.builder.biddingZone;
-	}
-
-	@Override
-	public Resolution resolution() {
-		return this.builder.resolution;
 	}
 
 	@Override

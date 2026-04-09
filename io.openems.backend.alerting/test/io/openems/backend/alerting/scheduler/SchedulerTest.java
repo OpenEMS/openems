@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import com.google.gson.JsonObject;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.Message;
+import io.openems.backend.common.mail.MailContext;
 import io.openems.common.event.EventReader;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,7 +37,7 @@ public class SchedulerTest {
 	public static void dummyClass() {
 		var dummyMsg = new DummyMessage("", Instant.now(), 0);
 		var dummyHan = new DummyHandler();
-		Runnable[] methods = { () -> dummyHan.getEventHandler(null), dummyHan::stop, dummyMsg::getParams };
+		Runnable[] methods = { () -> dummyHan.getEventHandler(null), dummyHan::stop, dummyMsg::getContext };
 		assertNotNull(dummyMsg.getNotifyStamp());
 		for (var method : methods) {
 			assertThrows(UnsupportedOperationException.class, method::run);
@@ -283,7 +284,7 @@ public class SchedulerTest {
 		}
 
 		@Override
-		public JsonObject getParams() {
+		public MailContext getContext() {
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -321,6 +322,11 @@ public class SchedulerTest {
 		@Override
 		public HandlerMetrics getMetrics() {
 			return new HandlerMetrics(this.messagesSent.get(), -1);
+		}
+
+		@Override
+		public String debugLog() {
+			return String.format("[DummyHandler] messagesSent=%d", this.messagesSent.get());
 		}
 	}
 

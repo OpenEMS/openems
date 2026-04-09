@@ -71,7 +71,7 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusApi
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws ModbusException, OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = CommonConfig.Tcp.from(config, this.metaComponent);
 		super.activate(context, this.cm, this.config, this.componentManager.getClock());
 	}

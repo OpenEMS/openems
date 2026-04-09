@@ -53,10 +53,10 @@ export class HistoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.getConfig().then(config => {
+        this.service.getConfig().then(async config => {
             this.config = config;
             config.hasStorage();
-            this.widgets = this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
+            this.widgets = await this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
             // Are we connected to OpenEMS Edge and is a timedata service available?
             if (environment.backend == "OpenEMS Edge"
                 && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {

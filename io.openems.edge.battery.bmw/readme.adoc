@@ -1,0 +1,39 @@
+= BMW Battery
+
+BMW i3 battery rack system integration.
+
+== Overview
+
+This bundle provides integration with BMW i3 battery with proprietary BMS interface. This integration enables monitoring and control of charge/discharge operations, state machine management, and integration with OpenEMS for demand response and energy optimization.
+
+The battery communicates via Modbus protocol for standard industrial integration and includes HTTP-based authentication for secure device access.
+
+== Components
+
+[[_battery_bmw]]
+=== Battery BMW
+
+*Name*: Battery BMW
+
+*Factory-PID*: `Battery.BMW`
+
+.Implemented Natures/Interfaces
+* `Battery` - Standard battery interface for monitoring and control
+* `ModbusComponent` - Modbus protocol integration
+* `StartStoppable` - Start/stop lifecycle management
+* `ModbusSlave` - Slave device functionality
+* `EventHandler` - Cycle event handling
+* `BatteryBmw` - BMW specific interface
+
+*Description*:
+Main component for BMW battery system integration. Communicates via Modbus to read battery status and control charging/discharging operations. Includes HTTP-based token authentication for secure device access and state machine management for safe operation. Monitors state-of-charge with configurable limits and supports both grid-connected and island operation modes.
+
+.*Configuration*:
+* `id` (String): Unique component identifier; default: `"battery0"`
+* `alias` (String): Human-readable name; default: same as id
+* `enabled` (Boolean): Enable/disable this component; default: `true`
+* `startStop` (StartStopConfig): Start/stop behavior (AUTO, START, STOP); default: `AUTO`
+* `modbus_id` (String): ID of Modbus bridge; default: `"modbus0"`
+* `modbusUnitId` (Integer): Modbus device Unit-ID; required, no default
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.battery.bmw[Source Code icon:github[]]

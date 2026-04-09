@@ -27,12 +27,86 @@ public class ControllerIoChannelSingleThresholdImplTest {
 						.setOutputChannelAddress("io0/InputOutput0") //
 						.setThreshold(70) //
 						.setSwitchedLoadPower(0) //
-						.setMinimumSwitchingTime(60).setInvert(false) //
+						.setMinimumSwitchingTime(60) //
+						.setInvert(false) //
+						.setFallbackOutput(false) //
 						.build())
 				.next(new TestCase() //
 						.input("ess0", SOC, 50) //
 						.output("io0", INPUT_OUTPUT0, false) //
 						.output(AWAITING_HYSTERESIS, false)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testAboveThreshold() throws Exception {
+		// When input value is above threshold, output is switched ON
+		new ControllerTest(new ControllerIoChannelSingleThresholdImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyManagedSymmetricEss("ess0")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setMode(Mode.AUTOMATIC) //
+						.setInputChannelAddress("ess0/Soc") //
+						.setOutputChannelAddress("io0/InputOutput0") //
+						.setThreshold(70) //
+						.setSwitchedLoadPower(0) //
+						.setMinimumSwitchingTime(60) //
+						.setInvert(false) //
+						.setFallbackOutput(false) //
+						.build())
+				.next(new TestCase() //
+						.input("ess0", SOC, 80) //
+						.output("io0", INPUT_OUTPUT0, true)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testFallbackOutputOff() throws Exception {
+		// When no input value is available and fallbackOutput=false, output stays OFF
+		new ControllerTest(new ControllerIoChannelSingleThresholdImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyManagedSymmetricEss("ess0")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setMode(Mode.AUTOMATIC) //
+						.setInputChannelAddress("ess0/Soc") //
+						.setOutputChannelAddress("io0/InputOutput0") //
+						.setThreshold(70) //
+						.setSwitchedLoadPower(0) //
+						.setMinimumSwitchingTime(60) //
+						.setInvert(false) //
+						.setFallbackOutput(false) //
+						.build())
+				.next(new TestCase() //
+						// no input value set -> UNDEFINED state
+						.output("io0", INPUT_OUTPUT0, false)) //
+				.deactivate();
+	}
+
+	@Test
+	public void testFallbackOutputOn() throws Exception {
+		// When no input value is available and fallbackOutput=true, output stays ON
+		new ControllerTest(new ControllerIoChannelSingleThresholdImpl()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addComponent(new DummyManagedSymmetricEss("ess0")) //
+				.addComponent(new DummyInputOutput("io0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrl0") //
+						.setMode(Mode.AUTOMATIC) //
+						.setInputChannelAddress("ess0/Soc") //
+						.setOutputChannelAddress("io0/InputOutput0") //
+						.setThreshold(70) //
+						.setSwitchedLoadPower(0) //
+						.setMinimumSwitchingTime(60) //
+						.setInvert(false) //
+						.setFallbackOutput(true) //
+						.build())
+				.next(new TestCase() //
+						// no input value set -> UNDEFINED state -> fallback ON
+						.output("io0", INPUT_OUTPUT0, true)) //
 				.deactivate();
 	}
 

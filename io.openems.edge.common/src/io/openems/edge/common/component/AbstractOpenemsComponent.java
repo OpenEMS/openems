@@ -17,11 +17,13 @@ import org.slf4j.Logger;
 
 import com.google.common.base.CaseFormat;
 
+import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -255,19 +257,18 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		}
 
 		// get Factory-PIDs in this Bundle
-		var factoryPids = mti.getFactoryPids();
-		for (String factoryPid : factoryPids) {
-			var ocd = mti.getObjectClassDefinition(factoryPid, null);
-			this.addChannelsForProperties(ocd, properties);
-		}
+		final var props = context.getProperties();
+		final var factoryPid = (String) props.get(OpenemsConstants.PROPERTY_FACTORY_PID);
+		final var pid = (String) props.get(OpenemsConstants.PROPERTY_PID);
 
-		// get Singleton PIDs in this Bundle
-		for (String pid : mti.getPids()) {
-			switch (pid) {
-			default:
-				var ocd = mti.getObjectClassDefinition(pid, null);
-				this.addChannelsForProperties(ocd, properties);
-			}
+		if (ArrayUtils.containsIgnoreNull(mti.getFactoryPids(), factoryPid)) {
+			this.addChannelsForProperties(mti.getObjectClassDefinition(factoryPid, null), properties);
+		} else if (ArrayUtils.containsIgnoreNull(mti.getPids(), pid)) {
+			this.addChannelsForProperties(mti.getObjectClassDefinition(pid, null), properties);
+		} else {
+			this.log.warn("Unable to find ObjectClassDefinition."//
+					+ " No Channels for Properties will be created."//
+					+ " You may not inherit from this superclass");
 		}
 	}
 

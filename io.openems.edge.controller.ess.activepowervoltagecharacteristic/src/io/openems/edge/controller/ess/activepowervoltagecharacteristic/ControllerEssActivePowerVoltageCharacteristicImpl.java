@@ -132,6 +132,6 @@ public class ControllerEssActivePowerVoltageCharacteristicImpl extends AbstractO
 		this._setCalculatedPower(power);
 
 		// Apply Power
-		this.ess.setActivePowerEquals(power);
+		this.ess.setActivePowerEqualsWithoutFilter(power);
 	}
 }

@@ -22,7 +22,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -37,7 +36,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -195,7 +193,7 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 				components.add(//
 						new EdgeConfig.Component(//
 								modbusId, //
-								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.Keba.modbus.alias"), //
+								TranslationUtil.getTranslation(bundle, "App.Evse.ChargePoint.communication.alias"), //
 								"Bridge.Modbus.Tcp", //
 								JsonUtils.buildJsonObject() //
 										.addProperty("ip", ip) //
@@ -239,13 +237,6 @@ public class AppKebaEvse extends AbstractOpenemsAppWithProps<AppKebaEvse, Proper
 					.addDependencies(AppEvseCluster.dependency())//
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

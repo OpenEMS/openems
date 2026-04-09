@@ -204,7 +204,18 @@ public class JSCalendar<PAYLOAD> {
 			 */
 			public Builder<PAYLOAD> add(Function<Task.Builder<PAYLOAD>, Task.Builder<PAYLOAD>> task) {
 				var t = Task.<PAYLOAD>create();
-				this.tasks.add(task.apply(t).build());
+				this.add(task.apply(t).build());
+				return this;
+			}
+
+			/**
+			 * Adds a {@link JSCalendar.Task}.
+			 *
+			 * @param task a {@link JSCalendar.Task}
+			 * @return myself
+			 */
+			public Builder<PAYLOAD> add(Task<PAYLOAD> task) {
+				this.tasks.add(task);
 				return this;
 			}
 
@@ -223,9 +234,9 @@ public class JSCalendar<PAYLOAD> {
 			return new Builder<PAYLOAD>();
 		}
 
+		public final Clock clock;
 		public final ImmutableList<Task<PAYLOAD>> tasks;
 
-		private final Clock clock;
 		private final TreeSet<OneTask<PAYLOAD>> oneTasks;
 
 		private OneTask<PAYLOAD> lastActiveOneTask = null;
@@ -406,6 +417,13 @@ public class JSCalendar<PAYLOAD> {
 			return (JsonArray) JSCalendar.Tasks.serializer(payloadSerializer).serialize(this);
 		}
 
+		@Override
+		public String toString() {
+			return toStringHelper(Tasks.class) //
+					.addValue(this.tasks) //
+					.toString();
+		}
+
 		private TreeSet<OneTask<PAYLOAD>> _getOneTasksBetween(ZonedDateTime from, ZonedDateTime to) {
 			final var result = new TreeSet<OneTask<PAYLOAD>>();
 			for (var task : this.tasks) {
@@ -575,7 +593,7 @@ public class JSCalendar<PAYLOAD> {
 							: occurrenceEnd) //
 					.orElse(occurrenceEnd);
 
-			if (task.duration != Duration.ZERO && start.isEqual(end)) {
+			if (task.duration != Duration.ZERO && !end.isAfter(start)) {
 				// This is a Task with Duration, but during creation of OneTasks for the last
 				// one start would be same as end -> do not add to result
 			} else {
@@ -725,6 +743,13 @@ public class JSCalendar<PAYLOAD> {
 		public boolean isEmpty() {
 			return this.oneTasks.isEmpty();
 		}
+
+		@Override
+		public String toString() {
+			return toStringHelper(OneTasks.class) //
+					.addValue(this.oneTasks) //
+					.toString();
+		}
 	}
 
 	public static record Task<PAYLOAD>(UUID uid, ZonedDateTime updated, LocalDateTime start, Duration duration,
@@ -802,6 +827,15 @@ public class JSCalendar<PAYLOAD> {
 			private PAYLOAD payload = null;
 
 			protected Builder() {
+			}
+
+			protected Builder(Task<PAYLOAD> src) {
+				this.recurrenceRules.addAll(src.recurrenceRules);
+				this.uid = src.uid;
+				this.updated = src.updated;
+				this.start = src.start;
+				this.duration = src.duration;
+				this.payload = src.payload;
 			}
 
 			public Builder<PAYLOAD> setUid(UUID uid) {
@@ -908,6 +942,17 @@ public class JSCalendar<PAYLOAD> {
 		}
 
 		/**
+		 * Create a {@link Task} {@link Builder}.
+		 *
+		 * @param <PAYLOAD> the type of the Payload
+		 * @param src       the source {@link Task} that should be copied
+		 * @return a {@link Builder}
+		 */
+		public static <PAYLOAD> Builder<PAYLOAD> createFrom(Task<PAYLOAD> src) {
+			return new Builder<PAYLOAD>(src);
+		}
+
+		/**
 		 * Gets the occurrences of the {@link Task} (including currently active task)
 		 * between two dates.
 		 *
@@ -931,13 +976,21 @@ public class JSCalendar<PAYLOAD> {
 				while (true) {
 					var start = rr.getNextOccurrence(this.start, nextFrom);
 					if (start == null) {
-						break; // impossible occurence
+						// impossible occurence
+						break;
+
+					} else if (this.duration != Duration.ZERO && !start.plus(this.duration).isAfter(from)) {
+						// This occurrence ends before from; search next
+						nextFrom = start.plus(this.duration);
+
+					} else {
+						// This occurence is after from...
+						if (start.isAfter(to) && !result.isEmpty()) {
+							break; // ...and after to; but we want at least one result; even if it's out of range
+						}
+						result.add(start);
+						nextFrom = start.plusNanos(1);
 					}
-					if (start.isAfter(to) && !result.isEmpty()) {
-						break; // at least one result; even if it's out of range
-					}
-					result.add(start);
-					nextFrom = start.plusNanos(1);
 				}
 			}
 			return ImmutableList.copyOf(result);
@@ -1004,15 +1057,15 @@ public class JSCalendar<PAYLOAD> {
 		 * @return the created {@link JsonSerializer}
 		 */
 		public static JsonSerializer<RecurrenceRule> serializer() {
-			return jsonObjectSerializer(RecurrenceRule.class, json -> //
-			new RecurrenceRule(//
-					json.getEnum("frequency", RecurrenceFrequency.class), //
-					json.getOptionalLocalDate("until").orElse(null), //
-					json.getNullableJsonArrayPath("byDay") //
-							.mapToOptional(arr -> arr.getAsImmutableSortedSet(//
-									RecurrenceRule::deserializeByDayElement, //
-									Comparator.comparing(NDay::day) //
-							)).orElse(ImmutableSortedSet.of())), //
+			return jsonObjectSerializer(RecurrenceRule.class, //
+					json -> new RecurrenceRule(//
+							json.getEnum("frequency", RecurrenceFrequency.class), //
+							json.getOptionalLocalDate("until").orElse(null), //
+							json.getNullableJsonArrayPath("byDay") //
+									.mapToOptional(arr -> arr.getAsImmutableSortedSet(//
+											RecurrenceRule::deserializeByDayElement, //
+											Comparator.comparing(NDay::day)))//
+									.orElse(ImmutableSortedSet.of())), //
 					obj -> buildJsonObject() //
 							.addPropertyIfNotNull("frequency", obj.frequency().name().toLowerCase()) //
 							.addPropertyIfNotNull("until", obj.until()) //
@@ -1027,7 +1080,8 @@ public class JSCalendar<PAYLOAD> {
 								} else {
 									j.add("byDay", nDaySerializer().toSetSerializer().serialize(obj.byDay));
 								}
-							}).build());
+							}) //
+							.build());
 		}
 
 		private static final Map<String, DayOfWeek> STRING_TO_DAY = Map.of(//
@@ -1045,12 +1099,10 @@ public class JSCalendar<PAYLOAD> {
 						.collect(Collectors.toUnmodifiableMap(Map.Entry::getValue, Map.Entry::getKey));
 
 		private static JsonSerializer<DayOfWeek> dayOfWeekSerializer() {
-			return jsonSerializer(//
-					DayOfWeek.class, //
+			return jsonSerializer(DayOfWeek.class, //
 					json -> json.getAsStringParsed(//
 							RecurrenceRule::dayOfWeekEnumConverter, //
-							() -> new StringParser.ExampleValues<>("mo", MONDAY)//
-					), //
+							() -> new StringParser.ExampleValues<>("mo", MONDAY)), //
 					obj -> new JsonPrimitive(dayOfWeekStringConverter(obj))//
 			);
 		}
@@ -1063,25 +1115,24 @@ public class JSCalendar<PAYLOAD> {
 				// String -> "mo"
 				return new NDay(dayOfWeekEnumConverter(el.getAsString()), null);
 			}
-
 		}
 
-        protected static JsonSerializer<NDay> nDaySerializer() {
-            return jsonObjectSerializer(NDay.class, json -> //
-                    new NDay(//
-                            dayOfWeekEnumConverter(json.getString("day")), //
-                            json.getOptionalInt("nthOfPeriod").orElse(null) //
-                    ), obj -> {
-                // If nthOfPeriod null serialize as String
-                if (obj.nthOfPeriod() == null) {
-                    return new JsonPrimitive(dayOfWeekStringConverter(obj.day));
-                }
-                return buildJsonObject() //
-                        .addProperty("day", dayOfWeekStringConverter(obj.day)) //
-                        .addProperty("nthOfPeriod", obj.nthOfPeriod()) //
-                        .build();
-            });
-        }
+		protected static JsonSerializer<NDay> nDaySerializer() {
+			return jsonObjectSerializer(NDay.class, //
+					json -> new NDay(//
+							dayOfWeekEnumConverter(json.getString("day")), //
+							json.getOptionalInt("nthOfPeriod").orElse(null)), //
+					obj -> {
+						// If nthOfPeriod null serialize as String
+						if (obj.nthOfPeriod() == null) {
+							return new JsonPrimitive(dayOfWeekStringConverter(obj.day));
+						}
+						return buildJsonObject() //
+								.addProperty("day", dayOfWeekStringConverter(obj.day)) //
+								.addProperty("nthOfPeriod", obj.nthOfPeriod()) //
+								.build();
+					});
+		}
 
 		/**
 		 * Converts a string to {@link DayOfWeek}. In our implementation, we use for

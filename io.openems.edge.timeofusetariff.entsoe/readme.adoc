@@ -1,10 +1,10 @@
-= Time-Of-Use Tariff ENTSO-E
+= ENTSO-E / EPEX SPOT
 
 This implementation uses the https://transparency.entsoe.eu/[ENTSO-E Transparency Platform] to receive day-ahead electricity prices for European bidding zones.
 
 == Authentication
 
-To request a (free) authentication token, please see chapter *"How to get security token?"* in the official API documentation:  
+To request a (free) authentication token, please see chapter *"How to get security token?"* in the official API documentation:
 https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token
 
 == Currency Conversion
@@ -15,7 +15,7 @@ Prices retrieved from ENTSO-E are automatically converted to the user’s config
 
 The component expects the following configuration inputs:
 
-* *biddingZone*: ENTSO-E bidding zone (e.g., `GERMANY`)  
+* *biddingZone*: ENTSO-E bidding zone (e.g., `GERMANY`)
 * *ancillaryCosts*: JSON string defining additional costs on top of the day-ahead price
 
 You can configure ancillary costs in two ways: by using a predefined German Distribution System Operator (DSO) or by providing a custom schedule.
@@ -33,8 +33,8 @@ For convenience, several German DSOs are already predefined in the implementatio
 
 Configuration example:
 
-* `biddingZone`: `GERMANY`  
-* `ancillaryCosts`: `{"dso":"BAYERNWERK"}`  
+* `biddingZone`: `GERMANY`
+* `ancillaryCosts`: `{"dso":"BAYERNWERK"}`
 
 For a list of predefined DSOs see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.entsoe/src/io/openems/edge/timeofusetariff/entsoe/GermanDSO.java[`GermanDSO.java`].
 
@@ -48,8 +48,8 @@ In this case, set `"dso": "OTHER"` and provide a `schedule` array with quarterly
 
 Each entry in the schedule contains:
 
-* `year`: calendar year (e.g., `2025`)  
-* `tariffs`: fixed additional costs (per kWh) for each tariff level (`low`, `standard`, `high`)  
+* `year`: calendar year (e.g., `2025`)
+* `tariffs`: fixed additional costs (per kWh) for each tariff level (`low`, `standard`, `high`)
 * `quarters`: quarterly schedules (Q1–Q4) with `dailySchedule` definitions
 
 Example configuration:
@@ -105,7 +105,7 @@ Example configuration:
 The `schedule` is a JSON array where each object defines the tariffs for a specific year.
 
 * `year`:: The year for which this schedule is valid (e.g., `2025`).
-* `tariffs`:: An object defining the named price levels. You can define your own names (e.g., `low`, `standard`, `high`) and assign a cost to each.  
+* `tariffs`:: An object defining the named price levels. You can define your own names (e.g., `low`, `standard`, `high`) and assign a cost to each.
   The name *`standard`* is special and is used as a fallback if no time slot applies.
 * `quarters`:: An array defining the schedule for each quarter of the year.
 ** `quarter`:: The quarter number (`1` to `4`).
@@ -116,8 +116,8 @@ The `schedule` is a JSON array where each object defines the tariffs for a speci
 
 ==== Notes
 
-* If the `dailySchedule` for a quarter is empty (`[]`), the system will default to using the price defined for the *`standard`* tariff for that entire quarter. This is useful for seasons with flat ancillary costs.  
-* Tariff boundaries (`from`/`to`) must not overlap and must follow chronological order.  
+* If the `dailySchedule` for a quarter is empty (`[]`), the system will default to using the price defined for the *`standard`* tariff for that entire quarter. This is useful for seasons with flat ancillary costs.
+* Tariff boundaries (`from`/`to`) must not overlap and must follow chronological order.
 * Multiple years can be defined by adding more entries to the `schedule` array.
 
 

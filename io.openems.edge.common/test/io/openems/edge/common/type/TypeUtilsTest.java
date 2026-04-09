@@ -75,7 +75,6 @@ public class TypeUtilsTest {
 
 	@Test
 	public void testFitWithin() {
-		assertEquals(10, TypeUtils.fitWithin(5, 15, 10));
 		assertEquals(5.0, TypeUtils.fitWithin(2.5, 7.5, 5.0), 0.0);
 		assertEquals(0F, TypeUtils.fitWithin(0F, 100F, -99.005F), 0F);
 		assertEquals(100F, TypeUtils.fitWithin(0F, 100F, 100.005F), 0F);
@@ -84,10 +83,7 @@ public class TypeUtilsTest {
 
 	@Test
 	public void testMin() {
-		assertEquals(25, (int) TypeUtils.min(null, 25, null, 40, null));
 		assertEquals(null, TypeUtils.min((Double) null, null, null));
-		assertEquals(17, (int) TypeUtils.min(null, 17, 25, 40));
-		assertEquals(34, (int) TypeUtils.min(null, 34, 40));
 	}
 
 	@Test
@@ -291,13 +287,6 @@ public class TypeUtilsTest {
 		assertEquals(new JsonPrimitive(45.6F), getAsJson(FLOAT, 45.6F));
 		assertEquals(new JsonPrimitive(56.7), getAsJson(DOUBLE, 56.7));
 		assertEquals(new JsonPrimitive("678"), getAsJson(STRING, "678"));
-	}
-
-	@Test
-	public void sumInteger() {
-		assertEquals(6, sum(1, 2, 3).intValue());
-		assertNull(sum((Integer) null));
-		assertEquals(6, sum(1, null, 2, 3).intValue());
 	}
 
 	@Test

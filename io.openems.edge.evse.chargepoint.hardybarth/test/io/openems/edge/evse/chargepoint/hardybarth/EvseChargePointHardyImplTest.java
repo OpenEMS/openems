@@ -1,13 +1,19 @@
 package io.openems.edge.evse.chargepoint.hardybarth;
 
 import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
+import static io.openems.edge.common.test.TestUtils.withValue;
 import static io.openems.edge.evse.chargepoint.hardybarth.common.Constants.API_RESPONSE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.Test;
 
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.channel.Level;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
@@ -15,6 +21,8 @@ import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.type.Phase;
+import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.chargepoint.hardybarth.common.HardyBarth;
 import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
@@ -25,27 +33,12 @@ public class EvseChargePointHardyImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var phaseRotation = PhaseRotation.L1_L2_L3;
-		var sut = new EvseChargePointHardyBarthImpl();
-		var test = new ComponentTest(sut) //
-				.addReference("oem", new DummyOpenemsEdgeOem()) //
-				.addReference("httpBridgeFactory",
-						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
-								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
-				.addReference("httpBridgeCycleServiceDefinition",
-						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber()))
-				.activate(MyConfig.create() //
-						.setId("evseChargePoint0") //
-						.setIp("192.161.0.1") //
-						.setPhaseRotation(phaseRotation) //
-						.setLogVerbosity(LogVerbosity.NONE) //
-						.build());
-		var rh = ReflectionUtils.<EvseHandler>getValueViaReflection(sut, "handler");
-		test //
+		final var sut = generateSut();
+		sut.test //
 				.next(new TestCase() //
 						.activateStrictMode() //
-						.onBeforeProcessImage(
-								() -> rh.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), phaseRotation)) //
+						.onBeforeProcessImage(() -> sut.evseHandler
+								.handleGetApiCallResponse(HttpResponse.ok(API_RESPONSE), PhaseRotation.L1_L2_L3)) //
 
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
@@ -134,5 +127,53 @@ public class EvseChargePointHardyImplTest {
 						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
 				) //
 				.deactivate();
+	}
+
+	@Test
+	public void testChargePointAbilities() throws Exception {
+		final var sut = generateSut();
+		{
+			var cpa = sut.obj.getChargePointAbilities();
+			assertEquals(Phase.SingleOrThreePhase.THREE_PHASE, cpa.applySetPoint().phase());
+			assertNull(cpa.phaseSwitch());
+			assertFalse(cpa.isEvConnected());
+			assertFalse(cpa.isReadyForCharging());
+		}
+
+		{
+			withValue(sut.obj, ElectricityMeter.ChannelId.CURRENT_L1, Evcs.MIN_EVCS_ACTIVITY_CURRENT + 1);
+			withValue(sut.obj, ElectricityMeter.ChannelId.CURRENT_L2, null);
+			withValue(sut.obj, ElectricityMeter.ChannelId.CURRENT_L3, null);
+			var cpa = sut.obj.getChargePointAbilities();
+			assertEquals(Phase.SingleOrThreePhase.SINGLE_PHASE, cpa.applySetPoint().phase());
+		}
+
+		{
+			withValue(sut.obj, EvseChargePointHardyBarth.ChannelId.STATUS, ChargePointStatus.B);
+			var cpa = sut.obj.getChargePointAbilities();
+			assertTrue(cpa.isEvConnected());
+		}
+	}
+
+	private static record Sut(EvseChargePointHardyBarthImpl obj, ComponentTest test, EvseHandler evseHandler) {
+	}
+
+	private static Sut generateSut() throws OpenemsException, Exception {
+		var sut = new EvseChargePointHardyBarthImpl();
+		var test = new ComponentTest(sut) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("httpBridgeFactory",
+						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
+								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber()))
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setIp("192.161.0.1") //
+						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
+						.setLogVerbosity(LogVerbosity.NONE) //
+						.build());
+		var evseHandler = ReflectionUtils.<EvseHandler>getValueViaReflection(sut, "handler");
+		return new Sut(sut, test, evseHandler);
 	}
 }

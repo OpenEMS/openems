@@ -55,23 +55,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
                     const view = await this.generateView(config, edge.role, this.translate);
                     this.form = this.getFormGroup();
 
-                    this.fields = [{
-                        type: "input",
-                        props: {
-                            attributes: {
-                                title: view.title,
-                                ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
-                                isCommonWidget: view.isCommonWidget ?? "false",
-                            },
-                            required: true,
-                            options: [{ lines: view.lines, component: view.component }],
-                            onSubmit: (fg: FormGroup) => {
-                                this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
-                            },
-                        },
-                        className: "ion-full-height",
-                        wrappers: [this.formlyWrapper],
-                    }];
+                    this.setFields(view, this.form, websocket);
                 });
         });
     }
@@ -93,7 +77,7 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         const edge = await service.getCurrentEdge();
         AssertionUtils.assertIsDefined(edge);
 
-        this.dataService.getValues(channelAddresses, edge);
+        this.dataService.subscribeChannels(channelAddresses, edge);
         this.fetchCurrentData(service);
     }
 
@@ -154,12 +138,10 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
-
         const updateComponentArray: { name: string, value: any }[] = [];
         service.startSpinner("formly-field-modal");
         for (const key in fg.controls) {
             const control = fg.controls[key];
-            fg.controls[key];
 
             // Check if formControl-value didn't change
             if (control.pristine) {
@@ -243,6 +225,28 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         }
     }
 
+    protected updateWholeViewOnFormControlChange(view: OeFormlyView, fg: FormGroup, websocket: Websocket) {
+        this.setFields(view, fg, websocket);
+    }
+    private setFields(view: OeFormlyView, fg: FormGroup, websocket: Websocket) {
+        this.fields = [{
+            type: "input",
+            props: {
+                attributes: {
+                    title: view.title,
+                    ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
+                },
+                required: true,
+                options: [{ lines: view.lines, component: view.component }],
+                onSubmit: (fg: FormGroup) => {
+                    this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
+                },
+            },
+            className: "ion-full-height",
+            wrappers: [this.formlyWrapper],
+        }];
+    }
+
     /**
       * Generate the View.
       *
@@ -258,7 +262,8 @@ export type OeFormlyView = {
     lines: OeFormlyField[],
     isCommonWidget?: string,
     helpKey?: string | null,
-    component?: EdgeConfig.Component,
+    useDefaultPrefix?: boolean | null,
+    component?: EdgeConfig.Component | null,
     edge?: Edge,
 };
 
@@ -274,12 +279,29 @@ export type OeFormlyField =
     | OeFormlyField.ValueFromFormControlLine
     | OeFormlyField.ButtonFromFormControlLine
     | OeFormlyField.ButtonsFromFormControlLine
-    | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.RangeButtonFromFormControlLine
+    | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.ToggleLine
+    | OeFormlyField.InputLine
+    | OeFormlyField.SelectLine
+    | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.Advanced.ElectricityMeter
+    | OeFormlyField.Advanced.EssChargerLine
     ;
 
 export namespace OeFormlyField {
+
+    export namespace Advanced {
+        export type ElectricityMeter = {
+            type: "advanced-electricity-meter-line",
+            component: EdgeConfig.Component,
+        };
+        export type EssChargerLine = {
+            type: "advanced-ess-charger-line",
+            component: EdgeConfig.Component,
+        };
+    }
 
     export type InfoLine = {
         type: "info-line",
@@ -304,8 +326,11 @@ export namespace OeFormlyField {
         type: "children-line",
         name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
         indentation?: TextIndentation,
-        children: Item[],
-    };
+        children: Item[]
+    }
+        & (
+            | { filter: (value: number | null) => boolean, channel: ChannelAddress }
+        );
 
     export type ChannelLine = {
         type: "channel-line",
@@ -371,5 +396,27 @@ export namespace OeFormlyField {
     export type PercentageBarFromFormControlLine = {
         type: "percentage-bar-line",
         controlName: string,
+    };
+
+    export type ToggleLine = {
+        type: "toggle-line",
+        name: string,
+        controlName: string,
+    };
+
+    export type InputLine = {
+        type: "input-line",
+        name: string,
+        controlName: string,
+        properties: {
+            unit: string;
+        }
+    };
+
+    export type SelectLine = {
+        type: "select-line",
+        name: string,
+        controlName: string,
+        options: { value: string, name: string }[],
     };
 }

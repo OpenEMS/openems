@@ -1,11 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, effect, OnDestroy } from "@angular/core";
+import { Component, effect, inject, OnDestroy } from "@angular/core";
 import { IonicModule, ModalController } from "@ionic/angular";
 import { filter } from "rxjs";
+import { v4 as uuidv4 } from "uuid";
+import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { SumState } from "src/app/index/shared/sumState";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { environment } from "src/environments";
+import { DataService } from "../../shared/dataservice";
 import { StatusSingleComponent } from "../single/status.component";
+
 
 @Component({
     selector: SystemStatusComponent.SELECTOR,
@@ -14,6 +18,9 @@ import { StatusSingleComponent } from "../single/status.component";
     imports: [
         CommonModule,
         IonicModule,
+    ],
+    providers: [
+        { provide: DataService, useClass: LiveDataService },
     ],
 })
 export class SystemStatusComponent implements OnDestroy {
@@ -26,6 +33,7 @@ export class SystemStatusComponent implements OnDestroy {
     protected sumState: SumState | null = null;
 
     private subscribed = false;
+    private liveDataService = inject(DataService);
 
     constructor(
         public service: Service,
@@ -41,9 +49,9 @@ export class SystemStatusComponent implements OnDestroy {
             this.subscribed = true;
             this.edge = edge;
 
-            edge.subscribeChannels(this.service.websocket, "", [
+            this.liveDataService.subscribeChannels([
                 SystemStatusComponent.SUM_STATE_CHANNEL,
-            ]);
+            ], edge, uuidv4());
 
             edge.currentData.pipe(
                 filter(currentData => currentData !== null),

@@ -1,12 +1,12 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
-import io.openems.common.session.Language;
-import io.openems.edge.common.channel.ChannelId;
-import io.openems.edge.common.type.TextProvider;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+
+import io.openems.common.session.Language;
+import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.type.TextProvider;
 
 class NumberChannelParameterProviderImpl<V extends Number> extends ChannelParameterProvider<V>
 		implements NumberChannelParameterProvider<V> {
@@ -143,7 +143,7 @@ class NumberChannelParameterProviderImpl<V extends Number> extends ChannelParame
 	}
 
 	@Override
-	public ParameterProvider clone() {
+	public ParameterProvider copy() {
 		return new NumberChannelParameterProviderImpl<>(this.channelId, this.predicates, this.defaultText);
 	}
 

@@ -33,7 +33,6 @@ import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.GridBuySoftLimit;
@@ -165,8 +164,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		super.deactivate();
 	}
 
-	private final PidFilter pidFilter = new PidFilter();
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		if (this.energyScheduler == null) {
@@ -235,15 +232,7 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this._setQuarterlyPrices(this.timeOfUseTariff.getPrices().getFirst());
 
 		// Apply ActivePower set-point
-		if (am.setPoint() != null) {
-			if (am.setPoint() == 0) {
-				// No need to react on lazy behavior of a meter as the target is always the same
-				// (At the same time it would cause problems for lazy inverters)
-				this.ess.setActivePowerEquals(am.setPoint());
-			} else {
-				ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
-			}
-		}
+		this.ess.setActivePowerEqualsWithFilter(am.setPoint());
 	}
 
 	@Override

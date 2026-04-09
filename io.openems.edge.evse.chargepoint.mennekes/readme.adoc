@@ -1,0 +1,5 @@
+= Mennekes Charging Station
+
+This component implements the charging stations by the manufacturer Mennekes. It collects all relevant information into the given Nature Channels and its own Channels and sends charging commands that have been set by another controllers. Supported are both the Amtron Professional and the 4You.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evcs.mennekes[Source Code icon:github[]]

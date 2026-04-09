@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, effect, OnDestroy } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, computed, effect, OnDestroy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -33,8 +33,11 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
     protected showPassword: boolean = false;
     protected readonly operatingSystem = PlatFormService.deviceInfo.os;
     protected readonly isApp: boolean = Capacitor.getPlatform() !== "web";
+    protected websocketStatus = computed(() => this.websocket.state());
+    protected readonly States = States;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
+
 
     constructor(
         public service: Service,
@@ -85,7 +88,6 @@ export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDes
    */
     public doLogin(param: { username?: string, password: string }) {
 
-        this.websocket.state.set(States.AUTHENTICATION_WITH_CREDENTIALS);
         param = LoginComponent.preprocessCredentials(param.password, param.username);
 
         // Prevent that user submits via keyevent 'enter' multiple times

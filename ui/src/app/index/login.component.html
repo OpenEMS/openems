@@ -4,14 +4,9 @@
         <ion-row class="ion-justify-content-center">
             <ngx-spinner [name]='"loginspinner"'></ngx-spinner>
             <ion-col size="12" size-md="6" size-lg="4">
-                @switch (websocket.status) {
-                <!-- Sent authentication request; waiting for response -->
-                @case ('authenticating') {
-                <ion-card>
-                </ion-card>
-                }
+                @switch (websocketStatus()) {
                 <!-- Login is required. Waiting for credentials input -->
-                @case ('waiting for credentials') {
+                @case (States.NOT_AUTHENTICATED) {
                 <ion-card>
                     <ion-item color="primary" lines="full">
                         <ion-icon slot="start" name="person-outline"></ion-icon>

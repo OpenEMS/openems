@@ -4,7 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -124,7 +124,8 @@ public class PlotUtils {
 		final var domainAxis = new DateAxis("Time");
 		domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
 
-		final var productionSeries = new XYSeries("Production");
+		final var curtailedProductionSeries = new XYSeries("Production (curtailed)");
+		final var rawProductionSeries = new XYSeries("Production (raw)");
 		final var consumptionSeries = new XYSeries("Consumption");
 		final var essChargeSeries = new XYSeries("ESS Charge");
 		final var essDischargeSeries = new XYSeries("ESS Discharge");
@@ -140,11 +141,13 @@ public class PlotUtils {
 			final var ef = p.energyFlow();
 
 			final int prod = toPower.apply(ef.getProduction());
+			final int excessProd = toPower.apply(ef.getExcessProduction());
 			final int cons = toPower.apply(ef.getConsumption());
 			final int ess = toPower.apply(ef.getEss());
 			final int grid = toPower.apply(ef.getGrid());
 
-			productionSeries.add(t, prod);
+			curtailedProductionSeries.add(t, prod);
+			rawProductionSeries.add(t, prod + excessProd);
 			consumptionSeries.add(t, cons);
 
 			essChargeSeries.add(t, ess < 0 ? -ess : 0);
@@ -162,7 +165,7 @@ public class PlotUtils {
 
 		final var axisPower = new NumberAxis("Power [W]");
 		final var powerMinMax = getGlobalMinMax(essChargeSeries, essDischargeSeries, gridBuySeries, gridSellSeries,
-				productionSeries, consumptionSeries);
+				curtailedProductionSeries, rawProductionSeries, consumptionSeries);
 		axisPower.setRange(powerMinMax.min(), powerMinMax.max() * 1.05);
 
 		final var axisSoC = new NumberAxis("SoC [%]");
@@ -198,7 +201,8 @@ public class PlotUtils {
 				// Prod Cons Plot
 				new XyPlotBuilder()//
 						.addDataset(axisPower, ds -> {
-							ds.addSeries(productionSeries, COLOR_PROD);
+							ds.addSeries(curtailedProductionSeries, COLOR_PROD);
+							ds.addSeries(rawProductionSeries, COLOR_PROD, true);
 							ds.addSeries(consumptionSeries, COLOR_CONS);
 						})//
 						.build(), //
@@ -311,7 +315,7 @@ public class PlotUtils {
 	}
 
 	private static XYPlot buildModePlot(SimulationResult sr, Map<String, Color> modeColors) {
-		final var seriesMap = new HashMap<String, XYSeries>();
+		final var seriesMap = new LinkedHashMap<String, XYSeries>();
 		modeColors.keySet().forEach(m -> seriesMap.put(m, new XYSeries((m))));
 
 		for (var entry : sr.periods().entrySet()) {

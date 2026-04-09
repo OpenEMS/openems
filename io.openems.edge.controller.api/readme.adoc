@@ -1,3 +1,40 @@
-= Controller
+= Controller API
 
-A Controller; see the Controller chapter for details.
+Defines the core interface for all OpenEMS edge controllers.
+
+== Overview
+
+The Controller API bundle defines the base interface that all OpenEMS edge controllers must implement. Controllers are the core logic components that automate energy management decisions - they run periodically to read sensor data and command power adjustments to batteries, inverters, EVCS chargers, and other actuators.
+
+A controller has:
+* A `run()` method called every OpenEMS cycle
+* Access to all component data via the component registry
+* Ability to set target power, reactive power, charging current, etc.
+* A RUN_FAILED channel to report execution errors
+
+== Core Interface
+
+[[_controller]]
+=== Controller
+
+Base interface for all edge controllers.
+
+*Purpose*: Defines the contract that controllers must follow for execution in the OpenEMS control loop.
+
+*Key Method*:
+* `run()` - Executes the controller logic every cycle
+
+*Channel*:
+* `RUN_FAILED` - Fault channel indicating controller execution failure
+
+*Usage*: 
+Controllers extend this interface and implement domain-specific functionality (ESS control, peak shaving, demand response, etc.).
+
+== Performance Considerations
+
+* **Cycle Time**: Keep controller logic <100ms
+* **Complex Logic**: Offload heavy computation to cache/predict
+* **Network Access**: Avoid blocking I/O in run()
+* **Logging**: Use debug level for frequent logs (debug() methods)
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.api[Source Code icon:github[]]

@@ -27,14 +27,15 @@ export function validateTaskInputs<T>(
             message: translate.instant("JS_SCHEDULE.VALIDATION_ERROR_2"),
         };
     }
-    if (recurrenceRuleByDay?.frequency === "monthly") {
 
-        if (recurrenceRuleByDay === null) {
-            return {
-                valid: false,
-                message: translate.instant("JS_SCHEDULE.VALIDATION_ERROR_8"),
-            };
-        }
+    if (recurrenceRuleByDay === null) {
+        return {
+            valid: false,
+            message: translate.instant("JS_SCHEDULE.VALIDATION_ERROR_8"),
+        };
+    }
+
+    if (recurrenceRuleByDay?.frequency === "monthly") {
 
         if (recurrenceRuleByDay?.byDay?.length == 0) {
             return {

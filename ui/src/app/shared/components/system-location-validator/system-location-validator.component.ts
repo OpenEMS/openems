@@ -8,7 +8,7 @@ import { ComponentJsonApiRequest } from "../../jsonrpc/request/componentJsonApiR
 import { Service, Websocket } from "../../shared";
 import { COUNTRY_OPTIONS, CountryUtils } from "../../type/country";
 import { Language } from "../../type/language";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { PromiseUtils } from "../../utils/promise/promise.utils";
 import { Edge } from "../edge/edge";
 import { FormlyUtils } from "../formly/formly-utils";
@@ -141,7 +141,7 @@ export class SystemLocationValidatorComponent implements OnInit {
         });
 
         const [error, response] = await PromiseUtils.Functions.handle(
-            this.edge.sendRequest(this.websocket, request)
+            this.edge.sendStateFullRequest(this.websocket, request)
         );
 
         if (error) {

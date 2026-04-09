@@ -10,6 +10,7 @@ import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "src
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
+
 @Component({
     selector: "live",
     templateUrl: "./live.component.html",
@@ -44,11 +45,16 @@ export class LiveComponent implements OnDestroy {
         effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
+
+            if (edge === null) {
+                return;
+            }
+
             this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
-            this.service.getConfig().then(config => {
+            edge?.getFirstValidConfig(websocket)?.then(async config => {
                 this.config = config;
-                this.widgets = navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
+                this.widgets = await navigationService.getWidgets(config.widgets, userService.currentUser(), edge);
             });
             this.checkIfRefreshNeeded();
         });

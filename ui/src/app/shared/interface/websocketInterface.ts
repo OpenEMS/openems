@@ -22,7 +22,7 @@ export interface WebsocketInterface {
    *
    * @param request the JSON-RPC Request
    */
-    sendRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess>;
+    sendStateFullRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess>;
 
     /**
    * Sends a JSON-RPC notification to a Websocket.

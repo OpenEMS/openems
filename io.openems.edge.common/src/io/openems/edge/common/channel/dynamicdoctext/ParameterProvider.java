@@ -1,5 +1,7 @@
 package io.openems.edge.common.channel.dynamicdoctext;
 
+import java.util.function.Function;
+
 import io.openems.common.session.Language;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.ChannelId;
@@ -27,7 +29,7 @@ public interface ParameterProvider {
 	 * 
 	 * @return Cloned instance
 	 */
-	public ParameterProvider clone();
+	public ParameterProvider copy();
 
 	/**
 	 * Creates a parameter that just returns the value of the given channel.
@@ -44,7 +46,7 @@ public interface ParameterProvider {
 	 * 
 	 * @param enumClass Enum class (for example GoodweType.class)
 	 * @param channelId channelId that should be used to get the value from
-	 * @param <V> Enum type
+	 * @param <V>       Enum type
 	 * @return ParameterProvider
 	 */
 	public static <V extends Enum<V> & OptionsEnum> EnumChannelParameterProvider<V> byEnumChannel(//
@@ -56,7 +58,7 @@ public interface ParameterProvider {
 	 * Creates a parameter that returns the value of the given number channel.
 	 *
 	 * @param channelId channelId that should be used to get the value from
-	 * @param <V> Number type
+	 * @param <V>       Number type
 	 * @return ParameterProvider
 	 */
 	public static <V extends Number> NumberChannelParameterProvider<V> byNumberChannel(ChannelId channelId) {
@@ -81,5 +83,18 @@ public interface ParameterProvider {
 	 */
 	public static ParameterProvider staticValue(String value) {
 		return new StaticParameterProvider(value);
+	}
+
+	/**
+	 * Creates a parameter that returns data from the component.
+	 *
+	 * @param componentClass The component class
+	 * @param function       The function that is used to get the data
+	 * @param <T>            The component class
+	 * @return ParameterProvider
+	 */
+	public static <T extends OpenemsComponent> ParameterProvider byComponentData(Class<T> componentClass,
+			Function<T, String> function) {
+		return new ComponentDataParameterProvider<>(componentClass, function);
 	}
 }

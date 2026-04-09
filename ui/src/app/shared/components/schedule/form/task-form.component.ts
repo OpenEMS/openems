@@ -1,4 +1,3 @@
-import { JsonPipe } from "@angular/common";
 import { Component, model, ModelSignal } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
@@ -10,6 +9,7 @@ import en from "../i18n/en.json";
 import { JsCalendar } from "../js-calendar-task";
 import { TaskFormTimeComponent } from "./daily/daily";
 import { TaskFormMonthlyComponent } from "./monthly/monthly";
+import { TaskFormWeeklyComponent } from "./weekly/weekly";
 
 @Component({
     selector: "oe-schedule-task-form",
@@ -20,7 +20,7 @@ import { TaskFormMonthlyComponent } from "./monthly/monthly";
         ReactiveFormsModule,
         TaskFormTimeComponent,
         TaskFormMonthlyComponent,
-        JsonPipe,
+        TaskFormWeeklyComponent,
     ],
 })
 export class TaskFormComponent {
@@ -40,6 +40,8 @@ export class TaskFormComponent {
     }
 
     protected setRecurrenceRuleByDay(event: CustomEvent) {
-        this.recurrenceRuleByDay.update(el => ({ frequency: event.detail.value, byDay: el?.byDay ?? [] }));
+        this.recurrenceRuleByDay.update(_el => {
+            return ({ frequency: event.detail.value });
+        });
     }
 }

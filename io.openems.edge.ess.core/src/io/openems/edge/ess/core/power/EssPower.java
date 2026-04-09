@@ -33,7 +33,7 @@ public interface EssPower extends OpenemsComponent, EventHandler, Power {
 		 * <li>Range: positive
 		 * </ul>
 		 */
-		SOLVE_DURATION(Doc.of(OpenemsType.INTEGER) //
+		SOLVE_DURATION(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.MILLISECONDS)),
 		/**
 		 * The eventually used solving strategy.

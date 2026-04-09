@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Directive, effect, EffectRef, inject, Inject, Injector, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -17,7 +16,7 @@ import { DataService } from "../shared/dataservice";
 export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
 
     @Input()
-    protected componentId: string;
+    protected componentId: string | null = null;
 
     public readonly Utils = Utils;
     public readonly Converter = Converter;
@@ -26,16 +25,16 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * True after this.edge, this.config and this.component are set.
      */
     public isInitialized: boolean = false;
-    public edge: Edge = null;
-    public config: EdgeConfig = null;
-    public component: EdgeConfig.Component = null;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public component: EdgeConfig.Component | null = null;
     public stopOnDestroy: Subject<void> = new Subject<void>();
     public formGroup: FormGroup | null = null;
 
     /** @deprecated used for new navigation migration purposes */
     public isNewNavigation = false;
     /** @deprecated */
-    public newNavigationUrlSegment: string;
+    public newNavigationUrlSegment: string | null = null;
 
     private injector = inject(Injector);
     private subscription: EffectRef[] = [];
@@ -66,7 +65,9 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 // store important variables publically
                 this.edge = edge;
                 this.config = config;
-                this.component = EdgeConfig.Component.of(config.components[this.componentId]);
+                if (this.componentId != null) {
+                    this.component = EdgeConfig.Component.of(config.components[this.componentId]);
+                }
 
                 // announce initialized
                 this.isInitialized = true;
@@ -74,10 +75,13 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                 // get the channel addresses that should be subscribed
                 const channelAddresses: Set<ChannelAddress> = new Set(this.getChannelAddresses());
                 const channelIds = this.getChannelIds();
-                for (const channelId of channelIds) {
-                    channelAddresses.add(new ChannelAddress(this.componentId, channelId));
+
+                if (this.componentId != null) {
+                    for (const channelId of channelIds) {
+                        channelAddresses.add(new ChannelAddress(this.componentId, channelId));
+                    }
+                    this.dataService.subscribeChannels(Array.from(channelAddresses), this.edge, this.componentId);
                 }
-                this.dataService.getValues(Array.from(channelAddresses), this.edge, this.componentId);
                 this.subscription.push(effect(() => {
                     const value = this.dataService.currentValue();
                     this.onCurrentData(value);
@@ -120,7 +124,10 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
      * @returns a non null/undefined value
      */
     protected async subscribeAndGetFirstValidValueForChannel(channelAddress: ChannelAddress): Promise<any> {
-        this.dataService.getValues([channelAddress], this.edge, this.componentId);
+        if (this.edge == null || this.componentId == null) {
+            return;
+        }
+        this.dataService.subscribeChannels([channelAddress], this.edge, this.componentId);
         return new Promise<any>((res) => {
             const subscription = effect(() => {
                 const val = this.dataService.currentValue();

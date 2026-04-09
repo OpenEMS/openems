@@ -39,6 +39,9 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
     };
 
     protected override afterIsInitialized(): void {
+        if (this.edge == null) {
+            return;
+        }
         const meta = this.edge.getConfig(this.websocket).value.getComponentsByFactory("Core.Meta")[0];
         this.placeName = meta.getPropertyFromComponent("placeName") ?? "";
 
@@ -46,6 +49,9 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
     }
 
     protected override getChannelAddresses() {
+        if (this.componentId == null) {
+            return [];
+        }
         const id = this.componentId;
         const buildChannelAddress = (name: string) => new ChannelAddress(id, name);
 
@@ -53,7 +59,7 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        if (this.gotData) {
+        if (this.gotData || this.component == null) {
             return;
         }
 

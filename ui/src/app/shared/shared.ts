@@ -40,6 +40,7 @@ addIcons({
     "oe-offline": environment.icons.COMMON.OFFLINE.CLOUD_OFFLINE_OUTLINE,
     "oe-time-of-use": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE,
     "oe-time-of-use-thin": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
+    "oe-generator": environment.icons.COMMON.GENERATOR,
 });
 
 export class Permission {

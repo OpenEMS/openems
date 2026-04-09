@@ -42,7 +42,6 @@
         --ion-color-tint: var(--ion-color-environmental-tint);
     }
 
-
     .ion-color-production {
         --ion-color-base: var(--ion-color-production);
         --ion-color-base-rgb: var(--ion-color-production-rgb);
@@ -159,10 +158,10 @@
     --ion-color-grey-primary: rgba(128, 128, 128, 1);
     --ion-color-grey-rgba: rgba(128, 128, 128, 0.05);
     --ion-card-content: #444444;
-    --ion-card-content-color: #737373; // #f4f4f4 in case the percentage-style class is applied.
+    --ion-card-content-color: #737373; // #f4f4f4 in case the percentage-style class is applied
     --ion-card-header-shadow: var(--ion-color-light-shade);
-    --ion-color-charge-primary: rgba(0, 223, 0, 1); // Base //
-    --ion-color-charge-rgba: rgba(0, 223, 0, 0.05); // semi-transparent //
+    --ion-color-charge-primary: rgba(0, 223, 0, 1); // Base
+    --ion-color-charge-rgba: rgba(0, 223, 0, 0.05); // semi-transparent
     --ion-color-custom-links: var(--ion-color-primary);
     --ion-color-toggle-background: #c8c8c8;
     --ion-color-toggle-unchecked-handle: #efefef;
@@ -231,7 +230,7 @@
     --ion-color-light-tint: #1e2023;
 
     /** Custom Colors **/
-    --ion-item-color: white; // this sets the color for text in History, Menu bar and Menu Page sections //
+    --ion-item-color: white; // this sets the color for text in History, Menu bar and Menu Page sections
     --ion-item-background: #4f5f75; // background color for widgets.
     --ion-title-color: #f6f6f6; // Color of the Page Title.
     --ion-menu-color: #ebf4ff;
@@ -268,12 +267,12 @@
     --ion-color-chart-xLines: #545454;
 
     --ion-item-background: #2b2f42;
-    --ion-color-emergencyreserve-primary: rgb(160, 160, 160); // Base //
-    --ion-color-emergencyreserve-rgba: rgba(160, 160, 160, 0); // Transparent //
+    --ion-color-emergencyreserve-primary: rgb(160, 160, 160); // Base
+    --ion-color-emergencyreserve-rgba: rgba(160, 160, 160, 0); // Transparent
     --ion-color-charge-primary: rgba(0, 223, 0, 1);
     --ion-color-charge-rgba: rgba(0, 223, 0, 0.05);
     --ion-color-grey-primary: rgba(128, 128, 128, 1);
-    --ion-color-grey-rgba: rgba(128, 128, 128, 0.05); // semi-transparent //
+    --ion-color-grey-rgba: rgba(128, 128, 128, 0.05); // semi-transparent
     --ion-background-percentagebar-color: #384352;
 
     /** Card **/

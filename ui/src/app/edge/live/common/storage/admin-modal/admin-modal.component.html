@@ -169,7 +169,7 @@
               </ion-segment>
 
               <table class="full_width" style="margin-top: 2%;"
-                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false'
                                             && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
                 <tr>
                   <td style="width: 10%">
@@ -251,6 +251,10 @@
       </ng-container>
     </ng-container>
     </ng-container>
+
+    <!-- ESS SoH Cycle Controller Section -->
+    <soh-cycle-section [component]="component" [formGroup]="formGroup" [spinnerId]="spinnerId" [edge]="edge">
+    </soh-cycle-section>
     </ion-card-content>
     </ng-container>
     </ng-container>
@@ -473,7 +477,7 @@
                             </ion-segment>
 
                             <table class="full_width" style="margin-top: 2%;"
-                              *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                              *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false'
                                                                 && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
                               <tr>
                                 <td style="width: 10%">
@@ -683,7 +687,7 @@
                   </ion-segment>
 
                   <table class="full_width" style="margin-top: 2%;"
-                    *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false' 
+                    *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false'
                                         && prepareBatteryExtensionController['targetTime'] && prepareBatteryExtensionController['targetSoc'] && prepareBatteryExtensionController['targetTimeBuffer']">
                     <tr>
                       <td style="width: 10%">

@@ -40,7 +40,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.MeterType;
@@ -386,13 +385,6 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 					.addDependencies(dependencies) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

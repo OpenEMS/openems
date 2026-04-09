@@ -342,9 +342,8 @@ export class Service extends AbstractService {
      */
     public getEdges(req: GetEdgesRequest): Promise<Edge[]> {
         return new Promise<Edge[]>((resolve, reject) => {
-            this.websocket.sendSafeRequest(req)
+            this.websocket.sendRequest<GetEdgesResponse>(req)
                 .then((response) => {
-
                     const result = (response as GetEdgesResponse).result;
 
                     // TODO change edges-map to array or other way around
@@ -389,26 +388,28 @@ export class Service extends AbstractService {
                 resolve(existingEdge);
                 return;
             }
-            this.websocket.sendSafeRequest(new GetEdgeRequest({ edgeId: edgeId })).then((response) => {
-                const edgeData = (response as GetEdgeResponse).result.edge;
-                const value = this.metadata.value;
-                const currentEdge = new Edge(
-                    edgeData.id,
-                    edgeData.comment,
-                    edgeData.producttype,
-                    ("version" in edgeData) ? edgeData["version"] : "0.0.0",
-                    Role.getRole(edgeData.role.toString()),
-                    edgeData.isOnline,
-                    edgeData.lastmessage,
-                    edgeData.sumState,
-                    DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()),
-                    edgeData.settings ?? null,
-                );
-                this.currentEdge.set(currentEdge);
-                value.edges[edgeData.id] = currentEdge;
-                this.metadata.next(value);
-                resolve(currentEdge);
-            }).catch(reject);
+
+            this.websocket.sendStateFullRequest<GetEdgeResponse>(new GetEdgeRequest({ edgeId: edgeId }))
+                .then((response) => {
+                    const edgeData = (response as GetEdgeResponse).result.edge;
+                    const value = this.metadata.value;
+                    const currentEdge = new Edge(
+                        edgeData.id,
+                        edgeData.comment,
+                        edgeData.producttype,
+                        ("version" in edgeData) ? edgeData["version"] : "0.0.0",
+                        Role.getRole(edgeData.role.toString()),
+                        edgeData.isOnline,
+                        edgeData.lastmessage,
+                        edgeData.sumState,
+                        DateUtils.stringToDate(edgeData.firstSetupProtocol?.toString()),
+                        edgeData.settings ?? null,
+                    );
+                    this.currentEdge.set(currentEdge);
+                    value.edges[edgeData.id] = currentEdge;
+                    this.metadata.next(value);
+                    resolve(currentEdge);
+                }).catch(reject);
         });
     }
 

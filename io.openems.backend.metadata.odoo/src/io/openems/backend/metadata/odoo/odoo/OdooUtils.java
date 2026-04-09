@@ -736,7 +736,7 @@ public class OdooUtils {
 	 * @param fieldname the field name
 	 * @return value as optional
 	 */
-	private static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
+	public static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
 		for (Entry<String, List<String>> header : headers.entrySet()) {
 			var key = header.getKey();
 			if (key != null && key.equalsIgnoreCase("Set-Cookie")) {

@@ -71,7 +71,7 @@ public class XlsxExportUtil {
 						var list = switch (meterType) {
 						case CONSUMPTION_METERED, CONSUMPTION_NOT_METERED, MANAGED_CONSUMPTION_METERED -> consumption;
 						case PRODUCTION -> production;
-						case GRID, PRODUCTION_AND_CONSUMPTION -> null;
+						case GRID, GRID_GENSET, PRODUCTION_AND_CONSUMPTION -> null;
 						};
 						if (list != null) {
 							list.add(new XlsxExportDataEntry(component.getAlias(),

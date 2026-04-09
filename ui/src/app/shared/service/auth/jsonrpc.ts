@@ -1,8 +1,10 @@
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { User } from "../../jsonrpc/shared";
+import { States } from "../../ngrx-store/states";
 
 export class AuthenticateWithOAuthRequest extends JsonrpcRequest {
     public static METHOD: string = "authenticateWithOAuth";
+    protected override requiredState: States = States.WEBSOCKET_CONNECTED;
     public constructor(
         public override readonly params: {
             payload: JsonrpcRequest,

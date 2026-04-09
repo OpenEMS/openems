@@ -18,14 +18,14 @@ import { EvseManualPayload } from "../../js-calender-utils";
 export class EvseAddTaskComponent extends JsCalendarAddTaskComponent {
 
     public payload = model<EvseManualPayload>(new EvseManualPayload());
-    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "monthly"]);
+    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
     protected modeOptions: { value: Mode, label: string }[] = Object.values(Mode).map(mode => ({
         value: mode,
         label: ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate)(mode),
     }));
 
     setValue(event: CustomEvent) {
-        this.payload.set(new EvseManualPayload(event.detail.value as Mode));
+        this.payload.update(el => { el.setValue({ class: "Manual", mode: event.detail.value }); return el; });
     }
 }
 

@@ -12,7 +12,7 @@ public class SubdivisionCodeTest {
 
 	@Test
 	public void testSubdivisionCode_ShouldFollowNamingConvention() {
-		var pattern = Pattern.compile("^[A-Z]{2}_(?:[A-Z]{1,2}|[0-9]{1,2})$");
+		var pattern = Pattern.compile("^[A-Z]{2}_(?:[A-Z]{1,3}|[0-9]{1,2})$");
 		for (var country : SubdivisionCode.values()) {
 			if (country == SubdivisionCode.UNDEFINED) {
 				continue;

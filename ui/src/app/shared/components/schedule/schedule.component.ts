@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { ChangeDetectorRef, Component, ContentChild, effect, Inject, model, TemplateRef } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
@@ -36,7 +36,6 @@ import { JsCalendar } from "./js-calendar-task";
     providers: [
         { provide: DataService, useClass: LiveDataService },
         DatePipe,
-        JsonPipe,
     ],
 })
 export class ScheduleComponent extends AbstractModal {
@@ -77,7 +76,7 @@ export class ScheduleComponent extends AbstractModal {
         });
     }
 
-    private static translateRecurrence(recurrenceRule: JsCalendar.Task["recurrenceRules"], translate: TranslateService): string {
+    public static translateRecurrence(recurrenceRule: JsCalendar.Task["recurrenceRules"], translate: TranslateService): string {
         return recurrenceRule.map(el => {
             switch (el.frequency) {
                 case "daily": return translate.instant("JS_SCHEDULE.FREQ.DAILY");
@@ -109,7 +108,7 @@ export class ScheduleComponent extends AbstractModal {
         })
         ).then((resp) => {
             this.canWrite = payload.canWrite(this.edge);
-            this.schedule.set(resp.result.tasks.map(item => {
+            const newSchedule = resp.result.tasks.map(item => {
                 return {
                     uid: item.uid,
                     start: item.start,
@@ -119,7 +118,8 @@ export class ScheduleComponent extends AbstractModal {
                     recurrenceRules: item.recurrenceRules,
                     payloadText: payload.toPayloadText(this.translate)(item),
                 } as JsCalendar.ScheduleVM;
-            }));
+            });
+            this.schedule.set(newSchedule);
         }).finally(() => {
             this.service.stopSpinner(this.spinnerId);
         });

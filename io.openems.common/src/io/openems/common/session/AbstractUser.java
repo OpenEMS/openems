@@ -47,7 +47,8 @@ public abstract class AbstractUser {
 		this.settings = settings == null ? new JsonObject() : settings;
 	}
 
-	protected AbstractUser(String userId, String email, String name, Language language, Role globalRole, JsonObject settings) {
+	protected AbstractUser(String userId, String email, String name, Language language, Role globalRole,
+			JsonObject settings) {
 		this.id = email;
 		this.userId = userId;
 		this.email = email;

@@ -14,7 +14,6 @@ import java.util.function.Function;
 
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -221,19 +220,6 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 
 	public default String getSoftwareVersion() {
 		return this.getSoftwareVersionChannel().value().get();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#RAW_PHASE_COUNT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getPhaseCountChannel() {
-		return this.channel(ChannelId.RAW_PHASE_COUNT);
-	}
-
-	public default int getPhaseCount() {
-		return this.getPhaseCountChannel().value().get();
 	}
 
 	public interface PathProvider {

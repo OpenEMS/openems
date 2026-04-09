@@ -24,7 +24,7 @@
 for D in *; do
 	if [ -d "${D}" ]; then
 		case "${D}" in
-			build|cnf|doc|edge|ui|tools)
+			build|cnf|doc|edge|gradle|ui|tools)
 				;;
 			*)
 

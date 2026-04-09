@@ -2,6 +2,7 @@ package io.openems.edge.bosch.bpts5hybrid.ess;
 
 import org.junit.Test;
 
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bosch.bpts5hybrid.core.BoschBpts5HybridCoreImpl;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -12,8 +13,9 @@ public class BoschBpts5HybridEssTest {
 	@Test
 	public void test() throws Exception {
 		var core = new BoschBpts5HybridCoreImpl();
-		new ComponentTest(new BoschBpts5HybridCoreImpl()) //
+		new ComponentTest(core) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(io.openems.edge.bosch.bpts5hybrid.core.MyConfig.create() //
 						.setId("core0") //
 						.setEnabled(false) //

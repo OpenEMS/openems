@@ -1,7 +1,53 @@
-= Heatingelement Askoma
+= Askoma Heating Element
 
-Implements an Askoma heating element.
+Smart heating element control via Modbus for thermal load management.
 
-See https://www.askoma.com/de/produkte.html
+== Overview
+
+This bundle provides integration with Askoma heating elements, intelligent thermal load controllers designed for electric heating applications. The component reads and controls heating elements via Modbus, enabling dynamic thermal load management for peak shaving and demand response scenarios.
+
+Askoma heating elements are suitable for demand response programs, thermal energy storage, and dynamic heating control integrated with renewable energy systems.
+
+== Supported Devices
+
+.Askoma Heating Elements
+* **Type**: Smart heating element controller
+* **Communication**: Modbus TCP/RTU
+* **Typical Use**: Demand response, thermal load management, heating control
+* **Control**: On/off or variable power control via Modbus
+* **Monitoring**: Power, energy, and status monitoring
+* **Documentation**: https://www.askoma.com/de/produkte.html[Askoma Products icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_askoma_heating,Askoma Heating Element>>
+
+*Name*: Heat Askoma
+
+*Factory-PID*: `Heat.Askoma`
+
+.Implemented Natures/Interfaces
+* HeatAskoma
+* ModbusComponent
+* OpenemsComponent
+* ElectricityMeter
+* Heat
+* ManagedHeatElement
+* TimedataProvider
+* EventHandler
+
+*Description*: Modbus interface for Askoma heating elements. Monitors heating power consumption and enables dynamic control for demand response and load shifting. Can operate in read-only mode for monitoring only or managed mode for active heating control.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "heat0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit-ID of the heating element (default: 1)
+* `readOnly` (Boolean): Read-only mode (monitoring only) vs managed mode (default: true)
+
+[[_askoma_heating]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.askoma[Source Code icon:github[]]

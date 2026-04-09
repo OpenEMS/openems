@@ -30,19 +30,14 @@ import { EvseManualPayload } from "../../js-calender-utils";
 })
 export class EvseEditTaskComponent extends JsCalendarEditTaskComponent {
 
-    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "monthly"]);
-    public startTime = model<string | null>(null);
-    public endTime = model<string | null>(null);
+    public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
     public payload = model<EvseManualPayload>(new EvseManualPayload());
-
-    protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-    protected uid: string | null = null;
     protected modeOptions: { value: Mode, label: string }[] = Object.values(Mode).map(mode => ({
         value: mode,
         label: ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate)(mode),
     }));
 
     setValue(event: CustomEvent) {
-        this.payload.set(new EvseManualPayload(event.detail.value as Mode));
+        this.payload.update(el => { el.setValue({ class: "Manual", mode: event.detail.value }); return el; });
     }
 }

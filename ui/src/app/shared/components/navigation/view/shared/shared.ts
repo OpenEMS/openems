@@ -4,6 +4,7 @@ import { NavigationComponent } from "../../action-sheet-modal";
 import { NavigationService } from "../../service/navigation.service";
 
 export namespace ViewUtils {
+
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
         const bars = getVisibleBars();
 
@@ -76,29 +77,48 @@ export namespace ViewUtils {
 
         return window.innerHeight - header - footer;
     }
+
     export function getActionSheetModalHeightInPx() {
         return window.innerHeight * NavigationComponent.INITIAL_BREAKPOINT;
     }
+
     export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
         if (position == "bottom") {
             return (getActionSheetModalHeightInPx() / window.innerHeight) * 100;
         }
         return 0;
     }
+
     /**
     * Gets the available chart content height in [vh].
     *
     * @param windowHeight the window height
+    * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
     * @returns the available height
     */
-    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null) {
-        const rawViewHeight = ViewUtils.getViewHeightInPx(position);
+    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+        let viewHeight = ViewUtils.getViewHeightInPx(position);
+        const legendHeight = getLegendHeight();
+
+        if (customChartHeightPercentage != null) {
+            viewHeight = viewHeight * (customChartHeightPercentage / 100);
+        }
+
         return NumberUtils.multiplySafely(
             NumberUtils.divideSafely(
                 NumberUtils.subtractSafely(
-                    rawViewHeight,
+                    viewHeight, legendHeight
                 ),
                 windowHeight),
             100);
+    }
+
+    function getLegendHeight() {
+        const chartLegend = document.querySelector<HTMLElement>("oe-chart-legend");
+        if (chartLegend == null) {
+            return 0;
+        }
+        const legendRow = chartLegend.querySelector<HTMLElement>("ion-row");
+        return legendRow?.clientHeight ?? 0;
     }
 }

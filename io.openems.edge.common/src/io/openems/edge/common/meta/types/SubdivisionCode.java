@@ -1,6 +1,7 @@
 package io.openems.edge.common.meta.types;
 
 import static io.openems.edge.common.meta.types.CountryCode.AT;
+import static io.openems.edge.common.meta.types.CountryCode.BE;
 import static io.openems.edge.common.meta.types.CountryCode.CH;
 import static io.openems.edge.common.meta.types.CountryCode.CZ;
 import static io.openems.edge.common.meta.types.CountryCode.DE;
@@ -190,7 +191,7 @@ public enum SubdivisionCode {
 	SE_C(SE, "Uppsala"), //
 	SE_S(SE, "Varmland"), //
 	SE_AC(SE, "Vasterbotten"), //
-	SE_Y(SE, "Western Northland"), //
+	SE_Y(SE, "Vasternorrland"), //
 	SE_U(SE, "Vastmanland"), //
 	SE_O(SE, "Vastra Gotaland"), //
 	SE_T(SE, "Orebro"), //
@@ -223,6 +224,11 @@ public enum SubdivisionCode {
 	CZ_42(CZ, "Usti nad Labem"), //
 	CZ_63(CZ, "Vysocina"), //
 	CZ_72(CZ, "Zlin"), //
+
+	/** Belgium. */
+	BE_BRU(BE, "Brussels"), //
+	BE_VLG(BE, "Flanders"), //
+	BE_WAL(BE, "Wallonia") //
 
 	;
 

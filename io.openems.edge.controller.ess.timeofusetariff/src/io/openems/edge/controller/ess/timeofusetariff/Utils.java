@@ -1,7 +1,8 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import static com.google.common.math.Quantiles.percentiles;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
@@ -18,7 +19,6 @@ import com.google.common.primitives.ImmutableIntArray;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
@@ -117,7 +117,7 @@ public final class Utils {
 
 		} else {
 			// Charge from Grid; limited by gridSoftLimit
-			var power = TypeUtils.max(targetChargePower, peakShavingPower);
+			var power = maxInt(targetChargePower, peakShavingPower);
 			if (power == 0) {
 				// ...but actually DELAY_DISCHARGE
 				return new ApplyMode(DELAY_DISCHARGE, 0);
@@ -276,13 +276,13 @@ public final class Utils {
 
 	protected static int calculateMaxSocForEnvironment(Environment environment) {
 		return switch (environment) {
-			case PRODUCTION, BETA, TEST -> 99;
+		case PRODUCTION, BETA, TEST -> 99;
 		};
 	}
 
 	protected static int calculateMinSocForEnvironment(Environment environment) {
 		return switch (environment) {
-			case PRODUCTION, BETA, TEST -> 1;
+		case PRODUCTION, BETA, TEST -> 1;
 		};
 	}
 }

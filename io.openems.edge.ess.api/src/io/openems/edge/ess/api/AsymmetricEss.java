@@ -1,5 +1,7 @@
 package io.openems.edge.ess.api;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
+
 import java.util.function.Consumer;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -13,7 +15,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.common.type.TypeUtils;
 
 @ProviderType
 public interface AsymmetricEss extends SymmetricEss {
@@ -381,7 +382,7 @@ public interface AsymmetricEss extends SymmetricEss {
 	public static void initializePowerSumChannels(AsymmetricEss ess) {
 		// Active Power
 		final Consumer<Value<Integer>> activePowerSum = ignore -> {
-			ess._setActivePower(TypeUtils.sum(//
+			ess._setActivePower(sumInteger(//
 					ess.getActivePowerL1Channel().getNextValue().get(), //
 					ess.getActivePowerL2Channel().getNextValue().get(), //
 					ess.getActivePowerL3Channel().getNextValue().get()));
@@ -392,7 +393,7 @@ public interface AsymmetricEss extends SymmetricEss {
 
 		// Reactive Power
 		final Consumer<Value<Integer>> reactivePowerSum = ignore -> {
-			ess._setReactivePower(TypeUtils.sum(//
+			ess._setReactivePower(sumInteger(//
 					ess.getReactivePowerL1Channel().getNextValue().get(), //
 					ess.getReactivePowerL2Channel().getNextValue().get(), //
 					ess.getReactivePowerL3Channel().getNextValue().get()));

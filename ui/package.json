@@ -1,9 +1,10 @@
 {
   "name": "openems-ui",
-  "version": "2026.4.0-SNAPSHOT",
+  "version": "2026.4.0",
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
+    "@angular/animations": "20.3.17",
     "@angular/cdk": "^20.2.14",
     "@angular/common": "20.3.17",
     "@angular/core": "20.3.17",

@@ -6,6 +6,7 @@
 </ion-header>
 @if (contentHeight !== null) {
   <ion-content style="font-size: 1em;">
+
     <!-- If FromGroup is used -->
     @if (formGroup && contentHeight !== null) {
       <form [formGroup]="formGroup" [style]="'padding-bottom:' + actionSheetModalHeight + 'vh !important'"
@@ -16,9 +17,9 @@
         </ng-container>
         <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
         @if (formGroup?.dirty) {
-          <ion-fab vertical="bottom" [style]="'padding-bottom:' + actionSheetModalHeight + 'vh !important'"
-            [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'" style="display: flex">
-            <ion-fab-button (click)="applyChanges()">
+          <ion-fab vertical="bottom" [horizontal]="service.isSmartphoneResolution ? 'end':'center'"
+            style="display: flex; ">
+            <ion-fab-button (click)="applyChanges()" class="floating-btn">
               <ion-icon size="large" name="oe-checkmark">
               </ion-icon>
             </ion-fab-button>
@@ -28,8 +29,7 @@
     }
     <!-- If FormGroup not used -->
     @if (!formGroup) {
-      <div
-        style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
+      <div style="position: absolute; overflow-y: auto; overflow-x:hidden; width: 100%;"
         [style.height]="contentHeight + 'px'">
         <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
       </div>

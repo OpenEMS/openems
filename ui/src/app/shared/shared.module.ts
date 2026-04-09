@@ -39,6 +39,7 @@ import { RepeatTypeComponent } from "./components/formly/repeat";
 import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
+import { HelpButtonComponent } from "./components/modal/help-button/help-button";
 import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
@@ -49,7 +50,7 @@ import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
 import en from "./i18n/en.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
-import { AppStateTracker } from "./ngrx-store/states";
+import { AppStateTracker } from "./ngrx-store/app-state-tracker";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
 import { RouteService } from "./service/route.service";
@@ -169,6 +170,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         TranslateModule,
         HelpPopoverButtonComponent,
         FlatWidgetButtonComponent,
+        HelpButtonComponent,
     ],
     declarations: [
         AppHeaderComponent,
