@@ -65,8 +65,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 
 			@Override
-			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(WebSocket ws, Draft draft,
-			                                                                   ClientHandshake request) throws InvalidDataException {
+			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(//
+					WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
 				final T wsData;
 				try {
 					wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);

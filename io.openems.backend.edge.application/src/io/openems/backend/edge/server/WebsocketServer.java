@@ -1,5 +1,7 @@
 package io.openems.backend.edge.server;
 
+import static io.openems.common.websocket.WebsocketUtils.getAsString;
+
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
@@ -19,8 +21,6 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
-import static io.openems.common.websocket.WebsocketUtils.getAsString;
-
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final OnOpen onOpen;
@@ -38,7 +38,6 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 		super(name, port, poolSize);
 		this.authenticateApikey = authenticateApikey;
 		this.onOpen = new OnOpen(//
-				authenticateApikey, //
 				connectedEdgesChanged);
 		this.onRequest = new OnRequest(//
 				name, //
