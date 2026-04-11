@@ -7,6 +7,10 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.exceptions.InvalidDataException;
+import org.java_websocket.framing.CloseFrame;
+import org.java_websocket.handshake.ClientHandshake;
 import org.slf4j.Logger;
 
 import io.openems.common.exceptions.OpenemsError;
@@ -15,6 +19,8 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
+import static io.openems.common.websocket.WebsocketUtils.getAsString;
+
 public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final OnOpen onOpen;
@@ -22,6 +28,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnNotification onNotification;
 	private final OnError onError;
 	private final OnClose onClose;
+	private final Function<String, String> authenticateApikey;
 
 	public WebsocketServer(String name, int port, int poolSize, //
 			BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdgeManager, //
@@ -29,6 +36,7 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 			Function<String, String> authenticateApikey, //
 			Runnable connectedEdgesChanged) {
 		super(name, port, poolSize);
+		this.authenticateApikey = authenticateApikey;
 		this.onOpen = new OnOpen(//
 				authenticateApikey, //
 				connectedEdgesChanged);
@@ -42,6 +50,18 @@ public class WebsocketServer extends AbstractWebsocketServer<WsData> {
 				this::logError);
 		this.onClose = new OnClose(//
 				connectedEdgesChanged);
+	}
+
+	@Override
+	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+		final var apikey = getAsString(request, "apikey");
+		final var edgeId = this.authenticateApikey.apply(apikey);
+		if (edgeId == null) {
+			throw new InvalidDataException(CloseFrame.POLICY_VALIDATION, "Invalid Apikey");
+		}
+		final var wsData = this.createWsData(ws);
+		wsData.setEdgeId(edgeId);
+		return wsData;
 	}
 
 	/**
