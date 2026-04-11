@@ -21,7 +21,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.websocket.AbstractWebsocketServer;
 
-public class WebsocketServer extends AbstractWebsocketServer<WsData> {
+public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	private final OnOpen onOpen;
 	private final OnRequest onRequest;

@@ -1,21 +1,5 @@
 package io.openems.common.websocket;
 
-import io.openems.common.function.BooleanConsumer;
-import io.openems.common.jsonrpc.base.JsonrpcMessage;
-import io.openems.common.jsonrpc.base.JsonrpcRequest;
-import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
-import io.openems.common.utils.FunctionUtils;
-import org.java_websocket.WebSocket;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft;
-import org.java_websocket.drafts.Draft_6455;
-import org.java_websocket.enums.Opcode;
-import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
-import org.java_websocket.framing.CloseFrame;
-import org.java_websocket.handshake.ServerHandshake;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.ConnectException;
 import java.net.Proxy;
 import java.net.URI;
@@ -23,6 +7,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.java_websocket.WebSocket;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
+import org.java_websocket.framing.CloseFrame;
+import org.java_websocket.handshake.ServerHandshake;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.function.BooleanConsumer;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.utils.FunctionUtils;
 
 /**
  * A Websocket Client implementation that automatically tries to reconnect a

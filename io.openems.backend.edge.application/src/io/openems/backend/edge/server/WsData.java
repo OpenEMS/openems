@@ -15,7 +15,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * correct).
 	 */
 	private String edgeId = null;
-	private final CompletableFuture<Void> isAuthenticated = new CompletableFuture<>();
 
 	public WsData(WebSocket ws) {
 		super(ws);
@@ -24,7 +23,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	protected synchronized void setEdgeId(String edgeId) {
 		this.edgeId = edgeId;
 		super.setDebug(DEBUG_EDGE_IDS.contains(edgeId));
-		this.isAuthenticated.complete(null);
 	}
 
 	/**
@@ -33,23 +31,6 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the Edge-ID; possibly null
 	 */
 	public synchronized String getEdgeId() {
-		return this.edgeId;
-	}
-
-	/**
-	 * Gets the Edge-ID, but waits to avoid race conditions during OnOpen
-	 * authentication.
-	 * 
-	 * @param timeout the timeout length
-	 * @param unit    the {@link TimeUnit} of the timeout
-	 * @return the Edge-ID; possibly null
-	 */
-	public synchronized String getEdgeIdWithTimeout(long timeout, TimeUnit unit) {
-		try {
-			this.isAuthenticated.get(timeout, unit);
-		} catch (Exception e) {
-			// ignore
-		}
 		return this.edgeId;
 	}
 
