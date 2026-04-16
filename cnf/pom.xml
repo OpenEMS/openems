@@ -385,7 +385,7 @@
 			https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.83</version>
+			<version>1.84</version>
 		</dependency>
 		<dependency>
 			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
