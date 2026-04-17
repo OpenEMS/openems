@@ -67,11 +67,21 @@
 			<version>2.13.2</version>
 		</dependency>
 		<dependency>
+			<!--
+            Guava: Google Core Libraries For Java
+            Changelog: https://github.com/google/guava/releases
+            Keep in sync with default buildpath in cnf/build.bnd
+            -->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.5.0-jre</version>
+			<version>33.6.0-jre</version>
 		</dependency>
 		<dependency>
+			<!--
+            Guava InternalFutureFailureAccess and InternalFutures
+            Changelog: https://github.com/google/guava/releases
+            Keep in sync with default buildpath cnf/build.bnd
+            -->
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
 			<version>1.0.3</version>
@@ -223,7 +233,7 @@
             -->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.3.0-openems.1</version>
+			<version>3.3.0-openems.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
