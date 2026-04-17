@@ -479,7 +479,7 @@
 	org.apache.felix.http.servlet-api;version='[6.1.0,6.1.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
-	org.apache.felix.scr;version='[2.2.14,2.2.15)';startlevel=10,\
+	org.apache.felix.scr;version='[2.2.18,2.2.19)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
 	org.eclipse.paho.client.mqttv3;version='[1.2.5,1.2.6)',\
