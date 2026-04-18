@@ -119,18 +119,6 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 		super.deactivate();
 	}
 
-	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			var state = this.isReadyForCharging();
-			setValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, state);
-		}
-		}
-	}
 
 	@Override
 	public ChargePointAbilities getChargePointAbilities() {
@@ -181,6 +169,11 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 
 	}
 
+	@Override
+	public void handleEvent(Event event) {
+		this.benderHandleEvent(event);
+	}
+	
 	@Override
 	public PhaseRotation getPhaseRotation() {
 		return this.config.phaseRotation();
