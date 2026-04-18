@@ -503,7 +503,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		return new GetChannelsOfComponent.ChannelRecord(//
 				channel.channelId().id(), //
 				channel.channelDoc().getAccessMode(), //
-				channel.channelDoc().getPersistencePriority(), //
+				channel.channelDoc().getRemotePersistencePriority(), //
 				channel.channelDoc().getText(language), //
 				channel.channelDoc().getType(), //
 				channel.channelDoc().getUnit(), //

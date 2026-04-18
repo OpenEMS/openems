@@ -77,7 +77,8 @@ public class OpenemsConstants {
 	public static final String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 
 	/**
-	 * Path to log4j2.xml configuration file. Written to osgi config by LoggerConfigurator.
+	 * Path to log4j2.xml configuration file. Written to osgi config by
+	 * LoggerConfigurator.
 	 */
 	public static final String OPENEMS_LOG_CONFIG_PATH_SYSVAR = "openems.log.config.path";
 
