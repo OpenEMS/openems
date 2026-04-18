@@ -35,10 +35,10 @@ public class PT1FilterTest {
 		assertEquals(1333, sut.applyPT1Filter(2000));
 
 		clock.leap(500, ChronoUnit.MILLIS);
-		assertEquals(1555, sut.applyPT1Filter(2000));
+		assertEquals(1556, sut.applyPT1Filter(2000));
 
 		clock.leap(500, ChronoUnit.MILLIS);
-		assertEquals(1703, sut.applyPT1Filter(2000));
+		assertEquals(1704, sut.applyPT1Filter(2000));
 
 		clock.leap(500, ChronoUnit.MILLIS);
 		assertEquals(1802, sut.applyPT1Filter(2000));
@@ -48,38 +48,11 @@ public class PT1FilterTest {
 		assertEquals(1802, sut.applyPT1Filter(2000));
 
 		clock.leap(500, ChronoUnit.MILLIS);
-		assertEquals(1872, sut.applyPT1Filter(2000));
+		assertEquals(1873, sut.applyPT1Filter(2000));
 
 		// Reset + first run after reset: input = output
 		sut.reset();
 		assertEquals(2000, sut.applyPT1Filter(2000));
-	}
-
-	@Test
-	public void testAntiWindup() {
-		// timeConstantMs=1000ms, cycleTimeMs=500ms → factor=2.0
-		// formula: output = (value + 2 * lastOutput) / 3
-		var cycleTimeMs = 500;
-		var timeConstantMs = 1000;
-		final var clock = TestUtils.createDummyClock();
-		final var sut = new PT1Filter(clock, timeConstantMs);
-
-		final var maxPower = 5000;
-		final var lowLimit = 0;
-		final var powerAboveLimit = 10_000;
-		final var powerBelowLimit = 3_000;
-		sut.setLimits(lowLimit, maxPower);
-
-		clock.leap(cycleTimeMs, ChronoUnit.MILLIS);
-		assertEquals(maxPower, sut.applyPT1Filter(powerAboveLimit));
-
-		clock.leap(cycleTimeMs, ChronoUnit.MILLIS);
-		assertEquals(maxPower, sut.applyPT1Filter(powerAboveLimit));
-
-		// (3000 + 2*5000)/3 = 4333 — without anti-windup: (3000 + 2*6667)/3 = 5445 →
-		// still clamped to 5000
-		clock.leap(cycleTimeMs, ChronoUnit.MILLIS);
-		assertEquals(4333, sut.applyPT1Filter(powerBelowLimit));
 	}
 
 	@Test

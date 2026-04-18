@@ -80,8 +80,7 @@ public final class PT1Filter extends Filter {
 			}
 		}
 
-		final var result = this.applyLowHighLimits(output);
-		this.lastOutput = result;
-		return result;
+		this.lastOutput = output;
+		return this.applyLowHighLimits(output);
 	}
 }

@@ -54,21 +54,21 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(106, maxCurrent.get().intValue());
+		assertEquals(103, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-45);
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(106, maxCurrent.get().intValue());
+		assertEquals(99, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-40);
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(101, maxCurrent.get().intValue());
+		assertEquals(94, maxCurrent.get().intValue());
 	}
 
 }
