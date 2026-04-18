@@ -58,6 +58,7 @@ import io.openems.edge.app.evse.vehicle.AppGenericVehicle;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
+import io.openems.edge.app.heat.AppHeatAskoma;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatAskomaReadOnly;
 import io.openems.edge.app.heat.HeatMyPvReadOnly;
@@ -1323,13 +1324,23 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link HeatMyPvReadOnly}.
-	 * 
+	 * Test method for creating a {@link HeatAskomaReadOnly}.
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
+	public static final HeatAskomaReadOnly heatAskomaReadOnly(AppManagerTestBundle t) {
 		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHeatAskoma}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHeatAskoma heatAskoma(AppManagerTestBundle t) {
+		return app(t, AppHeatAskoma::new, "App.Heat.Askoma");
 	}
 
 	/**
