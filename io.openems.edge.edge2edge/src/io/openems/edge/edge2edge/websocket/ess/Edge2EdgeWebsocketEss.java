@@ -3,10 +3,10 @@ package io.openems.edge.edge2edge.websocket.ess;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 
-public interface Edge2EdgeEss extends OpenemsComponent {
+public interface Edge2EdgeWebsocketEss extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		; //
+		;
 
 		private final Doc doc;
 
@@ -19,5 +19,4 @@ public interface Edge2EdgeEss extends OpenemsComponent {
 			return this.doc;
 		}
 	}
-
 }

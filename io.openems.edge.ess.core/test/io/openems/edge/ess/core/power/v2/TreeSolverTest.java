@@ -98,8 +98,8 @@ public class TreeSolverTest {
 	}
 
 	/**
-	 * Nested cluster: ess0=[sub1, sub2], sub1=[ess1..ess4], sub2=[ess5..ess8].
-	 * sub1 pinned at +8000W, remaining = -10000-8000 = -18000W to sub2.
+	 * Nested cluster: ess0=[sub1, sub2], sub1=[ess1..ess4], sub2=[ess5..ess8]. sub1
+	 * pinned at +8000W, remaining = -10000-8000 = -18000W to sub2.
 	 */
 	@Test
 	public void testNestedClusterWithPinnedSubCluster() {
@@ -115,8 +115,7 @@ public class TreeSolverTest {
 		var sub2 = new DummyMetaEss("sub2", ess5, ess6, ess7, ess8);
 		var ess0 = new DummyMetaEss("ess0", sub1, sub2);
 
-		var pd = PowerDistribution.from(
-				List.of(ess0, sub1, sub2, ess1, ess2, ess3, ess4, ess5, ess6, ess7, ess8));
+		var pd = PowerDistribution.from(List.of(ess0, sub1, sub2, ess1, ess2, ess3, ess4, ess5, ess6, ess7, ess8));
 		pd.setEquals("ess0", -10000);
 		pd.setEquals("sub1", 8000); // sub1 pinned at +8000W
 

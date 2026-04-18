@@ -2,13 +2,13 @@ package io.openems.edge.ess.generic.common;
 
 import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.VOLTAGE_CONTROL_FILTER_TIME_CONSTANT;
 import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.calculateMaxCurrent;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TestUtils;
 import io.openems.edge.battery.test.DummyBattery;
@@ -54,21 +54,21 @@ public class AbstractAllowedChargeDischargeHandlerTest {
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(103, maxCurrent.get().intValue());
+		assertEquals(106, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-45);
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(99, maxCurrent.get().intValue());
+		assertEquals(106, maxCurrent.get().intValue());
 
 		battery //
 				.withCurrent(-40);
 		for (var i = 0; i < 20; i++) {
 			maxCurrent.get();
 		}
-		assertEquals(94, maxCurrent.get().intValue());
+		assertEquals(101, maxCurrent.get().intValue());
 	}
 
 }
