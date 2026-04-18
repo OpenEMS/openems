@@ -1,14 +1,19 @@
 import { Component, OnInit } from "@angular/core";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { Converter } from "src/app/shared/components/shared/converter";
+import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { Mode, WorkMode } from "src/app/shared/type/general";
+import { LiveDataService } from "../../../livedataservice";
 
 @Component({
     templateUrl: "./modal.html",
     standalone: false,
+    providers: [
+        { provide: DataService, useClass: LiveDataService },
+    ],
 })
-export class ModalComponent extends AbstractModal implements OnInit {
+export class ControllerHeatModalComponent extends AbstractModal implements OnInit {
 
     protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
     protected readonly Mode = Mode;

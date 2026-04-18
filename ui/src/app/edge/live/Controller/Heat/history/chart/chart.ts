@@ -7,8 +7,8 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "controller-heat-chart",
-    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-controller-heat-chart",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
@@ -16,7 +16,6 @@ export class ChartComponent extends AbstractHistoryChart {
     protected static getChartData(config: EdgeConfig, translate: TranslateService, component: EdgeConfig.Component | undefined, chartType: "line" | "bar"): HistoryUtils.ChartData {
 
         let input: HistoryUtils.InputChannel[] = [];
-
         AssertionUtils.assertIsDefined(component);
 
         input = [
@@ -102,7 +101,16 @@ export class ChartComponent extends AbstractHistoryChart {
         };
     }
     protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.config, this.translate, this.component, this.chartType);
+        const edge = this.edge ?? this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        const config = this.config ?? edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(this.config);
+
+        const component = this.component ?? config.getComponentSafely(this.route.snapshot.params.componentId);
+        AssertionUtils.assertIsDefined(component);
+
+        return ChartComponent.getChartData(config, this.translate, component, this.chartType);
     }
 
 }

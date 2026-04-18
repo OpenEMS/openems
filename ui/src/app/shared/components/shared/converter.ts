@@ -2,6 +2,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, GridMode, Limiter14aRestriction, RippleControlReceiverRestrictionLevel, Utils } from "../../shared";
 import { EnabledDisabledState } from "../../type/general";
+import { NumberUtils } from "../../utils/number/number-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
@@ -197,6 +198,18 @@ export namespace Converter {
     export const TEMPERATURE_IN_DEGREES: Converter = (raw) => {
         return IF_NUMBER(raw, value =>
             Formatter.FORMAT_CELSIUS(value));
+    };
+
+    export const DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS: Converter = (raw) => {
+        return IF_NUMBER(raw, value => {
+            const dividedValue = NumberUtils.divideSafely(value, 10);
+
+            if (dividedValue == null) {
+                return value + " °C";
+            }
+
+            return Formatter.FORMAT_CELSIUS(dividedValue);
+        });
     };
 
     /**

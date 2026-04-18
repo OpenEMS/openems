@@ -251,10 +251,22 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
             props: {
                 attributes: {
                     title: view.title,
+                    ...(view.icon != null && view.icon.name != null ? { icon: view.icon.name as string } : {}),
                     ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
                 },
                 required: true,
-                options: [{ component: view.component }],
+                options: [
+                    {
+                        lines: view.lines,
+                        component: view.component,
+                        ...(view.icon != null ? {
+                            icon: {
+                                size: view.icon.size,
+                                color: view.icon.color,
+                            },
+                        } : {}),
+                    },
+                ],
                 onSubmit: (fg: FormGroup) => {
                     this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
                 },
@@ -277,6 +289,7 @@ export type OeFormlyView<T = unknown> = {
     lines: OeFormlyField<T>[];
     isCommonWidget?: string,
     helpKey?: string | null,
+    icon?: Icon,
     useDefaultPrefix?: boolean | null,
     component?: EdgeConfig.Component | null,
     edge?: Edge,

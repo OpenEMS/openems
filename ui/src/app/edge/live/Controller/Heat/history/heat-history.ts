@@ -3,6 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
+import { ControllerHeatHistoryComponent } from "./new-navigation/new-navigation";
 import { ControllerHeatOverviewComponent } from "./overview/overview";
 
 @NgModule({
@@ -11,13 +12,15 @@ import { ControllerHeatOverviewComponent } from "./overview/overview";
         SharedModule,
     ],
     declarations: [
-        ChartComponent,
         FlatComponent,
+        ControllerHeatHistoryComponent,
+        ChartComponent,
         ControllerHeatOverviewComponent,
     ],
     exports: [
-        ChartComponent,
         FlatComponent,
+        ChartComponent,
+        ControllerHeatHistoryComponent,
         ControllerHeatOverviewComponent,
     ],
 })
