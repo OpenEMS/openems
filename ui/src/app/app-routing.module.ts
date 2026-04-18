@@ -52,7 +52,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: ":componentId/heatmypvchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/heatchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/enerixchart", component: EnerixOverviewComponent },
-        { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/live/Controller/Io/Heatpump/controller-io-heatpump").then(m => m.ControllerIoHeatpumpModule) },
+        { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/live/Controller/Io/Heatpump/history/controller-io-heatpump-history").then(m => m.HeatPumpHistory) },
         { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
         { path: ":componentId/scheduleChart", component: ControllerEssTimeOfUseTariffOverviewComponent },
         { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
