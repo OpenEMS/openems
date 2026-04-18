@@ -79,6 +79,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 break;
             case 5:
             case 7:
+            case 9:
                 this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
                 break;
             case 8: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");

@@ -418,8 +418,10 @@
                         "NO_LIMIT_POSSIBLE": "Keine Begrenzung Möglich(Eingeschränkt durch Steuerungen mit höherer Priorität)",
                         "NOT_DEFINED": "Nicht definiert",
                         "PASSED_END_TIME": "Endzeitpunkt der begrenzten Beladung überschritten",
-                        "STORAGE_ALREADY_FULL": "Speicher bereits voll"
+                        "STORAGE_ALREADY_FULL": "Speicher bereits voll",
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist."
                     },
+                    "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
                     "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)"
                 },
                 "HEAT": {
