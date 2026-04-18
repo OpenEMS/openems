@@ -1,0 +1,9 @@
+/var/log/openems/*.log {
+    daily
+    rotate 7
+    missingok
+    notifempty
+    dateext
+    dateformat .%Y-%m-%d
+    create 644 fems fems
+}
