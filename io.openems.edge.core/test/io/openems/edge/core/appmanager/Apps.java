@@ -70,6 +70,8 @@ import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs33;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs36;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
 import io.openems.edge.app.integratedsystem.FeneconProHybridGw;
@@ -339,6 +341,26 @@ public final class Apps {
 	 */
 	public static final FeneconProHybrid910 feneconProHybrid910(AppManagerTestBundle t) {
 		return app(t, FeneconProHybrid910::new, "App.FENECON.ProHybrid.9.10");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs33}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs33 feneconMiniEs33(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs33::new, "App.FENECON.Mini.ES.3.3");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs36}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs36 feneconMiniEs36(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs36::new, "App.FENECON.Mini.ES.3.6");
 	}
 
 	// TimeOfUseTariff

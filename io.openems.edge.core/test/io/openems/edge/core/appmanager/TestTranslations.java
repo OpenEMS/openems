@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -84,6 +85,14 @@ public class TestTranslations {
 					.addProperty("DC_PV1_ALIAS", "charger0") //
 					.addProperty("HAS_DC_PV1", "false") //
 					.addProperty("DC_PV1_ALIAS", "charger1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconMiniEs33(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_PHASE", Phase.L1) //
+					.addProperty("ESS_READ_ONLY", true) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconMiniEs36(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_PHASE", Phase.L1) //
+					.addProperty("ESS_READ_ONLY", true) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
