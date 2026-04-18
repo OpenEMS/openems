@@ -18,7 +18,7 @@ import { Converter } from "./converter";
 import { DataService } from "./dataservice";
 
 @Directive()
-export abstract class AbstractFormlyComponent implements OnDestroy {
+export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy {
 
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
@@ -225,25 +225,40 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
         }
     }
 
-    protected updateWholeViewOnFormControlChange(view: OeFormlyView, fg: FormGroup, websocket: Websocket) {
-        this.setFields(view, fg, websocket);
-    }
-    private setFields(view: OeFormlyView, fg: FormGroup, websocket: Websocket) {
+    private setFields(view: OeFormlyView<T>, fg: FormGroup, websocket: Websocket) {
         this.fields = [{
-            type: "input",
+            fieldGroup: view.lines.map((el, index) => {
+                return {
+                    props: {
+                        attributes: {
+                            title: view.title,
+                            ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
+                        },
+                        required: true,
+                        options: [{ line: el }],
+                    },
+                    hooks: {
+                        onInit: (field) => {
+                            field.form?.valueChanges.subscribe(value => {
+                                field.hide = el.hide?.(value) ?? false;
+                            });
+                        },
+                    },
+                };
+            }),
+            className: "ion-full-height",
+            wrappers: [this.formlyWrapper],
             props: {
                 attributes: {
                     title: view.title,
                     ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
                 },
                 required: true,
-                options: [{ lines: view.lines, component: view.component }],
+                options: [{ component: view.component }],
                 onSubmit: (fg: FormGroup) => {
                     this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
                 },
             },
-            className: "ion-full-height",
-            wrappers: [this.formlyWrapper],
         }];
     }
 
@@ -254,12 +269,12 @@ export abstract class AbstractFormlyComponent implements OnDestroy {
       * @param role  the Role of the User for this Edge
       * @param translate the Translate-Service
       */
-    protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView;
+    protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView<T>;
 }
 
-export type OeFormlyView = {
+export type OeFormlyView<T = unknown> = {
     title: string,
-    lines: OeFormlyField[],
+    lines: OeFormlyField<T>[];
     isCommonWidget?: string,
     helpKey?: string | null,
     useDefaultPrefix?: boolean | null,
@@ -267,28 +282,30 @@ export type OeFormlyView = {
     edge?: Edge,
 };
 
-export type OeFormlyField =
-    | OeFormlyField.ImageLine
-    | OeFormlyField.InfoLine
-    | OeFormlyField.Item
-    | OeFormlyField.ChildrenLine
-    | OeFormlyField.NameLine
-    | OeFormlyField.ChannelLine
-    | OeFormlyField.HorizontalLine
-    | OeFormlyField.ValueFromChannelsLine
-    | OeFormlyField.ValueFromFormControlLine
-    | OeFormlyField.ButtonFromFormControlLine
-    | OeFormlyField.ButtonsFromFormControlLine
-    | OeFormlyField.RangeButtonFromFormControlLine
-    | OeFormlyField.RadioButtonsFromFormControlLine
-    | OeFormlyField.PercentageBarFromFormControlLine
-    | OeFormlyField.ToggleLine
-    | OeFormlyField.InputLine
-    | OeFormlyField.SelectLine
-    | OeFormlyField.PercentageBarFromFormControlLine
-    | OeFormlyField.Advanced.ElectricityMeter
-    | OeFormlyField.Advanced.EssChargerLine
-    ;
+export type OeFormlyField<T = unknown> =
+    (| OeFormlyField.ImageLine
+        | OeFormlyField.InfoLine
+        | OeFormlyField.Item
+        | OeFormlyField.ChildrenLine
+        | OeFormlyField.NameLine
+        | OeFormlyField.ChannelLine
+        | OeFormlyField.HorizontalLine
+        | OeFormlyField.ValueFromChannelsLine
+        | OeFormlyField.ValueFromFormControlLine
+        | OeFormlyField.ButtonFromFormControlLine
+        | OeFormlyField.ButtonsFromFormControlLine
+        | OeFormlyField.RangeButtonFromFormControlLine
+        | OeFormlyField.RadioButtonsFromFormControlLine
+        | OeFormlyField.PercentageBarFromFormControlLine
+        | OeFormlyField.ToggleLine
+        | OeFormlyField.InputLine
+        | OeFormlyField.SelectLine
+        | OeFormlyField.PercentageBarFromFormControlLine
+        | OeFormlyField.Advanced.ElectricityMeter
+        | OeFormlyField.Advanced.EssChargerLine)
+    & {
+        hide?: (field: T) => boolean;
+    };
 
 export namespace OeFormlyField {
 

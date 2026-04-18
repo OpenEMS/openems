@@ -8,6 +8,7 @@ export enum Mode {
     MANUAL_ON = "MANUAL_ON",
     MANUAL_OFF = "MANUAL_OFF",
     AUTOMATIC = "AUTOMATIC",
+    MANUAL = "MANUAL",
 }
 export const ChartAnnotationState = {
     ON: 1,
