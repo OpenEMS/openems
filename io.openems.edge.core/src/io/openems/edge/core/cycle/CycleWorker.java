@@ -40,12 +40,7 @@ public class CycleWorker extends AbstractWorker {
 		var stopwatch = Stopwatch.createStarted();
 
 		// Kick Operating System Watchdog
-		var socketName = System.getenv().get("NOTIFY_SOCKET");
-		if (socketName != null && !socketName.isEmpty()) {
-			if (SDNotify.isAvailable()) {
-				SDNotify.sendWatchdog();
-			}
-		}
+		this.executeCycleStep(verbosity, CycleLogVerbosity.PHASES, "Notify Watchdog", SDNotify::sendWatchdog);
 
 		try {
 			/*
@@ -56,12 +51,12 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Before Controllers start: switch to next process image for each channel
 			 */
-			Stream.concat(//
-					this.parent.componentManager.getEnabledComponents().stream(), //
-					Stream.of(this.parent)//
-			)//
-					.filter(c -> c.isEnabled() && !(c instanceof Sum))//
-					.forEach(component -> this.triggerComponentEvent(verbosity, component));
+			this.executeCycleStep(verbosity, CycleLogVerbosity.PHASES, "Switch to Channels for each Component",
+					() -> Stream.concat(//
+							this.parent.componentManager.getEnabledComponents().stream(), //
+							Stream.of(this.parent)) //
+							.filter(c -> c.isEnabled() && !(c instanceof Sum))//
+							.forEach(component -> this.triggerComponentEvent(verbosity, component)));
 
 			/*
 			 * Update the Channels in the Sum-Component.
@@ -85,10 +80,13 @@ public class CycleWorker extends AbstractWorker {
 			/*
 			 * Execute Schedulers and their Controllers
 			 */
-			var hasDisabledController = this.executeSchedulersWithOptionalMeasure(verbosity);
 
-			// announce ignoring disabled Controllers
-			this.parent._setIgnoreDisabledController(hasDisabledController);
+			this.executeCycleStep(verbosity, CycleLogVerbosity.PHASES, "Execute Schedulers", () -> {
+				var hasDisabledController = this.executeSchedulersWithOptionalMeasure(verbosity);
+
+				// announce ignoring disabled Controllers
+				this.parent._setIgnoreDisabledController(hasDisabledController);
+			});
 
 			/*
 			 * Trigger AFTER_CONTROLLERS event
