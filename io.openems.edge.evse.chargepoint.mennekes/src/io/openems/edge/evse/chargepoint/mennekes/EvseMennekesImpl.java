@@ -1,7 +1,6 @@
 package io.openems.edge.evse.chargepoint.mennekes;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
@@ -119,7 +118,6 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 		super.deactivate();
 	}
 
-
 	@Override
 	public ChargePointAbilities getChargePointAbilities() {
 		if (this.config == null) {
@@ -173,7 +171,7 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 	public void handleEvent(Event event) {
 		this.benderHandleEvent(event);
 	}
-	
+
 	@Override
 	public PhaseRotation getPhaseRotation() {
 		return this.config.phaseRotation();

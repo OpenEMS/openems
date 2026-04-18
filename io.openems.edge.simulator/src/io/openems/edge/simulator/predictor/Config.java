@@ -11,7 +11,7 @@ import io.openems.edge.predictor.api.prediction.LogVerbosity;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "timedata0";
+	String id() default "predictor0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
