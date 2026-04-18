@@ -1,6 +1,6 @@
 <formly-form [form]="form" [fields]="field.fieldGroup" [model]="model"></formly-form>
 
-@if (props && props.options[0].component) {
+@if (props && props.options && props.options[0]?.component && props.attributes) {
   <oe-modal [title]="props.attributes.title" [helpKey]="props.attributes.helpKey" useDefaultPrefix="true">
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     @for(f of field.fieldGroup; track f){

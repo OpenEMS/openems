@@ -1,8 +1,14 @@
-@if (isInitialized) {
-  <oe-chart [period]="service.historyPeriod" [title]="component.alias">
-    <gridOptimizedChargeChart [chartTitle]="'GENERAL.CHARGE'| translate" [component]="component">
-    </gridOptimizedChargeChart>
-    <ion-card-content class="underline">
+@if (edge) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+      @if (!ref.children.length) {
+        <pickdate></pickdate>
+      }
+    </ion-buttons>
+
+    <oe-controller-ess-grid-optimized-charge-chart [isOnlyChart]="true" [chartTitle]="'GENERAL.CHARGE'| translate" [component]="component" customChartHeightPercentage="70">
+    </oe-controller-ess-grid-optimized-charge-chart>
       <ion-row class="ion-justify-content-center">
         <ion-item class="ion-text-center" style="width: 100%;" lines="none">
           <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
@@ -13,10 +19,8 @@
           </ion-label>
         </ion-item>
       </ion-row>
-    </ion-card-content>
-    <sellToGridLimitChart [chartTitle]="'GENERAL.GRID_SELL'| translate" [component]="component">
+    <sellToGridLimitChart [isOnlyChart]="true" [chartTitle]="'GENERAL.GRID_SELL'| translate" [component]="component" customChartHeightPercentage="70">
     </sellToGridLimitChart>
-    <ion-card-content class="underline">
       <ion-row class="ion-justify-content-center">
         <ion-item class="ion-text-center" style="width: 100%;" lines="none">
           <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
@@ -27,6 +31,5 @@
           </ion-label>
         </ion-item>
       </ion-row>
-    </ion-card-content>
-  </oe-chart>
+  </oe-navigation-view>
 }

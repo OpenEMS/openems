@@ -88,5 +88,4 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
     }
-
 }

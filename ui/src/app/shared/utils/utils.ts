@@ -319,7 +319,11 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-    public static CONVERT_TO_WATTHOURS = (value: number): string => {
+    public static CONVERT_TO_WATTHOURS = (value: number | null): string => {
+        if (value == null) {
+            return "";
+        }
+
         const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         return formatNumber(value, locale, "1.0-1") + " Wh";
     };

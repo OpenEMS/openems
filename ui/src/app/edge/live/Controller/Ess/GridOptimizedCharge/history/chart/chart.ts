@@ -4,11 +4,12 @@ import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "gridOptimizedChargeChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-controller-ess-grid-optimized-charge-chart",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
@@ -89,7 +90,15 @@ export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
         };
     }
     protected getChartData(): HistoryUtils.ChartData {
-        return GridOptimizedChargeChartComponent.getChartData(this.component, this.translate);
+        const edge = this.edge ?? this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        const config = this.config ?? edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        const component = this.component ?? config.getComponentSafely(this.routeService.getRouteParam("componentId"));
+        AssertionUtils.assertIsDefined(component);
+        return GridOptimizedChargeChartComponent.getChartData(component, this.translate);
     }
 
 }

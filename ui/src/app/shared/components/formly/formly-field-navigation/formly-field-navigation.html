@@ -93,7 +93,7 @@
                   @case ('value-from-channels-line') {
                     <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe"
                       [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value"
-                      [filters]="line.filter ?? null" [name]="line.name">
+                      [filters]="line.filter ?? null" [name]="line.name" [singleLine]="line.singleLine ?? false">
                     </oe-modal-value-line>
                   }
 
@@ -158,6 +158,11 @@
                     <oe-modal-line [name]="line.name" [controlName]="line.controlName"
                       [control]="{type: 'SELECT', options: line.options}" [formGroup]="form" leftColumnWidth="50">
                     </oe-modal-line>
+                  }
+
+                  @case ('time-line') {
+                    <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form">
+                    </oe-time-line>
                   }
 
                   @case ('percentage-bar-line') {

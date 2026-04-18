@@ -5,7 +5,6 @@ import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
 import { ControllerEnerixOverviewComponent as EnerixOverviewComponent } from "./edge/history/Controller/EnerixControl/overview/overview";
-import { ControllerEssGridOptimizedChargeOverviewComponent as GridOptimizedChargeChartOverviewComponent } from "./edge/history/Controller/Ess/GridoptimizedCharge/overview/overview";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/history/Controller/Ess/TimeOfUseTariff/overview/overview";
 import { DetailsOverviewComponent as DigitalOutputDetailsOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/details/details.overview";
 import { ControllerIoDigitalOutputOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/overview/overview";
@@ -27,6 +26,7 @@ import { CommonGridOverviewComponent } from "./edge/live/common/grid/history/ove
 import { CommonProductionHistoryOverviewComponent } from "./edge/live/common/production/history/overview/overview";
 import { CommonProductionDetailsOverviewComponent } from "./edge/live/common/production/history/phase-accurate/overview/overview";
 import { CommonSelfconsumptionOverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/live/common/selfconsumption/history/overview/overview";
+import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
 import { ControllerHeatOverviewComponent } from "./edge/live/Controller/Heat/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
@@ -47,7 +47,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         // History Chart Pages
         { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
         { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
-        { path: ":componentId/gridOptimizedChargeChart", component: GridOptimizedChargeChartOverviewComponent },
+        { path: ":componentId/gridOptimizedChargeChart", component: ControllerEssGridOptimizedChargeOverviewComponent },
         { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
         { path: ":componentId/heatmypvchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/heatchart", component: ControllerHeatOverviewComponent },

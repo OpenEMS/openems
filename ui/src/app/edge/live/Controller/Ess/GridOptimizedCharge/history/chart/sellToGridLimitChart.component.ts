@@ -5,11 +5,12 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { hasMaximumGridFeedInLimitInMeta } from "src/app/shared/permissions/edgePermissions";
 import { ChannelAddress, Edge } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "sellToGridLimitChart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart {
@@ -78,8 +79,20 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
     }
 
     protected getChartData(): HistoryUtils.ChartData {
-        const gridMeterId = this.config.getComponentProperties(this.component.id)["meter.id"];
-        return SellToGridLimitChartComponent.getChartData(gridMeterId, this.component.id, this.translate, this.edge);
+        const edge = this.edge ?? this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        const config = this.config ?? edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        const component = this.component ?? config.getComponentSafely(this.routeService.getRouteParam("componentId"));
+        AssertionUtils.assertIsDefined(component);
+        const gridMeterComponent = this.config.getComponentFromOtherComponentsProperty(component.id, "meter.id");
+        if (gridMeterComponent == null) {
+            return;
+        }
+        const gridMeterId = gridMeterComponent.id;
+        return SellToGridLimitChartComponent.getChartData(gridMeterId, component.id, this.translate, edge);
     }
 
 }
