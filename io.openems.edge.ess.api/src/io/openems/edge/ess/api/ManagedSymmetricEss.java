@@ -184,7 +184,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * <li>Implementation Note: value is automatically written by {@link Power} just
-		 * just before it calls the onWriteListener (which writes the value to the Ess)
+		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER(Doc.of(INTEGER)//
