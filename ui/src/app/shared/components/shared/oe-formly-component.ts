@@ -1,4 +1,4 @@
-import { Directive, effect, EffectRef, inject, Injector, OnDestroy } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -10,6 +10,7 @@ import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
+import { AbstractHistoryChart } from "../chart/abstracthistorychart";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
@@ -307,6 +308,7 @@ export type OeFormlyField<T = unknown> =
         | OeFormlyField.ChannelLine
         | OeFormlyField.DateTimeLine
         | OeFormlyField.HorizontalLine
+        | OeFormlyField.ComponentLine
         | OeFormlyField.ValueFromChannelsLine
         | OeFormlyField.ValueFromFormControlLine
         | OeFormlyField.ButtonFromFormControlLine
@@ -347,6 +349,12 @@ export namespace OeFormlyField {
     export type ImageLine = {
         type: "image-line",
         img: OeImageComponent["img"],
+    };
+
+    export type ComponentLine<T extends AbstractHistoryChart = AbstractHistoryChart> = {
+        type: "component-line";
+        component: Type<T>;
+        inputs?: Record<string, unknown>;
     };
 
     export type Item = {
