@@ -534,16 +534,6 @@ export class Utils {
     }
 
     /**
-   * Shuffles an array
-   *
-   * @param array the array to be shuffled
-   * @returns the shuffled array
-   */
-    public static shuffleArray<T>(array: T[]): T[] {
-        return array.sort(() => Math.random() - 0.5);
-    }
-
-    /**
    * Checks if multiple array elements exist in the source object.
    * returns true only if all the elements in the array exist in the source Object.
    *

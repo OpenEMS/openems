@@ -55,7 +55,7 @@ export namespace Formatter {
     };
 
     export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
-        return formatNumber(parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
+        return formatNumber(Number.parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
     };
 
     export const formatSafely = (value: number | string | null, format: string) => {
