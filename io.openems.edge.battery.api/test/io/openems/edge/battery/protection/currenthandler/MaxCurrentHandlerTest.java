@@ -1,13 +1,13 @@
 package io.openems.edge.battery.protection.currenthandler;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.function.IntSupplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.protection.BatteryProtectionTest;
