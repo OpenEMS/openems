@@ -52,7 +52,7 @@ export class SystemExecuteComponent implements OnInit {
                 ip: {
                     expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
                     message: (error, field) => `${field.formControl?.value} is not a valid IP-Address or Hostname`,
-                }
+                },
             },
         }],
     }, {

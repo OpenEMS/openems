@@ -25,10 +25,10 @@ import { FormlyFieldModalComponent } from "./components/formly/formly-field-moda
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
-import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
-import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
+import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
+import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
 import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
 import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
