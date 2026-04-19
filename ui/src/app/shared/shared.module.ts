@@ -25,10 +25,10 @@ import { FormlyFieldModalComponent } from "./components/formly/formly-field-moda
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
-import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
-import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
+import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
 import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
 import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
@@ -72,23 +72,6 @@ export function registerTranslateExtension(translate: TranslateService) {
             },
         ],
     };
-}
-
-
-export function IpValidator(control: FormControl): ValidationErrors {
-    return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { "ip": true };
-}
-
-export function SubnetmaskValidator(control: FormControl): ValidationErrors {
-    return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(control.value) ? null : { "subnetmask": true };
-}
-
-export function IpValidatorMessage(err, field: FormlyFieldConfig) {
-    return `"${field.formControl.value}" is not a valid IP Address`;
-}
-
-export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
-    return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {

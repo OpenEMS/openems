@@ -1,12 +1,13 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
+import { AbstractControl, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { ExecuteSystemCommandRequest } from "src/app/shared/jsonrpc/request/executeCommandRequest";
 import { ExecuteSystemCommandResponse } from "src/app/shared/jsonrpc/response/executeSystemCommandResponse";
+import { InetUtils } from "src/app/shared/utils/inet/inet.utils";
 import { Service, Utils, Websocket } from "../../../shared/shared";
 
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
@@ -45,12 +46,13 @@ export class SystemExecuteComponent implements OnInit {
             key: "ip",
             type: "input",
             templateOptions: {
-                label: "IP-Address", placeholder: "192.168.0.1", required: true, pattern: /(\d{1,3}\.){3}\d{1,3}/,
+                label: "IP-Address / Hostname", placeholder: "127.0.0.1 / localhost", required: true,
             },
-            validation: {
-                messages: {
-                    pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is not a valid IP Address`,
-                },
+            validators: {
+                ip: {
+                    expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
+                    message: (error, field) => `${field.formControl?.value} is not a valid IP-Address or Hostname`,
+                }
             },
         }],
     }, {
