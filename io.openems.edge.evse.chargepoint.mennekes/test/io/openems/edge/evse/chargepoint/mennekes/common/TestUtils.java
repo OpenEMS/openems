@@ -11,7 +11,7 @@ public class TestUtils {
 	 */
 	public static DummyModbusBridge testModbus() {
 		return new DummyModbusBridge("modbus0")//
-				.withRegisters(104, 6) //
+				.withRegisters(104, 3) //
 				.withRegisters(111, 1, 0) //
 				.withRegisters(122, 3) //
 				.withRegisters(131, new int[] { //

@@ -389,6 +389,7 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 		final var gridActivePowerL3Sum = gridActivePowerL3.calculate();
 		setValue(this, Sum.ChannelId.GRID_ACTIVE_POWER_L3, gridActivePowerL3Sum);
 		setValue(this, Sum.ChannelId.GRID_BUY_PRICE, this.tariffManager.getGridBuyDayAheadPrices().getFirst());
+		setValue(this, Sum.ChannelId.GRID_SELL_PRICE, this.tariffManager.getGridSellDayAheadPrices().getFirst());
 
 		final var gridBuyActiveEnergySum = this.energyValuesHandler.setValue(//
 				Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, gridBuyActiveEnergy.calculate());

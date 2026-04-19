@@ -1,14 +1,14 @@
 package io.openems.edge.core.appmanager;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -17,6 +17,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.TestFeneconHome10;
@@ -38,8 +39,8 @@ public class TestTranslations {
 	private AppManagerTestBundle testBundle;
 	private List<TestTranslation> apps;
 
-	@Before
-	public void beforeEach() throws Exception {
+	@BeforeEach
+	void beforeEach() throws Exception {
 		this.apps = new ArrayList<>();
 		this.testBundle = new AppManagerTestBundle(null, null, t -> {
 			this.apps.add(new TestTranslation(Apps.feneconHome10(t), true, TestFeneconHome10.fullSettings()));
@@ -84,6 +85,14 @@ public class TestTranslations {
 					.addProperty("DC_PV1_ALIAS", "charger0") //
 					.addProperty("HAS_DC_PV1", "false") //
 					.addProperty("DC_PV1_ALIAS", "charger1") //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconMiniEs33(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_PHASE", Phase.L1) //
+					.addProperty("ESS_READ_ONLY", true) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.feneconMiniEs36(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_PHASE", Phase.L1) //
+					.addProperty("ESS_READ_ONLY", true) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ancillaryCosts(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("FIXED_ELECTRICITY_TARIFF", 0.0) //
@@ -280,6 +289,7 @@ public class TestTranslations {
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.heatAskomaReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.predictionUnmanagedConsumption(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.appSohCycle(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
@@ -290,9 +300,7 @@ public class TestTranslations {
 					.addProperty("HAS_DC_PV1", "false") //
 					.addProperty("DC_PV1_ALIAS", "charger1") //
 					.build()));
-			;
-			var availableApps = new ArrayList<OpenemsApp>();
-			availableApps.addAll(this.apps.stream().map(TestTranslation::app).toList());
+			var availableApps = new ArrayList<>(this.apps.stream().map(TestTranslation::app).toList());
 			availableApps.add(Apps.mennekesEvse(t));
 			availableApps.add(Apps.kebaEvse(t));
 			return availableApps;
@@ -320,11 +328,11 @@ public class TestTranslations {
 				.map(OpenemsApp::getAppId) //
 				.filter(appId -> dummyOem.getAppWebsiteUrl(appId, Language.DE) == null) //
 				.toList();
-		assertTrue("Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]", missing.isEmpty());
+		assertTrue(missing.isEmpty(), "Missing Website-URLs in Edge-OEM for [" + String.join(", ", missing) + "]");
 	}
 
 	private void addEvseApps() throws OpenemsNamedException {
-		UUID vehicleInstanceId = UUID.randomUUID();
+		UUID vehicleInstanceId;
 
 		var vehicleApp = this.testBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.Evse.ElectricVehicle.Generic", "key", "", new JsonObject()));
@@ -360,10 +368,8 @@ public class TestTranslations {
 			}
 		}
 
-		assertTrue(
-				"Missing Translation Keys for Language " + l + " ["
-						+ String.join(", ", debugTranslator.getMissingKeys()) + "]",
-				debugTranslator.getMissingKeys().isEmpty());
+		assertTrue(debugTranslator.getMissingKeys().isEmpty(), "Missing Translation Keys for Language " + l + " ["
+				+ String.join(", ", debugTranslator.getMissingKeys()) + "]");
 	}
 
 }

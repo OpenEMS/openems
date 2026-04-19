@@ -10,6 +10,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId = null;
 		private int modbusUnitId;
+		private boolean readonly = false;
+		private Mode mode = Mode.OFF;
+		private int maxHeatPower;
 
 		private Builder() {
 		}
@@ -26,6 +29,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setReadOnly(boolean readOnly) {
+			this.readonly = readOnly;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setMaxHeatPower(int maxHeatPower) {
+			this.maxHeatPower = maxHeatPower;
 			return this;
 		}
 
@@ -62,7 +80,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	@Override
 	public boolean readOnly() {
-		return false;
+		return this.builder.readonly;
+	}
+
+	@Override
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
+	public int maxHeatPower() {
+		return this.builder.maxHeatPower;
 	}
 
 	@Override

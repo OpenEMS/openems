@@ -83,8 +83,9 @@ public class ControllerApiMqttImpl extends AbstractOpenemsComponent
 		// Expand the filterSpec to the filterList
 		if (config == null || config.topicFilters().length == 0) {
 			return List.of();
-		}	
-		if (config.topicFilters().length == 1 && (config.topicFilters()[0] == null || config.topicFilters()[0].isBlank())) {
+		}
+		if (config.topicFilters().length == 1
+				&& (config.topicFilters()[0] == null || config.topicFilters()[0].isBlank())) {
 			return List.of();
 		}
 

@@ -4,6 +4,10 @@ import { BaseMeta } from "src/environments";
 export const OemMeta: BaseMeta = {
     api: {
         SYSTEM_OUTAGE: null,
+        CHANGELOG: {
+            REMOTE: "assets/json/changelog.json",
+            LOCAL: "assets/json/changelog.json",
+        },
     },
     icons: {
         COMMON: {

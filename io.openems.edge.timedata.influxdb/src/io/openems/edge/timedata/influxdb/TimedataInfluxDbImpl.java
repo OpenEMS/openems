@@ -132,7 +132,7 @@ public class TimedataInfluxDbImpl extends AbstractOpenemsComponent
 					.flatMap(component -> component.channels().stream()) //
 					.filter(channel -> {
 						final var doc = channel.channelDoc();
-						return doc.getPersistencePriority().isAtLeast(this.config.persistencePriority())
+						return doc.getLocalPersistencePriority().isAtLeast(this.config.persistencePriority())
 								&& doc.getAccessMode() != AccessMode.WRITE_ONLY; //
 					}) //
 					.forEach(channel -> {

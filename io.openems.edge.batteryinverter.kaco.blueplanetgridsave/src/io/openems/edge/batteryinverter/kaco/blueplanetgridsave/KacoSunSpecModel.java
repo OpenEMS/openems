@@ -19,21 +19,21 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 public enum KacoSunSpecModel implements SunSpecModel {
 	S_64201("Bidirectional inverter control", //
 			"Bidirectional inverter control backend", //
-			52 /* length */, KacoSunSpecModel.S64201.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			52/* length */, KacoSunSpecModel.S64201.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64202("Battery Charge Discharge Characteristic", //
 			"Bidirectional inverter battery charge discharge characteristic", //
-			14 /* length */, KacoSunSpecModel.S64202.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			14/* length */, KacoSunSpecModel.S64202.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64203("Batterysystem Information", //
 			"Batterysystem Information Frontend", //
-			26 /* length */, KacoSunSpecModel.S64203.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			26/* length */, KacoSunSpecModel.S64203.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64204("Q(U) extended", //
 			"Q(U) offset extension", //
-			8 /* length */, KacoSunSpecModel.S64204.values(), SunSpecModelType.VENDOR_SPECIFIC //
+			8/* length */, KacoSunSpecModel.S64204.values(), SunSpecModelType.VENDOR_SPECIFIC//
 	);
 
 	public static enum S64201 implements SunSpecPoint {
 		VERSION_MAJOR(new ValuePoint("S64201_VERSION_MAJOR", "Major Version of model", "", //
-				ValuePoint.Type.UINT16, true /* mandatory? */, AccessMode.READ_ONLY, Unit.NONE)), //
+				ValuePoint.Type.UINT16, true/* mandatory? */, AccessMode.READ_ONLY, Unit.NONE)), //
 		VERSION_MINOR(new ValuePoint("S64201_VERSION_MINOR", "Minor Version of model", "", //
 				ValuePoint.Type.UINT16, true, AccessMode.READ_ONLY, Unit.NONE)),
 		REQUESTED_STATE(new EnumPoint("S64201_REQUESTED_STATE", "Enumerated value. Control operating state", "", //

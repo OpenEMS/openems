@@ -157,7 +157,11 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override getChartHeight(): number | null {
-        return NumberUtils.multiplySafely(NumberUtils.divideSafely(window.innerHeight, 2, window.innerHeight), 100);
+        return NumberUtils.multiplySafely(
+            NumberUtils.divideSafely(
+                NumberUtils.divideSafely(window.innerHeight, 2),
+                window.innerHeight),
+            100);
     }
 
     private updateYAxisScaling(_datasets: typeof this.datasets, previousMax: number | null, translate: TranslateService) {

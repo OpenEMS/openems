@@ -419,6 +419,9 @@ export namespace NavigationConstants {
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [
+        "Controller.Ess.GridOptimizedCharge",
+        "Heat.Askoma",
+        "Heat.MyPv.AcThor9s",
         "Controller.Io.HeatPump.SgReady",
     ];
 

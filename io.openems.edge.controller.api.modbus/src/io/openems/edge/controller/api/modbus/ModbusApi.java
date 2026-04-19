@@ -10,14 +10,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface ModbusApi extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		UNABLE_TO_START(Doc.of(Level.FAULT) //
+		UNABLE_TO_START(Doc.of(Level.FAULT)//
 				.text("Unable to start ModbusTCP/RTU-Api Server")), //
-		COMPONENT_NO_MODBUS_API_FAULT(Doc.of(Level.FAULT) //
+		COMPONENT_NO_MODBUS_API_FAULT(Doc.of(Level.FAULT)//
 				.text("A configured Component does not support Modbus-API")), //
-		COMPONENT_MISSING_FAULT(Doc.of(Level.FAULT) //
-				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE) //
+		COMPONENT_MISSING_FAULT(Doc.of(Level.FAULT)//
+				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
 				.text("A configured Component is not available")), //
-		PROCESS_IMAGE_FAULT(Doc.of(Level.FAULT) //
+		PROCESS_IMAGE_FAULT(Doc.of(Level.FAULT)//
 				.text("Invalid Modbus Function call. Only FC3, FC4, FC6 and FC16 are supported"));
 
 		private final Doc doc;

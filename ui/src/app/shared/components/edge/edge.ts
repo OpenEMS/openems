@@ -583,7 +583,7 @@ export class Edge {
             return navigationTree;
         }
 
-        const conf = await this.config.getValue();
+        const conf = this.config.getValue();
         this.addCommonWidgetNavigation(edge, conf, navigationTree, translate);
         this.addControllerNavigation(edge, conf, navigationTree, translate);
 

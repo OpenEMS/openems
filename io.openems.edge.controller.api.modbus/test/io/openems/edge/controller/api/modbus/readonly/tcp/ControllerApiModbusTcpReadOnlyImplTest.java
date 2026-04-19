@@ -3,7 +3,7 @@ package io.openems.edge.controller.api.modbus.readonly.tcp;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.api.modbus.CommonConfig.Tcp.DEFAULT_PORT;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;

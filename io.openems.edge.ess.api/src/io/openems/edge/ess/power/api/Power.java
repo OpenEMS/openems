@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.filter.DisabledFilter;
 import io.openems.edge.common.filter.Filter;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -150,11 +150,13 @@ public interface Power {
 	}
 
 	/**
-	 * Gets the {@link Filter} instance.
+	 * Gets the {@link Filter} instance for the given ESS-ID.
 	 *
-	 * @return an instance of {@link PidFilter}; null if Filter is disabled
+	 * @param essId the Component-ID of {@link ManagedSymmetricEss}
+	 * @return an instance of {@link Filter}; {@link DisabledFilter} if Filter is
+	 *         disabled
 	 */
-	public Filter getFilter();
+	public Filter getFilter(String essId);
 
 	/**
 	 * Check if a {@link Filter} is enabled.

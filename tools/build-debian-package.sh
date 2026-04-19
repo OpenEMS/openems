@@ -78,6 +78,7 @@ prepare_deb_template() {
     fi
 
     echo "## Add OpenEMS UI"
+
     if [ -d "$DEBIAN_UI_LOCATION" ] && [ "$(ls -A $DEBIAN_UI_LOCATION)" ] ; then
         echo "openems.ui exists. Skipping common_build_ui."
     else
@@ -86,6 +87,9 @@ prepare_deb_template() {
         common_build_ui
         cp -R ui/target/* "$DEBIAN_UI_LOCATION"
     fi
+
+    echo "## Emptying Changelog"
+    echo '[]' > $DEBIAN_UI_LOCATION/assets/json/changelog.json
 }
 
 build_deb() {

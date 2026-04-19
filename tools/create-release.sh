@@ -33,6 +33,8 @@ initialize_environment() {
     RELEASE_DATE=$(date --iso-8601)
     PREV_VERSION=$VERSION
     SRC_CHANGELOG_COMPONENT="ui/src/app/changelog/view/component/changelog.component.ts"
+    SRC_CHANGELOG_ANDROID="tools/deploy/android/utils.py"
+    SRC_CHANGELOG_JSON="ui/src/assets/json/changelog.json"
 
     # Target version without SNAPSHOT
     VERSION_STRING=""
@@ -87,8 +89,8 @@ start_release() {
 }
 
 update_changelog() {
-    echo "# Update Changelog! ($SRC_CHANGELOG_COMPONENT)"
-    code $SRC_CHANGELOG_COMPONENT
+    echo "# Update Changelog! ($SRC_CHANGELOG_JSON)"
+    code $SRC_CHANGELOG_COMPONENT $SRC_CHANGELOG_ANDROID $SRC_CHANGELOG_JSON
     read -p ""
 }
 
