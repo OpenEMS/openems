@@ -15,7 +15,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Unit;
 import io.openems.common.test.TimeLeapClock;

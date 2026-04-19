@@ -220,6 +220,8 @@ common_build_android_app() {
         "EXAMPLE") NODE_ENV="EXAMPLE";;
     esac
 
+    echo '[]' > src/assets/json/changelog.json
+
     # Install depencencies for capacitor
     NODE_ENV=${NODE_ENV} ionic cap build android -c "${THEME},${THEME}-backend-prod" --no-open
 

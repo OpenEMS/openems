@@ -5,11 +5,10 @@ import static java.util.stream.Collectors.toSet;
 import java.util.List;
 import java.util.function.Supplier;
 
-import io.openems.common.function.BooleanConsumer;
-
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.BooleanConsumer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.ess.api.ManagedSymmetricEss;

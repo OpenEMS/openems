@@ -230,8 +230,8 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             caretSize: 0,
 
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
-                return !isNaN(value) && value !== null;
+                const value = item.dataset.data[item.dataIndex];
+                return Number.isFinite(value);
             },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },
@@ -557,8 +557,8 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
             intersect: false,
             mode: "index",
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
-                return !isNaN(value) && value !== null;
+                const value = item.dataset.data[item.dataIndex];
+                return Number.isFinite(value);
             },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },

@@ -28,7 +28,7 @@ export function validateTaskInputs<T>(
         };
     }
 
-    if (recurrenceRuleByDay === null) {
+    if (recurrenceRuleByDay == null) {
         return {
             valid: false,
             message: translate.instant("JS_SCHEDULE.VALIDATION_ERROR_8"),

@@ -95,6 +95,8 @@ public class EssGenericManagedSymmetricImpl
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private Battery battery;
 
+	private Config config;
+
 	public EssGenericManagedSymmetricImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -114,6 +116,7 @@ public class EssGenericManagedSymmetricImpl
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
+		this.config = config;
 	}
 
 	@Override
@@ -131,7 +134,8 @@ public class EssGenericManagedSymmetricImpl
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock(),
+				this.config.essFaultBehaviour());
 
 		// Call the StateMachine
 		try {

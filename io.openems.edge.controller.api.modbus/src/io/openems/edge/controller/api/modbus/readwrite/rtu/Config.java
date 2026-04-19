@@ -30,6 +30,9 @@ public @interface Config {
 	@AttributeDefinition(name = "Component-IDs", description = "Components that should be made available via Modbus.")
 	String[] component_ids() default { "_sum" };
 
+	@AttributeDefinition(name = "Write Channel-IDs", description = "Contains the channelnames of all overridden channels.")
+	String[] writeChannels();
+
 	@AttributeDefinition(name = "Api-Timeout", description = "Sets the timeout in seconds for updates on Channels set by this Api.")
 	int apiTimeout() default DEFAULT_API_TIMEOUT_SECONDS;
 

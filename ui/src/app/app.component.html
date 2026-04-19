@@ -107,7 +107,7 @@
             <!-- Show Link to Overview if more than one Edge is accessible or the globalRole is at least installer -->
             @if ((service.metadata | async); as service) {
             @if (isUserAllowedToSeeOverview) {
-            <ion-item lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
+            <ion-item button lines="full" routerLinkActive="active" routerLink="/overview" (click)="menu.close()">
                 <ion-label>{{"MENU.OVERVIEW" | translate}}</ion-label>
             </ion-item>
             }
@@ -115,7 +115,7 @@
 
             @if (service.currentEdge(); as edge) {
             <nav>
-                <ion-item lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
+                <ion-item button lines="inset" routerLink="/device/{{ edge.id }}/settings" (click)="menu.close()">
                     <ion-label>{{"MENU.EDGE_SETTINGS" | translate}}</ion-label>
                 </ion-item>
             </nav>

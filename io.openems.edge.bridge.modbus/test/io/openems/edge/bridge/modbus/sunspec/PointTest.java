@@ -20,7 +20,7 @@ public class PointTest {
 		var doc = channelId.doc();
 		assertEquals(READ_ONLY, doc.getAccessMode());
 		assertEquals(OPENEMS_TYPE, doc.getChannelCategory());
-		assertEquals(VERY_LOW, doc.getPersistencePriority());
+		assertEquals(VERY_LOW, doc.getLocalPersistencePriority());
 		assertEquals("Amps. AC Current", doc.getText());
 		assertEquals(FLOAT, doc.getType());
 		assertEquals(AMPERE, doc.getUnit());

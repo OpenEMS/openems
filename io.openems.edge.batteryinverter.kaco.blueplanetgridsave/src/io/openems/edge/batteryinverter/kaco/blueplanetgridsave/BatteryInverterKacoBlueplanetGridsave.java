@@ -41,19 +41,23 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 		 * mentioned and the state should have a proper description of the fault.
 		 */
 
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.WARNING) //
+		RUN_FAILED(Doc.of(Level.WARNING)//
 				.text("Running the Logic failed")), //
-		MAX_START_TIMEOUT(Doc.of(Level.WARNING) //
+		MAX_START_TIMEOUT(Doc.of(Level.WARNING)//
 				.text("Max start time is exceeded")), //
-		MAX_STOP_TIMEOUT(Doc.of(Level.WARNING) //
+		MAX_STOP_TIMEOUT(Doc.of(Level.WARNING)//
 				.text("Max stop time is exceeded")), //
+		INVERTER_RESTART_STOPPING(Doc.of(Level.WARNING)//
+				.text("Inverter Restart (Stopping). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
+		INVERTER_RESTART_STARTING(Doc.of(Level.WARNING)//
+				.text("Inverter Restart (Starting). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
 
 		/**
 		 * Internal StateMachine from KACO.
 		 */
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING) //
+		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING)//
 				.text("The 'CurrentState' is invalid")), //
 		;
 

@@ -24,6 +24,7 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.filter.DisabledFilter;
 import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -184,7 +185,7 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 * <li>Unit: var
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * <li>Implementation Note: value is automatically written by {@link Power} just
-		 * just before it calls the onWriteListener (which writes the value to the Ess)
+		 * before it calls the onWriteListener (which writes the value to the Ess)
 		 * </ul>
 		 */
 		DEBUG_SET_REACTIVE_POWER(Doc.of(INTEGER)//
@@ -333,25 +334,22 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		}
 		final var power = ess.getPower();
 
-		// Handle disabled filter
-		final var filter = power.getFilter();
+		// Is set-point already fixed?
+		var minPower = power.getMinPower(ess, ALL, ACTIVE);
+		var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
+		if (maxPower < minPower) {
+			maxPower = minPower; // avoid rounding error
+		}
+		if (Math.abs((long) maxPower - (long) minPower) < 10) { // Overflow-Proof Near-Equality
+			// Min- and Max-Power are close to equal; stop early to avoid calling the
+			// Filter multiple times in a Cycle.
+			return;
+		}
+
+		// Apply Filter for this ESS-ID
+		final var filter = power.getFilter(ess.id());
 		final int setpoint;
-		if (filter == null) {
-			setpoint = value;
-
-		} else if (applyFilter) {
-			// Is set-point already fixed?
-			var minPower = power.getMinPower(ess, ALL, ACTIVE);
-			var maxPower = power.getMaxPower(ess, ALL, ACTIVE);
-			if (maxPower < minPower) {
-				maxPower = minPower; // avoid rounding error
-			}
-			if (Math.abs((long) maxPower - (long) minPower) < 10) { // Overflow-Proof Near-Equality
-				// Min- and Max-Power are close to equal; stop early to avoid calling the
-				// Filter multiple times in a Cycle.
-				return;
-			}
-
+		if (applyFilter) {
 			// Configure filter, set limits and apply target set-point
 			filter.setLimits(minPower, maxPower);
 
@@ -364,6 +362,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 
 			case PT1Filter pt1Filter -> {
 				yield pt1Filter.applyPT1Filter(value);
+			}
+
+			case DisabledFilter disabledFilter -> {
+				yield disabledFilter.applyDisabledFilter(value);
 			}
 			};
 
@@ -542,26 +544,6 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDebugSetActivePower(Integer value) {
-		this.getDebugSetActivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DEBUG_SET_ACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDebugSetActivePower(int value) {
-		this.getDebugSetActivePowerChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#DEBUG_SET_REACTIVE_POWER}.
 	 *
 	 * @return the Channel
@@ -578,26 +560,6 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	public default Value<Integer> getDebugSetReactivePower() {
 		return this.getDebugSetReactivePowerChannel().value();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDebugSetReactivePower(Integer value) {
-		this.getDebugSetReactivePowerChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#DEBUG_SET_REACTIVE_POWER} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setDebugSetReactivePower(int value) {
-		this.getDebugSetReactivePowerChannel().setNextValue(value);
 	}
 
 	/**

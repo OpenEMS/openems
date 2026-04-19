@@ -15,11 +15,14 @@ import org.osgi.service.metatype.ObjectClassDefinition;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.CaseFormat;
 
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Factory.Property;
 import io.openems.common.types.OpenemsType;
@@ -42,6 +45,17 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	private static final String PROPERTY_CHANNEL_ID_PREFIX = "_PROPERTY_";
 
 	private final Logger log = OpenemsComponent.getComponentLogger(this);
+
+	/**
+	 * Converts e.g. "modbus.id" to "modbus_id".
+	 * 
+	 * @param channelId the id of the channel, e.g. "modbus.id"
+	 * @return the method name, e.g. "modbus_id"
+	 */
+	@VisibleForTesting
+	static String propertyIdToMethodName(String channelId) {
+		return channelId.replace(".", "_");
+	}
 
 	/**
 	 * Holds all Channels by their Channel-ID String representation (in
@@ -280,6 +294,9 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 	 * @param properties the configuration properties {@link Dictionary}
 	 */
 	private void addChannelsForProperties(ObjectClassDefinition ocd, Dictionary<String, Object> properties) {
+
+		final var configClass = Class.forName(this.getClass().getModule(), ocd.getID());
+
 		for (Property property : EdgeConfig.Factory.toProperties(ocd)) {
 			if (property.isPassword()) {
 				// Do not add 'Password' properties as Channels
@@ -297,28 +314,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			}
 
 			// Create Channel
-			var channelName = PROPERTY_CHANNEL_ID_PREFIX
-					+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, property.getId().replace(".", "_"));
-			Channel<?> channel = this.channels
-					.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
-			if (channel == null) {
-				// Channel does not already exist -> create new Channel
-				var doc = Doc.of(channelType) //
-						.persistencePriority(PersistencePriority.HIGH);
-				io.openems.edge.common.channel.ChannelId channelId = new io.openems.edge.common.channel.ChannelId() {
-
-					@Override
-					public String name() {
-						return channelName;
-					}
-
-					@Override
-					public Doc doc() {
-						return doc;
-					}
-				};
-				channel = this.addChannel(channelId);
-			}
+			Channel<?> channel = this.getOrCreateChannel(property, channelType, configClass);
 
 			// Set the Value
 			Object value = null;
@@ -337,6 +333,38 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 			}
 			channel.setNextValue(value);
 		}
+	}
+
+	private Channel<?> getOrCreateChannel(Property property, OpenemsType channelType, Class<?> configClass) {
+		final var methodName = propertyIdToMethodName(property.getId());
+		final var channelName = PROPERTY_CHANNEL_ID_PREFIX
+				+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
+		final var channel = this.channels
+				.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
+		if (channel != null) {
+			return channel;
+		}
+
+		// Channel does not already exist -> create new Channel
+		final var doc = Doc.of(channelType) //
+				.remotePersistencePriority(PersistencePriority.HIGH) //
+				.localPersistencePriority(PersistencePriority.LOW);
+
+		try {
+			final var method = configClass.getMethod(methodName, (Class<?>[]) null);
+
+			final var channelConfig = method.getAnnotation(PropertyChannel.class);
+
+			if (channelConfig != null) {
+				doc.localPersistencePriority(channelConfig.localPersistencePriority());
+				doc.remotePersistencePriority(channelConfig.remotePersistencePriority());
+			}
+		} catch (NoSuchMethodException e) {
+			throw new OpenemsRuntimeException("Unable to find configuration method '%s' in class '%s'"
+					.formatted(methodName, configClass.getName()), e);
+		}
+
+		return this.addChannel(new io.openems.edge.common.channel.ChannelId.ChannelIdImpl(channelName, doc));
 	}
 
 	/**

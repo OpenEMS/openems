@@ -118,7 +118,7 @@ public class SendChannelValuesWorker {
 					.filter(channel -> // Ignore WRITE_ONLY Channels
 					channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
 							// Ignore Low-Priority Channels
-							&& channel.channelDoc().getPersistencePriority()
+							&& channel.channelDoc().getRemotePersistencePriority()
 									.isAtLeast(this.parent.config.persistencePriority()))
 					.collect(ImmutableTable.toImmutableTable(c -> c.address().getComponentId(),
 							c -> c.address().getChannelId(), c -> c.value().asJson()));

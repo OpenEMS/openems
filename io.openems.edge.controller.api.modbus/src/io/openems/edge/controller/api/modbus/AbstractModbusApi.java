@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.osgi.service.component.ComponentContext;
@@ -23,7 +22,6 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.common.worker.AbstractWorker;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -52,7 +50,7 @@ import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolRequest;
 import io.openems.edge.controller.api.modbus.jsonrpc.GetModbusProtocolResponse;
 
 public abstract class AbstractModbusApi extends AbstractOpenemsComponent
-		implements ModbusApi, ComponentJsonApi, Controller {
+		implements ModbusSlave, ModbusApi, ComponentJsonApi, Controller {
 
 	protected static final int MAX_IDLE_SECONDS = 60;
 
@@ -81,7 +79,7 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	 * Holds the link between Modbus address and ModbusRecord.
 	 */
 	protected final ApiWorker apiWorker = new ApiWorker(this,
-			new WriteHandler(this.handleWrites(), this::setOverrideStatus, this.handleTimeouts()));
+			new WriteHandler(this::handleWrites, this::setOverrideStatus, this::handleTimeouts));
 
 	private CommonConfig config;
 
@@ -163,16 +161,16 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		AbstractModbusApi.this.logInfo(this.log, "ModbusApi started.");
 	}
 
-	protected Consumer<Entry<WriteChannel<?>, WriteObject>> handleWrites() {
-		return FunctionUtils::doNothing;
+	protected void handleWrites(Entry<WriteChannel<?>, WriteObject> entry) {
+		// do nothing
 	}
 
 	protected void setOverrideStatus(Status status) {
 		// do nothing
 	}
 
-	protected Runnable handleTimeouts() {
-		return FunctionUtils::doNothing;
+	protected void handleTimeouts() {
+		// do nothing
 	}
 
 	protected abstract com.ghgande.j2mod.modbus.slave.ModbusSlave createSlave() throws ModbusException;
@@ -242,21 +240,25 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Called by addComponent/removeComponent. Initializes the ModbusRecords, once
-	 * all Components are available. Fault-State otherwise.
+	 * Called by addComponent/removeComponent/activate/modified. Initializes the
+	 * ModbusRecords, once all Components are available. Fault-State otherwise.
 	 */
-	protected synchronized void updateComponents() {
+	private synchronized void updateComponents() {
 		var config = this.config;
 
 		if (config == null) {
 			this.resetModbusTable();
 			return;
 		}
-		final var expectedIds = List.of(config.componentIds());
+
+		// Available IDs: all referenced components and myself
 		final Set<String> availableIds = this._components.stream() //
 				.map(OpenemsComponent::id) //
 				.collect(Collectors.toSet()); //
+		availableIds.add(this.id());
 
+		// Expected IDs: all configured components
+		final var expectedIds = List.of(config.componentIds());
 		if (!availableIds.containsAll(expectedIds)) {
 			this.resetModbusTable();
 			this._setComponentMissingFault(true);
@@ -342,6 +344,11 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 		if (componentId == null) {
 			return null;
 		}
+
+		if (componentId.equals(this.id())) {
+			return this;
+		}
+
 		if (componentId.equals(Meta.SINGLETON_COMPONENT_ID)) {
 			return this.config.metaComponent();
 		}

@@ -5,6 +5,16 @@
       <!-- SellToGridLimit or DelayCharge -->
       <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="state">
       </oe-modal-line>
+
+      @if (delayChargeState === DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW) {
+          <ion-row>
+              <oe-modal-info-line
+                [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LIMITED_FUNCTIONALITY' | translate, lineStyle:'color: #FFA500'},{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION' | translate}]"
+                [icon]="{name: 'information-outline', size: 'large'}">
+              </oe-modal-info-line>
+          </ion-row>
+      }
+    
       <!-- Minimum-/ Maximum- Charge-Limit -->
       @if (chargeLimit) {
         <oe-modal-line [name]="chargeLimit.name" [converter]="Utils.CONVERT_TO_WATT" [value]="chargeLimit.value">

@@ -1,7 +1,6 @@
 package io.openems.edge.evse.chargepoint.mennekes;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
@@ -120,19 +119,6 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
-			return;
-		}
-		switch (event.getTopic()) {
-		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			var state = this.isReadyForCharging();
-			setValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, state);
-		}
-		}
-	}
-
-	@Override
 	public ChargePointAbilities getChargePointAbilities() {
 		if (this.config == null) {
 			return ChargePointAbilities.create()//
@@ -179,6 +165,11 @@ public class EvseMennekesImpl extends AbstractMennekes implements EvseChargePoin
 			this.logWarn(this.log, "Failed to apply current limit. " + e);
 		}
 
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		this.benderHandleEvent(event);
 	}
 
 	@Override

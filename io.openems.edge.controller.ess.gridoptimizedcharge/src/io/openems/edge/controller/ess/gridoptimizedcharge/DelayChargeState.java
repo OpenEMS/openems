@@ -12,7 +12,9 @@ public enum DelayChargeState implements OptionsEnum {
 	NO_CHARGE_LIMIT(5, "No active limitation"), //
 	DISABLED(6, "Delay charge part is disabled"), //
 	NOT_STARTED(7, "Delay charge was not started because there is no production or to less production"), //
-	AVOID_LOW_CHARGING(8, "Avoid charging with low power for more efficiency"); //
+	AVOID_LOW_CHARGING(8, "Avoid charging with low power for more efficiency"), //
+	ALLOWED_FEED_IN_LIMIT_TOO_LOW(9,
+			"Not active. The controller has no flexibility left to delay charge, because the limitation is nearly zero."); //
 
 	private final int value;
 	private final String name;
