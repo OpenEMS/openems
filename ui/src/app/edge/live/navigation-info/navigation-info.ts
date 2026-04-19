@@ -18,4 +18,5 @@ import { LiveDataService } from "../livedataservice";
 })
 export class NavigationInfoComponent extends AbstractModal {
     protected link = environment.links.REDIRECT.BETA_CHANGE_LOG;;
+    protected linkSurvey = environment.links.REDIRECT.BETA_SURVEY;;
 }

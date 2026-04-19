@@ -27,10 +27,11 @@ export class ChangelogComponent {
 
     public readonly roleIsAtLeast = Role.isAtLeast;
     public changelogs: { title?: string, version?: string, changes: { [lang: LanguageKeyUnion | "all"]: Array<{ roleIsAtLeast?: Role, change: string }> } }[] = [];
-    protected userLanguage: User["language"] | null = null;
 
+    protected userLanguage: User["language"] | null = null;
     protected slice: number = 10;
     protected showAll: boolean = false;
+
     constructor(
         public translate: TranslateService,
         public service: Service,
