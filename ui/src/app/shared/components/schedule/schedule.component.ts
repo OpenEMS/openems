@@ -115,7 +115,7 @@ export class ScheduleComponent extends AbstractModal {
                     end: JsCalendar.Utils.calculateEndTimeFromDuration(item?.start ?? null, item?.duration ?? null),
                     durationText: "",
                     recurrenceText: this.parseRecurrence(item),
-                    recurrenceRules: item.recurrenceRules,
+                    recurrenceRules: item.recurrenceRules ?? [],
                     payloadText: payload.toPayloadText(this.translate)(item),
                 } as JsCalendar.ScheduleVM;
             });
@@ -131,7 +131,7 @@ export class ScheduleComponent extends AbstractModal {
         });
     }
     private parseRecurrence(item: JsCalendar.Task): string {
-        return ScheduleComponent.translateRecurrence(item.recurrenceRules, this.translate);
+        return ScheduleComponent.translateRecurrence(item.recurrenceRules ?? [], this.translate);
     }
 }
 

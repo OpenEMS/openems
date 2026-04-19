@@ -24,6 +24,15 @@ import { FieldWrapper } from "@ngx-formly/core";
             flex: 1;
             margin-inline-end: 0 !important;
         }
+
+        /* Description text colors */
+        formly-field .sc-ion-label-md-s p,
+        formly-field ion-label p {
+                color: var(--ion-text-description-color) !important;
+            }
+        .helper-text, .hint-text, ion-note.helper-text {
+            color: var(--ion-text-description-color) !important;
+        }
     `],
     standalone: false,
 })

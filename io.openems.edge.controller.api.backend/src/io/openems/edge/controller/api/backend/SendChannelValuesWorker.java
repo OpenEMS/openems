@@ -148,7 +148,7 @@ public class SendChannelValuesWorker {
 					.filter(channel -> // Ignore WRITE_ONLY Channels
 					channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
 							// Ignore Low-Priority Channels
-							&& channel.channelDoc().getPersistencePriority()
+							&& channel.channelDoc().getRemotePersistencePriority()
 									.isAtLeast(this.parent.config.persistencePriority()))
 					.collect(//
 							ImmutableMap.toImmutableMap(//
@@ -192,7 +192,7 @@ public class SendChannelValuesWorker {
 				.filter(channel -> // Ignore WRITE_ONLY Channels
 				channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
 						// Ignore Low-Priority Channels
-						&& channel.channelDoc().getPersistencePriority()
+						&& channel.channelDoc().getRemotePersistencePriority()
 								.isAtLeast(this.parent.config.aggregationPriority()))
 				.forEach(channel -> {
 					try {

@@ -1,7 +1,7 @@
 import { registerLocaleData } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import localDE from "@angular/common/locales/de";
-import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
@@ -68,12 +68,9 @@ provideTranslateLoader(MyTranslateLoader);
         AppStateTracker,
         NavigationService,
         AuthService,
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeService,
-            deps: [NavigationService], // Dependencies for the factory function
-            multi: true, // Allows multiple initializers
-        },
+        provideAppInitializer(() => {
+            inject(NavigationService);
+        }),
         provideCharts(withDefaultRegisterables()),
     ],
     bootstrap: [AppComponent],

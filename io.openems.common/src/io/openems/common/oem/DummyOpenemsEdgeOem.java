@@ -170,7 +170,14 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
-
+			.put("App.FENECON.Mini.ES.3.3", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.FENECON.Mini.ES.3.6", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.System.Fenecon.Home", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -344,6 +351,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.EN) //
 			) //
 			.put("App.Heat.HeatingElement", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.Heat.Askoma", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //

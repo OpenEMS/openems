@@ -1,6 +1,7 @@
 package io.openems.edge.evse.chargepoint.bender;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 import static io.openems.edge.common.type.Phase.SinglePhase.L2;
 import static io.openems.edge.common.type.Phase.SinglePhase.L3;
@@ -8,6 +9,8 @@ import static io.openems.edge.meter.api.PhaseRotation.mapLongToPhaseRotatedActiv
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
+
+import org.osgi.service.event.Event;
 
 import io.openems.common.types.SemanticVersion;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -20,6 +23,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbusComponent
@@ -65,9 +69,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 								.bit(15, EvseChargePointBender.ChannelId.ERR_TYPE2_OVERLOAD_THR_2)),
 				new FC3ReadRegistersTask(122, Priority.HIGH,
 						m(EvseChargePointBender.ChannelId.VEHICLE_STATE, new UnsignedWordElement(122))),
-				new FC3ReadRegistersTask(131, Priority.LOW,
-						m(EvseChargePointBender.ChannelId.SAFE_CURRENT, new UnsignedWordElement(131)),
-						new DummyRegisterElement(132, 152),
+				new FC3ReadRegistersTask(153, Priority.LOW,
 						m(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_MAJOR, new UnsignedWordElement(153)),
 						m(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_MINOR, new UnsignedWordElement(154)),
 						m(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_PATCH, new UnsignedWordElement(155))),
@@ -106,9 +108,9 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	 * 
 	 * @return is the vehicle connected
 	 */
-	public boolean isEvConnected() {
+	protected boolean isEvConnected() {
 		var rawState = this.getVehicleState();
-		return rawState.isEvConnected();
+		return rawState.isEvConnected;
 	}
 
 	/**
@@ -116,9 +118,21 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	 * 
 	 * @return is the vehicle connected
 	 */
-	public boolean isReadyForCharging() {
-		var rawState = this.getVehicleState();
-		return rawState.isReadyForCharging();
+	protected boolean isReadyForCharging() {
+		var rawState = this.getOcppStatus();
+		return rawState.isReadyForCharging;
+	}
+	
+	protected void benderHandleEvent(Event event) {
+		if (!this.isEnabled()) {
+			return;
+		}
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
+			var state = this.isReadyForCharging();
+			setValue(this, EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, state);
+		}
+		}
 	}
 
 	/**

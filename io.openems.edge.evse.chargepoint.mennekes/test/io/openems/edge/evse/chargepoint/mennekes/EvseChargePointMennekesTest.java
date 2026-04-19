@@ -72,7 +72,6 @@ public class EvseChargePointMennekesTest {
 						.output(EvseChargePointBender.ChannelId.ERR_INCORRECT_PHASE_INSTALLATION, false) //
 						.output(EvseChargePointBender.ChannelId.ERR_NO_POWER, false) //
 
-						.output(EvseChargePointBender.ChannelId.SAFE_CURRENT, 6.0f) //
 						.output(EvseChargePointBender.ChannelId.MAX_CURRENT_EV, null) //
 						.output(EvseChargePointBender.ChannelId.MIN_CURRENT_LIMIT, null) //
 						.output(EvseChargePointBender.ChannelId.CHARGE_DURATION, null) //

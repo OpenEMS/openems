@@ -74,9 +74,16 @@ export namespace ViewUtils {
         return getWindowVisualViewPort() * NavigationComponent.INITIAL_BREAKPOINT;
     }
 
+    export function getConfirmButtonHeight() {
+        // button has fixed size of 56 px
+        // TODO: get actual height of the button
+        return 72;
+    }
+
     export function getActionSheetModalHeightInVh(position: TSignalValue<NavigationService["position"]> | null) {
         if (position == "bottom") {
-            return (getActionSheetModalHeightInPx() / getWindowVisualViewPort()) * 100;
+            const combinedHeight = getConfirmButtonHeight() + getActionSheetModalHeightInPx();
+            return (combinedHeight / getWindowVisualViewPort()) * 100;
         }
         return 0;
     }

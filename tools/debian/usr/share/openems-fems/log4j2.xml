@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30">
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n" />
+        </Console>
+
+        <!-- Firmware update files are stored in special log folder. The path can be specified with -Dopenems.log.dir=/var/log/openems
+        If path is not specified, temp directory is used. -->
+        <File name="FirmwareUpdateFile" createOnDemand="true" fileName="${sys:openems.log.dir:-${sys:java.io.tmpdir}}/openems-firmware-update.log">
+            <PatternLayout pattern="%d{ISO8601} [%-8.8t] %-5p [%-30.30c] %m%n" />
+        </File>
+
+        <!-- PaxOsgi Appender -->
+        <PaxOsgi name="paxosgi" />
+    </Appenders>
+
+    <Loggers>
+        <Logger name="io.openems.edge.battery.fenecon.home.update.BatteryFeneconHomeUpdateable" level="info" additivity="true">
+            <AppenderRef ref="FirmwareUpdateFile" />
+        </Logger>
+        <Logger name="io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable" level="info" additivity="true">
+            <AppenderRef ref="FirmwareUpdateFile" />
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="info">
+            <AppenderRef ref="console" />
+            <AppenderRef ref="paxosgi" />
+        </Root>
+    </Loggers>
+</Configuration>

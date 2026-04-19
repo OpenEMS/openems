@@ -3,7 +3,7 @@ package io.openems.edge.common.channel;
 import com.google.common.base.CaseFormat;
 
 /**
- * A {@link ChannelId} defines a Channel. It provides a unique Name and and a
+ * A {@link ChannelId} defines a Channel. It provides a unique Name and a
  * {@link Doc}.
  *
  * <p>

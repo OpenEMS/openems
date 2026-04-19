@@ -25,6 +25,10 @@ export interface Environment {
     readonly docsUrlPrefix: string;
     readonly api: {
         readonly SYSTEM_OUTAGE: string | null,
+        readonly CHANGELOG: {
+            readonly REMOTE: string,
+            readonly LOCAL: string,
+        }
     },
     readonly icons: {
         readonly "COMMON": {

@@ -3,9 +3,10 @@ package io.openems.edge.controller.api.mqtt;
 import java.util.regex.Pattern;
 
 public class MqttTopicFilter {
-	
-	private static final Pattern pattern = Pattern.compile("^(?:([^#\\\\+/]+|\\+)(\\/(?:[^#\\\\+/]+|\\+))*)?(?:\\/#)?\\/?$");
-	
+
+	private static final Pattern pattern = Pattern
+			.compile("^(?:([^#\\\\+/]+|\\+)(\\/(?:[^#\\\\+/]+|\\+))*)?(?:\\/#)?\\/?$");
+
 	/**
 	 * Check if the given filter is a valid MQTT topic filter.
 	 * 
@@ -18,7 +19,7 @@ public class MqttTopicFilter {
 		}
 		return pattern.matcher(filter).matches();
 	}
-	
+
 	/**
 	 * Create a new MqttTopicFilter from the given filter string.
 	 * 
@@ -32,15 +33,15 @@ public class MqttTopicFilter {
 		}
 		return new MqttTopicFilter(filter);
 	}
-	
+
 	private final String[] filterLevels;
 	private final boolean multiLevelWildcard;
-	
+
 	private MqttTopicFilter(String filter) {
 		this.filterLevels = filter.split("/");
 		this.multiLevelWildcard = filter.endsWith("/#") || filter.equals("#");
 	}
-	
+
 	/**
 	 * Check it the given topic matches this filter.
 	 * 
@@ -49,26 +50,26 @@ public class MqttTopicFilter {
 	 */
 	public boolean matches(String topic) {
 		String[] topicLevels = topic.split("/");
-		
+
 		if (!this.multiLevelWildcard && topicLevels.length != this.filterLevels.length) {
 			return false;
 		}
 
-        int i = 0;
-        for (; i < this.filterLevels.length; i++) {
-            final String f = this.filterLevels[i];
-            if (f.equals("#")) {
-                return true;
-            }
-            if (i >= topicLevels.length) {
-                return false;
-            }
-            String t = topicLevels[i];
-            if (!f.equals("+") && !f.equals(t)) {
-                return false;
-            }
-        }
-        return true;
+		int i = 0;
+		for (; i < this.filterLevels.length; i++) {
+			final String f = this.filterLevels[i];
+			if (f.equals("#")) {
+				return true;
+			}
+			if (i >= topicLevels.length) {
+				return false;
+			}
+			String t = topicLevels[i];
+			if (!f.equals("+") && !f.equals(t)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

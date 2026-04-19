@@ -10,8 +10,8 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssTimeslotPeakshaving extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(ChargeState.values()) //
-				.text("Current State of State-Machine") //
+		STATE_MACHINE(Doc.of(ChargeState.values())//
+				.text("Current State of State-Machine")//
 				.persistencePriority(PersistencePriority.HIGH)),
 		CALCULATED_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)),
