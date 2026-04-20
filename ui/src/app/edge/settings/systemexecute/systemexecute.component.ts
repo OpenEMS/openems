@@ -13,7 +13,7 @@ import { Service, Utils, Websocket } from "../../../shared/shared";
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction; } = {
-    "ping": (ip: string) => `ping -c4 ${ip}`,
+    "ping": (host: string) => `ping -c4 ${host}`,
     "openems-restart": () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };
 
@@ -43,13 +43,13 @@ export class SystemExecuteComponent implements OnInit {
         key: "ping",
         hideExpression: (model: any, formState: any) => this.model["predefined"] !== "ping",
         fieldGroup: [{
-            key: "ip",
+            key: "host",
             type: "input",
             templateOptions: {
-                label: "IP-Address / Hostname", placeholder: "127.0.0.1 / localhost", required: true,
+                label: "Host", placeholder: "127.0.0.1 / localhost", required: true,
             },
             validators: {
-                ip: {
+                host: {
                     expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
                     message: (error, field) => `${field.formControl?.value} is not a valid IP-Address or Hostname`,
                 },
@@ -146,7 +146,7 @@ export class SystemExecuteComponent implements OnInit {
             const cmd = COMMANDS[m.predefined];
             switch (m.predefined) {
                 case "ping":
-                    command = cmd(m.ping.ip);
+                    command = cmd(m.ping.host);
                     break;
                 case "openems-restart":
                 default:
@@ -175,24 +175,25 @@ export class SystemExecuteComponent implements OnInit {
                 command: command.value,
             });
 
-            edge.sendRequest(this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_host",
-                    payload: executeSystemCommandRequest,
-                })).then(response => {
-                const result = (response as ExecuteSystemCommandResponse).result;
-                this.loading = false;
-                if (result.stdout.length == 0) {
-                    this.stdout = [""];
-                } else {
-                    this.stdout = result.stdout;
-                }
-                this.stderr = result.stderr;
-
-            }).catch(reason => {
-                this.loading = false;
-                this.stderr = ["Error executing system command:", reason.error.message];
+            const request = new ComponentJsonApiRequest({
+                componentId: "_host",
+                payload: executeSystemCommandRequest,
             });
+            edge.sendRequest(this.websocket, request)
+                .then(response => {
+                    const result = (response as ExecuteSystemCommandResponse).result;
+                    this.loading = false;
+                    if (result.stdout.length == 0) {
+                        this.stdout = [""];
+                    } else {
+                        this.stdout = result.stdout;
+                    }
+                    this.stderr = result.stderr;
+
+                }).catch(reason => {
+                    this.loading = false;
+                    this.stderr = ["Error executing system command:", reason.error.message];
+                });
             this.commandLogs.unshift(executeSystemCommandRequest);
         });
     }

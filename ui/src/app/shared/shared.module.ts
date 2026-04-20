@@ -58,6 +58,7 @@ import { RouteService } from "./service/route.service";
 import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
 import { Language } from "./type/language";
+import { InetUtils } from "./utils/inet/inet.utils";
 
 
 export function registerTranslateExtension(translate: TranslateService) {
@@ -72,6 +73,22 @@ export function registerTranslateExtension(translate: TranslateService) {
             },
         ],
     };
+}
+
+export function IpValidator(control: FormControl): ValidationErrors {
+    return InetUtils.isIP(control.value) ? null : { "ip": true };
+}
+
+export function SubnetmaskValidator(control: FormControl): ValidationErrors {
+    return InetUtils.isSubnetMask(control.value) ? null : { "subnetmask": true };
+}
+
+export function IpValidatorMessage(err, field: FormlyFieldConfig) {
+    return `"${field.formControl.value}" is not a valid IP Address`;
+}
+
+export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
+    return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
