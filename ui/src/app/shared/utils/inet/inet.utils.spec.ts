@@ -6,6 +6,18 @@ const VALID_HOSTNAME = "openems.io";
 
 describe("InetUtils", () => {
 
+    it("#isSubnetMask", () => {
+        expect(InetUtils.isSubnetMask("255.255.255.255")).toBeTrue();
+        expect(InetUtils.isSubnetMask("255.255.255.0")).toBeTrue();
+        expect(InetUtils.isSubnetMask("255.255.192.0")).toBeTrue();
+        expect(InetUtils.isSubnetMask("255.240.0.0")).toBeTrue();
+        expect(InetUtils.isSubnetMask("0.0.0.0")).toBeTrue();
+
+        expect(InetUtils.isSubnetMask("255.255.255.200")).toBeFalse();
+        expect(InetUtils.isSubnetMask("255.0.255.0")).toBeFalse();
+        expect(InetUtils.isSubnetMask("255.192.255.192")).toBeFalse();
+    });
+
     it("#isIpv4", () => {
         expect(InetUtils.isIPv4(VALID_IPV4)).toBeTrue();
         expect(InetUtils.isIPv4(VALID_IPV6)).toBeFalse();
