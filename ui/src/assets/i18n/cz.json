@@ -365,7 +365,7 @@
       "MANDATORY_FIELDS": "Vyplňte prosím povinná pole",
       "SUBNETMASK": "Maska podsítě",
       "SUCCESS_UPDATE": "Konfigurace sítě pro doménu byla úspěšně aktualizována",
-      "VALID_ADDRESS_WARNING": "V části „Přidat statické IP adresy“ zadejte platnou adresu IP se síťovou maskou, např. 10.4.1.6/24"
+      "VALID_ADDRESS_WARNING": "V části „Přidat statické IP adresy“ zadejte platnou adresu IPv4 se síťovou maskou, např. 10.4.1.6/24"
     },
     "SERVICE": {
       "CELL": {

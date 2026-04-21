@@ -579,7 +579,7 @@
             "SUBMIT": "Submit",
             "SUBNETMASK": "Subnetmask",
             "SUCCESS_UPDATE": "Successfully updated network configuration for",
-            "VALID_ADDRESS_WARNING": "In 'Add static IP addresses', Please enter valid ip address with subnetmask e.g. 10.4.1.6/24"
+            "VALID_ADDRESS_WARNING": "In 'Add static IP addresses', Please enter valid IPv4 address with subnetmask e.g. 10.4.1.6/24"
         },
         "SERVICE": {
             "CELL": {

@@ -160,7 +160,7 @@ export class NetworkComponent implements OnInit {
 
         if (iface.model.addressesList) {
             for (const addr of iface.model.addressesList) {
-                if (!InetUtils.isValidNetworkAddress(addr)) {
+                if (InetUtils.isNetworkAddress(addr) !== InetUtils.IpType.IPv4) {
                     this.service.toast(this.translate.instant("EDGE.NETWORK.VALID_ADDRESS_WARNING"), "danger");
                     return [];
                 }
