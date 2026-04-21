@@ -11,11 +11,11 @@ export namespace InetUtils {
     export const HOSTNAME_PATTERN: RegExp = /^([A-Za-z0-9][A-Za-z0-9-]*\.)*[A-Za-z][A-Za-z0-9-]*\.?$/;
 
     export function isIPv4(value: string): boolean {
-        return IPV4_PATTERN.test(value);
+        return value != null && IPV4_PATTERN.test(value);
     }
 
     export function isIPv6(value: string): boolean {
-        return IPV6_PATTERN.test(value);
+        return value != null && IPV6_PATTERN.test(value);
     }
 
     export function isSubnetMask(value: string): boolean {
@@ -36,6 +36,30 @@ export namespace InetUtils {
         return isIPv4(value) || isIPv6(value);
     }
 
+    export function isNetworkAddress(value: string): IpType {
+        if (value === null || value.length == 0) return IpType.None;
+
+        const parts: string[] = value.split('/');
+        if (parts.length != 2) return IpType.None;
+
+        const cidrNum: number = Number.parseInt(parts[1], 10);
+        if (Number.isNaN(cidrNum)) return IpType.None;
+
+        const ipType = isIP(parts[0])
+        if (ipType === IpType.IPv4 && isValidIPv4Cidr(cidrNum)) {
+            return IpType.IPv4;
+        }
+        if (ipType === IpType.IPv6 && isValidIPv6Cidr(cidrNum)) {
+            return IpType.IPv6;
+        }
+        return IpType.None;
+    }
+
+    export function isValidNetworkAddress(value: string): boolean {
+        const type = isNetworkAddress(value);
+        return type === IpType.IPv4 || type === IpType.IPv6;
+    }
+
     /**
      * Check if input string is a valid hostname according to RFC 1123 and RFC 952.
      * As the syntax of Hostnames and IPv4-Addresses have a intersection, valid IPv4-Addresses are not considered hostnames.
@@ -50,7 +74,7 @@ export namespace InetUtils {
      * @returns true if it is a valid hostename
      */
     export function isHostname(value: string): boolean {
-        return HOSTNAME_PATTERN.test(value) && !isIPv4(value);
+        return value != null && HOSTNAME_PATTERN.test(value) && !isIPv4(value);
     }
 
     /**
@@ -63,10 +87,44 @@ export namespace InetUtils {
      * InetUtils.isHostnameOrIp('::1'); // returns true
      * InetUtils.isHostnameOrIp(''); // returns false
      * ```
-     * @param value te check
+     * @param value to check
      * @returns true if string is a valid Hostname, IPv4 or IPv6.
      */
     export function isHostnameOrIp(value: string): boolean {
         return isValidIP(value) || isHostname(value);
+    }
+
+    /**
+     * Check if number is a valid CIDR.
+     * 
+     * 
+     * ```js
+     * InetUtils.isValidIPv4Cidr(24); // returns true
+     * InetUtils.isValidIPv4Cidr(-1); // returns false
+     * InetUtils.isValidIPv4Cidr(100); // returns false
+     * InetUtils.isValidIPv4Cidr(null); // returns false
+     * ```
+     * @param value  to check
+     * @returns true if valid ipv4 CIDR
+     */
+    export function isValidIPv4Cidr(value: number): boolean {
+        return Number.isFinite(value) && value >= 0 && value <= 32;
+    }
+
+    /**
+     * Check if number is a valid CIDR.
+     * 
+     * 
+     * ```js
+     * InetUtils.isValidIPv6Cidr(24); // returns true
+     * InetUtils.isValidIPv6Cidr(-1); // returns false
+     * InetUtils.isValidIPv6Cidr(200); // returns false
+     * InetUtils.isValidIPv6Cidr(null); // returns false
+     * ```
+     * @param value  to check
+     * @returns true if valid ipv6 CIDR
+     */
+    export function isValidIPv6Cidr(value: number): boolean {
+        return Number.isFinite(value) && value >= 0 && value <= 128;
     }
 }

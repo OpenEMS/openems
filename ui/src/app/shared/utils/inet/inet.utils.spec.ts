@@ -16,6 +16,7 @@ describe("InetUtils", () => {
         expect(InetUtils.isSubnetMask("255.255.255.200")).toBeFalse();
         expect(InetUtils.isSubnetMask("255.0.255.0")).toBeFalse();
         expect(InetUtils.isSubnetMask("255.192.255.192")).toBeFalse();
+        expect(InetUtils.isSubnetMask(null)).toBeFalse();
     });
 
     it("#isIpv4", () => {
@@ -95,6 +96,7 @@ describe("InetUtils", () => {
         expect(InetUtils.isHostname("1.1.1.1")).toBeFalse();
         expect(InetUtils.isHostname("256.256.256.256")).toBeFalse();
         expect(InetUtils.isHostname("1:1:1:1")).toBeFalse();
+        expect(InetUtils.isHostname(null)).toBeFalse();
     });
 
     it("#checkHostnameOrIp", () => {
@@ -115,6 +117,38 @@ describe("InetUtils", () => {
         expect(InetUtils.isHostnameOrIp("openems::io")).toBeFalse();
         expect(InetUtils.isHostnameOrIp(".openems.io")).toBeFalse();
         expect(InetUtils.isHostnameOrIp("1:1:1:1")).toBeFalse();
+        expect(InetUtils.isHostnameOrIp(null)).toBeFalse();
+    });
+
+    it("#isNetworkAddress", () => {
+        expect(InetUtils.isNetworkAddress("0.0.0.0/0")).toBe(InetUtils.IpType.IPv4);
+        expect(InetUtils.isNetworkAddress("1.1.1.1/24")).toBe(InetUtils.IpType.IPv4);
+        expect(InetUtils.isNetworkAddress("1::1/64")).toBe(InetUtils.IpType.IPv6);;
+        expect(InetUtils.isNetworkAddress("::/0")).toBe(InetUtils.IpType.IPv6);
+
+        expect(InetUtils.isNetworkAddress("1.1.1.1/64")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("1.1.1.1/test")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("1::1/200")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("1.1.1.1/4/8")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("1.1.1.1")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("localhost")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress(null)).toBe(InetUtils.IpType.None);
+    });
+
+
+    it("#isValidNetworkAddress", () => {
+        expect(InetUtils.isValidNetworkAddress("0.0.0.0/0")).toBeTrue();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/24")).toBeTrue();
+        expect(InetUtils.isValidNetworkAddress("1::1/64")).toBeTrue();
+        expect(InetUtils.isValidNetworkAddress("::/0")).toBeTrue();
+
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/64")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/test")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1::1/200")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/4/8")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("localhost")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress(null)).toBeFalse();
     });
 
 });
