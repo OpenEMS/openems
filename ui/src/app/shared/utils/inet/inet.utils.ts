@@ -10,18 +10,42 @@ export namespace InetUtils {
     export const IPV6_PATTERN: RegExp = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7})|::|([0-9a-fA-F]{1,4}:){1}(:[0-9a-fA-F]{1,4}){1,6}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){6}:[0-9a-fA-F]{1,4})$/;
     export const HOSTNAME_PATTERN: RegExp = /^([A-Za-z0-9][A-Za-z0-9-]*\.)*[A-Za-z][A-Za-z0-9-]*\.?$/;
 
+    /**
+     * Checks whether a string is a valid IPv4 address.
+     *
+     * @param value the input string
+     * @returns true if the value is a valid IPv4 address
+     */
     export function isIPv4(value: string): boolean {
         return value != null && IPV4_PATTERN.test(value);
     }
 
+    /**
+     * Checks whether a string is a valid IPv6 address.
+     *
+     * @param value the input string
+     * @returns true if the value is a valid IPv6 address
+     */
     export function isIPv6(value: string): boolean {
         return value != null && IPV6_PATTERN.test(value);
     }
 
+    /**
+     * Checks whether a string is a valid IPv4 subnet mask.
+     *
+     * @param value the input string
+     * @returns true if the value is a valid subnet mask
+     */
     export function isSubnetMask(value: string): boolean {
         return SUBNET_MASK_PATTERN.test(value);
     }
 
+    /**
+     * Detects whether a string is IPv4, IPv6 or neither.
+     *
+     * @param value the input string
+     * @returns the detected IP type
+     */
     export function isIP(value: string): IpType {
         if (isIPv4(value)) {
             return IpType.IPv4;
@@ -32,20 +56,32 @@ export namespace InetUtils {
         return IpType.None;
     }
 
+    /**
+     * Checks whether a string is either a valid IPv4 or IPv6 address.
+     *
+     * @param value the input string
+     * @returns true if the value is a valid IP address
+     */
     export function isValidIP(value: string): boolean {
         return isIPv4(value) || isIPv6(value);
     }
 
+    /**
+     * Checks whether a string is a valid network address in CIDR notation.
+     *
+     * @param value the input string in the format "address/prefix"
+     * @returns the detected network address type
+     */
     export function isNetworkAddress(value: string): IpType {
-        if (value === null || value.length == 0) return IpType.None;
+        if (value === null || value.length == 0) {return IpType.None;}
 
-        const parts: string[] = value.split('/');
-        if (parts.length != 2) return IpType.None;
+        const parts: string[] = value.split("/");
+        if (parts.length != 2) {return IpType.None;}
 
         const cidrNum: number = Number.parseInt(parts[1], 10);
-        if (Number.isNaN(cidrNum)) return IpType.None;
+        if (Number.isNaN(cidrNum)) {return IpType.None;}
 
-        const ipType = isIP(parts[0])
+        const ipType = isIP(parts[0]);
         if (ipType === IpType.IPv4 && isValidIPv4Cidr(cidrNum)) {
             return IpType.IPv4;
         }
@@ -55,6 +91,12 @@ export namespace InetUtils {
         return IpType.None;
     }
 
+    /**
+     * Checks whether a string is a valid IPv4 or IPv6 network address in CIDR notation.
+     *
+     * @param value the input string
+     * @returns true if the value is a valid network address
+     */
     export function isValidNetworkAddress(value: string): boolean {
         const type = isNetworkAddress(value);
         return type === IpType.IPv4 || type === IpType.IPv6;
@@ -96,8 +138,8 @@ export namespace InetUtils {
 
     /**
      * Check if number is a valid CIDR.
-     * 
-     * 
+     *
+     *
      * ```js
      * InetUtils.isValidIPv4Cidr(24); // returns true
      * InetUtils.isValidIPv4Cidr(-1); // returns false
@@ -113,8 +155,8 @@ export namespace InetUtils {
 
     /**
      * Check if number is a valid CIDR.
-     * 
-     * 
+     *
+     *
      * ```js
      * InetUtils.isValidIPv6Cidr(24); // returns true
      * InetUtils.isValidIPv6Cidr(-1); // returns false
