@@ -17,6 +17,7 @@ describe("InetUtils", () => {
         expect(InetUtils.isSubnetMask("255.0.255.0")).toBeFalse();
         expect(InetUtils.isSubnetMask("255.192.255.192")).toBeFalse();
         expect(InetUtils.isSubnetMask("0.0.0.0")).toBeFalse();
+        expect(InetUtils.isSubnetMask("255:255:255:255")).toBeFalse();
         expect(InetUtils.isSubnetMask(null)).toBeFalse();
     });
 
