@@ -11,11 +11,12 @@ describe("InetUtils", () => {
         expect(InetUtils.isSubnetMask("255.255.255.0")).toBeTrue();
         expect(InetUtils.isSubnetMask("255.255.192.0")).toBeTrue();
         expect(InetUtils.isSubnetMask("255.240.0.0")).toBeTrue();
-        expect(InetUtils.isSubnetMask("0.0.0.0")).toBeTrue();
+        expect(InetUtils.isSubnetMask("128.0.0.0")).toBeTrue();
 
         expect(InetUtils.isSubnetMask("255.255.255.200")).toBeFalse();
         expect(InetUtils.isSubnetMask("255.0.255.0")).toBeFalse();
         expect(InetUtils.isSubnetMask("255.192.255.192")).toBeFalse();
+        expect(InetUtils.isSubnetMask("0.0.0.0")).toBeFalse();
         expect(InetUtils.isSubnetMask(null)).toBeFalse();
     });
 

@@ -75,16 +75,16 @@ export function registerTranslateExtension(translate: TranslateService) {
     };
 }
 
-export function IpValidator(control: FormControl): ValidationErrors {
-    return InetUtils.isIP(control.value) ? null : { "ip": true };
+export function Ipv4Validator(control: FormControl): ValidationErrors {
+    return InetUtils.isIPv4(control.value) ? null : { "ip": true };
 }
 
 export function SubnetmaskValidator(control: FormControl): ValidationErrors {
     return InetUtils.isSubnetMask(control.value) ? null : { "subnetmask": true };
 }
 
-export function IpValidatorMessage(err, field: FormlyFieldConfig) {
-    return `"${field.formControl.value}" is not a valid IP Address`;
+export function Ipv4ValidatorMessage(err, field: FormlyFieldConfig) {
+    return `"${field.formControl.value}" is not a valid IPv4-Address`;
 }
 
 export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
@@ -148,12 +148,12 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                 { name: "range", component: FormlyRangeTypeComponent },
             ],
             validators: [
-                { name: "ip", validation: IpValidator },
+                { name: "ip", validation: Ipv4Validator },
                 { name: "subnetmask", validation: SubnetmaskValidator },
                 { name: "person-name-prohibited-characters", validation: PersonNameProhibitedCharactersValidator },
             ],
             validationMessages: [
-                { name: "ip", message: IpValidatorMessage },
+                { name: "ip", message: Ipv4ValidatorMessage },
                 { name: "subnetmask", message: SubnetmaskValidatorMessage },
             ],
         }),

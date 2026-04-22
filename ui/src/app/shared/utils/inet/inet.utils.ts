@@ -5,7 +5,7 @@ export namespace InetUtils {
         IPv6 = 6,
     }
 
-    export const SUBNET_MASK_PATTERN: RegExp = /^(0|128|192|224|240|248|252|254|255).0.0.0|255.(0|128|192|224|240|248|252|254|255).0.0|255.255.(0|128|192|224|240|248|252|254|255).0|255.255.255.(0|128|192|224|240|248|252|254|255)$/;
+    export const SUBNET_MASK_PATTERN: RegExp = /^(128|192|224|240|248|252|254|255).0.0.0|255.(0|128|192|224|240|248|252|254|255).0.0|255.255.(0|128|192|224|240|248|252|254|255).0|255.255.255.(0|128|192|224|240|248|252|254|255)$/;
     export const IPV4_PATTERN: RegExp = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     export const IPV6_PATTERN: RegExp = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7})|::|([0-9a-fA-F]{1,4}:){1}(:[0-9a-fA-F]{1,4}){1,6}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){6}:[0-9a-fA-F]{1,4})$/;
     export const HOSTNAME_PATTERN: RegExp = /^([A-Za-z0-9][A-Za-z0-9-]*\.)*[A-Za-z][A-Za-z0-9-]*\.?$/;
@@ -37,7 +37,7 @@ export namespace InetUtils {
      * @returns true if the value is a valid subnet mask
      */
     export function isSubnetMask(value: string): boolean {
-        return SUBNET_MASK_PATTERN.test(value);
+        return value != null && SUBNET_MASK_PATTERN.test(value);
     }
 
     /**
@@ -73,13 +73,13 @@ export namespace InetUtils {
      * @returns the detected network address type
      */
     export function isNetworkAddress(value: string): IpType {
-        if (value === null || value.length == 0) {return IpType.None;}
+        if (value === null || value.length == 0) { return IpType.None; }
 
         const parts: string[] = value.split("/");
-        if (parts.length != 2) {return IpType.None;}
+        if (parts.length != 2) { return IpType.None; }
 
         const cidrNum: number = Number.parseInt(parts[1], 10);
-        if (Number.isNaN(cidrNum)) {return IpType.None;}
+        if (Number.isNaN(cidrNum)) { return IpType.None; }
 
         const ipType = isIP(parts[0]);
         if (ipType === IpType.IPv4 && isValidIPv4Cidr(cidrNum)) {
