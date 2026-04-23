@@ -1,0 +1,53 @@
+= Chint DDSU666 Single-Phase Energy Meter
+
+Implements the Chint DDSU666 single-phase energy meter using the OpenEMS Modbus bridge.
+
+Works over both Modbus/RTU (serial) and Modbus/TCP through the bridge abstraction.
+
+== Component
+
+[options="header"]
+|===
+|Property|Description
+|`id`|Component ID, e.g. `meter0`
+|`enabled`|Enable/disable this component
+|`type`|MeterType: `GRID`, `PRODUCTION`, or `CONSUMPTION`
+|`modbus_id`|ID of the Modbus bridge, e.g. `modbus0`
+|`modbusUnitId`|Slave address of the DDSU666 device (default: `1`)
+|`invert`|Invert power sign (use when meter is wired in reverse)
+|`phaseRotation`|Kept for `ElectricityMeter` compatibility (default: `L1_L2_L3`)
+|===
+
+== Register Map
+
+Source: official CHINT DDSU666 Modbus communication protocol document.
+FC3 (Read Holding Registers) throughout. All values are IEEE 754 single-precision
+floats, 2 registers each, ABCD byte order (MSW first, big-endian per word).
+
+[options="header"]
+|===
+|Address|Description|Unit|Scale to OpenEMS
+|0x2000|Voltage L1|V|×1000 → mV
+|0x2002|Current L1|A|×1000 → mA
+|0x2004|Active power|kW|×1000 → W
+|0x200E|Frequency|Hz|×1000 → mHz
+|0x4000|Import active energy|kWh|×1000 → Wh
+|===
+
+== Build
+
+Add this bundle to your OpenEMS source checkout alongside the other
+`io.openems.edge.meter.*` bundles, then build with:
+
+  ./gradlew :io.openems.edge.meter.chint.ddsu666:jar
+
+== Felix Web Console Configuration
+
+. Open Apache Felix Web Console → Configuration
+. Find *Meter Chint DDSU666*
+. Set:
+  - Component-ID: `meter0`
+  - Meter-Type: `GRID`
+  - Modbus-ID: `modbus0`
+  - Modbus Unit-ID: `2`  _(your DDSU666 slave address)_
+. Save
