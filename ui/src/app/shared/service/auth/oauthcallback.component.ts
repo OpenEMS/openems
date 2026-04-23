@@ -77,7 +77,7 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
             return;
         }
 
-        await oAuthService.getTokenByCode(code, oauthState);
+        oAuthService.getTokenByCode(code, oauthState);
     }
 
     ngOnDestroy() {

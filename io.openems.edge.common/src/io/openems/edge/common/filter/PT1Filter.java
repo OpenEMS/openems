@@ -81,6 +81,6 @@ public final class PT1Filter extends Filter {
 		}
 
 		this.lastOutput = output;
-		return (int) Math.round(output);
+		return this.applyLowHighLimits(output);
 	}
 }

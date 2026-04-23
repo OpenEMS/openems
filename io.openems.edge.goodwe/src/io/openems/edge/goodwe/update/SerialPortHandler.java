@@ -103,6 +103,7 @@ public class SerialPortHandler implements AutoCloseable {
 	private void initializeSerialPort() throws Exception {
 		this.serialPort.setComPortParameters(this.baudRate, DATA_BITS, STOP_BITS, PARITY);
 		this.serialPort.setFlowControl(FLOW_CTRL);
+		this.serialPort.disableRs485ModeControl();
 		this.serialPort.openPort();
 		this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 2, 2);
 		if (!this.serialPort.isOpen()) {

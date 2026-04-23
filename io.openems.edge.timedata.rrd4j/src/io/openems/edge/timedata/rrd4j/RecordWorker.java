@@ -70,18 +70,6 @@ public class RecordWorker extends AbstractImmediateWorker {
 	) {
 	}
 
-	private static final Set<String> WHITELISTED_PROPERTY_CHANNELS = Set.of(//
-			"_PropertyMaximumSellToGridPower", //
-			"_PropertyMaximumGridFeedInLimit", //
-			"_PropertyRechargePower", //
-			"_PropertyPeakShavingPower", //
-			// Not saved in AllowedChannels, but used in ui
-			"_PropertyLowThreshold", //
-			"_PropertyHighThreshold", //
-			"_PropertySellToGridPowerLimit", //
-			"_PropertyContinuousSellToGridPower" //
-	);
-
 	private final Logger log = LoggerFactory.getLogger(RecordWorker.class);
 
 	@Reference
@@ -157,16 +145,22 @@ public class RecordWorker extends AbstractImmediateWorker {
 				.flatMap(component -> component.channels().stream()) //
 				.filter(channel -> {
 					final var doc = channel.channelDoc();
-					return Optional.of(this.config.persistencePriority) //
-							.map(p -> doc.getPersistencePriority().isAtLeast(p)
+					final var save = Optional.of(this.config.persistencePriority) //
+							.map(p -> doc.getLocalPersistencePriority().isAtLeast(p)
 									&& doc.getAccessMode() != AccessMode.WRITE_ONLY) //
 							.orElse(false);
+
+					if (!save && channel.channelId().id().startsWith("_Property")) {
+						if (this.checkedChannelsForDeletion.add(channel.address())) {
+							CompletableFuture.runAsync(() -> this.tryDelete(channel));
+						}
+					}
+
+					return save;
 				}).map(channel -> {
 					final var channelMapFunction = getChannelMapFunction(channel.channelDoc().getType());
 
-					final var channelId = channel.channelId().id();
-					if (MAP_TO_DOUBLE_NOT_SUPPORTED == channelMapFunction || (channelId.startsWith("_Property")
-							&& !WHITELISTED_PROPERTY_CHANNELS.contains(channelId))) {
+					if (MAP_TO_DOUBLE_NOT_SUPPORTED == channelMapFunction) {
 						if (this.checkedChannelsForDeletion.add(channel.address())) {
 							CompletableFuture.runAsync(() -> this.tryDelete(channel));
 						}

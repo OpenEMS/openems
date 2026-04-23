@@ -1,19 +1,18 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine;
 
-import java.time.Instant;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Timeout;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201RequestedState;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.statemachine.StateMachine.State;
 import io.openems.edge.common.statemachine.StateHandler;
 
 public class GoStoppedHandler extends StateHandler<State, Context> {
 
-	private Instant entryAt = Instant.MIN;
+	private final Timeout stopTimeout = Timeout.of(Context.TIMEOUT);
 
 	@Override
 	protected void onEntry(Context context) {
-		this.entryAt = Instant.now(context.clock);
+		this.stopTimeout.start(context.clock);
 	}
 
 	@Override
@@ -29,8 +28,7 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 			return State.ERROR;
 		}
 
-		final var now = Instant.now(context.clock);
-		if (context.isTimeout(now, this.entryAt)) {
+		if (this.stopTimeout.elapsed(context.clock)) {
 			inverter._setMaxStartTimeout(true);
 			return State.ERROR;
 		}

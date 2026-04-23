@@ -22,9 +22,9 @@ public interface EssGenericOffGrid extends GenericManagedEss, OffGridEss, Manage
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(StateMachine.OffGridState.values()) //
+		STATE_MACHINE(Doc.of(StateMachine.OffGridState.values())//
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.WARNING) //
+		RUN_FAILED(Doc.of(Level.WARNING)//
 				.text("Running the Logic failed")), //
 		;
 

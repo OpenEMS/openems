@@ -12,17 +12,17 @@
         [channelAddress]="component.id + '/ActivePower'"></oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
-    <oe-modal-line name="Floor Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+    <oe-modal-line name="Floor Actual" [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
       [channelAddress]="component.id + '/FloorActual'"></oe-modal-line>
     @if (formGroup.value.mode !== 'OFF') {
-      <oe-modal-line name="Floor Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+      <oe-modal-line name="Floor Target" [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
         [channelAddress]="component.id + '/FloorTarget'"></oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
-    <oe-modal-line name="Ambient Actual" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+    <oe-modal-line name="Ambient Actual" [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
       [channelAddress]="component.id + '/AmbientActual'"></oe-modal-line>
     @if (formGroup.value.mode !== 'OFF') {
-      <oe-modal-line name="Ambient Target" [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
+      <oe-modal-line name="Ambient Target" [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS"
         [channelAddress]="component.id + '/AmbientTarget'"></oe-modal-line>
     }
     @if (formGroup.value.mode === 'AUTOMATIC' && oneTasks.length > 0) {

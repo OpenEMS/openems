@@ -441,7 +441,7 @@ tasks.register('copyBundleReadmes') {
 					}
 
 					def bundle = sourceFile.getParentFile().getName()
-					if(bundle in ["io.openems.edge.core", "io.openems.edge.system.fenecon"]) {
+					if(bundle in ["io.openems.edge.core", "io.openems.edge.system.fenecon", "io.openems.core.referencetarget"]) {
 						return // ignore
 					}
 					def targetKey = null

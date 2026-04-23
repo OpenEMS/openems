@@ -4,7 +4,6 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.channel.Unit.NONE;
 import static io.openems.common.channel.Unit.SECONDS;
-import static io.openems.common.types.OpenemsType.FLOAT;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.STRING;
 
@@ -75,8 +74,6 @@ public interface EvseChargePointBender extends OpenemsComponent {
 		VEHICLE_STATE(Doc.of(VehicleState.values())//
 				.initialValue(VehicleState.UNDEFINED)//
 				.persistencePriority(HIGH)), //
-		SAFE_CURRENT(Doc.of(FLOAT)//
-				.unit(AMPERE)), //
 		MAX_CURRENT_EV(Doc.of(INTEGER)//
 				.unit(AMPERE)), //
 		MIN_CURRENT_LIMIT(Doc.of(INTEGER)//

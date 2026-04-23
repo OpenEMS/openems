@@ -1,4 +1,5 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { DestroyRef, inject, Injectable, signal, WritableSignal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 
 @Injectable()
@@ -7,17 +8,20 @@ export class RouteService {
     public currentUrl: WritableSignal<string | null> = signal(null);
 
     private previousUrl: string | null = null;
+    private destroyRef: DestroyRef = inject(DestroyRef);
+    private router: Router = inject(Router);
 
-    constructor(private router: Router) {
+    constructor() {
         this.previousUrl = this.currentUrl();
-        router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                this.previousUrl = this.currentUrl();
-                this.currentUrl.set(event.urlAfterRedirects);
-            }
-        });
+        this.router.events
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(event => {
+                if (event instanceof NavigationEnd) {
+                    this.previousUrl = this.currentUrl();
+                    this.currentUrl.set(event.urlAfterRedirects);
+                }
+            });
     }
-
 
     /**
      * Gets the previous url, active before this url
@@ -36,19 +40,6 @@ export class RouteService {
     */
     public getCurrentUrl() {
         return this.currentUrl();
-    }
-
-    /**
-     * Gets the current url
-    *
-    * @returns the current url
-    */
-    public getCurrentUrl2() {
-        this.router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                return event.urlAfterRedirects;
-            }
-        });
     }
 
     /**

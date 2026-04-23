@@ -65,6 +65,13 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	 */
 	protected static final int DEFAULT_POWER_BUFFER = 100;
 
+	/**
+	 * Minimum sell to grid limit in [W], when the sell to grid limit will be
+	 * ignored. As the limitation nearly zero, the controller has no flexibility
+	 * left to delay charging.
+	 */
+	private static final int MINIMUM_SELL_TO_GRID_LIIMT = 1000;
+
 	protected final RampFilter rampFilter = new RampFilter();
 	protected int maximumSellToGridPower = 0;
 
@@ -229,6 +236,14 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				}
 			}
 			this._setStartEpochSeconds(LocalTime.now(clock), clock);
+		}
+
+		// No setpoint applied, when the sellToGridLimit is zero or nearly zero.
+		// Limitation of the charge power is anyways not possible.
+		if (this.maximumSellToGridPower <= MINIMUM_SELL_TO_GRID_LIIMT) {
+			this._setSellToGridLimitState(SellToGridLimitState.ALLOWED_FEED_IN_LIMIT_TOO_LOW);
+			this._setDelayChargeState(DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW);
+			return;
 		}
 
 		Integer sellToGridLimitMinChargePower = null;

@@ -60,3 +60,5 @@ image::logger-component.png[Logging Component, 400, align="left"]
 image::logger-config.png[Logging Settings, 400, align="left"]
 
 TIP: Example path for Windows: `/C:/openems/config/log4j2.xml`
+
+Alternatively, the configuration file can be also specified with a `-Dopenems.log.config.path="/path/to/log4j2.xml"` JVM argument when starting OpenEMS.

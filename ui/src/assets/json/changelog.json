@@ -1,0 +1,13 @@
+[
+  {
+    "version": "x.y.z",
+    "entries": {
+      "de": [
+        "<a class='ion-link' target=\"_blank\" href=\"https://github.com/OpenEMS/openems/releases\">OpenEMS Releases</a>"
+      ],
+      "en": [
+        "<a class='ion-link' target=\"_blank\" href=\"https://github.com/OpenEMS/openems/releases\">OpenEMS Releases</a>"
+      ]
+    }
+  }
+]
