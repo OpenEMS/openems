@@ -9,6 +9,7 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.nio.ByteOrder;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -19,8 +20,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
-
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
@@ -40,25 +39,10 @@ import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-/**
- * Implements the Chint DDSU666 single-phase energy meter.
- *
- * <p>Register map from the DDSU666 Modbus communication document. Uses FC3 (Read
- * Holding Registers); values are IEEE754 single-precision floats with MSW/LSW
- * word order and big-endian byte order.
- *
- * <p>Mapped registers:
- *   0x2000 Voltage (V)
- *   0x2002 Current (A)
- *   0x2004 Active Power (kW)
- *   0x200E Frequency (Hz)
- *   0x4000 Import Active Energy (kWh)
- */
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.Chint.DDSU666", //
@@ -116,8 +100,8 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 		this.calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, this.cma.getClock());
 
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(),
-				this.cm, "Modbus", config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 	}
@@ -136,9 +120,6 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
-				// DDSU666 single-phase mapping from user manual:
-				// 0x2000 Voltage [V], 0x2002 Current [A], 0x2004 ActivePower [kW],
-				// 0x200A PF, 0x200E Frequency [Hz], 0x4000 ImportEnergy [kWh]
 				new FC3ReadRegistersTask(0x2000, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(0x2000).wordOrder(WordOrder.MSWLSW)
@@ -153,17 +134,14 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								io.openems.edge.bridge.modbus.api.ElementToChannelConverter
 										.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
-						// 0x2006..0x2009 not used in this map
 						new DummyRegisterElement(0x2006, 0x2009)),
 
 				new FC3ReadRegistersTask(0x200A, Priority.HIGH,
-						// 0x200A PF not mapped to a standard ElectricityMeter channel.
 						new DummyRegisterElement(0x200A, 0x200D),
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(0x200E).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						// 0x2010 known to be readable; currently not used as current/power channel.
 						new DummyRegisterElement(0x2010, 0x2011)),
 
 				new FC3ReadRegistersTask(0x4000, Priority.LOW,
@@ -205,11 +183,6 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 			this.calculateEnergy();
 		}
 		}
-	}
-
-	@Override
-	public PhaseRotation getPhaseRotation() {
-		return this.config.phaseRotation();
 	}
 
 	private void calculateEnergy() {

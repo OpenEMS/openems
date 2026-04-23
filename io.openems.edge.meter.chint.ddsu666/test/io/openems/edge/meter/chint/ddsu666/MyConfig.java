@@ -2,20 +2,19 @@ package io.openems.edge.meter.chint.ddsu666;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.edge.meter.api.PhaseRotation;
+import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static final class Builder {
 		private String id;
-		private String alias;
+		private String alias = "";
 		private boolean enabled = true;
 		private MeterType type = MeterType.GRID;
 		private String modbusId;
 		private int modbusUnitId = 1;
 		private boolean invert = false;
-		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 
 		private Builder() {
 		}
@@ -52,11 +51,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
-			return this;
-		}
-
-		public Builder setPhaseRotation(PhaseRotation phaseRotation) {
-			this.phaseRotation = phaseRotation;
 			return this;
 		}
 
@@ -97,6 +91,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String Modbus_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	}
+
+	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
@@ -104,11 +103,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean invert() {
 		return this.builder.invert;
-	}
-
-	@Override
-	public PhaseRotation phaseRotation() {
-		return this.builder.phaseRotation;
 	}
 
 	@Override
