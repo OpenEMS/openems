@@ -2,7 +2,7 @@ package io.openems.edge.controller.api.modbus.readonly.rtu;
 
 import static io.openems.common.test.TestUtils.createDummyClock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;

@@ -1,0 +1,15 @@
+<form [formGroup]="formGroup">
+  <ion-item button="true" id="open-date-input" style="text-align: center">
+    <ion-label>     
+      {{ name || "" }}:  {{ formGroup.get(controlName)?.value || '-' }}
+    </ion-label>
+
+    <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
+      <ng-template>
+        <ion-datetime presentation="time" displayFormat="HH:mm" [formControlName]="controlName"
+          (ionChange)="onTimeChange($event.detail.value)">
+        </ion-datetime>
+      </ng-template>
+    </ion-popover>
+  </ion-item>
+</form>

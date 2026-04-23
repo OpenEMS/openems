@@ -57,10 +57,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
-
 	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfigWorker.class);
 
-	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<>();
 
 	private EdgeConfig.ActualEdgeConfig.Builder cache = null;
@@ -175,7 +173,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
 			var comp = builder.getComponents().get(component.id());
 			if (comp == null) {
-				this.log.warn("Component [" + component.id() + "] was missing!");
+				LOG.warn("Component [{}] was missing!", component.id());
 				continue;
 			}
 
@@ -244,16 +242,17 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					for (OptionsEnum option : d.getOptions()) {
 						values.put(option.getName(), new JsonPrimitive(option.getValue()));
 					}
-					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values, doc.getPersistencePriority());
+					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values,
+							doc.getRemotePersistencePriority());
 					break;
 				}
 				case OPENEMS_TYPE:
-					detail = new ChannelDetailOpenemsType(doc.getPersistencePriority());
+					detail = new ChannelDetailOpenemsType(doc.getRemotePersistencePriority());
 					break;
 				case STATE:
 					var d = (StateChannelDoc) doc;
 					var level = d.getLevel();
-					detail = new ChannelDetailState(level, doc.getPersistencePriority());
+					detail = new ChannelDetailState(level, doc.getRemotePersistencePriority());
 					break;
 				}
 				result.put(channelId.id(), new EdgeConfig.Component.Channel(//
@@ -292,7 +291,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (Configuration config : configs) {
 				var properties = config.getProperties();
 				if (properties == null) {
-					this.log.warn(config.getPid() + ": Properties is 'null'");
+					LOG.warn("{}: Properties is 'null'", config.getPid());
 					continue;
 				}
 
@@ -565,7 +564,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
-			this.log.warn("Unable to get Natures. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			LOG.warn("Unable to get Natures. {}: {}", e.getClass().getSimpleName(), e.getMessage());
 		}
 		return new String[0];
 	}

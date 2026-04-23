@@ -16,6 +16,7 @@ import org.junit.Test;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.core.power.MyConfig;
@@ -119,7 +120,15 @@ public class EssPowerImplTest {
 				.onBeforeWriteCallbacks(() -> {
 					power.addConstraint(power.createSimpleConstraint("", cluster0, ALL, ACTIVE, EQUALS, 10000));
 					power.addConstraint(power.createSimpleConstraint("", ess3, ALL, ACTIVE, EQUALS, -5000));
-				}));
+				}) //
+				.output("cluster0", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, 10000) //
+				.output("cluster0", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 0) //
+				.output("ess1", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, 5000) //
+				.output("ess1", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 0) //
+				.output("ess2", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, 5000) //
+				.output("ess2", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 0) //
+				.output("ess3", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, -5000) //
+				.output("ess3", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 0));
 
 		assertEquals(5000, p1.get());
 		assertEquals(5000, p2.get());

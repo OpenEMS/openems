@@ -158,6 +158,9 @@ public class FeneconCommercial92ClusterMaster
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var components = Lists.newArrayList(//
+					ComponentDef.from(new EdgeConfig.Component("_power", "", "Ess.Power", JsonUtils.buildJsonObject() //
+							.addProperty("strategy", "OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL") //
+							.build())), //
 					ComponentDef
 							.from(new EdgeConfig.Component(essId, translate(bundle, "App.IntegratedSystem.ess0.alias"),
 									"Ess.Cluster", JsonUtils.buildJsonObject() //

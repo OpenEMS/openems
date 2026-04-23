@@ -53,7 +53,19 @@ public class XlsxExportUtilTest {
 								ImmutableSortedMap.of("type", toJson("MANAGED_CONSUMPTION_METERED")),
 								// Channels
 								ImmutableSortedMap.of())) //
+				.addComponent("evseChargePoint0", //
+						new Component("evseChargePoint0", "My Wallbox", "Evse.ChargePoint.Keba.Modbus",
+								// Properties
+								ImmutableSortedMap.of(),
+								// Channels
+								ImmutableSortedMap.of()) //
+				)
 
+				.addFactory("Evse.ChargePoint.Keba.Modbus", //
+						new Factory("Evse.ChargePoint.Keba.Modbus", "My Name", "My Description", //
+								new Property[] {}, //
+								// Natures
+								new String[] { "io.openems.edge.meter.api.ElectricityMeter" })) //
 				.addFactory("Meter.Socomec.Threephase",
 						new Factory("Meter.Socomec.Threephase", "My Name", "My Description", //
 								new Property[] {}, //
@@ -74,21 +86,27 @@ public class XlsxExportUtilTest {
 		var consumptions = result.data().get(XlsxExportCategory.CONSUMPTION);
 
 		{
-			var meter = consumptions.get(0);
+			var meter = consumptions.get(1);
 			assertEquals("My CONSUMPTION_METERED Meter", meter.alias());
 			assertEquals("meter0/ActivePower", meter.channel().toString());
 			assertEquals(HistoricTimedataSaveType.POWER, meter.type());
 		}
 		{
-			var meter = consumptions.get(1);
+			var meter = consumptions.get(2);
 			assertEquals("My CONSUMPTION_NOT_METERED Meter", meter.alias());
 			assertEquals("meter1/ActivePower", meter.channel().toString());
 			assertEquals(HistoricTimedataSaveType.POWER, meter.type());
 		}
 		{
-			var meter = consumptions.get(2);
+			var meter = consumptions.get(3);
 			assertEquals("My MANAGED_CONSUMPTION_METERED Meter", meter.alias());
 			assertEquals("meter3/ActivePower", meter.channel().toString());
+			assertEquals(HistoricTimedataSaveType.POWER, meter.type());
+		}
+		{
+			var meter = consumptions.get(0);
+			assertEquals("My Wallbox", meter.alias());
+			assertEquals("evseChargePoint0/ActivePower", meter.channel().toString());
 			assertEquals(HistoricTimedataSaveType.POWER, meter.type());
 		}
 

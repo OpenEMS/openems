@@ -3,6 +3,9 @@ package io.openems.edge.controller.timeslotpeakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
+
 @ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Symmetric Timeslot", //
 		description = "This controller Peak shaves during the high threshold configured time-slot, and charges the battery outside the timeslot.")
@@ -57,9 +60,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	boolean sunday() default true;
 
 	@AttributeDefinition(name = "Peak-Shaving power", description = "Grid purchase power above this value is considered a peak and shaved to this value.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int peakShavingPower();
 
 	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int rechargePower();
 
 	@AttributeDefinition(name = "Slow Charge Starttime", description = "The start time for slow charging of the battery within start and end date, but not within highthreshold time")

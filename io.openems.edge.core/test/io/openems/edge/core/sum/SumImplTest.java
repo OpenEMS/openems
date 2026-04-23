@@ -63,6 +63,7 @@ public class SumImplTest {
 				.output(Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER, 3555) //
 
 				.output(Sum.ChannelId.GRID_BUY_PRICE, 1.0) //
+				.output(Sum.ChannelId.GRID_SELL_PRICE, 2.0) //
 
 				.output(Sum.ChannelId.GRID_MIN_ACTIVE_POWER, -1000) //
 				.output(Sum.ChannelId.GRID_MAX_ACTIVE_POWER, 0) //

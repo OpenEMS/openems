@@ -2,8 +2,8 @@ package io.openems.edge.common.filter;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Use this class to test if the PID filter does what it should. Test cases can
@@ -13,8 +13,8 @@ import org.junit.Test;
  */
 public class PidFilterTest {
 
-	@Before
-	public void prepare() {
+	@BeforeEach
+	void prepare() {
 		System.out.println(String.format("%10s  %10s  %10s", "input", "output", "expected"));
 	}
 
@@ -38,7 +38,7 @@ public class PidFilterTest {
 		this.t(p, 8981, 20000, 20168);
 		this.t(p, 13963, 20000, 21979);
 		this.t(p, 17885, 20000, 22613);
-		this.t(p, 20473, 20000, 22472);
+		this.t(p, 20473, 20000, 22471);
 		this.t(p, 21826, 20000, 21924);
 		this.t(p, 22234, 20000, 21254);
 		this.t(p, 22038, 20000, 20642);

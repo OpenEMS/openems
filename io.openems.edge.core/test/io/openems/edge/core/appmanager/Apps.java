@@ -58,6 +58,7 @@ import io.openems.edge.app.evse.vehicle.AppGenericVehicle;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
+import io.openems.edge.app.heat.AppHeatAskoma;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatAskomaReadOnly;
 import io.openems.edge.app.heat.HeatMyPvReadOnly;
@@ -69,6 +70,8 @@ import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
 import io.openems.edge.app.integratedsystem.FeneconHome6;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs33;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs36;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
 import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
 import io.openems.edge.app.integratedsystem.FeneconProHybridGw;
@@ -338,6 +341,26 @@ public final class Apps {
 	 */
 	public static final FeneconProHybrid910 feneconProHybrid910(AppManagerTestBundle t) {
 		return app(t, FeneconProHybrid910::new, "App.FENECON.ProHybrid.9.10");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs33}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs33 feneconMiniEs33(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs33::new, "App.FENECON.Mini.ES.3.3");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs36}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs36 feneconMiniEs36(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs36::new, "App.FENECON.Mini.ES.3.6");
 	}
 
 	// TimeOfUseTariff
@@ -1323,13 +1346,23 @@ public final class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link HeatMyPvReadOnly}.
-	 * 
+	 * Test method for creating a {@link HeatAskomaReadOnly}.
+	 *
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final HeatAskomaReadOnly heatAskoma(AppManagerTestBundle t) {
+	public static final HeatAskomaReadOnly heatAskomaReadOnly(AppManagerTestBundle t) {
 		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHeatAskoma}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHeatAskoma heatAskoma(AppManagerTestBundle t) {
+		return app(t, AppHeatAskoma::new, "App.Heat.Askoma");
 	}
 
 	/**

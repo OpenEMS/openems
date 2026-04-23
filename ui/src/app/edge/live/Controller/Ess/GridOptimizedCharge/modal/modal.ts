@@ -97,7 +97,8 @@ export class ModalComponent extends AbstractModal {
                 case 4: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_POSSIBLE");
                     break;
                 case 5: // Case 6: 'DISABLED' hides 'state-line', so no Message needed
-                case 7: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
+                case 7:
+                case 9: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.NO_LIMIT_ACTIVE");
                     break;
 
                 case 8: this.state = this.translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED");
@@ -155,6 +156,7 @@ export enum DelayChargeState {
     DISABLED = 6, // Delay charge part is disabled
     NOT_STARTED = 7, // Delay charge was not started because there is no production or to less production
     AVOID_LOW_CHARGING = 8, // Avoid charging with low power for more efficiency
+    ALLOWED_FEED_IN_LIMIT_TOO_LOW = 9, // No active limitation. When the limitation is nearly zero, the controller has no flexibility left to delay charging.
 }
 
 export enum SellToGridLimitState {
@@ -165,4 +167,5 @@ export enum SellToGridLimitState {
     ACTIVE_LIMIT_CONSTRAINT = 3,// Active limitation - Minimum charge power
     DISABLED = 4, // SellToGridLimit part is disabled
     NOT_STARTED = 5,//SellToGridLimit part was not started because there is no production or to less production
+    ALLOWED_FEED_IN_LIMIT_TOO_LOW = 6, // No active limitation. When the limitation is nearly zero, the controller has no flexibility left to delay charging.
 }

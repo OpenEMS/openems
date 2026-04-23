@@ -5,6 +5,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Optional;
 
+import io.openems.common.OpenemsConstants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
@@ -58,11 +59,14 @@ public class LoggerConfigurator {
 
 	static Optional<Dictionary<String, Object>> getCurrentConfiguration(Configuration config, Config logConfig) {
 		Optional<String> logConfigPath = Optional.ofNullable(logConfig.path()).map(s -> s.isBlank() ? null : s);
+		Optional<String> logConfigPathBySysVar = Optional.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_LOG_CONFIG_PATH_SYSVAR));
 
-		if (logConfigPath.isEmpty()) {
-			return defaultConfiguration(config);
-		} else {
+		if (logConfigPath.isPresent()) {
 			return fileConfiguration(config, logConfigPath.get());
+		} else if (logConfigPathBySysVar.isPresent()) {
+			return fileConfiguration(config, logConfigPathBySysVar.get());
+		} else {
+			return defaultConfiguration(config);
 		}
 	}
 

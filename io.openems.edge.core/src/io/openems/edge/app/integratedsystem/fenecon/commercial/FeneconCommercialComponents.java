@@ -58,6 +58,30 @@ public final class FeneconCommercialComponents {
 	}
 
 	/**
+	 * Creates a battery inverter component for a FENECON Commercial 92 with the
+	 * error behaviour "ALLOWED_ERRORS_RESTART".
+	 *
+	 * @param bundle            the translation bundle
+	 * @param batteryInverterId the id of the battery inverter
+	 * @param modbusId          the id of the modbus bridge
+	 * @param gridCode          the gridCode
+	 * @return the {@link Component}
+	 */
+	public static ComponentDef batteryInverterWithForceErrorBehaviour(//
+			final ResourceBundle bundle, //
+			final String batteryInverterId, //
+			final String modbusId, //
+			final String gridCode //
+	) {
+		return ComponentDef
+				.from(FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusId, gridCode))
+				.withAdditionalProperties(
+						new ComponentProperties(List.of(ComponentProperties.Property.of("errorBehaviour") //
+								.withValue("ALWAYS_RESTART") //
+								.withForceUpdate(true))));
+	}
+
+	/**
 	 * Creates a battery inverter with extended GoodWe Settings.
 	 * 
 	 * @param bundle                   the translation bundle
@@ -271,6 +295,29 @@ public final class FeneconCommercialComponents {
 						.addProperty("maxPowerPercent", maxPowerPercent) //
 						.build()),
 				ComponentDef.Configuration.defaultConfig());
+	}
+
+	/**
+	 * Creates a ess component for a FENECON Commercial 92 with the fault behaviour
+	 * "IGNORE_BATTERY_INVERTER_ERRORS".
+	 *
+	 * @param bundle            the translation bundle
+	 * @param essId             the id of the ess
+	 * @param batteryId         the id of the battery
+	 * @param batteryInverterId the id of the battery inverter
+	 * @return the {@link Component}
+	 */
+	public static ComponentDef essWithForceEssFaultBehaviour(//
+			final ResourceBundle bundle, //
+			final String essId, //
+			final String batteryId, //
+			final String batteryInverterId //
+	) {
+		return ComponentDef.from(FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId))
+				.withAdditionalProperties(
+						new ComponentProperties(List.of(ComponentProperties.Property.of("essFaultBehaviour") //
+								.withValue("IGNORE_BATTERY_INVERTER_ERRORS") //
+								.withForceUpdate(true))));
 	}
 
 	/**

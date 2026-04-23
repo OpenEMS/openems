@@ -77,7 +77,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.debugMode = debugMode;
 			return this;
 		}
-		
+
 		public Builder setTopicFilters(String... filter) {
 			this.topicFilters = filter;
 			return this;

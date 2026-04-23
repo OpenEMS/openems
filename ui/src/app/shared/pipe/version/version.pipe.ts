@@ -17,11 +17,13 @@ export class VersionPipe implements PipeTransform {
         switch (role) {
             case Role.OWNER:
             case Role.GUEST:
-            case Role.INSTALLER:
-                if (version.includes("-")) {
-                    return version.replace(/^(.*)-.*$/, "$1");
+            case Role.INSTALLER: {
+                const hyphenIndex = version.indexOf("-");
+                if (hyphenIndex >= 0) {
+                    return version.substring(0, hyphenIndex);
                 }
                 return version;
+            }
             case Role.ADMIN:
                 return version;
         }

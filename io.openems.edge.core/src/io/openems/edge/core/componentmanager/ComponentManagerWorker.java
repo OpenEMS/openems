@@ -9,7 +9,7 @@ public abstract class ComponentManagerWorker extends AbstractWorker implements C
 
 	protected final ComponentManagerImpl parent;
 
-	public ComponentManagerWorker(ComponentManagerImpl parent) {
+	protected ComponentManagerWorker(ComponentManagerImpl parent) {
 		this.parent = parent;
 	}
 
