@@ -5,19 +5,17 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingDefinition;
 
 public enum PlcNextEssGdsDataWriteMappingDefinition implements PlcNextGdsDataMappingDefinition {
-	SET_ACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, "setPower.SetActivePowerEquals"),
-	SET_ACTIVE_POWER_EQUALS_WITH_PID(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS_WITH_PID,
-			"setPower.SetActivePowerEqualsWithPid"),
+	SET_ACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS, "SetActivePowerEquals"),
 	SET_REACTIVE_POWER_EQUALS(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS,
-			"setPower.SetReactivePowerEquals"),
+			"SetReactivePowerEquals"),
 	SET_ACTIVE_POWER_LESS_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_LESS_OR_EQUALS,
-			"setPower.SetActivePowerLessOrEquals"),
+			"SetActivePowerLessOrEquals"),
 	SET_ACTIVE_POWER_GREATER_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS,
-			"setPower.SetActivePowerGreaterOrEquals"),
+			"SetActivePowerGreaterOrEquals"),
 	SET_REACTIVE_POWER_LESS_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS,
-			"setPower.SetReactivePowerLessOrEquals"),
+			"SetReactivePowerLessOrEquals"),
 	SET_REACTIVE_POWER_GREATER_OR_EQUALS(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS,
-			"setPower.SetReactivePowerGreaterOrEquals");
+			"SetReactivePowerGreaterOrEquals");
 
 	private final ChannelId channelId;
 	private final String identifier;

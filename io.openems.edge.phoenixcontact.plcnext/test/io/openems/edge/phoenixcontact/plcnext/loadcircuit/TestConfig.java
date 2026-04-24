@@ -59,6 +59,6 @@ public class TestConfig extends AbstractComponentConfig
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitLoadCircuit";
+		return "OpenEmsInstance4JUnitLoadCircuit.";
 	}
 }

@@ -54,7 +54,7 @@ class TestConfig extends AbstractComponentConfig implements io.openems.edge.phoe
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitPvInverter";
+		return "OpenEmsInstance4JUnitPvInverter.";
 	}
 
 }

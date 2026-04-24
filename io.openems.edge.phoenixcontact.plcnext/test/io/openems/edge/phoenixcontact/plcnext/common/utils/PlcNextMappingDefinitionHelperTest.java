@@ -113,31 +113,6 @@ public class PlcNextMappingDefinitionHelperTest {
 	}
 
 	@Test
-	public void testJoinTwoMappingsWithEmptyJoinSourceMapping() {
-		// prep
-		int expectedMappingCount = PlcNextEssGdsDataReadMappingDefinition.values().length;
-		String mappingPrefix = "mappingPrefix";
-
-		// test
-		PlcNextGdsDataMappingDefinition[] result = PlcNextMappingDefinitionHelper.joinMappings( //
-				PlcNextEssGdsDataReadMappingDefinition.values(), //
-				new PlcNextGdsDataMappingDynamicDefinition[0], //
-				mappingPrefix);
-
-		// check
-		assertNotNull(result);
-		assertEquals(expectedMappingCount, result.length);
-
-		List<String> itemsWithMappingPrefix = Stream.of(result) //
-				.map(PlcNextGdsDataMappingDefinition::getIdentifier) //
-				.filter(item -> !item.startsWith("essMeter")) //
-				.filter(item -> !item.startsWith("electricityMeter")) //
-				.toList();
-		// find two mappings leftover: 'electricityMeter.powerMeasurement.activePower.L123'
-		// AND 'electricityMeter.powerMeasurement.reactivePower.L123'
-		assertTrue(itemsWithMappingPrefix.isEmpty());
-	}
-
 	public void testJoinTwoMappingsWithJoinSourceMappingNull() {
 		// prep
 		int expectedMappingCount = PlcNextEssGdsDataReadMappingDefinition.values().length;

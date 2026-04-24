@@ -141,19 +141,19 @@ public class PlcNextLoadCircuitImplTest {
 
 		JsonObject varMaxPowerExport = new JsonObject();
 		varMaxPowerExport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.maxPower.MaxPowerExport");
+				myConfig.dataInstanceName() + "MaxPowerExport");
 		varMaxPowerExport.addProperty("value", expectedMaxPowerExportValue);
 		variables.add(varMaxPowerExport);
 
 		JsonObject varMaxPowerImport = new JsonObject();
 		varMaxPowerImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.maxPower.MaxPowerImport");
+				myConfig.dataInstanceName() + "MaxPowerImport");
 		varMaxPowerImport.addProperty("value", expectedMaxPowerImportValue);
 		variables.add(varMaxPowerImport);
 
 		JsonObject varSetReactivePower = new JsonObject();
 		varSetReactivePower.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.setPower.ReactivePower");
+				myConfig.dataInstanceName() + "MaxReactivePower");
 		varSetReactivePower.addProperty("value", expectedReactivePowerValue);
 		variables.add(varSetReactivePower);
 
