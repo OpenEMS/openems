@@ -74,7 +74,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	}
 
 	private void reloadPricesDueToCurrencyChange() {
-		if (this.priceProvider != null && priceCalculator != null) {
+		if (this.priceProvider != null && this.priceCalculator != null) {
 			this.logInfo(this.log, "Triggering price update due to currency change ...");
 			this.setPrices(this.priceProvider.getMarketPrices().getValue());
 		}
@@ -82,7 +82,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	@Override
 	public void triggerPriceUpdate() {
-		if (this.priceProvider != null && priceCalculator != null) {
+		if (this.priceProvider != null && this.priceCalculator != null) {
 			this.priceProvider.triggerPriceUpdate();
 		}
 	}
