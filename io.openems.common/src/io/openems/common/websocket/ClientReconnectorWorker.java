@@ -270,19 +270,13 @@ public class ClientReconnectorWorker extends AbstractWorker {
 				.collect(Collectors.joining(", "));
 	}
 
-	/**
-	 * Notifies the reconnector that the server explicitly rejected the WebSocket
-	 * handshake (e.g. HTTP 404 "WebSocket Upgrade Failure" due to authentication
-	 * failure). Fires a {@link WebsocketReconnectorEvent#HANDSHAKE_REJECTED} event
-	 * and does <b>not</b> trigger a reconnect attempt.
-	 */
-	public void notifyHandshakeRejected() {
-		this.logAndSetDebugInfo("WebSocket handshake rejected by server (HTTP 404).");
-		this.callEvent(WebsocketReconnectorEvent.HANDSHAKE_REJECTED);
+	public void notifyHandshakeFailed(String reason) {
+		this.logAndSetDebugInfo(reason);
+		this.callEvent(WebsocketReconnectorEvent.HANDSHAKE_FAILED);
 	}
 
 	public enum WebsocketReconnectorEvent {
-		RESET_WEBSOCKET_CLIENT, CLOSE_FAILED, CONNECTED, HANDSHAKE_REJECTED
+		RESET_WEBSOCKET_CLIENT, CLOSE_FAILED, CONNECTED, HANDSHAKE_FAILED
 	}
 
 }

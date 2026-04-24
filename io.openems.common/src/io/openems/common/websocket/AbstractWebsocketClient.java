@@ -138,18 +138,11 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 						+ " Reason [" + reason + "]" //
 				);
 
-				if (this.connectionRejected(code, reason)) {
-					AbstractWebsocketClient.this.reconnectorWorker.notifyHandshakeRejected();
-					return;
+				if (code == CloseFrame.PROTOCOL_ERROR) {
+					AbstractWebsocketClient.this.reconnectorWorker.notifyHandshakeFailed(reason);
 				}
 
 				this.updateIsConnected();
-			}
-
-			private boolean connectionRejected(int code, String reason) {
-				return code == CloseFrame.PROTOCOL_ERROR //
-						&& reason != null //
-						&& reason.contains("WebSocket Upgrade Failure");
 			}
 
 			private void updateIsConnected() {
