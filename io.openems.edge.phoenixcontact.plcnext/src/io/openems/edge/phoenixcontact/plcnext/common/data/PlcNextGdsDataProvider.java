@@ -22,11 +22,6 @@ public interface PlcNextGdsDataProvider {
 	String PLC_NEXT_PATH_PREFIX = "pathPrefix";
 	String PLC_NEXT_VARIABLES = "variables";
 
-	String PLC_NEXT_OPENEMS_COMPONENT_NAME = "OpenEMS_V1Component1";
-
-	String PLC_NEXT_INPUT_CHANNEL = "udtIn";
-	String PLC_NEXT_OUTPUT_CHANNEL = "udtOut";
-
 	/**
 	 * Fetch data for given variables from PLCnext REST-API and return as JSON
 	 * response object

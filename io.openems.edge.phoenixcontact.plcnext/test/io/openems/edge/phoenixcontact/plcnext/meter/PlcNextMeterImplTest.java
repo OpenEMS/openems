@@ -141,32 +141,32 @@ public class PlcNextMeterImplTest {
 		JsonArray variables = new JsonArray();
 
 		JsonObject varPhaseVoltageL1N = new JsonObject();
-		varPhaseVoltageL1N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L1N");
+		varPhaseVoltageL1N.addProperty("path", myConfig.dataInstanceName()
+				+ "voltageL1N");
 		varPhaseVoltageL1N.addProperty("value", expectedPhases2Neutral1Value);
 		variables.add(varPhaseVoltageL1N);
 
 		JsonObject varPhaseVoltageL2N = new JsonObject();
-		varPhaseVoltageL2N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L2N");
+		varPhaseVoltageL2N.addProperty("path", myConfig.dataInstanceName()
+				+ "voltageL2N");
 		varPhaseVoltageL2N.addProperty("value", expectedPhases2Neutral2Value);
 		variables.add(varPhaseVoltageL2N);
 
 		JsonObject varPhaseVoltageL3N = new JsonObject();
-		varPhaseVoltageL3N.addProperty("path", "OpenEMS_V1Component1/" + myConfig.dataInstanceName()
-				+ ".udtIn.voltageMeasurement.phasesToNeutral.L3N");
+		varPhaseVoltageL3N.addProperty("path", myConfig.dataInstanceName()
+				+ "voltageL3N");
 		varPhaseVoltageL3N.addProperty("value", expectedPhases2Neutral3Value);
 		variables.add(varPhaseVoltageL3N);
 
 		JsonObject varNeutralCurrent = new JsonObject();
 		varNeutralCurrent.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.currentMeasurement.phases.Neutral");
+				myConfig.dataInstanceName() + "currentNeutral");
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
 		JsonObject varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.energyMeasurement.EnergyImport");
+				myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
 		variables.add(varEnergyImport);
 

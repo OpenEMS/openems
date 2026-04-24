@@ -22,7 +22,7 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 	@Before
 	public void setupBefore() {
 		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
-		instanceName = "MeasurementDevice";
+		instanceName = "MeasurementDevice.";
 	}
 
 	@Test
@@ -32,7 +32,7 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 
 		JsonObject primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path",
-				"OpenEMS_V1Component1/MeasurementDevice.udtIn.powerMeasurement.activePower.L123");
+				"MeasurementDevice.ActivePowerL123");
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
@@ -59,7 +59,7 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 		JsonArray variables = new JsonArray();
 		JsonObject primitiveVariable = new JsonObject();
 		primitiveVariable.addProperty("path",
-				"OpenEMS_V1Component1/MeasurementDevice.udtIn.powerMeasurement.activePower.L123");
+				instanceName + "activePowerL123");
 		primitiveVariable.addProperty("value", expectedValue);
 		variables.add(primitiveVariable);
 		apiResponse.add("variables", variables);
@@ -88,19 +88,19 @@ public class PlcNextGdsMeterDataToChannelMapperTest {
 
 		JsonObject varPhaseVoltages = new JsonObject();
 		varPhaseVoltages.addProperty("path",
-				"OpenEMS_V1Component1/MeasurementDevice.udtIn.voltageMeasurement.phasesToNeutral.L1N");
+				instanceName + "VoltageL1N");
 		varPhaseVoltages.addProperty("value", expectedValueVoltagesL1N);
 		variables.add(varPhaseVoltages);
 
 		JsonObject varNeutralCurrent = new JsonObject();
 		varNeutralCurrent.addProperty("path",
-				"OpenEMS_V1Component1/MeasurementDevice.udtIn.currentMeasurement.phases.Neutral");
+				instanceName + "CurrentNeutral");
 		varNeutralCurrent.addProperty("value", expectedValueNeutralCurrent);
 		variables.add(varNeutralCurrent);
 
 		JsonObject varEnergyImport = new JsonObject();
 		varEnergyImport.addProperty("path",
-				"OpenEMS_V1Component1/MeasurementDevice.udtIn.energyMeasurement.EnergyImport");
+				instanceName + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedValueEnergyImport);
 		variables.add(varEnergyImport);
 

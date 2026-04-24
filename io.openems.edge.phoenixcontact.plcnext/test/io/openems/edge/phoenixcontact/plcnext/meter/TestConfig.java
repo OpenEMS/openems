@@ -74,7 +74,7 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 
 	@Override
 	public String dataInstanceName() {
-		return "OpenEmsInstance4JUnitMeter";
+		return "OpenEmsInstance4JUnitMeter.";
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 	@Before
 	public void setupBefore() {
 		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
-		instanceName = "MeasurementDevice";
+		instanceName = "MeasurementDevice.";
 	}
 
 	@Test
@@ -27,7 +27,7 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		String expectedVariableName = "activePower";
 
 		JsonObject primitiveVariable = new JsonObject();
-		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn." + expectedVariableName);
+		primitiveVariable.addProperty("path", instanceName + expectedVariableName);
 
 		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
 		assertNotNull(variableName);
@@ -41,24 +41,24 @@ public class PlcNextGdsDataToChannelMapperImplTest {
 		String variableName = dataMapper.getVariableName(primitiveVariable, instanceName).orElse(null);
 		assertNull(variableName);
 	}
-	
+
 	@Test
 	public void testMapping_FailureDueToMissingJsonPrimitiveNamedValue() {
 		// prep
 		JsonObject errorObject = new JsonObject();
 		errorObject.addProperty("domain", "variables");
 		errorObject.addProperty("reason", "NotExists");
-		
+
 		JsonObject responseBody = new JsonObject();
-		responseBody.addProperty("path", "OpenEMS_V1Component1/MeasurementDevice.udtIn.Arp.PlcEclr.energyMeasurement.EnergyExport");
+		responseBody.addProperty("path", instanceName + "energyMeasurement");
 		responseBody.addProperty("value", (String)null);
 		responseBody.add("error", errorObject);
-		
+
 		// test
-		 PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody, "value", 
-				 PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
-		 
+		 PlcNextGdsDataMappedValue result = dataMapper.mapSingleJsonPrimitiveVariable(responseBody,
+                 PlcNextMeterGdsDataReadMappingDefinition.ENERGY_EXPORT, "junit");
+
 		// check
-		assertNull(result);		
+		assertNull(result);
 	}
 }

@@ -67,11 +67,10 @@ public class PlcNextGdsDataProviderReadTest {
 		// prep
 		String expectedReqUrl = dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		String expectedReqBody = new StringBuilder("pathPrefix=")//
-				.append(PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
-				.append("/&paths=")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.phaseVoltages,")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.neutralCurrent,")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.energyImport")//
+				.append("&paths=")//
+				.append(dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
+				.append(dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
+				.append(dataProviderConfig.dataInstanceName()).append("energyImport")//
 				.append("&sessionID=").append(sessionId).toString();
 		Map<String, String> expectedReqHeaders = Map.of(//
 				"Authorization", "Bearer " + accessToken, //
@@ -107,11 +106,10 @@ public class PlcNextGdsDataProviderReadTest {
 		// prep
 		String expectedReqUrl = dataProviderConfig.dataUrl().concat(PlcNextGdsDataProvider.PATH_VARIABLES);
 		String expectedReqBody = new StringBuilder("pathPrefix=")//
-				.append(PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME)//
-				.append("/&paths=")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.phaseVoltages,")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.neutralCurrent,")//
-				.append(dataProviderConfig.dataInstanceName()).append(".udtIn.energyImport")//
+				.append("&paths=")//
+				.append(dataProviderConfig.dataInstanceName()).append("phaseVoltages,")//
+				.append(dataProviderConfig.dataInstanceName()).append("neutralCurrent,")//
+				.append(dataProviderConfig.dataInstanceName()).append("energyImport")//
 				.append("&sessionID=").append(sessionId)//
 				.toString();
 		Map<String, String> expectedReqHeaders = Map.of(//

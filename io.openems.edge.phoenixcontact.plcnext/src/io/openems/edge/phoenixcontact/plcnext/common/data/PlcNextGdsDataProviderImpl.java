@@ -432,16 +432,11 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 		String postRequestBody = "";
 		if (Objects.nonNull(variableIdentifiers) && !variableIdentifiers.isEmpty()) {
 			List<String> variablenames = variableIdentifiers.stream()//
-					.map(item -> new StringBuilder(config.dataInstanceName())//
-							.append(".").append(PLC_NEXT_INPUT_CHANNEL) //
-							.append(".").append(item)//
-							.toString())//
+					.map(item -> config.dataInstanceName() + item)//
 					.toList();
-
 			StringBuilder postRequestBodyBuilder = new StringBuilder(PLC_NEXT_PATH_PREFIX) //
 					.append("=")//
-					.append(PLC_NEXT_OPENEMS_COMPONENT_NAME)//
-					.append("/&paths=")//
+					.append("&paths=")//
 					.append(String.join(",", variablenames));
 			if (Objects.nonNull(sessionId)) {
 				postRequestBodyBuilder.append("&") //

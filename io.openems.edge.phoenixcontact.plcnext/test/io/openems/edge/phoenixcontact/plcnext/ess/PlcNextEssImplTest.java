@@ -164,19 +164,19 @@ public class PlcNextEssImplTest {
 
 		JsonObject varMaxPowerExport = new JsonObject();
 		varMaxPowerExport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Soc");
+				myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
 		JsonObject varMaxPowerImport = new JsonObject();
 		varMaxPowerImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Capacity");
+				myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
 		JsonObject varSetReactivePower = new JsonObject();
 		varSetReactivePower.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.GridMode");
+				myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue.getName());
 		variables.add(varSetReactivePower);
 
@@ -192,9 +192,8 @@ public class PlcNextEssImplTest {
 		//// Write
 		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
-						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				"/" + myConfig.dataInstanceName() + //
+				PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
@@ -251,19 +250,19 @@ public class PlcNextEssImplTest {
 
 		JsonObject varMaxPowerExport = new JsonObject();
 		varMaxPowerExport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Soc");
+				myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
 		JsonObject varMaxPowerImport = new JsonObject();
 		varMaxPowerImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Capacity");
+				myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
 		JsonObject varSetReactivePower = new JsonObject();
 		varSetReactivePower.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.GridMode");
+				myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue);
 		variables.add(varSetReactivePower);
 
@@ -279,9 +278,8 @@ public class PlcNextEssImplTest {
 		//// Write
 		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
-						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				myConfig.dataInstanceName() + //
+				PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,
@@ -337,19 +335,19 @@ public class PlcNextEssImplTest {
 
 		JsonObject varMaxPowerExport = new JsonObject();
 		varMaxPowerExport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Soc");
+				myConfig.dataInstanceName() + "Soc");
 		varMaxPowerExport.addProperty("value", expectedSocValue);
 		variables.add(varMaxPowerExport);
 
 		JsonObject varMaxPowerImport = new JsonObject();
 		varMaxPowerImport.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.Capacity");
+				myConfig.dataInstanceName() + "Capacity");
 		varMaxPowerImport.addProperty("value", expectedCapacityValue);
 		variables.add(varMaxPowerImport);
 
 		JsonObject varSetReactivePower = new JsonObject();
 		varSetReactivePower.addProperty("path",
-				"OpenEMS_V1Component1/" + myConfig.dataInstanceName() + ".udtIn.essMeter.GridMode");
+				myConfig.dataInstanceName() + "GridMode");
 		varSetReactivePower.addProperty("value", gridModeValue);
 		variables.add(varSetReactivePower);
 
@@ -365,9 +363,8 @@ public class PlcNextEssImplTest {
 		//// Write
 		JsonObject requestBodyVarSetActivePowerEquals = new JsonObject();
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_PATH,
-				PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME + "/" + //
-						myConfig.dataInstanceName() + "." + PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL + "." + //
-						PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
+				"/" + myConfig.dataInstanceName() + //
+				PlcNextEssGdsDataWriteMappingDefinition.SET_ACTIVE_POWER_EQUALS.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE_TYPE,
 				PlcNextGdsDataWriteValueType.VARIABLE.getIdentifier());
 		requestBodyVarSetActivePowerEquals.addProperty(PlcNextChannelToGdsDataMapper.PLC_NEXT_VARIABLE_VALUE,

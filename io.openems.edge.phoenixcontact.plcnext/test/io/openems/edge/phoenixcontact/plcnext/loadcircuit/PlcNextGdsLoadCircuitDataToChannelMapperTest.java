@@ -20,7 +20,7 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 	@Before
 	public void setupBefore() {
 		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
-		instanceName = "LoadCircuit";
+		instanceName = "LoadCircuit.";
 	}
 
 	@Test
@@ -29,7 +29,7 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		Integer expectedValue = 12345;
 
 		JsonObject primitiveVariable = new JsonObject();
-		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/LoadCircuit.udtIn.maxPower.MaxPowerExport");
+		primitiveVariable.addProperty("path", instanceName + "MaxPowerExport");
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
@@ -55,7 +55,7 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 
 		JsonArray variables = new JsonArray();
 		JsonObject primitiveVariable = new JsonObject();
-		primitiveVariable.addProperty("path", "OpenEMS_V1Component1/LoadCircuit.udtIn.setPower.ReactivePower");
+		primitiveVariable.addProperty("path", instanceName + "MaxReactivePower");
 		primitiveVariable.addProperty("value", expectedValue);
 		variables.add(primitiveVariable);
 		apiResponse.add("variables", variables);
@@ -82,12 +82,12 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		JsonArray variables = new JsonArray();
 
 		JsonObject varPhaseVoltages = new JsonObject();
-		varPhaseVoltages.addProperty("path", "OpenEMS_V1Component1/LoadCircuit.udtIn.maxPower.MaxPowerExport");
+		varPhaseVoltages.addProperty("path", instanceName + "MaxPowerExport");
 		varPhaseVoltages.addProperty("value", expectedValueMaxPowerExport);
 		variables.add(varPhaseVoltages);
 
 		JsonObject varNeutralCurrent = new JsonObject();
-		varNeutralCurrent.addProperty("path", "OpenEMS_V1Component1/LoadCircuit.udtIn.maxPower.MaxPowerImport");
+		varNeutralCurrent.addProperty("path", instanceName + "MaxPowerImport");
 		varNeutralCurrent.addProperty("value", expectedValueMaxPowerImport);
 		variables.add(varNeutralCurrent);
 

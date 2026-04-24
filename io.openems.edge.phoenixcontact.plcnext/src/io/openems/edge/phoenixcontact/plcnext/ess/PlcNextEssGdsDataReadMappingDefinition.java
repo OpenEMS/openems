@@ -7,19 +7,19 @@ import io.openems.edge.phoenixcontact.plcnext.common.data.PlcNextGdsDataMappingD
 
 public enum PlcNextEssGdsDataReadMappingDefinition implements PlcNextGdsDataMappingDefinition {
 	// ESS state
-	ALLOWED_CHARGE_POWER("essMeter.AllowedChargePower", ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER), //
-	ALLOWED_DISCHARGE_POWER("essMeter.AllowedDischargePower", ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER), //
-	SOC("essMeter.Soc", SymmetricEss.ChannelId.SOC), //
-	CAPACITY("essMeter.Capacity", SymmetricEss.ChannelId.CAPACITY), //
-	GRID_MODE("essMeter.GridMode", SymmetricEss.ChannelId.GRID_MODE), //
-	ACTIVE_CHARGE_ENERGY("essMeter.ActiveChargeEnergy", SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY), //
-	ACTIVE_DISCHARGE_ENERGY("essMeter.ActiveDischargeEnergy", SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY), //
-	MIN_CELL_VOLTAGE("essMeter.MinCellVoltage", SymmetricEss.ChannelId.MIN_CELL_VOLTAGE), //
-	MAX_CELL_VOLTAGE("essMeter.MaxCellVoltage", SymmetricEss.ChannelId.MAX_CELL_VOLTAGE), //
-	MIN_CELL_TEMPERATURE("essMeter.MinCellTemperature", SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE), //
-	MAX_CELL_TEMPERATURE("essMeter.MaxCellTemperature", SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE), //
-	ACTIVE_POWER("electricityMeter.powerMeasurement.activePower.L123", SymmetricEss.ChannelId.ACTIVE_POWER), //
-	REACTIVE_POWER("electricityMeter.powerMeasurement.reactivePower.L123", SymmetricEss.ChannelId.REACTIVE_POWER);
+	ALLOWED_CHARGE_POWER("AllowedChargePower", ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER), //
+	ALLOWED_DISCHARGE_POWER("AllowedDischargePower", ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER), //
+	SOC("Soc", SymmetricEss.ChannelId.SOC), //
+	CAPACITY("Capacity", SymmetricEss.ChannelId.CAPACITY), //
+	GRID_MODE("GridMode", SymmetricEss.ChannelId.GRID_MODE), //
+	ACTIVE_CHARGE_ENERGY("ActiveChargeEnergy", SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY), //
+	ACTIVE_DISCHARGE_ENERGY("ActiveDischargeEnergy", SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY), //
+	MIN_CELL_VOLTAGE("MinCellVoltage", SymmetricEss.ChannelId.MIN_CELL_VOLTAGE), //
+	MAX_CELL_VOLTAGE("MaxCellVoltage", SymmetricEss.ChannelId.MAX_CELL_VOLTAGE), //
+	MIN_CELL_TEMPERATURE("MinCellTemperature", SymmetricEss.ChannelId.MIN_CELL_TEMPERATURE), //
+	MAX_CELL_TEMPERATURE("MaxCellTemperature", SymmetricEss.ChannelId.MAX_CELL_TEMPERATURE), //
+	ACTIVE_POWER("ActivePowerL123", SymmetricEss.ChannelId.ACTIVE_POWER), //
+	REACTIVE_POWER("ReactivePowerL123", SymmetricEss.ChannelId.REACTIVE_POWER);
 
 	private final String identifier;
 	private final ChannelId channelId;

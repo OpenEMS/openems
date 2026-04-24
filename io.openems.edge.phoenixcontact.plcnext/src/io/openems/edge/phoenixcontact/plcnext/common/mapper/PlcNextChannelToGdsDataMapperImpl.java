@@ -33,9 +33,9 @@ public class PlcNextChannelToGdsDataMapperImpl implements PlcNextChannelToGdsDat
 				channelValue.getChannelId(), mappingDefinition)
 				.orElseThrow(() -> new PlcNextGdsDataMappingException(
 						"No mapping found for channelId '" + channelValue.getChannelId() + "'"));
-		String variablePath = new StringBuilder(PlcNextGdsDataProvider.PLC_NEXT_OPENEMS_COMPONENT_NAME).append("/") //
-				.append(dataInstanceName).append(".").append(PlcNextGdsDataProvider.PLC_NEXT_OUTPUT_CHANNEL).append(".")
-				.append(channelToVariableMappingDefinition.getIdentifier()).toString();
+		String variablePath = "/" +
+                dataInstanceName + ".." +
+                channelToVariableMappingDefinition.getIdentifier();
 
 		return PlcNextChannelValueTypeHelper.buildVariableToWrite(variablePath, channelValue.getValue(),
 				channelValue.getChannelId().doc(), stationId);
