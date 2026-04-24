@@ -28,5 +28,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
 	String ancillaryCosts();
 
+	@AttributeDefinition(name = "Mathematical expression to calculate gross price", description = "[x] is the EPEX price, [y] the ancillary cost per period; defaults to \"x + y\"")
+	String calculateExpression() default "";
+
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff ENTSO-E [{id}]";
 }

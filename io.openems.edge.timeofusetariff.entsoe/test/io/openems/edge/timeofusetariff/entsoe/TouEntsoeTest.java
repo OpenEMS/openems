@@ -134,7 +134,8 @@ public class TouEntsoeTest {
 						.setAncillaryCosts(buildJsonObject() //
 								.addProperty("dso", "BAYERNWERK") //
 								.build() //
-								.toString())
+								.toString()) //
+						.setCalculateExpression("") //
 						.build())
 
 				.next(new TestCase("Successful response") //
@@ -407,6 +408,7 @@ public class TouEntsoeTest {
 								.add("schedule", schedule) //
 								.build() //
 								.toString()) //
+						.setCalculateExpression("x+y") //
 						.build());
 
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(this.getTestEntsoeResponse()));
