@@ -270,6 +270,12 @@ public class ClientReconnectorWorker extends AbstractWorker {
 				.collect(Collectors.joining(", "));
 	}
 
+	/**
+	 * Handles a failed WebSocket handshake by updating the debug log and emitting
+	 * the corresponding reconnect event.
+	 *
+	 * @param reason a short description of why the handshake failed
+	 */
 	public void notifyHandshakeFailed(String reason) {
 		this.logAndSetDebugInfo(reason);
 		this.callEvent(WebsocketReconnectorEvent.HANDSHAKE_FAILED);
