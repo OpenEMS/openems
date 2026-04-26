@@ -27,44 +27,44 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		/**
 		 * Current state of the delayed charge function.
 		 */
-		DELAY_CHARGE_STATE(Doc.of(DelayChargeState.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		DELAY_CHARGE_STATE(Doc.of(DelayChargeState.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current state of the delayed charge function.")),
 
 		/**
 		 * Current state of the sell to grid limit function.
 		 */
-		SELL_TO_GRID_LIMIT_STATE(Doc.of(SellToGridLimitState.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		SELL_TO_GRID_LIMIT_STATE(Doc.of(SellToGridLimitState.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current state of the sell to grid limit function.")),
 
 		/**
 		 * Delay-Charge power limitation.
 		 */
-		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Delay-Charge power limitation.")), //
 
 		/**
 		 * Capacity left used for delayed charge.
 		 */
-		DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		DELAY_CHARGE_CAPACITY_WITH_BUFFER_LEFT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.text("Capacity left.")), //
 
 		/**
 		 * Time left used for delayed charge.
 		 */
-		DELAY_CHARGE_TIME_LEFT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.SECONDS) //
+		DELAY_CHARGE_TIME_LEFT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.SECONDS)//
 				.text("Capacity left.")), //
 
 		/**
 		 * Predicted energy left used for delayed charge.
 		 */
-		DELAY_CHARGE_PREDICTED_ENERGY_LEFT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		DELAY_CHARGE_PREDICTED_ENERGY_LEFT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.text("Predicted energy left.")), //
 
 		/**
@@ -74,16 +74,16 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * This channel is used for debugging and to calculate the average for the
 		 * {@link ChannelId#DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT} channel.
 		 */
-		RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.text("Delay-Charge power limitation.")), //
 
 		/**
 		 * Sell to grid limit charge power limitation.
 		 */
-		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Sell to grid limit charge power limitation in a readable AC format.")),
 
 		/**
@@ -93,8 +93,8 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * This value is negative for DC systems. Prefer
 		 * SELL_TO_GRID_LIMIT_MINIMUM_CHARGE_LIMIT for visualization.
 		 */
-		RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		RAW_SELL_TO_GRID_LIMIT_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.text("Raw sell to grid limit charge power limitation.")),
 
 		/**
@@ -104,7 +104,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Actual target minute calculated from prediction without buffer hours (for
 		 * automatic mode).
 		 */
-		PREDICTED_TARGET_MINUTE(Doc.of(OpenemsType.INTEGER) //
+		PREDICTED_TARGET_MINUTE(Doc.of(OpenemsType.INTEGER)//
 				.text("Actual target minute calculated from prediction without buffer hours.")),
 
 		/**
@@ -114,7 +114,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Adjusted target minute calculated from prediction including the buffer hours
 		 * (for automatic mode).
 		 */
-		PREDICTED_TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER) //
+		PREDICTED_TARGET_MINUTE_ADJUSTED(Doc.of(OpenemsType.INTEGER)//
 				.text("Adjusted target minute calculated from prediction including the buffer hours (for automatic mode).")),
 
 		/**
@@ -123,8 +123,8 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * <p>
 		 * Automatically set, when the original TARGET_MINUTE is set.
 		 */
-		TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Target minute as epoch seconds independent of the current mode Manual and Automatic.")),
 
 		/**
@@ -155,7 +155,7 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * Keeps the time, when the production higher than the consumption for the first
 		 * time on the current day.
 		 */
-		START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+		START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG)//
 				.text("Time when the production is higher than the consumption for the first time on the current day.")), //
 
 		/**
@@ -164,66 +164,66 @@ public interface ControllerEssGridOptimizedCharge extends Controller, OpenemsCom
 		 * <p>
 		 * Keeps the time, when the delayed charge will start on the current day.
 		 */
-		PREDICTED_CHARGE_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		PREDICTED_CHARGE_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Time when the delayed charge will start on the current day.")), //
 
 		/**
 		 * Debug Channel for the minimum charge power for delay Charge.
 		 */
-		DEBUG_DELAY_CHARGE_MINIMUM_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT) //
+		DEBUG_DELAY_CHARGE_MINIMUM_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT)//
 				.text("Debug Channel for the minimum charge power for delay Charge.")),
 
 		/**
 		 * Info State Channel, if the delay charge limit would be negative.
 		 */
-		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO) //
+		DELAY_CHARGE_NEGATIVE_LIMIT(Doc.of(Level.INFO)//
 				.text("System would be charged from the grid under these constraints.")), //
 
 		/**
 		 * Configured manual target time is not valid.
 		 */
-		NO_VALID_MANUAL_TARGET_TIME(Doc.of(Level.INFO) //
+		NO_VALID_MANUAL_TARGET_TIME(Doc.of(Level.INFO)//
 				.text("Configured manual target time is not valid. Default of 5 pm is used.")), //
 
 		/**
 		 * Configured ESS is not managed.
 		 */
-		CONFIGURED_ESS_IS_NOT_MANAGED(Doc.of(Level.FAULT) //
+		CONFIGURED_ESS_IS_NOT_MANAGED(Doc.of(Level.FAULT)//
 				.text("The Energy Storage System is in read-only mode and does not allow to be controlled.")), //
 
 		/**
 		 * Production values for prediction not available.
 		 */
-		NO_VALID_PRODUCTION_PREDICTION(Doc.of(Level.WARNING) //
+		NO_VALID_PRODUCTION_PREDICTION(Doc.of(Level.WARNING)//
 				.translationKey(ControllerEssGridOptimizedCharge.class, "noValidProductionPrediction")), //
 
 		/**
 		 * Cumulated seconds of the state delay charge.
 		 */
-		DELAY_CHARGE_TIME(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_SECONDS) //
+		DELAY_CHARGE_TIME(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Cumulated seconds of the state sell to grid limit.
 		 */
 		SELL_TO_GRID_LIMIT_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Cumulated seconds of the state avoid low charging.
 		 */
 		AVOID_LOW_CHARGING_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * Cumulated seconds if no limitation is present.
 		 */
 		NO_LIMITATION_TIME(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.CUMULATED_SECONDS) //
+				.unit(Unit.CUMULATED_SECONDS)//
 				.persistencePriority(PersistencePriority.HIGH)),//
 		;
 

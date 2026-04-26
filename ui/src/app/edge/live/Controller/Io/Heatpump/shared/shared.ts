@@ -6,107 +6,134 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 export namespace SharedControllerIoHeatpump {
-    const PROPERTY_MODE: string = "_PropertyMode";
 
-    export const getFormlyView = (translate: TranslateService, component: EdgeConfig.Component, edge: Edge, mode: "AUTOMATIC" | "MANUAL"): OeFormlyView => {
+    const PROPERTY_MODE: string = "_PropertyMode";
+    // hide manual elements when mode is AUTOMATIC
+    const HIDE_ON_MODE_AUTOMATIC = (el: { mode: Mode }) => el.mode === Mode.AUTOMATIC;
+    // hide automatic elements when mode is manual
+    const HIDE_ON_MODE_MANUAL = (el: { mode: Mode }) => el.mode === Mode.MANUAL;
+
+    export const getFormlyView = (translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView<{ mode: Mode }> => {
 
         return {
             title: component.alias,
             helpKey: "CONTROLLER_IO_HEAT_PUMP_SG_READY",
             lines: [
                 ...getFormlySharedLines(translate, component),
-                ...(mode === "AUTOMATIC"
-                    ? getFormlyAutomaticView(translate, component)
-                    : getFormlyManualView(translate)),
+                ...getFormlyAutomaticView(translate, component, HIDE_ON_MODE_MANUAL),
+                ...getFormlyManualView(translate, HIDE_ON_MODE_AUTOMATIC),
             ],
             component: component,
             edge: edge,
         };
     };
 
-    const getFormlyAutomaticView = (translate: TranslateService, component: EdgeConfig.Component): OeFormlyView["lines"] => ([
-        /** Switch on recommendation */
-        {
-            type: "toggle-line",
-            controlName: "automaticRecommendationCtrlEnabled",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
-        }, {
-            type: "input-line",
-            controlName: "automaticRecommendationSurplusPower",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
-            properties: { unit: "W" },
-        }, {
-            type: "horizontal-line",
-        }, {
-            /* Switch on Command*/
-            type: "toggle-line",
-            controlName: "automaticForceOnCtrlEnabled",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
-        }, {
-            type: "input-line",
-            controlName: "automaticForceOnSurplusPower",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
-            properties: { unit: "W" },
-        }, {
-            type: "channel-line",
-            channel: new ChannelAddress(component.id, "_PropertyAutomaticForceOnSoc").toString(),
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.ABOVE_SOC"),
-            converter: Converter.STATE_IN_PERCENT,
-        }, {
-            type: "range-button-from-form-control-line",
-            controlName: "automaticForceOnSoc",
-            properties: {
-                tickMax: 100,
-                tickMin: 0,
-                tickFormatter: (val) => Converter.STATE_IN_PERCENT(val),
-                pinFormatter: (val) => Converter.STATE_IN_PERCENT(val),
-            },
-        }, {
-            type: "horizontal-line",
-        }, {
-            /** switch on lock */
-            type: "toggle-line",
-            controlName: "automaticLockCtrlEnabled",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
-        }, {
-            type: "input-line",
-            controlName: "automaticLockGridBuyPower",
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_BUY"),
-            properties: { unit: "W" },
-        }, {
-            type: "channel-line",
-            channel: new ChannelAddress(component.id, "_PropertyAutomaticLockSoc").toString(),
-            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.BELOW_SOC"),
-            converter: Converter.STATE_IN_PERCENT,
-        }, {
-            type: "range-button-from-form-control-line",
-            controlName: "automaticLockSoc",
-            properties: {
-                tickMax: 100,
-                tickMin: 0,
-                tickFormatter: (val) => Converter.STATE_IN_PERCENT(val),
-                pinFormatter: (val) => Converter.STATE_IN_PERCENT(val),
-            },
-        }, {
-            type: "horizontal-line",
-        },
-        {
-            type: "input-line",
-            controlName: "minimumSwitchingTime",
-            name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME"),
-            properties: { unit: "s" },
-        },
-    ]);
+    const getFormlyAutomaticView = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        hideCondition: (field: { mode: Mode }) => boolean
+    ): OeFormlyView<{ mode: Mode }>["lines"] => {
 
-    const getFormlyManualView = (translate: TranslateService): OeFormlyView["lines"] => ([
+        const lines: OeFormlyView<{ mode: Mode }>["lines"] = [
+            {
+                type: "toggle-line",
+                controlName: "automaticRecommendationCtrlEnabled",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
+            },
+            {
+                type: "input-line",
+                controlName: "automaticRecommendationSurplusPower",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
+                properties: { unit: "W" },
+            },
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "toggle-line",
+                controlName: "automaticForceOnCtrlEnabled",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
+            },
+            {
+                type: "input-line",
+                controlName: "automaticForceOnSurplusPower",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
+                properties: { unit: "W" },
+            },
+            {
+                type: "channel-line",
+                channel: new ChannelAddress(component.id, "_PropertyAutomaticForceOnSoc").toString(),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.ABOVE_SOC"),
+                converter: Converter.STATE_IN_PERCENT,
+            },
+            {
+                type: "range-button-from-form-control-line",
+                controlName: "automaticForceOnSoc",
+                properties: {
+                    tickMax: 100,
+                    tickMin: 0,
+                    tickFormatter: (val) => Converter.STATE_IN_PERCENT(val),
+                    pinFormatter: (val) => Converter.STATE_IN_PERCENT(val),
+                },
+            },
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "toggle-line",
+                controlName: "automaticLockCtrlEnabled",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
+            },
+            {
+                type: "input-line",
+                controlName: "automaticLockGridBuyPower",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_BUY"),
+                properties: { unit: "W" },
+            },
+            {
+                type: "channel-line",
+                channel: new ChannelAddress(component.id, "_PropertyAutomaticLockSoc").toString(),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.BELOW_SOC"),
+                converter: Converter.STATE_IN_PERCENT,
+            },
+            {
+                type: "range-button-from-form-control-line",
+                controlName: "automaticLockSoc",
+                properties: {
+                    tickMax: 100,
+                    tickMin: 0,
+                    tickFormatter: (val) => Converter.STATE_IN_PERCENT(val),
+                    pinFormatter: (val) => Converter.STATE_IN_PERCENT(val),
+                },
+            },
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "input-line",
+                controlName: "minimumSwitchingTime",
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME"),
+                properties: { unit: "s" },
+            },
+        ];
+
+        return lines.map(line => ({
+            ...line,
+            hide: hideCondition,
+        }));
+    };
+
+    const getFormlyManualView = (translate: TranslateService, hideCondition: (field: { mode: Mode }) => boolean): OeFormlyView<{ mode: Mode }>["lines"] => ([
         {
             type: "select-line",
             controlName: "manualState",
             name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.OPERATING_STATUS"),
             options: getManualOptions(translate),
+            hide: hideCondition,
         },
     ]);
 

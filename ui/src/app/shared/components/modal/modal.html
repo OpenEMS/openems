@@ -24,7 +24,7 @@
 
       <ng-content select="[button]"></ng-content>
       @if (helpKey) {
-        <oe-help-button [key]="helpKey" [useDefaultPrefix]="useDefaultPrefix"></oe-help-button>
+        <oe-help-button [key]="helpKey" [useDefaultPrefix]="(useDefaultPrefix === undefined) ? useDefaultPrefix : true"></oe-help-button>
       }
 
       <ion-button (keydown.enter)="modalController.dismiss()" tabindex="0" (click)="modalController.dismiss()">

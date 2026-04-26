@@ -278,9 +278,9 @@ export class RGBColor<T extends RGBValue = RGBValue> {
         }
 
         const rgb: string[] = subStr.split(",").map(el => el.trim());
-        const red: RGBValue = parseInt(rgb[0]) as RGBValue;
-        const green: RGBValue = parseInt(rgb[1]) as RGBValue;
-        const blue: RGBValue = parseInt(rgb[2]) as RGBValue;
+        const red: RGBValue = Number.parseInt(rgb[0]) as RGBValue;
+        const green: RGBValue = Number.parseInt(rgb[1]) as RGBValue;
+        const blue: RGBValue = Number.parseInt(rgb[2]) as RGBValue;
 
         if (red == null || green == null || blue == null) {
             throw new Error(RGBColor.INVALID_RGB_VALUES_ERROR);

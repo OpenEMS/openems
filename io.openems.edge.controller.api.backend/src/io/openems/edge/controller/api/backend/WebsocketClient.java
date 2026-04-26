@@ -20,6 +20,8 @@ import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.WsData;
+import io.openems.edge.common.channel.ChannelUtils;
+import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 
 public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 

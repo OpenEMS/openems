@@ -1,10 +1,10 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.session.Language;
 
@@ -26,8 +26,8 @@ public class KacoSunSpecModelTest {
 				.map(Enum::name) //
 				.toList();
 
-		assertTrue("Missing " + language + " translations for[" + missingKeys.size() + "]: "
-				+ String.join(", ", missingKeys), missingKeys.isEmpty());
+		assertTrue(missingKeys.isEmpty(), "Missing " + language + " translations for[" + missingKeys.size() + "]: "
+				+ String.join(", ", missingKeys));
 	}
 
 }

@@ -2,13 +2,13 @@ package io.openems.edge.ess.generic.common;
 
 import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.VOLTAGE_CONTROL_FILTER_TIME_CONSTANT;
 import static io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler.calculateMaxCurrent;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.time.temporal.ChronoUnit;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TestUtils;
 import io.openems.edge.battery.test.DummyBattery;

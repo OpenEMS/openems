@@ -203,7 +203,7 @@ public final class ResendHistoricDataWorker extends AbstractWorker {
 				.flatMap(component -> component.channels().stream()) //
 				.filter(channel -> //
 				channel.channelDoc().getAccessMode() != AccessMode.WRITE_ONLY //
-						&& channel.channelDoc().getPersistencePriority() //
+						&& channel.channelDoc().getRemotePersistencePriority() //
 								.isAtLeast(resendPriority))
 				.map(t -> t.address()) //
 				.collect(toSet());

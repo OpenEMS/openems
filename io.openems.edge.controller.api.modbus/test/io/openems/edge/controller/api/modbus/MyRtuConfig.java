@@ -16,6 +16,7 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 		private boolean enabled;
 		private String portName;
 		private String[] componentIds;
+		private String[] writeChannels = {};
 		private int baudrate;
 		private int databits;
 		private Stopbit stopbit;
@@ -45,6 +46,11 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 
 		public Builder<T> setComponentIds(String... componentIds) {
 			this.componentIds = componentIds;
+			return this;
+		}
+
+		public Builder<T> setWriteChannels(String... writeChannels) {
+			this.writeChannels = writeChannels;
 			return this;
 		}
 
@@ -144,6 +150,11 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 	@Override
 	public String[] component_ids() {
 		return this.builder.componentIds;
+	}
+
+	@Override
+	public String[] writeChannels() {
+		return this.builder.writeChannels;
 	}
 
 	@Override

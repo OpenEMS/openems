@@ -418,8 +418,10 @@
                         "NO_LIMIT_POSSIBLE": "No limitation possible (restricted by controls with higher priority)",
                         "NOT_DEFINED": "Not defined",
                         "PASSED_END_TIME": "End time of limited charging exceeded",
-                        "STORAGE_ALREADY_FULL": "Storage already full"
+                        "STORAGE_ALREADY_FULL": "Storage already full",
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Limited or delayed charging is not possible because no grid feed-in or only a small amount of grid feed-in is allowed."
                     },
+                    "LIMITED_FUNCTIONALITY": "Limited functionality",
                     "STORAGE_CAPACITY": "Storage capacity (only visible for admin)"
                 },
                 "HEAT": {

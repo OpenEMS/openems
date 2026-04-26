@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TestUtils;
 

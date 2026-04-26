@@ -410,7 +410,7 @@ export namespace OeFormlyViewTester {
 
         export type InfoLine = {
             type: "info-line",
-            name: string,
+            name: string | { text: string, lineStyle?: string }[],
             style?: string,
         };
 

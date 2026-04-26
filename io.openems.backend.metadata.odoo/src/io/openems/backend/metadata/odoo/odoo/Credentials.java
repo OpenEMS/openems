@@ -4,13 +4,14 @@ import io.openems.backend.metadata.odoo.Config;
 
 /**
  * Holds credentials for access to Odoo and PostgreSQL.
- * 
+ *
  * @param url      the connection URL
- * @param uid      the user ID
+ * @param uid	   the user uid
+ * @param login    the user login
  * @param password the user password
  * @param database the database name
  */
-public record Credentials(String url, int uid, String password, String database) {
+public record Credentials(String url, int uid, String login, String password, String database) {
 
 	/**
 	 * Creates {@link Credentials} from a {@link Config}uration.
@@ -20,11 +21,11 @@ public record Credentials(String url, int uid, String password, String database)
 	 */
 	public static Credentials fromConfig(Config config) {
 		return new Credentials(//
-				config.odooProtocol(), config.odooHost(), config.odooPort(), config.odooUid(), config.odooPassword(),
+				config.odooProtocol(), config.odooHost(), config.odooPort(), config.odooUid(), config.odooLogin(), config.odooPassword(),
 				config.database());
 	}
 
-	public Credentials(Protocol protocol, String host, int port, int uid, String password, String database) {
-		this(protocol.expression + "://" + host + ":" + port, uid, password, database);
+	public Credentials(Protocol protocol, String host, int port, int uid, String login, String password, String database) {
+		this(protocol.expression + "://" + host + ":" + port, uid,  login, password, database);
 	}
 }
