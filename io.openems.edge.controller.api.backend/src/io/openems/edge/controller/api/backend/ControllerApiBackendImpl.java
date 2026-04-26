@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -72,6 +73,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiBackendImpl.class);
+	private final String instanceId = UUID.randomUUID().toString();
 
 	@Reference
 	private OpenemsEdgeOem oem;
@@ -133,7 +135,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		// Get Proxy configuration
 		Proxy proxy;
-		if (config.proxyAddress().trim().equals("") || config.proxyPort() == 0) {
+		if (config.proxyAddress().isBlank() || config.proxyPort() == 0) {
 			proxy = AbstractWebsocketClient.NO_PROXY;
 		} else {
 			proxy = new Proxy(config.proxyType(), new InetSocketAddress(config.proxyAddress(), config.proxyPort()));
@@ -142,6 +144,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
 		httpHeaders.put("apikey", config.apikey());
+		httpHeaders.put("instanceId", this.instanceId);
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);

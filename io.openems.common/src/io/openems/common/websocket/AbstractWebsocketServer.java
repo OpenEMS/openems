@@ -71,8 +71,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 				try {
 					wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
 				} catch (InvalidDataException e) {
-					AbstractWebsocketServer.this.logWarn(AbstractWebsocketServer.this.log,
-							"Handshake rejected [" + ws.getRemoteSocketAddress() + "]: " + e.getMessage());
+					AbstractWebsocketServer.this.logWarn(AbstractWebsocketServer.this.log, e.getMessage());
 					throw e;
 				}
 				ws.setAttachment(wsData);

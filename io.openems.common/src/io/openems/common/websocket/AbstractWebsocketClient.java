@@ -12,8 +12,10 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.extensions.permessage_deflate.PerMessageDeflateExtension;
 import org.java_websocket.framing.CloseFrame;
+import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,12 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 
 			private void logInfo(String message) {
 				AbstractWebsocketClient.this.logInfo(AbstractWebsocketClient.this.log, message);
+			}
+
+			@Override
+			public void onWebsocketHandshakeSentAsClient(WebSocket conn, ClientHandshake request) throws InvalidDataException {
+				AbstractWebsocketClient.this.onWebsocketHandshakeSent(request);
+				super.onWebsocketHandshakeSentAsClient(conn, request);
 			}
 
 			@Override
@@ -170,6 +178,10 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 		if (proxy != null) {
 			this.ws.setProxy(proxy);
 		}
+	}
+
+	protected void onWebsocketHandshakeSent(ClientHandshake request) {
+		// nothing
 	}
 
 	/**

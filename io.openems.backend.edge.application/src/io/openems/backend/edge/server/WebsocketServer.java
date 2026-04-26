@@ -1,5 +1,6 @@
 package io.openems.backend.edge.server;
 
+import static io.openems.common.websocket.WebsocketUtils.getAsOptionalString;
 import static io.openems.common.websocket.WebsocketUtils.getAsString;
 
 import java.util.Objects;
@@ -8,6 +9,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.openems.common.logger.ContextLogger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -30,12 +32,15 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	private final OnClose onClose;
 	private final Function<String, String> authenticateApikey;
 
+	private final Logger log;
+
 	public WebsocketServer(String name, int port, int poolSize, //
 			BiFunction<String, JsonrpcRequest, CompletableFuture<? extends JsonrpcResponseSuccess>> sendRequestToEdgeManager, //
 			BiConsumer<String, JsonrpcNotification> sendNotificationToEdgeManager, //
 			Function<String, String> authenticateApikey, //
 			Runnable connectedEdgesChanged) {
 		super(name, port, poolSize);
+		this.log = new ContextLogger(WebsocketServer.class, name);
 		this.authenticateApikey = authenticateApikey;
 		this.onOpen = new OnOpen(//
 				connectedEdgesChanged);
@@ -54,10 +59,12 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 	@Override
 	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
 		final var apikey = getAsString(request, "apikey");
+		final var instanceId = getAsOptionalString(request, "instanceId").orElse("N/A");
 		final var edgeId = this.authenticateApikey.apply(apikey);
 		if (edgeId == null) {
-			throw new InvalidDataException(CloseFrame.POLICY_VALIDATION, "Invalid Apikey");
+			throw new InvalidDataException(CloseFrame.POLICY_VALIDATION, "Handshake rejected. Invalid Apikey [InstanceID=" + instanceId + "]");
 		}
+		this.log.debug("Handshake accepted [InstanceID={}, EdgeID={}]", instanceId, edgeId);
 		final var wsData = this.createWsData(ws);
 		wsData.setEdgeId(edgeId);
 		return wsData;
