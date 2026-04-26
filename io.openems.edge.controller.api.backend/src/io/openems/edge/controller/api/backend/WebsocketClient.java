@@ -7,9 +7,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import io.openems.common.websocket.WebsocketUtils;
-import io.openems.edge.common.channel.ChannelUtils;
-import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
 import org.java_websocket.WebSocket;
 import org.java_websocket.framing.CloseFrame;
 import org.java_websocket.handshake.ClientHandshake;
@@ -19,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
+import io.openems.common.websocket.WebsocketUtils;
 import io.openems.common.websocket.WsData;
 import io.openems.edge.common.channel.ChannelUtils;
 import io.openems.edge.controller.api.backend.api.ControllerApiBackend;
