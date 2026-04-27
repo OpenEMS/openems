@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * This Worker constantly checks for heap-dump files in /usr/lib/openems
@@ -20,10 +20,11 @@ public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
 
-	private final Logger log = LoggerFactory.getLogger(OutOfMemoryHeapDumpWorker.class);
+	private final Logger log;
 
 	public OutOfMemoryHeapDumpWorker(ComponentManagerImpl parent) {
 		super(parent);
+		this.log = OpenemsComponent.getComponentLogger(OutOfMemoryHeapDumpWorker.class, parent);
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class OutOfMemoryHeapDumpWorker extends ComponentManagerWorker {
 	}
 
 	private void delete(File file) {
-		this.log.info("Deleting file [" + file.getAbsolutePath() + "]");
+		this.log.info("Deleting file [{}]", file.getAbsolutePath());
 		file.delete();
 	}
 

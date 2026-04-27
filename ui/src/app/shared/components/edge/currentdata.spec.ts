@@ -1,6 +1,6 @@
 import { CurrentData } from "./currentdata";
 
-export function expectRatioToEqual(maxApparentPower: number | null, minDischargePower: number | null, effectivePower: number | null, result: number | null): void {
+export function expectRatioToEqual(maxApparentPower: number | null, minDischargePower: number | null, effectivePower: number | null, result: number): void {
     expect(CurrentData.getEssPowerRatio(maxApparentPower, minDischargePower, effectivePower)).toEqual(result);
 }
 

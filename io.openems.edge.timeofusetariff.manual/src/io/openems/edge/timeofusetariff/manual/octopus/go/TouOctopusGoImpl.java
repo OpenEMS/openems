@@ -76,8 +76,7 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 		}
 
 		final var clock = this.componentManager.getClock();
-		final var goSchedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(clock) //
+		final var goSchedule = JSCalendar.Tasks.<Double>create(clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(0, 0)) //
 						.setDuration(Duration.ofHours(5)) //

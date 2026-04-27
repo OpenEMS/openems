@@ -80,8 +80,8 @@ export abstract class AbstractFlatWidget implements OnInit, OnDestroy {
                     for (const channelId of channelIds) {
                         channelAddresses.add(new ChannelAddress(this.componentId, channelId));
                     }
-                    this.dataService.subscribeChannels(Array.from(channelAddresses), this.edge, this.componentId);
                 }
+                this.dataService.subscribeChannels(Array.from(channelAddresses), this.edge);
                 this.subscription.push(effect(() => {
                     const value = this.dataService.currentValue();
                     this.onCurrentData(value);

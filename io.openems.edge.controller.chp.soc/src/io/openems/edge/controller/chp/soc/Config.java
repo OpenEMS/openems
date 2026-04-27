@@ -3,6 +3,9 @@ package io.openems.edge.controller.chp.soc;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
+
 @ObjectClassDefinition(//
 		name = "Controller CHP SOC", //
 		description = "This is a Controller for CHP (Combined Heat and Power Unit, German: BHKW - Blockheizkraftwerk). The Controller is used to signal CHP turn ON or turn OFF when the battery is empty or battery is full respectively, based on the SoC percentage")
@@ -27,9 +30,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String outputChannelAddress();
 
 	@AttributeDefinition(name = "Low threshold", description = "Low boundary of the threshold")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int lowThreshold();
 
 	@AttributeDefinition(name = "High threshold", description = "High boundary of the threshold")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int highThreshold();
 
 	@AttributeDefinition(name = "Invert behaviour", description = "If this option is activated the behaviour of switching ON and OFF is inverted")

@@ -4,7 +4,9 @@ import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/s
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
+import { SharedGridOptimizedCharge } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
+import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { Edge } from "../components/edge/edge";
@@ -66,8 +68,14 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.Ess.GridOptimizedCharge":
+                return SharedGridOptimizedCharge.getNavigationTree(translate, component);
             case "Controller.Io.HeatPump.SgReady":
                 return SharedControllerIoHeatpump.getNavigationTree(translate, component);
+            case "Heat.Askoma":
+                return SharedControllerHeat.getNavigationTree(translate, component);
+            case "Heat.MyPv.AcThor9s":
+                return SharedControllerHeat.getNavigationTree(translate, component);
             case "Scheduler.JSCalendar":
                 return SharedSchedulerJsCalendar.getNavigationTree(translate, widget.componentId);
             case "Evse.Controller.Single":

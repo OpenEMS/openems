@@ -102,6 +102,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 		this.config = config;
 
 		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> ControllerEvseClusterImpl.this.componentManager.getClock(), //
 				() -> new EnergyScheduler.ClusterEshConfig(//
 						this.config.distributionStrategy(), //
 						this.config.enabled() //

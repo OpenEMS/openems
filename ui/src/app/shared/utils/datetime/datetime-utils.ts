@@ -62,8 +62,8 @@ export class DateTimeUtils {
 
                 // show 12 stacks, even if no data and timestamps
                 const newTimestamps: string[] = [];
-                const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
-                const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[energyPerPeriodResponse.result.timestamps.length - 1]);
+                const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps.at(0));
+                const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps.at(-1));
 
                 if (firstTimestamp.getMonth() !== 0 && isSameYear(lastTimestamp, firstTimestamp)) {
                     for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {

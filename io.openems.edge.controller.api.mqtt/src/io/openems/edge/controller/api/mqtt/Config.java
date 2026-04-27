@@ -43,7 +43,7 @@ import io.openems.common.channel.PersistencePriority;
 
 	@AttributeDefinition(name = "Trust Store", description = "The trust store in PEM format")
 	String trustStorePem();
-	
+
 	@AttributeDefinition(name = "Topic filters", description = "A list of valid subtopic paths, after 'edge/edge0/'. Follows the MQTT topic subscription rules for globbing e.g.: channel/lastUpdate, channel/_sum/#. If not set, all channels are sent.")
 	String[] topicFilters();
 

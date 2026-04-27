@@ -96,7 +96,13 @@
         </ion-col>
 
         <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
-          *ngSwitchCase="'io.openems.edge.heat.api.ManagedHeatElement'">
+          *ngSwitchCase="'Heat.Askoma'">
+          <controller-heat-widget [componentId]="widget.componentId">
+          </controller-heat-widget>
+        </ion-col>
+
+        <ion-col size="12" size-md="6" size-lg="4" size-xl="3"
+          *ngSwitchCase="'Heat.MyPv.AcThor9s'">
           <controller-heat-widget [componentId]="widget.componentId">
           </controller-heat-widget>
         </ion-col>

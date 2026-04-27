@@ -44,6 +44,7 @@ import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
+import { TimeLineComponent } from "./components/picktime/picktime.component";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
@@ -171,6 +172,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         HelpPopoverButtonComponent,
         FlatWidgetButtonComponent,
         HelpButtonComponent,
+        TimeLineComponent,
     ],
     declarations: [
         AppHeaderComponent,
@@ -225,6 +227,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         RouterModule,
         TranslateModule,
         PickDateTimeRangeComponent,
+        TimeLineComponent,
     ],
     providers: [
         AppStateTracker,

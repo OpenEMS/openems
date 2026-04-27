@@ -164,8 +164,7 @@ public class UtilsTest {
 
 	// Helper methods
 	private static TouManualHelper createTestOctopusHelper(Clock clock) {
-		var schedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(clock) //
+		var schedule = JSCalendar.Tasks.<Double>create(clock) //
 				.add(t -> t.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b.setFrequency(//

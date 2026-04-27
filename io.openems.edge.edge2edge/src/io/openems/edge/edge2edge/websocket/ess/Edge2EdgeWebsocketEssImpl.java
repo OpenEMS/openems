@@ -51,7 +51,7 @@ import io.openems.edge.ess.power.api.Power;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implements ManagedSymmetricEss, AsymmetricEss,
-		SymmetricEss, Edge2EdgeEss, Edge2EdgeWebsocket, OpenemsComponent {
+		SymmetricEss, Edge2EdgeWebsocketEss, Edge2EdgeWebsocket, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeWebsocketEssImpl.class);
 
@@ -114,7 +114,7 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 				ManagedSymmetricEss.ChannelId.values(), //
 				StartStoppable.ChannelId.values(), //
 				Edge2EdgeWebsocket.ChannelId.values(), //
-				Edge2EdgeEss.ChannelId.values() //
+				Edge2EdgeWebsocketEss.ChannelId.values() //
 		);
 		this._setMaxApparentPower(Integer.MAX_VALUE); // has no effect, as long as AllowedCharge/DischargePower are null
 
@@ -166,24 +166,6 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 				}
 			}
 		});
-
-		this.getSetActivePowerEqualsChannel().onSetNextWrite(t -> {
-			if (this.config.remoteAccessMode() == AccessMode.READ_ONLY) {
-				return;
-			}
-
-			this.bridgeStateHandler.setChannelValue(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS.id(),
-					new JsonPrimitive(t));
-		});
-
-		this.getSetReactivePowerEqualsChannel().onSetNextWrite(t -> {
-			if (this.config.remoteAccessMode() == AccessMode.READ_ONLY) {
-				return;
-			}
-
-			this.bridgeStateHandler.setChannelValue(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS.id(),
-					new JsonPrimitive(t));
-		});
 	}
 
 	@Activate
@@ -229,8 +211,14 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.setActivePowerEqualsWithoutFilter(activePower);
-		this.setReactivePowerEqualsWithoutFilter(reactivePower);
+		if (this.config.remoteAccessMode() == AccessMode.READ_ONLY) {
+			return;
+		}
+
+		this.bridgeStateHandler.setChannelValue(ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS.id(),
+				new JsonPrimitive(activePower));
+		this.bridgeStateHandler.setChannelValue(ManagedSymmetricEss.ChannelId.SET_REACTIVE_POWER_EQUALS.id(),
+				new JsonPrimitive(reactivePower));
 	}
 
 	@Override

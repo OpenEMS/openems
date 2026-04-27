@@ -14,12 +14,8 @@ public class ErrorHandler extends StateHandler<State, Context> {
 	}
 
 	@Override
-	public State runAndGetNextState(Context context) {
-		final var inverter = context.getParent();
-		if (!inverter.hasFailure()) {
-			return State.UNDEFINED;
-		}
-		return State.ERROR;
+	public State runAndGetNextState(Context context) throws OpenemsNamedException {
+		return context.errorRestartBehaviour.run(context);
 	}
 
 	@Override
@@ -28,4 +24,5 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		inverter._setMaxStartTimeout(false);
 		inverter._setMaxStopTimeout(false);
 	}
+
 }

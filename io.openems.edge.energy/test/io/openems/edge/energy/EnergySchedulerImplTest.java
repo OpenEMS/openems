@@ -77,7 +77,7 @@ public class EnergySchedulerImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("meta", new DummyMeta()//
-						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(clock)//
 								.add(t -> t//
 										.setStart("08:00") //
 										.setDuration(Duration.ofHours(12)) //

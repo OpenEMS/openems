@@ -21,6 +21,7 @@ import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
 import { LayoutRefreshService } from "../../service/layoutRefreshService";
+import { RouteService } from "../../service/route.service";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -79,6 +80,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     protected channelData: { data: { [name: string]: number[] } } = { data: {} };
     protected viewHeight: number | null = null;
+    protected routeService: RouteService = inject(RouteService);
     private layoutRefresh = inject(LayoutRefreshService);
 
     constructor(

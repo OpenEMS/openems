@@ -9,12 +9,17 @@ import { CommonProductionDetailsComponent } from "src/app/edge/live/common/produ
 import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
 import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
 import { CommonProductionHomeComponent } from "src/app/edge/live/common/production/new-navigation/new-navigation";
+import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
+import { ControllerEssGridOptimizedChargeHomeComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/new-navigation/new-navigation";
+import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/settings/settings";
 import { ChargeModeComponent } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { EvseEnergyLimitComponent } from "src/app/edge/live/Controller/Evse/pages/energy-limit/energy-limit";
 import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/pages/phase-switching/phase-switching";
 import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
+import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
+import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
@@ -86,6 +91,11 @@ export const newNavigationRoutes: Routes = [
     { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
     { path: "controller/heatpump/:componentId/details", component: ControllerIoHeatpumpSettingsComponent },
     { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },
+    { path: "controller/grid-optimized-charge/:componentId", component: ControllerEssGridOptimizedChargeHomeComponent },
+    { path: "controller/grid-optimized-charge/:componentId/details", component: ControllerEssGridOptimizedChargeSettingsComponent },
+    { path: "controller/grid-optimized-charge/:componentId/history", component: ControllerEssGridOptimizedChargeHistoryComponent },
+    { path: "controller/heat/:componentId", component: ControllerHeatHomeComponent },
+    { path: "controller/heat/:componentId/history", component: ControllerHeatHistoryComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
