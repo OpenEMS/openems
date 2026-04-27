@@ -99,7 +99,9 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		try {
 			this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]...");
 			success = ws.connectBlocking(this.config.connectTimeoutSeconds(), TimeUnit.SECONDS);
-			this.callEvent(WebsocketReconnectorEvent.CONNECTED);
+			if (success) {
+				this.callEvent(WebsocketReconnectorEvent.CONNECTED);
+			}
 			this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]... done");
 
 		} catch (IllegalStateException e) {
