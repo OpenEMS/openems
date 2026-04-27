@@ -57,13 +57,13 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
-	                                  BooleanConsumer onConnectedChange) {
+			BooleanConsumer onConnectedChange) {
 		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
 				onConnectedChange);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Map<String, String> httpHeaders,
-	                                  BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
+			BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
 		this(name, serverUri, AbstractWebsocketClient.DEFAULT_DRAFT, httpHeaders, AbstractWebsocketClient.NO_PROXY,
 				onConnectedChange, reconnectorConfig);
 	}
@@ -73,12 +73,12 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
-	                                  Proxy proxy, BooleanConsumer onConnectedChange) {
+			Proxy proxy, BooleanConsumer onConnectedChange) {
 		this(name, serverUri, draft, httpHeaders, proxy, onConnectedChange, ClientReconnectorWorker.DEFAULT_CONFIG);
 	}
 
 	protected AbstractWebsocketClient(String name, URI serverUri, Draft draft, Map<String, String> httpHeaders,
-	                                  Proxy proxy, BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
+			Proxy proxy, BooleanConsumer onConnectedChange, ClientReconnectorWorker.Config reconnectorConfig) {
 		super(name);
 		this.serverUri = serverUri;
 		this.onConnectedChange = onConnectedChange == null ? FunctionUtils::doNothing : onConnectedChange;
@@ -89,7 +89,8 @@ public abstract class AbstractWebsocketClient<T extends WsData> extends Abstract
 			}
 
 			@Override
-			public void onWebsocketHandshakeSentAsClient(WebSocket conn, ClientHandshake request) throws InvalidDataException {
+			public void onWebsocketHandshakeSentAsClient(WebSocket conn, ClientHandshake request)
+					throws InvalidDataException {
 				AbstractWebsocketClient.this.onWebsocketHandshakeSent(request);
 				super.onWebsocketHandshakeSentAsClient(conn, request);
 			}

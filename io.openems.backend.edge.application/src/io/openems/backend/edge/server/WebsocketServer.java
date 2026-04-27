@@ -1,5 +1,8 @@
 package io.openems.backend.edge.server;
 
+import static io.openems.common.websocket.WebsocketUtils.getAsOptionalUUID;
+import static io.openems.common.websocket.WebsocketUtils.getAsString;
+
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -7,7 +10,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import io.openems.common.logger.ContextLogger;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -19,9 +21,8 @@ import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.common.logger.ContextLogger;
 import io.openems.common.websocket.AbstractWebsocketServer;
-
-import static io.openems.common.websocket.WebsocketUtils.*;
 
 public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
