@@ -14,13 +14,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * Edge-ID is set only if the connection was authenticated (i.e. apikey was
 	 * correct).
 	 */
-	private String edgeId = null;
+	private volatile String edgeId;
 
 	public WsData(WebSocket ws) {
 		super(ws);
 	}
 
-	protected synchronized void setEdgeId(String edgeId) {
+	/*package*/ void setEdgeId(String edgeId) {
 		this.edgeId = edgeId;
 		super.setDebug(DEBUG_EDGE_IDS.contains(edgeId));
 	}
@@ -30,7 +30,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * 
 	 * @return the Edge-ID; possibly null
 	 */
-	public synchronized String getEdgeId() {
+	public String getEdgeId() {
 		return this.edgeId;
 	}
 
@@ -39,7 +39,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * 
 	 * @return never null
 	 */
-	public synchronized String getEdgeIdString() {
+	public String getEdgeIdString() {
 		return this.edgeId != null //
 				? this.edgeId //
 				: "UNKNOWN";

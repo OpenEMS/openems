@@ -67,13 +67,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			@Override
 			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(//
 					WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
-				final T wsData;
-				try {
-					wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
-				} catch (InvalidDataException e) {
-					AbstractWebsocketServer.this.logWarn(AbstractWebsocketServer.this.log, e.getMessage());
-					throw e;
-				}
+				final T wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
 				ws.setAttachment(wsData);
 				return super.onWebsocketHandshakeReceivedAsServer(ws, draft, request);
 			}
@@ -213,7 +207,7 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @throws InvalidDataException if the handshake should be rejected
 	 */
 	protected T onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
-		return AbstractWebsocketServer.this.createWsData(ws);
+		return this.createWsData(ws);
 	}
 
 	public Collection<WebSocket> getConnections() {

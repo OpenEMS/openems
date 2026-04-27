@@ -4,6 +4,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.Handshakedata;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class WebsocketUtils {
 
@@ -43,6 +44,29 @@ public class WebsocketUtils {
 			}
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Gets a UUID value from a {@link Handshakedata}.
+	 *
+	 * <p>
+	 * NOTE: Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * "Field names are case-insensitive".
+	 *
+	 * @param handshakedata the {@link Handshakedata}
+	 * @param fieldName     the name of the field
+	 * @return the field value as optional; empty if not found or not a valid UUID
+	 */
+	public static Optional<UUID> getAsOptionalUUID(Handshakedata handshakedata, String fieldName) {
+		return getAsOptionalString(handshakedata, fieldName)
+				.map((raw) -> {
+					try {
+						return UUID.fromString(raw);
+					} catch (IllegalArgumentException e) {
+						return null;
+					}
+				});
 	}
 
 	private static final String[] REMOTE_IDENTIFICATION_HEADERS = new String[] { //
