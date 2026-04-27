@@ -58,7 +58,7 @@ public class WebsocketUtils {
 	 * @param fieldName     the name of the field
 	 * @return the field value as optional; empty if not found or not a valid UUID
 	 */
-	public static Optional<UUID> getAsOptionalUUID(Handshakedata handshakedata, String fieldName) {
+	public static Optional<UUID> getAsOptionalUuid(Handshakedata handshakedata, String fieldName) {
 		return getAsOptionalString(handshakedata, fieldName)
 				.map((raw) -> {
 					try {
