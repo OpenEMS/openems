@@ -9,14 +9,13 @@ Implemented drivers/natures:
 * io.openems.edge.phoenixcntact.plcnext.meter: ElectricityMeter
 * io.openems.edge.phoenixcntact.plcnext.pvinverter: ManagedSymmetricPvInverter
 
-To use the drivers stated above, pls. use basic PLCnext C++ components provided by Phoenix Contact. 
-These basic components bundled by a "PLCnext Engineer" project can be obtained here:
+To use the drivers stated above, pls. use basic PLCnext C++ types described in a
+link:doc/readme.adoc[more detailed README linked here.] These types are required to
+pickup/send the data from/to "PLCnext GDS" (= Global-Data-Space).
 
-https://gitlab.phoenixcontact.com/openems/opemems
+== Source code
 
-The "PLCnext Engineer" project provides the data in a suitable way to be picked up or provided by the 
-drivers from/to "PLCnext GDS" (= Global-Data-Space).
-
+The source code of this module can be found here:
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.phoenixcontact.plcnext[Source Code icon:github[]]
 
