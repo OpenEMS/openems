@@ -157,7 +157,8 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 				+ " Q:" + this.getReactivePower().asString() //
 				+ " V1:" + this.getVoltageL1().asString() //
 				+ " I1:" + this.getCurrentL1().asString() //
-				+ " f:" + this.getFrequency().asString();
+				+ " f:" + this.getFrequency().asString() //
+				+ " Eimp:" + this.channel(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY).value().asString();
 	}
 
 	@Override
