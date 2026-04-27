@@ -59,6 +59,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		}
 	}
 
+	/**
+	 * Creates a builder for test configuration values.
+	 *
+	 * @return the builder
+	 */
 	public static Builder create() {
 		return new Builder();
 	}

@@ -9,7 +9,6 @@ Bundle-License: Eclipse Public License - Version 2.0
 	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
 	io.openems.edge.meter.api,\
-	io.openems.edge.timedata.api,\
 	io.openems.j2mod,\
 
 -testpath: \

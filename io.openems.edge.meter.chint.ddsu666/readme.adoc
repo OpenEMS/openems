@@ -12,7 +12,7 @@ Works over both Modbus/RTU (serial) and Modbus/TCP through the bridge abstractio
 |`id`|Component ID, e.g. `meter0`
 |`enabled`|Enable/disable this component
 |`type`|MeterType: `GRID`, `PRODUCTION`, or `CONSUMPTION`
-|`modbus_id`|ID of the Modbus bridge, e.g. `modbus0`
+|`modbus.id`|ID of the Modbus bridge, e.g. `modbus0`
 |`modbusUnitId`|Slave address of the DDSU666 device (default: `1`)
 |`invert`|Invert power sign (use when meter is wired in reverse)
 |===
@@ -32,6 +32,11 @@ floats, 2 registers each, ABCD byte order (MSW first, big-endian per word).
 |0x200E|Frequency|Hz|x1000 -> mHz
 |0x4000|Import active energy|kWh|x1000 -> Wh
 |===
+
+The physical import-energy counter is also mirrored into the standard OpenEMS
+energy channels. For a non-inverted meter this feeds
+`ACTIVE_PRODUCTION_ENERGY`; with `invert=true` it feeds
+`ACTIVE_CONSUMPTION_ENERGY`.
 
 == Build
 
