@@ -146,6 +146,14 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		httpHeaders.put("Apikey", config.apikey());
 		httpHeaders.put("Instance-Id", this.instanceId);
 
+		final var uriScheme = uri.getScheme();
+		if (!("https".equalsIgnoreCase(uriScheme) || "wss".equalsIgnoreCase(uriScheme))) {
+			this.log.warn("Insecure or missing URI scheme detected: [{}]. " //
+					+ "This may lead to credential exposure. " //
+					+ "Do not use this configuration in production!", //
+					uriScheme == null ? "N/A" : uriScheme);
+		}
+
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
 		this.websocket.start();
