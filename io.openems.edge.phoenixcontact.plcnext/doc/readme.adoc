@@ -247,8 +247,8 @@ Open the UI via:
 
 = Appendix
 
-* link:scripts/plcNext_install_jre.sh[plcNext_install_jre.sh] : Installtion script for Java on the PLCnext target.
-* link:scripts/PLCnext-Start-OpenEMS-Edge.sh[PLCnext-Start-OpenEMS-Edge.sh] : Start up script for openEMS on the PLCnext target.
+* link:deploy/openems-edge/opt/plcnext/apps/openems-edge/bin/plcNext_install_jre.sh[plcNext_install_jre.sh] : Installtion script for Java on the PLCnext target.
+* link:deploy/openems-edge/opt/plcnext/apps/openems-edge/bin/PLCnext-Start-OpenEMS-Edge.sh[PLCnext-Start-OpenEMS-Edge.sh] : Start up script for openEMS on the PLCnext target.
 * Data types for PLCnext Engineer:
 
     TYPE
