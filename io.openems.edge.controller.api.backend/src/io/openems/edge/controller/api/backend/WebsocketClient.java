@@ -64,7 +64,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected void onWebsocketHandshakeSent(ClientHandshake request) {
-		final String systemId = WebsocketUtils.getAsOptionalString(request, "instanceId").orElse("N/A");
+		final String systemId = WebsocketUtils.getAsOptionalString(request, "Instance-Id").orElse("N/A");
 		this.log.info("Initiating handshake with OpenEMS Backend [InstanceID={}]", systemId);
 	}
 
