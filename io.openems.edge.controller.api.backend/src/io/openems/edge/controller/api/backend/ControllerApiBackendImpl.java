@@ -143,8 +143,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
-		httpHeaders.put("apikey", config.apikey());
-		httpHeaders.put("instanceId", this.instanceId);
+		httpHeaders.put("Apikey", config.apikey());
+		httpHeaders.put("Instance-Id", this.instanceId);
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);

@@ -59,8 +59,8 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
-		final var apikey = getAsString(request, "apikey");
-		final var instanceId = getAsOptionalUuid(request, "instanceId").map(UUID::toString).orElse("N/A");
+		final var apikey = getAsString(request, "Apikey");
+		final var instanceId = getAsOptionalUuid(request, "Instance-Id").map(UUID::toString).orElse("N/A");
 		final var edgeId = this.authenticateApikey.apply(apikey);
 		if (edgeId == null) {
 			this.log.error("Handshake rejected. Invalid Apikey [InstanceID={}]", instanceId);
