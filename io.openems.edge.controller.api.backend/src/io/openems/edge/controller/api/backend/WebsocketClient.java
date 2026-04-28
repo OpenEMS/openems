@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
+import io.openems.common.websocket.CommonHttpHeader;
 import io.openems.common.websocket.OnClose;
 import io.openems.common.websocket.WebsocketUtils;
 import io.openems.common.websocket.WsData;
@@ -43,7 +44,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			final var serverUriStr = serverUri.toString();
 			final var proxyStr = (proxy != AbstractWebsocketClient.NO_PROXY) ? " via Proxy" : "";
 
-			if (code == CloseFrame.NEVER_CONNECTED  || code == CloseFrame.PROTOCOL_ERROR) {
+			if (code == CloseFrame.NEVER_CONNECTED || code == CloseFrame.PROTOCOL_ERROR) {
 				this.log.error("Failed to connect to OpenEMS Backend [{}{}]: {}", //
 						serverUriStr, proxyStr, reason);
 			} else {
@@ -64,7 +65,9 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 
 	@Override
 	protected void onWebsocketHandshakeSent(ClientHandshake request) {
-		final String systemId = WebsocketUtils.getAsOptionalString(request, "Instance-Id").orElse("N/A");
+		final String systemId = WebsocketUtils //
+				.getAsOptionalString(request, CommonHttpHeader.INSTANCE_ID) //
+				.orElse("N/A");
 		this.log.info("Initiating handshake with OpenEMS Backend [InstanceID={}]", systemId);
 	}
 

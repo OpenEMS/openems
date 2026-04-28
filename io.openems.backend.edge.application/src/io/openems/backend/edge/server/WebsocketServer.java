@@ -1,7 +1,7 @@
 package io.openems.backend.edge.server;
 
+import static io.openems.common.websocket.WebsocketUtils.getAsOptionalString;
 import static io.openems.common.websocket.WebsocketUtils.getAsOptionalUuid;
-import static io.openems.common.websocket.WebsocketUtils.getAsString;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.openems.common.websocket.CommonHttpHeader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.drafts.Draft;
 import org.java_websocket.exceptions.InvalidDataException;
@@ -59,8 +60,8 @@ public final class WebsocketServer extends AbstractWebsocketServer<WsData> {
 
 	@Override
 	protected WsData onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
-		final var apikey = getAsString(request, "Apikey");
-		final var instanceId = getAsOptionalUuid(request, "Instance-Id").map(UUID::toString).orElse("N/A");
+		final var apikey = getAsOptionalString(request, CommonHttpHeader.APIKEY).orElse(null);
+		final var instanceId = getAsOptionalUuid(request, CommonHttpHeader.INSTANCE_ID).map(UUID::toString).orElse("N/A");
 		final var edgeId = this.authenticateApikey.apply(apikey);
 		if (edgeId == null) {
 			this.log.error("Handshake rejected. Invalid Apikey [InstanceID={}]", instanceId);

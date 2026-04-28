@@ -47,6 +47,22 @@ public class WebsocketUtils {
 	}
 
 	/**
+	 * Gets a String value from a {@link Handshakedata}.
+	 *
+	 * <p>
+	 * NOTE: Per <a href=
+	 * "https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2">specification</a>
+	 * "Field names are case-insensitive".
+	 *
+	 * @param handshakedata the {@link Handshakedata}
+	 * @param header		the header to search for
+	 * @return the field value as optional; empty if not found
+	 */
+	public static Optional<String> getAsOptionalString(Handshakedata handshakedata, CommonHttpHeader header) {
+		return getAsOptionalString(handshakedata, header.asString());
+	}
+
+	/**
 	 * Gets a UUID value from a {@link Handshakedata}.
 	 *
 	 * <p>
@@ -55,11 +71,11 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshakedata the {@link Handshakedata}
-	 * @param fieldName     the name of the field
+	 * @param header     	the header to search for
 	 * @return the field value as optional; empty if not found or not a valid UUID
 	 */
-	public static Optional<UUID> getAsOptionalUuid(Handshakedata handshakedata, String fieldName) {
-		return getAsOptionalString(handshakedata, fieldName)
+	public static Optional<UUID> getAsOptionalUuid(Handshakedata handshakedata, CommonHttpHeader header) {
+		return getAsOptionalString(handshakedata, header)
 				.map((raw) -> {
 					try {
 						return UUID.fromString(raw);

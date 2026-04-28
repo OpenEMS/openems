@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.openems.common.websocket.CommonHttpHeader;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -143,8 +144,8 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
-		httpHeaders.put("Apikey", config.apikey());
-		httpHeaders.put("Instance-Id", this.instanceId);
+		httpHeaders.put(CommonHttpHeader.APIKEY.asString(), config.apikey());
+		httpHeaders.put(CommonHttpHeader.INSTANCE_ID.asString(), this.instanceId);
 
 		final var uriScheme = uri.getScheme();
 		if (!("https".equalsIgnoreCase(uriScheme) || "wss".equalsIgnoreCase(uriScheme))) {
