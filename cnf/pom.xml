@@ -508,7 +508,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.3.20</version>
+			<version>2.3.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -526,10 +526,13 @@
 			<version>1.5.6</version>
 		</dependency>
 		<dependency>
-			<!-- HTML processing -->
+			<!-- 
+			Jsoup Java HTML Parser
+			Changelog: https://github.com/jhy/jsoup/releases
+			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.22.1</version>
+			<version>1.22.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
