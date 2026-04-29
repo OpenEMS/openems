@@ -516,24 +516,44 @@
 		</dependency>
 		<!-- com -->
 		<dependency>
+			<!--
+			InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-java.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			InfluxDB Java Client Core
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-core.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			InfluxDB Java Client Utilities
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-utils.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Flux DSL for InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-flux-dsl.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<!--
