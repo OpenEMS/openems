@@ -62,6 +62,12 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Gson: A Java serialization/deserialization library to convert Java Objects into JSON and back
+			Changelog: https://github.com/google/gson/releases
+			Wrapper: io.openems.wrapper/gson.bnd
+			Keep in sync with default buildpath in cnf/build.bnd
+			-->
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.14.0</version>

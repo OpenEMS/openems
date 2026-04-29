@@ -39,7 +39,7 @@ buildpath: \
 	org.osgi.util.promise;version='1.2.0',\
 	com.google.guava;version='33.6.0.jre',\
 	com.google.guava.failureaccess;version='1.0.3',\
-	com.google.gson;version='2.13.2',\
+	com.google.gson;version='2.14.0',\
 
 testpath: \
 	junit-jupiter-api;version=6.0.3,\
