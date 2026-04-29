@@ -27,6 +27,7 @@ import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
@@ -107,6 +108,8 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this,
+				new FC3ReadRegistersTask(0x0006, Priority.HIGH,
+						m(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, new UnsignedWordElement(0x0006))),
 				new FC3ReadRegistersTask(0x2000, Priority.HIGH,
 						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
 								new FloatDoublewordElement(0x2000).wordOrder(WordOrder.MSWLSW)

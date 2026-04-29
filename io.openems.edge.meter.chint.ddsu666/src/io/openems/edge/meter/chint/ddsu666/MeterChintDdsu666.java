@@ -11,6 +11,15 @@ public interface MeterChintDdsu666 extends ElectricityMeter, OpenemsComponent, M
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
+		 * Communication address of the meter.
+		 *
+		 * <ul>
+		 * <li>Interface: MeterChintDdsu666
+		 * <li>Type: INTEGER
+		 * </ul>
+		 */
+		COMMUNICATION_ADDRESS(Doc.of(OpenemsType.INTEGER)),
+		/**
 		 * Total imported active energy (from grid).
 		 *
 		 * <ul>

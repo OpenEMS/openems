@@ -26,6 +26,8 @@ public class MeterChintDdsu666ImplTest {
 		this.testBasis = new ComponentTest(new MeterChintDdsu666Impl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegisters(0x0006, //
+								0x0002) //
 						.withRegisters(0x2000, //
 								0x42F4, 0x0000, //
 								0x40A0, 0x0000, //
@@ -51,6 +53,7 @@ public class MeterChintDdsu666ImplTest {
 						.setType(GRID) //
 						.build()) //
 				.next(new TestCase() //
+						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
 						.output(ACTIVE_POWER, 1250) //
 						.output(FREQUENCY, 50000) //
 						.output(VOLTAGE_L1, 122000) //
@@ -71,6 +74,7 @@ public class MeterChintDdsu666ImplTest {
 						.setType(GRID) //
 						.build()) //
 				.next(new TestCase() //
+						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
 						.output(ACTIVE_POWER, -1250) //
 						.output(ACTIVE_CONSUMPTION_ENERGY, 1000000L) //
 						.output(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, 1000000)) //
