@@ -564,54 +564,24 @@ tasks.register('buildAntoraDocs') {
 	}
 }
 
-tasks.register("jacocoEdgeReport", JacocoReport) {
-    group = "verification"
-    description = "Aggregate Jacoco coverage for Edge projects"
+tasks.register("jacocoEdgeReport") {
+	group = "verification"
+	description = "Jacoco reports for Edge projects"
 
-    def edgeProjects = subprojects.findAll { it.hasProperty("isEdge") }
+	def edgeProjects = subprojects.findAll {
+		it.hasProperty("isEdge") && it.tasks.findByName("jacocoTestReport") != null
+	}
 
-    dependsOn edgeProjects.collect { it.tasks.matching { it.name == "test" } }
-
-    executionData.from edgeProjects.collect {
-        it.file("build/jacoco/test.exec")
-    }
-
-    classDirectories.from edgeProjects.collect {
-        it.fileTree(dir: "${it.buildDir}/classes/java/main")
-    }
-
-    sourceDirectories.from edgeProjects.collect {
-        it.file("src/main/java")
-    }
-
-    reports {
-        xml.required = true
-        html.required = false
-    }
+	dependsOn edgeProjects.collect { it.tasks.named("jacocoTestReport") }
 }
 
-tasks.register("jacocoBackendReport", JacocoReport) {
-    group = "verification"
-    description = "Aggregate Jacoco coverage for Backend projects"
+tasks.register("jacocoBackendReport") {
+	group = "verification"
+	description = "Jacoco reports for Backend projects"
 
-    def backendProjects = subprojects.findAll { it.hasProperty("isBackend") }
+	def backendProjects = subprojects.findAll {
+		it.hasProperty("isBackend") && it.tasks.findByName("jacocoTestReport") != null
+	}
 
-    dependsOn backendProjects.collect { it.tasks.matching { it.name == "test" } }
-
-    executionData.from backendProjects.collect {
-        it.file("build/jacoco/test.exec")
-    }
-
-    classDirectories.from backendProjects.collect {
-        it.fileTree(dir: "${it.buildDir}/classes/java/main")
-    }
-
-    sourceDirectories.from backendProjects.collect {
-        it.file("src/main/java")
-    }
-
-    reports {
-        xml.required = true
-        html.required = false
-    }
+	dependsOn backendProjects.collect { it.tasks.named("jacocoTestReport") }
 }
