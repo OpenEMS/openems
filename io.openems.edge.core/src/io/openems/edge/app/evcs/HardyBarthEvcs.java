@@ -34,6 +34,7 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.app.evse.AppEvseCluster;
+import io.openems.edge.app.evse.EvseProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
@@ -216,6 +217,10 @@ public class HardyBarthEvcs
 				.setDefaultValue("192.168.25.30")//
 				.setAutoGenerateField(false)//
 				.setRequired(true)), //
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle().wrapField((app, property, l, parameter, field) -> {
+			field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
+					.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
+		})), //
 		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
 				.setRequired(true) //
 				.setAutoGenerateField(false) //

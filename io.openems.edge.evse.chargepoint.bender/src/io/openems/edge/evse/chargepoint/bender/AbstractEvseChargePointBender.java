@@ -94,11 +94,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 						m(phaseRotated.channelVoltageL2(), new UnsignedDoublewordElement(224),
 								ElementToChannelConverter.SCALE_FACTOR_3), //
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(226),
-								ElementToChannelConverter.SCALE_FACTOR_3)),
-				new FC3ReadRegistersTask(712, Priority.HIGH, //
-						m(EvseChargePointBender.ChannelId.MIN_CURRENT, new UnsignedWordElement(712)), //
-						new DummyRegisterElement(713, 714), //
-						m(EvseChargePointBender.ChannelId.MAX_CURRENT, new UnsignedWordElement(715))));
+								ElementToChannelConverter.SCALE_FACTOR_3)));
 
 		return modbusProtocol;
 	}
@@ -108,9 +104,8 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	 * 
 	 * @return is the vehicle connected
 	 */
-	protected boolean isEvConnected() {
-		var rawState = this.getVehicleState();
-		return rawState.isEvConnected;
+	public boolean isEvConnected() {
+		return this.getVehicleState().isEvConnected;
 	}
 
 	/**
@@ -122,7 +117,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 		var rawState = this.getOcppStatus();
 		return rawState.isReadyForCharging;
 	}
-	
+
 	protected void benderHandleEvent(Event event) {
 		if (!this.isEnabled()) {
 			return;

@@ -31,6 +31,10 @@ public class DoubleUtils {
 	 */
 	public static double normalize(double value, double minValue, double maxValue, double minNormalized,
 			double maxNormalized, boolean invert) {
+		if (!Double.isFinite(minValue) || !Double.isFinite(maxValue) || minValue == maxValue) {
+			return invert ? maxNormalized : minNormalized;
+		}
+
 		double result;
 		if (value < minValue) {
 			result = minNormalized;
