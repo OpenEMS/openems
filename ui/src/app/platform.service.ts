@@ -39,6 +39,10 @@ export class PlatFormService {
         PlatFormService.isMobile = this.deviceService.isMobile();
         PlatFormService.isTablet = this.deviceService.isTablet();
 
+        if (!this.getIsApp()) {
+            return;
+        }
+
         if (PlatFormService.isTablet) {
             ScreenOrientation.lock({ orientation: "landscape" });
         } else {
