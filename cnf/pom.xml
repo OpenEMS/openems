@@ -105,7 +105,9 @@
 			<!--
 			Java client library for the Auth0 platform
 			Changelog: https://github.com/auth0/auth0-java/releases
-			Wrapper: io.openems.wrapper.auth0-auth0.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-auth0.bnd
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
@@ -115,7 +117,9 @@
 			<!--
 			Java implementation of JSON Web Token (JWT)
 			Changelog: https://github.com/auth0/java-jwt/releases
-			Wrapper: io.openems.wrapper/auth0-java-jwt.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-java-jwt.bnd
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
