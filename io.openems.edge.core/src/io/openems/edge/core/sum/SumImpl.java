@@ -286,8 +286,9 @@ public class SumImpl extends AbstractOpenemsComponent implements Sum, OpenemsCom
 	}
 
 	private void assignTariffChannels() {
-		setValue(this, Sum.ChannelId.GRID_BUY_PRICE, this.tariffManager.getGridBuyDayAheadPrices().getFirst());
-		setValue(this, Sum.ChannelId.GRID_SELL_PRICE, this.tariffManager.getGridSellDayAheadPrices().getFirst());
+		final var now = this.componentManager.getClock().instant();
+		setValue(this, Sum.ChannelId.GRID_BUY_PRICE, this.tariffManager.getGridBuyDayAheadPrices().getAt(now));
+		setValue(this, Sum.ChannelId.GRID_SELL_PRICE, this.tariffManager.getGridSellDayAheadPrices().getAt(now));
 	}
 
 	private void calculateAndSetSystemState() {

@@ -1,8 +1,8 @@
 package io.openems.edge.energy.optimizer.app;
 
-public final class PricesTestData {
+public final class GridBuyPricesTestData {
 
-	private PricesTestData() {
+	private GridBuyPricesTestData() {
 	}
 
 	public static final Double[] PRICES_TIBBER_SUMMER_CLEAR = {

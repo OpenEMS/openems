@@ -45,6 +45,7 @@ import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.energy.v1.optimizer.UtilsV1;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timeofusetariff.api.TariffManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
@@ -72,21 +73,11 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Reference
 	private PredictorManager predictorManager;
 
-	private volatile TimeOfUseTariff timeOfUseTariff;
-
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
-	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
-		this.timeOfUseTariff = tariff;
-		this.optimizer.restartOptimization("EnergySchedulerImpl::bindTimeOfUseTariff()", false);
-	}
+	private TimeOfUseTariff timeOfUseTariff;
 
-	@SuppressWarnings("unused")
-	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
-		if (this.timeOfUseTariff == tariff) {
-			this.timeOfUseTariff = null;
-			this.optimizer.restartOptimization("EnergySchedulerImpl::unbindTimeOfUseTariff()", false);
-		}
-	}
+	@Reference
+	private TariffManager tariffManager;
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
@@ -160,14 +151,14 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.map(EnergySchedulable::getEnergyScheduleHandler) //
 							.filter(Objects::nonNull) //
 							.collect(toImmutableList());
-					return GlobalOptimizationContext.create() //
+					return GlobalOptimizationContext.builder() //
 							.setComponentManager(this.componentManager) //
 							.setMeta(this.meta) //
 							.setEnvironment(this.config.environment()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //
-							.setTimeOfUseTariff(this.timeOfUseTariff) //
+							.setTariffManager(this.tariffManager) //
 							.build();
 				}, //
 				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
