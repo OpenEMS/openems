@@ -1,22 +1,19 @@
 @if (isInitialized) {
   <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup"
-    helpKey="CONTROLLER_IO_HEATING_ELEMENT">
+    helpKey="REDIRECT.CONTROLLER_IO_HEATING_ELEMENT">
     <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="runState"
       [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE">
     </oe-modal-line>
     @if (level !== Level.LEVEL_0) {
-      <oe-modal-line
-        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level">
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level">
       </oe-modal-line>
     }
     @if (consumptionMeter) {
-      <oe-modal-line
-        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate"
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate"
         [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT">
       </oe-modal-line>
-      <oe-modal-line
-        [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'"
-        [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate"
+        [channelAddress]="component.id + '/SessionEnergy'" [converter]="Utils.CONVERT_TO_KILO_WATTHOURS">
       </oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -66,7 +63,7 @@
                 <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
                   <ng-template>
                     <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
-                    formControlName="endTime"></ion-datetime>
+                      formControlName="endTime"></ion-datetime>
                   </ng-template>
                 </ion-popover>
               </ion-item>
@@ -78,7 +75,8 @@
       <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate"
         [value]="formGroup.controls['minTime'].value + ' h'">
       </oe-modal-line>
-      <oe-modal-line controlName="minTime" [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true}}"
+      <oe-modal-line controlName="minTime"
+        [control]="{type: 'RANGE', properties: {tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true}}"
         [formGroup]="formGroup">
       </oe-modal-line>
     }
@@ -123,7 +121,7 @@
                 <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
                   <ng-template>
                     <ion-datetime #popoverDatetime presentation="time" displayFormat="HH:mm"
-                    formControlName="endTimeWithMeter"></ion-datetime>
+                      formControlName="endTimeWithMeter"></ion-datetime>
                   </ng-template>
                 </ion-popover>
               </ion-item>

@@ -9,6 +9,7 @@ import { SharedGridOptimizedCharge } from "src/app/edge/live/Controller/Ess/Grid
 import { SharedControllerEssTimeOfUseTariff } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
+import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { Edge } from "../components/edge/edge";
@@ -70,6 +71,8 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.IO.HeatingElement":
+                return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
             case "Controller.Ess.FixActivePower":
                 return SharedEssFixDigitalPowerControl.getNavigationTree(translate, component);
             case "Controller.Ess.GridOptimizedCharge":

@@ -266,6 +266,8 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                                 color: view.icon.color,
                             },
                         } : {}),
+                        ...(view.isCommonWidget != null ? { isCommonWidget: view.isCommonWidget } : {}),
+                        ...(view.useDefaultPrefix != null ? { useDefaultPrefix: view.useDefaultPrefix } : {}),
                     },
                 ],
                 onSubmit: (fg: FormGroup) => {
@@ -288,7 +290,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
 export type OeFormlyView<T = unknown> = {
     title: string,
     lines: OeFormlyField<T>[];
-    isCommonWidget?: string,
+    isCommonWidget?: boolean,
     helpKey?: string | null,
     icon?: Icon,
     useDefaultPrefix?: boolean | null,

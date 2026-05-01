@@ -16,7 +16,7 @@
                   @if (props.attributes.icon) {
                   <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" style="padding-right: 0.2rem;"></ion-icon>
                   }
-                  <ion-label [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }">{{ props.attributes.title }}</ion-label>                  
+                  <ion-label [ngClass]="{ 'oe-ci-font-family-bold': props.options[0].isCommonWidget }">{{ props.attributes.title }}</ion-label>                  
                 </ion-row>
               </ion-col>
             }
@@ -27,7 +27,7 @@
                     [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'">
                     <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear"
                       style="color: var(--ion-text-color);"
-                      [useDefaultPrefix]="props.attributes.useDefaultPrefix ?? true"></oe-help-button>
+                      [useDefaultPrefix]="props.options[0].useDefaultPrefix ?? true"></oe-help-button>
                   </ion-buttons>
               }
             </ion-col>

@@ -1,7 +1,7 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -21,7 +21,7 @@ export namespace SharedControllerEssTimeOfUseTariff {
     ): OeFormlyView<AutomaticViewModel> => {
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_ESS_TIME_OF_USE_TARIFF",
+            helpKey: "REDIRECT.CONTROLLER_ESS_TIME_OF_USE_TARIFF",
             icon: { name: "oe-time-of-use", color: "normal", size: "large" },
             lines: [
                 ...getFormlySharedLines(translate, component, service),
@@ -139,7 +139,7 @@ export namespace SharedControllerEssTimeOfUseTariff {
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree(component.id, { baseString: "controller/time-of-use/" + component.id }, { name: "oe-time-of-use", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-            new NavigationTree("details", { baseString: "details" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null),
+            NavigationConstants.CommonNodes.SETTINGS(translate),
         ], null).toConstructorParams();
     }
 }

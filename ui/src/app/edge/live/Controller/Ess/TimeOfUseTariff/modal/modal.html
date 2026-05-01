@@ -1,6 +1,6 @@
 @if (isInitialized && formGroup) {
   <oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup"
-    helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF">
+    helpKey="REDIRECT.CONTROLLER_ESS_TIME_OF_USE_TARIFF">
     <!-- Discharge State -->
     <oe-modal-line [name]="'GENERAL.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
       [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>

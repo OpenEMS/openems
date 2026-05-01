@@ -25,6 +25,9 @@ import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/sc
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
+import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
+import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
+import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
@@ -94,16 +97,19 @@ export const newNavigationRoutes: Routes = [
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
     { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
-    { path: "controller/heatpump/:componentId/details", component: ControllerIoHeatpumpSettingsComponent },
+    { path: "controller/heatpump/:componentId/settings", component: ControllerIoHeatpumpSettingsComponent },
     { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },
     { path: "controller/time-of-use/:componentId", component: ControllerEssTimeOfUseTariffHomeComponent },
-    { path: "controller/time-of-use/:componentId/details", component: ControllerEssTimeOfUseTariffSettingsComponent },
+    { path: "controller/time-of-use/:componentId/settings", component: ControllerEssTimeOfUseTariffSettingsComponent },
     { path: "controller/time-of-use/:componentId/history", component: ControllerEssTimeOfUseTariffHistoryComponent },
     { path: "controller/grid-optimized-charge/:componentId", component: ControllerEssGridOptimizedChargeHomeComponent },
-    { path: "controller/grid-optimized-charge/:componentId/details", component: ControllerEssGridOptimizedChargeSettingsComponent },
+    { path: "controller/grid-optimized-charge/:componentId/settings", component: ControllerEssGridOptimizedChargeSettingsComponent },
     { path: "controller/grid-optimized-charge/:componentId/history", component: ControllerEssGridOptimizedChargeHistoryComponent },
     { path: "controller/heat/:componentId", component: ControllerHeatHomeComponent },
     { path: "controller/heat/:componentId/history", component: ControllerHeatHistoryComponent },
+    { path: "controller/heatingelement/:componentId", component: ControllerIoHeatingElementHomeComponent },
+    { path: "controller/heatingelement/:componentId/settings", component: ControllerIoHeatingElementSettingsComponent },
+    { path: "controller/heatingelement/:componentId/history", component: ControllerHeatingElementHistoryComponent },
     { path: "controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
     { path: "controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },

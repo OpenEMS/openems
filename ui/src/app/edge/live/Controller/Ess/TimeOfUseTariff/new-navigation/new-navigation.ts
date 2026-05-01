@@ -134,7 +134,7 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
 
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_ESS_TIME_OF_USE_TARIFF",
+            helpKey: "REDIRECT.CONTROLLER_ESS_TIME_OF_USE_TARIFF",
             icon: { name: "oe-time-of-use", color: "normal", size: "large" },
             lines: lines,
             component: new EdgeConfig.Component(),
