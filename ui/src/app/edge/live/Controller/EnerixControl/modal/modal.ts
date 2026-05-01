@@ -5,6 +5,7 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 
 @Component({
+    selector: "oe-controller-enerix-control-modal",
     templateUrl: "./modal.html",
     standalone: false,
 })

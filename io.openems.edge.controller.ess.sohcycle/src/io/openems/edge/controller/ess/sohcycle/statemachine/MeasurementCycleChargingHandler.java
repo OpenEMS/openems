@@ -18,7 +18,7 @@ public class MeasurementCycleChargingHandler extends StateHandler<StateMachine.S
 
     @Override
     protected StateMachine.State runAndGetNextState(Context context) {
-        context.refreshMeasurementChargingMinVoltageFromEss();
+        context.refreshMeasurementChargingVoltageRange();
 
         var result = context.applyChargingTarget(EssSohCycleConstants.MAX_SOC);
 

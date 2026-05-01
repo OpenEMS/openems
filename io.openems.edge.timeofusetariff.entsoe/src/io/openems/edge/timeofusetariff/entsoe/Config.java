@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
+import io.openems.common.types.EntsoeBiddingZone;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -17,15 +18,12 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-
-	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD)
+	
+	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD, required = false)
 	String securityToken() default "";
 
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
-	BiddingZone biddingZone();
-
-	@AttributeDefinition(name = "Resolution", description = "Resolution corresponding to the price interval")
-	Resolution resolution() default Resolution.QUARTERLY;
+	EntsoeBiddingZone biddingZone();
 
 	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
 	String ancillaryCosts();

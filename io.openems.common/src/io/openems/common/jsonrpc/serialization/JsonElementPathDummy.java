@@ -110,6 +110,16 @@ public abstract sealed class JsonElementPathDummy implements JsonPathDummy {
 		}
 
 		@Override
+		public boolean isString() {
+			return false;
+		}
+
+		@Override
+		public boolean isBoolean() {
+			return false;
+		}
+
+		@Override
 		public <I, T> T polymorphic(//
 				Map<String, I> itemsByKey, //
 				Function<JsonElementPath, StringPath<String>> objectToKeyPath, //

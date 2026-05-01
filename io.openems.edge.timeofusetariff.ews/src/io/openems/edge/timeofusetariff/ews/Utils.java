@@ -4,30 +4,66 @@ import static io.openems.common.utils.JsonUtils.getAsDouble;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsZonedDateTime;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
-import static io.openems.edge.timeofusetariff.ews.TimeOfUseTariffEwsImpl.CLIENT_ERROR_CODE;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Random;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedMap.Builder;
 import com.google.gson.JsonArray;
 
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public class Utils {
-	private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
-	private static final int RETRY_AFTER_UNABLE_TO_UPDATE_PRICES_MINUTES = 5;
+	protected static final int CLIENT_ERROR_CODE = 401;
 
 	private Utils() {
+	}
+
+	/**
+	 * Delay time provider for ENTSO-E API requests.
+	 */
+	public static class EwsDelayTimeProvider implements DelayTimeProvider {
+
+		private final Clock clock;
+
+		public EwsDelayTimeProvider(Clock clock) {
+			this.clock = clock;
+		}
+
+		@Override
+		public Delay onFirstRunDelay() {
+			return Delay.immediate();
+		}
+
+		@Override
+		public Delay onErrorRunDelay(HttpError error) {
+			return DelayTimeProviderChain.fixedDelay(Duration.ofMinutes(10)) //
+					.plusRandomDelay(30, SECONDS) //
+					.getDelay();
+		}
+
+		@Override
+		public Delay onSuccessRunDelay(HttpResponse<String> result) {
+			var now = ZonedDateTime.now(this.clock);
+			final ZonedDateTime nextRun = now.plusHours(1);
+			// TODO plan next run for next day, if prices are already complete
+
+			return DelayTimeProviderChain.fixedDelay(Duration.between(now, nextRun)) //
+					.plusRandomDelay(10, MINUTES) // safer side not to execute exactly at 4.
+					.plusRandomDelay(60, SECONDS) //
+					.getDelay();
+		}
 	}
 
 	protected static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
@@ -46,24 +82,5 @@ public class Utils {
 			var startTimeStamp = getAsZonedDateTime(element, "startsAt").toInstant();
 			result.put(startTimeStamp, marketPrice);
 		}
-	}
-
-	protected static long calculateDelay(int httpStatusCode, boolean unableToUpdatePrices) {
-
-		final var now = ZonedDateTime.now();
-		final ZonedDateTime nextRun;
-
-		if (!unableToUpdatePrices) {
-			// next price update at next hour for successful response
-			nextRun = now.truncatedTo(ChronoUnit.HOURS).plusHours(1);
-		} else if (httpStatusCode == CLIENT_ERROR_CODE) {
-			return 0;
-		} else {
-			nextRun = now.plusMinutes(RETRY_AFTER_UNABLE_TO_UPDATE_PRICES_MINUTES).truncatedTo(ChronoUnit.MINUTES);
-			LOG.warn("Unable to Update the prices, Retrying again at: " + nextRun);
-		}
-
-		return Duration.between(now, nextRun.plusSeconds(new Random().nextInt(60))) // randomly add a few seconds
-				.getSeconds();
 	}
 }

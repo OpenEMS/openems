@@ -1,6 +1,7 @@
 <ion-content>
+  <ngx-spinner [name]="spinnerId"></ngx-spinner>
   <ion-grid>
-    @for (varinstance of instances; track varinstance; let appIndex = $index) {
+    @for (varinstance of instances; track varinstance.instanceId; let appIndex = $index) {
       <ion-row class="ion-justify-content-center">
         <ion-col size="12" size-xl="8">
           <ion-card>

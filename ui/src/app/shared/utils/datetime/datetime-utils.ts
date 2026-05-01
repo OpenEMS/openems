@@ -12,13 +12,15 @@ import { DateUtils } from "../date/dateutils";
 export const DATE_TIME_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+-]\d{2}:\d{2}$/;
 
 /** IONIC implemented DateTime formats */
-export enum DateTimeFormats {
+export enum DateTimeFormats { /* https://date-fns.org/v4.1.0/docs/format */
     YEAR = "yyyy",
     YEAR_MONTH_DAY = "yyyy-MM-dd",
     YEAR_MONTH_DAY_TIME = "yyyy-MM-dd'T'HH:mm",
     YEAR_MONTH_DAY_TIME_WITH_SECONDS = "yyyy-MM-dd'T'HH:mm:ss",
     YEAR_MONTH_DAY_TIME_UTC_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ss'Z'",
     HOUR_MINUTE = "HH:mm",
+    HOUR_MINUTE_SECONDS = "HH:mm:ss",
+    ONE_TO_24_HOUR_MINUTE_SECONDS = "kk:mm:ss",
 }
 
 export class DateTimeUtils {
@@ -60,8 +62,8 @@ export class DateTimeUtils {
 
                 // show 12 stacks, even if no data and timestamps
                 const newTimestamps: string[] = [];
-                const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[0]);
-                const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps[energyPerPeriodResponse.result.timestamps.length - 1]);
+                const firstTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps.at(0));
+                const lastTimestamp = DateUtils.stringToDate(energyPerPeriodResponse.result.timestamps.at(-1));
 
                 if (firstTimestamp.getMonth() !== 0 && isSameYear(lastTimestamp, firstTimestamp)) {
                     for (let i = 0; i <= (firstTimestamp.getMonth() - 1); i++) {

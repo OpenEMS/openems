@@ -1,5 +1,7 @@
 package io.openems.edge.sma.ess.stpxx3se.batteryinverter;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
+
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -174,7 +176,7 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	private void installListeners() {
 		// NOTE: Twice the same callback needed, as we have to install it on Integer-
 		// and Float-Channels
-		final Consumer<Value<Integer>> calculate = ignore -> {
+		final Consumer<Value<Integer>> calculateInteger = ignore -> {
 			Integer p1;
 			Integer p2;
 			try {
@@ -185,10 +187,10 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 			} catch (OpenemsException e) {
 				return;
 			}
-			this._setActivePower(TypeUtils.sum(//
+			this._setActivePower(sumInteger(//
 					p1, p2, this.getDcDischargePowerChannel().getNextValue().get())); //
 		};
-		final Consumer<Value<Float>> calculateF = ignore -> {
+		final Consumer<Value<Float>> calculateFloat = ignore -> {
 			Integer p1;
 			Integer p2;
 			try {
@@ -199,16 +201,15 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 			} catch (OpenemsException e) {
 				return;
 			}
-			this._setActivePower(TypeUtils.sum(//
+			this._setActivePower(sumInteger(//
 					p1, p2, this.getDcDischargePowerChannel().getNextValue().get())); //
 		};
-		this.getDcDischargePowerChannel().onSetNextValue(calculate);
+		this.getDcDischargePowerChannel().onSetNextValue(calculateInteger);
 		try {
-			this.getModule1DcwChannel().onSetNextValue(calculateF);
-			this.getModule2DcwChannel().onSetNextValue(calculateF);
+			this.getModule1DcwChannel().onSetNextValue(calculateFloat);
+			this.getModule2DcwChannel().onSetNextValue(calculateFloat);
 		} catch (OpenemsException e) {
 			// We should never land here
-			;
 		}
 	}
 
@@ -271,12 +272,9 @@ public class BatteryInverterSmaStpSeImpl extends AbstractSunSpecBatteryInverter
 	@Override
 	public Integer getDcPvPower() {
 		try {
-			return TypeUtils.sum(//
-					// TODO Catch null more elegantly maybe
-					this.getModule1DcwChannel().value() //
-							.orElse(0F).intValue(), //
-					this.getModule2DcwChannel().value() //
-							.orElse(0F).intValue());
+			// TODO Catch null more elegantly maybe
+			return this.getModule1DcwChannel().value().orElse(0F).intValue() //
+					+ this.getModule2DcwChannel().value().orElse(0F).intValue();
 		} catch (OpenemsException e) {
 			return null;
 		}

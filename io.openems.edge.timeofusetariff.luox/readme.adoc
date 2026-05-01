@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff LUOX Energy
+= LUOX Energy
 
 Retrieves the prices from the LUOX Energy API.
 

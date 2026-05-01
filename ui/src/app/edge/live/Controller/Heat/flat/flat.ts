@@ -3,14 +3,14 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
-import { ModalComponent } from "../modal/modal";
+import { ControllerHeatModalComponent } from "../modal/modal";
 
 @Component({
-    selector: "Controller_Heat",
+    selector: "oe-controller-heat",
     templateUrl: "./flat.html",
     standalone: false,
 })
-export class FlatComponent extends AbstractFlatWidget {
+export class ControllerHeatComponent extends AbstractFlatWidget {
     protected readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
 
@@ -24,7 +24,7 @@ export class FlatComponent extends AbstractFlatWidget {
 
     protected getModalComponent(): Modal {
         return {
-            component: ModalComponent,
+            component: ControllerHeatModalComponent,
             componentProps: {
                 component: this.component,
             },
@@ -36,7 +36,7 @@ export class FlatComponent extends AbstractFlatWidget {
             return;
         }
         const modal = await this.modalController.create({
-            component: ModalComponent,
+            component: ControllerHeatModalComponent,
             componentProps: {
                 component: this.component,
             },

@@ -1,4 +1,5 @@
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { DestroyRef, inject, Injectable, signal, WritableSignal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
 
 @Injectable()
@@ -7,17 +8,20 @@ export class RouteService {
     public currentUrl: WritableSignal<string | null> = signal(null);
 
     private previousUrl: string | null = null;
+    private destroyRef: DestroyRef = inject(DestroyRef);
+    private router: Router = inject(Router);
 
-    constructor(private router: Router) {
+    constructor() {
         this.previousUrl = this.currentUrl();
-        router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                this.previousUrl = this.currentUrl();
-                this.currentUrl.set(event.urlAfterRedirects);;
-            }
-        });
+        this.router.events
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(event => {
+                if (event instanceof NavigationEnd) {
+                    this.previousUrl = this.currentUrl();
+                    this.currentUrl.set(event.urlAfterRedirects);
+                }
+            });
     }
-
 
     /**
      * Gets the previous url, active before this url
@@ -39,20 +43,9 @@ export class RouteService {
     }
 
     /**
-     * Gets the current url
-    *
-    * @returns the current url
-    */
-    public getCurrentUrl2() {
-        this.router.events.subscribe(event => {
-            if (event instanceof NavigationEnd) {
-                return event.urlAfterRedirects;
-            }
-        });
-    }
-
-    /**
-     * Gets the route params
+     * Gets the route params, defined in routing modules
+     *
+     * @example retrieve :componentId by "componentId"
      *
      * @param key the key
      * @returns the value for this key if found, else null
@@ -60,12 +53,29 @@ export class RouteService {
     public getRouteParam<T>(key: string): T | null {
         const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
         const routeParams = Object.entries(route.params)
-            .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }, {});
+            .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }
+                , {});
         if (key in routeParams) {
             return routeParams[key] as T;
         }
         return null;
     }
+
+    /**
+     * Gets a query param.
+     *
+     * @param key the key
+     * @returns the value for this key if found, else null
+     */
+    public getQueryParam<T>(key: string): T | null {
+        const queryParams = this.router.routerState.snapshot.root.queryParams;
+
+        if (key in queryParams) {
+            return queryParams[key] as T;
+        }
+        return null;
+    }
+
 
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {

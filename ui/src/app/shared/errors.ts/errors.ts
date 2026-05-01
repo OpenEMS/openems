@@ -31,3 +31,10 @@ export class DuplicateAuthenticationFailureException extends Error {
         super("Duplicate Authentication Failure");
     }
 }
+
+export class WebsocketTimeoutError extends Error {
+    constructor() {
+        super("Websocket timeout");
+    }
+}
+

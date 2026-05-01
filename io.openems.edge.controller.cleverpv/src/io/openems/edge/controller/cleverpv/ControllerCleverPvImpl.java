@@ -195,7 +195,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 			} else {
 				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.NO_DISCHARGE);
 				this.setActiveTime(false, true, false);
-				this.ess.setActivePowerEqualsWithPid(0);
+				this.ess.setActivePowerEqualsWithoutFilter(0);
 			}
 		}
 		case CHARGE_FROM_GRID -> {
@@ -205,7 +205,7 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 				setValue(this, ControllerCleverPv.ChannelId.REMOTE_CONTROL_MODE, RemoteControlMode.CHARGE_FROM_GRID);
 				this.setActiveTime(false, false, true);
 				Integer absoluteLimitNegated = (Math.min(Math.abs(this.maxChargePower), Math.abs(this.limit)) * -1);
-				this.ess.setActivePowerEquals(absoluteLimitNegated);
+				this.ess.setActivePowerEqualsWithFilter(absoluteLimitNegated);
 			}
 		}
 		}

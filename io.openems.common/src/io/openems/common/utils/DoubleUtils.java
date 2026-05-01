@@ -1,5 +1,7 @@
 package io.openems.common.utils;
 
+import java.util.OptionalDouble;
+
 public class DoubleUtils {
 
 	private static final double EPSILON = 1e-10;
@@ -43,4 +45,27 @@ public class DoubleUtils {
 		return result;
 	}
 
+	/**
+	 * Convert {@link OptionalDouble} to nullable {@link Double}.
+	 * 
+	 * @param valueOpt the input value
+	 * @return the output value; possibly null
+	 */
+	public static Double getOrNull(OptionalDouble valueOpt) {
+		if (valueOpt.isEmpty()) {
+			return null;
+		}
+		return valueOpt.getAsDouble();
+	}
+
+	@FunctionalInterface
+	public static interface DoubleToDoubleFunction {
+		/**
+		 * Applies this function to the given argument.
+		 *
+		 * @param value the function argument
+		 * @return the function result
+		 */
+		double apply(double value);
+	}
 }

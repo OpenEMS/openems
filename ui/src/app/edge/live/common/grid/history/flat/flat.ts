@@ -24,7 +24,11 @@ export class FlatComponent extends AbstractFlatWidget {
     protected TIME_CONVERTER = TimeUtils.formatSecondsToDuration;
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        const channelAddresses = [];
+        const channelAddresses: ChannelAddress[] = [];
+        if (this.config == null) {
+            return channelAddresses;
+        }
+
         if (GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a")) {
             channelAddresses.push(
                 FlatComponent.RESTRICTION_MODE_14A,

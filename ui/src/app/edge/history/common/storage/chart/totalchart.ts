@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -27,6 +27,7 @@ import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../share
 })
 
 export class StorageTotalChartComponent extends AbstractHistoryChart {
+    @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 
     public static getChartData(translate: TranslateService, chartType: string, config: EdgeConfig): HistoryUtils.ChartData {
 
@@ -163,5 +164,13 @@ export class StorageTotalChartComponent extends AbstractHistoryChart {
     }
     public override getChartData() {
         return StorageTotalChartComponent.getChartData(this.translate, this.chartType, this.config);
+    }
+
+
+    public ionViewDidEnter() {
+        setTimeout(() => {
+            this.chart?.chart?.resize();
+            this.chart?.update();
+        }, 0);
     }
 }

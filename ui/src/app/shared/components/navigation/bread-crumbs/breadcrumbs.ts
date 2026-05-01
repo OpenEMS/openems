@@ -1,6 +1,7 @@
 import { Component, effect, EventEmitter, OnInit, Output, signal, WritableSignal } from "@angular/core";
 import { IonBreadcrumbs } from "@ionic/angular";
 import { DeviceType, PlatFormService } from "src/app/platform.service";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { RouteService } from "src/app/shared/service/route.service";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NavigationService } from "../service/navigation.service";
@@ -25,6 +26,7 @@ export class NavigationBreadCrumbsComponent implements OnInit {
         protected navigationService: NavigationService,
         protected routeService: RouteService,
         private platformService: PlatFormService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
 
         effect(() => {
@@ -65,6 +67,8 @@ export class NavigationBreadCrumbsComponent implements OnInit {
         if (!shouldNavigate) {
             return;
         }
+
+        this.layoutRefresh.request(500);
 
         this.navigate.emit(node);
     }

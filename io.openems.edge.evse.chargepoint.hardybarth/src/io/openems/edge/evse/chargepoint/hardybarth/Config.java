@@ -3,6 +3,7 @@ package io.openems.edge.evse.chargepoint.hardybarth;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.evse.chargepoint.hardybarth.common.LogVerbosity;
 import io.openems.edge.meter.api.PhaseRotation;
 
 @ObjectClassDefinition(name = "EVSE Charge-Point Hardy Barth", //
@@ -23,9 +24,12 @@ import io.openems.edge.meter.api.PhaseRotation;
 
 	@AttributeDefinition(name = "Phase Rotation", description = "Apply standard or rotated wiring")
 	PhaseRotation phaseRotation() default PhaseRotation.L1_L2_L3;
-	
+
 	@AttributeDefinition(name = "Read only", description = "Defines that this evcs is read only.", required = true)
 	boolean readOnly() default false;
+
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	LogVerbosity logVerbosity() default LogVerbosity.NONE;
 
 	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point Hardy Barth [{id}]";
 }

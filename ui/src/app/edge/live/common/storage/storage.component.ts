@@ -58,7 +58,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.geti18nLocale();
         if (value == null) {
             return "-";
         }

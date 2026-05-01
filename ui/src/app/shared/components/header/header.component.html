@@ -10,7 +10,7 @@
           }
         </ion-buttons>
       }
-      @if (enableSideMenu && navigationService.position() !== null) {
+      @if (enableSideMenu && navigationService.position() !== 'left') {
         <ion-buttons slot="start">
           <ion-button (keydown.enter)="toggleMenu()" (click)="toggleMenu()" class="custom-menu-button">
             <ion-icon slot="icon-only" name="menu"></ion-icon>
@@ -29,7 +29,8 @@
         {{ service.currentPageTitle }}
       </ion-title>
       @if (service.currentEdge(); as edge) {
-        @if ((currentPage === 'IndexLive' || currentPage === 'IndexHistory') && navigationService.position() !== null && navigationService.position() === 'disabled') {
+        @if ((currentPage === 'IndexLive' || currentPage === 'IndexHistory') && navigationService.position() !== null &&
+        navigationService.position() === 'disabled') {
           <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
             class="ion-justify-content-center">
             <ion-segment-button tabindex="0" class="focus-visible"

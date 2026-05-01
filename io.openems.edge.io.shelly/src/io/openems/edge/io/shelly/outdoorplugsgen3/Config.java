@@ -24,10 +24,10 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Shelly Plug connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 
-	@AttributeDefinition(name = "MDNS Name")
+	@AttributeDefinition(name = "MDNS Name", required = false)
 	String mdnsName();
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.", required = false)
 	String ip();
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
@@ -39,7 +39,7 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Device type validation", description = "If enabled and type is wrong no values will be read from the device.")
 	boolean validateDevice() default false;
 
-	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode")
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode.")
 	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Outdoor Plug S Gen3 [{id}]";

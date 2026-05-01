@@ -95,7 +95,7 @@ public class EnergyScheduleTester {
 			var csc = this.cscs.get(esh);
 			switch (esh) {
 			case EnergyScheduleHandler.WithDifferentModes e -> {
-				final var modeIndex = e.modes().hasForOptimizer() //
+				final var modeIndex = !e.modes().hasForOptimizer() //
 						? -1 // none available
 						: modes[eshIndex++];
 				final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);

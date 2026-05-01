@@ -1,6 +1,40 @@
-= ABB B23 Meter
+= ABB B23 M-Bus Meter
 
-Implemented Natures:
-- ElectricityMeter
+Three-phase electricity meter for energy measurement via M-Bus protocol.
+
+== Overview
+
+This bundle provides integration with ABB B23 M-Bus meters, which are three-phase electricity meters designed for precise energy measurement in residential and commercial installations. The component communicates with the meter through the M-Bus (Meter-Bus) protocol, a standard for remote reading of utility meters.
+
+The ABB B23 supports measurement of grid consumption, production, or battery energy depending on configuration. It integrates with OpenEMS via an M-Bus bridge for real-time energy monitoring and data collection.
+
+== Supported Devices
+
+* https://new.abb.com/[ABB B23 M-Bus Meter icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== ABB B23 M-Bus Meter
+
+*Name*: Meter ABB B23 M-Bus
+
+*Factory-PID*: `Meter.ABB.B23`
+
+.Implemented Natures/Interfaces
+* MeterAbbB23
+* ElectricityMeter
+* OpenemsComponent
+
+*Description*: Three-phase electricity meter for energy measurement via M-Bus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `primaryAddress` (Integer): M-Bus primary address of the meter device (default: 10)
+* `mbus_id` (String): ID of M-Bus bridge for communication (default: "mbus0")
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.abb[Source Code icon:github[]]

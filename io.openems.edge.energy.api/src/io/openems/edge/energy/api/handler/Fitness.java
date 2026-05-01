@@ -7,6 +7,7 @@ public class Fitness implements Comparable<Fitness> {
 	private int hardConstraintViolations = 0;
 	private double gridBuyCost = 0.;
 	private double gridSellRevenue = 0.;
+	private double modePreferencePenalty = 0.;
 	private int softConstraintViolations = 0;
 
 	/**
@@ -62,6 +63,24 @@ public class Fitness implements Comparable<Fitness> {
 	}
 
 	/**
+	 * Gets the Mode-Preference penalty.
+	 *
+	 * @return Mode-Preference penalty
+	 */
+	public double getModePreferencePenalty() {
+		return this.modePreferencePenalty;
+	}
+
+	/**
+	 * Sets the Mode-Preference penalty.
+	 *
+	 * @param penalty the penalty
+	 */
+	public void setModePreferencePenalty(double penalty) {
+		this.modePreferencePenalty = penalty;
+	}
+
+	/**
 	 * Gets the number of Soft-Constraint-Violations.
 	 * 
 	 * @return Soft-Constraint-Violations
@@ -107,7 +126,12 @@ public class Fitness implements Comparable<Fitness> {
 			return Double.compare(otherGridSellRevenue, thisGridSellRevenue);
 		}
 
-		// 4th priority: soft constraints (lower is better)
+		// 4th priority: mode preference penalty (lower is better)
+		if (this.modePreferencePenalty != o.modePreferencePenalty) {
+			return Double.compare(this.modePreferencePenalty, o.modePreferencePenalty);
+		}
+
+		// 5th priority: soft constraints (lower is better)
 		return Integer.compare(this.softConstraintViolations, o.softConstraintViolations);
 	}
 
@@ -117,6 +141,7 @@ public class Fitness implements Comparable<Fitness> {
 				.add("hardConstraintViolations", this.hardConstraintViolations) //
 				.add("gridBuyCost", this.gridBuyCost) //
 				.add("gridSellRevenue", this.gridSellRevenue) //
+				.add("modePreferencePenalty", this.modePreferencePenalty) //
 				.add("softConstraintViolations", this.softConstraintViolations) //
 				.toString();
 	}

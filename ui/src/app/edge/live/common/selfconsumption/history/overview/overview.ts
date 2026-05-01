@@ -5,4 +5,4 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
     templateUrl: "./overview.html",
     standalone: false,
 })
-export class OverviewComponent extends AbstractHistoryChartOverview { }
+export class CommonSelfconsumptionOverviewComponent extends AbstractHistoryChartOverview { }

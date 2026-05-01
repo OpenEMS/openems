@@ -19,13 +19,12 @@ import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 
 public class SumStateHandler implements Handler<SumStateMessage> {
 	private final Map<String, ZonedDateTime> faultSince = new TreeMap<>();
@@ -82,16 +81,24 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	@Override
 	public void send(ZonedDateTime sentAt, List<SumStateMessage> pack) {
 		// Ensure Edge is still in error state before sending mail.
-		pack.removeIf(msg -> !this.isEdgeError(msg.getEdgeId()));
+		pack.removeIf(msg -> !this.isEdgeErrorAndOnline(msg.getEdgeId()));
 
 		if (pack.isEmpty()) {
+			this.log.debug("No SumStateMessages to send after filtering for online and error state.");
 			return;
 		}
 
-		final var params = JsonUtils.generateJsonArray(pack, SumStateMessage::getParams);
-
-		this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params);
-		this.messagesSent.getAndAdd(pack.size());
+		final var params = pack.stream().map(SumStateMessage::getContext).toList();
+		
+		this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params) //
+				.whenComplete((sentMessages, error) -> {
+					if (error == null) {
+						this.messagesSent.getAndAdd(sentMessages);
+					} else {
+						this.log.error("Failed to send SumStateMessage: {}", error.getMessage());
+						this.log.debug("Failed to send SumStateMessage for: {}", params, error);
+					}
+				});
 
 		this.reschedule(pack);
 	}
@@ -102,8 +109,12 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 		}
 	}
 
-	private boolean isEdgeError(String edgeId) {
-		final var sumState = this.metadata.getEdge(edgeId).map(Edge::getSumState);
+	private boolean isEdgeErrorAndOnline(String edgeId) {
+		final var edge = this.metadata.getEdge(edgeId);
+		if (edge.map(Edge::isOffline).orElse(false)) {
+			return false;
+		}
+		final var sumState = edge.map(Edge::getSumState);
 		return sumState.map(this::isSevere).orElse(false);
 	}
 
@@ -206,9 +217,15 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	public Class<SumStateMessage> getGeneric() {
 		return SumStateMessage.class;
 	}
-
+	
 	@Override
 	public HandlerMetrics getMetrics() {
 		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
+	}
+	
+	@Override
+	public String debugLog() {
+		return "SumStateHandler{MessagesSent: %d, MessagesQueue: %d}" //
+				.formatted(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

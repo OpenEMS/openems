@@ -12,12 +12,12 @@ import java.util.function.Supplier;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.function.ThrowingConsumer;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 

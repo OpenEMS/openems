@@ -13,6 +13,9 @@ import io.openems.edge.common.cycle.Cycle;
 	@AttributeDefinition(name = "Cycle-Time", description = "The duration of one global OpenEMS Cycle in [ms]")
 	int cycleTime() default Cycle.DEFAULT_CYCLE_TIME;
 
+	@AttributeDefinition(name = "Log-Verbosity", description = "The log verbosity.")
+	CycleLogVerbosity logVerbosity() default CycleLogVerbosity.NONE;
+
 	String webconsole_configurationFactory_nameHint() default "Core Cycle";
 
 }

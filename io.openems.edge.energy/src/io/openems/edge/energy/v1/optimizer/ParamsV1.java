@@ -249,11 +249,11 @@ public record ParamsV1(//
 
 	@Deprecated
 	public static final Pattern PARAMS_PATTERN = Pattern.compile("" //
-			+ "time=(?<time>[^\\s,]++)[\\s,]++"
-			+ "essTotalEnergy=(?<essTotalEnergy>[^\\s,]++)[\\s,]++"
-			+ "essMinSocEnergy=(?<essMinSocEnergy>[^\\s,]++)[\\s,]++"
-			+ "essMaxSocEnergy=(?<essMaxSocEnergy>[^\\s,]++)[\\s,]++"
-			+ "essInitialEnergy=(?<essInitialEnergy>[^\\s,]++)[\\s,]++"
+			+ "time=(?<time>[^\\s,]++)[\\s,]++" //
+			+ "essTotalEnergy=(?<essTotalEnergy>[^\\s,]++)[\\s,]++" //
+			+ "essMinSocEnergy=(?<essMinSocEnergy>[^\\s,]++)[\\s,]++" //
+			+ "essMaxSocEnergy=(?<essMaxSocEnergy>[^\\s,]++)[\\s,]++" //
+			+ "essInitialEnergy=(?<essInitialEnergy>[^\\s,]++)[\\s,]++" //
 			+ "states=\\[(?<states>[A-Z_, ]++)\\]");
 
 	@Deprecated

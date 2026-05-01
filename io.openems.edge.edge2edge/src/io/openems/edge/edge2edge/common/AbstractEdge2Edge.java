@@ -215,7 +215,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param natureStartAddresses a map of Nature-Hashes to Modbus start addresses
 	 * @throws OpenemsException on error
 	 */
-	private void mapRemoteChannels(TreeMap<Integer, Short> natureStartAddresses) throws OpenemsException {
+	private void mapRemoteChannels(TreeMap<Integer, Integer> natureStartAddresses) throws OpenemsException {
 		var modbusSlaveNatureTables = this.modbusSlaveNatureTableMethods.stream() //
 				.map(method -> method.apply(this.remoteAccessMode)) //
 				.collect(Collectors.toUnmodifiableList());
@@ -433,21 +433,21 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param lastAddress  the start address of the following Component-Block
 	 * @return a map of modbus start address to Nature-Hash
 	 */
-	private CompletableFuture<TreeMap<Integer, Short>> readNatureStartAddresses(int startAddress, int lastAddress) {
-		final var result = new CompletableFuture<TreeMap<Integer, Short>>();
+	private CompletableFuture<TreeMap<Integer, Integer>> readNatureStartAddresses(int startAddress, int lastAddress) {
+		final var result = new CompletableFuture<TreeMap<Integer, Integer>>();
 		this._readNatureStartAddresses(result, startAddress, lastAddress, new TreeMap<>());
 		return result;
 	}
 
-	private void _readNatureStartAddresses(CompletableFuture<TreeMap<Integer, Short>> result, int startAddress,
-			int lastAddress, final TreeMap<Integer, Short> natureStartAddresses) {
+	private void _readNatureStartAddresses(CompletableFuture<TreeMap<Integer, Integer>> result, int startAddress,
+			int lastAddress, final TreeMap<Integer, Integer> natureStartAddresses) {
 		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(startAddress))
 				.thenAccept(rawHash -> {
 					if (rawHash == null) {
 						result.completeExceptionally(new OpenemsException("Unable to read hash at " + startAddress));
 						return;
 					}
-					var hash = (short) (int) rawHash;
+					var hash = (int) rawHash;
 
 					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::doNotRetry,
 							new UnsignedWordElement(startAddress + 1)).thenAccept(lengthOfNatureBlock -> {

@@ -65,7 +65,7 @@ public class EnergyScheduler {
 							var firstExcessEnergyOpt = periods.stream() //
 									.filter(Period.WithPrediction.class::isInstance) //
 									.map(Period.WithPrediction.class::cast) //
-									.filter(p -> p.production() > p.consumption()) //
+									.filter(p -> p.prediction().excessProduction() > 0) //
 									.findFirst();
 							if (firstExcessEnergyOpt.isEmpty()
 									|| targetTime.isBefore(firstExcessEnergyOpt.get().time())) {

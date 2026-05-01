@@ -6,6 +6,7 @@ Bundle-Version: 1.5.7
 
 Include-Resource: \
 	@lib/Java-WebSocket.jar,\
+	OSGI-OPT/src=@lib/Java-WebSocket-sources.jar
 
 Export-Package: \
 	org.java_websocket,\
@@ -29,4 +30,4 @@ Export-Package: \
 
 -metatypeannotations: *
 
--sources: false
+-sources: true

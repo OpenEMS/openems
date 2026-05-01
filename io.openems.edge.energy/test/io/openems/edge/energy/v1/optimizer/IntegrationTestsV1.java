@@ -31,12 +31,12 @@ public class IntegrationTestsV1 {
 	public void before() {
 		initializeRandomRegistryForUnitTest();
 	}
-	
+
 	@Test
 	public void pattern() {
 		final String example = "Params [time=123, essTotalEnergy=123, essMinSocEnergy=123, essMaxSocEnergy=123, essInitialEnergy=123, states=[WARN, ERROR]]";
 		assertTrue(PARAMS_PATTERN.matcher(example).find());
-		
+
 		final String noMatch = "No match string";
 		assertFalse(PARAMS_PATTERN.matcher(noMatch).find());
 	}

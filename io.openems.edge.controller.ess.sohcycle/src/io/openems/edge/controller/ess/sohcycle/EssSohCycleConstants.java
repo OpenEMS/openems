@@ -10,6 +10,7 @@ public final class EssSohCycleConstants {
     public static final int MAX_SOC = 100;
     public static final int MIN_SOC = 0;
     public static final int MAX_CELL_VOLTAGE_DIFFERENCE_MV = 100;
+    public static final int WAIT_DURATION_MINUTES = 30;
     /**
      * Charge/discharge C-rate as a fraction of the battery capacity per hour.
      *

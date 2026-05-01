@@ -5,7 +5,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart.component";
 import { FlatComponent } from "./flat/flat";
 import { CommonSelfConsumptionHistoryComponent } from "./new-navigation/new-navigation";
-import { OverviewComponent } from "./overview/overview";
+import { CommonSelfconsumptionOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -16,13 +16,13 @@ import { OverviewComponent } from "./overview/overview";
     declarations: [
         FlatComponent,
         ChartComponent,
-        OverviewComponent,
+        CommonSelfconsumptionOverviewComponent,
         CommonSelfConsumptionHistoryComponent,
     ],
     exports: [
         FlatComponent,
         ChartComponent,
-        OverviewComponent,
+        CommonSelfconsumptionOverviewComponent,
         CommonSelfConsumptionHistoryComponent,
     ],
 })

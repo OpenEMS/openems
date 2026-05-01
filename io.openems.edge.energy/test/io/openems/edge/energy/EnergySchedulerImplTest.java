@@ -11,8 +11,8 @@ import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssLimitTotal
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssTimeOfUseTariff;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_UNMANAGED_CONSUMPTION;
+import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.LogVerbosity.TRACE;
-import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
@@ -77,7 +77,7 @@ public class EnergySchedulerImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", componentManager) //
 				.addReference("meta", new DummyMeta()//
-						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+						.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(clock)//
 								.add(t -> t//
 										.setStart("08:00") //
 										.setDuration(Duration.ofHours(12)) //
@@ -104,7 +104,7 @@ public class EnergySchedulerImplTest {
 						.setEnabled(false) //
 						.setLogVerbosity(TRACE) //
 						.setVersion(V2_ENERGY_SCHEDULABLE) //
-						.setRiskLevel(MEDIUM) //
+						.setEnvironment(PRODUCTION) //
 						.build()) //
 				.next(new TestCase());
 		return sut;

@@ -1,10 +1,13 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ViewChild } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { BaseChartDirective } from "ng2-charts";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
@@ -13,6 +16,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
+    @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 
     public static getChartData(config: EdgeConfig | null, chartType: "line" | "bar", translate: TranslateService): HistoryUtils.ChartData {
         const input: HistoryUtils.InputChannel[] =
@@ -210,8 +214,11 @@ export class ChartComponent extends AbstractHistoryChart {
         return ChartComponent.getChartData(this.config, this.chartType, this.translate);
     }
 
-    protected override getChartHeight(): number {
-        return this.service.deviceHeight / 2;
+    public override ngAfterViewInit(): void {
+        setTimeout(() => {
+            this.viewHeight = NumberUtils.divideSafely(ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position()), 2);
+            this.chart?.chart?.resize();
+            this.chart?.update();
+        }, 100);
     }
-
 }

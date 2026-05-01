@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.google.gson.JsonObject;
+import io.openems.backend.common.mail.MailContext;
 
 public class MessageTest {
 
@@ -54,7 +54,7 @@ public class MessageTest {
 		}
 
 		@Override
-		public JsonObject getParams() {
+		public MailContext getContext() {
 			throw new UnsupportedOperationException();
 		}
 

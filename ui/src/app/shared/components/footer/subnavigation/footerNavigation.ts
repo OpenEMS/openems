@@ -1,6 +1,7 @@
 import { Location } from "@angular/common";
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, QueryList, ViewChild, ViewChildren } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
+import { NavigationService } from "../../navigation/service/navigation.service";
 
 export type NavigationOption = {
     id: string,
@@ -28,6 +29,7 @@ export class FooterNavigationComponent implements AfterViewInit {
     protected buttons: NavigationOption[] = [];
     protected popoverButtons: NavigationOption[] | null = [];
     protected showPopover: boolean = false;
+    protected isInitialized: boolean = false;
 
     private _buttons: NavigationOption[] = [];
 
@@ -35,6 +37,7 @@ export class FooterNavigationComponent implements AfterViewInit {
         protected location: Location,
         protected popoverCtrl: PopoverController,
         private cdr: ChangeDetectorRef,
+        private navigationService: NavigationService,
     ) {
     }
 
@@ -61,6 +64,11 @@ export class FooterNavigationComponent implements AfterViewInit {
    * Initializes sub-navigation
    */
     private initializeFooterSubnavigation(): void {
+        if (this.navigationService.position() == "bottom") {
+            this.isInitialized = false;
+            return;
+        }
+
         this.buttons = this._buttons;
         this.getSplitIndex()
             .then((indexToSplit) => {
@@ -74,6 +82,7 @@ export class FooterNavigationComponent implements AfterViewInit {
                 this.popoverButtons = allowedButtons.slice(indexToSplit);
                 this.areButtonsReadyToShow = true;
             });
+        this.isInitialized = true;
     }
 
     /**

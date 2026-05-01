@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -46,8 +47,8 @@ public final class JsonElementPathActual {
 		public <T> T multiple(List<Case<T>> cases) {
 			return cases.stream() //
 					.filter(t -> t.isApplicable().test(this)) //
-					.map(t -> t.valueMapper().apply(this)) //
-					.findAny().orElse(null);
+					.map(t -> Optional.ofNullable(t.valueMapper().apply(this))) //
+					.findAny().flatMap(Function.identity()).orElse(null);
 		}
 
 		@Override
@@ -80,6 +81,16 @@ public final class JsonElementPathActual {
 		@Override
 		public boolean isNumber() {
 			return JsonUtils.isNumber(this.element);
+		}
+
+		@Override
+		public boolean isString() {
+			return this.element.isJsonPrimitive() && this.element.getAsJsonPrimitive().isString();
+		}
+
+		@Override
+		public boolean isBoolean() {
+			return this.element.isJsonPrimitive() && this.element.getAsJsonPrimitive().isBoolean();
 		}
 
 	}

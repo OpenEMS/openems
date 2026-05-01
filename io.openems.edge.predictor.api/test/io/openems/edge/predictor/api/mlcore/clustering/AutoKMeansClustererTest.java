@@ -1,6 +1,7 @@
 package io.openems.edge.predictor.api.mlcore.clustering;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -50,7 +51,11 @@ public class AutoKMeansClustererTest {
 
 		var centroids = clusterer.getCentroids();
 		assertNotNull(centroids);
-		assertTrue(centroids.size() >= 1);
+		assertFalse(centroids.isEmpty());
+
+		var upperQuantileCentroids = clusterer.getUpperQuantileCentroids();
+		assertNotNull(upperQuantileCentroids);
+		assertFalse(upperQuantileCentroids.isEmpty());
 	}
 
 	@Test
@@ -93,7 +98,10 @@ public class AutoKMeansClustererTest {
 		var centroids = List.of(//
 				new double[] { 1.0, 2.0 }, //
 				new double[] { 3.0, 4.0 });
-		var clusterer = AutoKMeansClusterer.from(centroids);
+		var upperQuantileCentroids = List.of(//
+				new double[] { 5.0, 6.0 }, //
+				new double[] { 7.0, 8.0 });
+		var clusterer = AutoKMeansClusterer.from(centroids, upperQuantileCentroids);
 
 		var input = toDataframe(List.of(//
 				List.of(1.1, 2.1), //
@@ -108,25 +116,60 @@ public class AutoKMeansClustererTest {
 
 	@Test
 	public void testFromCentroids_ShouldThrowException_WhenNullList() {
+		var centroids = List.of(//
+				new double[] { 1.0, 2.0 }, //
+				new double[] { 3.0, 4.0 });
 		assertThrows(IllegalArgumentException.class, () -> {
-			AutoKMeansClusterer.from(null);
+			AutoKMeansClusterer.from(centroids, null);
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			AutoKMeansClusterer.from(null, centroids);
 		});
 	}
 
 	@Test
 	public void testFromCentroids_ShouldThrowException_WhenEmptyList() {
+		var centroids = List.of(//
+				new double[] { 1.0, 2.0 }, //
+				new double[] { 3.0, 4.0 });
 		assertThrows(IllegalArgumentException.class, () -> {
-			AutoKMeansClusterer.from(new ArrayList<>());
+			AutoKMeansClusterer.from(centroids, new ArrayList<>());
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			AutoKMeansClusterer.from(new ArrayList<>(), centroids);
+		});
+	}
+
+	@Test
+	public void testFromCentroids_ShouldThrowException_WhenDifferentSizes() {
+		var centroidsLong = List.of(//
+				new double[] { 1.0, 2.0 }, //
+				new double[] { 3.0, 4.0 });
+		var centroidShort = List.of(//
+				new double[] { 5.0, 6.0 });
+
+		assertThrows(IllegalArgumentException.class, () -> {
+			AutoKMeansClusterer.from(centroidsLong, centroidShort);
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			AutoKMeansClusterer.from(centroidShort, centroidsLong);
 		});
 	}
 
 	@Test
 	public void testFromCentroids_ShouldThrowException_WhenDifferentLengths() {
-		var centroids = List.of(//
+		var centroidsLong = List.of(//
 				new double[] { 1.0, 2.0 }, //
-				new double[] { 3.0 });
+				new double[] { 3.0, 4.0 });
+		var centroidsShort = List.of(//
+				new double[] { 5.0, 6.0 }, //
+				new double[] { 7.0 });
+
 		assertThrows(IllegalArgumentException.class, () -> {
-			AutoKMeansClusterer.from(centroids);
+			AutoKMeansClusterer.from(centroidsLong, centroidsShort);
+		});
+		assertThrows(IllegalArgumentException.class, () -> {
+			AutoKMeansClusterer.from(centroidsShort, centroidsLong);
 		});
 	}
 
@@ -159,6 +202,33 @@ public class AutoKMeansClustererTest {
 		assertThrows(UnsupportedOperationException.class, () -> {
 			centroids.add(new double[] { 0.0, 0.0 });
 		});
+	}
+
+	@Test
+	public void testComputeQuantileCenter_ShouldReturnQuantile_WhenEnoughDataPoints() {
+		var points = List.of(//
+				new DataPoint(new double[] { 1.0, 10.0 }), //
+				new DataPoint(new double[] { 2.0, 20.0 }), //
+				new DataPoint(new double[] { 3.0, 30.0 }), //
+				new DataPoint(new double[] { 4.0, 40.0 }));
+
+		double[] q75 = AutoKMeansClusterer.computeQuantileCenter(points, 0.75);
+
+		assertEquals(2, q75.length);
+		assertEquals(3.75, q75[0], 0.0);
+		assertEquals(37.5, q75[1], 0.0);
+	}
+
+	@Test
+	public void testComputeQuantileCenter_ShouldReturnQuantile_WhenOnlyOneDataPoint() {
+		var points = List.of(//
+				new DataPoint(new double[] { 1.0, 10.0 }));
+
+		double[] q75 = AutoKMeansClusterer.computeQuantileCenter(points, 0.75);
+
+		assertEquals(2, q75.length);
+		assertEquals(1.0, q75[0], 0.0);
+		assertEquals(10.0, q75[1], 0.0);
 	}
 
 	private static DataFrame<Integer> toDataframe(List<List<Double>> values) {

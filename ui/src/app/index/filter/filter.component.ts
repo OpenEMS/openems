@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { v4 as uuidv4 } from "uuid";
 
+import { v4 as uuidv4 } from "uuid";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Service } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";
@@ -13,7 +13,6 @@ import { StringUtils } from "src/app/shared/utils/string/string.utils";
 @Component({
     selector: "oe-filter",
     templateUrl: "./filter.component.html",
-    standalone: true,
     imports: [
         CommonUiModule,
     ],
@@ -28,14 +27,20 @@ export class FilterComponent {
 
     constructor(public service: Service) { }
 
-    @Input() public set filters(_filters: (Filter<string> | SortOrderFilter)[]) {
+    @Input() public set filters(_filters: typeof this.allFilters) {
+
+        if (ArrayUtils.arraysDeepEqualHash<Filter<string | null> | SortOrderFilter | null>(this.allFilters, _filters)) {
+            return;
+        }
+
         this.allFilters = _filters
-            .filter(f => f != null)
-            .map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
+            ?.filter(f => f != null)
+            ?.map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION) ?? null;
 
         if (this.allFilters == null || this.allFilters.length === 0) {
             return;
         }
+
         this.columnSize = Math.max(NumberUtils.divideSafely(12, this.allFilters.length) ?? 0, 4);
 
         this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.allFilters);
@@ -175,6 +180,10 @@ export class FilterComponent {
 
         const ids: string[] = Array.isArray(input) ? input : [input];
         const values = FilterComponent.getFilterValues(ids, filter).flat();
+
+        if (JSON.stringify(this.searchParams.get(filter.category)) === JSON.stringify(values)) {
+            return;
+        }
 
         let additionalFilter: ChosenFilter | null = null;
         if (filter.setAdditionalFilter) {

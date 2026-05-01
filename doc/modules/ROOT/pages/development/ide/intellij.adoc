@@ -1,93 +1,195 @@
-= IntelliJ IDEA
-:imagesdir: ../assets/images
+ifdef::env-github[]
+:imagesdir: ../../../assets/images
+endif::[]
+
+= IntelliJ IDEA + Gradle Setup for OpenEMS
+:toc: macro
+:toclevels: 3
 :sectnums:
-:sectnumlevels: 4
-:toclevels: 4
-:experimental:
-:keywords: AsciiDoc
-:source-highlighter: highlight.js
 :icons: font
+:source-highlighter: rouge
 
-This guide will show you how to setup https://www.jetbrains.com/idea/download/[IntelliJ IDEA] for OpenEMS development.
+toc::[]
 
-NOTE: Make sure you have the correct version of the Java Development Kit (JDK) installed on your system.
+This page describes how to import the OpenEMS *openems* repository into IntelliJ IDEA as a Gradle project and how to create useful run/debug configurations.
 
-== Setup IntelliJ IDEA for OpenEMS Edge and Backend
+== Prerequisites
 
-. Prepare Intellij IDEA
-.. We use the Amdatu Plugin. Please confirm that the plugin is compatible with the latest version. See the https://plugins.jetbrains.com/plugin/10639-amdatu/versions[Amdatu homepage icon:external-link[]].
-.. With the toolbox you can select the right version https://www.jetbrains.com/toolbox-app/download/[Intellij Version icon:external-link[]].
-.. To avoid incompatible updates, you may disable Auto-Updates in the Toolbox. It is also possible to select a earlier version if the update was done accidentally
-.. Search under Plugins "Amdatu" und "Checkstyle"
-+
-.IntelliJ settings
-image::intellij-settings.png[Settings]
-+
-.Install plugins
-image::intellij-plugins.png[Plugins]
-.. Preparing your project with intellij
-+
-.IntelliJ project import from existing source
-image::intellij-project-import.png[]
-.Select directory to import
-image::intellij-select-directory.png[]
-.. Select Bnd/bndtools
-+
-.Bnd import
-image::intellij-import-bnd.png[]
-.. Build OpenEMS Edge in IntelliJ
-+
-.build.gradle
-image::intellij-build-gradle.png[]
-.. or alternatively make an configuration "edit configuration"
-+
-.build gradle over configuration
-image::intellij-add-configuration.png[]
-.. creating a new module
-+
-.creating a module
-image::intellij-new-module.png[]
-+
-Rightclick on an existing module: New -> Module
-+
-Amdatu-> Project Template Project (Stringtemplate)
-+
-.. add Support for Eclipse Code Formatting
-+
-Search for 'Adapter for Eclipse Code Formatter' in the Plugin store
-+
-.download Adapter for Eclipse Code Formatter
-image::intellij-code-formatter.png[]
-+
-After restarting the IDE go to Settings -> Other Settings -> Adapter for Eclipse Code Formatter
-+
-.Adapter Settings
-image::intellij-code-formatter-settings.png[]
-+
-Check the radiobutton for "Use Eclipse's Code Formatter"
-+
-.Enable Adapter
-image::intellij-code-formatter-enable.png[]
-+
-Type in your Eclipse installation folder
-+
-.Set Eclipse Path
-image::intellij-code-formatter-path.png[]
-+
-Choose 'Eclipse [built-in]' as a formatter config
-+
-.Choose Format
-image::intellij-code-formatter-format.png[]
-Now Reformat Code will use the Eclipse format (e.g. Use TAB instead of Whitespaces)
+* IntelliJ IDEA (Community or Ultimate)
+* A JDK matching the OpenEMS build requirements (commonly *JDK 21*; e.g., Temurin 21)
+* Git
+* (Optional for UI) Node.js + npm, and the Angular CLI (or the tooling used in your OpenEMS UI setup)
 
-== Hints - intellij problems
-.. If you have some problems - for example java version is not found: look in File -> Project Structure -> Project
-+
-.check java version
-image::intellij-java.png[]
-.. If there is the module not correctly loaded, you can see that the blue square is not present
-+
-.not loaded modules
-image::intellij-load-modul.png[]
-+
-This can be fixed via Tools -> Amdatu -> Refresh-Workspace. If it is still not working: File -> Invalidate Caches/Restart
+== Import the repository as a Gradle project
+
+. Start IntelliJ IDEA (open any project or use the Welcome screen).
+. Select *File -> New -> Project from Existing Sources…*
+. Choose the repository folder (commonly named `openems`) and import it as a *Gradle* project.
+. If IntelliJ asks which window to use, select *This Window*.
+
+[NOTE]
+====
+Import the project as *Gradle* (not as a plain IntelliJ project). This ensures IntelliJ uses the Gradle model for module structure, dependencies, and tasks.
+====
+
+image::intellij-import-as-gradle.png[Settings]
+
+== Load / sync the Gradle project
+
+After opening the repository, IntelliJ should show a popup like “Gradle build scripts found”.
+
+. Click *Load Gradle Project*.
+. Wait until the Gradle import finishes (you can see progress in the status bar, e.g. “Importing Gradle Project …”).
+
+image::intellij-import-as-gradle-2.png[Settings]
+
+== Create a Run configuration for Edge (JAR)
+
+The common workflow is:
+
+* Build the Edge JAR with a Gradle task (e.g. `buildEdge`)
+* Run the generated JAR from IntelliJ
+
+=== Create a “JAR Application” configuration
+
+. Open *Run -> Edit Configurations…*
+. Click *+* and add a new *JAR Application* configuration.
+. Fill in the values similar to the following (adapt paths to your machine):
+
+* *Name*: `Run Edge` (example)
+* *Path to JAR*: `/<path-to-your-repo>/build/openems-edge.jar` (example)
+* *Working directory*: `/<path-to-your-repo>/`
+* *JRE*: select your configured JDK (e.g., `temurin-21`)
+
+[TIP]
+====
+If the jar name or location differs in your checkout, search in your repository for the jar output produced by the Gradle task `buildEdge` and use that path.
+====
+
+image::intellij-import-as-gradle-3.png[Settings]
+image::intellij-import-as-gradle-4.png[Settings]
+image::intellij-import-as-gradle-5.png[Settings]
+
+=== Add a “Before launch” Gradle task
+
+To ensure the JAR is up-to-date on every run:
+
+. In the same Run configuration, find the *Before launch* section.
+. Add a *Gradle* task.
+. Set:
+** *Gradle project*: `openems`
+** *Tasks*: `buildEdge`
+
+Now, running `Run Edge` will build the Edge jar first and then launch it.
+
+image::intellij-import-as-gradle-6.png[Settings]
+
+image::intellij-import-as-gradle-7.png[Settings]
+
+== Install required IDE plugins
+
+Install these IntelliJ plugins:
+
+* *Adapter for Eclipse Code Formatter*
+* *CheckStyle-IDEA*
+
+Path: *Settings/Preferences -> Plugins*.
+
+== Configure Checkstyle
+
+. Open *Settings/Preferences -> Tools -> Checkstyle*.
+. Add a new configuration:
+** *Description*: `OpenEMS` (example)
+** *File*: point to the repository checkstyle configuration (commonly `cnf/checkstyle.xml`)
+. Click *Next -> Finish* and activate the created configuration.
+
+image::intellij-import-as-gradle-8.png[Settings]
+
+== Enable Eclipse formatting
+
+This aligns IntelliJ formatting with the formatting used in Eclipse-based setups.
+
+. Open *Settings/Preferences -> Adapter for Eclipse Code Formatter*.
+. Enable *Use Eclipse's Code Formatter*.
+. Set the *Eclipse installation folder* to your local Eclipse installation (only needed if your plugin version requires it).
+. Select a profile, e.g. `Eclipse (built-in)` or the profile agreed upon in your project.
+
+[NOTE]
+====
+If your team has an exported Eclipse formatter profile (e.g. `*.xml` or `*.prefs`), prefer that to ensure consistent formatting across IDEs.
+====
+
+image::intellij-import-as-gradle-9.png[Settings]
+
+== IntelliJ code style tweaks (imports and tabs)
+
+Some teams require specific import and indentation behavior.
+
+=== Imports: avoid wildcard imports
+
+. Open *Settings/Preferences -> Editor -> Code Style -> Java -> Imports*.
+. Configure the thresholds for wildcard imports to high values (example: `999`) to avoid `*` imports:
+** (1) *Remove java.awt.* and javax.swing.* imports*: unchecked (unless your project uses these packages)
+** (2) *Class count to use import with '*'*: `999`
+** (2) *Names count to use static import with '*'*: `999`
+
+
+image::intellij-import-as-gradle-10.png[Settings]
+
+=== Indentation: tabs vs spaces
+
+. Open *Settings/Preferences -> Editor -> Code Style -> Java -> Tabs and Indents*.
+. If your project uses tabs, enable *Use tab character*.
+
+image::intellij-import-as-gradle-11.png[Settings]
+
+. Repeat for other languages used in your project (e.g., Kotlin, XML, etc.) if they have different indentation rules.
+
+image::intellij-import-as-gradle-11-1.png[Settings]
+
+[NOTE]
+====
+Follow your repository / team conventions. If unsure, check existing source files and the formatting rules.
+====
+
+== Debugging tests (Kotlin coroutine agent)
+
+If test debugging behaves unexpectedly, disable the Kotlin coroutine agent:
+
+. Go to *Settings/Preferences -> Build, Execution, Deployment -> Debugger*.
+. Under *Kotlin*, uncheck *Attach coroutine agent*.
+
+image::intellij-import-as-gradle-12.png[Settings]
+
+== Run the UI from IntelliJ (optional)
+
+You can start the UI dev server from IntelliJ via a Shell Script configuration.
+
+. Open *Run -> Edit Configurations…*
+. Add a new configuration of type *Shell Script*.
+. Set:
+* *Name*: `UI`
+* *Script text*: `ng serve -o -c openems-edge-dev`
+* *Working directory*: `/<path-to-your-repo>/ui`
+. Apply and run.
+
+[NOTE]
+====
+This requires that UI dependencies are installed (usually via `npm install`) and that `ng` is available (Angular CLI).
+====
+
+image::intellij-import-as-gradle-13.png[Settings]
+
+== IntelliJ Commit
+
+To ensure code is properly formatted and quality checks run on commit.
+Click on gear icon in the Commit tool window and enable:
+
+* Reformat code
+* Run Checkstyle
+* Optimize imports
+* Scan with Checkstyle
+* Perform SonarQube for IDE analysis (if SonarQube plugin is installed)
+* Check TODOs
+
+image::intellij-import-as-gradle-14.png[Settings]

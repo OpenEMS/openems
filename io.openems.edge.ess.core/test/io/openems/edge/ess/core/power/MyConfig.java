@@ -6,7 +6,7 @@ import io.openems.edge.ess.power.api.SolverStrategy;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	public static class Builder {
 		private SolverStrategy strategy;
 		private boolean symmetricMode;
 		private boolean debugMode;
@@ -14,6 +14,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private double p;
 		private double i;
 		private double d;
+		private boolean enablePT1Filter;
+		private int pt1TimeConstant;
 
 		private Builder() {
 		}
@@ -38,18 +40,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setP(int p) {
+		public Builder setP(double p) {
 			this.p = p;
 			return this;
 		}
 
-		public Builder setI(int i) {
+		public Builder setI(double i) {
 			this.i = i;
 			return this;
 		}
 
-		public Builder setD(int d) {
+		public Builder setD(double d) {
 			this.d = d;
+			return this;
+		}
+
+		public Builder setEnablePT1Filter(boolean enablePT1Filter) {
+			this.enablePT1Filter = enablePT1Filter;
+			return this;
+		}
+
+		public Builder setPT1TimeConstant(int pt1TimeConstant) {
+			this.pt1TimeConstant = pt1TimeConstant;
 			return this;
 		}
 
@@ -109,4 +121,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.d;
 	}
 
+	@Override
+	public boolean enablePT1Filter() {
+		return this.builder.enablePT1Filter;
+	}
+
+	@Override
+	public int pt1TimeConstant() {
+		return this.builder.pt1TimeConstant;
+	}
 }

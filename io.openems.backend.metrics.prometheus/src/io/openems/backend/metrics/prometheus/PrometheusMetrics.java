@@ -16,6 +16,16 @@ public class PrometheusMetrics {
 			.labelNames("component", "method") //
 			.build();
 
+	public static final Histogram HTTP_REQUEST = Histogram.builder() //
+			.name("http_requests") //
+			.labelNames("component", "path") //
+			.build();
+
+	public static final Gauge HTTP_REQUEST_RESULT = Gauge.builder() //
+			.name("http_request_result") //
+			.labelNames("component", "path", "status") //
+			.build();
+
 	public static final Gauge THREAD_POOL_QUEUE = Gauge.builder() //
 			.name("thread_pool_queue") //
 			.labelNames("component") //

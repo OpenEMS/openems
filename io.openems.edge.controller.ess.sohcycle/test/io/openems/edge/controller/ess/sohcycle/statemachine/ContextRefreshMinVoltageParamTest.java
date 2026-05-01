@@ -19,7 +19,6 @@ import org.junit.runners.Parameterized.Parameters;
 import io.openems.edge.common.test.TestUtils;
 import io.openems.edge.controller.ess.sohcycle.Config;
 import io.openems.edge.controller.ess.sohcycle.ControllerEssSohCycleImpl;
-import io.openems.edge.controller.ess.sohcycle.Mode;
 import io.openems.edge.controller.ess.sohcycle.MyConfig;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
@@ -67,7 +66,7 @@ public class ContextRefreshMinVoltageParamTest {
         this.config = MyConfig.create() //
                 .setId(CONTROLLER_ID) //
                 .setEssId(ESS_ID) //
-                .setMode(Mode.MANUAL_ON) //
+                .setRunning(true) //
                 .build();
     }
 
@@ -78,7 +77,7 @@ public class ContextRefreshMinVoltageParamTest {
         // Initial
         if (this.initial != null) {
             TestUtils.withValue(this.ess, MIN_CELL_VOLTAGE, this.initial);
-            context.refreshMeasurementChargingMinVoltageFromEss();
+            context.refreshMeasurementChargingVoltageRange();
             assertEquals(this.initial, context.getMeasurementChargingMaxMinVoltage());
         } else {
             // explicitly ensure it's null
@@ -87,7 +86,7 @@ public class ContextRefreshMinVoltageParamTest {
 
         // Update
         TestUtils.withValue(this.ess, MIN_CELL_VOLTAGE, this.update);
-        context.refreshMeasurementChargingMinVoltageFromEss();
+        context.refreshMeasurementChargingVoltageRange();
         assertEquals(this.expected, context.getMeasurementChargingMaxMinVoltage());
     }
 }

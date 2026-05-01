@@ -2,10 +2,18 @@ import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircl
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
+    api: {
+        SYSTEM_OUTAGE: null,
+        CHANGELOG: {
+            REMOTE: "assets/json/changelog.json",
+            LOCAL: "assets/json/changelog.json",
+        },
+    },
     icons: {
         COMMON: {
             CONSUMPTION: "assets/img/icon/consumption.svg",
             SELFCONSUMPTION: "assets/img/icon/selfconsumption.svg",
+            GENERATOR: "assets/img/icon/generator.svg",
             GRID: "assets/img/icon/grid.svg",
             GRID_STORAGE: "assets/img/icon/gridStorage.svg",
             GRID_RESTRICTION: "assets/img/icon/gridRestriction.svg",
@@ -26,6 +34,13 @@ export const OemMeta: BaseMeta = {
                 WEATHER_SNOWY: "assets/img/icon/weather_snowy.svg",
                 SUNSHINE_DURATION: "assets/img/icon/sunshine_duration.svg",
                 HELP: "assets/img/icon/help.svg",
+            },
+            OFFLINE: {
+                CLOUD_OFFLINE_OUTLINE: "icons/common/offline/cloud_offline_outline.svg",
+            },
+            TIME_OF_USE: {
+                TIME_OF_USE: "icons/common/time_of_use/time_of_use.svg",
+                TIME_OF_USE_THIN: "icons/common/time_of_use/time_of_use-thin.svg",
             },
         },
         COMPONENT: {
@@ -63,6 +78,10 @@ export const OemMeta: BaseMeta = {
             EVCS_GO_E: null,
             EVCS_IES: null,
             EVCS_ALPITRONIC_HYPER: null,
+            SETTINGS_ALERTING: null,
+            SETTINGS_NETWORK_CONFIGURATION: null,
+            WEATHER_WIDGET: null,
+            OFFLINE_INSTRUCTIONS: null,
         },
         FORGET_PASSWORD: "#",
         EVCS: null,
@@ -80,8 +99,6 @@ export const OemMeta: BaseMeta = {
         CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
         CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
 
-        SETTINGS_ALERTING: null,
-        SETTINGS_NETWORK_CONFIGURATION: null,
         EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
 
         SYSTEM: {

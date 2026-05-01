@@ -13,6 +13,11 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 public class EvseProps {
 
 	/**
+	 * Default wiring configuration for EVSE charge points.
+	 */
+	public static final Wiring DEFAULT_WIRING = Wiring.THREE_PHASE;
+
+	/**
 	 * Creates a {@link AppDef} for wiring.
 	 * 
 	 * @return the {@link AppDef}
@@ -20,7 +25,7 @@ public class EvseProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> wiring() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.wiring.label") //
-				.setDefaultValue(Wiring.THREE_PHASE) //
+				.setDefaultValue(DEFAULT_WIRING) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Wiring.optionsFactory(), l);
 				}));

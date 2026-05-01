@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../../shared/shared";
 
@@ -24,7 +24,7 @@ export class FlatComponent extends AbstractFlatWidget {
         this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
             .filter(component =>
                 !(component.factoryId === "Controller.Heat.Heatingelement") &&
-        !component.isEnabled === false);
+                !component.isEnabled === false);
         channels.push(
             ...this.heatComponents.map(
                 (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
@@ -38,7 +38,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
                 return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-          isEvcs === false && isHeat === false;
+                    isEvcs === false && isHeat === false;
             });
 
         return channels;

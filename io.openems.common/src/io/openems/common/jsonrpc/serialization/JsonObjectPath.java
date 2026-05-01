@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.mapping;
 
 import java.lang.reflect.Array;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
@@ -286,6 +287,30 @@ public interface JsonObjectPath extends JsonPath {
 	/**
 	 * Gets the element associated with the member name from this object as a
 	 * {@link StringPathNullable}.
+	 *
+	 * @param member the name of the member
+	 * @return the {@link StringPathNullable} of the member value
+	 */
+	public default StringPathNullable<Instant> getNullableStringPathInstant(String member) {
+		return this.getNullableJsonElementPath(member).getAsStringPathNullableInstant();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPathNullable}.
+	 *
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link StringPathNullable} of the member value
+	 */
+	public default StringPathNullable<Instant> getNullableStringPathInstant(String member,
+			DateTimeFormatter formatter) {
+		return this.getNullableJsonElementPath(member).getAsStringPathNullableInstant(formatter);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPathNullable}.
 	 * 
 	 * @param member the name of the member
 	 * @return the {@link StringPathNullable} of the member value
@@ -458,6 +483,29 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default StringPath<LocalTime> getStringPathLocalTime(String member) {
 		return this.getJsonElementPath(member).getAsStringPathLocalTime();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPath} of type {@link Instant}.
+	 *
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} to use to parse the string
+	 * @return the {@link StringPath} of type {@link Instant} of the member value
+	 */
+	public default StringPath<Instant> getStringPathInstant(String member, DateTimeFormatter formatter) {
+		return this.getJsonElementPath(member).getAsStringPathInstant(formatter);
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link StringPath} of type {@link Instant}.
+	 *
+	 * @param member the name of the member
+	 * @return the {@link StringPath} of type {@link Instant} of the member value
+	 */
+	public default StringPath<Instant> getStringPathInstant(String member) {
+		return this.getJsonElementPath(member).getAsStringPathInstant();
 	}
 
 	/**
@@ -838,6 +886,75 @@ public interface JsonObjectPath extends JsonPath {
 	 */
 	public default Optional<LocalTime> getOptionalLocalTime(String member, DateTimeFormatter formatter) {
 		return this.getNullableStringPathLocalTime(member, formatter).getOptional();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Instant}.
+	 *
+	 * @param member the name of the member
+	 * @return the {@link Instant} of the member value
+	 */
+	public default Instant getInstant(String member) {
+		return this.getStringPathInstant(member).get();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link LocalTime}.
+	 *
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} to use to parse the string
+	 * @return the {@link LocalTime} of the member value
+	 */
+	public default Instant getInstant(String member, DateTimeFormatter formatter) {
+		return this.getStringPathInstant(member, formatter).get();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Instant} or null if not present.
+	 *
+	 * @param member the name of the member
+	 * @return the {@link Instant} of the member value or null if not present
+	 */
+	public default Instant getInstantOrNull(String member) {
+		return this.getNullableStringPathInstant(member).getOrNull();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Instant} or null if not present.
+	 *
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link Instant} of the member value or null if not present
+	 */
+	public default Instant getInstantOrNull(String member, DateTimeFormatter formatter) {
+		return this.getNullableStringPathInstant(member, formatter).getOrNull();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of type {@link Instant}.
+	 *
+	 * @param member the name of the member
+	 * @return the {@link Optional} of type {@link Instant} of the member value
+	 */
+	public default Optional<Instant> getOptionalInstant(String member) {
+		return this.getNullableStringPathInstant(member).getOptional();
+	}
+
+	/**
+	 * Gets the element associated with the member name from this object as a
+	 * {@link Optional} of type {@link Instant}.
+	 *
+	 * @param member    the name of the member
+	 * @param formatter the {@link DateTimeFormatter} used to parse the string
+	 * @return the {@link Optional} of type {@link Instant} of the member value
+	 */
+	public default Optional<Instant> getOptionalInstant(String member, DateTimeFormatter formatter) {
+		return this.getNullableStringPathInstant(member, formatter).getOptional();
 	}
 
 	/**

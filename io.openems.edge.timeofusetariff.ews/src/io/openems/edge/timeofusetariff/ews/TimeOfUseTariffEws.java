@@ -9,14 +9,12 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public interface TimeOfUseTariffEws extends TimeOfUseTariff, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER) //
+		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.text("The HTTP status code")), //
-		STATUS_TIMEOUT(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Ews: timout while reading from server")), //
-		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Ews: access token authentication failed")), //
+		STATUS_AUTHENTICATION_FAILED(Doc.of(Level.WARNING)//
+				.text("Unable to update prices from EWS: access token authentication failed")), //
 		STATUS_SERVER_ERROR(Doc.of(Level.WARNING) //
-				.text("Unable to update prices from Ews: unexpected server error")) //
+				.text("Unable to update prices from EWS: unexpected server error")) //
 		;
 
 		private final Doc doc;

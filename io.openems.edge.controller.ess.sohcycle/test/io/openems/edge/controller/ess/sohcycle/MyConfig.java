@@ -8,8 +8,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public static class Builder {
 		private String id;
 		private String essId;
-		private Mode mode;
 		private boolean referenceCycleEnabled;
+		private boolean running;
 
 		private Builder() {
 		}
@@ -24,13 +24,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setMode(Mode mode) {
-			this.mode = mode;
+		public Builder setReferenceCycleEnabled(boolean referenceCycleEnabled) {
+			this.referenceCycleEnabled = referenceCycleEnabled;
 			return this;
 		}
 
-		public Builder setReferenceCycleEnabled(boolean referenceCycleEnabled) {
-			this.referenceCycleEnabled = referenceCycleEnabled;
+		public Builder setRunning(boolean running) {
+			this.running = running;
 			return this;
 		}
 
@@ -66,8 +66,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Mode mode() {
-		return this.builder.mode;
+	public boolean isRunning() {
+		return this.builder.running;
 	}
 
 	@Override

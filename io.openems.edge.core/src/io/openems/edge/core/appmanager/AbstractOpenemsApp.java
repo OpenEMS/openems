@@ -27,6 +27,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingBiFunction;
 import io.openems.common.function.ThrowingFunction;
 import io.openems.common.function.ThrowingTriFunction;
+import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -443,6 +444,13 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 	@Override
 	public boolean assertCanEdit(String prop, User user) {
 		return true;
+	}
+
+	@Override
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
+		return AppDescriptor.create() //
+				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId(), language)) //
+				.build();
 	}
 
 	@Override

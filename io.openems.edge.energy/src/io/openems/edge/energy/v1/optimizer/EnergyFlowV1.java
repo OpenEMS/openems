@@ -1,6 +1,6 @@
 package io.openems.edge.energy.v1.optimizer;
 
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 

@@ -20,6 +20,9 @@ export class ModalValueLineComponent extends AbstractModalLine {
 
     @Input({ required: true }) public valueCallback!: (currentData: CurrentData) => string;
 
+    // Show only the value as one line
+    @Input() protected singleLine: boolean = false;
+
     protected shouldShow: boolean = false;
     private channels: ChannelAddress[];
     private _filters: OeFormlyField.ValueFromChannelsLine["filter"] | null = null;

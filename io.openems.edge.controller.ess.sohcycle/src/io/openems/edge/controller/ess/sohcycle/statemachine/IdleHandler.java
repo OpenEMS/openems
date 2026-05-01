@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.controller.ess.sohcycle.Mode;
 import io.openems.edge.controller.ess.sohcycle.statemachine.StateMachine.State;
 
 public class IdleHandler extends StateHandler<State, Context> {
@@ -13,15 +12,11 @@ public class IdleHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		if (isModeManualOn(context)) {
+		if (context.config.isRunning()) {
 			context.logInfo(log,"Starting SoH Cycle");
 			return State.PREPARE;
 		}
 		return StateMachine.State.IDLE;
-	}
-
-	private static boolean isModeManualOn(Context context) {
-		return context.config.mode().equals(Mode.MANUAL_ON);
 	}
 
 	@Override

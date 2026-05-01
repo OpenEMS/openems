@@ -2,7 +2,6 @@ package io.openems.edge.ess.power.api;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Creates a constraint with following settings:.
@@ -17,18 +16,20 @@ import java.util.Optional;
  * </pre>
  * </ul>
  */
-public class Constraint {
+public sealed class Constraint {
 
 	private static final DecimalFormat VALUE_FORMAT = new DecimalFormat("0.#");
 
-	private final String description;
-	private final LinearCoefficient[] coefficients;
-	private final Relationship relationship;
-
-	private Optional<Double> value;
+	public final String description;
+	public final LinearCoefficient[] coefficients;
+	public final Relationship relationship;
+	public final double value;
 
 	public Constraint(String description, LinearCoefficient[] coefficients, Relationship relationship, double value) {
-		this(description, coefficients, relationship, Optional.of(value));
+		this.description = description;
+		this.relationship = relationship;
+		this.coefficients = coefficients;
+		this.value = value;
 	}
 
 	public Constraint(String description, List<LinearCoefficient> coefficients, Relationship relationship,
@@ -37,70 +38,34 @@ public class Constraint {
 	}
 
 	/**
-	 * Creates an initially disabled Constraint.
-	 *
-	 * @param description  the description
-	 * @param coefficients array of {@link LinearCoefficient}s
-	 * @param relationship the {@link Relationship}
+	 * Represents a simple Constraint with only one {@link Coefficient} set to '1'.
 	 */
-	public Constraint(String description, LinearCoefficient[] coefficients, Relationship relationship) {
-		this(description, coefficients, relationship, Optional.empty());
-	}
+	public static final class Simple extends Constraint {
 
-	public Constraint(String description, LinearCoefficient[] coefficients, Relationship relationship,
-			Optional<Double> value) {
-		this.description = description;
-		this.coefficients = coefficients;
-		this.relationship = relationship;
-		this.value = value;
-	}
+		public final LinearCoefficient coefficient;
+		public final int value;
 
-	public Constraint(String description, List<LinearCoefficient> coefficients, Relationship relationship,
-			Optional<Double> value) {
-		this(description, coefficients.toArray(new LinearCoefficient[coefficients.size()]), relationship, value);
+		public Simple(String description, Coefficient coefficient, Relationship relationship, int value) {
+			this(description, new LinearCoefficient(coefficient, 1), relationship, value);
+		}
+
+		public Simple(String description, LinearCoefficient coefficient, Relationship relationship, int value) {
+			super(description, new LinearCoefficient[] { coefficient }, relationship, value);
+			this.coefficient = coefficient;
+			this.value = value;
+		}
 	}
 
 	@Override
 	public String toString() {
-		var b = new StringBuilder();
-		b.append(String.format("%-30s", this.description));
+		var b = new StringBuilder() //
+				.append(String.format("%-30s", this.description));
 		for (LinearCoefficient c : this.coefficients) {
 			b.append(c.toString());
 		}
-		b.append(" " + this.relationship.toString() + " ");
-		if (this.value.isPresent()) {
-			b.append(VALUE_FORMAT.format(this.value.get()));
-		} else {
-			b.append("DISABLED");
-		}
+		b //
+				.append(" " + this.relationship.toString() + " ") //
+				.append(VALUE_FORMAT.format(this.value));
 		return b.toString();
 	}
-
-	public String getDescription() {
-		return this.description;
-	}
-
-	public LinearCoefficient[] getCoefficients() {
-		return this.coefficients;
-	}
-
-	public Relationship getRelationship() {
-		return this.relationship;
-	}
-
-	public Optional<Double> getValue() {
-		return this.value;
-	}
-
-	public void setValue(double value) {
-		this.value = Optional.ofNullable(value);
-	}
-
-	/**
-	 * Disable this {@link Constraint}.
-	 */
-	public void disable() {
-		this.value = Optional.empty();
-	}
-
 }

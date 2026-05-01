@@ -8,6 +8,7 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
+    selector: "oe-common-consumption-history-phase-accurate-overview",
     templateUrl: "./overview.html",
     standalone: false,
 })
@@ -57,20 +58,20 @@ export class CommonConsumptionDetailsOverviewComponent extends AbstractHistoryCh
         }
 
         if (this.config?.hasComponentNature("io.openems.edge.evcs.api.Evcs", this.component.id)
-      && (this.component.factoryId !== "Evcs.Cluster.SelfConsumption")
-      && this.component.factoryId !== "Evcs.Cluster.PeakShaving"
-      && this.component.isEnabled !== false) {
+            && (this.component.factoryId !== "Evcs.Cluster.SelfConsumption")
+            && this.component.factoryId !== "Evcs.Cluster.PeakShaving"
+            && this.component.isEnabled !== false) {
             return "evcs";
         }
 
         if (this.config?.hasComponentNature("io.openems.edge.heat.api.Heat", this.component.id)
-      && (this.component.factoryId !== "Controller.Heat.Heatingelement")
-      && this.component.isEnabled !== false) {
+            && (this.component.factoryId !== "Controller.Heat.Heatingelement")
+            && this.component.isEnabled !== false) {
             return "heat";
         }
 
         if (this.config?.hasComponentNature("io.openems.edge.meter.api.ElectricityMeter", this.component.id)
-      && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
+            && this.config.isTypeConsumptionMetered(this.component) && this.component.isEnabled) {
             return "consumptionMeter";
         }
 

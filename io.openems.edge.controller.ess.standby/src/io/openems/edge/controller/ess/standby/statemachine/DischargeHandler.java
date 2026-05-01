@@ -36,7 +36,7 @@ public class DischargeHandler extends StateHandler<State, Context> {
 		setPower = this.dischargePowerLimitHandler.applyPowerLimit(context, setPower);
 
 		// Apply power constraint
-		context.ess.setActivePowerEqualsWithPid(setPower);
+		context.ess.setActivePowerEqualsWithFilter(setPower);
 
 		// Evaluate next state
 		return this.evaluateNextStateHandler.getNextState(context);

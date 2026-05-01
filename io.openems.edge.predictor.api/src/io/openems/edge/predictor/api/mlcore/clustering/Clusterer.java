@@ -20,4 +20,11 @@ public interface Clusterer {
 	 * @return a list of centroids, each represented as an array of doubles
 	 */
 	List<double[]> getCentroids();
+
+	/**
+	 * Returns the upper quantile centroids of the clusters found during fitting.
+	 *
+	 * @return a list of centroids, each represented as an array of doubles
+	 */
+	List<double[]> getUpperQuantileCentroids();
 }

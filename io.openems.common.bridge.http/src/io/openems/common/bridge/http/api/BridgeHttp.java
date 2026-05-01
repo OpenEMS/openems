@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import com.google.gson.JsonElement;
 
@@ -51,67 +51,14 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 	public static int DEFAULT_CONNECT_TIMEOUT = 5000; // 5s
 	public static int DEFAULT_READ_TIMEOUT = 5000; // 5s
 
-	public static class Builder {
-		private final String url;
-		private HttpMethod method = HttpMethod.GET;
-		private String body;
-		private final Map<String, String> properties = new HashMap<>();
-
-		public Builder(String url) {
-			this.url = url;
-		}
-
-		public Builder setHeader(String key, String value) {
-			Objects.requireNonNull(key, "Header key must not be null!");
-			Objects.requireNonNull(value, "Header value must not be null!");
-			this.properties.put(key, value);
-			return this;
-		}
-
-		public Builder setMethod(HttpMethod method) {
-			Objects.requireNonNull(method, "Method must not be null!");
-			this.method = method;
-			return this;
-		}
-
-		public Builder setBody(String body) {
-			this.setMethod(HttpMethod.POST);
-			this.body = body;
-			return this;
-		}
-
-		public Builder setBodyJson(JsonElement json) {
-			this.setHeader("Content-Type", "application/json");
-			return this.setBody(json.toString());
-		}
-
-		public Builder setBodyFormEncoded(Map<String, String> body) {
-			this.setHeader("Content-Type", "application/x-www-form-urlencoded");
-			return this.setBody(body.entrySet().stream() //
-					.map(t -> t.getKey() + "=" + UrlBuilder.encode(t.getValue())) //
-					.collect(Collectors.joining("&")));
-		}
-
-		public Endpoint build() {
-			return new Endpoint(//
-					this.url, //
-					this.method, //
-					DEFAULT_CONNECT_TIMEOUT, //
-					DEFAULT_READ_TIMEOUT, //
-					this.body, // default body
-					this.properties // default properties
-			);
-		}
-	}
-
 	/**
 	 * Creates a new builder for a {@link Endpoint} with the given url.
 	 *
 	 * @param url the url of the endpoint
-	 * @return a new {@link Builder} instance
+	 * @return a new {@link Endpoint.Builder} instance
 	 */
-	public static Builder create(String url) {
-		return new Builder(url);
+	public static Endpoint.Builder create(String url) {
+		return new Endpoint.Builder(url);
 	}
 
 	public record Endpoint(//
@@ -126,11 +73,27 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 		public static class Builder {
 			private final String url;
 			private HttpMethod method = HttpMethod.GET;
+			private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+			private int readTimeout = DEFAULT_READ_TIMEOUT;
 			private String body;
 			private final Map<String, String> properties = new HashMap<>();
 
 			public Builder(String url) {
 				this.url = url;
+			}
+
+			/**
+			 * Applies the given consumer to this builder only if the condition is true.
+			 * 
+			 * @param condition the condition to check
+			 * @param consumer  the consumer to apply if the condition is true
+			 * @return this builder instance for chaining
+			 */
+			public Builder onlyIf(boolean condition, Consumer<Builder> consumer) {
+				if (condition) {
+					consumer.accept(this);
+				}
+				return this;
 			}
 
 			public Builder setHeader(String key, String value) {
@@ -143,6 +106,16 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 			public Builder setMethod(HttpMethod method) {
 				Objects.requireNonNull(method, "Method must not be null!");
 				this.method = method;
+				return this;
+			}
+
+			public Builder setConnectTimeout(int connectTimeout) {
+				this.connectTimeout = connectTimeout;
+				return this;
+			}
+
+			public Builder setReadTimeout(int readTimeout) {
+				this.readTimeout = readTimeout;
 				return this;
 			}
 
@@ -159,17 +132,15 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 
 			public Builder setBodyFormEncoded(Map<String, String> body) {
 				this.setHeader("Content-Type", "application/x-www-form-urlencoded");
-				return this.setBody(body.entrySet().stream() //
-						.map(t -> t.getKey() + "=" + UrlBuilder.encode(t.getValue())) //
-						.collect(Collectors.joining("&")));
+				return this.setBody(UrlBuilder.encodeFormUrlencodedBody(body));
 			}
 
 			public Endpoint build() {
 				return new Endpoint(//
 						this.url, //
 						this.method, //
-						DEFAULT_CONNECT_TIMEOUT, //
-						DEFAULT_READ_TIMEOUT, //
+						this.connectTimeout, //
+						this.readTimeout, //
 						this.body, // default body
 						this.properties // default properties
 				);

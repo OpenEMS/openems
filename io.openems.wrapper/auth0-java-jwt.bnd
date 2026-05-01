@@ -2,10 +2,10 @@ Bundle-Name: auth0 java-jwt
 Bundle-Description: 
 Bundle-DocURL: https://github.com/influxdata/influxdb-client-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 4.5.0
+Bundle-Version: 4.5.1
 
 Include-Resource: \
-	@java-jwt-4.5.0.jar,\
+	@java-jwt-4.5.1.jar,\
 
 Export-Package: \
 	com.auth0.jwt,\

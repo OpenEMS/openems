@@ -1,7 +1,6 @@
 package io.openems.edge.ess.generic.symmetric;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State.UNDEFINED;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
@@ -46,7 +45,6 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.common.RuntimeChannels;
 import io.openems.edge.ess.generic.common.RuntimeChannelsProvider;
@@ -67,7 +65,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public class EssGenericManagedSymmetricImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider, EssProtection, EssErrorAcknowledge,
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, EssProtection, EssErrorAcknowledge,
 		ComponentJsonApi, TimedataProvider, RuntimeChannels {
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericManagedSymmetricImpl.class);
@@ -97,6 +95,8 @@ public class EssGenericManagedSymmetricImpl
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private Battery battery;
 
+	private Config config;
+
 	public EssGenericManagedSymmetricImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -116,6 +116,7 @@ public class EssGenericManagedSymmetricImpl
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
+		this.config = config;
 	}
 
 	@Override
@@ -133,7 +134,8 @@ public class EssGenericManagedSymmetricImpl
 		this._setStartStop(StartStop.UNDEFINED);
 
 		// Prepare Context
-		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock());
+		var context = new Context(this, this.getBattery(), this.getBatteryInverter(), this.componentManager.getClock(),
+				this.config.essFaultBehaviour());
 
 		// Call the StateMachine
 		try {
@@ -200,13 +202,6 @@ public class EssGenericManagedSymmetricImpl
 		if (this.startStopTarget.getAndSet(value) != value) {
 			this.stateMachine.forceNextState(UNDEFINED);
 		}
-	}
-
-	@Override
-	public int getCycleTime() {
-		return this.cycle != null //
-				? this.cycle.getCycleTime() //
-				: DEFAULT_CYCLE_TIME;
 	}
 
 	@Override

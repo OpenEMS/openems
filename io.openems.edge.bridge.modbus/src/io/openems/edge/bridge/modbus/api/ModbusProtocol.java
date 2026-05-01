@@ -1,5 +1,7 @@
 package io.openems.edge.bridge.modbus.api;
 
+import java.util.List;
+
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.taskmanager.TasksManager;
 
@@ -24,6 +26,17 @@ public class ModbusProtocol {
 	public ModbusProtocol(AbstractOpenemsModbusComponent parent, Task... tasks) {
 		this.parent = parent;
 		this.addTasks(tasks);
+	}
+
+	/**
+	 * Adds Tasks to the Protocol.
+	 *
+	 * @param tasks the tasks
+	 */
+	public synchronized void addTasks(List<Task> tasks) {
+		for (Task task : tasks) {
+			this.addTask(task);
+		}
 	}
 
 	/**

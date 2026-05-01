@@ -23,7 +23,6 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
@@ -78,14 +77,14 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
 	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
 		this.timeOfUseTariff = tariff;
-		this.triggerReschedule("EnergySchedulerImpl::bindTimeOfUseTariff()");
+		this.optimizer.restartOptimization("EnergySchedulerImpl::bindTimeOfUseTariff()", false);
 	}
 
 	@SuppressWarnings("unused")
 	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
 		if (this.timeOfUseTariff == tariff) {
 			this.timeOfUseTariff = null;
-			this.triggerReschedule("EnergySchedulerImpl::unbindTimeOfUseTariff()");
+			this.optimizer.restartOptimization("EnergySchedulerImpl::unbindTimeOfUseTariff()", false);
 		}
 	}
 
@@ -102,9 +101,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		this.schedulables.add(schedulable);
 		var esh = (AbstractEnergyScheduleHandler<?, ?>) schedulable.getEnergyScheduleHandler(); // this is safe
 		if (esh != null) {
-			esh.setOnRescheduleCallback(reason -> this.triggerReschedule(reason));
+			esh.setOnRescheduleCallback(//
+					(reason, rescheduleMode) -> this.optimizer.restartOptimization(//
+							reason, //
+							rescheduleMode.optimizeCurrentPeriod()));
 		}
-		this.triggerReschedule("EnergySchedulerImpl::addSchedulable() " + schedulable.id());
+		this.optimizer.restartOptimization("EnergySchedulerImpl::addSchedulable() " + schedulable.id(), false);
 	}
 
 	@SuppressWarnings("unused")
@@ -161,7 +163,7 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 					return GlobalOptimizationContext.create() //
 							.setComponentManager(this.componentManager) //
 							.setMeta(this.meta) //
-							.setRiskLevel(this.config.riskLevel()) //
+							.setEnvironment(this.config.environment()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //
@@ -173,15 +175,15 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		super.activate(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config, "activate");
+		this.applyConfig(config, "EnergySchedulerImpl::activate()");
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) {
 		super.modified(context, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
-		this.applyConfig(config, "modified");
+		this.applyConfig(config, "EnergySchedulerImpl::modified()");
 	}
 
 	@Override
@@ -200,25 +202,22 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 
 		if (!config.enabled()) {
 			this.optimizerV1.deactivate();
-			this.optimizer.interruptTask();
+			this.optimizer.deactivate();
 			return;
 		}
 
-		this.triggerReschedule("EnergySchedulerImpl::applyConfig() " + reason);
-	}
-
-	private void triggerReschedule(String reason) {
-		if (this.config == null) {
-			return; // Wait for @Activate
-		}
 		switch (this.config.version()) {
 		case V1_ESS_ONLY -> {
-			this.optimizer.interruptTask();
+			this.optimizer.deactivate();
 			this.optimizerV1.activate(this.id());
 		}
 		case V2_ENERGY_SCHEDULABLE -> {
 			this.optimizerV1.deactivate();
-			this.optimizer.triggerReschedule(reason);
+			if (this.optimizer.isActivated()) {
+				this.optimizer.restartOptimization(reason, false);
+			} else {
+				this.optimizer.activate(); // Starts optimization immediately
+			}
 		}
 		}
 	}

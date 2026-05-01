@@ -2,20 +2,26 @@ package io.openems.edge.predictor.api.mlcore.clustering;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.math3.ml.clustering.CentroidCluster;
 import org.apache.commons.math3.ml.clustering.Clusterable;
 import org.apache.commons.math3.ml.clustering.KMeansPlusPlusClusterer;
 
 import io.openems.edge.predictor.api.mlcore.datastructures.DataFrame;
+import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 
 public class AutoKMeansClusterer implements Clusterer {
 
 	private final List<double[]> centroids;
+	private final List<double[]> upperQuantileCentroids;
 
-	private AutoKMeansClusterer(List<double[]> centroids) {
-		validateCentroids(centroids);
+	private AutoKMeansClusterer(List<double[]> centroids, List<double[]> upperQuantileCentroids) {
+		validateCentroids(centroids, upperQuantileCentroids);
 		this.centroids = List.copyOf(centroids);
+		this.upperQuantileCentroids = List.copyOf(upperQuantileCentroids);
 	}
 
 	/**
@@ -38,12 +44,18 @@ public class AutoKMeansClusterer implements Clusterer {
 		int optimalK = findOptimalKUsingElbow(dataPoints, minK, maxK);
 
 		var clusterer = new KMeansPlusPlusClusterer<DataPoint>(optimalK);
-		var centroids = clusterer.cluster(dataPoints).stream()//
+		var clusters = clusterer.cluster(dataPoints);
+
+		var centroids = clusters.stream()//
 				.map(CentroidCluster::getCenter)//
 				.map(Clusterable::getPoint)//
 				.toList();
 
-		return new AutoKMeansClusterer(centroids);
+		var upperQuantileCentroids = clusters.stream()//
+				.map(c -> computeQuantileCenter(c.getPoints(), 0.75))//
+				.toList();
+
+		return new AutoKMeansClusterer(centroids, upperQuantileCentroids);
 	}
 
 	/**
@@ -55,12 +67,13 @@ public class AutoKMeansClusterer implements Clusterer {
 	 *
 	 * @param centroids the list of centroid vectors to initialize the clusterer
 	 *                  with
+	 * @param upperQuantileCentroids the list of quantile centroids (75th percentile)
 	 * @return an AutoKMeansClusterer initialized with the specified centroids
 	 * @throws IllegalArgumentException if centroids are invalid (e.g. null or
 	 *                                  inconsistent dimensions)
 	 */
-	public static AutoKMeansClusterer from(List<double[]> centroids) {
-		return new AutoKMeansClusterer(centroids);
+	public static AutoKMeansClusterer from(List<double[]> centroids, List<double[]> upperQuantileCentroids) {
+		return new AutoKMeansClusterer(centroids, upperQuantileCentroids);
 	}
 
 	@Override
@@ -72,8 +85,32 @@ public class AutoKMeansClusterer implements Clusterer {
 				.toList();
 	}
 
+	@Override
 	public List<double[]> getCentroids() {
 		return List.copyOf(this.centroids);
+	}
+
+	@Override
+	public List<double[]> getUpperQuantileCentroids() {
+		return List.copyOf(this.upperQuantileCentroids);
+	}
+
+	@VisibleForTesting
+	static double[] computeQuantileCenter(List<DataPoint> points, double quantile) {
+		int dim = points.getFirst().getPoint().length;
+		double[] qCenter = new double[dim];
+
+		IntStream.range(0, dim).forEach(d -> {
+			double[] values = points.stream()//
+					.mapToDouble(p -> p.getPoint()[d])//
+					.toArray();
+
+			var percentile = new Percentile();
+			percentile.setData(values);
+			qCenter[d] = percentile.evaluate(quantile * 100.0);
+		});
+
+		return qCenter;
 	}
 
 	private int predictSingle(DataPoint point) {
@@ -103,16 +140,23 @@ public class AutoKMeansClusterer implements Clusterer {
 		return KMeansUtils.detectKnee(inertias, minK);
 	}
 
-	private static void validateCentroids(List<double[]> centroids) {
-		if (centroids == null || centroids.isEmpty()) {
-			throw new IllegalArgumentException("Centroid list must not be null or empty");
+	private static void validateCentroids(List<double[]> centroids, List<double[]> upperQuantileCentroids) {
+		if (centroids == null || upperQuantileCentroids == null) {
+			throw new IllegalArgumentException("Centroid lists must not be null");
 		}
-		int length = centroids.get(0).length;
-		for (double[] c : centroids) {
-			if (c == null || c.length != length) {
-				throw new IllegalArgumentException("Each centroid must be non-null and have the same length");
-			}
+		if (centroids.isEmpty() || upperQuantileCentroids.isEmpty()) {
+			throw new IllegalArgumentException("Centroid lists must not be empty");
 		}
+		if (centroids.size() != upperQuantileCentroids.size()) {
+			throw new IllegalArgumentException("Centroid lists must have the same size (clusters)");
+		}
+		int dim = centroids.getFirst().length;
+		Stream.concat(centroids.stream(), upperQuantileCentroids.stream())//
+				.filter(c -> c == null || c.length != dim)//
+				.findAny()//
+				.ifPresent(c -> {
+					throw new IllegalArgumentException("Each centroid must be non-null and have the same length");
+				});
 	}
 
 	private static void validateDataFrame(DataFrame<?> dataframe) {

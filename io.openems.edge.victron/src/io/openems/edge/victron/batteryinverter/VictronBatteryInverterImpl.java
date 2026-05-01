@@ -370,9 +370,9 @@ public class VictronBatteryInverterImpl extends AbstractOpenemsModbusComponent i
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
 				new BatteryInverterConstraint("Victron inverter not ready", SingleOrAllPhase.ALL, Pwr.REACTIVE, //
-						Relationship.EQUALS, 0d), //
+						Relationship.EQUALS, 0), //
 				new BatteryInverterConstraint("Victron inverter not ready", SingleOrAllPhase.ALL, Pwr.ACTIVE, //
-						Relationship.EQUALS, 0d) //
+						Relationship.EQUALS, 0) //
 		};
 	}
 

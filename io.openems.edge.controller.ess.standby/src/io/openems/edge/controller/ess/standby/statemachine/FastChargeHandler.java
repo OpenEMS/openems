@@ -30,7 +30,7 @@ public class FastChargeHandler extends StateHandler<State, Context> {
 		var setPower = maxApparentPower * -1; // Charge
 
 		// Apply power constraint
-		context.ess.setActivePowerEqualsWithPid(setPower);
+		context.ess.setActivePowerEqualsWithFilter(setPower);
 
 		// Evaluate next state
 		if (Duration.between(this.enteredStateAt, Instant.now(context.clock))

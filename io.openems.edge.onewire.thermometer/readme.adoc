@@ -1,6 +1,58 @@
 = OneWire Thermometer
 
-Implemented Natures::
-- Thermometer
+Digital temperature sensor using 1-Wire protocol.
+
+== Overview
+
+This bundle provides integration with OneWire (1-Wire) digital thermometer sensors. The component reads temperature values from DS18B20 or similar OneWire temperature sensors connected to the system via a OneWire bridge.
+
+OneWire thermometers are low-cost, accurate temperature sensors useful for monitoring system temperatures in energy management applications such as battery thermal monitoring, ambient temperature sensing, or thermal load assessment.
+
+== Supported Devices
+
+.OneWire Digital Thermometers
+* **Type**: Digital temperature sensor
+* **Protocol**: 1-Wire
+* **Common Models**: DS18B20, DS1822, DS1820
+* **Typical Use**: Ambient monitoring, battery thermal monitoring, thermal load assessment
+* **Accuracy**: ±0.5°C typical
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== OneWire Thermometer
+
+*Name*: OneWire Thermometer
+
+*Factory-PID*: `OneWire.Thermometer`
+
+.Implemented Natures/Interfaces
+* Thermometer
+* OpenemsComponent
+
+*Description*: Interface for OneWire digital thermometer sensors. Reads temperature value from a specific 1-Wire device address. Multiple instances can be configured to read from different sensors on the same 1-Wire bus.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "temp0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `bridge_id` (String): ID of the OneWire bridge component (default: "onewire0")
+* `address` (String): Address of the specific OneWire thermometer device (required) - typically in format like "28.0000..." or "10.0000..."
+
+== Prerequisites / Dependencies
+
+* OneWire bridge component must be configured and running (e.g., `onewire0`)
+* OneWire thermometer sensor physically connected to the OneWire bus
+* Device address must be known (typically obtained from 1-Wire scanning tools)
+* OneWire interface accessible from the system
+
+== Features
+
+* Real-time temperature reading
+* Low-cost digital temperature measurement
+* Multiple sensors per bridge supported (configure multiple instances)
+* Pluggable Thermometer interface for integration with other components
+* Temperature accuracy to ±0.5°C
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.onewire.thermometer[Source Code icon:github[]]

@@ -102,12 +102,8 @@ export namespace StringUtils {
         if (!isValidString(value)) {
             return null;
         }
-        const match = value.match(/[^0-9]+([0-9]+)$/);
+        const match = value.match(/\D+(\d+)$/)?.[1];
 
-        if (match && match.length > 1) {
-            return Number.parseInt(match[1]);
-        }
-
-        return null;
+        return match ? Number.parseInt(match, 10) : null;
     }
 }

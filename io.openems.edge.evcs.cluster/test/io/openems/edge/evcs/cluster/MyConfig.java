@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private boolean debugMode;
 		private int hardwarePowerLimitPerPhase;
+		private int minimumGuaranteeChargePower = 4500;
 		private String[] evcsIds;
 		private String essId;
 		private String meterId;
@@ -30,6 +31,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setHardwarePowerLimit(int hardwarePowerLimitPerPhase) {
 			this.hardwarePowerLimitPerPhase = hardwarePowerLimitPerPhase;
+			return this;
+		}
+
+		public Builder setMinimumGuaranteeChargePower(int minimumGuaranteeChargePower) {
+			this.minimumGuaranteeChargePower = minimumGuaranteeChargePower;
 			return this;
 		}
 
@@ -102,5 +108,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String meter_id() {
 		return this.builder.meterId;
+	}
+
+	@Override
+	public int minimumGuaranteeChargePower() {
+		return this.builder.minimumGuaranteeChargePower;
 	}
 }

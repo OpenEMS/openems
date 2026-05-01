@@ -7,10 +7,10 @@ import { TranslateModule } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
-import { OverviewComponent } from "./overview/overview";
+import { ControllerPeakShavingSymmetricOverviewComponent } from "./overview/overview";
 
 const routes: Routes = [
-    { path: "", component: OverviewComponent },
+    { path: "", component: ControllerPeakShavingSymmetricOverviewComponent },
 ];
 
 @NgModule({

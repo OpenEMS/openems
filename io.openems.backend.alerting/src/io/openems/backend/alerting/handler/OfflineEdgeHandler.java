@@ -20,12 +20,11 @@ import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
@@ -94,14 +93,21 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		// Ensure Edge is still offline before sending mail.
 		pack.removeIf(msg -> !this.isEdgeOffline(msg.getEdgeId()));
 		if (pack.isEmpty()) {
+			this.log.debug("No OfflineEdgeMessages to send after filtering for offline edges. Skip sending mail.");
 			return;
 		}
 
-		final var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
-
-		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
-		this.messagesSent.getAndAdd(pack.size());
-
+		final var params = pack.stream().map(OfflineEdgeMessage::getContext).toList();
+		
+		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params) //
+				.whenComplete((sentMessages, error) -> {
+					if (error == null) {
+						this.messagesSent.getAndAdd(sentMessages);
+					} else {
+						this.log.error("Failed to send OfflineEdgeMessage: {}", error.getMessage());
+						this.log.debug("Failed to send OfflineEdgeMessage for: {}", params, error);
+					}
+				});
 		this.reschedule(pack);
 	}
 
@@ -286,5 +292,19 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	@Override
 	public HandlerMetrics getMetrics() {
 		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
+	}
+	
+	private boolean waitforInit() {
+		return this.initMetadata != null && !this.initMetadata.isDone();
+	}
+	
+	@Override
+	public String debugLog() {
+		if (this.waitforInit()) {
+			return "OfflineEdgeHandler{MessagesSent: %d, MessagesQueue: %d, !initial wait!}" //
+					.formatted(this.messagesSent.get(), this.msgScheduler.size());
+		}
+		return "OfflineEdgeHandler{MessagesSent: %d, MessagesQueue: %d}" //
+				.formatted(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

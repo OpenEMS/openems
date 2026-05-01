@@ -5,7 +5,7 @@ import { Language } from "../../type/language";
 export namespace Formatter {
 
     // Changes the number format based on the language selected.
-    const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT)?.i18nLocaleKey;
+    const locale: string = Language.geti18nLocale();
 
     export const FORMAT_WATT = (value: number) => {
         return formatNumber(value, locale, "1.0-0") + " W";
@@ -55,7 +55,7 @@ export namespace Formatter {
     };
 
     export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
-        return formatNumber(parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
+        return formatNumber(Number.parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
     };
 
     export const formatSafely = (value: number | string | null, format: string) => {

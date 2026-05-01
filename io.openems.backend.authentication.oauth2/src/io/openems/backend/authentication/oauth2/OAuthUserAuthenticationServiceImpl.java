@@ -52,6 +52,7 @@ import io.openems.backend.authentication.api.model.request.RegisterUserRequest;
 import io.openems.backend.authentication.api.model.response.InitiateConnectResponse;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.metadata.Metadata;
+import io.openems.backend.metrics.prometheus.httpbridge.HttpBridgePrometheusMetricServiceDefinition;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
@@ -130,6 +131,19 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		this.bridgeHttp = this.bridgeHttpFactory.get();
 		this.bridgeHttp.setMaximumPoolSize(config.maxConcurrentRequests());
 		this.bridgeHttp.setDebugMode(config.debugMode());
+		this.bridgeHttp.createService(new HttpBridgePrometheusMetricServiceDefinition(ID, endpoint -> {
+			final var url = UrlBuilder.parse(endpoint.url());
+
+			if (url.path().endsWith("/protocol/openid-connect/token")) {
+				final var params = UrlBuilder.decodeFormUrlencodedBody(endpoint.body());
+				final var grantType = params.get("grant_type");
+				if (grantType != null) {
+					return url.path() + "_" + grantType;
+				}
+			}
+
+			return url.path();
+		}));
 
 		this.metadata = metadata;
 

@@ -1,0 +1,73 @@
+ <ion-row class="ion-justify-content-center">
+    <ion-col size="12" size-md="8">
+        <ion-card>
+            <ion-item color="light" lines="full">
+                <ion-icon name="location-outline" slot="start"
+                    color="primary"></ion-icon>
+                <ion-label>{{"SETTINGS_PROFILE_LOCATION.LOCATION" | translate}}</ion-label>
+            </ion-item>
+            <ion-card-content class="ion-padding ion-font-size-larger">
+                <ion-grid class="ion-padding">
+
+                    <ion-row class="ion-align-items-center">
+                        <ion-col size-md="4" size-xs="6">
+                            <ion-label style="color:var(--ion-color-label)">
+                                {{"SETTINGS_PROFILE_LOCATION.SYSTEM_LOCATION" | translate}}
+                            </ion-label>
+                        </ion-col>
+                        <ion-col size-md="4" size-xs="6"
+                            class="ion-text-align-end ion-text-md-center ion-align-items-center ion-text-align-center">
+                            @switch (isValidated) {
+                                @case (true) {
+                                <ion-text style="display: inline-flex;"
+                                    class="ion-align-items-center">
+
+                                    <ion-icon name="checkmark-outline"
+                                        color="success"
+                                        class="ion-padding-right"></ion-icon>
+                                    <ion-label
+                                        style="color:var(--ion-color-success)">
+                                        {{"SETTINGS_PROFILE_LOCATION.VALIDATED" | translate}}
+                                    </ion-label>
+                                </ion-text>
+                                }
+                                @case (false) {
+                                    <ion-label style="color:var(--ion-color-medium)">
+                                        {{"SETTINGS_PROFILE_LOCATION.NOT_VALIDATED" | translate}}
+                                    </ion-label>
+                                }
+                                @default {
+                                    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+                                }
+                            }
+                        </ion-col>
+                        <ion-col size-md="4" class="ion-text-align-end"
+                            size-xs="12">
+                            <ngx-spinner [name]="spinnerId"></ngx-spinner>
+
+                            <ion-button size="small"
+                                (click)="editLocation()">
+                                @if(isValidated === true){
+                                    <ion-label>
+                                        {{"SETTINGS_PROFILE_LOCATION.EDIT" | translate}}
+                                    </ion-label>
+                                    <ion-icon name="pencil-outline"
+                                        slot="start"></ion-icon>
+                                }@else {
+                                    <ion-label>
+                                        {{"SETTINGS_PROFILE_LOCATION.TO_VALIDATION" | translate}}
+                                    </ion-label>
+                                    <ion-icon name="repeat-outline"
+                                        slot="start"></ion-icon>
+                                }
+
+                            </ion-button>
+
+                        </ion-col>
+                    </ion-row>
+
+                </ion-grid>
+            </ion-card-content>
+        </ion-card>
+    </ion-col>
+</ion-row>

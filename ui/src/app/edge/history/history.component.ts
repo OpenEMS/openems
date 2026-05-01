@@ -5,6 +5,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, EdgeConfig, EdgePermission, Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
@@ -41,6 +42,7 @@ export class HistoryComponent implements OnInit {
         private dataService: DataService,
         private userService: UserService,
         protected navigationService: NavigationService,
+        private layoutRefresh: LayoutRefreshService,
     ) {
 
         effect(() => {
@@ -51,16 +53,20 @@ export class HistoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.getConfig().then(config => {
+        this.service.getConfig().then(async config => {
             this.config = config;
             config.hasStorage();
-            this.widgets = this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
+            this.widgets = await this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
             // Are we connected to OpenEMS Edge and is a timedata service available?
             if (environment.backend == "OpenEMS Edge"
                 && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
                 this.isTimedataAvailable = false;
             }
         });
+    }
+
+    public ionViewWillEnter() {
+        this.layoutRefresh.request(500);
     }
 
     updateOnWindowResize() {
@@ -74,6 +80,10 @@ export class HistoryComponent implements OnInit {
             /* minimum size */ Math.max(300,
                 /* maximum size */ Math.min(600, ref),
             ) + "px";
+    }
+
+    onDomChange(event: CustomEvent) {
+        this.layoutRefresh.request(500);
     }
 
     protected handleRefresh: (ev: CustomEvent) => void = (ev) => this.dataService.refresh(ev);

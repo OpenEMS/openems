@@ -14,7 +14,7 @@ import en from "./i18n/en.json";
     templateUrl: "./overview.html",
     standalone: false,
 })
-export class OverviewComponent extends AbstractHistoryChartOverview {
+export class ControllerEnerixOverviewComponent extends AbstractHistoryChartOverview {
     protected readonly STATES: string = `
     1.${this.translate.instant("GENERAL.OFF")}
     2.${this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE")}

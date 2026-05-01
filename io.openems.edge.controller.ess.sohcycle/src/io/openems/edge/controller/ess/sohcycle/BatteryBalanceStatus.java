@@ -3,9 +3,10 @@ package io.openems.edge.controller.ess.sohcycle;
 import io.openems.common.types.OptionsEnum;
 
 public enum BatteryBalanceStatus implements OptionsEnum {
-	NOT_MEASURED(0),
-	BALANCED(1),
-	NOT_BALANCED(2);
+	NOT_MEASURED(0), //
+	BALANCED(1), //
+	NOT_BALANCED(2), //
+	ERROR(3);
 
 	private final int value;
 

@@ -54,6 +54,7 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PredictorManagerByCentralOrderAggregateTask;
@@ -444,6 +445,17 @@ public class AppManagerTestBundle {
 				this.componentManger, this.appManagerUtil);
 		this.appHelper.addAggregateTask(persistencePredictorAggregateTaskImpl);
 		return persistencePredictorAggregateTaskImpl;
+	}
+
+	/**
+	 * Adds a {@link EvseClusterTaskImpl} to the current active tasks.
+	 *
+	 * @return the created {@link EvseClusterTaskImpl}
+	 */
+	public EvseClusterTaskImpl addEvseAggregateTask() {
+		final var clusterTask = new EvseClusterTaskImpl(this.componentManger);
+		this.appHelper.addAggregateTask(clusterTask);
+		return clusterTask;
 	}
 
 	/**

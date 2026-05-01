@@ -16,17 +16,20 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
+	
+	@AttributeDefinition(name = "Battery Capacity [Wh]", description = "64000 for 64 kWh")
+	int capacity() default 50000;
 
-	@AttributeDefinition(name = "Minimum Power in Single-Phase charging [W]", description = "1380 W for 6 A, 2300 W for 10 A")
+	@AttributeDefinition(name = "Minimum Power in Single-Phase charging [W]", description = "1380 W for 6 A, 2300 W for 10 A, 0 if single-phase charging is not available")
 	int minPowerSinglePhase() default 1380;
 
-	@AttributeDefinition(name = "Maximum Power in Single-Phase charging [W]", description = "3680 W for 16 A, 7360 W for 32 A")
+	@AttributeDefinition(name = "Maximum Power in Single-Phase charging [W]", description = "3680 W for 16 A, 7360 W for 32 A, 0 if single-phase charging is not available")
 	int maxPowerSinglePhase() default 7360;
 
-	@AttributeDefinition(name = "Minimum Power in Three-Phase charging [W]", description = "4140 W for 6 A, 6900 W for 10 A")
+	@AttributeDefinition(name = "Minimum Power in Three-Phase charging [W]", description = "4140 W for 6 A, 6900 W for 10 A, 0 if three-phase charging is not available")
 	int minPowerThreePhase() default 4140;
 
-	@AttributeDefinition(name = "Maximum Power in Three-Phase charging [W]", description = "11040 W for 16 A, 22080 W for 32 A, 0 if Three-Phase charging is not available")
+	@AttributeDefinition(name = "Maximum Power in Three-Phase charging [W]", description = "11040 W for 16 A, 22080 W for 32 A, 0 if three-phase charging is not available")
 	int maxPowerThreePhase() default 11040;
 
 	@AttributeDefinition(name = "Does this EV support interrupting a charging session?", description = "Some elder EVs do not support interrupting")

@@ -90,7 +90,7 @@ export namespace DateUtils {
    * @param compareDate the date to compare it to
    * @returns true, if the passed date is before compareDate
    */
-    export function isDateBefore(date: Date, compareDate: Date): boolean {
+    export function isDateBefore(date: Date | null, compareDate: Date | null): boolean {
         if (date != null && compareDate != null) {
             return isBefore(date, compareDate);
         }

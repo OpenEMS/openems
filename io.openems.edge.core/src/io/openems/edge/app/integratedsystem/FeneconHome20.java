@@ -21,12 +21,12 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isState
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.persistencePredictorTask;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.power;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.ctRatioFirst;
@@ -62,7 +62,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -334,7 +333,6 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
-					predictor(bundle, t), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
@@ -369,6 +367,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, gridMeterId), //
 					prepareBatteryExtension(), //
+					sohCycle(), //
+					predictionDefault(), //
 					predictionUnmanagedConsumption()//
 			);
 
@@ -402,7 +402,6 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(schedulerComponents)) //
-					.addTask(persistencePredictorTask()) //
 					.addDependencies(dependencies) //
 					.build();
 		};
@@ -411,13 +410,6 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 	@Override
 	protected FeneconHome20 getApp() {
 		return this;
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

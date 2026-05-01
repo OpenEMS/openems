@@ -527,7 +527,6 @@
       "REQUIRED_FIELDS": "Vyplňte prosím všechna pole"
     },
     "FORM": {
-      "ACCEPT_AGB": "Potvrzuji <a target=\"_blank\" href=\"https://fenecon.de/allgemeine-lieferungs-und-zahlungsbedingungen/\">AGB</a>.*",
       "CITY": "Město",
       "COMPANY_NAME": "název společnosti",
       "CONFIRM_PASSWORD": "Potvrzení hesla",
@@ -535,18 +534,11 @@
       "COUNTRY": "Město",
       "EMAIL": "E-Mailem",
       "FIRSTNAME": "jméno",
-      "INSTALLER": {
-        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
       "IS_ELECTRICIAN": "Potvrzuji, že moje společnost je zapsána v registru instalátorů, a jsem tedy oprávněn připojit a uvést do provozu systém ukládání dat.",
       "LASTNAME": " Příjmení",
       "PASSWORD": "Heslo",
       "PHONE": "Telefonní číslo",
       "STREET": "Ulice",
-      "SUBSCRIBE_NEWSLETTER": "Chci se přihlásit k odběru newsletteru FENECON a dostávat všechny novinky z FENECON.",
-      "USER": {
-        "ACCEPT_PRIVACY_POLICY": "Vytvořením účtu FENECON prohlašuji, že jsem si přečetl/a <a target=\"_blank\" href={{link}}>Zásady ochrany osobních údajů</a> a Podmínky používání a souhlasím s nimi.*"
-      },
       "ZIP": "Ulice"
     },
     "SEGMENT": {

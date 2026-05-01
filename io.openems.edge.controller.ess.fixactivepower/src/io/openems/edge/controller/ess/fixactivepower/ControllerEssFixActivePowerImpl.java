@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
 import static io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -85,7 +86,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		if (this.applyConfig(context, config)) {
 			return;
 		}
-		this.energyScheduleHandler.triggerReschedule("ControllerEssFixActivePowerImpl::modified()");
+		this.energyScheduleHandler.triggerReschedule("ControllerEssFixActivePowerImpl::modified()",
+				OPTIMIZE_CURRENT_PERIOD);
 	}
 
 	private boolean applyConfig(ComponentContext context, Config config) {

@@ -16,10 +16,10 @@ public class AbstractGoodWeTest {
 
 	@Test
 	public void testMapGridModeNull() {
-		assertEquals(GridMode.UNDEFINED, mapGridMode(null, 0));
-		assertEquals(GridMode.ON_GRID, mapGridMode(null, 1));
-		assertEquals(GridMode.OFF_GRID, mapGridMode(null, 2));
-		assertEquals(GridMode.UNDEFINED, mapGridMode(null, null));
+		assertEquals(GridMode.UNDEFINED, mapGridMode(null, 0, false));
+		assertEquals(GridMode.ON_GRID, mapGridMode(null, 1, false));
+		assertEquals(GridMode.OFF_GRID, mapGridMode(null, 2, false));
+		assertEquals(GridMode.UNDEFINED, mapGridMode(null, null, false));
 	}
 
 	@Test
@@ -27,20 +27,30 @@ public class AbstractGoodWeTest {
 		for (var goodWeType : Stream.of(GoodWeType.values()) //
 				.filter(t -> !Set.of(GoodWeType.FENECON_50K, GoodWeType.FENECON_100K).contains(t)) //
 				.toList()) {
-			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 0));
-			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1));
-			assertEquals(GridMode.OFF_GRID, mapGridMode(goodWeType, 2));
-			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, null));
+			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 0, false));
+			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1, false));
+			assertEquals(GridMode.OFF_GRID, mapGridMode(goodWeType, 2, false));
+			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, null, false));
 		}
 	}
 
 	@Test
 	public void testMapGridModeFenecon50k() {
 		for (var goodWeType : List.of(GoodWeType.FENECON_50K, GoodWeType.FENECON_100K)) {
-			assertEquals(GridMode.OFF_GRID, mapGridMode(goodWeType, 0));
-			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1));
-			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 2));
-			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, null));
+			assertEquals(GridMode.OFF_GRID, mapGridMode(goodWeType, 0, false));
+			assertEquals(GridMode.ON_GRID, mapGridMode(goodWeType, 1, false));
+			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, 2, false));
+			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, null, false));
+		}
+	}
+
+	@Test
+	public void testMapGridModeFenecon100kGenset() {
+		for (var goodWeType : List.of(GoodWeType.FENECON_50K, GoodWeType.FENECON_100K)) {
+			assertEquals(GridMode.OFF_GRID_GENSET, mapGridMode(goodWeType, 0, true));
+			assertEquals(GridMode.OFF_GRID_GENSET, mapGridMode(goodWeType, 1, true));
+			assertEquals(GridMode.OFF_GRID_GENSET, mapGridMode(goodWeType, 2, true));
+			assertEquals(GridMode.UNDEFINED, mapGridMode(goodWeType, null, true));
 		}
 	}
 

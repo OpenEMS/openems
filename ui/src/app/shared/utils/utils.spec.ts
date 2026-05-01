@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { EvcsComponent } from "../components/edge/components/evcsComponent";
+import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { DummyConfig } from "../components/edge/edgeconfig.spec";
 import { TestingUtils } from "../components/shared/testing/utils.spec";
 import { Currency, EdgeConfig } from "../shared";
@@ -8,7 +8,7 @@ import { HistoryUtils, Utils } from "./utils";
 describe("Utils", () => {
 
     beforeEach(async () => {
-    // Used to load translations globally for CONVERT_PRICE_TO_CENT_PER_KWH, not recommended to implement locale statically
+        // Used to load translations globally for CONVERT_PRICE_TO_CENT_PER_KWH, not recommended to implement locale statically
         await TestingUtils.sharedSetup();
     });
 
@@ -43,7 +43,7 @@ describe("Utils", () => {
     const heatComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
         .filter(component =>
             !(component.factoryId === "Controller.Heat.Heatingelement") &&
-      !component.isEnabled === false);
+            !component.isEnabled === false);
 
     const consumptionMeterComponents: EdgeConfig.Component[] = dummyConfig.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
         .filter(component => component.isEnabled && dummyConfig.isTypeConsumptionMetered(component));

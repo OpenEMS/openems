@@ -2,7 +2,7 @@ services:
   openems-ui-dev:
     image: openems/ui-edge:latest
     container_name: openems_ui_dev
-    hostname: openems_ui
+    hostname: openems-ui
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"

@@ -9,6 +9,9 @@ import static io.openems.edge.ess.api.SymmetricEss.ChannelId.ACTIVE_POWER;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.GRID_MODE;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.REACTIVE_POWER;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
 
 import org.junit.Test;
 
@@ -26,7 +29,8 @@ public class EssClusterImplTest {
 
 	@Test
 	public void testCluster() throws Exception {
-		new ComponentTest(new EssClusterImpl()) //
+		final var ess = new EssClusterImpl();
+		new ComponentTest(ess) //
 				.addReference("power", new DummyPower()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("addEss", new DummyManagedSymmetricEss("ess1")) //
@@ -58,6 +62,9 @@ public class EssClusterImplTest {
 						.input("ess2", ALLOWED_DISCHARGE_POWER, 20) //
 						.output(ALLOWED_DISCHARGE_POWER, 30) //
 				);
+
+		assertEquals(1, ess.getPowerPrecision());
+		ess.getPowerPrecision();
 	}
 
 	@Test
@@ -152,5 +159,22 @@ public class EssClusterImplTest {
 						.output(START_STOP, StartStop.START)) //
 
 		;
+	}
+
+	@Test
+	public void testCalculateMinPowerPrecision() {
+		assertEquals(1, EssClusterImpl.calculateMinPowerPrecision(List.of(//
+				new DummyManagedSymmetricEss("ess0") //
+						.withPowerPrecision(0), //
+				new DummyManagedSymmetricEss("ess1") //
+						.withPowerPrecision(100) //
+		)));
+		assertEquals(50, EssClusterImpl.calculateMinPowerPrecision(List.of(//
+				new DummyManagedSymmetricEss("ess0") //
+						.withPowerPrecision(50), //
+				new DummyManagedSymmetricEss("ess1") //
+						.withPowerPrecision(100) //
+		)));
+		assertEquals(1, EssClusterImpl.calculateMinPowerPrecision(List.of()));
 	}
 }

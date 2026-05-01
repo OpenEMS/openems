@@ -66,7 +66,7 @@ $\{buildpath\}::
 io.openems.common::
   OpenEMS commons
 io.openems.edge.bridge.modbus::
-  the Modbus Bridge provides the xref:edge/bridge.adoc[Bridge] services for Modbus/RTU and Modbus/TCP protocols
+  the Modbus Bridge provides the Bridge services for Modbus/RTU and Modbus/TCP protocols
 io.openems.edge.common::
   OpenEMS Edge commons
 ====

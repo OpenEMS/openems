@@ -143,7 +143,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 	@Override
 	public synchronized Configuration[] listConfigurations(String filter) throws IOException, InvalidSyntaxException {
 		final String key, value;
-		
+
 		if (filter == null || filter.isBlank()) {
 			key = value = null;
 		} else {
@@ -155,7 +155,7 @@ public class DummyConfigurationAdmin implements ConfigurationAdmin {
 				key = value = null;
 			}
 		}
-		
+
 		// org.apache.felix.cm.impl.Simplefilter is not available here, so we apply just
 		// a simple parsing. See
 		// https://github.com/apache/felix-dev/blob/master/configadmin/src/main/java/org/apache/felix/cm/impl/SimpleFilter.java

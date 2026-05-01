@@ -14,7 +14,7 @@ public class DoneHandler extends StateHandler<StateMachine.State, Context> {
         context.logInfo(log, String.format("%s: SoC=%d%%, SoH cycle finished successfully",
                 StateMachine.State.DONE.getName(), soc));
         var controller = context.getParent();
-        controller.updateConfigToManualOff();
+        controller.updateConfigToNotRunning();
         return StateMachine.State.IDLE;
     }
 }

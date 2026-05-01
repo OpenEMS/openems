@@ -57,6 +57,18 @@ export class Language {
     ) {
     }
 
+    public static get SYSTEM(): Language | null {
+        // navigator.userLanguage is a non-standard property (IE) and not defined
+        // in the TypeScript DOM lib. Cast to any to silence the compiler.
+        const browserLang = navigator.language || (navigator as any).userLanguage;
+        return Language.getByBrowserLang(browserLang);
+    }
+
+    public static get LOCAL_STORAGE(): Language | null {
+        return Language.getByKey(localStorage.LANGUAGE);
+    }
+
+
     public static getByKey(key: string): Language | null {
         for (const language of Language.ALL) {
 
@@ -117,7 +129,7 @@ export class Language {
      * @returns the i18n locale key
      */
     public static geti18nLocale() {
-        return Language.getByKey(localStorage.LANGUAGE)?.i18nLocaleKey ?? Language.getByBrowserLang(navigator.language)?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
+        return Language.getCurrentLanguage().i18nLocaleKey;
     }
 
     /**
@@ -142,6 +154,6 @@ export class Language {
      * @returns the i18n locale key
      */
     public static getCurrentLanguage() {
-        return Language.getByKey(localStorage.LANGUAGE) ?? Language.getByBrowserLang(navigator.language) ?? Language.DEFAULT;
+        return Language.LOCAL_STORAGE ?? Language.SYSTEM ?? Language.DEFAULT;
     }
 }

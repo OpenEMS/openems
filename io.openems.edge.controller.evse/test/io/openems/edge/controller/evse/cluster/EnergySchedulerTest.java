@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
@@ -26,6 +27,8 @@ public class EnergySchedulerTest {
 
 	@Test
 	public void test() {
+		final var clock = TestUtils.createDummyClock();
+
 		var ctrl0 = createSingleCtrl() //
 				.setId(CTRL_FORCE) //
 				.setMode(Mode.FORCE) //
@@ -38,7 +41,7 @@ public class EnergySchedulerTest {
 		var ctrl2 = createSingleCtrl() //
 				.setId(CTRL_SURPLUS1) //
 				.setMode(Mode.SURPLUS) //
-				.setTasks(JSCalendar.Tasks.<Payload>create() //
+				.setTasks(JSCalendar.Tasks.<Payload>create(clock) //
 						.add(t -> t //
 								.setStart("01:15") //
 								.setDuration(Duration.ofMinutes(15)) //
@@ -61,6 +64,7 @@ public class EnergySchedulerTest {
 
 		var ctrl = new DummyEnergySchedulable<>("Evse.Controller.Cluster", "ctrlEvseCluster0",
 				cmp -> EnergyScheduler.buildEnergyScheduleHandler(cmp, //
+						() -> clock, //
 						() -> EnergyScheduler.ClusterEshConfig.from(//
 								DistributionStrategy.EQUAL_POWER, //
 								ImmutableList.of(ctrl0.getParams(), ctrl1.getParams(), ctrl2.getParams(),
@@ -118,11 +122,11 @@ public class EnergySchedulerTest {
 		}
 		// ...
 		{
-			// esh0: FORCE (0); esh1: SURPLUS (1166); esh2: SURPLUS (1165)
-			var sp = t.simulatePeriodIndex(40, 0);
-			assertEquals(1166, sp.ef().getManagedConsumption(CTRL_SURPLUS0));
-			assertEquals(1165, sp.ef().getManagedConsumption(CTRL_SURPLUS1));
-			assertEquals(2331, sp.ef().getManagedConsumption());
+			// esh0: FORCE (0); esh1: SURPLUS (5953); esh2: SURPLUS (5953)
+			var sp = t.simulatePeriodIndex(30, 0);
+			assertEquals(5953, sp.ef().getManagedConsumption(CTRL_SURPLUS0));
+			assertEquals(5953, sp.ef().getManagedConsumption(CTRL_SURPLUS1));
+			assertEquals(11906, sp.ef().getManagedConsumption());
 		}
 	}
 

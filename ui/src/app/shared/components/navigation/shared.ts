@@ -1,5 +1,9 @@
+import { TranslateService } from "@ngx-translate/core";
+import { Role } from "../../type/role";
 import { TEnumKeys, TPartialBy } from "../../type/utility";
-import { Icon, WidgetClass } from "../../type/widget";
+import { Icon, Widget, WidgetClass } from "../../type/widget";
+import { ArrayUtils } from "../../utils/array/array.utils";
+import { Edge } from "../edge/edge";
 
 export enum NavigationId {
     LIVE = "live",
@@ -10,7 +14,6 @@ type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "
 export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
 export class NavigationTree {
-
     constructor(
         public id: NavigationId | string,
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
@@ -23,14 +26,16 @@ export class NavigationTree {
 
         /** Use null for nested node */
         public parent: NavigationTree | null,
+        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
+        public showOrder: "HIGH" | "LOW" | "HIDE" = "HIGH",
     ) { }
 
     /**
-     * Creates new navigation tree instance from existing navigation tree object
-     *
-     * @param navigationTree
-     * @returns the new navigationTree
-     */
+     * Creates new navigation tree instance from existing navigation tree object.
+    *
+    * @param navigationTree
+    * @returns the new navigationTree
+    */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
         if (!navigationTree) {
             return null;
@@ -42,12 +47,147 @@ export class NavigationTree {
         return new NavigationTree("", { baseString: "" }, { name: "help-outline" }, "", "label", [], null);
     }
 
+    /**
+     * Reorders the navigation tree children by its {@link showOrder} from HIGH to LOW.
+     *
+     * @param node the node
+     * @returns
+     */
+    public reorderByShowOrder(node: NavigationTree): void {
+        if (node == null || !Array.isArray(node.children)) {
+            return;
+        }
+
+        // First reorder deeper levels
+        node.children.forEach(child => this.reorderByShowOrder(child));
+
+        // Explicit grouping (safer than comparator)
+        const high = node.children.filter(c => c.showOrder === "HIGH");
+        const low = node.children.filter(c => c.showOrder === "LOW");
+        const hide = node.children.filter(c => c.showOrder === "HIDE");
+
+        node.children = [...high, ...low, ...hide];
+    }
+
+    public findParentByUrl(currentUrl: string | null): NavigationTree | null {
+
+        /**
+         * Converts a relative routerLink to absolute from root node.
+         *
+         * @param tree the current navigation node
+            * @returns a navigationTree
+         */
+        function convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
+
+            /**
+             * Builds the absolute link from root node to current node.
+             *
+             * @param node the current node
+             * @returns a update navigation tree
+             */
+            function buildAbsoluteLink(node: NavigationTree): NavigationTree {
+                const segments: (string | null)[] = [];
+                const current: NavigationTree | null = node;
+
+                segments.unshift(current.routerLink.baseString);
+                segments.unshift(current?.parent?.routerLink.baseString ?? null);
+
+                const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
+                node.routerLink.baseString = routerLink;
+                return node;
+            }
+
+            /**
+             * Traverses through the navigation tree.
+             *
+             * @param node the current node
+             */
+            function traverse(node: NavigationTree | null): void {
+
+                if (node == null) {
+                    return;
+                }
+                const _node = structuredClone(node);
+                node.routerLink = buildAbsoluteLink(_node).routerLink;
+
+                if (node.children) {
+                    for (const child of node.children) {
+                        traverse(child);
+                    }
+                }
+            }
+
+            traverse(tree);
+            return tree;
+        }
+
+        /**
+         * Gets the navigation id from a navigation tree and current router url
+         *
+         * @param tree the navigation tree
+         * @param url the current router url
+         * @returns the navigationId if found, else null
+         */
+
+        function findParentNode(tree: NavigationTree | null, url: string | null): NavigationTree | null {
+
+            if (tree == null || url == null) {
+                return null;
+            }
+
+            function buildRoutes(segments: string[]): string[] {
+                const routes: string[] = [];
+
+                for (let i = 1; i < segments.length; i++) {
+                    const path = segments.slice(1, i + 1).join("/");
+                    routes.push(path);
+                }
+
+                return routes;
+            }
+
+            const upperMostParent = tree.routerLink.baseString;
+            const allRoutes = buildRoutes(url.split("/")).reverse().map(el => el.includes(upperMostParent) ? el.slice(el.indexOf(upperMostParent)) : el); // ["device", "device/fems888", "device/fems888/live"...]
+            let resultTree: NavigationTree | null = null;
+            for (const entry of allRoutes) {
+
+                if (resultTree != null) {
+                    continue;
+                }
+
+                function traverse(navigationTree: NavigationTree, segments: string): NavigationTree | null {
+                    const urlSegments = navigationTree.routerLink.baseString.split("/");
+                    const foundNode = ArrayUtils.containsAll({ strings: urlSegments, arr: segments.split("/") });
+                    if (foundNode) {
+                        return navigationTree;
+                    }
+
+                    for (const child of navigationTree.children) {
+                        const result = traverse(child, segments);
+
+                        if (result != null) {
+                            return result;
+                        }
+                    }
+                    return null;
+                }
+                const result = traverse(tree, entry);
+                resultTree = result;
+            }
+            return resultTree;
+        }
+
+        if (currentUrl == null) {
+            return null;
+        }
+
+        const flattenedNavigationTree: NavigationTree | null = convertRelativeToAbsoluteLink(this);
+        return findParentNode(flattenedNavigationTree, currentUrl.split("?")[0]);
+    }
+
     public updateNavigationTreeByAbsolutePath(
-        root: NavigationTree | null,
-        absolutePath: string,                         // e.g. "/home/settings/profile"
-        updateFn: (node: NavigationTree) => void | NavigationTree,
-        currentPath: string = ""                      // internal tracker
-    ): boolean {
+        root: NavigationTree | null, absolutePath: string, updateFn: (node: NavigationTree) => void | NavigationTree, currentPath: string = ""
+    ) {
         if (root == null) {
             return false;
         }
@@ -117,11 +257,25 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
+            this.showOrder,
         ];
     }
 
     public getChildren(): NavigationTree[] | null {
         return this.children?.filter(el => el != null) ?? null;
+    }
+
+    public getAllNavigationNodes(tree: NavigationTree[]): NavigationTree[] {
+        const result: NavigationTree[] = [];
+
+        const recursion = (node: NavigationTree) => {
+            result.push(node);
+            node.children?.forEach(recursion);
+        };
+
+        tree.map(recursion);
+
+        return result;
     }
 
     public getParents(): NavigationTree[] | null {
@@ -155,7 +309,8 @@ export class NavigationTree {
         }
         this.children = [...this.children, childNavigationTree];
         this.setChild(this.id, childNavigationTree);
-        return this;
+
+        return this.setParentRecursively();
     }
 
     /**
@@ -168,19 +323,19 @@ export class NavigationTree {
      */
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
+        return this.setParentRecursively();
+    }
 
-        function setParentRecursive(node: NavigationTree, parent: NavigationTree | null): void {
-            node.parent = parent;
-
-            if (!node.children) {
-                return;
-            }
-            for (const child of node.children) {
-                setParentRecursive(child, node);
-            }
-        }
-
-        setParentRecursive(this, null);
+    /**
+     * Sets the child for a given parent navigation id
+     *
+     * @info set parent to null for nested children
+     *
+     * @param parentNavigationId the parent navigation id
+     * @param childNavigationTree the child navigation tree
+     */
+    public showHiddenNode(showOrder: typeof this.showOrder = "HIGH") {
+        this.showOrder = showOrder;
         return this;
     }
 
@@ -218,6 +373,25 @@ export class NavigationTree {
     public updateIconColor(color: IconColor) {
         this.icon.color = color;
     }
+
+    private setParentRecursively() {
+        function traverse(node: NavigationTree, parent: NavigationTree | null): void {
+
+            if (node.parent == null) {
+                node.parent = parent;
+            }
+
+            if (node.children == null) {
+                return;
+            }
+            for (const child of node.children) {
+                traverse(child, node);
+            }
+        }
+
+        traverse(this, null);
+        return this;
+    }
 }
 
 export type NavigationNode = {
@@ -231,14 +405,32 @@ export type NavigationNode = {
 export namespace NavigationConstants {
 
     /**
-     * The widgets to show in new navigation
+     * The widgets classes to show in new navigation
      */
-    export const newWidgets: TEnumKeys<typeof WidgetClass>[] = [
+    export const newClasses: TEnumKeys<typeof WidgetClass>[] = [
         "Common_Autarchy",
-        // "Common_Production",
         "Common_Selfconsumption",
         "Consumption",
         "Grid",
-        // "Storage",
+        "Common_Production",
     ];
+
+    /**
+     * The widget factories to show in new navigation
+     */
+    export const newWidgets: Widget["name"][] = [
+        "Controller.Ess.GridOptimizedCharge",
+        "Heat.Askoma",
+        "Heat.MyPv.AcThor9s",
+        "Controller.Io.HeatPump.SgReady",
+    ];
+
+    export namespace CommonNodes {
+        export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
+        export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
+            return edge.roleIsAtLeast(Role.INSTALLER)
+                ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
+                : [];
+        }
+    }
 }

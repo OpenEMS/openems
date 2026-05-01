@@ -14,8 +14,8 @@ public class ErrorAbortHandler extends StateHandler<StateMachine.State, Context>
         context.logWarn(log, String.format("%s: SoC=%d%%, SoH cycle aborted due to error",
                 StateMachine.State.ERROR_ABORT.getName(), soc));
 
-        if (context.isManualModeOff()) {
-            context.logWarn(log, "Controller is already in MANUAL OFF mode.");
+        if (!context.isRunning()) {
+            context.logWarn(log, "Controller is already in not running. Switching to IDLE.");
             return StateMachine.State.IDLE;
         }
         // TODO(alex.belke 19.01.2026): add error handling

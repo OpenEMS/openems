@@ -24,7 +24,7 @@
 for D in *; do
 	if [ -d "${D}" ]; then
 		case "${D}" in
-			build|cnf|doc|edge|ui|tools)
+			build|cnf|doc|edge|gradle|ui|tools)
 				;;
 			*)
 
@@ -171,19 +171,28 @@ update_bndrun() {
 	echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 
 	entries=()
-	for D in $2.*; do
-		if [[ "$D" == *api ]]; then
-			continue # ignore api bundle
-		elif [[ "$D" == *application && "$D" != "$3" ]]; then
-			continue # ignore other application bundle
-		fi
-		entries+=("$D")
-	done
 	case "$1" in
-		"EdgeApp" | "BackendApp")
+	"EdgeApp" | "BackendApp")
+	   	for D in $2.*; do
+			if [[ "$D" == *api ]]; then
+				continue # ignore api bundle
+			elif [[ "$D" == *application && "$D" != "$3" ]]; then
+				continue # ignore other application bundle
+			fi
+			entries+=("$D")
+		done
 		for D in io.openems.core.*; do
 			entries+=("$D")
 		done
+	;;
+	"BackendEdgeApp")
+		entries=(
+			'io.openems.backend.common'
+			'io.openems.backend.edge.application'
+			'io.openems.backend.metrics.prometheus'
+			'io.openems.core.logger'
+		)
+	;;
 	esac
 	printf "%s\n" "${entries[@]}" | LC_ALL=C sort -u | while IFS= read -r D; do
 		echo -e "\tbnd.identity;id='$D',\\" >> "$bndrun.new"
