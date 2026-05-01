@@ -14,6 +14,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -169,7 +170,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									final var isGensetActive = this.getGensetOperatingMode().isDefined()
 											&& this.getGensetOperatingMode().get();
 
-									return mapGridMode(goodWeType, intValue, isGensetActive);
+									final var gridMode = mapGridMode(goodWeType, intValue, isGensetActive);
+									setValue(this, GoodWe.ChannelId.GRID_MODE_FAULT, gridMode == GridMode.UNDEFINED);
+									return gridMode;
 								}))), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
