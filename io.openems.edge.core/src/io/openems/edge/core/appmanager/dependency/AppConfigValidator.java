@@ -202,16 +202,16 @@ public class AppConfigValidator {
 			return;
 		}
 
-		for (var property : appDependencyConfig.properties.entrySet()) {
-			var actualValue = actualAppProperties.get(property.getKey());
+		for (var property : appDependencyConfig.getProperties().values()) {
+			var actualValue = actualAppProperties.get(property.name());
 			if (actualValue == null) {
-				errors.add("Value for Key[" + property.getKey() + "] not found!");
+				errors.add("Value for Key[" + property.name() + "] not found!");
 				continue;
 			}
 			var actual = actualValue.toString().replace("\"", "");
-			var needed = property.getValue().toString().replace("\"", "");
+			var needed = property.value().toString().replace("\"", "");
 			if (!actual.equals(needed)) {
-				errors.add("Value for Key[" + property.getKey() + "] does not match: expected[" + needed + "] actual["
+				errors.add("Value for Key[" + property.name() + "] does not match: expected[" + needed + "] actual["
 						+ actual + "]  !");
 			}
 		}
