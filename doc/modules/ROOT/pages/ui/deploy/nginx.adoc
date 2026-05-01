@@ -1,4 +1,4 @@
-= Run the prebuilt OpenEMS UI
+= Set up nginx webserver for OpenEMS UI
 :sectnums:
 :sectnumlevels: 4
 :toclevels: 4
@@ -7,21 +7,15 @@
 :source-highlighter: highlight.js
 :icons: font
 
-This chapter explains how to run a prebuilt OpenEMS UI.
+This chapter explains how to set up the nginx webserver for OpenEMS UI.
 
-== General
+== Quick setup under Linux
 
-. Go to the https://github.com/OpenEMS/openems/releases/[OpenEMS release page] on GitHub and download the latest `openems-ui.tar.xz`.
-
-. Extract it to a local directory on your machine.
-
-. Set up a web server serving this directory on port 4200 and start it. Any web server can be used. The next section describes how to set up the nginx web server under Linux.
-
-== Set up the nginx webserver on Linux
-
-We assume that the UI directory is /home/user/openems/openems-ui
+NOTE: These instructions are intended for a quick setup, e.g. to get started with OpenEMS UI. Instructions for a production deployment may be added in the future.
 
 === Setup
+
+We assume that the files for OpemEMS UI are in /home/user/openems/openems-ui
 
 . Install nginx (e.g. `apt install nginx` on Debian / Ubuntu and derivatives)
  
@@ -42,6 +36,8 @@ server {
 ```
 
 . Start nginx. See `man nginx` and the documentation on https://nginx.org for more information.
+
+OpenEMS UI should now be available on port 4200.
 
 === Troubleshooting
 
