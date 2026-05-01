@@ -1,14 +1,15 @@
 package io.openems.edge.heat.askoma;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.heat.askoma.statemachine.StateMachine;
 
 public interface HeatAskoma extends OpenemsComponent {
 
@@ -50,6 +51,11 @@ public interface HeatAskoma extends OpenemsComponent {
 		MODE(Doc.of(ChannelMode.values())//
 				.text("Current mode of the device")//
 				.persistencePriority(PersistencePriority.HIGH)), //
+		STATE_MACHINE(Doc.of(StateMachine.State.values())//
+				.text("Current state-machine state")//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		FAST_HEAT_POWER_NOT_APPLIED(Doc.of(Level.WARNING)//
+				.text("Fast Heat power not applied")), //
 
 		/**
 		 * Target temperature (SOLL) read from Modbus register 597
@@ -116,29 +122,6 @@ public interface HeatAskoma extends OpenemsComponent {
 	 */
 	default Value<Boolean> getTemperatureLimiteReached() {
 		return this.getTemperatureLimiteReachedChannel().value();
-	}
-
-	default ChannelMode getModeChannel() {
-		return this.channel(ChannelId.MODE).value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#TEMPERATURE_SETPOINT}.
-	 *
-	 * @return the Channel
-	 */
-	default IntegerReadChannel getTemperatureSetpointChannel() {
-		return this.channel(ChannelId.TEMPERATURE_SETPOINT);
-	}
-
-	/**
-	 * Gets the target temperature (SOLL). See
-	 * {@link ChannelId#TEMPERATURE_SETPOINT}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	default Value<Integer> getTemperatureSetpoint() {
-		return this.getTemperatureSetpointChannel().value();
 	}
 
 }

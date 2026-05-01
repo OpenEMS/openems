@@ -8,7 +8,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
 
     export type ScheduleChartData = {
         datasets: ChartDataset[],
-        colors: any[],
         labels: Date[]
     };
 
@@ -31,7 +30,7 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
      * @returns The ScheduleChartData.
      */
     export function getScheduleChartData(size: number, prices: number[], states: number[], timestamps: string[],
-        gridBuy: number[], socArray: number[], translate: TranslateService,
+        gridBuy: (number | null)[], socArray: number[], translate: TranslateService,
         controlMode: Controller_Ess_TimeOfUseTariffUtils.ControlMode): Controller_Ess_TimeOfUseTariffUtils.ScheduleChartData {
 
         const datasets: ChartDataset[] = [];
@@ -74,9 +73,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             data: barBalancing,
             hidden: false,
             order: 1,
-        });
-        colors.push({
-            // Dark Green
             backgroundColor: "rgba(51,102,0,0.8)",
             borderColor: "rgba(51,102,0,1)",
         });
@@ -89,9 +85,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barChargeGrid,
                 hidden: false,
                 order: 1,
-            });
-            colors.push({
-                // Sky blue
                 backgroundColor: "rgba(0, 204, 204,0.5)",
                 borderColor: "rgba(0, 204, 204,0.7)",
             });
@@ -104,9 +97,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             data: barDelayDischarge,
             hidden: false,
             order: 1,
-        });
-        colors.push({
-            // Black
             backgroundColor: "rgba(0,0,0,0.8)",
             borderColor: "rgba(0,0,0,0.9)",
         });
@@ -119,9 +109,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barPeakShaving,
                 hidden: false,
                 order: 1,
-            });
-            colors.push({
-                // Black
                 backgroundColor: "rgb(218, 120, 8)",
                 borderColor: "rgb(218, 120, 8)",
             });
@@ -136,8 +123,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             yAxisID: ChartAxis.RIGHT,
             borderDash: [10, 10],
             order: 0,
-        });
-        colors.push({
             backgroundColor: "rgba(189, 195, 199,0.2)",
             borderColor: "rgba(189, 195, 199,1)",
         });
@@ -149,6 +134,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             hidden: true,
             yAxisID: ChartAxis.RIGHT_2,
             order: 2,
+            backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, ChartConstants.Colors.LEGEND_LABEL_BG_OPACITY),
+            borderColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 1),
         });
         colors.push({
             backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, ChartConstants.Colors.LEGEND_LABEL_BG_OPACITY),
@@ -156,7 +143,6 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
         });
 
         const scheduleChartData: Controller_Ess_TimeOfUseTariffUtils.ScheduleChartData = {
-            colors: colors,
             datasets: datasets,
             labels: labels,
         };

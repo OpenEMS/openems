@@ -10,7 +10,7 @@ import { Service } from "src/app/shared/shared";
         ::ng-deep formly-form{
             height: 100% !important;
         }
-            .custom-title {
+        .custom-title {
             color: var(--ion-text-color);
             font-size: 1.25rem;
             font-weight: 500;

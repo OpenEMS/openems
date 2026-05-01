@@ -1,7 +1,7 @@
 import { Type } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
@@ -36,7 +36,7 @@ export namespace SharedGridOptimizedCharge {
     ): OeFormlyView<GridOptimizedChargeViewModel> => {
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
+            helpKey: "REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
             icon: { name: "oe-grid-storage", color: "dark", size: "large" },
             lines: [
                 ...getFormlySharedLines(translate, component, edge, HIDE_ON_MODE_OFF),
@@ -323,7 +323,7 @@ export namespace SharedGridOptimizedCharge {
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree(component.id, { baseString: "controller/grid-optimized-charge/" + component.id }, { name: "oe-grid-storage", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-            new NavigationTree("details", { baseString: "details" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null),
+            NavigationConstants.CommonNodes.SETTINGS(translate),
         ], null).toConstructorParams();
     }
 

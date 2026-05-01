@@ -16,6 +16,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public class EnergyScheduleTester {
@@ -65,8 +66,8 @@ public class EnergyScheduleTester {
 		this.cscs = cscsBuilder.build();
 	}
 
-	public static record SimulatedPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-			EnergyFlow.Model ef, Fitness fitness) {
+	public static record SimulatedPeriod(Period period, GlobalScheduleContext gsc, EnergyFlow.Model ef,
+			Fitness fitness) {
 	}
 
 	/**

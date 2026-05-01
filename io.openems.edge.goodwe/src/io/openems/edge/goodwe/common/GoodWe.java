@@ -1,6 +1,7 @@
 package io.openems.edge.goodwe.common;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.Debounce;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
@@ -1868,9 +1869,11 @@ public interface GoodWe extends OpenemsComponent {
 		GW_A_48038_BATTERY2_LEVEL(Doc.of(OpenemsType.INTEGER)), //
 		GW_A_48039_BATTERY_CHARGE_VOLTAGE_LIMIT(Doc.of(OpenemsType.INTEGER)), //
 		GW_A_48040_MAX_BMS2_DISCHARGE_CURRENT(Doc.of(OpenemsType.INTEGER)), //
-		GW_A_48041_GENERATOR_OPERATING_MODE(Doc.of(OpenemsType.INTEGER)), //
+		GW_A_48041_GENERATOR_OPERATING_MODE(Doc.of(OpenemsType.INTEGER)),
 
-		;
+		GRID_MODE_FAULT(Doc.of(Level.WARNING)//
+				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)//
+				.translationKey(GoodWe.class, "GoodWe.GridMode.Fault"));
 
 		private final Doc doc;
 

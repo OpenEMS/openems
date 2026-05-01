@@ -46,7 +46,7 @@ export class ControllerIoHeatpumpHomeComponent extends AbstractFormlyComponent {
         });
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_IO_HEAT_PUMP_SG_READY",
+            helpKey: "REDIRECT.CONTROLLER_IO_HEAT_PUMP_SG_READY",
             lines: lines,
             component: component,
         };

@@ -77,6 +77,7 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 				.setRequired(true)//
 				.setTranslatedLabel("App.Evse.pickVehicleId.label")//
 				.setTranslatedDescription("App.Evse.pickVehicleId.description")), //
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle()), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		;

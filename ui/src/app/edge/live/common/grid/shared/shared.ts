@@ -108,7 +108,8 @@ export namespace SharedGrid {
             lines: lines,
             helpKey: "REDIRECT.COMMON_GRID",
             component: new EdgeConfig.Component(),
-            isCommonWidget: "true",
+            useDefaultPrefix: false,
+            isCommonWidget: true,
         };
     }
 

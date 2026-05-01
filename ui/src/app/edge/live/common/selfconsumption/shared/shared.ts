@@ -22,7 +22,8 @@ export namespace SharedSelfConsumption {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: "true",
+        useDefaultPrefix: false,
+        isCommonWidget: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {

@@ -13,32 +13,33 @@ export namespace FormUtils {
      * @param formControlName the control to search for
      * @returns the formControl if found, else null
      */
-    export function findFormControlSafely(f: FormGroup | null, formControlName: string): AbstractControl | null {
+    export function findFormControlSafely<T extends AbstractControl>(f: FormGroup | null, formControlName: string): AbstractControl | null {
 
         if (f == null) {
             return null;
         }
 
-        let result: AbstractControl | null = null;
         const controls = f.controls;
+
         if (formControlName in controls) {
-            result = f.controls[formControlName];
-            return result;
+            return controls[formControlName] as T;
         }
 
-        Object.values(controls).map(el => {
+        for (const el of Object.values(controls)) {
             if (el instanceof FormGroup) {
-                result = FormUtils.findFormControlSafely(el, formControlName);
-            }
-
-            if (el instanceof FormControl) {
-                if (el.value instanceof FormGroup) {
-                    result = FormUtils.findFormControlSafely(el.value, formControlName);
+                const result = findFormControlSafely<T>(el, formControlName);
+                if (result != null) {
+                    return result;
+                }
+            } else if (el instanceof FormControl && el.value instanceof FormGroup) {
+                const result = findFormControlSafely<T>(el.value, formControlName);
+                if (result != null) {
+                    return result;
                 }
             }
-        });
+        }
 
-        return result;
+        return null;
     }
 
 

@@ -21,7 +21,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Automatic;
 import io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.Manual;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 
 public class EnergyScheduler {
 
@@ -63,9 +62,9 @@ public class EnergyScheduler {
 							};
 							// Find first period with Production > Consumption
 							var firstExcessEnergyOpt = periods.stream() //
-									.filter(Period.WithPrediction.class::isInstance) //
-									.map(Period.WithPrediction.class::cast) //
-									.filter(p -> p.prediction().excessProduction() > 0) //
+									.filter(p -> p.data().consumption() //
+											.map(c -> p.data().production() > c.actual()) //
+											.orElse(false)) //
 									.findFirst();
 							if (firstExcessEnergyOpt.isEmpty()
 									|| targetTime.isBefore(firstExcessEnergyOpt.get().time())) {
