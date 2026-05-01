@@ -17,6 +17,9 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.core.sum.handler.ChargerHandlerImpl;
+import io.openems.edge.core.sum.handler.EssHandlerImpl;
+import io.openems.edge.core.sum.handler.MeterHandlerImpl;
 import io.openems.edge.evcs.test.DummyEvcsPower;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
 import io.openems.edge.meter.test.DummyElectricityMeter;
@@ -37,12 +40,21 @@ public class SumImplTest {
 		final var tariffManager = new DummyTariffManager() //
 				.withTariffGridBuyProvider(fromQuarterlyPrices(clock, 1.0, 1.1, 1.2)) //
 				.withTariffGridSellProvider(fromQuarterlyGridSellPrices(clock, 2.0, 2.1, 2.2));
+		final MeterHandlerImpl meterHandler = new MeterHandlerImpl();
+		final ChargerHandlerImpl chargerHandler = new ChargerHandlerImpl();
+		final EssHandlerImpl essHandler = new EssHandlerImpl();
+		meterHandler.addMeter(grid);
+		meterHandler.addMeter(pv);
+		meterHandler.addMeter(evcs);
 		final var test = new ComponentTest(sut) //
 				.addComponent(grid) //
 				.addComponent(pv) //
 				.addComponent(evcs) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("meterHandler", meterHandler)//
+				.addReference("chargerHandler", chargerHandler)//
+				.addReference("essHandler", essHandler)//
 				.addReference("tariffManager", tariffManager) //
 				.activate(MyConfig.create() //
 						.setGridMinActivePower(0) //
