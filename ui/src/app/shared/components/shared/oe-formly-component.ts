@@ -393,6 +393,7 @@ export namespace OeFormlyField {
     export type ValueFromChannelsLine = {
         type: "value-from-channels-line",
         name: string,
+        nameCallback?: (data: CurrentData) => string,
         value: (data: CurrentData) => string,
         channelsToSubscribe: ChannelAddress[],
         indentation?: TextIndentation,

@@ -403,6 +403,7 @@ export type NavigationNode = {
 };
 
 export namespace NavigationConstants {
+    export const SETTINGS = "settings";
 
     /**
      * The widgets classes to show in new navigation
@@ -419,6 +420,7 @@ export namespace NavigationConstants {
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [
+        "Controller.Ess.FixActivePower",
         "Controller.Ess.Time-Of-Use-Tariff",
         "Controller.Ess.GridOptimizedCharge",
         "Heat.Askoma",

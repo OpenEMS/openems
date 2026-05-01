@@ -156,13 +156,6 @@
                     </oe-modal-line>
                   }
 
-                  <!-- OeFormlyField.ComponentLine -->
-                @case ('component-line') {
-                    <ng-container
-                      *ngComponentOutlet="line.component; inputs: line.inputs">
-                    </ng-container>
-                }
-
                   @case ('select-line') {
                     <oe-modal-line [name]="line.name" [controlName]="line.controlName"
                       [control]="{type: 'SELECT', options: line.options}" [formGroup]="form" leftColumnWidth="50">
