@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
                 "OPTIMAL": "Kapazitätserweiterung",
                 "PLANNED_EXPANSION": "Geplante Erweiterung",
+                "IN_REFERENCE_CYCLE": "Referenzzyklus aktiv - Speicher wird für die Kapazitätserweiterung vorbereitet.",
                 "PREPARING": "Kapazitätserweiterung wird vorbereitet",
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
                 "REFERENCING_OF_STORAGE": {

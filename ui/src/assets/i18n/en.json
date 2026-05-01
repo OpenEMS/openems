@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
                 "OPTIMAL": "Capacity expansion",
                 "PLANNED_EXPANSION": "Planned Expansion",
+                "IN_REFERENCE_CYCLE": "Reference cycle active - battery is being prepared for capacity extension.",
                 "PREPARING": "Prepare for Capacity Extension",
                 "REACHED_TARGET_SOC": "Ready for Capacity Extension",
                 "REFERENCING_OF_STORAGE": {
