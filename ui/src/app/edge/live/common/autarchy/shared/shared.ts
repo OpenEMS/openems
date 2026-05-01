@@ -14,6 +14,7 @@ export namespace SharedAutarchy {
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
         title: translate.instant("GENERAL.AUTARCHY"),
         helpKey: "REDIRECT.COMMON_AUTARCHY",
+        useDefaultPrefix: false,
         lines: [
             {
                 type: "percentage-bar-line",
@@ -22,7 +23,7 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: "true",
+        isCommonWidget: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {

@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.energy.api.simulation.periods.PeriodData;
 
 public class EnergyFlow {
 
@@ -223,14 +224,10 @@ public class EnergyFlow {
 			final var grid = gsc.goc.grid();
 
 			return new EnergyFlow.Model(//
-					/* production */ switch (period) {
-					case Period.WithPrediction p -> p.prediction().production();
-					default -> 0;
-					}, //
-					/* unmanagedConsumption */ switch (period) {
-					case Period.WithPrediction p -> p.prediction().consumptionRiskAdjusted();
-					default -> 0;
-					}, //
+					/* production */ period.data().production(), //
+					/* unmanagedConsumption */ period.data().consumption()//
+							.map(PeriodData.Prediction::riskAdjusted)//
+							.orElse(0), //
 					/* essMaxCharge */ min(//
 							period.duration().convertPowerToEnergy(essGlobal.maxChargePower()),
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //

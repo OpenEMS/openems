@@ -15,6 +15,8 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.util.Arrays.stream;
 
+import java.util.Optional;
+
 import com.google.common.primitives.ImmutableIntArray;
 
 import io.openems.common.types.ChannelAddress;
@@ -24,7 +26,7 @@ import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Price;
+import io.openems.edge.energy.api.simulation.periods.PeriodData.Price;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -217,36 +219,43 @@ public final class Utils {
 		add(refs, maxEnergyInChargeGrid);
 
 		// Uses the total excess consumption as reference
-		add(refs, goc.streamPeriodsWithPrediction() //
+		add(refs, goc.periods().stream() //
 				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+				.mapToInt(p -> p.data().consumption() //
+						.map(c -> p.duration() //
+								.convertEnergyToPower(c.actual() - p.data().production())) //
+						.orElse(0)) //
 				.sum());
 
-		add(refs, goc.streamPeriodsWithPrediction() //
-				.takeWhile(p -> p.prediction().excessConsumption() >= 0) // take only first Periods
-				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+		add(refs, goc.periods().stream() //
+				.map(p -> p.data().consumption() //
+						// Calculate excess consumption
+						.map(c -> p.duration().convertEnergyToPower(c.actual() - p.data().production()))) //
+				.takeWhile(opt -> opt.map(v -> v >= 0).orElse(false)) // Take only first periods
+				.mapToInt(opt -> opt.orElse(0)) //
 				.sum());
 
-		// Uses the excess consumption during high price periods as reference
+		// Uses the excess consumption during high grid-buy price periods as reference
 		{
-			var ps = goc.streamCompletePeriods() //
-					.toList();
-			var prices = ps.stream() //
-					.map(Period.Complete::price) //
+			var gridBuyPrices = goc.periods().stream() //
+					.map(p -> p.data().gridBuyPrice()) //
+					.flatMap(Optional::stream) //
 					.mapToDouble(Price::actual) //
 					.toArray();
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
-			var firstPrices = stream(prices) //
+			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, gridBuyPrices), gridBuyPrices);
+			var firstPrices = stream(gridBuyPrices) //
 					.limit(peakIndex) //
 					.toArray();
 			if (firstPrices.length > 0) {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				add(refs, ps.stream() //
+				add(refs, goc.periods().stream() //
+						.filter(p -> p.data().gridBuyPrice().isPresent() && p.data().consumption().isPresent()) //
 						.limit(peakIndex) //
-						.filter(p -> p.price().actual() >= percentilePrice) // takes only prices > percentile
-						// excess Consumption Power per Period
-						.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+						// Take only prices > percentile
+						.filter(p -> p.data().gridBuyPrice().get().actual() >= percentilePrice)
+						// Excess consumption power
+						.mapToInt(p -> p.duration()
+								.convertEnergyToPower(p.data().consumption().get().actual() - p.data().production())) //
 						.sum());
 			}
 		}

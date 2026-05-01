@@ -2,6 +2,7 @@ package io.openems.edge.controller.ess.fixstateofcharge;
 
 import static io.openems.edge.controller.ess.fixstateofcharge.api.AbstractFixStateOfCharge.DEFAULT_POWER_FACTOR;
 import static io.openems.edge.controller.ess.fixstateofcharge.api.EndCondition.CAPACITY_CHANGED;
+import static io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE;
 import static io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge.ChannelId.DEBUG_SET_ACTIVE_POWER;
 import static io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge.ChannelId.DEBUG_SET_ACTIVE_POWER_RAW;
 import static io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge.ChannelId.STATE_MACHINE;
@@ -104,15 +105,18 @@ class ControllerEssPrepareBatteryExtensionImplTest {
 						.output(STATE_MACHINE, State.NOT_STARTED)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 20) //
-						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, true)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 0) //
-						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, true)) //
 				.next(new TestCase() //
 						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 20) //
-						.output(STATE_MACHINE, State.BELOW_TARGET_SOC)) //
+						.output(STATE_MACHINE, State.BELOW_TARGET_SOC) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, false)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 25) //
 						.output(STATE_MACHINE, State.BELOW_TARGET_SOC)) //
@@ -245,17 +249,20 @@ class ControllerEssPrepareBatteryExtensionImplTest {
 				.next(new TestCase() //
 						.input("ess0", SOC, 80) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
-						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, true)) //
 				.next(new TestCase() //
 						.input("ess0", SOC, 100) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
-						.output(STATE_MACHINE, State.REFERENCE_CYCLE)) //
+						.output(STATE_MACHINE, State.REFERENCE_CYCLE) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, true)) //
 				.next(new TestCase() //
 						.timeleap(clock, 30, MINUTES))//
 				.next(new TestCase() //
 						.input("ess0", SOC, 100) //
 						.input("ess0", MAX_APPARENT_POWER, 10_000) //
 						.output(STATE_MACHINE, State.ABOVE_TARGET_SOC) //
+						.output(CTRL_IS_IN_REFERENCE_CYCLE, false) //
 						.output("ess0", SET_ACTIVE_POWER_EQUALS, 500) //
 						.output(DEBUG_SET_ACTIVE_POWER_RAW, 500) //
 						.output(DEBUG_SET_ACTIVE_POWER, 500)) // Would increase till 10_000

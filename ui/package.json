@@ -1,6 +1,6 @@
 {
   "name": "openems-ui",
-  "version": "2026.5.0-SNAPSHOT",
+  "version": "2026.6.0-SNAPSHOT",
   "license": "AGPL-3.0",
   "private": true,
   "dependencies": {
@@ -21,6 +21,7 @@
     "@capacitor/core": "^7.5.0",
     "@capacitor/filesystem": "^7.1.8",
     "@capacitor/ios": "^7.5.0",
+    "@capacitor/screen-orientation": "^8.0.1",
     "@capacitor/splash-screen": "^7.0.5",
     "@date-fns/tz": "^1.4.1",
     "@ionic/angular": "^8.7.18",

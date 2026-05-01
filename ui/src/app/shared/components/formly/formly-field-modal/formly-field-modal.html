@@ -29,8 +29,19 @@
               <oe-img [img]="line.img"></oe-img>
             }
 
+          <!-- OeFormlyField.InfoLine -->
             @case ('info-line') {
-              <oe-modal-info-line [info]="line.name" [icon]="line.icon"></oe-modal-info-line>
+              @if (line.html !== null && line.html !== undefined) {
+                <ng-container style="font-size: smaller">
+                <span
+                [innerHtml]="line.html"></span>
+                </ng-container>
+              } @else {
+                <oe-modal-info-line
+                  [info]="line.name"
+                  [icon]="line.icon">
+                </oe-modal-info-line>
+              }
             }
 
             @case ('horizontal-line') {

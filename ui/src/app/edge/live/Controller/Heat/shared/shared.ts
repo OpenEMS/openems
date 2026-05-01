@@ -14,7 +14,7 @@ export namespace SharedControllerHeat {
         return {
             title: component.alias,
             icon: { name: "flame", color: "normal", size: "normal" },
-            helpKey: "CONTROLLER_IO_HEATING_ELEMENT",
+            helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
             lines: [
                 ...getFormlySharedLines(translate, component),
                 ...(isMyPv ? getMyPVInfoLine(translate, component) : []),

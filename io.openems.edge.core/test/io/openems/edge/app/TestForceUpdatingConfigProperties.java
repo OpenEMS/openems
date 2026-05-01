@@ -44,7 +44,8 @@ public class TestForceUpdatingConfigProperties extends
 
 	public static enum Property
 			implements Type<Property, TestForceUpdatingConfigProperties, TestForceUpdatingConfigPropertiesParameter> {
-		ID(AppDef.componentId("test0")), MIN_POWER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
+		ID(AppDef.componentId("test0")), //
+		MIN_POWER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> {
 			def.setDefaultValue(-1000);
 			def.setField(JsonFormlyUtil::buildInputFromNameable);
 		})), //

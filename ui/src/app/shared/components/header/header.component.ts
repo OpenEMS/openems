@@ -28,6 +28,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     protected isHeaderAllowed: boolean = true;
     protected showBackButton: boolean = false;
+    protected edge = this.service.currentEdge;
+
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;

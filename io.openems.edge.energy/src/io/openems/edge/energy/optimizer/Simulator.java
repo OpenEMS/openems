@@ -45,7 +45,6 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
 import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
@@ -187,31 +186,41 @@ public class Simulator {
 			fitness.addHardConstraintViolation();
 		}
 
-		if (period instanceof Period.WithPrice periodWithPrice) {
-			final var price = periodWithPrice.price().actual();
+		// Calculate Grid-Buy metrics
+		if (energyFlow.getGrid() > 0) {
+			final int buyFromGrid = max(0, energyFlow.getGrid());
+			final int chargeEss = max(0, -energyFlow.getEss());
+			final int gridToEss = Math.min(buyFromGrid, chargeEss);
+			final int gridToCons = buyFromGrid - gridToEss;
 
-			// Calculate Grid-Buy Cost
-			if (energyFlow.getGrid() > 0) {
-				int buyFromGrid = max(0, energyFlow.getGrid());
-				int chargeEss = max(0, -energyFlow.getEss());
-				int gridToEss = Math.min(buyFromGrid, chargeEss);
-				int gridToCons = buyFromGrid - gridToEss;
-				fitness.addGridBuyCost(
-						// Cost for direct Consumption
-						gridToCons * price
-								// Cost for future Consumption after storage
-								+ max(0, gridToEss) * price * EFFICIENCY_FACTOR);
-			}
+			period.data().gridBuyPrice().ifPresent(p -> {
+				final double gridBuyPrice = p.actual();
 
-			// Calculate Grid-Sell Revenue
-			if (energyFlow.getGrid() < 0) {
-				int sellToGrid = max(0, -energyFlow.getGrid());
-				int dischargeEnergy = max(0, energyFlow.getEss());
-				int essToGrid = Math.min(sellToGrid, dischargeEnergy);
-				fitness.addGridSellRevenue(//
-						// Revenue for Discharge-to-Grid
-						essToGrid * price);
-			}
+				// Cost for direct consumption
+				final double directCost = gridToCons * gridBuyPrice;
+				// Cost for future consumption after storage
+				final double costWithStorage = gridToEss * gridBuyPrice * EFFICIENCY_FACTOR;
+
+				fitness.addGridBuyCostScore(directCost + costWithStorage);
+			});
+
+			fitness.addGridBuyEnergyWh(
+					// Energy for direct consumption
+					gridToCons
+							// Energy for future consumption after storage
+							+ gridToEss * EFFICIENCY_FACTOR);
+		}
+
+		// Calculate Grid-Sell metrics
+		if (energyFlow.getGrid() < 0) {
+			final int sellToGrid = max(0, -energyFlow.getGrid());
+
+			period.data().gridSellPrice().ifPresent(p -> {
+				final double gridSellPrice = p.actual();
+				fitness.addGridSellRevenueScore(sellToGrid * gridSellPrice);
+			});
+
+			fitness.addGridSellEnergyWh(sellToGrid);
 		}
 
 		if (bsc != null) {
