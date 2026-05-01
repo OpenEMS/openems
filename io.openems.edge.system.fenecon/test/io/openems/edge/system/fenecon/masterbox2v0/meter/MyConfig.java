@@ -1,4 +1,4 @@
-package io.openems.edge.system.fenecon.masterbox2v0.relay;
+package io.openems.edge.system.fenecon.masterbox2v0.meter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;

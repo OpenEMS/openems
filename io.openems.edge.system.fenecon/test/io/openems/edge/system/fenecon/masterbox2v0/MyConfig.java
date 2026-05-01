@@ -1,14 +1,14 @@
-package io.openems.edge.system.fenecon.masterbox2v0.relay;
+package io.openems.edge.system.fenecon.masterbox2v0;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String iocId;
+		private String modbusId;
+		private int modbusUnitId;
 
 		private Builder() {
 		}
@@ -18,8 +18,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setIocId(String iocId) {
-			this.iocId = iocId;
+		public Builder setModbusId(String modbusId) {
+			this.modbusId = modbusId;
+			return this;
+		}
+
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -45,13 +50,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String ioc_id() {
-		return this.builder.iocId;
+	public String modbus_id() {
+		return this.builder.modbusId;
 	}
 
 	@Override
-	public String ioc_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ioc_id());
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
-
 }
