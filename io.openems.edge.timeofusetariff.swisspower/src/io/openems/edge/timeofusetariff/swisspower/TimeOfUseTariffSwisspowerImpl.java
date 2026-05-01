@@ -62,15 +62,19 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 )
 public class TimeOfUseTariffSwisspowerImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffSwisspower {
-	private static final UrlBuilder URL_BASE = UrlBuilder.parse("https://esit.code-fabrik.ch/api/v1/metering_code");
-	private static final DateTimeFormatter DATE_FORMATTER = ISO_OFFSET_DATE_TIME;
-	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
-	private static final int DEFAULT_READ_TIMEOUT = 200;
+
 	protected static final int SERVER_ERROR_CODE = 500;
 	protected static final int BAD_REQUEST_ERROR_CODE = 400;
 
+	private static final UrlBuilder URL_BASE = UrlBuilder
+			.parse("https://portal.dynamische-stromtarife.ch/api/v2/metering_code");
+	private static final DateTimeFormatter DATE_FORMATTER = ISO_OFFSET_DATE_TIME;
+	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
+	private static final int DEFAULT_READ_TIMEOUT = 200;
+
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffSwisspowerImpl.class);
 	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
+
 	private String accessToken = null;
 	private String meteringCode = null;
 
