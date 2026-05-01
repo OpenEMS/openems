@@ -341,7 +341,8 @@ export namespace OeFormlyField {
 
     export type InfoLine = {
         type: "info-line",
-        name: string | { text: string, lineStyle?: string }[],
+        name?: string | { text: string, lineStyle?: string }[],
+        html?: string,
         icon?: Icon,
         style?: string
     };

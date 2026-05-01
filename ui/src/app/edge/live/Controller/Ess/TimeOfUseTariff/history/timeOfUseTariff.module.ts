@@ -3,6 +3,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
+import { ControllerEssTimeOfUseTariffHistoryComponent } from "./new-navigation/new-navigation";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./overview/overview";
 
 @NgModule({
@@ -14,11 +15,13 @@ import { ControllerEssTimeOfUseTariffOverviewComponent } from "./overview/overvi
         FlatComponent,
         ControllerEssTimeOfUseTariffOverviewComponent,
         ChartComponent,
+        ControllerEssTimeOfUseTariffHistoryComponent,
     ],
     exports: [
         FlatComponent,
         ControllerEssTimeOfUseTariffOverviewComponent,
         ChartComponent,
+        ControllerEssTimeOfUseTariffHistoryComponent,
     ],
 })
-export class TimeOfUseTariff { }
+export class ControllerEssTimeOfUseTariffHistory { }

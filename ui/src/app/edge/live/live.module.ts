@@ -20,7 +20,7 @@ import { Controller_ChpSocModalComponent } from "./Controller/ChpSoc/modal/modal
 import { Controller_EnerixControl } from "./Controller/EnerixControl/EnerixControl";
 import { Controller_Ess_FixActivePower } from "./Controller/Ess/FixActivePower/Ess_FixActivePower";
 import { ControllerEssGridOptimizedChargeModule } from "./Controller/Ess/GridOptimizedCharge/Ess_GridOptimizedCharge";
-import { Controller_Ess_TimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff";
+import { ControllerEssTimeOfUseTariff } from "./Controller/Ess/TimeOfUseTariff/Ess_TimeOfUseTariff";
 import { AdministrationComponent } from "./Controller/Evcs/administration/administration.component";
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
 import { ControllerEvseSingle } from "./Controller/Evse/EvseSingle.module";
@@ -64,8 +64,8 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         Controller_Api_ModbusTcp,
         Controller_EnerixControl,
         Controller_Ess_FixActivePower,
+        ControllerEssTimeOfUseTariff,
         ControllerEssGridOptimizedChargeModule,
-        Controller_Ess_TimeOfUseTariff,
         Controller_Evcs,
         ControllerEvseSingle,
         ControllerHeatModule,

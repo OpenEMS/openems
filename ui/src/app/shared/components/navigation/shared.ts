@@ -419,6 +419,7 @@ export namespace NavigationConstants {
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [
+        "Controller.Ess.Time-Of-Use-Tariff",
         "Controller.Ess.GridOptimizedCharge",
         "Heat.Askoma",
         "Heat.MyPv.AcThor9s",

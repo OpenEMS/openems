@@ -12,7 +12,7 @@
                 </ion-row>
               </ion-col>
               <ion-col [size]="service.isSmartphoneResolution ? 10 : 5.4">
-                <ion-row class="custom-title ion-align-items-center ion-justify-content-center">
+                <ion-row class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
                   @if (props.attributes.icon) {
                   <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" style="padding-right: 0.2rem;"></ion-icon>
                   }
@@ -81,8 +81,17 @@
 
                   <!-- OeFormlyField.InfoLine -->
                   @case ('info-line') {
-                    <oe-modal-info-line [info]="line.name" [icon]="line.icon" [rowStyle]="line.style">
-                    </oe-modal-info-line>
+                    @if (line.html !== undefined) {
+                      <ng-container style="font-size: smaller">
+                      <span
+                      [innerHtml]="line.html"></span>
+                      </ng-container>
+                    } @else {
+                      <oe-modal-info-line
+                        [info]="line.name"
+                        [icon]="line.icon">
+                      </oe-modal-info-line>
+                    }
                   }
 
                   <!-- OeFormlyField.HorizontalLine -->
