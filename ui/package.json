@@ -52,7 +52,7 @@
     "swiper": "12.1.2",
     "tinyduration": "^3.4.1",
     "tslib": "^2.8.1",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "zone.js": "~0.15.1"
   },
   "devDependencies": {
