@@ -22,7 +22,7 @@ public class OpenemsConstants {
 	 * <p>
 	 * This is the month of the release.
 	 */
-	public static final short VERSION_MINOR = 4;
+	public static final short VERSION_MINOR = 5;
 
 	/**
 	 * The patch version of OpenEMS.
@@ -76,7 +76,13 @@ public class OpenemsConstants {
 	public static final String PROPERTY_LAST_CHANGE_BY = "_lastChangeBy";
 	public static final String PROPERTY_LAST_CHANGE_AT = "_lastChangeAt";
 
-	private static final String OPENEMS_DATA_DIR = "openems.data.dir";
+	/**
+	 * Path to log4j2.xml configuration file. Written to osgi config by
+	 * LoggerConfigurator.
+	 */
+	public static final String OPENEMS_LOG_CONFIG_PATH_SYSVAR = "openems.log.config.path";
+
+	private static final String OPENEMS_DATA_DIR_SYSVAR = "openems.data.dir";
 
 	/**
 	 * Gets the path of the OpenEMS Data Directory, configured by "openems.data.dir"
@@ -85,7 +91,7 @@ public class OpenemsConstants {
 	 * @return the path of the OpenEMS Data Directory
 	 */
 	public static final String getOpenemsDataDir() {
-		return Optional.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_DATA_DIR)).orElse("");
+		return Optional.ofNullable(System.getProperty(OpenemsConstants.OPENEMS_DATA_DIR_SYSVAR)).orElse("");
 	}
 
 }

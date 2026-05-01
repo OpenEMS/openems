@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -17,8 +18,11 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.meta.GridBuySoftLimit;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.DummySum;
+import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.energy.api.EnergyConstants;
@@ -31,13 +35,19 @@ import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 public class GlobalOptimizationContextTest {
 
 	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
+	private static final Instant NOW = Instant.now(CLOCK);
 
-	@Test
-	public void testBuild() throws OpenemsNamedException {
-		final var cm = new DummyComponentManager(CLOCK);
-		final var now = Instant.now(CLOCK);
-		final var meta = new DummyMeta()//
-				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create()//
+	private ComponentManager cm;
+	private Meta meta;
+	private Sum sum;
+	private DummyPredictorManager predictorManager;
+	private DummyTimeOfUseTariffProvider prices;
+
+	@Before
+	public void before() throws OpenemsNamedException {
+		this.cm = new DummyComponentManager(CLOCK);
+		this.meta = new DummyMeta()//
+				.withGridBuySoftLimit(JSCalendar.Tasks.<GridBuySoftLimit>create(CLOCK)//
 						.add(t -> t//
 								.setStart("06:00") //
 								.setDuration(Duration.ofHours(12)) //
@@ -47,44 +57,47 @@ public class GlobalOptimizationContextTest {
 						.add(t -> t//
 								.setPayload(new GridBuySoftLimit(6000))) //
 						.build());
-		final var sum = new DummySum() //
+		this.sum = new DummySum() //
 				.withEssCapacity(10000) //
 				.withEssSoc(50) //
 				.withEssMinDischargePower(-4000) //
 				.withEssMaxDischargePower(5000);
-		final var predictorManager = new DummyPredictorManager(//
-				new DummyPredictor("predictor0", cm, Prediction.from(sum, //
-						EnergyConstants.SUM_UNMANAGED_CONSUMPTION, now, new Integer[] { //
+		this.predictorManager = new DummyPredictorManager(//
+				new DummyPredictor("predictor0", this.cm, Prediction.from(this.sum, //
+						EnergyConstants.SUM_UNMANAGED_CONSUMPTION, NOW, new Integer[] { //
 								4000, 8000, 6000, 2000, 3000, 5000, 7000, 9000, //
 								4001, 8001, 6001, 2001, 3001, 5001, 7001, 9001, //
 								4002, 8002, 6002, 2002, 3002, 5002, 7002, 9002, //
 								4003, 8003, 6003, 2003, 3003, 5003, 7003, 9003, //
 								4004, 8004, 6004, 2004, 3004, 5004, 7004, 9004, //
 						}), EnergyConstants.SUM_UNMANAGED_CONSUMPTION),
-				new DummyPredictor("predictor1", cm, Prediction.from(sum, //
-						EnergyConstants.SUM_PRODUCTION, now,
+				new DummyPredictor("predictor1", this.cm, Prediction.from(this.sum, //
+						EnergyConstants.SUM_PRODUCTION, NOW,
 						new Integer[] { 8000, 9000, 10000, 11000, 7000, 4000, 3000, 5000, //
 								8001, 9001, 10001, 11001, 7001, 4001, 3001, 5001, //
 								8002, 9002, 10002, 11002, 7002, 4002, 3002, 5002, //
 								8003, 9003, 10003, 11003, 7003, 4003, 3003, 5003, //
 								8004, 9004, 10004, 11004, 7004, 4004, 3004, 5004, //
 						}), EnergyConstants.SUM_PRODUCTION));
-		final var prices = DummyTimeOfUseTariffProvider.fromQuarterlyPrices(CLOCK, //
+		this.prices = DummyTimeOfUseTariffProvider.fromQuarterlyPrices(CLOCK, //
 				11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, //
 				11.1, 12.1, 13.1, 14.1, 15.1, 16.1, 17.1, 18.1, //
 				11.2, 12.2, 13.2, 14.2, 15.2, 16.2, 17.2, 18.2, //
 				11.3, 12.3, 13.3, 14.3, 15.3, 16.3, 17.3, 18.3, //
 				11.4, 12.4, 13.4, 14.4, 15.4, 16.4, 17.4, 18.4 //
 		);
+	}
 
+	@Test
+	public void testComplete() throws OpenemsNamedException {
 		var goc = GlobalOptimizationContext.create() //
-				.setComponentManager(cm) //
-				.setMeta(meta) //
+				.setComponentManager(this.cm) //
+				.setMeta(this.meta) //
 				.setEnvironment(PRODUCTION) //
 				.setEnergyScheduleHandlers(ImmutableList.of()) //
-				.setSum(sum) //
-				.setPredictorManager(predictorManager) //
-				.setTimeOfUseTariff(prices) //
+				.setSum(this.sum) //
+				.setPredictorManager(this.predictorManager) //
+				.setTimeOfUseTariff(this.prices) //
 				.build();
 
 		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
@@ -94,6 +107,50 @@ public class GlobalOptimizationContextTest {
 		assertEquals(1500 /* Wh */, p0.gridBuySoftLimit().intValue());
 		assertEquals(2000 /* Wh */, p0.prediction().production());
 		assertEquals(1000 /* Wh */, p0.prediction().consumptionPredicted());
+		assertEquals(11.0, p0.price().actual(), 0.001);
+		assertEquals(0.0, p0.price().normalized(), 0.001);
+	}
+
+	@Test
+	public void testWithoutPrices() throws OpenemsNamedException {
+		var goc = GlobalOptimizationContext.create() //
+				.setComponentManager(this.cm) //
+				.setMeta(this.meta) //
+				.setEnvironment(PRODUCTION) //
+				.setEnergyScheduleHandlers(ImmutableList.of()) //
+				.setSum(this.sum) //
+				.setPredictorManager(this.predictorManager) //
+				.setTimeOfUseTariff(DummyTimeOfUseTariffProvider.empty(CLOCK)) //
+				.build();
+
+		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
+		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
+		assertEquals(28, goc.periods().size());
+		var p0 = (Period.Quarter.WithPrediction) goc.periods().get(0);
+		assertEquals(1500 /* Wh */, p0.gridBuySoftLimit().intValue());
+		assertEquals(2000 /* Wh */, p0.prediction().production());
+		assertEquals(1000 /* Wh */, p0.prediction().consumptionPredicted());
+	}
+
+	@Test
+	public void testBuildWithoutPrediction() throws OpenemsNamedException {
+		var goc = GlobalOptimizationContext.create() //
+				.setComponentManager(this.cm) //
+				.setMeta(this.meta) //
+				.setEnvironment(PRODUCTION) //
+				.setEnergyScheduleHandlers(ImmutableList.of()) //
+				.setSum(this.sum) //
+				.setPredictorManager(new DummyPredictorManager()) //
+				.setTimeOfUseTariff(this.prices) //
+				.build();
+
+		assertEquals(4000 /* -W */, goc.ess().maxChargePower());
+		assertEquals(5000 /* W */, goc.ess().maxDischargePower());
+		assertEquals(28, goc.periods().size());
+		var p0 = (Period.Quarter.WithPrice) goc.periods().get(0);
+		assertEquals(1500 /* Wh */, p0.gridBuySoftLimit().intValue());
+		assertEquals(11.0, p0.price().actual(), 0.001);
+		assertEquals(0.0, p0.price().normalized(), 0.001);
 	}
 
 	@Test

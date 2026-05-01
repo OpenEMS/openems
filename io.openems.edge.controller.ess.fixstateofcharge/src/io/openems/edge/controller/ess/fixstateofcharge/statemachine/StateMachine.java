@@ -43,7 +43,12 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		/**
 		 * State if SoC is above configured target SoC but within boundaries.
 		 */
-		WITHIN_UPPER_TARGET_SOC_BOUNDARIES(7);
+		WITHIN_UPPER_TARGET_SOC_BOUNDARIES(7), //
+
+		/**
+		 * Mandatory one-time reference cycle initialization phase.
+		 */
+		REFERENCE_CYCLE(8);
 
 		private final int value;
 
@@ -81,6 +86,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		return switch (state) {
 		case IDLE -> new IdleHander();
 		case NOT_STARTED -> new NotStartedHandler();
+		case REFERENCE_CYCLE -> new ReferenceCycleHandler();
 		case ABOVE_TARGET_SOC -> new AboveTargetSocHandler();
 		case BELOW_TARGET_SOC -> new BelowTargetSocHandler();
 		case AT_TARGET_SOC -> new AtTargetSocHandler();

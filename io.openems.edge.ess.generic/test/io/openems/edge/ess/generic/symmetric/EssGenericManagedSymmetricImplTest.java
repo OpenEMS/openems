@@ -12,14 +12,14 @@ import static io.openems.edge.ess.generic.common.GenericManagedEss.EFFICIENCY_FA
 import static io.openems.edge.ess.generic.common.RuntimeChannels.ChannelId.CUMULATED_TIME_INFO_STATE;
 import static io.openems.edge.ess.generic.common.RuntimeChannels.ChannelId.CUMULATED_TIME_OK_STATE;
 import static io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetric.ChannelId.STATE_MACHINE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.common.channel.Level;
@@ -135,8 +135,9 @@ public class EssGenericManagedSymmetricImplTest {
 
 	@Test
 	public void testTimeout() throws Exception {
+		var sut = new EssGenericManagedSymmetricImpl(); //
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-		new ComponentTest(new EssGenericManagedSymmetricImpl()) //
+		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("batteryInverter", new DummyManagedSymmetricBatteryInverter("batteryInverter0")) //
@@ -160,6 +161,8 @@ public class EssGenericManagedSymmetricImplTest {
 						.timeleap(clock, 350, ChronoUnit.SECONDS)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.ERROR)) //
+				.next(new TestCase("Waiting for channel update")//
+						.onAfterProcessImage(sut::handleStateMachine)) //
 				.next(new TestCase() //
 						.output(STATE_MACHINE, State.ERROR)) //
 		;

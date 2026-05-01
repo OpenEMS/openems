@@ -184,10 +184,6 @@ public class EvcsMennekesImpl extends AbstractMennekes
 				-> Status.NOT_READY_FOR_CHARGING;
 			case AVAILABLE, SUSPENDED_EV, SUSPENDED_EVSE //
 				-> Status.CHARGING_REJECTED;
-			case OCCUPIED //
-				-> this.getActivePower().orElse(0) > 0 //
-						? Status.CHARGING //
-						: Status.CHARGING_REJECTED;
 			case UNAVAILABLE //
 				-> Status.ERROR;
 			case UNDEFINED //

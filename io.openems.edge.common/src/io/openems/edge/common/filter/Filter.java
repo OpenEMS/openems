@@ -1,6 +1,6 @@
 package io.openems.edge.common.filter;
 
-public abstract sealed class Filter permits PidFilter, PT1Filter {
+public abstract sealed class Filter permits PidFilter, PT1Filter, DisabledFilter {
 
 	protected Integer lowLimit = null;
 	protected Integer highLimit = null;
@@ -52,6 +52,8 @@ public abstract sealed class Filter permits PidFilter, PT1Filter {
 	 * @return the value within low and high limit
 	 */
 	protected int applyLowHighLimits(double value) {
-		return this.applyLowHighLimits(Math.round((float) value));
+		var rounded = Math.round(value);
+		var clamped = Math.clamp(rounded, Integer.MIN_VALUE, Integer.MAX_VALUE); // long → int (overflow-safe)
+		return this.applyLowHighLimits(clamped);
 	}
 }

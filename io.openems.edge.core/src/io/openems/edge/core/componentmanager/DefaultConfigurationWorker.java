@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -18,6 +17,8 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.utils.DictionaryUtils;
+import io.openems.edge.common.component.OpenemsComponent;
 
 /**
  * This Worker checks if certain OpenEMS-Components are configured and - if not
@@ -72,10 +73,11 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 */
 	private static final int INITIAL_WAIT_TIME = 5_000; // in ms
 
-	private final Logger log = LoggerFactory.getLogger(DefaultConfigurationWorker.class);
+	private final Logger log;
 
 	public DefaultConfigurationWorker(ComponentManagerImpl parent) {
 		super(parent);
+		this.log = OpenemsComponent.getComponentLogger(DefaultConfigurationWorker.class, parent);
 	}
 
 	/**
@@ -123,8 +125,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 		try {
 			defaultConfigurationFailed = this.createDefaultConfigurations(existingConfigs);
 		} catch (Exception e) {
-			this.parent.logError(this.log, "Unable to create default configuration: " + e.getMessage());
-			e.printStackTrace();
+			this.log.error("Unable to create default configuration: {}", e, e);
 			defaultConfigurationFailed = true;
 		}
 
@@ -151,8 +152,7 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 				}
 			}
 		} catch (Exception e) {
-			this.parent.logError(this.log, e.getMessage());
-			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
 		}
 		return result;
 	}
@@ -168,16 +168,18 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void createConfiguration(AtomicBoolean defaultConfigurationFailed, String factoryPid,
 			List<Property> properties) {
 		try {
-			this.parent.logInfo(this.log,
-					"Creating Component configuration [" + factoryPid + "]: " + properties.stream() //
+			this.log.atInfo() //
+					.setMessage("Creating Component configuration [{}]: {}") //
+					.addArgument(factoryPid) //
+					.addArgument(() -> properties.stream() //
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
-							.collect(Collectors.joining(", ")));
+							.collect(Collectors.joining(", "))) //
+					.log();
 			this.parent.handleCreateComponentConfigRequest(null /* no user */,
 					new CreateComponentConfig.Request(factoryPid, properties));
 		} catch (OpenemsNamedException e) {
-			this.parent.logError(this.log,
-					"Unable to create Component configuration for Factory [" + factoryPid + "]: " + e.getMessage());
-			e.printStackTrace();
+			this.log.error("Unable to create Component configuration for Factory [{}]: {}", factoryPid, e.getMessage(),
+					e);
 			defaultConfigurationFailed.set(true);
 		}
 	}
@@ -193,17 +195,19 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	protected void updateConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId,
 			List<Property> properties) {
 		try {
-			this.parent.logInfo(this.log,
-					"Updating Component configuration [" + componentId + "]: " + properties.stream() //
+			this.log.atInfo() //
+					.setMessage("Updating Component configuration [{}]: {}") //
+					.addArgument(componentId) //
+					.addArgument(() -> properties.stream() //
 							.map(p -> p.getName() + ":" + p.getValue().toString()) //
-							.collect(Collectors.joining(", ")));
+							.collect(Collectors.joining(", "))) //
+					.log();
 
 			this.parent.handleUpdateComponentConfigRequest(null /* no user */,
 					new UpdateComponentConfig.Request(componentId, properties));
 		} catch (OpenemsNamedException e) {
-			this.parent.logError(this.log,
-					"Unable to update Component configuration for Component [" + componentId + "]: " + e.getMessage());
-			e.printStackTrace();
+			this.log.error("Unable to update Component configuration for Component [{}]: {}", componentId,
+					e.getMessage(), e);
 			defaultConfigurationFailed.set(true);
 		}
 	}
@@ -217,13 +221,12 @@ public class DefaultConfigurationWorker extends ComponentManagerWorker {
 	 */
 	protected void deleteConfiguration(AtomicBoolean defaultConfigurationFailed, String componentId) {
 		try {
-			this.parent.logInfo(this.log, "Deleting Component [" + componentId + "]");
+			this.log.info("Deleting Component [{}]", componentId);
 
 			this.parent.handleDeleteComponentConfigRequest(null /* no user */,
 					new DeleteComponentConfig.Request(componentId));
 		} catch (OpenemsNamedException e) {
-			this.parent.logError(this.log, "Unable to delete Component [" + componentId + "]: " + e.getMessage());
-			e.printStackTrace();
+			this.log.error("Unable to delete Component [{}]: {}", componentId, e.getMessage(), e);
 			defaultConfigurationFailed.set(true);
 		}
 	}

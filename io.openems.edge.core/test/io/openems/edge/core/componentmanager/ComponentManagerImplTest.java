@@ -1,7 +1,6 @@
 package io.openems.edge.core.componentmanager;
 
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -14,13 +13,9 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.ComponentManager;
-import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyComponentContext;
 import io.openems.edge.common.test.DummyEventAdmin;
 import io.openems.edge.common.test.DummyServiceComponentRuntime;
-import io.openems.edge.controller.api.Controller;
 
 public class ComponentManagerImplTest {
 
@@ -84,23 +79,5 @@ public class ComponentManagerImplTest {
 		assertEquals("battery1", properties.get("battery.id")); // changed property
 		assertEquals("(enabled=true)", properties.get("battery.target")); // reset to default
 		assertEquals(batteryInverter0Target, properties.get("batteryInverter.target")); // unchanged
-	}
-
-	private static class MyDummyComponent extends AbstractDummyOpenemsComponent<MyDummyComponent>
-			implements OpenemsComponent {
-
-		public MyDummyComponent(String id) {
-			super(id, id, //
-					new DummyComponentContext() //
-							.addProperty("service.factoryPid", "My.Dummy.Component") //
-							.addProperty("service.pid", "My.Dummy.Component." + randomUUID()), //
-					OpenemsComponent.ChannelId.values(), //
-					Controller.ChannelId.values());
-		}
-
-		@Override
-		protected MyDummyComponent self() {
-			return this;
-		}
 	}
 }

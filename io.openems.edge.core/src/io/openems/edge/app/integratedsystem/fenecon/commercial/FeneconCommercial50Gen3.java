@@ -311,18 +311,6 @@ public class FeneconCommercial50Gen3 extends
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
-					stsBox(bundle, //
-							stsBoxId, //
-							modbusIdExternal, //
-							isGensetInstalled ? gensetId : null, //
-							gensetRatedPower, //
-							gensetPreheatingTime, //
-							gensetRunTime, //
-							gensetEnableCharge, //
-							gensetSocStart, //
-							gensetSocEnd, //
-							gensetMaxPower //
-			), //
 					new ComponentDef("_power", "", "Ess.Power", new ComponentProperties(List.of(//
 							ComponentProperties.Property.of("enablePid") //
 									.withValue(false) //
@@ -330,14 +318,27 @@ public class FeneconCommercial50Gen3 extends
 							ComponentDef.Configuration.defaultConfig()) //
 			);
 
-			if (isGensetInstalled) {
-				components.add(genset(bundle, gensetId, modbusIdExternal));
-			}
-
 			if (hasEmergencyReserve) {
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
 				components.add(ComponentDef.from(
 						ctrlEmergencyCapacityReserve(bundle, t, essId, emergencyReserveEnabled, emergencyReserveSoc)));
+				components.add(//
+						stsBox(bundle, //
+								stsBoxId, //
+								modbusIdExternal, //
+								isGensetInstalled ? gensetId : null, //
+								gensetRatedPower, //
+								gensetPreheatingTime, //
+								gensetRunTime, //
+								gensetEnableCharge, //
+								gensetSocStart, //
+								gensetSocEnd, //
+								gensetMaxPower //
+				));
+
+				if (isGensetInstalled) {
+					components.add(genset(bundle, gensetId, modbusIdExternal));
+				}
 			}
 
 			for (int i = 0; i < MAX_NUMBER_OF_MPPT; i++) {

@@ -3,6 +3,9 @@ package io.openems.edge.controller.channelthreshold;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
+
 @ObjectClassDefinition(//
 		name = "Controller Channel Threshold", //
 		description = "This controller switches a Digital Output channel ON, if the value of the input channel is within a configured threshold. This behaviour can be inverted using the 'invert' config option.")
@@ -24,9 +27,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String outputChannelAddress();
 
 	@AttributeDefinition(name = "Low threshold", description = "Low boundary of the threshold")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int lowThreshold();
 
 	@AttributeDefinition(name = "High threshold", description = "High boundary of the threshold")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int highThreshold();
 
 	@AttributeDefinition(name = "Hysteresis", description = "The hysteresis is applied to low and high threshold to avoid continuous switching")

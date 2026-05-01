@@ -32,7 +32,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 		try (final var timer = PrometheusMetrics.WEBSOCKET_REQUEST
 				.labelValues(this.name, notification.getFullyQualifiedMethod()).startTimer()) {
 			WsData wsData = ws.getAttachment();
-			var edgeId = wsData.getEdgeIdWithTimeout(10, SECONDS);
+			var edgeId = wsData.getEdgeId();
 			if (edgeId == null) {
 				return;
 			}

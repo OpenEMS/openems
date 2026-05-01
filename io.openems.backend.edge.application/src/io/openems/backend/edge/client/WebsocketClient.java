@@ -29,6 +29,7 @@ import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.jsonrpc.request.EdgeRpcRequest;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.websocket.AbstractWebsocketClient;
 import io.openems.common.websocket.ClientReconnectorWorker;
 import io.openems.common.websocket.OnClose;
@@ -67,7 +68,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 			BiConsumer<String, JsonrpcNotification> sendNotificationToEdge, //
 			Consumer<UpdateMetadataCache.Notification> updateCache) {
 		super(name, uri, Map.of("id", id), onConnectedChange,
-				new ClientReconnectorWorker.Config(100, 30, 2, 30 * 1000 /* 30 seconds */));
+				new ClientReconnectorWorker.Config(100, 30, 2, FunctionUtils::doNothing));
 		this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize,
 				new ThreadFactoryBuilder().setNameFormat("Backend.Edge.App-%d").build());
 		this.onNotification = new OnNotification(//

@@ -69,7 +69,12 @@ public class CyclicTask implements Runnable {
 	}
 
 	private void printDebugLog() {
-		this.log.info(this.client.debugLog());
+		this.log.info(new StringBuilder("[") //
+				.append(this.client.getName()) //
+				.append("] [monitor] ") //
+				.append(this.client.debugLog()) //
+				.toString());
+
 		var server = this.server.get();
 		if (server != null) {
 			this.log.info(server.debugLog());

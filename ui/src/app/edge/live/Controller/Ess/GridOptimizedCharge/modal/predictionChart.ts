@@ -210,7 +210,6 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
 
             await this.setOptions(this.options);
             this.applyControllerSpecificOptions();
-
         }).catch(reason => {
             console.error(reason); // TODO error message
             this.initializeChart();

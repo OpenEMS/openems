@@ -228,11 +228,13 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 		}
 
 		// Prepare Context
-		var context = new Context(this, //
+		final var context = new Context(this, //
 				battery, //
 				setActivePower, //
 				setReactivePower, //
-				this.componentManager.getClock());
+				this.componentManager.getClock(), //
+				this.config.errorBehaviour().getErrorRestartBehaviour() //
+		);
 
 		// Call the StateMachine
 		try {

@@ -65,12 +65,12 @@ export class ComponentInstallComponent implements OnInit {
 
                 // Set the next free Component-ID as defaultValue
                 if (property_id == "id" && property.schema["type"] !== "repeat") {
-                    const thisMatch = defaultValue.match(/^(.*)(\d+)$/);
+                    const thisMatch = defaultValue.match(/^(\D+)(\d+)$/);
                     if (thisMatch) {
                         const thisPrefix = thisMatch[1];
                         let highestSuffix = Number.parseInt(thisMatch[2]);
                         for (const componentId of Object.keys(config.components)) {
-                            const componentMatch = componentId.match(/^(.*)(\d+)$/);
+                            const componentMatch = componentId.match(/^(\D+)(\d+)$/);
                             if (componentMatch) {
                                 const componentPrefix = componentMatch[1];
                                 if (componentPrefix === thisPrefix) {

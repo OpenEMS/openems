@@ -128,6 +128,7 @@
     --ion-text-color-reverse: #000000; // lightMode > Black  &&  darkMode > White
     --ion-text-color-shade: #a0a0a0;
     --ion-text-color: #444444;
+    --ion-text-description-color: var(--ion-color-text-channels);
 
     /** item **/
     --ion-item-background: var(--ion-background-color);
@@ -252,6 +253,7 @@
     --ion-text-color-shade: #a0a0a0;
     --ion-color-text: #c8c8c8;
     --ion-color-text-percentage-bar: white;
+    --ion-text-description-color: #bebebe;
 
     /** Percentage bar Color **/
     --ion-background-percentagebar-color: white;

@@ -11,13 +11,13 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerChpSoc extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MODE(Doc.of(Mode.values()) //
-				.initialValue(Mode.AUTOMATIC) //
+		MODE(Doc.of(Mode.values())//
+				.initialValue(Mode.AUTOMATIC)//
 				.text("Configured Mode")), //
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")),
 		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH));
 
 		private final Doc doc;

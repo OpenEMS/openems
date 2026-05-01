@@ -4,7 +4,6 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIP
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,10 +21,13 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.modbus.AbstractModbusApi;
 import io.openems.edge.controller.api.modbus.CommonConfig;
@@ -37,14 +39,12 @@ import io.openems.edge.controller.api.modbus.ModbusApi;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("Component")
 public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusApi
 		implements ControllerApiModbusRtuReadOnly, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
 
 	@Reference
 	private Meta metaComponent;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private ComponentManager componentManager;
@@ -60,27 +60,27 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusApi
 		);
 	}
 
-	@Override
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
+	@Reference(//
+			policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
+			target = "(&(id=${config.component_ids})(enabled=true)(!(service.pid=${config.service_pid})))")
 	protected void addComponent(OpenemsComponent component) {
-		super.addComponent(component);
+		super._addComponent(component);
 	}
 
-	@Override
 	protected void removeComponent(OpenemsComponent component) {
-		super.removeComponent(component);
+		super._removeComponent(component);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
-		super.activate(context, this.cm, this.config, this.componentManager.getClock());
+		super.activate(context, this.config, this.componentManager.getClock());
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsException {
+	private void modified(ComponentContext context, Config config) {
 		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
-		super.modified(context, this.cm, this.config, this.componentManager.getClock());
+		super.modified(context, this.config, this.componentManager.getClock());
 	}
 
 	@Override
@@ -107,4 +107,11 @@ public class ControllerApiModbusRtuReadOnlyImpl extends AbstractModbusApi
 		return AccessMode.READ_ONLY;
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(ControllerApiModbusRtuReadOnly.class, accessMode, 100) //
+						.build());
+	}
 }

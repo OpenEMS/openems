@@ -22,14 +22,14 @@
 	<dependencies>
 		<!-- biz -->
 		<dependency>
-            <!--
-            The Bnd Gradle plugins: A Swiss Army Knife for OSGi
-            Changelog: https://github.com/bndtools/bnd/releases
-            Keep in sync with bnd_version in gradle.properties
-            -->
-            <groupId>biz.aQute.bnd</groupId>
-            <artifactId>biz.aQute.bnd.gradle</artifactId>
-            <version>7.2.3</version>
+			<!--
+			The Bnd Gradle plugins: A Swiss Army Knife for OSGi
+			Changelog: https://github.com/bndtools/bnd/releases
+			Keep in sync with bnd_version in gradle.properties
+			-->
+			<groupId>biz.aQute.bnd</groupId>
+			<artifactId>biz.aQute.bnd.gradle</artifactId>
+			<version>7.2.3</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -39,19 +39,19 @@
 		</dependency>
 		<dependency>
 			<!--
-            Aalto XML: Ultra-high performance non-blocking XML processor
-            Changelog: https://github.com/FasterXML/aalto-xml/wiki#releases
-            -->
+			Aalto XML: Ultra-high performance non-blocking XML processor
+			Changelog: https://github.com/FasterXML/aalto-xml/wiki#releases
+			-->
 			<groupId>com.fasterxml</groupId>
 			<artifactId>aalto-xml</artifactId>
 			<version>1.3.4</version>
 		</dependency>
 		<dependency>
 			<!--
-            Jackson Annotations: Core annotations used for value types
-            Changelog:
+			Jackson Annotations: Core annotations used for value types
+			Changelog:
 			https://github.com/FasterXML/jackson-core/blob/3.x/release-notes/VERSION-2.x
-            -->
+			-->
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.21</version>
@@ -62,28 +62,78 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Gson: A Java serialization/deserialization library to convert Java Objects into JSON and back
+			Changelog: https://github.com/google/gson/releases
+			Wrapper: io.openems.wrapper/gson.bnd
+			Keep in sync with default buildpath in cnf/build.bnd
+			-->
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.13.2</version>
+			<version>2.14.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Guava: Google Core Libraries For Java
+			Changelog: https://github.com/google/guava/releases
+			Keep in sync with default buildpath in cnf/build.bnd
+			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.5.0-jre</version>
+			<version>33.6.0-jre</version>
 		</dependency>
 		<dependency>
+			<!--
+			Guava InternalFutureFailureAccess and InternalFutures
+			Changelog: https://github.com/google/guava/releases
+			Keep in sync with default buildpath cnf/build.bnd
+			-->
 			<groupId>com.google.guava</groupId>
 			<artifactId>failureaccess</artifactId>
 			<version>1.0.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            Core Protocol Buffers library
-            Changelog: https://github.com/protocolbuffers/protobuf/releases
-            -->
+			Core Protocol Buffers library
+			Changelog: https://github.com/protocolbuffers/protobuf/releases
+			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
 			<version>4.34.1</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java client library for the Auth0 platform
+			Changelog: https://github.com/auth0/auth0-java/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-auth0.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>auth0</artifactId>
+			<version>3.5.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java implementation of JSON Web Token (JWT)
+			Changelog: https://github.com/auth0/java-jwt/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-java-jwt.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.5.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java library to retrieve RSA public keys from a JWKS (JSON Web Key Set) endpoint
+			Changelog: https://github.com/auth0/jwks-rsa-java/releases
+			Wrapper: io.openems.wrapper/auth0-jwks-rsa.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>jwks-rsa</artifactId>
+			<version>0.23.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.tribuo -->
@@ -111,9 +161,9 @@
 		</dependency>
 		<dependency>
 			<!--
-            Okio - A modern I/O library
-            Changelog: https://github.com/square/okio/blob/master/CHANGELOG.md
-            -->
+			Okio - A modern I/O library
+			Changelog: https://github.com/square/okio/blob/master/CHANGELOG.md
+			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
 			<version>3.17.0</version>
@@ -217,13 +267,13 @@
 		</dependency>
 		<dependency>
 			<!--
-            OpenEMS fork of j2mod - A Java Modbus implementation
-            Changelog: https://github.com/OpenEMS/j2mod/releases
-            Original: https://github.com/steveohara/j2mod/releases
-            -->
+			OpenEMS fork of j2mod - A Java Modbus implementation
+			Changelog: https://github.com/OpenEMS/j2mod/releases
+			Original: https://github.com/steveohara/j2mod/releases
+			-->
 			<groupId>io.openems</groupId>
 			<artifactId>j2mod</artifactId>
-			<version>3.3.0-openems.1</version>
+			<version>3.3.0-openems.2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.reactivex.rxjava3</groupId>
@@ -232,9 +282,9 @@
 		</dependency>
 		<dependency>
 			<!--
-            Jenetics - Java Genetic Algorithm Library
-            Changelog: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md
-            -->
+			Jenetics - Java Genetic Algorithm Library
+			Changelog: https://github.com/jenetics/jenetics/blob/master/RELEASE_NOTES.md
+			-->
 			<groupId>io.jenetics</groupId>
 			<artifactId>jenetics</artifactId>
 			<version>8.3.0</version>
@@ -249,18 +299,18 @@
 		<!-- org -->
 		<dependency>
 			<!--
-            Apache Commons Compress
-            Changelog: https://commons.apache.org/proper/commons-compress/changes.html
-            -->
+			Apache Commons Compress
+			Changelog: https://commons.apache.org/proper/commons-compress/changes.html
+			-->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.28.0</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Commons Lang
-            Changelog: https://commons.apache.org/proper/commons-lang/changes.html
-            -->
+			Apache Commons Lang
+			Changelog: https://commons.apache.org/proper/commons-lang/changes.html
+			-->
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.20.0</version>
@@ -272,49 +322,49 @@
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Configuration Admin Service
-            Changelog:
+			Apache Felix Configuration Admin Service
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/configadmin/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.configadmin</artifactId>
 			<version>1.9.26</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix EventAdmin
-            Changelog:
+			Apache Felix EventAdmin
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/eventadmin/impl/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.eventadmin</artifactId>
 			<version>1.6.4</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix File Install
-            Changelog:
+			Apache Felix File Install
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/fileinstall/doc/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.fileinstall</artifactId>
 			<version>3.7.4</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Framework
-            Changelog:
+			Apache Felix Framework
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/framework/doc/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.framework</artifactId>
 			<version>7.0.5</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix HTTP Service
-            Changelog: https://github.com/apache/felix-dev/commits/master/http
-            -->
+			Apache Felix HTTP Service
+			Changelog: https://github.com/apache/felix-dev/commits/master/http
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
 			<version>1.1.8</version>
@@ -327,49 +377,49 @@
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Inventory
-            Changelog:
+			Apache Felix Inventory
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/inventory/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.inventory</artifactId>
 			<version>2.0.0</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Metatype Service
-            Changelog:
+			Apache Felix Metatype Service
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/metatype/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.metatype</artifactId>
 			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Service Component Runtime (SCR)
-            Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt
-            -->
+			Apache Felix Service Component Runtime (SCR)
+			Changelog: https://github.com/apache/felix-dev/blob/master/scr/changelog.txt
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.scr</artifactId>
-			<version>2.2.14</version>
+			<version>2.2.18</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Web Management Console
-            Changelog:
+			Apache Felix Web Management Console
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/webconsole/README.md#releases
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole</artifactId>
 			<version>5.0.18</version>
 		</dependency>
 		<dependency>
 			<!--
-            Apache Felix Web Console Service Component Runtime/Declarative Services Plugin
-            Changelog:
+			Apache Felix Web Console Service Component Runtime/Declarative Services Plugin
+			Changelog:
 			https://github.com/apache/felix-dev/blob/master/webconsole-plugins/ds/changelog.txt
-            -->
+			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.webconsole.plugins.ds</artifactId>
 			<version>2.3.0</version>
@@ -380,37 +430,39 @@
 			<version>4.13.2_1</version>
 		</dependency>
 		<dependency>
-			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!--
-			https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk18on -->
+			Bouncycastle for Eclipse Paho MQTTv5 Client
+			Changelog: https://www.bouncycastle.org/download/bouncy-castle-java/#release-notes
+			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.83</version>
+			<version>1.84</version>
 		</dependency>
 		<dependency>
-			<!-- Bouncycastle for Eclipse Paho MQTTv5 Client -->
 			<!--
-			https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk18on -->
+			Bouncycastle for Eclipse Paho MQTTv5 Client
+			Changelog: https://www.bouncycastle.org/download/bouncy-castle-java/#release-notes
+			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.83</version>
+			<version>1.84</version>
 		</dependency>
 		<dependency>
 			<!--
-            Fastexcel Writer
-            Changelog: https://github.com/dhatim/fastexcel/releases
-            Wrapper: io.openems.wrapper/fastexcel.bnd
-            -->
+			Fastexcel Writer
+			Changelog: https://github.com/dhatim/fastexcel/releases
+			Wrapper: io.openems.wrapper/fastexcel.bnd
+			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
 			<version>0.20.0</version>
 		</dependency>
 		<dependency>
 			<!--
-            Fastexcel Reader
-            Changelog: https://github.com/dhatim/fastexcel/releases
-            Wrapper: io.openems.wrapper/fastexcel.bnd
-            -->
+			Fastexcel Reader
+			Changelog: https://github.com/dhatim/fastexcel/releases
+			Wrapper: io.openems.wrapper/fastexcel.bnd
+			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
 			<version>0.20.0</version>
@@ -429,74 +481,94 @@
 		</dependency>
 		<dependency>
 			<!--
-            Java mDNS Library
-            Changelog: https://github.com/jmdns/jmdns/releases
-            -->
+			Java mDNS Library
+			Changelog: https://github.com/jmdns/jmdns/releases
+			-->
 			<groupId>org.jmdns</groupId>
 			<artifactId>jmdns</artifactId>
 			<version>3.6.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            Mockito JUnit 5 support
-            Changelog: https://github.com/mockito/mockito/releases
-            Keep in sync with openems.mockito.version in cnf/build.bnd
-            -->
+			Mockito JUnit 5 support
+			Changelog: https://github.com/mockito/mockito/releases
+			Keep in sync with openems.mockito.version in cnf/build.bnd
+			-->
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-junit-jupiter</artifactId>
 			<version>5.23.0</version>
 		</dependency>
 		<dependency>
 			<!--
-            Byte Buddy is a Java library for creating Java classes at run time
-            Changelog: https://github.com/raphw/byte-buddy/releases
-            Keep in sync with openems.bytebuddy.version in cnf/build.bnd
-            -->
+			Byte Buddy is a Java library for creating Java classes at run time
+			Changelog: https://github.com/raphw/byte-buddy/releases
+			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.7</version>
+			<version>1.18.8</version>
 		</dependency>
 		<dependency>
 			<!--
-            The Byte Buddy agent offers convenience for attaching an agent to the VM
-            Changelog: https://github.com/raphw/byte-buddy/releases
-            Keep in sync with openems.bytebuddy.version in cnf/build.bnd
-            -->
+			The Byte Buddy agent offers convenience for attaching an agent to the VM
+			Changelog: https://github.com/raphw/byte-buddy/releases
+			Keep in sync with openems.bytebuddy.version in cnf/build.bnd
+			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.7</version>
+			<version>1.18.8</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
+			<!--
+			InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-java.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.influxdb</groupId>
-			<artifactId>influxdb-client-core</artifactId>
-			<version>7.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.influxdb</groupId>
-			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.5.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.influxdb</groupId>
-			<artifactId>flux-dsl</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<!--
-            Kotlin OSGi Bundle
-            Changelog: https://github.com/JetBrains/kotlin/releases
-            Commits:
+			InfluxDB Java Client Core
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-core.bnd
+			-->
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-core</artifactId>
+			<version>8.0.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			InfluxDB Java Client Utilities
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-utils.bnd
+			-->
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-utils</artifactId>
+			<version>8.0.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Flux DSL for InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-flux-dsl.bnd
+			-->
+			<groupId>com.influxdb</groupId>
+			<artifactId>flux-dsl</artifactId>
+			<version>8.0.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Kotlin OSGi Bundle
+			Changelog: https://github.com/JetBrains/kotlin/releases
+			Commits:
 			https://github.com/JetBrains/kotlin/commits/master/libraries/tools/kotlin-osgi-bundle
-            -->
+			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.3.20</version>
+			<version>2.3.21</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlinx</groupId>
@@ -505,19 +577,22 @@
 		</dependency>
 		<dependency>
 			<!--
-            A 2D chart library for Java applications (JavaFX, Swing or server-side). 
-            Changelog: https://github.com/jfree/jfreechart/releases
-            Wrapper: io.openems.wrapper.jfreechart
-            -->
+			A 2D chart library for Java applications (JavaFX, Swing or server-side). 
+			Changelog: https://github.com/jfree/jfreechart/releases
+			Wrapper: io.openems.wrapper.jfreechart
+			-->
 			<groupId>org.jfree</groupId>
 			<artifactId>jfreechart</artifactId>
 			<version>1.5.6</version>
 		</dependency>
 		<dependency>
-			<!-- HTML processing -->
+			<!-- 
+			Jsoup Java HTML Parser
+			Changelog: https://github.com/jhy/jsoup/releases
+			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.22.1</version>
+			<version>1.22.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -526,50 +601,50 @@
 		</dependency>
 		<dependency>
 			<!--
-            Core package for the JUnit Jupiter test engine
-            Changelog: https://github.com/junit-team/junit-framework/releases
-            Keep in sync with openems.junit.version in cnf/build.bnd
-            -->
+			Core package for the JUnit Jupiter test engine
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
 			<version>6.0.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            Public API for configuring and launching test plans
-            Changelog: https://github.com/junit-team/junit-framework/releases
-            Keep in sync with openems.junit.version in cnf/build.bnd
-            -->
+			Public API for configuring and launching test plans
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
 			<version>6.0.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            A thin layer on top of JUnit 4 to allow running vintage tests
-            Changelog: https://github.com/junit-team/junit-framework/releases
-            Keep in sync with openems.junit.version in cnf/build.bnd
-            -->
+			A thin layer on top of JUnit 4 to allow running vintage tests
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
 			<version>6.0.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            JUnit Jupiter extension for running parameterized tests
-            Changelog: https://github.com/junit-team/junit-framework/releases
-            Keep in sync with openems.junit.version in cnf/build.bnd
-            -->
+			JUnit Jupiter extension for running parameterized tests
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<version>6.0.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            Open Test Alliance for the JVM
-            Changelog: https://github.com/ota4j-team/opentest4j/releases
-            Keep in sync with openems.junit.version in cnf/build.bnd
-            -->
+			Open Test Alliance for the JVM
+			Changelog: https://github.com/ota4j-team/opentest4j/releases
+			Keep in sync with openems.junit.version in cnf/build.bnd
+			-->
 			<groupId>org.opentest4j</groupId>
 			<artifactId>opentest4j</artifactId>
 			<version>1.3.0</version>
@@ -626,23 +701,21 @@
 		</dependency>
 		<dependency>
 			<!--
-            Pax Logging API Library
-            Commits:
-			https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-api
-            -->
+			OPS4J Pax Logging API
+			Changelog: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-api
+			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.2</version>
+			<version>2.3.3</version>
 		</dependency>
 		<dependency>
 			<!--
-            Pax Logging backend for Apache Log4J2
-            Commits:
-			https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-log4j2
-            -->
+			OPS4J Pax Logging Log4Jv2 Implementation
+			Changelog: https://github.com/ops4j/org.ops4j.pax.logging/commits/main/pax-logging-log4j2
+			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.2</version>
+			<version>2.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -740,39 +813,13 @@
 		</dependency>
 		<dependency>
 			<!--
-            A library for instantiating Java objects
-            Changelog: https://github.com/easymock/objenesis/releases
-            Keep in sync with openems.mockito.version in cnf/build.bnd
-            -->
+			A library for instantiating Java objects
+			Changelog: https://github.com/easymock/objenesis/releases
+			Keep in sync with openems.mockito.version in cnf/build.bnd
+			-->
 			<groupId>org.objenesis</groupId>
 			<artifactId>objenesis</artifactId>
 			<version>3.5</version>
-		</dependency>
-		<dependency>
-			<!--
-            Java client library for the Auth0 platform
-            Changelog: https://github.com/auth0/auth0-java/releases
-            Wrapper: io.openems.wrapper.auth0-auth0.bnd
-            -->
-			<groupId>com.auth0</groupId>
-			<artifactId>auth0</artifactId>
-			<version>3.3.0</version>
-		</dependency>
-		<dependency>
-			<!--
-            Java implementation of JSON Web Token (JWT)
-            Changelog: https://github.com/auth0/java-jwt/releases
-            Wrapper: io.openems.wrapper/auth0-java-jwt.bnd
-            -->
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.5.1</version>
-		</dependency>
-		<dependency>
-			<!-- used by io.openems.backend.authentication.oauth -->
-			<groupId>com.auth0</groupId>
-			<artifactId>jwks-rsa</artifactId>
-			<version>0.23.0</version>
 		</dependency>
 	</dependencies>
 </project>
