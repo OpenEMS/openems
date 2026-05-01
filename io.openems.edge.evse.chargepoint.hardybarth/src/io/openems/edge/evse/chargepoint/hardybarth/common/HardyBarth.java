@@ -27,6 +27,8 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "ci", "evse", "basic", "grid_current_limit", "actual"), //
 		RAW_PHASE_COUNT(Doc.of(INTEGER), //
 				"secc", "port0", "ci", "evse", "basic", "phase_count"), //
+		RAW_PHYSICAL_CURRENT_LIMIT(Doc.of(STRING),
+				"secc", "port0", "ci", "evse", "basic", "physical_current_limit"), //
 
 		// CHARGE
 		RAW_CHARGE_STATUS_PLUG(Doc.of(STRING), //
@@ -66,6 +68,10 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "salia", "firmwareprogress"), //
 		RAW_SALIA_PUBLISH(Doc.of(STRING), //
 				"secc", "port0", "salia", "publish"), //
+		RAW_SALIA_SOCKET_MAX_AMP(Doc.of(STRING),
+				"secc", "port0", "salia", "socketmaxamp"), //
+		RAW_SALIA_INTCTRL_LIMIT(Doc.of(STRING),
+				"secc", "port0", "salia", "intctrl_limit"), //
 
 		// SESSION
 		RAW_SESSION_STATUS_AUTHORIZATION(Doc.of(STRING), //
@@ -134,6 +140,9 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 		// CABLE CURRENT LIMIT
 		RAW_CABLE_CURRENT_LIMIT(Doc.of(STRING), //
 				"secc", "port0", "cable_current_limit"), //
+
+		RAW_MAX_AMP(Doc.of(STRING), //
+				"secc", "port0", "max_amp"), //
 
 		// VENTILATION
 		RAW_VENTILATION_STATE_ACTUAL(Doc.of(STRING), //
