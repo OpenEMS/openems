@@ -60,6 +60,7 @@ export const OemMeta: BaseMeta = {
             KEBA_P40: null,
             HARDY_BARTH: null,
             ALPITRONIC: null,
+            MENNEKES: null,
         },
     },
     links: {
