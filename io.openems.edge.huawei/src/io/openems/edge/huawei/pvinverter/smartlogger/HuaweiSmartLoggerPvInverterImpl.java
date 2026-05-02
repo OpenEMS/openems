@@ -1,15 +1,18 @@
 package io.openems.edge.huawei.pvinverter.smartlogger;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -17,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -30,7 +34,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -49,22 +52,22 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusComponent
 		implements HuaweiSmartloggerPvInverter, ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent,
 		EventHandler, TimedataProvider, OpenemsComponent, ModbusSlave {
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	private Config config;
@@ -76,7 +79,8 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	public HuaweiSmartLoggerPvInverterImpl() {
-		super(OpenemsComponent.ChannelId.values(), //
+		super(//
+				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				ManagedSymmetricPvInverter.ChannelId.values(), //
@@ -86,10 +90,7 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 	@Activate
 	void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
 	@Override
@@ -100,10 +101,7 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-
-		var protocol = new ModbusProtocol(this);
-
-		protocol.addTasks(//
+		final var protocol = new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(40554, Priority.HIGH, //
 						this.m(ElectricityMeter.ChannelId.CURRENT, new SignedDoublewordElement(40554), //
 								ElementToChannelConverter.SCALE_FACTOR_MINUS_3)), //
@@ -148,9 +146,8 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
-			this.calculateTotalEnergy.update(this.getActivePower().get());
-		}
+		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+			-> this.calculateTotalEnergy.update(this.getActivePower().get());
 		}
 	}
 
@@ -176,5 +173,4 @@ public class HuaweiSmartLoggerPvInverterImpl extends AbstractOpenemsModbusCompon
 	public Timedata getTimedata() {
 		return this.timedata;
 	}
-
 }
