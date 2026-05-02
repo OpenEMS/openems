@@ -171,7 +171,8 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				 */
 				// Force charge: set Constraint for ActivePower
 				if (this.forceChargePower.isPresent()) {
-					calculatedPower = getAcPower(ess, this.hybridEssMode, this.forceChargePower.get() * -1); // convert to negative for charging
+					calculatedPower = getAcPower(ess, this.hybridEssMode, //
+							this.forceChargePower.get() * -1); // convert to negative for charging
 				} else {
 					var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 					calculatedPower = maxCharge / 5;
