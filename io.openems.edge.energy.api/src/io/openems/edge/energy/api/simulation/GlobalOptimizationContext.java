@@ -3,13 +3,11 @@ package io.openems.edge.energy.api.simulation;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
-import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.HOUR;
-import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.HOUR;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -21,9 +19,9 @@ import io.openems.edge.common.meta.GridBuySoftLimit;
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
-import io.openems.edge.energy.api.simulation.GocUtils.GocBuilder;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodsBuilder;
+import io.openems.edge.energy.api.simulation.periods.PeriodData;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.Periods;
 
 /**
  * Holds the context that is used globally for an entire optimization run.
@@ -43,39 +41,6 @@ public record GlobalOptimizationContext(//
 		Periods periods) {
 
 	/**
-	 * Streams the {@link GlobalOptimizationContext.Period.WithPrice}.
-	 * 
-	 * @return a {@link Stream}
-	 */
-	public Stream<Period.WithPrice> streamPeriodsWithPrice() {
-		return this.periods().stream() //
-				.filter(Period.WithPrice.class::isInstance) //
-				.map(Period.WithPrice.class::cast);
-	}
-
-	/**
-	 * Streams the {@link GlobalOptimizationContext.Period.WithPrediction}.
-	 * 
-	 * @return a {@link Stream}
-	 */
-	public Stream<Period.WithPrediction> streamPeriodsWithPrediction() {
-		return this.periods().stream() //
-				.filter(Period.WithPrediction.class::isInstance) //
-				.map(Period.WithPrediction.class::cast);
-	}
-
-	/**
-	 * Streams the {@link GlobalOptimizationContext.Period.Complete}.
-	 * 
-	 * @return a {@link Stream}
-	 */
-	public Stream<Period.Complete> streamCompletePeriods() {
-		return this.periods().stream() //
-				.filter(Period.Complete.class::isInstance) //
-				.map(Period.Complete.class::cast);
-	}
-
-	/**
 	 * Serialize.
 	 * 
 	 * @return the {@link JsonObject}
@@ -93,7 +58,7 @@ public record GlobalOptimizationContext(//
 				.build();
 	}
 
-	public static record Grid(//
+	public record Grid(//
 			/** Max Buy-From-Grid Power [W] */
 			int maxBuyPower, //
 			/** Max Sell-To-Grid Power [W] */
@@ -123,7 +88,7 @@ public record GlobalOptimizationContext(//
 		}
 	}
 
-	public static record Ess(//
+	public record Ess(//
 			/** ESS Currently Available Energy (SoC in [Wh]) */
 			int currentEnergy, //
 			/** ESS Total Energy (Capacity) [Wh] */
@@ -157,334 +122,84 @@ public record GlobalOptimizationContext(//
 	}
 
 	/**
-	 * Create a builder for {@link GlobalOptimizationContext}.
+	 * Returns a builder for {@link GlobalOptimizationContext}.
 	 * 
 	 * @return a {@link GocBuilder}
 	 */
-	public static GocBuilder create() {
+	public static GocBuilder builder() {
 		return new GocBuilder(LogVerbosity.NONE);
 	}
 
 	/**
-	 * Create a builder for {@link GlobalOptimizationContext}.
+	 * Returns a builder for {@link GlobalOptimizationContext}.
 	 * 
 	 * @param logVerbosity the {@link LogVerbosity}
 	 * @return a {@link GocBuilder}
 	 */
-	public static GocBuilder create(LogVerbosity logVerbosity) {
+	public static GocBuilder builder(LogVerbosity logVerbosity) {
 		return new GocBuilder(logVerbosity);
 	}
 
-	/**
-	 * Multiple Periods within {@link GlobalOptimizationContext}.
-	 */
-	public static class Periods {
-
-		private final ImmutableList<Period> periods;
-
-		protected Periods(ImmutableList<Period> periods) {
-			this.periods = periods;
-		}
-
-		/**
-		 * Gets the number of {@link Period Periods}.
-		 * 
-		 * @return size
-		 */
-		public int size() {
-			return this.periods.size();
-		}
-
-		/**
-		 * Are there any {@link Period Periods}?.
-		 * 
-		 * @return true if none
-		 */
-		public boolean isEmpty() {
-			return this.periods.isEmpty();
-		}
-
-		/**
-		 * Gets a Stream of {@link Period Periods}.
-		 * 
-		 * @return {@link Stream}
-		 */
-		public Stream<Period> stream() {
-			return this.periods.stream();
-		}
-
-		/**
-		 * Gets the {@link Period} with given index.
-		 * 
-		 * @param index the index
-		 * @return the {@link Period}
-		 */
-		public Period get(int index) {
-			return this.periods.get(index);
-		}
-
-		/**
-		 * Gets the first {@link Period}.
-		 * 
-		 * @return the {@link Period}
-		 */
-		public Period getFirst() throws NoSuchElementException {
-			return this.periods.getFirst();
-		}
-
-		/**
-		 * Gets the last {@link Period}.
-		 * 
-		 * @return the {@link Period}
-		 */
-		public Period getLast() throws NoSuchElementException {
-			return this.periods.getLast();
-		}
-
-		/**
-		 * Create a builder for {@link Periods}.
-		 * 
-		 * @param environment the {@link Environment}
-		 * @return a {@link PeriodsBuilder}
-		 */
-		public static PeriodsBuilder create(Environment environment) {
-			return new PeriodsBuilder(environment);
-		}
-
-		/**
-		 * Gets object with no {@link Period Periods}.
-		 * 
-		 * @return empty {@link Periods}
-		 */
-		public static Periods empty() {
-			return new Periods(ImmutableList.of());
-		}
-
-		/**
-		 * Copies the Quarterly Periods of the given {@link Periods} to a new Periods.
-		 * 
-		 * @param o the given Periods
-		 * @return copy
-		 */
-		public static Periods copyOfQuarterly(Periods o) {
-			return new Periods(o.stream() //
-					.flatMap(period -> switch (period) {
-					case GlobalOptimizationContext.Period.Hour ph //
-						-> ph.quarterPeriods().stream();
-					case GlobalOptimizationContext.Period.Quarter pq //
-						-> Stream.of(pq);
-					}) //
-					.collect(ImmutableList.<Period>toImmutableList()));
-		}
-	}
-
-	/**
-	 * One single Period of {@link Periods}.
-	 */
 	public sealed interface Period {
 
 		/**
-		 * The Duration of a Period.
-		 * 
-		 * @return the {@link PeriodDuration}
+		 * Returns the duration type of this period (e.g. {@link PeriodDuration#QUARTER}
+		 * or {@link PeriodDuration#HOUR}).
+		 *
+		 * @return the period duration
 		 */
-		public PeriodDuration duration();
+		PeriodDuration duration();
 
 		/**
-		 * Index of the Period.
-		 * 
-		 * @return the index
+		 * Returns the index of this period.
+		 *
+		 * @return the period index
 		 */
-		public int index();
+		int index();
 
 		/**
-		 * Start-Timestamp of the Period.
-		 * 
-		 * @return the {@link ZonedDateTime}
+		 * Returns the start timestamp of this period.
+		 *
+		 * @return the start time as {@link ZonedDateTime}
 		 */
-		public ZonedDateTime time();
+		ZonedDateTime time();
 
 		/**
-		 * The Grid-Buy Soft-Limit in [Wh].
-		 * 
-		 * @return {@link GridBuySoftLimit}; or null
+		 * Returns the grid-buy soft limit of this period.
+		 *
+		 * @return the soft limit in Wh, or {@code null}
 		 */
-		public Integer gridBuySoftLimit();
+		Integer gridBuySoftLimit();
 
-		public static sealed interface Empty extends Period {
-		}
+		/**
+		 * Returns the data of this period.
+		 *
+		 * @return the period data
+		 */
+		PeriodData data();
 
-		public static record Prediction(//
-				/**
-				 * Production prediction for the Period in [Wh].
-				 * 
-				 * @return the production prediction
-				 */
-				int production,
-
-				/**
-				 * Consumption prediction for the Period in [Wh].
-				 * 
-				 * @return the consumption prediction
-				 */
-				int consumptionPredicted,
-
-				/**
-				 * Consumption prediction for the Period adjusted by {@link Environment} in
-				 * [Wh].
-				 * 
-				 * @return the consumption prediction
-				 */
-				int consumptionRiskAdjusted) {
-
-			/**
-			 * Gets the excess Consumption, i.e. Consumption minus Production.
-			 * 
-			 * @return value
-			 */
-			public int excessConsumption() {
-				return this.consumptionPredicted - this.production;
-			}
-
-			/**
-			 * Gets the excess Production, i.e. Production minus Consumption.
-			 * 
-			 * @return value
-			 */
-			public int excessProduction() {
-				return this.production - this.consumptionPredicted;
-			}
-		}
-
-		public static sealed interface WithPrediction extends Period {
-			/**
-			 * Prediction for the Period in [Wh].
-			 * 
-			 * @return the {@link Price}
-			 */
-			public Prediction prediction();
-		}
-
-		public static record Price(//
-				/**
-				 * Actual (Average) Grid-Buy-Price for the Period in [1/MWh].
-				 * 
-				 * @return the actual price
-				 */
-				double actual,
-
-				/**
-				 * Normalized Grid-Buy-Price for the Period in range [0; 1].
-				 * 
-				 * @return the normalized price
-				 */
-				double normalized) {
-		}
-
-		public static sealed interface WithPrice extends Period {
-			/**
-			 * Grid-Buy-Price for the Period in [1/MWh].
-			 * 
-			 * @return the {@link Price}
-			 */
-			public Price price();
-		}
-
-		public static sealed interface Complete extends Period.WithPrediction, Period.WithPrice {
-		}
-
-		public static sealed interface Quarter extends Period {
+		record Quarter(//
+				int index, //
+				ZonedDateTime time, //
+				Integer gridBuySoftLimit, //
+				PeriodData data) implements Period {
 
 			@Override
-			public default PeriodDuration duration() {
+			public PeriodDuration duration() {
 				return QUARTER;
 			}
-
-			public static record Empty(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit //
-			) implements Period.Quarter, Period.Empty {
-			}
-
-			public static record WithPrediction(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrediction
-					Prediction prediction //
-			) implements Period.Quarter, Period.WithPrediction {
-			}
-
-			public static record WithPrice(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrice
-					Price price //
-			) implements Period.Quarter, Period.WithPrice {
-			}
-
-			public static record Complete(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrediction
-					Prediction prediction, //
-					// From Period.WithPrice
-					Price price //
-			) implements Period.Quarter, Period.Complete {
-			}
 		}
 
-		public static sealed interface Hour extends Period {
+		record Hour(//
+				int index, //
+				ZonedDateTime time, //
+				Integer gridBuySoftLimit, //
+				PeriodData data, //
+				ImmutableList<Quarter> quarterPeriods) implements Period {
 
 			@Override
-			public default PeriodDuration duration() {
+			public PeriodDuration duration() {
 				return HOUR;
-			}
-
-			/**
-			 * Raw Periods, representing one QUARTER.
-			 * 
-			 * @return the Quarter Periods
-			 */
-			public ImmutableList<Period.Quarter> quarterPeriods();
-
-			public static record Empty(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.Hour
-					ImmutableList<Period.Quarter> quarterPeriods //
-			) implements Period.Hour, Period.Empty {
-			}
-
-			public static record WithPrediction(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrediction
-					Prediction prediction, //
-					// From Period.Hour
-					ImmutableList<Period.Quarter> quarterPeriods //
-			) implements Period.Hour, Period.WithPrediction {
-			}
-
-			public static record WithPrice(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrice
-					Price price, //
-					// From Period.Hour
-					ImmutableList<Period.Quarter> quarterPeriods //
-			) implements Period.Hour, Period.WithPrice {
-			}
-
-			public static record Complete(
-					// From Period
-					int index, ZonedDateTime time, Integer gridBuySoftLimit, //
-					// From Period.WithPrediction
-					Prediction prediction, //
-					// From Period.WithPrice
-					Price price, //
-					// From Period.Hour
-					ImmutableList<Period.Quarter> quarterPeriods //
-			) implements Period.Hour, Period.Complete {
 			}
 		}
 	}

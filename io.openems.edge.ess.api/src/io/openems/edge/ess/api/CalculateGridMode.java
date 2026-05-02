@@ -26,6 +26,13 @@ public class CalculateGridMode {
 	}
 
 	/**
+	 * Resets the calculator for reuse.
+	 */
+	public void reset() {
+		this.values.clear();
+	}
+
+	/**
 	 * Finds the effective Grid-Mode.
 	 *
 	 * @return the {@link GridMode}
@@ -36,7 +43,7 @@ public class CalculateGridMode {
 
 	/**
 	 * Aggregates {@link GridMode GridModes} to one {@link GridMode}.
-	 * 
+	 *
 	 * @param gridModes the GridModes
 	 * @return one {@link GridMode}
 	 */

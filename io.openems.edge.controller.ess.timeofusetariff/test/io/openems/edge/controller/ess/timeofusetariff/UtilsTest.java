@@ -7,7 +7,7 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHA
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.PEAK_SHAVING;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateAutomaticMode;
 import static io.openems.edge.controller.ess.timeofusetariff.Utils.calculateChargePowerInChargeGrid;
-import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
@@ -26,8 +26,8 @@ import io.openems.edge.controller.ess.timeofusetariff.Utils.ApplyMode;
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Periods;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.Periods;
 import io.openems.edge.ess.test.DummyHybridEss;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 
@@ -152,7 +152,7 @@ public class UtilsTest {
 
 	private static DifferentModes.Period<StateMachine, OptimizationContext> mockPeriod(PeriodDuration duration,
 			StateMachine mode, int essChargePowerInChargeGrid) {
-		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0.,
+		return new DifferentModes.Period<StateMachine, OptimizationContext>(duration, mode, 0., 0.,
 				new OptimizationContext(0, 0, essChargePowerInChargeGrid), null, 0);
 	}
 
@@ -228,52 +228,52 @@ public class UtilsTest {
 	@Test
 	public void testCalculateChargePowerInChargeGrid() {
 		assertEquals(5745, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 						Periods.empty()),
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(4336, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
-								.add(TIME, null, 0, 1000, 0.) //
-								.add(TIME.plusMinutes(15), null, 100, 1100, 0.) //
-								.add(TIME.plusMinutes(30), null, 200, 0, 0.) //
+						Periods.builder(Environment.TEST) //
+								.addPeriodIfValid(TIME, null, 0, 1000, 0., null) //
+								.addPeriodIfValid(TIME.plusMinutes(15), null, 100, 1100, 0., null) //
+								.addPeriodIfValid(TIME.plusMinutes(30), null, 200, 0, 0., null) //
 								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3182, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
-								.add(TIME, null, 0, 700, 123.) //
-								.add(TIME.plusMinutes(30), null, 100, 600, 123.) //
-								.add(TIME.plusMinutes(45), null, 200, 500, 125.) //
-								.add(TIME.plusMinutes(60), null, 300, 400, 126.) //
-								.add(TIME.plusMinutes(75), null, 400, 300, 123.) //
-								.add(TIME.plusMinutes(90), null, 500, 200, 122.) //
-								.add(TIME.plusMinutes(105), null, 600, 100, 121.) //
-								.add(TIME.plusMinutes(120), null, 700, 0, 121.) //
+						Periods.builder(Environment.TEST) //
+								.addPeriodIfValid(TIME, null, 0, 700, 123., null) //
+								.addPeriodIfValid(TIME.plusMinutes(15), null, 100, 600, 123., null) //
+								.addPeriodIfValid(TIME.plusMinutes(30), null, 200, 500, 125., null) //
+								.addPeriodIfValid(TIME.plusMinutes(45), null, 300, 400, 126., null) //
+								.addPeriodIfValid(TIME.plusMinutes(60), null, 400, 300, 123., null) //
+								.addPeriodIfValid(TIME.plusMinutes(75), null, 500, 200, 122., null) //
+								.addPeriodIfValid(TIME.plusMinutes(90), null, 600, 100, 121., null) //
+								.addPeriodIfValid(TIME.plusMinutes(105), null, 700, 0, 121., null) //
 								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 
 		assertEquals(3818, calculateChargePowerInChargeGrid(//
-				new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
 						new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
 						new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-						GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
-								.add(TIME, null, 0, 700, 120.) //
-								.add(TIME.plusMinutes(15), null, 100, 600, 121.) //
-								.add(TIME.plusMinutes(30), null, 200, 500, 122.) //
-								.add(TIME.plusMinutes(45), null, 300, 1140, 126.) //
-								.add(TIME.plusMinutes(60), null, 400, 1150, 125.) //
-								.add(TIME.plusMinutes(75), null, 500, 200, 122.) //
-								.add(TIME.plusMinutes(90), null, 600, 100, 121.) //
-								.add(TIME.plusMinutes(105), null, 700, 0, 121.) //
+						Periods.builder(Environment.TEST) //
+								.addPeriodIfValid(TIME, null, 0, 700, 120., null) //
+								.addPeriodIfValid(TIME.plusMinutes(15), null, 100, 600, 121., null) //
+								.addPeriodIfValid(TIME.plusMinutes(30), null, 200, 500, 122., null) //
+								.addPeriodIfValid(TIME.plusMinutes(45), null, 300, 1140, 126., null) //
+								.addPeriodIfValid(TIME.plusMinutes(60), null, 400, 1150, 125., null) //
+								.addPeriodIfValid(TIME.plusMinutes(75), null, 500, 200, 122., null) //
+								.addPeriodIfValid(TIME.plusMinutes(90), null, 600, 100, 121., null) //
+								.addPeriodIfValid(TIME.plusMinutes(105), null, 700, 0, 121., null) //
 								.build()), //
 				/* maxEnergyInChargeGrid */ 11490));
 	}

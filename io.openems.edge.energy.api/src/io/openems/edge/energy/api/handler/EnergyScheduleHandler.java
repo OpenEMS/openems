@@ -17,7 +17,7 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler.WithOnlyOneMode;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 
 public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOnlyOneMode {
 
@@ -128,8 +128,8 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * @param isFinalRun is this the final simulation run?
 		 * @return the index of the post-processed Mode
 		 */
-		public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-				EnergyFlow.Model ef, int modeIndex, Fitness fitness, boolean isFinalRun);
+		public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow.Model ef, int modeIndex,
+				Fitness fitness, boolean isFinalRun);
 
 		/**
 		 * Applies a new Schedule.
@@ -167,8 +167,8 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * @param ef      the {@link EnergyFlow.Model}
 		 * @param fitness the {@link Fitness} result
 		 */
-		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-				EnergyFlow.Model ef, Fitness fitness);
+		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow.Model ef,
+				Fitness fitness);
 
 		/**
 		 * Applies a new Schedule.
@@ -191,11 +191,18 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		public PeriodDuration duration();
 
 		/**
-		 * Price [1/MWh].
+		 * Grid-Buy Price [1/MWh].
 		 * 
-		 * @return the price per period; possibly null
+		 * @return the grid-buy price per period; possibly null
 		 */
-		public Double price();
+		public Double gridBuyPrice();
+
+		/**
+		 * Grid-Sell Price [1/MWh].
+		 *
+		 * @return the grid-sell price per period; possibly null
+		 */
+		public Double gridSellPrice();
 
 		/**
 		 * Simulated {@link EnergyFlow}.

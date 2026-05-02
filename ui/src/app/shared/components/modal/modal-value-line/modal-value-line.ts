@@ -20,6 +20,7 @@ export class ModalValueLineComponent extends AbstractModalLine {
 
     @Input({ required: true }) public valueCallback!: (currentData: CurrentData) => string;
 
+    @Input() public nameCallback!: (currentData: CurrentData) => string;
     // Show only the value as one line
     @Input() protected singleLine: boolean = false;
 
@@ -43,6 +44,10 @@ export class ModalValueLineComponent extends AbstractModalLine {
     protected override onCurrentData(currentData: CurrentData): void {
         this.shouldShow = this._filters !== null && typeof this._filters === "function" ? this._filters(currentData) : true;
         this.displayValue = this.valueCallback(currentData);
+
+        if (this.nameCallback != null) {
+            this.displayName = this.nameCallback(currentData);
+        }
     }
 }
 

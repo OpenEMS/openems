@@ -1,7 +1,10 @@
 package io.openems.backend.metadata.odoo.odoo.http;
 
+import java.util.List;
+
 import com.google.gson.JsonObject;
 
+import io.openems.common.jsonrpc.serialization.JsonElementPath;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.session.Language;
@@ -26,6 +29,14 @@ public record OdooGetUserInfoResponse(//
 	public static JsonSerializer<OdooGetUserInfoResponse> serializer() {
 		return JsonSerializerUtil.jsonObjectSerializer(OdooGetUserInfoResponse.class, json -> {
 			final var user = json.getJsonObjectPath("user");
+			final var settings = user.getNullableJsonElementPath("settings") //
+					.mapIfPresent(jsonElementPath -> jsonElementPath.multiple(List.of(//
+							new JsonElementPath.Case<>(JsonElementPath::isJsonObject,
+									t -> t.getAsJsonObjectPath().get()),
+							new JsonElementPath.Case<>(/* default */t -> true,
+									t -> JsonUtils.parseOptional(t.getAsString()) //
+											.flatMap(JsonUtils::getAsOptionalJsonObject) //
+											.orElse(new JsonObject())))));
 			return new OdooGetUserInfoResponse(//
 					user.getInt("id"), //
 					user.getString("login"), //
@@ -33,10 +44,7 @@ public record OdooGetUserInfoResponse(//
 					user.getEnum("language", Language.class), //
 					user.getEnum("global_role", Role.class), //
 					user.getBoolean("has_multiple_edges"), //
-					user.getOptionalString("settings") //
-							.flatMap(JsonUtils::parseOptional) //
-							.flatMap(JsonUtils::getAsOptionalJsonObject) //
-							.orElse(new JsonObject()) //
+					settings //
 			);
 		}, obj -> JsonUtils.buildJsonObject() //
 				.addProperty("id", obj.odooUserId()) //

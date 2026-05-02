@@ -87,10 +87,6 @@ public interface EvseChargePointBender extends OpenemsComponent {
 		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)//
 				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
 		SOFTWARE_VERSION_BUILD(Doc.of(INTEGER)), //
-		MAX_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), //
-		MIN_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), //
 		;
 
 		private final Doc doc;
@@ -107,7 +103,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#READABLE_FIRMWARE_VERSION}.
+	 * Gets the Channel for {@link ChannelId#FIRMWARE_OUTDATED}.
 	 *
 	 * @return the Channel
 	 */
@@ -149,42 +145,6 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 */
 	public default VehicleState getVehicleState() {
 		return this.getVehicleStatusChannel().value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getMaxCurrentChannel() {
-		return this.channel(ChannelId.MAX_CURRENT);
-	}
-
-	/**
-	 * Gets the Value for {@link ChannelId#MAX_CURRENT}.
-	 * 
-	 * @return the Value
-	 */
-	public default Integer getMaxCurrent() {
-		return this.getMaxCurrentChannel().value().orElse(null);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MIN_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getMinCurrentChannel() {
-		return this.channel(ChannelId.MIN_CURRENT);
-	}
-
-	/**
-	 * Gets the Value for {@link ChannelId#MIN_CURRENT}.
-	 * 
-	 * @return the Value
-	 */
-	public default Integer getMinCurrent() {
-		return this.getMinCurrentChannel().value().orElse(null);
 	}
 
 	/**

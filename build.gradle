@@ -43,6 +43,14 @@ subprojects {
 		ext.isBackend = true
 	}
 
+	sonarqube {
+		def scope = project.findProperty("sonar.scope")
+
+        skipProject =  
+			(scope == "edge" && !project.hasProperty("isEdge")) ||
+			(scope == "backend" && !project.hasProperty("isBackend"))
+    }
+
 	tasks.withType(JavaCompile).configureEach {
 		options.release.set(project.java_target as Integer)
 		options.encoding = 'UTF-8'
@@ -554,4 +562,26 @@ tasks.register('buildAntoraDocs') {
 
 		println("Built ${output}!")
 	}
+}
+
+tasks.register("jacocoEdgeReport") {
+	group = "verification"
+	description = "Jacoco reports for Edge projects"
+
+	def edgeProjects = subprojects.findAll {
+		it.hasProperty("isEdge") && it.tasks.findByName("jacocoTestReport") != null
+	}
+
+	dependsOn edgeProjects.collect { it.tasks.named("jacocoTestReport") }
+}
+
+tasks.register("jacocoBackendReport") {
+	group = "verification"
+	description = "Jacoco reports for Backend projects"
+
+	def backendProjects = subprojects.findAll {
+		it.hasProperty("isBackend") && it.tasks.findByName("jacocoTestReport") != null
+	}
+
+	dependsOn backendProjects.collect { it.tasks.named("jacocoTestReport") }
 }

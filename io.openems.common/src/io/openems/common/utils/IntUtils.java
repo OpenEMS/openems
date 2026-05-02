@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import java.util.List;
+import java.util.OptionalInt;
 
 public class IntUtils {
 
@@ -168,5 +169,18 @@ public class IntUtils {
 		}
 		return Math.max(lowLimit, //
 				Math.min(highLimit, value));
+	}
+
+	/**
+	 * Convert {@link OptionalInt} to nullable {@link Integer}.
+	 *
+	 * @param valueOpt the input value
+	 * @return the output value; possibly null
+	 */
+	public static Integer getOrNull(OptionalInt valueOpt) {
+		if (valueOpt.isEmpty()) {
+			return null;
+		}
+		return valueOpt.getAsInt();
 	}
 }

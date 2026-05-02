@@ -84,7 +84,7 @@ public class WebsocketClient extends AbstractWebsocketClient<WsData> {
 	}
 
 	@Override
-	protected WsData createWsData(WebSocket es) {
+	protected WsData createWsData(WebSocket ws) {
 		return new WsData(ws);
 	}
 

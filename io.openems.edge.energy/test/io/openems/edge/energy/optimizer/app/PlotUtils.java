@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.DoubleAdder;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 
@@ -24,13 +25,13 @@ import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYBarRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.xy.XYBarDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 
 public class PlotUtils {
@@ -65,21 +66,21 @@ public class PlotUtils {
 
 		final var consumptionSeries = new XYSeries("Consumption");
 		final var consumptionAdjustedSeries = new XYSeries("Consumption (adjusted)");
-		final var priceSeries = new XYSeries("Price");
-		final var priceNormalizedSeries = new XYSeries("Price (normalized)");
+		final var gridBuyPriceSeries = new XYSeries("Grid-Buy Price");
+		final var gridBuyPriceNormalizedSeries = new XYSeries("Grid-Buy Price (normalized)");
 
 		for (var p : goc.periods().stream().toList()) {
 			final long t = p.time().toInstant().toEpochMilli();
 			final IntFunction<Integer> toPower = p.duration()::convertEnergyToPower;
 
-			if (p instanceof Period.WithPrediction wp) {
-				consumptionSeries.add(t, toPower.apply(wp.prediction().consumptionPredicted()));
-				consumptionAdjustedSeries.add(t, toPower.apply(wp.prediction().consumptionRiskAdjusted()));
-			}
-			if (p instanceof Period.WithPrice wp) {
-				priceSeries.add(t, wp.price().actual() / 10.);
-				priceNormalizedSeries.add(t, wp.price().normalized());
-			}
+			p.data().consumption().ifPresent(consumption -> {
+				consumptionSeries.add(t, toPower.apply(consumption.actual()));
+				consumptionAdjustedSeries.add(t, toPower.apply(consumption.riskAdjusted()));
+			});
+			p.data().gridBuyPrice().ifPresent(gridBuyPrice -> {
+				gridBuyPriceSeries.add(t, gridBuyPrice.actual() / 10.);
+				gridBuyPriceNormalizedSeries.add(t, gridBuyPrice.normalized());
+			});
 		}
 
 		final var axisPower = new NumberAxis("Power [W]");
@@ -103,10 +104,10 @@ public class PlotUtils {
 				// Price Plot
 				new XyPlotBuilder()//
 						.addDataset(axisPrice, ds -> {
-							ds.addSeries(priceSeries, COLOR_PRICE);
+							ds.addSeries(gridBuyPriceSeries, COLOR_PRICE);
 						}, true)//
 						.addDataset(axisPriceNormalized, ds -> {
-							ds.addSeries(priceNormalizedSeries, COLOR_PRICE, true);
+							ds.addSeries(gridBuyPriceNormalizedSeries, COLOR_PRICE, true);
 						}, true)//
 						.build());
 
@@ -132,8 +133,11 @@ public class PlotUtils {
 		final var essSocSeries = new XYSeries("SoC");
 		final var gridBuySeries = new XYSeries("Grid Buy");
 		final var gridSellSeries = new XYSeries("Grid Sell");
-		final var priceSeries = new XYSeries("Price");
+		final var gridBuyPriceSeries = new XYSeries("Grid-Buy Price");
+		final var gridSellPriceSeries = new XYSeries("Grid-Sell Price");
 
+		final var gridBuyCosts = new DoubleAdder();
+		final var gridSellRevenue = new DoubleAdder();
 		for (var entry : sr.periods().entrySet()) {
 			final long t = entry.getKey().toInstant().toEpochMilli();
 
@@ -158,20 +162,33 @@ public class PlotUtils {
 			gridBuySeries.add(t, grid > 0 ? grid : 0);
 			gridSellSeries.add(t, grid < 0 ? -grid : 0);
 
-			if (p.period() instanceof Period.WithPrice wp) {
-				priceSeries.add(t, wp.price().actual() / 10.);
-			}
+			p.period().data().gridBuyPrice().ifPresent(gridBuyPrice -> {
+				final double actualPrice = gridBuyPrice.actual() / 10.;
+				gridBuyPriceSeries.add(t, actualPrice);
+				if (grid > 0) {
+					gridBuyCosts.add((ef.getGrid() / 1000.) * actualPrice);
+				}
+			});
+			p.period().data().gridSellPrice().ifPresent(gridSellPrice -> {
+				final double actualPrice = gridSellPrice.actual() / 10.;
+				gridSellPriceSeries.add(t, actualPrice);
+				if (grid < 0) {
+					gridSellRevenue.add((-ef.getGrid() / 1000.) * actualPrice);
+				}
+			});
 		}
 
-		final var axisPower = new NumberAxis("Power [W]");
+		final var axisPower = new NumberAxis("W");
 		final var powerMinMax = getGlobalMinMax(essChargeSeries, essDischargeSeries, gridBuySeries, gridSellSeries,
 				curtailedProductionSeries, rawProductionSeries, consumptionSeries);
 		axisPower.setRange(powerMinMax.min(), powerMinMax.max() * 1.05);
 
-		final var axisSoC = new NumberAxis("SoC [%]");
-		axisSoC.setRange(0., 100. * 1.05);
+		final var axisPercentage = new NumberAxis("%");
+		axisPercentage.setRange(0., 100. * 1.05);
 
-		final var axisPrice = new NumberAxis("Price [ct/kWh]");
+		final var axisPrice = new NumberAxis("ct/kWh");
+		final var priceMinMax = getGlobalMinMax(gridBuyPriceSeries, gridSellPriceSeries);
+		axisPrice.setRange(0., priceMinMax.max() * 1.05);
 
 		final var subplots = List.of(
 				// ESS Plot
@@ -180,7 +197,7 @@ public class PlotUtils {
 							ds.addSeries(essChargeSeries, COLOR_ESS_CHARGE);
 							ds.addSeries(essDischargeSeries, COLOR_ESS_DISCHARGE);
 						})//
-						.addDataset(axisSoC, ds -> {
+						.addDataset(axisPercentage, ds -> {
 							ds.addSeries(essSocSeries, COLOR_ESS_SOC, true);
 						})//
 						.build(), //
@@ -191,7 +208,7 @@ public class PlotUtils {
 							ds.addSeries(gridBuySeries, COLOR_GRID_BUY);
 						})//
 						.addDataset(axisPrice, ds -> {
-							ds.addSeries(priceSeries, COLOR_PRICE);
+							ds.addSeries(gridBuyPriceSeries, COLOR_PRICE);
 						}, true)//
 						.build(), //
 
@@ -212,11 +229,16 @@ public class PlotUtils {
 						.addDataset(axisPower, ds -> {
 							ds.addSeries(gridSellSeries, COLOR_GRID_SELL);
 						})//
+						.addDataset(axisPrice, ds -> {
+							ds.addSeries(gridSellPriceSeries, COLOR_PRICE, true);
+						}, true)//
 						.build());
 
 		final var combinedPlot = combine(domainAxis, subplots);
 
 		final var chart = new JFreeChart("Simulation Result", JFreeChart.DEFAULT_TITLE_FONT, combinedPlot, true);
+		chart.addSubtitle(new TextTitle(String.format("Grid-Buy Costs: %.2f €, Grid-Sell Revenue: %.2f €",
+				gridBuyCosts.doubleValue() / 100.0, gridSellRevenue.doubleValue() / 100.0)));
 		showChartInJFrame(new ChartPanel(chart), "Simulation Result");
 	}
 
@@ -286,9 +308,6 @@ public class PlotUtils {
 		}
 	}
 
-	private record MinMax(double min, double max) {
-	}
-
 	private static MinMax getGlobalMinMax(XYSeries... series) {
 		double min = Double.POSITIVE_INFINITY;
 		double max = Double.NEGATIVE_INFINITY;
@@ -312,6 +331,9 @@ public class PlotUtils {
 		}
 
 		return new MinMax(min, max);
+	}
+
+	private record MinMax(Double min, Double max) {
 	}
 
 	private static XYPlot buildModePlot(SimulationResult sr, Map<String, Color> modeColors) {

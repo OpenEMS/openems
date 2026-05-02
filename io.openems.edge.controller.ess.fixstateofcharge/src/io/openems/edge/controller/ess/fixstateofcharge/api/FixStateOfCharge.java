@@ -117,6 +117,14 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 */
 		CAPACTITY_CHANGED(Doc.of(Level.INFO) //
 				.text("The capacity changed.")), //
+
+		/**
+		 * Controller is currently executing the reference cycle (including the hold
+		 * phase at the reference SoC). While this channel is true, the battery
+		 * preparation process is not yet complete.
+		 */
+		CTRL_IS_IN_REFERENCE_CYCLE(Doc.of(Level.INFO) //
+				.translationKey(FixStateOfCharge.class, "ctrlIsInReferenceCycle")), //
 		;
 
 		private final Doc doc;
@@ -477,4 +485,5 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	public default void _setCtrlWasSelfTerminated(boolean value) {
 		this.getCtrlWasSelfTerminatedChannel().setNextValue(value);
 	}
+
 }

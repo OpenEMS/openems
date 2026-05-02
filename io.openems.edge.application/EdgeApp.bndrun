@@ -176,6 +176,7 @@
 	bnd.identity;id='io.openems.edge.meter.hager',\
 	bnd.identity;id='io.openems.edge.meter.janitza',\
 	bnd.identity;id='io.openems.edge.meter.kdk',\
+	bnd.identity;id='io.openems.edge.meter.opendtu',\
 	bnd.identity;id='io.openems.edge.meter.phoenixcontact',\
 	bnd.identity;id='io.openems.edge.meter.plexlog',\
 	bnd.identity;id='io.openems.edge.meter.pqplus',\
@@ -384,6 +385,7 @@
 	io.openems.edge.meter.hager;version=snapshot,\
 	io.openems.edge.meter.janitza;version=snapshot,\
 	io.openems.edge.meter.kdk;version=snapshot,\
+	io.openems.edge.meter.opendtu;version=snapshot,\
 	io.openems.edge.meter.phoenixcontact;version=snapshot,\
 	io.openems.edge.meter.plexlog;version=snapshot,\
 	io.openems.edge.meter.pqplus;version=snapshot,\
