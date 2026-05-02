@@ -3,7 +3,6 @@ package io.openems.edge.meter.opendtu;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(name = "Meter OpenDTU", //
@@ -11,7 +10,7 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "meterOpenDTU0";
+	String id() default "meter0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -28,6 +27,6 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Inverter Serial Number", description = "Serial Number of the Inverter")
 	String serialNumber() default "";
 
-	String webconsole_configurationFactory_nameHint() default "Meter OpenDTU[{id}]";
+	String webconsole_configurationFactory_nameHint() default "Meter OpenDTU [{id}]";
 
 }

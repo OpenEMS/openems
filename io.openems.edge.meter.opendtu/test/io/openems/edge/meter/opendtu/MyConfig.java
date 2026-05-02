@@ -76,6 +76,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String serialNumber() {
 		return this.builder.serialNumber;
-
 	}
 }

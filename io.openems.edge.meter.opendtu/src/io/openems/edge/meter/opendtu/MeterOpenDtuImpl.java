@@ -1,7 +1,10 @@
 package io.openems.edge.meter.opendtu;
 
+import static io.openems.common.utils.JsonUtils.getAsFloat;
+import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static java.lang.Math.round;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 
 import java.security.KeyManagementException;
@@ -25,18 +28,15 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.InvalidValueException;
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.types.MeterType;
-import io.openems.common.utils.JsonUtils;
-import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
-
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpResponse;
-
+import io.openems.common.channel.AccessMode;
+import io.openems.common.exceptions.InvalidValueException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -50,9 +50,6 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
-import static io.openems.common.utils.JsonUtils.getAsFloat;
-import static java.lang.Math.round;
-
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Meter.OpenDTU", //
@@ -63,14 +60,13 @@ import static java.lang.Math.round;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
 })
-public class MeterOpenDtuImpl extends AbstractOpenemsComponent
-		implements MeterOpenDtu, ElectricityMeter, SinglePhaseMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
+public class MeterOpenDtuImpl extends AbstractOpenemsComponent implements MeterOpenDtu, ElectricityMeter,
+		SinglePhaseMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-
 
 	private final Logger log = LoggerFactory.getLogger(MeterOpenDtuImpl.class);
 
@@ -92,18 +88,18 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				MeterOpenDtu.ChannelId.values() //
 		);
-		
+
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 		SinglePhaseMeter.calculateSinglePhaseFromCurrent(this);
 		SinglePhaseMeter.calculateSinglePhaseFromVoltage(this);
-
 	}
 
 	@Activate
-	protected void activate(ComponentContext context, Config config)  throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException {
+	protected void activate(ComponentContext context, Config config)
+			throws InvalidValueException, KeyManagementException, NoSuchAlgorithmException, OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		
+
 		this.baseUrl = "http://" + config.ipAddress();
 		this.httpBridge = this.httpBridgeFactory.get();
 
@@ -112,7 +108,8 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 		}
 
 		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
-		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/api/livedata/status?inv=" + config.serialNumber(), this::processHttpResult);
+		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/api/livedata/status?inv=" + config.serialNumber(),
+				this::processHttpResult);
 	}
 
 	@Deactivate
@@ -123,7 +120,6 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 		}
 		super.deactivate();
 	}
-	
 
 	@Override
 	public String debugLog() {
@@ -156,14 +152,16 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent
 		} else {
 			try {
 				var jsonResponse = getAsJsonObject(result.data());
-				var inverters = JsonUtils.getAsJsonArray(jsonResponse, "inverters");
-				var inverter = inverters.get(0).getAsJsonObject();
-				var ac = inverter.getAsJsonObject("AC");
-				var ac0 = ac.getAsJsonObject("0");
-				
-				power = round(getAsFloat(ac0.getAsJsonObject("Power"), "v"));
-				voltage = round(getAsFloat(ac0.getAsJsonObject("Voltage"), "v")  * 1000);
-				current = round(getAsFloat(ac0.getAsJsonObject("Current"), "v")  * 1000);
+				var inverters = getAsJsonArray(jsonResponse, "inverters");
+				if (!inverters.isEmpty()) {
+					var inverter = getAsJsonObject(inverters.get(0));
+					var ac = getAsJsonObject(inverter, "AC");
+					var ac0 = getAsJsonObject(ac, "0");
+
+					power = round(getAsFloat(getAsJsonObject(ac0, "Power"), "v"));
+					voltage = round(getAsFloat(getAsJsonObject(ac0, "Voltage"), "v") * 1000);
+					current = round(getAsFloat(getAsJsonObject(ac0, "Current"), "v") * 1000);
+				}
 
 			} catch (OpenemsNamedException e) {
 				this.logDebug(this.log, e.getMessage());
