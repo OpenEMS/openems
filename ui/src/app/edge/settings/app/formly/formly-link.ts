@@ -11,7 +11,9 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     standalone: false,
 })
 export class FormlyLinkComponent extends FieldType<FieldTypeConfig<FormlyFieldConfig["props"] & {
-    link?: { type: "appUpdate", appId: string, instanceId?: string, property?: string }
+    link?:
+    | { type: "appUpdate", appId: string, instanceId?: string, property?: string }
+    | { type: "appInstall", appId: string, name: string, }
 }>> implements OnInit {
 
     protected urlToNavigate: string | null = null;
@@ -37,18 +39,22 @@ export class FormlyLinkComponent extends FieldType<FieldTypeConfig<FormlyFieldCo
         if (link === undefined || link === null) {
             return null;
         }
+        let route: ActivatedRouteSnapshot | null = this.route.snapshot;
+        while (route && route?.routeConfig?.path?.indexOf(":edgeId") === -1) {
+            route = route?.parent;
+        }
+
+        if (route === undefined || route === null) {
+            return null;
+        }
+
+        const baseRoute = route.url.join("/");
         if (link.type === "appUpdate") {
-            let route: ActivatedRouteSnapshot | null = this.route.snapshot;
-            while (route && route?.routeConfig?.path?.indexOf(":edgeId") === -1) {
-                route = route?.parent;
-            }
-
-            if (route === undefined || route === null) {
-                return null;
-            }
-
-            const baseRoute = route.url.join("/");
             return baseRoute + "/settings/app/update/" + link.appId;
+        }
+
+        if (link.type === "appInstall") {
+            return baseRoute + "/settings/app/install/" + link.appId + "?name=" + link.name + "&callback=true";
         }
 
         return null;

@@ -33,7 +33,6 @@ import io.openems.common.jscalendar.JSCalendar.Tasks.OneTask;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.GridBuySoftLimit;
@@ -56,7 +55,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.api.TariffManager;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -89,9 +88,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference
 	private Sum sum;
 
-	// This is only required to get the current price for UI chart
 	@Reference
-	private TimeOfUseTariff timeOfUseTariff;
+	private TariffManager tariffManager;
 
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
@@ -165,8 +163,6 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		super.deactivate();
 	}
 
-	private final PidFilter pidFilter = new PidFilter();
-
 	@Override
 	public void run() throws OpenemsNamedException {
 		if (this.energyScheduler == null) {
@@ -232,18 +228,13 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this._setStateMachine(am.actualMode());
 		this.calculateChargedTime.update(am.actualMode() == CHARGE_GRID);
 		this.calculateDelayedTime.update(am.actualMode() == DELAY_DISCHARGE);
-		this._setQuarterlyPrices(this.timeOfUseTariff.getPrices().getFirst());
+
+		final var gridBuyPrice = this.tariffManager.getGridBuyDayAheadPrices()//
+				.getAt(this.componentManager.getClock().instant());
+		this._setQuarterlyPrices(gridBuyPrice);
 
 		// Apply ActivePower set-point
-		if (am.setPoint() != null) {
-			if (am.setPoint() == 0) {
-				// No need to react on lazy behavior of a meter as the target is always the same
-				// (At the same time it would cause problems for lazy inverters)
-				this.ess.setActivePowerEquals(am.setPoint());
-			} else {
-				ManagedSymmetricEss.setActivePowerEqualsWithPid(this.ess, am.setPoint(), this.pidFilter);
-			}
-		}
+		this.ess.setActivePowerEqualsWithFilter(am.setPoint());
 	}
 
 	@Override

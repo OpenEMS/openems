@@ -58,7 +58,10 @@ public class Constants {
 			            "firmwarestate":"idle",
 			            "firmwareprogress":"0",
 			            "heartbeat":"off",
-			            "pausecharging":"0"
+			            "pausecharging":"0",
+			            "socketminamp":"6",
+			            "socketmaxamp":"16",
+			            "intctrl_limit":"16"
 			         },
 			         "session":{
 			            "authorization_status":""

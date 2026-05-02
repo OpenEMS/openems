@@ -1,7 +1,5 @@
 @use "variables";
-// @use "./global.scss";
 
-/** Grid **/
 /** Padding **/
 .ion-no-padding-left-right {
     padding-left: 0;
@@ -133,7 +131,6 @@
 }
 
 .ion-white-space-pre-wrap {
-
     &::part(label) {
         white-space: pre-wrap;
     }
@@ -196,4 +193,8 @@
 
 .ion-justify-self-end {
     justify-self: end;
+}
+
+.ion-margin-right {
+    margin-right: var(--ion-margin);
 }

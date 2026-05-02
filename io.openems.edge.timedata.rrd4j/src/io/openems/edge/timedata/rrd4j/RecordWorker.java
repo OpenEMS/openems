@@ -3,15 +3,19 @@ package io.openems.edge.timedata.rrd4j;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -76,6 +80,8 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	private Config config;
 
+	private final Set<ChannelAddress> checkedChannelsForDeletion = new HashSet<>();
+
 	public void setConfig(Config config) {
 		this.config = config;
 	}
@@ -139,12 +145,28 @@ public class RecordWorker extends AbstractImmediateWorker {
 				.flatMap(component -> component.channels().stream()) //
 				.filter(channel -> {
 					final var doc = channel.channelDoc();
-					return Optional.of(this.config.persistencePriority) //
-							.map(p -> doc.getPersistencePriority().isAtLeast(p)
+					final var save = Optional.of(this.config.persistencePriority) //
+							.map(p -> doc.getLocalPersistencePriority().isAtLeast(p)
 									&& doc.getAccessMode() != AccessMode.WRITE_ONLY) //
 							.orElse(false);
+
+					if (!save && channel.channelId().id().startsWith("_Property")) {
+						if (this.checkedChannelsForDeletion.add(channel.address())) {
+							CompletableFuture.runAsync(() -> this.tryDelete(channel));
+						}
+					}
+
+					return save;
 				}).map(channel -> {
 					final var channelMapFunction = getChannelMapFunction(channel.channelDoc().getType());
+
+					if (MAP_TO_DOUBLE_NOT_SUPPORTED == channelMapFunction) {
+						if (this.checkedChannelsForDeletion.add(channel.address())) {
+							CompletableFuture.runAsync(() -> this.tryDelete(channel));
+						}
+						return null;
+					}
+
 					final var channelAggregateFunction = channel.channelDoc().getUnit().getChannelAggregateFunction();
 
 					final long writeSeconds;
@@ -179,7 +201,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 						}
 					}
 
-					if (!value.isPresent()) {
+					if (value.isEmpty()) {
 						// only available channels
 						return null;
 					}
@@ -198,13 +220,31 @@ public class RecordWorker extends AbstractImmediateWorker {
 
 	}
 
+	private void tryDelete(Channel<?> channel) {
+		try {
+			final var db = this.rrd4jSupplier.getExistingUpdatedRrdDb(this.config.rrdDbId, channel.address(),
+					channel.channelDoc().getUnit());
+
+			if (db == null) {
+				return;
+			}
+
+			db.close();
+
+			this.log.info("Delete file for channel {}", channel.address());
+			this.rrd4jSupplier.delete(db);
+		} catch (IOException e) {
+			this.log.warn("Unable to access RRD4J database. Try to delete it. {}", channel.address(), e);
+		}
+	}
+
 	@Override
 	protected void forever() throws InterruptedException {
 		final var record = this.records.take();
 
 		if (this.config.readOnly()) {
 			if (this.config.debugMode()) {
-				this.log.info("Read-Only-Mode is activated. Not writing record: " + record.toString());
+				this.log.info("Read-Only-Mode is activated. Not writing record: {}", record);
 			}
 			return;
 		}
@@ -248,7 +288,7 @@ public class RecordWorker extends AbstractImmediateWorker {
 	private static final ToDoubleFunction<? super Object> MAP_DOUBLE_TO_DOUBLE //
 			= value -> ((Double) value);
 	private static final ToDoubleFunction<? super Object> MAP_TO_DOUBLE_NOT_SUPPORTED //
-			= value -> 0d;
+			= null;
 
 	private static ToDoubleFunction<? super Object> getChannelMapFunction(OpenemsType openemsType) {
 		return switch (openemsType) {

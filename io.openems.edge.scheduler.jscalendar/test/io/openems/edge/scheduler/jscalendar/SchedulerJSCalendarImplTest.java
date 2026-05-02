@@ -37,8 +37,7 @@ public class SchedulerJSCalendarImplTest {
 	@Test
 	public void test() throws Exception {
 		final var clock = createDummyClock(); // Starts on a WEDNESDAY
-		final var tasks = JSCalendar.Tasks.<Payload>create() //
-				.setClock(clock) //
+		final var tasks = JSCalendar.Tasks.<Payload>create(clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(11, 00)) //
 						.setDuration(Duration.ofHours(1)) //

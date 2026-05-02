@@ -3,6 +3,9 @@ package io.openems.edge.controller.ess.delayedselltogrid;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
+
 @ObjectClassDefinition(//
 		name = "Controller Ess Delayed Sell-To-Grid ", //
 		description = """
@@ -27,9 +30,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_id();
 
 	@AttributeDefinition(name = "Sell-To-Grid power limit", description = "Charge the battery when this limit is exceeded.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int sellToGridPowerLimit();
 
 	@AttributeDefinition(name = "Continuous Sell-To-Grid power", description = "Discharge the battery when the sell-to-grid power falls below this limit.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int continuousSellToGridPower();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Ess Delayed Sell-To-Grid [{id}]";

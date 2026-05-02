@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ModalController } from "@ionic/angular";
+import { ModalController, NavController } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
@@ -11,6 +11,7 @@ import { takeUntil } from "rxjs/operators";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { RouteService } from "src/app/shared/service/route.service";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
 import { extractErrorMessage } from "../../../shared/utils/error/error.utils";
@@ -59,6 +60,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private hasPredefinedKey: boolean = false;
     private isAppFree: boolean = false;
     private isAppFreeFromEdge: boolean = false;
+    private routeService = inject(RouteService);
 
     public constructor(
         private route: ActivatedRoute,
@@ -68,6 +70,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         private modalController: ModalController,
         private router: Router,
         private translate: TranslateService,
+        private navController: NavController,
     ) { }
 
     /**
@@ -212,6 +215,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 }
 
                 this.form.markAsPristine();
+                if (this.routeService.getQueryParam("callback")) {
+                    this.navController.back();
+                }
                 if (this.steps.length > 1) {
                     this.router.navigate(["device/" + (this.edge.id) + "/settings/app/update/" + (this.appId)], { queryParams: { name: this.appName } });
                 } else {

@@ -1,8 +1,9 @@
 package io.openems.edge.common.type;
 
-import io.openems.common.session.Language;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import io.openems.common.session.Language;
 
 public abstract class TextProvider {
 	/**

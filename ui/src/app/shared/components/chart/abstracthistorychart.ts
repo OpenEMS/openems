@@ -21,13 +21,14 @@ import { QueryHistoricTimeseriesDataResponse } from "../../jsonrpc/response/quer
 import { QueryHistoricTimeseriesEnergyResponse } from "../../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { FormatSecondsToDurationPipe } from "../../pipe/formatSecondsToDuration/formatSecondsToDuration.pipe";
 import { LayoutRefreshService } from "../../service/layoutRefreshService";
+import { RouteService } from "../../service/route.service";
 import { ChannelAddress, Currency, Edge, EdgeConfig, Logger, Service, Utils } from "../../shared";
 import { Language } from "../../type/language";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { ColorUtils } from "../../utils/color/color.utils";
 import { DateUtils } from "../../utils/date/dateutils";
 import { DateTimeUtils } from "../../utils/datetime/datetime-utils";
-import { ObjectUtils } from "../../utils/object/object.utils";
+import { ObjectUtils } from "../../utils/object/object-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { ChartAxis, HistoryUtils, YAxisType } from "../../utils/utils";
 import { FooterNavigationComponent } from "../footer/subnavigation/footerNavigation";
@@ -49,6 +50,9 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
     /** Title for Chart, diplayed above the Chart */
     @Input() public chartTitle: string = "";
+
+    /** Optional chart height in percent (0–100) of the available view height. */
+    @Input() public customChartHeightPercentage?: number;
 
     /** TODO: workaround with Observables, to not have to pass the period on Initialisation */
     @Input() public component: EdgeConfig.Component;
@@ -76,6 +80,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     protected legendOptions: { label: string, strokeThroughHidingStyle: boolean, hideLabelInLegend: boolean }[] = [];
     protected channelData: { data: { [name: string]: number[] } } = { data: {} };
     protected viewHeight: number | null = null;
+    protected routeService: RouteService = inject(RouteService);
     private layoutRefresh = inject(LayoutRefreshService);
 
     constructor(
@@ -1057,7 +1062,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     ngAfterViewInit() {
-        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
         this.cdRef.detectChanges(); // Avoids ExpressionChangedAfterItHasBeenCheckedError
     }
 
@@ -1078,7 +1083,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
     }
 
     protected getChartHeight(): number | null {
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), this.customChartHeightPercentage);
     }
 
     protected updateChart() {
@@ -1144,7 +1149,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                                     this.initializeChart();
                                 }
                                 resolve(responseToReturn);
-                            }).catch(() => {
+                            }).catch((error) => {
+                                if (error instanceof JsonrpcResponseError) {
+                                    this.errorResponse = error;
+                                }
                                 this.initializeChart();
                             });
                     })

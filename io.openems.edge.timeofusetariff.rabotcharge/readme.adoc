@@ -1,4 +1,4 @@
-= Time-Of-Use Tariff rabot.charge
+= rabot.charge
 
 Retrieves the hourly prices from the rabot.charge API and converts them into quarterly prices.
 

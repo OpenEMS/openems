@@ -2,7 +2,6 @@ package io.openems.edge.common.channel.calculate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -18,7 +17,7 @@ public class CalculateIntegerSum {
 	public static final Function<Integer, Integer> DIRECT_CONVERTER = value -> value;
 	public static final Function<Integer, Integer> DIVIDE_BY_THREE = value -> Math.round(value / 3f);
 
-	private final Logger log = LoggerFactory.getLogger(CalculateLongSum.class);
+	private final Logger log = LoggerFactory.getLogger(CalculateIntegerSum.class);
 	private final List<Integer> values = new ArrayList<>();
 
 	/**
@@ -44,24 +43,32 @@ public class CalculateIntegerSum {
 			} catch (Exception e) {
 				this.log.error("Adding Channel [" + channel.address() + "] value [" + value + "] failed. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
-				e.printStackTrace();
 			}
 		}
 	}
 
 	/**
+	 * Resets the calculator for reuse.
+	 */
+	public void reset() {
+		this.values.clear();
+	}
+
+	/**
 	 * Calculates the sum.
 	 *
-	 * @return the sum or null
-	 * @throws NoSuchElementException on error
+	 * @return the sum or null if no values were added
 	 */
-	public Integer calculate() throws NoSuchElementException {
+	public Integer calculate() {
 		if (this.values.isEmpty()) {
 			return null;
 		}
-		return this.values //
-				.stream() //
-				.mapToInt(value -> value) //
-				.sum(); //
+		int sum = 0;
+		for (var val : this.values) {
+			if (val != null) {
+				sum += val;
+			}
+		}
+		return sum;
 	}
 }

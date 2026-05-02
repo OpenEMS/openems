@@ -6,9 +6,11 @@ set -o errexit
 function purge-openems {
     local confdir="/etc/openems.d"
     local libdir="/var/lib/openems"
+    local logdir="/var/log/openems"
 
     if [ -d "${confdir}" ]; then rm -r "${confdir}"; fi
     if [ -d "${libdir}" ]; then rm -r "${libdir}"; fi
+    if [ -d "${logdir}" ]; then rm -r "${logdir}"; fi
 }
 
 case "$1" in

@@ -33,7 +33,9 @@ public class OnCloseHandler implements Runnable {
 
 			// dispose WsData
 			WsData wsData = this.ws.getAttachment();
-			wsData.dispose();
+			if (wsData != null) {
+				wsData.dispose();
+			}
 
 		} catch (Throwable t) {
 			this.handleInternalError.accept(t, generateWsDataString(this.ws));

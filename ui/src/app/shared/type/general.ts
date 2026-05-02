@@ -2,11 +2,14 @@ export enum GridMode {
     UNDEFINED = 0,
     ON_GRID = 1,
     OFF_GRID = 2,
+    GENERATOR = 3,
 }
 export enum Mode {
     MANUAL_ON = "MANUAL_ON",
     MANUAL_OFF = "MANUAL_OFF",
     AUTOMATIC = "AUTOMATIC",
+    MANUAL = "MANUAL",
+    OFF = "OFF",
 }
 export const ChartAnnotationState = {
     ON: 1,

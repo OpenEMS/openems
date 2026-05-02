@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy, signal } from "@angular/core";
+import { Component, effect, model, OnDestroy, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
@@ -29,7 +30,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public loggedInUserCanInstall: boolean = false;
 
     public form: FormGroup;
-    public filteredEdges: Edge[] = [];
+    public filteredEdges = model<Edge[]>([]);
 
     protected loading = signal(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
@@ -45,7 +46,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if all available edges for this user had been retrieved */
     private limitReached: boolean = false;
 
-    private lastReqId: string | null = null;
     private sub: Subscription = new Subscription();
 
     constructor(
@@ -60,7 +60,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         private platform: Platform,
     ) {
 
-        effect(() => {
+        effect(async () => {
             const user = this.userService.currentUser();
             if (user) {
                 this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
@@ -70,19 +70,14 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
                     ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
                 ];
-                this.loadNextPage();
+                this.filteredEdges.set(await this.loadNextPage());
             }
         });
     }
 
     ionViewWillEnter() {
         this.page = 0;
-        this.filteredEdges = [];
         this.limitReached = false;
-        this.filters = [
-            ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
-            ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
-        ];
     }
 
     ionViewDidEnter() {
@@ -92,8 +87,10 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     ionViewWillLeave() {
-        this.filters = [];
+        this.filteredEdges.set([]);
         this.sub?.unsubscribe();
+        this.page = 0;
+        this.limitReached = false;
         this.ngOnDestroy();
     }
 
@@ -106,7 +103,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         setTimeout(() => {
             this.page++;
             this.loadNextPage().then((edges) => {
-                this.filteredEdges.push(...edges);
+                this.filteredEdges.update(el => { el.push(...edges); return el; });
                 infiniteScroll.target.complete();
             }).catch(() => {
                 infiniteScroll.target.complete();
@@ -141,16 +138,13 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
 
-            this.lastReqId = req.id;
-
             this.service.getEdges(req)
                 .then((edges) => {
-                    if (this.lastReqId !== req.id) {
-                        resolve(this.filteredEdges);
-                    }
+
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
-                    if (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false || (Role.isAtMost(user.globalRole, Role.OWNER) && edges.length == 1)) {
+
+                    if (this.shouldRedirectToFirstFems(user, edges)) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
@@ -164,8 +158,18 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             this.loading.set(false));
     }
 
+    protected shouldRedirectToFirstFems(user: User, edges: Edge[]): boolean {
+        return (
+            (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) ||
+            (
+                (user.globalRole === "guest" || user.globalRole === "owner") &&
+                (user.hasMultipleEdges === false && edges.length == 1)
+            )
+        );
+    }
+
     protected getAndSubscribeEdge(edge: Edge) {
-        this.pagination.getAndSubscribeEdge(edge);
+        this.pagination.getAndSubscribeEdge(edge.id);
     }
 
     /**
@@ -179,12 +183,13 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             this.searchParams = searchParams;
         }
 
-        this.filteredEdges = [];
+        this.filteredEdges.set([]);
+
         this.page = 0;
         this.limitReached = false;
 
         this.loadNextPage().then((edges) => {
-            this.filteredEdges = edges;
+            this.filteredEdges.set(edges);
         });
     }
 }

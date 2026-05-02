@@ -34,8 +34,12 @@ export class GlobalRouteChangeHandler {
             }),
         ).subscribe(async (e: { [key: string]: string }) => {
 
+            if (e == null) {
+                return;
+            }
+
             // Always use last entry of data object
-            const lastData = Object.entries(e).map(([k, v]) => ({ key: k, value: v })).reverse()[0] ?? null;
+            const lastData = Object?.entries(e ?? {})?.map(([k, v]) => ({ key: k, value: v }))?.reverse()?.[0] ?? null;
             if (lastData == null) {
                 return;
             }

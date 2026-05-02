@@ -58,8 +58,9 @@ public class SwitchEvcsEvseTest {
 					this.hardyApp = Apps.hardyBarthEvcs(t), //
 					Apps.evcsCluster(t));
 		}, null, new PseudoComponentManagerFactory());
-		this.amtb.addComponentAggregateTask();
+		final var componentTask = this.amtb.addComponentAggregateTask();
 		this.amtb.addStaticIpAggregateTask();
+		final var schedulerTask = this.amtb.addSchedulerByCentralOrderAggregateTask(componentTask);
 
 		this.cmSpy = spy(this.amtb.componentManger);
 		doNothing().when(this.cmSpy).handleUpdateComponentConfigRequest(//
@@ -67,7 +68,7 @@ public class SwitchEvcsEvseTest {
 				any(UpdateComponentConfig.Request.class));
 
 		this.sa = new SwitchArchitecture(this.amtb.appManagerUtil, this.cmSpy, this.amtb.componentUtil, this.amtb.sut,
-				new DummyOpenemsEdgeOem());
+				new DummyOpenemsEdgeOem(), schedulerTask);
 	}
 
 	@Test

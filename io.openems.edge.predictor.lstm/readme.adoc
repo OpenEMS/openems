@@ -1,4 +1,4 @@
-= Long Short-Term Memory (LSTM) predictor
+= Long Short-Term Memory (LSTM)
 
 The Long Short-Term Memory (LSTM) model is a type of recurrent neural network (RNN) that is particularly well-suited for time series prediction tasks, including consumption and production power predictions, due to its ability to capture dependencies and patterns over time. https://en.wikipedia.org/wiki/Long_short-term_memory[More details on LSTM]
 

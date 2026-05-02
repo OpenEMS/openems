@@ -3,7 +3,7 @@ package io.openems.edge.energy.api.simulation;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.base.Preconditions.checkArgument;
 import static io.openems.common.utils.FunctionUtils.doNothing;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -16,10 +16,12 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
+import io.openems.edge.energy.api.simulation.periods.PeriodData;
 
 public class EnergyFlow {
 
 	private final int production;
+	private final int excessProduction;
 	private final int unmanagedConsumption;
 	private final ImmutableSortedMap<String, Integer> managedConsumptions;
 	private final int ess;
@@ -27,11 +29,13 @@ public class EnergyFlow {
 
 	private EnergyFlow(//
 			int production, //
+			int excessProduction, //
 			int unmanagedConsumption, //
 			ImmutableSortedMap<String, Integer> managedConsumptions, //
 			int ess, //
 			int grid) {
 		this.production = production;
+		this.excessProduction = excessProduction;
 		this.unmanagedConsumption = unmanagedConsumption;
 		this.managedConsumptions = managedConsumptions;
 		this.ess = ess;
@@ -39,12 +43,22 @@ public class EnergyFlow {
 	}
 
 	/**
-	 * Returns the production.
+	 * Returns the production, which can eventually be curtailed if the
+	 * {@link EnergyFlow#excessProduction} is greater than zero.
 	 *
 	 * @return the production value
 	 */
 	public int getProduction() {
 		return this.production;
+	}
+
+	/**
+	 * Returns the excess, unused production.
+	 *
+	 * @return the excess production value
+	 */
+	public int getExcessProduction() {
+		return this.excessProduction;
 	}
 
 	/**
@@ -190,8 +204,7 @@ public class EnergyFlow {
 
 			// Check that initial setup is solvable
 			int minPossibleSurplus = -this.essMaxDischarge - this.gridMaxBuy;
-			int maxPossibleSurplus = this.essMaxCharge + this.gridMaxSell;
-			if (this.surplus < minPossibleSurplus || this.surplus > maxPossibleSurplus) {
+			if (this.surplus < minPossibleSurplus) {
 				throw new OpenemsException("Initial setup not solvable");
 			}
 		}
@@ -211,14 +224,10 @@ public class EnergyFlow {
 			final var grid = gsc.goc.grid();
 
 			return new EnergyFlow.Model(//
-					/* production */ switch (period) {
-					case Period.WithPrediction p -> p.prediction().production();
-					default -> 0;
-					}, //
-					/* unmanagedConsumption */ switch (period) {
-					case Period.WithPrediction p -> p.prediction().consumptionRiskAdjusted();
-					default -> 0;
-					}, //
+					/* production */ period.data().production(), //
+					/* unmanagedConsumption */ period.data().consumption()//
+							.map(PeriodData.Prediction::riskAdjusted)//
+							.orElse(0), //
 					/* essMaxCharge */ min(//
 							period.duration().convertPowerToEnergy(essGlobal.maxChargePower()),
 							essGlobal.totalEnergy() - essOne.getInitialEnergy()), //
@@ -268,6 +277,10 @@ public class EnergyFlow {
 			case ESS_SET, GRID_SET -> -this.ess;
 			};
 
+			if (minRequiredCharge >= this.essMaxCharge) {
+				return this.essMaxCharge;
+			}
+
 			this.essMaxCharge = max(target, minRequiredCharge);
 			return this.essMaxCharge;
 		}
@@ -313,6 +326,10 @@ public class EnergyFlow {
 			case UNSET -> max(0, this.surplus - this.essMaxCharge);
 			case ESS_SET, GRID_SET -> -this.grid;
 			};
+
+			if (minRequiredSell >= this.gridMaxSell) {
+				return this.gridMaxSell;
+			}
 
 			this.gridMaxSell = max(target, minRequiredSell);
 			return this.gridMaxSell;
@@ -370,8 +387,8 @@ public class EnergyFlow {
 
 			switch (this.state) {
 			case UNSET -> doNothing();
-			case ESS_SET -> this.grid = -(this.surplus + this.ess);
-			case GRID_SET -> this.ess = -(this.surplus + this.grid);
+			case ESS_SET -> this.grid = max(-this.gridMaxSell, -(this.surplus + this.ess));
+			case GRID_SET -> this.ess = max(-this.essMaxCharge, -(this.surplus + this.grid));
 			}
 
 			return actualManagedConsumption;
@@ -388,10 +405,11 @@ public class EnergyFlow {
 			switch (this.state) {
 			case UNSET -> {
 				int maxPossibleCharge = min(this.essMaxCharge, this.surplus + this.gridMaxBuy);
-				int maxPossibleDischarge = min(this.essMaxDischarge, -this.surplus + this.gridMaxSell);
+				int maxPossibleDischarge = max(-this.essMaxCharge,
+						min(this.essMaxDischarge, -this.surplus + this.gridMaxSell));
 				this.ess = fitWithin(-maxPossibleCharge, maxPossibleDischarge, target);
 
-				this.grid = -(this.surplus + this.ess);
+				this.grid = max(-this.gridMaxSell, -(this.surplus + this.ess));
 				this.state = State.ESS_SET;
 			}
 			case ESS_SET, GRID_SET -> doNothing();
@@ -411,10 +429,10 @@ public class EnergyFlow {
 			switch (this.state) {
 			case UNSET -> {
 				int maxPossibleSell = min(this.gridMaxSell, this.surplus + this.essMaxDischarge);
-				int maxPossibleBuy = min(this.gridMaxBuy, -this.surplus + this.essMaxCharge);
+				int maxPossibleBuy = max(-this.gridMaxSell, min(this.gridMaxBuy, -this.surplus + this.essMaxCharge));
 				this.grid = fitWithin(-maxPossibleSell, maxPossibleBuy, target);
 
-				this.ess = -(this.surplus + this.grid);
+				this.ess = max(-this.essMaxCharge, -(this.surplus + this.grid));
 				this.state = State.GRID_SET;
 			}
 			case ESS_SET, GRID_SET -> doNothing();
@@ -484,8 +502,12 @@ public class EnergyFlow {
 				this.setEss(-this.surplus);
 			}
 
+			final int excessProduction = max(0, this.surplus + this.ess + this.grid);
+			final int curtailedProduction = this.production - excessProduction;
+
 			return new EnergyFlow(//
-					this.production, //
+					curtailedProduction, //
+					excessProduction, //
 					this.unmanagedConsumption, //
 					ImmutableSortedMap.copyOf(this.managedConsumptions), //
 					this.ess, //

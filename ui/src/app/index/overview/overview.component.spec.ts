@@ -80,7 +80,7 @@ describe("OverviewComponent", () => {
         expect(button).toBeTruthy();
     });
 
-    fit("+loggedInUserCanInstall & ibn-button doesnt exist - Global role OWNER", async () => {
+    it("+loggedInUserCanInstall & ibn-button doesnt exist - Global role OWNER", async () => {
         const button = await getIbnButtonElement(component, fixture, "owner");
         expect(component.loggedInUserCanInstall).toEqual(false);
         expect(button).toBeNull();

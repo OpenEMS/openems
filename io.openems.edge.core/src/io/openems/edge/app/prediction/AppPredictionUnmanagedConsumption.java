@@ -84,7 +84,7 @@ public class AppPredictionUnmanagedConsumption
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
 		return AppDescriptor.create() //
 				.build();
 	}

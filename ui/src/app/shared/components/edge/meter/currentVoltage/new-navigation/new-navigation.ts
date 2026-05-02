@@ -1,9 +1,18 @@
 import { Component } from "@angular/core";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
+import { CurrentVoltageAsymmetricChartComponent } from "../chart/asymmetricMeter";
+import { CurrentVoltageSymmetricChartComponent } from "../chart/symmetricMeter";
 
 @Component({
     templateUrl: "./new-navigation.html",
-    standalone: false,
+    imports: [
+        CommonUiModule,
+        ComponentsBaseModule,
+        CurrentVoltageAsymmetricChartComponent,
+        CurrentVoltageSymmetricChartComponent,
+    ],
 })
 export class CurrentVoltageOverviewComponent extends AbstractHistoryChartOverview {
 

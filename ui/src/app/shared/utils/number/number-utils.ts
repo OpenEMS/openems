@@ -63,28 +63,20 @@ export namespace NumberUtils {
     }
 
     /**
-   * Dividing values from each other - possibly null values
-   *
-   * @param values the values
-   * @returns a number, if at least one value is not null, else null
-   */
-    export function divideSafely(...values: (number | null)[]): number | null {
-        return values
-            .filter(value => value !== null && value !== undefined)
-            .reduce((sum: number | null, curr) => {
-                // Dont divide through 0
-                if (curr == 0) {
-                    return sum;
-                }
-
-                if (sum == null) {
-                    sum = curr;
-                } else {
-                    sum /= curr;
-                }
-
-                return sum;
-            }, null);
+     * Dividing values from each other - possibly null values
+     *
+     * @param dividend the dividend value
+     * @param divisor the divisor value
+     * @returns the quotient, if both values are not null and divisor is not zero, else null
+     */
+    export function divideSafely(dividend: number | null, divisor: number | null): number | null {
+        if (dividend == null || divisor == null) {
+            return null;
+        } else if (divisor == 0) {
+            return null; // divide by zero
+        } else {
+            return dividend / divisor;
+        }
     }
 
     /**
@@ -105,5 +97,19 @@ export namespace NumberUtils {
 
                 return sum;
             }, null);
+    }
+
+    /**
+ * Converts the number to have a max value
+ *
+ * @param value the value
+ * @param atMost the max number to be allowed
+ * @returns the value
+ */
+    export function convertNumberToBeAtMost(value: number | null, atMost: number): number | null {
+        if (value == null) {
+            return value;
+        }
+        return Math.min(value, atMost);
     }
 }

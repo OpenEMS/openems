@@ -1,6 +1,7 @@
 package io.openems.backend.metadata.odoo;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.backend.metadata.odoo.odoo.Protocol;
@@ -23,7 +24,10 @@ public @interface Config {
 	@AttributeDefinition(name = "Odoo UID", description = "The odoo login UID")
 	int odooUid() default 1;
 
-	@AttributeDefinition(name = "Odoo Password", description = "The odoo login password")
+	@AttributeDefinition(name = "Odoo Login", description = "The odoo login")
+	String odooLogin() default "admin";
+
+	@AttributeDefinition(name = "Odoo Password", description = "The odoo login password", type = AttributeType.PASSWORD)
 	String odooPassword();
 
 	@AttributeDefinition(name = "Postgres Host", description = "The Postgres host")
@@ -35,7 +39,7 @@ public @interface Config {
 	@AttributeDefinition(name = "Postgres Username", description = "The Postgres username")
 	String pgUser() default "odoo";
 
-	@AttributeDefinition(name = "Postgres Password", description = "The Postgres password")
+	@AttributeDefinition(name = "Postgres Password", description = "The Postgres password", type = AttributeType.PASSWORD)
 	String pgPassword();
 
 	@AttributeDefinition(name = "Database", description = "The database name")

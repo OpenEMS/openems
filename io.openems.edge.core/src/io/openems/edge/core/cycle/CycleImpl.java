@@ -131,4 +131,13 @@ public class CycleImpl extends AbstractOpenemsComponent implements OpenemsCompon
 		return Cycle.DEFAULT_CYCLE_TIME;
 	}
 
+	/**
+	 * Returns the configured cycle log verbosity.
+	 * 
+	 * @return the cycle log verbosity, or {@code NONE} by default
+	 */
+	public CycleLogVerbosity getLogVerbosity() {
+		return this.config.logVerbosity();
+	}
+
 }

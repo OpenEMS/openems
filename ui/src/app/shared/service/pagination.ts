@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { JsonRpcUtils } from "../jsonrpc/jsonrpcutils";
 import { SubscribeEdgesRequest } from "../jsonrpc/request/subscribeEdgesRequest";
 import { States } from "../ngrx-store/states";
-import { Edge } from "../shared";
+import { Edge, Websocket } from "../shared";
 import { Service } from "./service";
 
 @Directive()
@@ -18,32 +18,50 @@ export class Pagination {
         private router: Router,
     ) { }
 
-    public getAndSubscribeEdge(edge: Edge): Promise<void> {
+    public getAndSubscribeEdge(edgeId: Edge["id"]): Promise<void> {
         return new Promise<void>((resolve) => {
-            this.service.updateCurrentEdge(edge.id).then((edge) => {
-
-                this.edge = edge;
-                this.subscribeEdge(edge);
-            }).then(() => {
-                this.service.websocket.state.set(States.EDGE_SELECTED);
-            })
-                .finally(resolve)
+            this.getEdge(edgeId, this.service.websocket)
+                .then(async (edge) => {
+                    this.edge = edge;
+                    await this.subscribeEdge(edge, this.service.websocket);
+                    this.service.websocket.state.set(States.EDGE_SELECTED);
+                })
                 .catch(() => {
                     this.router.navigate(["index"]);
+                    resolve();
                 });
         });
     }
 
-    public async subscribeEdge(edge: Edge) {
+    public async getEdge(edgeId: Edge["id"], websocket: Websocket): Promise<Edge> {
+
+        if (States.isAtLeast(websocket.state(), States.EDGE_SELECTED)) {
+            Promise.resolve(this.service.currentEdge());
+            return;
+        }
+        return new Promise<Edge>((res) => {
+            res(this.service.updateCurrentEdge(edgeId));
+        });
+    }
+
+    public async subscribeEdge(edge: Edge | null, websocket: Websocket): Promise<void> {
+
+
+        if (States.isAtLeast(websocket.state(), States.EDGE_SUBSCRIBED)) {
+            Promise.resolve();
+            return;
+        }
 
         if (!edge) {
             return;
         }
 
-        const [err, _result] = await JsonRpcUtils.handle(this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edge.id] })));
+        const [err, _result] = await JsonRpcUtils.handle(this.service.websocket.sendStateFullRequest(new SubscribeEdgesRequest({ edges: [edge.id] })));
 
         if (err) {
             throw err;
         }
+
+        this.service.websocket.state.set(States.EDGE_SUBSCRIBED);
     }
 }

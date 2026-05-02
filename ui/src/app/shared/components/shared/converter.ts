@@ -1,7 +1,9 @@
-// @ts-strict-ignore
+import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { CurrentData, EdgeConfig, GridMode, Limiter14aRestriction, RippleControlReceiverRestrictionLevel, Utils } from "../../shared";
 import { EnabledDisabledState } from "../../type/general";
+import { Language } from "../../type/language";
+import { NumberUtils } from "../../utils/number/number-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
 import { Formatter } from "./formatter";
 
@@ -143,8 +145,13 @@ export namespace Converter {
      * @returns formatted value; '-' for null
      */
     export const POWER_IN_KILO_WATT: Converter = (raw) => {
-        return IF_NUMBER(raw, value =>
-            Formatter.FORMAT_KILO_WATT(Utils.divideSafely(value, 1000)));
+        return IF_NUMBER(raw, value => {
+            const dividedNumber = NumberUtils.divideSafely(value, 1000);
+            if (dividedNumber == null) {
+                return "-";
+            }
+            return Formatter.FORMAT_KILO_WATT(dividedNumber);
+        });
     };
 
     /**
@@ -197,6 +204,18 @@ export namespace Converter {
     export const TEMPERATURE_IN_DEGREES: Converter = (raw) => {
         return IF_NUMBER(raw, value =>
             Formatter.FORMAT_CELSIUS(value));
+    };
+
+    export const DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS: Converter = (raw) => {
+        return IF_NUMBER(raw, value => {
+            const dividedValue = NumberUtils.divideSafely(value, 10);
+
+            if (dividedValue == null) {
+                return value + " °C";
+            }
+
+            return Formatter.FORMAT_CELSIUS(dividedValue);
+        });
     };
 
     /**
@@ -301,6 +320,26 @@ export namespace Converter {
     };
 
     /**
+     * Converts the grid mode value into a translated label.
+     *
+     * @param translate the current language to be translated to
+     * @returns converted value
+     */
+    export const GRID_MODE_OFF_GRID_OR_GENERATOR = (translate: TranslateService): Converter => {
+        return (value: any): string => {
+            switch (value) {
+                case 2:
+                    return translate.instant("GENERAL.OFF_GRID");
+                case 3:
+                    return translate.instant("GENERAL.GENERATOR_ON");
+                case -1:
+                default:
+                    return translate.instant("");
+            }
+        };
+    };
+
+    /**
      * Calculates the otherPower: the power, that can't be assigned to a consumer
      *
      * @param evcss the evcss
@@ -313,17 +352,25 @@ export namespace Converter {
         const evcsChargePowerTotal = evcss?.map(evcs => currentData.allComponents[evcs.id + "/ChargePower"])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
         const consumptionMeterActivePowerTotal = consumptionMeters?.map(meter => currentData.allComponents[meter.id + "/ActivePower"])?.reduce((prev, curr) => Utils.addSafely(prev, curr), 0) ?? null;
 
-        return Utils.subtractSafely(activePowerTotal,
+        const otherPower = NumberUtils.subtractSafely(activePowerTotal,
             Utils.addSafely(evcsChargePowerTotal, consumptionMeterActivePowerTotal));
+
+        return otherPower ?? 0;
     };
 
     export const GRID_STATE_TO_MESSAGE = (translate: TranslateService, currentData: CurrentData): string => {
         const gridMode = currentData.allComponents["_sum/GridMode"];
         const restrictionMode14a = currentData.allComponents["ctrlEssLimiter14a0/RestrictionMode"] ?? Limiter14aRestriction.NO_RESTRICTION;
         const restrictionModeRcr = currentData.allComponents["ctrlEssRippleControlReceiver0/RestrictionMode"] ?? RippleControlReceiverRestrictionLevel.NO_RESTRICTION;
+
+        if (gridMode === GridMode.GENERATOR) {
+            return translate.instant("GENERAL.GENERATOR_SUPPLY");
+        }
+
         if (gridMode === GridMode.OFF_GRID) {
             return translate.instant("GRID_STATES.OFF_GRID");
         }
+
         if (restrictionMode14a) {
             return translate.instant(restrictionModeRcr !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION
                 ? "GRID_STATES.GRID_LIMITATION"
@@ -342,13 +389,13 @@ export namespace Converter {
     };
 
     export const ON_OFF = (translate: TranslateService) => {
-        return (raw): string => {
+        return (raw: number | string): string => {
             return translate.instant(raw == 1 ? "GENERAL.ON" : "GENERAL.OFF");
         };
     };
 
     export const HEAT_PUMP_STATES = (translate: TranslateService) => {
-        return (raw): string => {
+        return (raw: number | null): string => {
             switch (raw) {
                 case -1:
                     return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
@@ -360,12 +407,14 @@ export namespace Converter {
                     return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC_SHORT");
                 case 3:
                     return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM_SHORT");
+                default:
+                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.UNDEFINED");
             }
         };
     };
 
     export const FORMAT_SECONDS_TO_DURATION: any = (locale: string) => {
-        return (raw): any => {
+        return (raw: number): any => {
             return IF_NUMBER(raw, value => {
                 return TimeUtils.formatSecondsToDuration(value, locale);
             });
@@ -495,7 +544,49 @@ export namespace Converter {
     };
 
     export const CONVERT_MINUTE_TO_TIME_OF_DAY = (translate: TranslateService, locale: string): Converter => {
-        return TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
+        const converter = TimeUtils.CONVERT_MINUTE_TO_TIME_OF_DAY(translate, locale);
+
+        return (value: number | string | null): string => {
+            if (typeof value !== "number") {
+                return "";
+            }
+
+            return converter(value);
+        };
+    };
+
+    export const CONTROLLER_PROPERTY_MODES = (translate: TranslateService): Converter => {
+        return (raw): string => {
+            return IF_STRING(raw, (value) => {
+                switch (value) {
+                    case "AUTOMATIC":
+                        return translate.instant("GENERAL.AUTOMATIC");
+                    case "MANUAL":
+                        return translate.instant("GENERAL.MANUALLY");
+                    case "MANUAL_ON":
+                        return translate.instant("GENERAL.ON");
+                    case "MANUAL_OFF":
+                        return translate.instant("GENERAL.OFF");
+                }
+            });
+        };
+    };
+
+    /**
+       * Converts a value to WattHours [Wh]
+       *
+       * @param value the value from passed value in html
+       * @returns converted value
+       */
+    export const CONVERT_TO_WATTHOURS = (locale?: string): Converter => {
+        return (raw) =>
+            IF_NUMBER(raw, value => {
+                const usedLocale =
+                    locale ??
+                    (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+
+                return formatNumber(value, usedLocale, "1.0-1") + " Wh";
+            });
     };
 }
 

@@ -1,0 +1,18 @@
+@if (accordions.length !== 0) {
+  <ion-accordion-group [multiple]="props.isMulti || false" [value]="expandedAccordions">
+    @for (accordion of accordions; track accordion) {
+      <formly-field [field]="accordion"></formly-field>
+    }
+  </ion-accordion-group>
+} @else {
+  <!-- no accordions set -->
+  <ion-grid>
+    <ion-row class="ion-justify-content-center">
+      <ion-col size="12" class="ion-text-center">
+        <ion-label>
+          <h1>{{ props.missingOptionsText }}</h1>
+        </ion-label>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+}

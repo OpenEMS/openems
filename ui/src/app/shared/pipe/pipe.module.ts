@@ -2,6 +2,7 @@ import { DecimalPipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { WeekDayFormatPipe } from "../components/schedule/pipe/date";
+import { ArrayIncludes as ArrayIncludesPipe } from "./array-includes/array-includes";
 import { ClassnamePipe } from "./classname/classname.pipe";
 import { ConverterPipe } from "./converter/converter";
 import { FormatSecondsToDurationPipe } from "./formatSecondsToDuration/formatSecondsToDuration.pipe";
@@ -14,6 +15,7 @@ import { UnitvaluePipe } from "./unitvalue/unitvalue.pipe";
 import { VersionPipe } from "./version/version.pipe";
 @NgModule({
     imports: [
+        ArrayIncludesPipe,
         WeekDayFormatPipe,
     ],
     declarations: [
@@ -39,6 +41,7 @@ import { VersionPipe } from "./version/version.pipe";
         TypeofPipe,
         ConverterPipe,
         TimedisplayPipe,
+        ArrayIncludesPipe,
         WeekDayFormatPipe,
     ],
     providers: [

@@ -3,6 +3,8 @@ package io.openems.edge.controller.evse.single;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
+import java.time.Clock;
+
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.controller.evse.single.Types.History;
@@ -33,9 +35,9 @@ public record Params(//
 		 */
 		int sessionEnergy, //
 		/**
-		 * The configured Session-Energy Limit; 0 is no limit.
+		 * The configured Session-Energy Limit; possibly null.
 		 */
-		int sessionEnergyLimit, //
+		Integer sessionEnergyLimit, //
 		/**
 		 * History data
 		 */
@@ -61,7 +63,7 @@ public record Params(//
 		 */
 		JSCalendar.Tasks<Payload> tasks) {
 
-	public Params(String componentId, Mode mode, Integer activePower, int sessionEnergy, int sessionEnergyLimit,
+	public Params(String componentId, Mode mode, Integer activePower, int sessionEnergy, Integer sessionEnergyLimit,
 			History history, PhaseSwitching phaseSwitching, CombinedAbilities combinedAbilities,
 			JSCalendar.Tasks<Payload> tasks) {
 		this(componentId, mode, activePower, sessionEnergy, sessionEnergyLimit, history, Hysteresis.from(history),
@@ -71,20 +73,21 @@ public record Params(//
 	/**
 	 * Returns a {@link JsonSerializer} for a {@link EshConfig}.
 	 *
+	 * @param clock the {@link Clock}
 	 * @return the created {@link JsonSerializer}
 	 */
-	public static JsonSerializer<Params> serializer() {
+	public static JsonSerializer<Params> serializer(Clock clock) {
 		return jsonObjectSerializer(json -> {
 			return new Params(//
 					json.getString("componentId"), //
 					json.getEnum("mode", Mode.class), //
 					json.getOptionalInt("activePower").orElse(null), //
 					json.getInt("sessionEnergy"), //
-					json.getInt("sessionEnergyLimit"), //
+					json.getOptionalInt("sessionEnergyLimit").orElse(null), //
 					new History(), // TODO
 					json.getEnum("phaseSwitching", PhaseSwitching.class), //
 					json.getObject("combinedAbilities", CombinedAbilities.serializer()), //
-					json.getObject("tasks", JSCalendar.Tasks.serializer(Payload.serializer()))); //
+					json.getObject("tasks", JSCalendar.Tasks.serializer(clock, Payload.serializer()))); //
 		}, obj -> {
 			return buildJsonObject() //
 					.addProperty("componentId", obj.componentId) //
@@ -95,7 +98,7 @@ public record Params(//
 					.addProperty("history", "") // TODO
 					.addProperty("phaseSwitching", obj.phaseSwitching) //
 					.add("combinedAbilities", CombinedAbilities.serializer().serialize(obj.combinedAbilities)) //
-					.add("tasks", JSCalendar.Tasks.serializer(Payload.serializer()).serialize(obj.tasks)) //
+					.add("tasks", JSCalendar.Tasks.serializer(clock, Payload.serializer()).serialize(obj.tasks)) //
 					.build();
 		});
 	}

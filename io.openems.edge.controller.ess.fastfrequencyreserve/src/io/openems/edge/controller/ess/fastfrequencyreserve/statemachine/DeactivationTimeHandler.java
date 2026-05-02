@@ -25,7 +25,7 @@ public class DeactivationTimeHandler extends StateHandler<State, Context> {
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+		context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 		this.deactivationStateStartTime = Instant.now(context.clock);
 		this.deactivationTimeState = new DeactivationTimeState(SubState.HOLD_DEACTIVATION, Instant.now(context.clock));
 	}
@@ -46,7 +46,7 @@ public class DeactivationTimeHandler extends StateHandler<State, Context> {
 		return switch (this.deactivationTimeState.subState) {
 
 		case HOLD_DEACTIVATION -> {
-			context.ess.setActivePowerEquals(ZERO_WATT_POWER);
+			context.ess.setActivePowerEqualsWithoutFilter(ZERO_WATT_POWER);
 			var deactivationDurationExpiration = this.calculateDeactivationDurationExpiration(context);
 			if (deactivationDurationExpiration >= context.activationRunTime.getValue()) {
 				yield SubState.FINISH_DEACTIVATION_DURATION;

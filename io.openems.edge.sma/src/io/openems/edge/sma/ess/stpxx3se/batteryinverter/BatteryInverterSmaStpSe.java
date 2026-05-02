@@ -23,8 +23,8 @@ public interface BatteryInverterSmaStpSe extends HybridManagedSymmetricBatteryIn
 				.text("Initializing Sunspec Protocol")), //
 		WRONG_BATTERY(Doc.of(Level.FAULT)//
 				.text("Failed to run inverter. Battery is not SMA battery.")), //
-		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING)//
-				.text("SMART mode does not work correctly with active PID filter")), //
+		SMART_MODE_NOT_WORKING_WITH_FILTER(Doc.of(Level.WARNING)//
+				.text("SMART mode does not work correctly with active filter")), //
 		DEBUG_CONTROL_MODE(Doc.of(SetControlMode.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		CONFIGURED_CONTROL_MODE(Doc.of(ControlMode.values())//

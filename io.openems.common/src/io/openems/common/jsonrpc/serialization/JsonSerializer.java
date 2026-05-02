@@ -65,7 +65,11 @@ public interface JsonSerializer<T> {
 	 * @return the deserialized object from the {@link JsonElement}
 	 */
 	public default T deserialize(JsonElement json) {
-		return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
+		try {
+			return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
+		} catch (RuntimeException e) {
+			throw new JsonParseException(e);
+		}
 	}
 
 	/**

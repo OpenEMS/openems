@@ -154,6 +154,10 @@ public class EvcsHardyBarthImplTest {
 						.output(HardyBarth.ChannelId.RAW_VENTILATION_AVAILABLE, false) //
 						.output(HardyBarth.ChannelId.RAW_VENTILATION_STATE_ACTUAL, "0") //
 						.output(HardyBarth.ChannelId.RAW_VENTILATION_STATE_TARGET, null) //
+						.output(HardyBarth.ChannelId.RAW_SALIA_SOCKET_MAX_AMP, "16") //
+						.output(HardyBarth.ChannelId.RAW_MAX_AMP, null) //
+						.output(HardyBarth.ChannelId.RAW_PHYSICAL_CURRENT_LIMIT, "16") //
+						.output(HardyBarth.ChannelId.RAW_SALIA_INTCTRL_LIMIT, "16") //
 
 						.output(ManagedEvcs.ChannelId.CHARGE_MODE, ChargeMode.FORCE_CHARGE) //
 						.output(ManagedEvcs.ChannelId.CHARGE_STATE, ChargeState.CHARGING) //

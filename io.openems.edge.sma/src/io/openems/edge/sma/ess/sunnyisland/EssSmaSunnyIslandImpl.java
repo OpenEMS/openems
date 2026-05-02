@@ -5,6 +5,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -109,7 +110,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this._setCapacity(Math.max(0, config.capacity()));
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 	}
 
 	@Override
@@ -241,7 +242,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 											gridMode = GridMode.UNDEFINED;
 										}
 									}
-									this._setGridMode(gridMode);
+									setValue(this, SymmetricEss.ChannelId.GRID_MODE, gridMode);
 
 									return intValue;
 								}))),

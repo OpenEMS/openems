@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { States } from "../ngrx-store/states";
 
 export abstract class JsonrpcMessage {
     public readonly jsonrpc: string = "2.0";
@@ -26,11 +27,17 @@ export abstract class JsonrpcMessage {
 }
 
 export abstract class AbstractJsonrpcRequest extends JsonrpcMessage {
+
+    protected requiredState: States = States.AUTHENTICATED;
     protected constructor(
         public readonly method: string,
         public readonly params: {},
     ) {
         super();
+    }
+
+    public get RequiredState(): States {
+        return this.requiredState;
     }
 }
 

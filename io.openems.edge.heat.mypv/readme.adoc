@@ -1,6 +1,6 @@
-= Heatingelement MyPv
+= my-PV Heatingelement
 
-Implements a MyPv heating element.
+Implements a my-PV heating element.
 
 See https://www.my-pv.com/de/
 

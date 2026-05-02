@@ -1,6 +1,8 @@
 package io.openems.edge.app.integratedsystem.fenecon.industrial.s;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.s.FeneconIndustrialSComponents.batteryBmw;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.s.FeneconIndustrialSComponents.batteryInverter;
@@ -35,7 +37,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.app.enums.ModbusType;
@@ -45,7 +46,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -103,13 +103,6 @@ public class Isk010 extends AbstractOpenemsAppWithProps<Isk010, Property, Bundle
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
 		this.appManagerUtil = appManagerUtil;
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override
@@ -192,6 +185,8 @@ public class Isk010 extends AbstractOpenemsAppWithProps<Isk010, Property, Bundle
 			// .setRouteGateway("172.23.22.2") //
 			// .setRouteMetric(512) //
 			// );
+			dependencies.add(predictionDefault());
+			dependencies.add(predictionUnmanagedConsumption());
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

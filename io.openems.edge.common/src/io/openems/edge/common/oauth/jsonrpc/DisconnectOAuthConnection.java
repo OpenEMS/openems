@@ -27,8 +27,7 @@ public class DisconnectOAuthConnection implements EndpointRequestType<Disconnect
 	public record Request(String identifier) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a
-		 * {@link Request}.
+		 * Returns a {@link JsonSerializer} for a {@link Request}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */

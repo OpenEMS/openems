@@ -723,7 +723,6 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	 * @return integer value indicating the number of phases; null if undefined
 	 */
 	public static Integer evaluatePhaseCountFromCurrent(Integer currentL1, Integer currentL2, Integer currentL3) {
-
 		var phases = 0;
 		if (currentL1 != null && currentL1 > MIN_EVCS_ACTIVITY_CURRENT) {
 			phases++;

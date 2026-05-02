@@ -146,9 +146,13 @@ public class BridgeHttpImpl implements BridgeHttp, BridgeHttpEventRaiser {
 			return;
 		}
 		for (var listener : listeners) {
-			@SuppressWarnings("unchecked")
-			var typedListener = (BridgeHttpEventListener<Object>) listener;
-			typedListener.onEvent(data);
+			try {
+				@SuppressWarnings("unchecked")
+				var typedListener = (BridgeHttpEventListener<Object>) listener;
+				typedListener.onEvent(data);
+			} catch (RuntimeException e) {
+				this.log.warn("Unable to forward event {} to listener {}", data, listener, e);
+			}
 		}
 	}
 

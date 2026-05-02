@@ -39,6 +39,24 @@ public class DummyCustomInputOutput extends AbstractDummyOpenemsComponent<DummyC
 		}
 	}
 
+	public DummyCustomInputOutput(String id, String prefix, String suffix, int start, int numberOfIos,
+			int numberOfModules) {
+		super(id, //
+				OpenemsComponent.ChannelId.values(), //
+				DigitalInput.ChannelId.values(), //
+				DigitalOutput.ChannelId.values() //
+		);
+
+		this.ioChannels = new BooleanWriteChannel[numberOfIos * numberOfModules];
+		for (int j = 0; j < numberOfModules; j++) {
+			for (int i = 0; i < numberOfIos; i++) {
+				this.ioChannels[j * numberOfIos + i] = (BooleanWriteChannel) this.addChannel(
+						new ChannelIdImpl(prefix + j + "_" + suffix + (i + start), Doc.of(OpenemsType.BOOLEAN).//
+								accessMode(AccessMode.READ_WRITE)));
+			}
+		}
+	}
+
 	@Override
 	protected DummyCustomInputOutput self() {
 		return this;

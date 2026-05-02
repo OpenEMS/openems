@@ -1,22 +1,15 @@
 package io.openems.edge.controller.api.modbus.readwrite.tcp;
 
-import static io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiModbusTcpReadWriteImpl.getChannelNameCamel;
-import static io.openems.edge.controller.api.modbus.readwrite.tcp.ControllerApiModbusTcpReadWriteImpl.getChannelNameUpper;
-import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
 import org.junit.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.test.TimeLeapClock;
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
@@ -28,52 +21,43 @@ import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusTcpReadWriteImplTest {
 
-	private static final String CONTROLLER_ID = "ctrlApiModbusTcp0";
-
-	private static final ChannelAddress PROCESS_IMAGE_FAULT = new ChannelAddress(CONTROLLER_ID,
-			ModbusApi.ChannelId.PROCESS_IMAGE_FAULT.id());
-
-	private TimeLeapClock clock = new TimeLeapClock(Instant.parse("2024-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-
 	@Test
 	public void test() throws Exception {
+		final var clock = createDummyClock();
 		var sut = new ControllerApiModbusTcpReadWriteImpl(); //
 
 		new ControllerTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addComponent(new DummyCycle(1000)) //
-				.addReference("componentManager", new DummyComponentManager(this.clock)) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("metaComponent", new DummyMeta()) //
 				.activate(MyTcpConfig.create(io.openems.edge.controller.api.modbus.readonly.tcp.Config.class) //
-						.setId(CONTROLLER_ID) //
+						.setId("ctrlApiModbusTcp0") //
 						.setEnabled(true) // has to be enabled for resetting channel
 						.setComponentIds() //
 						.setMaxConcurrentConnections(5) //
-						.setPort(123456) // random port not blocking 502
+						.setPort(12345) // random port not blocking 502
 						.setApiTimeout(60) //
 						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase() //
-						.onAfterProcessImage(() -> sut.setProcessImageFault(this.clock)) //
-						.output(PROCESS_IMAGE_FAULT, true) //
-				) //
+						.onAfterProcessImage(() -> sut.setProcessImageFault(clock)) //
+						.output(ModbusApi.ChannelId.PROCESS_IMAGE_FAULT, true)) //
 				.next(new TestCase() //
-						.timeleap(this.clock, 20, ChronoUnit.SECONDS) //
-						.onAfterProcessImage(() -> sut.resetProcessImageError(this.clock))
-						.output(PROCESS_IMAGE_FAULT, true) //
-				) //
+						.timeleap(clock, 20, ChronoUnit.SECONDS) //
+						.onAfterProcessImage(() -> sut.resetProcessImageError(clock)) //
+						.output(ModbusApi.ChannelId.PROCESS_IMAGE_FAULT, true)) //
 				.next(new TestCase() //
-						.timeleap(this.clock, 40, ChronoUnit.SECONDS) //
+						.timeleap(clock, 40, ChronoUnit.SECONDS) //
 						// after one minute, PROCESS_IMAGE_FAULT is false again
-						.output(PROCESS_IMAGE_FAULT, false) //
-				) //
+						.output(ModbusApi.ChannelId.PROCESS_IMAGE_FAULT, false)) //
 				.deactivate();
 
 		assertNull(sut.debugLog());
 	}
 
 	@Test
-	public void testTimedataChannels() throws Exception {
+	public void testTimedataChannels() {
 		var controller = new ControllerApiModbusTcpReadWriteImpl(); //
 		boolean channelNotFound = controller.channels().stream().noneMatch(//
 				ch -> ch.channelId().id().equals("CumulatedActiveTime") //
@@ -82,23 +66,10 @@ public class ControllerApiModbusTcpReadWriteImplTest {
 	}
 
 	@Test
-	public void testAddFalseComponents() throws Exception {
+	public void testAddFalseComponents() {
 		var controller = new ControllerApiModbusTcpReadWriteImpl(); //
 		controller.addComponent(new DummyCycle(1000)); //
 		controller.getComponentNoModbusApiFaultChannel().nextProcessImage(); //
 		assertTrue(controller.getComponentNoModbusApiFault().get()); //
 	}
-
-	@Test
-	public void testGetChannelNameUpper() {
-		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS", getChannelNameUpper("ess0", SET_ACTIVE_POWER_EQUALS));
-		assertEquals("ESS0_SET_ACTIVE_POWER_EQUALS", getChannelNameUpper("Ess0", SET_ACTIVE_POWER_EQUALS));
-	}
-
-	@Test
-	public void testGetChannelNameCamel() {
-		assertEquals("Ess0SetActivePowerEquals", getChannelNameCamel("ess0", SET_ACTIVE_POWER_EQUALS));
-		assertEquals("Ess0SetActivePowerEquals", getChannelNameCamel("Ess0", SET_ACTIVE_POWER_EQUALS));
-	}
-
 }

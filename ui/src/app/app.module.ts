@@ -1,7 +1,7 @@
 import { registerLocaleData } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import localDE from "@angular/common/locales/de";
-import { APP_INITIALIZER, ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
+import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
@@ -16,17 +16,17 @@ import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { CheckForUpdateService } from "./appupdateservice";
 import { EdgeModule } from "./edge/edge.module";
+import { SystemOutageInfoComponent } from "./edge/live/system-outage-info/oe-system-outage-info";
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
-import { AppStateTracker } from "./shared/ngrx-store/states";
+import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
 import { AuthService } from "./shared/service/auth/auth.service";
 import { MyErrorHandler } from "./shared/service/myerrorhandler";
 import { Pagination } from "./shared/service/pagination";
-import { UserService } from "./shared/service/user.service";
 import { SharedModule } from "./shared/shared.module";
 import { registerTranslateExtension } from "./shared/translate.extension";
 import { Language, MyTranslateLoader } from "./shared/type/language";
@@ -40,6 +40,7 @@ provideTranslateLoader(MyTranslateLoader);
         NavigationComponent,
     ],
     imports: [
+        SystemOutageInfoComponent,
         AngularMyDatePickerModule,
         AppRoutingModule,
         BrowserAnimationsModule,
@@ -65,15 +66,11 @@ provideTranslateLoader(MyTranslateLoader);
         CheckForUpdateService,
         PlatFormService,
         AppStateTracker,
-        UserService,
         NavigationService,
         AuthService,
-        {
-            provide: APP_INITIALIZER,
-            useFactory: initializeService,
-            deps: [UserService, NavigationService], // Dependencies for the factory function
-            multi: true, // Allows multiple initializers
-        },
+        provideAppInitializer(() => {
+            inject(NavigationService);
+        }),
         provideCharts(withDefaultRegisterables()),
     ],
     bootstrap: [AppComponent],

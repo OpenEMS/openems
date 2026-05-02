@@ -11,6 +11,7 @@ import static io.openems.edge.evcs.api.ChargeMode.FORCE_CHARGE;
 import static io.openems.edge.evcs.api.Evcs.ChannelId.MAXIMUM_HARDWARE_POWER;
 import static io.openems.edge.evcs.api.Evcs.ChannelId.MAXIMUM_POWER;
 import static io.openems.edge.evcs.api.Evcs.ChannelId.STATUS;
+import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.IS_CLUSTERED;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_REQUEST;
@@ -24,6 +25,7 @@ import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
+import io.openems.edge.evcs.api.ChargeState;
 import io.openems.edge.evcs.api.Evcs;
 import io.openems.edge.evcs.api.Status;
 import io.openems.edge.evcs.test.DummyManagedEvcs;
@@ -326,6 +328,50 @@ public class ControllerEvcsImplTest {
 						.input("evcs0", ACTIVE_POWER, 0) //
 						.output("evcs0", SET_CHARGE_POWER_LIMIT, 5000) //
 						.output(AWAITING_HYSTERESIS, false)) //
+				.deactivate();
+	}
+
+	@Test
+	public void awaitDecreasingChargeStateTest() throws Exception {
+		final var clock = createDummyClock();
+		new ControllerTest(new ControllerEvcsImpl(clock)) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("sum", new DummySum()) //
+				.addReference("evcs", DummyManagedEvcs.ofDisabled("evcs0")) //
+				.activate(MyConfig.create() //
+						.setId("ctrlEvcs0") //
+						.setEvcsId("evcs0") //
+						.setEnableCharging(true) //
+						.setChargeMode(EXCESS_POWER) //
+						.setForceChargeMinPower(DEFAULT_FORCE_CHARGE_MIN_POWER) //
+						.setDefaultChargeMinPower(DEFAULT_CHARGE_MIN_POWER) //
+						.setPriority(CAR) //
+						.setEnergySessionLimit(0) //
+						.build()) //
+
+				// First cycle: establish a charge power of 6000 W
+				.next(new TestCase() //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input("evcs0", IS_CLUSTERED, false) //
+						.input(GRID_ACTIVE_POWER, -6000) //
+						.input("evcs0", ACTIVE_POWER, 0) //
+						.output("evcs0", SET_CHARGE_POWER_LIMIT, 6000)) //
+
+				// DECREASING state: controller should hold the last charge power
+				.next(new TestCase() //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(GRID_ACTIVE_POWER, 2000) //
+						.input("evcs0", ACTIVE_POWER, 6000) //
+						.input("evcs0", CHARGE_STATE, ChargeState.DECREASING) //
+						.output("evcs0", SET_CHARGE_POWER_LIMIT, 6000)) //
+
+				// INCREASING state: controller should also hold the last charge power
+				.next(new TestCase() //
+						.input(ESS_DISCHARGE_POWER, 0) //
+						.input(GRID_ACTIVE_POWER, -10000) //
+						.input("evcs0", ACTIVE_POWER, 6000) //
+						.input("evcs0", CHARGE_STATE, ChargeState.INCREASING) //
+						.output("evcs0", SET_CHARGE_POWER_LIMIT, 6000)) //
 				.deactivate();
 	}
 }

@@ -1,0 +1,16 @@
+@if (isInitialized && component && componentSome) {
+<oe-chart [title]="componentSome.displayName" [period]="service.historyPeriod.value">
+    @switch (componentSome.type) {
+    @case ('sum') {
+    <oe-common-production-history-sum [isOnlyChart]="true"></oe-common-production-history-sum>
+    }
+    @case ('productionMeter') {
+    <oe-common-production-history-meter [isOnlyChart]="true"></oe-common-production-history-meter>
+    }
+    @case ('charger') {
+    <oe-common-production-history-charger [isOnlyChart]="true"></oe-common-production-history-charger>
+    }
+    }
+    <oe-footer-subnavigation [backButton]="true" [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+</oe-chart>
+}

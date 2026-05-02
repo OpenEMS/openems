@@ -2,6 +2,7 @@
 import { Injectable, signal, WritableSignal } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
+import { ScreenOrientation } from "@capacitor/screen-orientation";
 import { AlertController, Platform, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver-es";
@@ -22,6 +23,7 @@ export class PlatFormService {
     public static deviceInfo: DeviceInfo;
     public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
     public static isMobile: boolean = false;
+    public static isTablet: boolean = false;
 
     private static readonly SMARTPHONE_BP = 576;
 
@@ -35,6 +37,17 @@ export class PlatFormService {
     ) {
         PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
         PlatFormService.isMobile = this.deviceService.isMobile();
+        PlatFormService.isTablet = this.deviceService.isTablet();
+
+        if (!this.getIsApp()) {
+            return;
+        }
+
+        if (PlatFormService.isTablet) {
+            ScreenOrientation.lock({ orientation: "landscape" });
+        } else {
+            ScreenOrientation.lock({ orientation: "portrait" });
+        }
     }
 
     public static handleRefresh() {

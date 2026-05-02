@@ -1,6 +1,6 @@
+import { EdgeConfig } from "src/app/shared/components/edge/edgeconfig";
 import { NavigationTree, PartialedIcon } from "src/app/shared/components/navigation/shared";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
-import { EdgeConfig } from "src/app/shared/shared";
 import { environment } from "src/environments";
 
 export abstract class EvseChargepoint extends EdgeConfig.Component {
@@ -13,8 +13,12 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
         super(component.id, component.alias, component.isEnabled, false, component.factoryId, component.properties, component.channels);
     }
 
-    public static getEvseChargepoint(chargePoint: EdgeConfig.Component): EvseChargepoint | null {
-        switch (chargePoint?.factoryId ?? null) {
+    public static getEvseChargepoint(chargePoint: EdgeConfig.Component | null): EvseChargepoint | null {
+        if (chargePoint == null) {
+            return null;
+        }
+
+        switch (chargePoint.factoryId) {
             case "Evse.ChargePoint.Keba.UDP":
                 return new P30KebaUdp(chargePoint);
             case "Evse.ChargePoint.Keba.Modbus":
@@ -23,6 +27,8 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new HardyBarth(chargePoint);
             case "Evse.ChargePoint.Alpitronic":
                 return new Alpitronic(chargePoint);
+            case "Evse.ChargePoint.Mennekes":
+                return new Mennekes(chargePoint);
             case null:
             default:
                 return null;
@@ -80,6 +86,17 @@ export class Alpitronic extends EvseChargepoint {
 
     public img = {
         url: environment.images.EVSE.ALPITRONIC,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return false;
+    }
+}
+
+export class Mennekes extends EvseChargepoint {
+
+    public img = {
+        url: environment.images.EVSE.MENNEKES,
     };
 
     public override hasPhaseSwitchingAbility(): boolean {

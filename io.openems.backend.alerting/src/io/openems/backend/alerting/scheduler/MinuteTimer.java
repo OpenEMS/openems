@@ -143,7 +143,7 @@ public class MinuteTimer implements TimedExecutor {
 		while (!this.singleTasks.isEmpty() //
 				&& this.singleTasks.peek().executeAt.isBefore(now)) {
 			try {
-				this.singleTasks.poll().task.accept(now);
+				this.singleTasks.poll().execute(now);
 			} catch (Exception ex) {
 				this.log.error(ex.getMessage(), ex);
 			}

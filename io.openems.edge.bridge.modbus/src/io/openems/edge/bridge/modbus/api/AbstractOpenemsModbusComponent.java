@@ -113,6 +113,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
 	}
 
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId)
+			throws OpenemsException {
+		super.activate(context, id, alias, enabled);
+		this.activateOrModified(unitId);
+	}
+
 	@Override
 	protected void activate(ComponentContext context, String id, String alias, boolean enabled) {
 		throw new IllegalArgumentException("Use the other activate() for Modbus components!");
@@ -177,6 +183,15 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			modbus.retryModbusCommunication(this.id());
 		}
 		return false;
+	}
+
+	private void activateOrModified(int unitId) {
+		this.unitId = unitId;
+		var modbus = this.modbus.get();
+		if (this.isEnabled() && modbus != null) {
+			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
+		}
 	}
 
 	@Override

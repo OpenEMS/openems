@@ -1,5 +1,7 @@
 package io.openems.edge.goodwe.charger.mppt.twostring;
 
+import static io.openems.common.utils.FunctionUtils.doNothing;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -22,7 +24,6 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
-import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -136,15 +137,13 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 
 		// Initialize MPPTs with deprecated PV relatives.
 		switch (this.config.mpptPort()) {
-			case MPPT_1, MPPT_2, MPPT_3 -> {
-				if (!this.getActualEnergy().isDefined()) {
-					this.initializeCumulatedEnergyFromTimedata();
-					return;
-				}
+		case MPPT_1, MPPT_2, MPPT_3 -> {
+			if (!this.getActualEnergy().isDefined()) {
+				this.initializeCumulatedEnergyFromTimedata();
+				return;
 			}
-			default -> {
-				FunctionUtils.doNothing();
-			}
+		}
+		default -> doNothing();
 		}
 
 		var actualPower = this.getActualPower().get();

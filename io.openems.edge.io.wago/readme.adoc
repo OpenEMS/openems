@@ -1,43 +1,81 @@
 = WAGO Fieldbus Coupler 750-352
 
-Implemented Natures::
-- DigitalOutput
-- DigitalInput
+Integrates the WAGO Fieldbus Coupler 750-352 into OpenEMS for dynamic configuration and control of WAGO extension modules (inputs and outputs) via Modbus communication.
 
-This component reads the current WAGO fieldbus coupler configuration and dynamically creates its Input and Output Channels accordingly. 
+== Overview
 
-NOTE: Make sure to update the WAGO fieldbus coupler configuration before activating this component. 
-Open the WAGO fieldbus web interface, click *"IO config"* and *"create ea-config.xml"* to update the configuration. Default username is `admin`, default password is `wago`.
+This bundle provides integration for the WAGO Fieldbus Coupler 750-352, an industrial-grade programmable logic controller (PLC) with modular I/O capabilities. The component dynamically reads the WAGO device's fieldbus coupler configuration and creates OpenEMS channels for each configured input and output module.
 
-The following examples assume the Component-ID is `io0` and the addresses are valid for the first WAGO extension.
-For extensions 2, 3,... just increase the number behind `M`.
-Channel names follow this logic:
+The WAGO fieldbus coupler communicates via Modbus TCP/IP protocol over standard networks. The integration handles configuration synchronization with the device and provides automatic channel mapping for digital inputs, digital outputs, and relay modules.
 
-== WAGO 750-523 "1-channel relay output"
+All supported WAGO modules are dynamically discovered and configured based on the device's internal configuration. The component supports multiple extensions and provides flexible channel naming conventions for easy integration into OpenEMS systems.
 
-https://www.wago.com/global/i-o-systems/1-channel-relay-output/p/750-523[wago.com icon:external-link[]]
+== Supported Devices
 
-|=======
-|`io0/RelayM1` |Input/Output |the relay
-|`io0/RelayM1Hand` |Input |state of the manual switch
-|=======
+* https://www.wago.com/global/i-o-systems/750-352[WAGO 750-352 icon:external-link[]] - Fieldbus Coupler (main component)
+* https://www.wago.com/global/i-o-systems/2-channel-digital-input/p/750-400[WAGO 750-400 icon:external-link[]] - 2-channel digital input module
+* https://www.wago.com/global/i-o-systems/2-channel-digital-output/p/750-501[WAGO 750-501 icon:external-link[]] - 2-channel digital output module
+* https://www.wago.com/global/i-o-systems/1-channel-relay-output/p/750-523[WAGO 750-523 icon:external-link[]] - 1-channel relay output module
+* https://www.wago.com/global/i-o-systems/2-channel-relay-output/p/750-524[WAGO 750-524 icon:external-link[]] - 2-channel relay output module
+* https://www.wago.com/global/i-o-systems/8-channel-digital-input-24-vdc/p/750-430[WAGO 750-430 icon:external-link[]] - 8-channel digital input module
+* https://www.wago.com/global/i-o-systems/8-channel-digital-output-24-vdc/p/750-530[WAGO 750-530 icon:external-link[]] - 8-channel digital output module
 
-== WAGO 750-501 "2-channel digital output"
+== Components
 
-https://www.wago.com/global/i-o-systems/2-channel-digital-output/p/750-501[wago.com icon:external-link[]]
+This bundle implements the following OpenEMS Component:
 
-|=======
-|`io0/DigitalOutputM1C1` |Input/Output |the first digital output
-|`io0/DigitalOutputM1C2` |Input/Output |the first digital output
-|=======
+=== WAGO Fieldbus Coupler 750-352
 
-== WAGO 750-400 "2-channel digital input"
+*Name*: IO WAGO Fieldbus Coupler 750-352
 
-https://www.wago.com/global/i-o-systems/2-channel-digital-input/p/750-400[wago.com icon:external-link[]]
+*Factory-PID*: `io.openems.edge.wago`
 
-|=======
-|`io0/DigitalInputM1C1` |Input |the first digital input
-|`io0/DigitalInputM1C2` |Input |the second digital input
-|=======
+.Implemented Natures/Interfaces
+* DigitalInput
+* DigitalOutput
+* ModbusComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for TCP communication (default: "modbus0")
+* `username` (String): Username for WAGO device authentication (default: "admin")
+* `password` (String): Password for WAGO device authentication (default: "wago")
+
+== Module Channel Naming
+
+The component dynamically creates channels based on the WAGO device configuration. Channel names follow this naming convention:
+
+.WAGO 750-523 "1-channel relay output"
+* `\{id\}/RelayM\{X\}` - Relay output on extension X
+* `\{id\}/RelayM\{X\}Hand` - Manual switch state on extension X
+
+.WAGO 750-501 "2-channel digital output"
+* `\{id\}/DigitalOutputM\{X\}C1` - First digital output on extension X
+* `\{id\}/DigitalOutputM\{X\}C2` - Second digital output on extension X
+
+.WAGO 750-400 "2-channel digital input"
+* `\{id\}/DigitalInputM\{X\}C1` - First digital input on extension X
+* `\{id\}/DigitalInputM\{X\}C2` - Second digital input on extension X
+
+Where `\{id\}` is the Component-ID (default: "io0") and `\{X\}` is the extension number (M1, M2, M3, etc.).
+
+== Prerequisites / Dependencies
+
+=== System Requirements
+* Network connectivity: WAGO device must be reachable via Modbus TCP/IP on the network
+* Modbus bridge: A Modbus TCP bridge component must be configured and enabled
+* Local Network: WAGO device must be on the same network as OpenEMS Edge
+
+=== WAGO Device Setup
+. Access the WAGO device web interface (default IP usually 192.168.1.1, username: admin, password: wago)
+. Navigate to *"IO config"*
+. Configure the desired extension modules
+. Click *"create ea-config.xml"* to generate the configuration file
+. Ensure the configuration is saved and activated on the device
+. Note the device's IP address and Modbus TCP port (default: 502)
+. Configure the OpenEMS Modbus TCP bridge to connect to the WAGO device
+. Configure this component with the corresponding Modbus-ID
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.wago[Source Code icon:github[]]

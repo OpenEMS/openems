@@ -2,7 +2,6 @@ package io.openems.edge.evse.chargepoint.hardybarth;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
-import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evcs.api.Evcs.evaluatePhaseCountFromCurrent;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -113,19 +112,19 @@ public class EvseChargePointHardyBarthImpl extends AbstractOpenemsComponent impl
 		case UNDEFINED, A, E, F -> false;
 		case B, C, D -> true;
 		};
-		int calculatedPhaseCount = this.getPhaseCount();
-		evaluatePhaseCountFromCurrent(//
+
+		final var phaseCount = evaluatePhaseCountFromCurrent(//
 				this.getCurrentL1().orElse(0), //
 				this.getCurrentL2().orElse(0), //
 				this.getCurrentL3().orElse(0));
-		Phase.SingleOrThreePhase phaseCount;
-		if (calculatedPhaseCount == 1) {
-			phaseCount = Phase.SingleOrThreePhase.SINGLE_PHASE;
+		final Phase.SingleOrThreePhase phase;
+		if (phaseCount != null && phaseCount == 1) {
+			phase = Phase.SingleOrThreePhase.SINGLE_PHASE;
 		} else {
-			phaseCount = Phase.SingleOrThreePhase.THREE_PHASE;
+			phase = Phase.SingleOrThreePhase.THREE_PHASE;
 		}
 		return ChargePointAbilities.create() //
-				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phaseCount, 6, 16)) //
+				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(phase, 6, 16)) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(this.getIsReadyForCharging()) //
 				.build();

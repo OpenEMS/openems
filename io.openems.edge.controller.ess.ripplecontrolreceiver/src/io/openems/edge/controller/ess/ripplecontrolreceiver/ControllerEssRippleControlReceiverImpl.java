@@ -25,7 +25,6 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.meta.GridFeedInLimitationType;
-import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
@@ -53,9 +52,6 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 
 	@Reference
 	private ComponentManager componentManager;
-
-	@Reference
-	private Meta meta;
 
 	private EssRestrictionLevel currentRestriction = NO_RESTRICTION;
 	private ChannelAddress zeroPercentChannelAddress;
@@ -124,12 +120,6 @@ public class ControllerEssRippleControlReceiverImpl extends AbstractOpenemsCompo
 	@Override
 	public EssRestrictionLevel essRestrictionLevel() {
 		return this.currentRestriction;
-	}
-
-	@Override
-	public OptionalInt maximumGridFeedInLimit() {
-		return feedInLimitFromMetaLimits(this.meta.getGridFeedInLimitationType(),
-				this.meta.getMaximumGridFeedInLimitValue());
 	}
 
 	@Override

@@ -2,7 +2,16 @@ import { TranslateService } from "@ngx-translate/core";
 import { SharedAutarchy } from "src/app/edge/live/common/autarchy/shared/shared";
 import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/shared";
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
+import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
+import { SharedEssFixDigitalPowerControl } from "src/app/edge/live/Controller/Ess/FixActivePower/shared/shared";
+import { SharedGridOptimizedCharge } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/shared/shared";
+import { SharedControllerEssTimeOfUseTariff } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/shared/shared";
+import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
+import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
+import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
+import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
+import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { NavigationTree } from "../components/navigation/shared";
@@ -48,13 +57,38 @@ export class Widgets {
                 return SharedSelfConsumption.getNavigationTree(translate);
             case "Consumption":
                 return SharedConsumption.getNavigationTree(edge, config, translate);
+            case "Common_Production":
+                return SharedProduction.getNavigationTree(edge, config, translate);
             default:
                 return null;
         }
     }
 
     public static getControllerNavigationTree(edge: Edge, widget: Widget, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+        const component = config.getComponentSafely(widget.componentId);
+        if (component === null) {
+            return null;
+        }
+
         switch (widget.name) {
+            case "Controller.IO.HeatingElement":
+                return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
+            case "Controller.Ess.FixActivePower":
+                return SharedEssFixDigitalPowerControl.getNavigationTree(translate, component);
+            case "Controller.Ess.GridOptimizedCharge":
+                return SharedGridOptimizedCharge.getNavigationTree(translate, component);
+            case "Controller.Io.HeatPump.SgReady":
+                return SharedControllerIoHeatpump.getNavigationTree(translate, component);
+            case "Controller.Ess.Time-Of-Use-Tariff":
+                return SharedControllerEssTimeOfUseTariff.getNavigationTree(translate, component);
+            case "Heat.Askoma":
+                return SharedControllerHeat.getNavigationTree(translate, component);
+            case "Heat.MyPv.AcThor9s":
+                return SharedControllerHeat.getNavigationTree(translate, component);
+            case "Scheduler.JSCalendar":
+                return SharedSchedulerJsCalendar.getNavigationTree(translate, widget.componentId);
+            case "Evse.Controller.Single":
+                return ControllerEvseSingleShared.getNavigationTree(edge, translate, widget.componentId, config);
             default:
                 return null;
         }

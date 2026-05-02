@@ -1,8 +1,97 @@
 = Samsung ESS
 
-This bundle implements the Samsung SDI ESS.
+Residential lithium battery storage system with integrated grid meter and PV charger.
 
-Compatible with
-- https://www.photovoltaik4all.de/speicher/samsung/samsung-sdi-lithium-ionen-speicher-3-6-kwh/SA23695
+== Overview
+
+This bundle provides integration with the Samsung SDI ESS (Energy Storage System), a compact residential battery storage solution. The bundle consists of three components that work together to manage battery storage, grid monitoring, and DC PV charging.
+
+Samsung ESS is suitable for residential solar storage, peak shaving, and home energy management applications.
+
+== Supported Devices
+
+.Samsung SDI ESS
+* **Type**: Residential lithium battery storage
+* **Capacity**: 3.6 kWh (typical, configurable)
+* **Communication**: Direct IP communication
+* **Typical Use**: Residential solar storage, peak shaving
+* **Grid Connection**: Single-phase
+* **Battery Chemistry**: Lithium-ion
+* **Documentation**: https://www.photovoltaik4all.de/speicher/samsung/[Samsung Storage icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_samsung_ess,Samsung ESS>>
+
+*Name*: Samsung ESS
+
+*Factory-PID*: `Samsung.ESS`
+
+.Implemented Natures/Interfaces
+* SamsungEss
+* SymmetricEss
+* OpenemsComponent
+* EventHandler
+* TimedataProvider
+* HybridEss
+
+*Description*: Core battery management component for the Samsung ESS. Controls charge/discharge operations, monitors state of charge and battery health. Single-phase operation with configurable capacity and phase selection.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "ess0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `phase` (SingleOrAllPhase): Phase connection - L1, L2, L3, or ALL (default: L1)
+* `capacity` (Integer): Battery capacity in Wh (default: 3600)
+* `ip` (String): IP address of the ESS device (required)
+
+=== <<_samsung_grid_meter,Samsung ESS Grid-Meter>>
+
+*Name*: Samsung ESS Grid-Meter
+
+*Factory-PID*: `Samsung.ESS.Grid-Meter`
+
+.Implemented Natures/Interfaces
+* SamsungEssGridMeter
+* ElectricityMeter
+* OpenemsComponent
+* EventHandler
+* TimedataProvider
+
+*Description*: Grid power monitoring component for Samsung ESS. Reads grid power consumption/production and monitors grid connection status. Provides visibility into net power flow between grid and home.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "gridmeter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the ESS device (required)
+
+[[_samsung_grid_meter]]
+
+=== <<_samsung_charger,Samsung ESS Charger>>
+
+*Name*: Samsung ESS Charger
+
+*Factory-PID*: `Samsung.ESS.Charger`
+
+.Implemented Natures/Interfaces
+* SamsungEssCharger
+* ElectricityMeter
+* OpenemsComponent
+* EventHandler
+* TimedataProvider
+* ManagedSymmetricPvInverter
+
+*Description*: DC PV charger component for Samsung ESS. Manages DC power input from solar panels and controls battery charging. Monitors PV production power and provides PV inverter functionality.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "charger0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the ESS device (required)
+
+[[_samsung_charger]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.samsung[Source Code icon:github[]]

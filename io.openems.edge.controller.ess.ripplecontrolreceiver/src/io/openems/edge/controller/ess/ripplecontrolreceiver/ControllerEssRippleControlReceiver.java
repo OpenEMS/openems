@@ -3,8 +3,6 @@ package io.openems.edge.controller.ess.ripplecontrolreceiver;
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.types.OpenemsType.LONG;
 
-import java.util.OptionalInt;
-
 import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -64,15 +62,6 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 	}
 
 	/**
-	 * Returns the current limitation factor as a decimal value between 0 and 1.
-	 * 
-	 * <p>
-	 * While 1 means no limitation, 0 means a full limitation (no feed-in at all).
-	 * </p>
-	 * 
-	 * @return the limitation factor as a double.
-	 */
-	/**
 	 * Represents the current {@link EssRestrictionLevel}.
 	 * 
 	 * <p>
@@ -82,13 +71,6 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 	 * @return the current restriction level.
 	 */
 	EssRestrictionLevel essRestrictionLevel();
-
-	/**
-	 * Represents the raw grid feed in limitation value of the meta component.
-	 * 
-	 * @return the limitation value.
-	 */
-	OptionalInt maximumGridFeedInLimit();
 
 	/**
 	 * Calculates the currently allowed grid feed-in power. This is determined as
@@ -102,8 +84,6 @@ public interface ControllerEssRippleControlReceiver extends Controller, OpenemsC
 	 * @return the allowed grid feed-in power in VA.
 	 */
 	default int getDynamicGridFeedInLimit(int maxApparentPower) {
-		
-		return (int) Math.min(maxApparentPower * this.essRestrictionLevel().getLimitationFactor(),
-				this.maximumGridFeedInLimit().orElse(maxApparentPower));
+		return (int) (maxApparentPower * this.essRestrictionLevel().getLimitationFactor());
 	}
 }

@@ -15,7 +15,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.JsonUtils;
@@ -27,7 +26,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -38,6 +36,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 
 @Component(name = "App.OpenemsHardware.CM4S")
 public class TechbaseCm4s extends AbstractOpenemsAppWithProps<TechbaseCm4s, Property, Parameter.BundleParameter>
@@ -92,20 +91,15 @@ public class TechbaseCm4s extends AbstractOpenemsAppWithProps<TechbaseCm4s, Prop
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
 									.setAppId("App.Hardware.IoGpio") //
-									.setInitialProperties(JsonUtils.buildJsonObject() //
-											.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
-													GpioHardwareType.MODBERRY_X500_M4S) //
-											.build())
+									.setInitialProperties(DependencyProperties.fromJson(//
+											JsonUtils.buildJsonObject() //
+													.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+															GpioHardwareType.MODBERRY_X500_M4S) //
+													.build(),
+											IoGpio.Property.HARDWARE_TYPE.name()))
 									.build()))
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

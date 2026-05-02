@@ -9,12 +9,14 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import io.openems.common.websocket.CommonHttpHeader;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -72,6 +74,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	protected final ApiWorker apiWorker = new ApiWorker(this);
 
 	private final Logger log = LoggerFactory.getLogger(ControllerApiBackendImpl.class);
+	private final String instanceId = UUID.randomUUID().toString();
 
 	@Reference
 	private OpenemsEdgeOem oem;
@@ -133,7 +136,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		// Get Proxy configuration
 		Proxy proxy;
-		if (config.proxyAddress().trim().equals("") || config.proxyPort() == 0) {
+		if (config.proxyAddress().isBlank() || config.proxyPort() == 0) {
 			proxy = AbstractWebsocketClient.NO_PROXY;
 		} else {
 			proxy = new Proxy(config.proxyType(), new InetSocketAddress(config.proxyAddress(), config.proxyPort()));
@@ -141,7 +144,16 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		// create http headers
 		Map<String, String> httpHeaders = new HashMap<>();
-		httpHeaders.put("apikey", config.apikey());
+		httpHeaders.put(CommonHttpHeader.APIKEY.asString(), config.apikey());
+		httpHeaders.put(CommonHttpHeader.INSTANCE_ID.asString(), this.instanceId);
+
+		final var uriScheme = uri.getScheme();
+		if (!("https".equalsIgnoreCase(uriScheme) || "wss".equalsIgnoreCase(uriScheme))) {
+			this.log.warn("Insecure or missing URI scheme detected: [{}]. " //
+					+ "This may lead to credential exposure. " //
+					+ "Do not use this configuration in production!", //
+					uriScheme == null ? "N/A" : uriScheme);
+		}
 
 		// Create Websocket instance
 		this.websocket = new WebsocketClient(this, name, uri, httpHeaders, proxy);
@@ -265,6 +277,11 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	@Override
 	public CompletableFuture<? extends JsonrpcResponseSuccess> sendRequest(User user, JsonrpcRequest request) {
 		return this.websocket.sendRequest(request);
+	}
+
+	@Override
+	public String debugLog() {
+		return this.websocket.debugLog();
 	}
 
 }

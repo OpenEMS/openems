@@ -83,7 +83,7 @@ export class Controller_Io_ChannelSingleThresholdModalComponent implements OnIni
         this.inputMode = this.formGroup.controls["inputMode"];
         this.invert = this.component.properties["invert"];
 
-        this.dataService.getValues([new ChannelAddress(this.component.id, "_PropertyInvert")], this.edge, "");
+        this.dataService.subscribeChannels([new ChannelAddress(this.component.id, "_PropertyInvert")], this.edge, "");
     }
 
     public updateInputMode(event: CustomEvent) {

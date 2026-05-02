@@ -8,6 +8,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
+import io.openems.common.bridge.http.api.UrlBuilder;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.ComponentTest;
@@ -15,9 +16,6 @@ import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 
 public class TimeOfUseTariffSwisspowerImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
-	private static final double GROUPE_E_EXCHANGE_RATE = 1;
 
 	private static final String PRICE_RESULT_STRING = """
 							{
@@ -206,17 +204,26 @@ public class TimeOfUseTariffSwisspowerImplTest {
 				.addReference("meta", dummyMeta) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setAccessToken("foo-bar") //
-						.setMeteringCode("") //
+						.setMeteringCode("test") //
 						.build()) //
 		;
 	}
 
 	@Test
+	public void testUrlEncode() {
+		final var url = UrlBuilder.parse(
+				"https://portal.dynamische-stromtarife.ch/api/v2/metering_code?start_timestamp=2026-02-19T00:00:00+01:00");
+		assertEquals(
+				"https://portal.dynamische-stromtarife.ch/api/v2/metering_code?start_timestamp=2026-02-19T00%3A00%3A00%2B01%3A00",
+				url.toEncodedString());
+	}
+
+	@Test
 	public void nonEmptyStringTest() throws OpenemsNamedException {
 		// Parsing with custom data
-		var prices = parsePrices(PRICE_RESULT_STRING, GROUPE_E_EXCHANGE_RATE); //
+		var prices = parsePrices(PRICE_RESULT_STRING, 1. /* currency exchange rate */); //
 
 		// To check if the Map is not empty
 		assertFalse(prices.isEmpty());

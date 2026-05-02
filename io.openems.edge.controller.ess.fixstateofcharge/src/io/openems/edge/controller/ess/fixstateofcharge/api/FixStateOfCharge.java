@@ -117,6 +117,14 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 */
 		CAPACTITY_CHANGED(Doc.of(Level.INFO) //
 				.text("The capacity changed.")), //
+
+		/**
+		 * Controller is currently executing the reference cycle (including the hold
+		 * phase at the reference SoC). While this channel is true, the battery
+		 * preparation process is not yet complete.
+		 */
+		CTRL_IS_IN_REFERENCE_CYCLE(Doc.of(Level.INFO) //
+				.translationKey(FixStateOfCharge.class, "ctrlIsInReferenceCycle")), //
 		;
 
 		private final Doc doc;
@@ -363,36 +371,6 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the time when the controller is expected to charge or discharge the ess.
-	 * See {@link ChannelId#EXPECTED_START_EPOCH_SECONDS}.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Long> getExpectedStartEpochSeconds() {
-		return this.getExpectedStartEpochSecondsChannel().getNextValue();
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EXPECTED_START_EPOCH_SECONDS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setExpectedStartEpochSeconds(Long value) {
-		this.getExpectedStartEpochSecondsChannel().setNextValue(value);
-	}
-
-	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#EXPECTED_START_EPOCH_SECONDS} Channel.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setExpectedStartEpochSeconds(long value) {
-		this.getExpectedStartEpochSecondsChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for {@link ChannelId#CTRL_IS_BLOCKING_ESS}.
 	 *
 	 * @return the Channel
@@ -507,4 +485,5 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 	public default void _setCtrlWasSelfTerminated(boolean value) {
 		this.getCtrlWasSelfTerminatedChannel().setNextValue(value);
 	}
+
 }
