@@ -42,10 +42,10 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
-import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -203,6 +203,5 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent implements MeterO
 	public SinglePhase getPhase() {
 		return this.config.phase();
 	}
-
 
 }
