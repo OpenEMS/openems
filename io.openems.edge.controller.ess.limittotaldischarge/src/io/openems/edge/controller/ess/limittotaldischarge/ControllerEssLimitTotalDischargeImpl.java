@@ -208,7 +208,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	 * @param power         the configured target power
 	 * @return the AC power set-point
 	 */
-	protected static Integer getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
+	protected static int getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
 		return switch (hybridEssMode) {
 		case TARGET_AC -> power;
 
