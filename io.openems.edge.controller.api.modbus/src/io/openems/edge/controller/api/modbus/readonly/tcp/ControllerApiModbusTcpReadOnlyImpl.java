@@ -24,6 +24,8 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.meta.Meta;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.api.modbus.AbstractModbusApi;
 import io.openems.edge.controller.api.modbus.CommonConfig;
@@ -98,5 +100,13 @@ public class ControllerApiModbusTcpReadOnlyImpl extends AbstractModbusApi
 				/* poolSize */ this.config.maxConcurrentConnections(), //
 				/* useRtuOverTcp */ false, //
 				/* maxIdleSeconds */ MAX_IDLE_SECONDS);
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(ControllerApiModbusTcpReadOnly.class, accessMode, 100) //
+						.build());
 	}
 }

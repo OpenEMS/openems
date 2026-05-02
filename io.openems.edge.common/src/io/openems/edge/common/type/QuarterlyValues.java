@@ -248,7 +248,7 @@ public abstract class QuarterlyValues<T> {
 		} else {
 			sh.add("start", this.getFirstTime().toString());
 			sh.add("values", this.toMapWithAllQuarters().values().stream() //
-					.map(Object::toString) //
+					.map(String::valueOf) //
 					.collect(Collectors.joining(",")));
 		}
 		return sh.toString();

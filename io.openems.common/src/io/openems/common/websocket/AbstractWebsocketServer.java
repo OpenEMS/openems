@@ -15,7 +15,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Predicate;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.handshake.ServerHandshakeBuilder;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +65,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 
 			@Override
-			public void onOpen(WebSocket ws, ClientHandshake handshake) {
-				T wsData = AbstractWebsocketServer.this.createWsData(ws);
+			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(//
+					WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+				final T wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
 				ws.setAttachment(wsData);
+				return super.onWebsocketHandshakeReceivedAsServer(ws, draft, request);
+			}
+
+			@Override
+			public void onOpen(WebSocket ws, ClientHandshake handshake) {
 				AbstractWebsocketServer.this.execute(new OnOpenHandler(//
 						ws, handshake, //
 						AbstractWebsocketServer.this.getOnOpen(), //
@@ -181,6 +190,24 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 			this.log.error(t.getMessage(), t);
 		};
+	}
+
+	/**
+	 * Handles the WebSocket handshake and creates the connection specific
+	 * {@link WsData} attachment.
+	 *
+	 * <p>
+	 * Override this method to validate the incoming handshake request and reject it
+	 * by throwing an {@link InvalidDataException}.
+	 *
+	 * @param ws      the current {@link WebSocket} connection
+	 * @param draft   the negotiated WebSocket {@link Draft}
+	 * @param request the incoming client handshake
+	 * @return the {@link WsData} object that is attached to the WebSocket
+	 * @throws InvalidDataException if the handshake should be rejected
+	 */
+	protected T onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+		return this.createWsData(ws);
 	}
 
 	public Collection<WebSocket> getConnections() {

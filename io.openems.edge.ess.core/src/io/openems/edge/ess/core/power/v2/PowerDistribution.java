@@ -5,6 +5,8 @@ import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.maxInteger;
 import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.common.utils.IntUtils.minInteger;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.ess.core.power.Utils.fillMetaEssDebugChannels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -542,8 +544,8 @@ public class PowerDistribution {
 				continue;
 			}
 
-			ess._setDebugSetActivePower(ea.activePowerSetPoint);
-			ess._setDebugSetReactivePower(ea.reactivePowerSetPoint);
+			setValue(ess, ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, ea.activePowerSetPoint);
+			setValue(ess, ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, ea.reactivePowerSetPoint);
 
 			try {
 				ess.applyPower(ea.activePowerSetPoint, ea.reactivePowerSetPoint);
@@ -553,6 +555,9 @@ public class PowerDistribution {
 				e.printStackTrace();
 			}
 		}
+
+		// Fill Debug-Channels for MetaEss
+		fillMetaEssDebugChannels(esss);
 	}
 
 	@Override

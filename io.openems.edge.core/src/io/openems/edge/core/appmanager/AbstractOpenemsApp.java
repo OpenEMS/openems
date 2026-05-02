@@ -452,7 +452,7 @@ public abstract class AbstractOpenemsApp<PROPERTY extends Nameable> //
 				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId(), language)) //
 				.build();
 	}
-	
+
 	@Override
 	public ComponentManager getComponentManager() {
 		return this.componentManager;

@@ -159,6 +159,24 @@
             *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
             <ng-container
               *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+
+              <!-- Debug: Reference Cycle status (visible for installer and above) -->
+              <ng-container *ngIf="prepareBatteryExtensionController['isInReferenceCycle']">
+                <table class="full_width" style="margin-top: 2%;">
+                  <tr>
+                    <td style="width: 10%">
+                      <ion-icon name="information-outline" size="large"></ion-icon>
+                    </td>
+                    <td style="width: 90%">
+                      <ion-note class="ion-text-wrap ion-align-items-center">
+                        <ion-text>
+                          <small translate>EDGE.INDEX.RETROFITTING.IN_REFERENCE_CYCLE</small>
+                        </ion-text>
+                      </ion-note>
+                    </td>
+                  </tr>
+                </table>
+              </ng-container>
               <ion-segment [formControlName]="'targetTimeSpecified'">
                 <ion-segment-button value="false">
                   <ion-label>{{"EDGE.INDEX.RETROFITTING.INSTANT_START"| translate}}</ion-label>
@@ -467,14 +485,33 @@
                           *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] !== null">
                           <ng-container
                             *ngIf="this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController'] as prepareBatteryExtensionController">
+
+                            <!-- Debug: Reference Cycle status (visible for installer and above) -->
+                            <ng-container *ngIf="prepareBatteryExtensionController['isInReferenceCycle']">
+                              <table class="full_width" style="margin-top: 2%;">
+                                <tr>
+                                  <td style="width: 10%">
+                                    <ion-icon name="information-outline" size="large"></ion-icon>
+                                  </td>
+                                  <td style="width: 90%">
+                                    <ion-note class="ion-text-wrap ion-align-items-center">
+                                      <ion-text>
+                                        <small translate>EDGE.INDEX.RETROFITTING.IN_REFERENCE_CYCLE</small>
+                                      </ion-text>
+                                    </ion-note>
+                                  </td>
+                                </tr>
+                              </table>
+                            </ng-container>
+
                             <ion-segment [formControlName]="'targetTimeSpecified'">
-                              <ion-segment-button value="false">
-                                <ion-label>{{"EDGE.INDEX.RETROFITTING.INSTANT_START" |translate}}</ion-label>
-                              </ion-segment-button>
-                              <ion-segment-button value="true">
-                                <ion-label>{{"EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION"| translate}}</ion-label>
-                              </ion-segment-button>
-                            </ion-segment>
+                               <ion-segment-button value="false">
+                                 <ion-label>{{"EDGE.INDEX.RETROFITTING.INSTANT_START" |translate}}</ion-label>
+                               </ion-segment-button>
+                               <ion-segment-button value="true">
+                                 <ion-label>{{"EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION"| translate}}</ion-label>
+                               </ion-segment-button>
+                             </ion-segment>
 
                             <table class="full_width" style="margin-top: 2%;"
                               *ngIf="prepareBatteryExtensionController['targetTimeSpecified'] === 'false'

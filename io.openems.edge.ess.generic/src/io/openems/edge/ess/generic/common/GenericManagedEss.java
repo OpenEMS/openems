@@ -37,13 +37,13 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	public static int TIMEOUT = 300;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
+		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery start attempts failed")), //
-		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
+		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery stop attempts failed")), //
-		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
+		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery-Inverter start attempts failed")), //
-		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING) //
+		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery-Inverter stop attempts failed")); //
 
 		private final Doc doc;

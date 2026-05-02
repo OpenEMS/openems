@@ -40,6 +40,9 @@ public class EvseChargePointMennekesTest {
 						.activateStrictMode()//
 						.output(OpenemsComponent.ChannelId.STATE, Level.WARNING)//
 						.output(Mennekes.ChannelId.SET_CURRENT_LIMIT, null) // WRITE_ONLY Channel
+						.output(Mennekes.ChannelId.SET_POWER_LIMIT, null)
+						.output(Mennekes.ChannelId.HEMS_MIN_POWER, 4140)
+						.output(Mennekes.ChannelId.HEMS_MAX_POWER, 11040)
 						.output(ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED, false)//
 
 						.output(EvseChargePointBender.ChannelId.VEHICLE_STATE, VehicleState.STATE_C) //
@@ -72,7 +75,6 @@ public class EvseChargePointMennekesTest {
 						.output(EvseChargePointBender.ChannelId.ERR_INCORRECT_PHASE_INSTALLATION, false) //
 						.output(EvseChargePointBender.ChannelId.ERR_NO_POWER, false) //
 
-						.output(EvseChargePointBender.ChannelId.SAFE_CURRENT, 6.0f) //
 						.output(EvseChargePointBender.ChannelId.MAX_CURRENT_EV, null) //
 						.output(EvseChargePointBender.ChannelId.MIN_CURRENT_LIMIT, null) //
 						.output(EvseChargePointBender.ChannelId.CHARGE_DURATION, null) //
@@ -108,8 +110,6 @@ public class EvseChargePointMennekesTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, null) //
 
-						.output(EvseChargePointBender.ChannelId.MAX_CURRENT, 16) //
-						.output(EvseChargePointBender.ChannelId.MIN_CURRENT, 6) //
 						.output(EvseChargePointBender.ChannelId.VEHICLE_STATE, VehicleState.STATE_C) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true)//
 

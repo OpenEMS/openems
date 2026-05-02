@@ -204,8 +204,14 @@ public interface OpenemsEdgeOem {
 			String appId, //
 			Language language//
 	) {
-		return appToWebsiteUrl.get(appId).getLinkByLanguage(language).filter(s -> !s.isBlank())
-				.or(() -> appToWebsiteUrl.get(appId).getLinkByLanguage(Language.EN).filter(s -> !s.isBlank()))
+		var appLink = appToWebsiteUrl.get(appId);
+		if (appLink == null) {
+			return null;
+		}
+		return appLink.getLinkByLanguage(language) //
+				.filter(s -> !s.isBlank()) //
+				.or(() -> appLink.getLinkByLanguage(Language.EN) //
+						.filter(s -> !s.isBlank()))
 				.orElse("");
 	}
 }

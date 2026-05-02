@@ -1,0 +1,5 @@
+= OpenDTU Meter
+
+This bundle implements requesting power, voltage and current from an OpenDTU.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.opendtu[Source Code icon:github[]]

@@ -1,14 +1,21 @@
 <ion-grid>
   <ion-row class="ion-justify-content-center">
     <ion-col size="12" size-md="8">
-
       <ion-card>
         <ion-item lines="full" color="light">
           <ion-icon slot="start" color="primary" name="today-outline"></ion-icon>
-          <ion-label>{{"MENU.CHANGELOG" | translate}}</ion-label>
+          <ion-label>
+            {{"MENU.CHANGELOG" | translate}}
+          </ion-label>
         </ion-item>
         <ion-card-content>
-          @for (changelog of changelogs | slice:0:(showAll ? changelogs.length : slice); track changelog; let last = $last) {
+          @if(!environment.production){
+            <ion-row class="ion-padding-bottom">
+              <span style="color: var(--ion-color-dark-tint);">language abbreviations are only shown in
+                development</span>
+            </ion-row>
+          }
+          @for (changelog of changelogs | slice:0:(showAll ? changelogs.length : slice); track index; let last = $last; let index = $index) {
             <ion-row>
               @if (changelog.title) {
                 <ion-label style="font-size:large">{{ changelog.title }}</ion-label>
@@ -20,46 +27,68 @@
               }
             </ion-row>
             <ion-row>
-              <ul>
-                @for (change of changelog.changes; track change) {
-                  @if (change.hasOwnProperty('roleIsAtLeast')) {
-                    <!-- Limited to 'roleIsAtLeast' -->
-                    @if ((service.metadata | async)?.user; as user) {
-                      @if (roleIsAtLeast(user.globalRole, change.roleIsAtLeast)) {
-                        <li>
-                          <span [innerHtml]="change.change"></span>
-                          <span style="color: darkgray"><i> (Dieser Eintrag ist nur sichtbar für '{{
-                            numberToRole(change['roleIsAtLeast'])
-                          }}')</i></span>
-                        </li>
-                      }
-                    }
-                  } @else {
-                    <!-- Default changelog entry -->
-                    <li [innerHtml]="change"></li>
+              @for(changeByLang of (changelog.changes | keyvalue); track i; let i = $index;){
+                @if(!environment.production){
+                  <ion-row class="ion-full-width">
+                    {{changeByLang.key | json}}
+                  </ion-row>
+                  <ng-template *ngTemplateOutlet="changes, context: {changeByLang: changeByLang}"></ng-template>
+                }@else{
+                  @if(userLanguage === changeByLang.key){
+                    <ng-template *ngTemplateOutlet="changes, context: {changeByLang: changeByLang}"></ng-template>
+                  }
+                  @else if(!(userLanguage in changelog.changes)){
+                    <ng-template *ngTemplateOutlet="changes, context: {changeByLang: changeByLang}"></ng-template>
                   }
                 }
-              </ul>
+              }
             </ion-row>
             @if (!last) {
-<div style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left:
+              <div style="border-bottom: 1px solid lightgray; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left:
                 -5%;">
               </div>
             }
-          }
-          @if (changelogs.length > slice && !showAll) {
-            <ion-row>
-              <ion-col>
-                <ion-item lines="none" class="ion-float-right">
-                  <ion-button (click)="showAll = true">
-                    Alle anzeigen
-                  </ion-button>
-                </ion-item>
-              </ion-col>
-            </ion-row>
+            @if ((index + 1) >= slice && !showAll) {
+              <ion-row>
+                <ion-col>
+                  <ion-item lines="none" class="ion-float-right">
+                    <ion-button (click)="showAll = true">
+                      {{"CHANGELOG.VIEW_ALL" | translate}}
+                    </ion-button>
+                  </ion-item>
+                </ion-col>
+              </ion-row>
+            }
           }
         </ion-card-content>
       </ion-card>
     </ion-col>
   </ion-row>
 </ion-grid>
+
+
+<ng-template #changes let-changeByLang="changeByLang">
+  <ul>
+    @for (entry of changeByLang.value; track i; let i = $index; let first = $first) {
+      @if (entry.change.hasOwnProperty('roleIsAtLeast')) {
+        <!-- Limited to 'roleIsAtLeast' -->
+        @if ((service.metadata | async)?.user; as user) {
+          @if (roleIsAtLeast(user.globalRole, entry.change.roleIsAtLeast)) {
+            <li>
+              <span [innerHtml]="entry.change.change"></span>
+              <span style="color: darkgray"><i> (Dieser Eintrag ist nur sichtbar für '{{
+                                numberToRole(entry.change['roleIsAtLeast'])
+                            }}')</i></span>
+            </li>
+          }
+        }
+      } @else {
+        <!-- Default changelog entry -->
+        <li>
+          <span [innerHtml]="entry.change"></span>
+        </li>
+      }
+      <span></span>
+    }
+  </ul>
+</ng-template>

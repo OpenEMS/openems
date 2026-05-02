@@ -1,4 +1,4 @@
-<ion-accordion>
+<ion-accordion [value]="to['accordionId'] || field.key || field.id">
   <ion-item slot="header">
     <ion-label>
       {{ to.label || field.key }}

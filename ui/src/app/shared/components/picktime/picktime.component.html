@@ -1,0 +1,19 @@
+<form [formGroup]="formGroup">
+  <ion-datetime-button slot="end" [datetime]="spinnerId" color="primary" class="datetime-button">
+    </ion-datetime-button>
+
+    <ion-modal [keepContentsMounted]="true">
+        <ng-template>
+            <ion-datetime #timePicker [showDefaultButtons]="true" class="picker-opts"
+                [id]="spinnerId" presentation="time" [value]="formGroup.get(controlName)?.value"
+                 (ionChange)="onTimeChange($event.detail.value)">
+                <ion-buttons slot="buttons">
+                    <ion-button color="danger" (click)="timePicker.cancel(true)"
+                        translate>GENERAL.CANCEL</ion-button>
+                    <ion-button fill="solid" color="primary"
+                        (click)="timePicker.confirm(); timePicker.cancel(true);" translate>GENERAL.OK</ion-button>
+                </ion-buttons>
+            </ion-datetime>
+        </ng-template>
+    </ion-modal>
+</form>

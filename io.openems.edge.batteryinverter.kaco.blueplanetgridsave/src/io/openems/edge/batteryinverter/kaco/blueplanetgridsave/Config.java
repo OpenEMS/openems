@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.errorrestart.ErrorRestartBehaviourConfig;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @ObjectClassDefinition(//
@@ -27,7 +28,10 @@ public @interface Config {
 
 	@AttributeDefinition(name = "GridCode Setting", description = "GridCode Setting e.g. VDE-AR-N 4105 for germany.")
 	GridCode gridCode() default GridCode.VDE_4105;
-	
+
+	@AttributeDefinition(name = "Error handler behaviour")
+	ErrorRestartBehaviourConfig errorBehaviour() default ErrorRestartBehaviourConfig.NO_RESTART;
+
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 

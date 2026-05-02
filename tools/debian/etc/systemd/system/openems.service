@@ -14,6 +14,8 @@ ExecStart=/usr/lib/jvm/temurin-21-jre-armhf/bin/java \
     -Dorg.apache.felix.eventadmin.Timeout=0 \
     -Dorg.apache.felix.http.host=localhost \
     -Dopenems.data.dir=/var/lib/openems/ \
+    -Dopenems.log.config.path=/usr/share/openems-fems/log4j2.xml \
+    -Dopenems.log.dir=/var/log/openems \
     -XX:+HeapDumpOnOutOfMemoryError \
     -XX:+ExitOnOutOfMemoryError \
     -jar /usr/lib/openems/openems.jar

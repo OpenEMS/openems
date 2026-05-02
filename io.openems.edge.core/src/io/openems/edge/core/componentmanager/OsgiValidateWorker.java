@@ -16,7 +16,6 @@ import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.component.runtime.dto.ComponentConfigurationDTO;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.component.ComponentManager;
@@ -52,17 +51,12 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	private static final int REGULAR_CYCLE_TIME = 60_000; // in ms
 	private static final int RESTART_COMPONENTS_AFTER = 3;
 
-	private final Logger log = LoggerFactory.getLogger(OsgiValidateWorker.class);
+	private final Logger log;
 
 	/**
 	 * Map from Component-ID to defect details.
 	 */
 	private final Map<String, String> defectiveComponents = new HashMap<>();
-
-	/**
-	 * Components with duplicated Component-IDs.
-	 */
-	private final Set<String> duplicatedComponentIds = new HashSet<>();
 
 	/**
 	 * Components waiting for restart.
@@ -71,24 +65,18 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	public OsgiValidateWorker(ComponentManagerImpl parent) {
 		super(parent);
+		this.log = OpenemsComponent.getComponentLogger(OsgiValidateWorker.class, parent);
 	}
 
 	@Override
 	protected void forever() {
-		this.findDuplicatedComponentIds();
+		this.updateDuplicatedComponentIds();
 		this.findDefectiveComponents();
 		this.restartDefectiveComponents();
 	}
 
-	private void findDuplicatedComponentIds() {
-		final var configs = this.readAllConfigurations();
-		final Set<String> duplicatedComponentIds = new HashSet<>();
-		updateDuplicatedComponentIds(duplicatedComponentIds, configs);
-		this.parent._setDuplicatedComponentId(!this.duplicatedComponentIds.isEmpty());
-		synchronized (this.duplicatedComponentIds) {
-			this.duplicatedComponentIds.clear();
-			this.duplicatedComponentIds.addAll(duplicatedComponentIds);
-		}
+	private void updateDuplicatedComponentIds() {
+		this.parent._setDuplicatedComponentId(this.parent.hasDuplicates());
 	}
 
 	private void findDefectiveComponents() {
@@ -112,14 +100,13 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 				var componentId = entry.getKey();
 				// Update Configuration to try to restart Component
 				try {
-					this.parent.logInfo(this.log, "Trying to restart Component [" + componentId + "]");
+					this.log.info("Trying to restart Component [{}]", componentId);
 					var config = this.parent.getExistingConfigForId(componentId);
 					var properties = config.getProperties();
 					config.update(properties);
 
 				} catch (IOException | OpenemsNamedException e) {
-					this.parent.logError(this.log, "Unable to restart Component [" + componentId + "]");
-					e.printStackTrace();
+					this.log.error("Unable to restart Component [{}]", componentId, e);
 				}
 				// Remove from list
 				it.remove();
@@ -189,7 +176,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 					defectDetails = "Undefined failure [" + configuration.state + "];";
 				}
 
-				var componentId = MapUtils.getAsString(configuration.properties, "id");
+				var componentId = MapUtils.getAsOptionalString(configuration.properties, "id").orElseThrow();
 				defectiveComponents.put(componentId, defectDetails);
 			}
 		}
@@ -258,28 +245,6 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 	}
 
 	/**
-	 * Read all configurations from ConfigurationAdmin - no matter if enabled or
-	 * not.
-	 *
-	 * @return {@link Configuration}s from {@link ConfigurationAdmin}; empty array
-	 *         on error
-	 */
-	private Configuration[] readAllConfigurations() {
-		try {
-			var cm = this.parent.cm;
-			var configs = cm.listConfigurations(null);
-			if (configs != null) {
-				return configs;
-			}
-			return new Configuration[0];
-		} catch (Exception e) {
-			this.parent.logError(this.log, e.getMessage());
-			e.printStackTrace();
-			return new Configuration[0];
-		}
-	}
-
-	/**
 	 * Read all enabled configurations from ConfigurationAdmin.
 	 *
 	 * @return enabled {@link Configuration}s from {@link ConfigurationAdmin}; empty
@@ -294,8 +259,7 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			}
 			return new Configuration[0];
 		} catch (Exception e) {
-			this.parent.logError(this.log, e.getMessage());
-			e.printStackTrace();
+			this.log.error(e.getMessage(), e);
 			return new Configuration[0];
 		}
 	}
@@ -308,32 +272,6 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Checks for duplicated Component-IDs.
-	 *
-	 * @param duplicatedComponentIds the Set of Component-IDs to be updated
-	 * @param configs                enabled {@link Configuration}s from
-	 *                               {@link ConfigurationAdmin}
-	 */
-	private static void updateDuplicatedComponentIds(Set<String> duplicatedComponentIds, Configuration[] configs) {
-		Set<String> componentIds = new HashSet<>();
-		for (Configuration config : configs) {
-			var properties = config.getProperties();
-			if (properties == null) {
-				System.err.println(config.getPid() + ": Properties is 'null'");
-				continue;
-			}
-			var componentId = (String) properties.get("id");
-			if (componentId != null) {
-				if (componentIds.contains(componentId)) {
-					duplicatedComponentIds.add(componentId);
-				} else {
-					componentIds.add(componentId);
-				}
-			}
-		}
 	}
 
 	private int cycleCountDown = OsgiValidateWorker.INITIAL_CYCLES;
@@ -362,29 +300,26 @@ public class OsgiValidateWorker extends ComponentManagerWorker {
 
 	@Override
 	public String debugLog() {
-		String defectiveComponents;
+		final String defectiveComponentsLog;
 		synchronized (this.defectiveComponents) {
-			defectiveComponents = this.defectiveComponents.entrySet().stream() //
+			defectiveComponentsLog = this.defectiveComponents.entrySet().stream() //
 					.map(e -> e.getKey() + "[" + e.getValue() + "]") //
 					.collect(Collectors.joining(" "));
 		}
-		String duplicatedComponents;
-		synchronized (this.duplicatedComponentIds) {
-			duplicatedComponents = String.join(",", this.duplicatedComponentIds);
-		}
+		final String duplicatedComponentsLog = String.join(",", this.parent.getDuplicateIds());
 
-		if (defectiveComponents.isEmpty() && duplicatedComponents.isEmpty()) {
+		if (defectiveComponentsLog.isEmpty() && duplicatedComponentsLog.isEmpty()) {
 			return null;
 
 		}
-		if (defectiveComponents.isEmpty()) {
-			return "Duplicated:" + duplicatedComponents;
+		if (defectiveComponentsLog.isEmpty()) {
+			return "Duplicated:" + duplicatedComponentsLog;
 
-		} else if (duplicatedComponents.isEmpty()) {
-			return "Defective:" + defectiveComponents;
+		} else if (duplicatedComponentsLog.isEmpty()) {
+			return "Defective:" + defectiveComponentsLog;
 
 		} else {
-			return "Duplicated:" + duplicatedComponents + "|" + "Defective:" + defectiveComponents;
+			return "Duplicated:" + duplicatedComponentsLog + "|" + "Defective:" + defectiveComponentsLog;
 		}
 	}
 

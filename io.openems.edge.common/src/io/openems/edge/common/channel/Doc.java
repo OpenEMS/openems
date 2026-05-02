@@ -111,7 +111,7 @@ public interface Doc {
 	public Unit getUnit();
 
 	/**
-	 * Gets the Persistence Priority. Defaults to VERY_LOW.
+	 * Gets the Persistence Priority for remote stored/send values. Defaults to LOW.
 	 *
 	 * <p>
 	 * This parameter may be used by persistence services to decide, if the Channel
@@ -119,7 +119,18 @@ public interface Doc {
 	 *
 	 * @return the {@link PersistencePriority}
 	 */
-	public PersistencePriority getPersistencePriority();
+	public PersistencePriority getRemotePersistencePriority();
+
+	/**
+	 * Gets the Persistence Priority for local stored values. Defaults to LOW.
+	 *
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 *
+	 * @return the {@link PersistencePriority}
+	 */
+	public PersistencePriority getLocalPersistencePriority();
 
 	/**
 	 * Sets the descriptive text. Defaults to an empty string.

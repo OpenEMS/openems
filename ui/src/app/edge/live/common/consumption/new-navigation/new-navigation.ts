@@ -66,6 +66,8 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         return {
             title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
+            useDefaultPrefix: false,
+            isCommonWidget: true,
             lines: lines,
             component: new EdgeConfig.Component(),
         };

@@ -29,6 +29,15 @@ public @interface Config {
 	@AttributeDefinition(name = "Read Only", description = "Defines that this Askoma heating Element is read only.")
 	boolean readOnly() default true;
 
+	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
+	Mode mode() default Mode.OFF;
+
+	@AttributeDefinition(name = "JSCalendar Schedule", description = "Takes a JSON-Array in JSCalendar format")
+	String jsCalendar() default "[]";
+
+	@AttributeDefinition(name = "Max Heat Power", description = "Maximum power setpoint [W].", max = "30000")
+	int maxHeatPower() default 30000;
+
 	String webconsole_configurationFactory_nameHint() default "Heat Askoma [{id}]";
 
 }

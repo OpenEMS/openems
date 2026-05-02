@@ -8,7 +8,9 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIP
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
@@ -31,6 +33,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.filter.DisabledFilter;
 import io.openems.edge.common.filter.Filter;
 import io.openems.edge.common.filter.PT1Filter;
 import io.openems.edge.common.filter.PidFilter;
@@ -61,6 +64,7 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 
 	private final Logger log = LoggerFactory.getLogger(EssPowerImpl.class);
 	private final List<ManagedSymmetricEss> esss = new CopyOnWriteArrayList<>();
+	private final Map<String, Filter> filters = new HashMap<>();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -84,7 +88,6 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	private Config config;
-	private Filter filter; // nullable
 	private PowerDistributionHandler powerDistributionHandler;
 
 	public EssPowerImpl() {
@@ -123,6 +126,10 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	private void updateConfig(Config config) {
 		this.config = config;
 
+		synchronized (this.filters) {
+			this.filters.clear();
+		}
+
 		this.powerDistributionHandler = switch (config.strategy()) {
 		case UNDEFINED, NONE, ALL_CONSTRAINTS, //
 				OPTIMIZE_BY_MOVING_TOWARDS_TARGET, //
@@ -138,19 +145,6 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 			-> new PowerDistributionHandlerV2(() -> this.esss, this::_setNotSolved);
 		};
 		this.powerDistributionHandler.onUpdateEsss();
-
-		if (config.enablePid()) {
-			// build a PidFilter instance with the configured P, I and D variables
-			this.filter = new PidFilter(this.config.p(), this.config.i(), this.config.d());
-
-		} else if (config.enablePT1Filter()) {
-			// build a PT1Filter instance with the configured time constant parameter
-			this.filter = new PT1Filter(this.componentManager.getClock(), config.pt1TimeConstant());
-
-		} else {
-			// unset filter if filters are disabled
-			this.filter = null;
-		}
 	}
 
 	@Override
@@ -219,12 +213,27 @@ public class EssPowerImpl extends AbstractOpenemsComponent implements EssPower, 
 	}
 
 	@Override
-	public Filter getFilter() {
-		return this.filter;
+	public Filter getFilter(String essId) {
+		synchronized (this.filters) {
+			return this.filters.computeIfAbsent(essId, e -> {
+				if (this.config.enablePid()) {
+					// build a PidFilter instance with the configured P, I and D variables
+					return new PidFilter(this.config.p(), this.config.i(), this.config.d());
+
+				} else if (this.config.enablePT1Filter()) {
+					// build a PT1Filter instance with the configured time constant parameter
+					return new PT1Filter(this.componentManager.getClock(), this.config.pt1TimeConstant());
+
+				} else {
+					// build a DisabledFilter if filters are disabled
+					return new DisabledFilter();
+				}
+			});
+		}
 	}
 
 	@Override
 	public boolean isFilterEnabled() {
-		return this.filter != null;
+		return this.config.enablePid() || this.config.enablePT1Filter();
 	}
 }

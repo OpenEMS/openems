@@ -46,7 +46,7 @@ import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Ess;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Grid;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 import io.openems.edge.energy.optimizer.SimulationResult;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.app.PlotUtils.PlotSettings;
@@ -54,8 +54,11 @@ import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
+import io.openems.edge.timeofusetariff.api.TariffGridSell;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.test.DummyTariffGridSellProvider;
+import io.openems.edge.timeofusetariff.test.DummyTariffManager;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public final class AppUtils {
@@ -111,19 +114,23 @@ public final class AppUtils {
 			final var timeParser = new TimeParser(json.getZonedDateTime("startTime"),
 					ZoneId.of(json.getString("zone")));
 			final Clock clock;
-			final TimeOfUseTariff timeOfUseTariff;
+			final TimeOfUseTariff tariffGridBuy;
+			final TariffGridSell tariffGridSell;
 			final PredictorManager predictorManager;
 			final ComponentManager componentManager;
 			try {
-				final var prices = ImmutableSortedMap.<Instant, Double>naturalOrder();
+				final var gridBuyPrices = ImmutableSortedMap.<Instant, Double>naturalOrder();
+				final var gridSellPrices = ImmutableSortedMap.<Instant, Double>naturalOrder();
 				final var productions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 				final var consumptions = ImmutableSortedMap.<Instant, Integer>naturalOrder();
 
 				json.getJsonArray("periods").forEach(e -> {
 					var p = new JsonElementPathActualNonNull(e).getAsJsonObjectPath();
 					var time = timeParser.apply(p);
-					p.getNullableNumberPath("price").getAsOptionalDouble() //
-							.ifPresent(price -> prices.put(time, price));
+					p.getNullableNumberPath("gridBuyPrice").getAsOptionalDouble() //
+							.ifPresent(gridBuyPrice -> gridBuyPrices.put(time, gridBuyPrice));
+					p.getNullableNumberPath("gridSellPrice").getAsOptionalDouble() //
+							.ifPresent(gridSellPrice -> gridSellPrices.put(time, gridSellPrice));
 					p.getNullableNumberPath("production").getAsOptionalInt() //
 							.ifPresent(production -> productions.put(time,
 									PeriodDuration.QUARTER.convertEnergyToPower(production)));
@@ -134,7 +141,8 @@ public final class AppUtils {
 
 				clock = new TimeLeapClock(timeParser.getFirst());
 				componentManager = new DummyComponentManager(clock);
-				timeOfUseTariff = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(prices.build()));
+				tariffGridBuy = new DummyTimeOfUseTariffProvider(clock, TimeOfUsePrices.from(gridBuyPrices.build()));
+				tariffGridSell = new DummyTariffGridSellProvider(clock, TimeOfUsePrices.from(gridSellPrices.build()));
 				predictorManager = new DummyPredictorManager(//
 						new DummyPredictor("predictor0", componentManager, //
 								Prediction.from(productions.build()), SUM_PRODUCTION),
@@ -170,24 +178,28 @@ public final class AppUtils {
 					.map(EnergySchedulable::getEnergyScheduleHandler) //
 					.collect(toImmutableList());
 
-			return GlobalOptimizationContext.create(LogVerbosity.TRACE) //
+			final var tariffManager = new DummyTariffManager()//
+					.withTariffGridBuyProvider(tariffGridBuy)//
+					.withTariffGridSellProvider(tariffGridSell);
+
+			return GlobalOptimizationContext.builder(LogVerbosity.TRACE) //
 					.setComponentManager(componentManager) //
 					.setMeta(meta) //
 					.setEnvironment(json.getEnum("environment", Environment.class)) //
 					.setEnergyScheduleHandlers(eshs) //
 					.setSum(sum) //
 					.setPredictorManager(predictorManager) //
-					.setTimeOfUseTariff(timeOfUseTariff) //
+					.setTariffManager(tariffManager) //
 					.build();
 
 		}, GlobalOptimizationContext::toJson);
 	}
 
 	/**
-	 * Parses the log output of {@link SimulationResult#toLogString()} to a
+	 * Parses the log output of {@link SimulationResult#toLogString(String)} to a
 	 * {@link JsonObject}.
 	 * 
-	 * @param log the log output of {@link SimulationResult#toLogString()}
+	 * @param log the log output of {@link SimulationResult#toLogString(String)}
 	 * @return a {@link JsonObject}
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
@@ -208,9 +220,12 @@ public final class AppUtils {
 						.addProperty("gridBuySoftLimit", m.group("gridBuySoftLimit").equals("-") //
 								? null //
 								: Integer.parseInt(m.group("gridBuySoftLimit"))) //
-						.addProperty("price", m.group("price").equals("-") //
+						.addProperty("gridBuyPrice", m.group("gridBuyPrice").equals("-") //
 								? null //
-								: Double.parseDouble(m.group("price"))) //
+								: Double.parseDouble(m.group("gridBuyPrice"))) //
+						.addProperty("gridSellPrice", m.group("gridSellPrice").equals("-") //
+								? null //
+								: Double.parseDouble(m.group("gridSellPrice"))) //
 						.addProperty("production", Integer.parseInt(m.group("production"))) //
 						.addProperty("consumption", Integer.parseInt(m.group("consumption"))) //
 						.build()) //
@@ -224,18 +239,20 @@ public final class AppUtils {
 	private static final Pattern PERIOD_PATTERN = Pattern.compile("" //
 			+ "(?<time>\\d{2}:\\d{2})" //
 			+ "\\s+(?<gridBuySoftLimit>-?\\d*)" //
-			+ "\\s+(?<price>-?\\d*)" //
+			+ "\\s+(?<gridBuyPrice>-?\\d*)" //
+			+ "\\s+(?<gridSellPrice>-?\\d*)" //
 			+ "\\s+(?<production>-?\\d+)" //
 			+ "\\s+(?<consumption>-?\\d+)");
 
 	protected static JsonElement period(String time, Integer gridBuySoftLimit, double production, double consumption,
-			double price) {
+			double gridBuyPrice, double gridSellPrice) {
 		return buildJsonObject() //
 				.addProperty("time", time) //
 				.addProperty("gridBuySoftLimit", gridBuySoftLimit) //
 				.addProperty("production", production) //
 				.addProperty("consumption", consumption) //
-				.addProperty("price", price) //
+				.addProperty("gridBuyPrice", gridBuyPrice) //
+				.addProperty("gridSellPrice", gridSellPrice) //
 				.build();
 	}
 

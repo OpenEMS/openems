@@ -48,6 +48,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 @Component(name = "App.FENECON.Commercial.92")
 public class FeneconCommercial92
@@ -151,15 +152,19 @@ public class FeneconCommercial92
 			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
 
 			final var components = Lists.newArrayList(//
-					FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget), //
-					FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusToBatteryInverterId,
-							gridCode), //
-					FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId), //
-					FeneconHomeComponents.io(bundle, modbusToBatteryId), //
-					FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId), //
-					FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId), //
-					FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId), //
-					FeneconHomeComponents.modbusForExternalMeters(bundle, t, modbusToExternalDevicesId, deviceHardware) //
+					ComponentDef
+							.from(FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget)), //
+					FeneconCommercialComponents.batteryInverterWithForceErrorBehaviour(bundle, batteryInverterId,
+							modbusToBatteryInverterId, gridCode), //
+					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
+							batteryInverterId), //
+					ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)), //
+					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
+					ComponentDef.from(
+							FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId)), //
+					ComponentDef.from(FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId)), //
+					ComponentDef.from(FeneconHomeComponents.modbusForExternalMeters(bundle, t,
+							modbusToExternalDevicesId, deviceHardware)) //
 			);
 
 			final var dependencies = Lists.newArrayList(//
@@ -176,7 +181,7 @@ public class FeneconCommercial92
 			}
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.componentFromComponentConfig(components)) //
 					.addTask(Tasks.staticIp(new InterfaceConfiguration("eth1") //
 							.addIp("BatteryInverter", "172.16.0.99/24")))
 					.addDependencies(dependencies) //

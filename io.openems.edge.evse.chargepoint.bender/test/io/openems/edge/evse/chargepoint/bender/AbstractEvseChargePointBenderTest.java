@@ -8,17 +8,35 @@ import org.junit.Test;
 public class AbstractEvseChargePointBenderTest {
 
 	@Test
-	public void shouldReturnTrueForValidStates() {
-		assertTrue(VehicleState.STATE_C.isReadyForCharging());
-		assertTrue(VehicleState.STATE_D.isReadyForCharging());
+	public void shouldReturnTrueForValidVehicleStates() {
+	    assertTrue(VehicleState.STATE_C.isEvConnected);
+	    assertTrue(VehicleState.STATE_D.isEvConnected);
+	    assertTrue(VehicleState.STATE_B.isEvConnected);
 	}
 
 	@Test
-	public void shouldReturnFalseForInvalidStates() {
-		assertFalse(VehicleState.STATE_B.isReadyForCharging());
-		assertFalse(VehicleState.STATE_A.isReadyForCharging());
-		assertFalse(VehicleState.STATE_E.isReadyForCharging());
-		assertFalse(VehicleState.UNDEFINED.isReadyForCharging());
+	public void shouldReturnFalseForInvalidVehicleStates() {
+	    assertFalse(VehicleState.STATE_A.isEvConnected);
+	    assertFalse(VehicleState.STATE_E.isEvConnected);
+	    assertFalse(VehicleState.UNDEFINED.isEvConnected);
+	}
+
+	@Test
+	public void shouldReturnTrueForReadyOcppStates() {
+	    assertTrue(OcppState.AVAILABLE.isReadyForCharging);
+	    assertTrue(OcppState.PREPARING.isReadyForCharging);
+	    assertTrue(OcppState.CHARGING.isReadyForCharging);
+	    assertTrue(OcppState.SUSPENDED_EVSE.isReadyForCharging);
+	    assertTrue(OcppState.SUSPENDED_EV.isReadyForCharging);
+	}
+
+	@Test
+	public void shouldReturnFalseForNotReadyOcppStates() {
+	    assertFalse(OcppState.UNDEFINED.isReadyForCharging);
+	    assertFalse(OcppState.FINISHING.isReadyForCharging);
+	    assertFalse(OcppState.RESERVED.isReadyForCharging);
+	    assertFalse(OcppState.UNAVAILABLE.isReadyForCharging);
+	    assertFalse(OcppState.FAULTED.isReadyForCharging);
 	}
 
 }

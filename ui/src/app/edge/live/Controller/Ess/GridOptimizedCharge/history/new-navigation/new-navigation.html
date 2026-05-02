@@ -1,0 +1,35 @@
+@if (edge) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+      @if (!ref.children.length) {
+        <pickdate></pickdate>
+      }
+    </ion-buttons>
+
+    <oe-controller-ess-grid-optimized-charge-chart [isOnlyChart]="true" [chartTitle]="'GENERAL.CHARGE'| translate" [component]="component" customChartHeightPercentage="70">
+    </oe-controller-ess-grid-optimized-charge-chart>
+      <ion-row class="ion-justify-content-center">
+        <ion-item class="ion-text-center" style="width: 100%;" lines="none">
+          <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <small translate>
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HISTORY.PRIORITY_DESCRIPTION
+            </small>
+          </ion-label>
+        </ion-item>
+      </ion-row>
+    <sellToGridLimitChart [isOnlyChart]="true" [chartTitle]="'GENERAL.GRID_SELL'| translate" [component]="component" customChartHeightPercentage="70">
+    </sellToGridLimitChart>
+      <ion-row class="ion-justify-content-center">
+        <ion-item class="ion-text-center" style="width: 100%;" lines="none">
+          <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+          <ion-label class="ion-text-wrap">
+            <small translate>
+              EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.HISTORY.BATTERY_CHARGE_GRID_LIMIT_DESCRIPTION
+            </small>
+          </ion-label>
+        </ion-item>
+      </ion-row>
+  </oe-navigation-view>
+}
