@@ -1,21 +1,16 @@
 package io.openems.edge.meter.chint.ddsu666;
 
 import static io.openems.common.types.MeterType.GRID;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.CURRENT_L1;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.FREQUENCY;
-import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.VOLTAGE_L1;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.meter.api.ElectricityMeter;
 
 public class MeterChintDdsu666ImplTest {
 
@@ -53,12 +48,13 @@ public class MeterChintDdsu666ImplTest {
 						.setType(GRID) //
 						.build()) //
 				.next(new TestCase() //
+						.activateStrictMode() //
 						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
-						.output(ACTIVE_POWER, 1250) //
-						.output(FREQUENCY, 50000) //
-						.output(VOLTAGE_L1, 122000) //
-						.output(CURRENT_L1, 5000) //
-						.output(ACTIVE_PRODUCTION_ENERGY, 1000000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 1250) //
+						.output(ElectricityMeter.ChannelId.FREQUENCY, 50000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 122000) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L1, 5000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1000000L) //
 						.output(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, 1000000)) //
 				.deactivate();
 	}
@@ -75,8 +71,8 @@ public class MeterChintDdsu666ImplTest {
 						.build()) //
 				.next(new TestCase() //
 						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
-						.output(ACTIVE_POWER, -1250) //
-						.output(ACTIVE_CONSUMPTION_ENERGY, 1000000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, -1250) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 1000000L) //
 						.output(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, 1000000)) //
 				.deactivate();
 	}

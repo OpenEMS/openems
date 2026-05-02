@@ -2,7 +2,6 @@ package io.openems.edge.meter.chint.ddsu666;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
-import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -31,8 +30,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.Channel;
-import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -44,8 +43,8 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implements MeterChintDdsu666,
-		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
+public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent
+		implements MeterChintDdsu666, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private MeterType meterType = MeterType.GRID;
 	private boolean invert;
@@ -126,7 +125,7 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 										.SCALE_FACTOR_3_AND_INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(0x2006, 0x2009)),
 
-				new FC3ReadRegistersTask(0x200A, Priority.HIGH,
+				new FC3ReadRegistersTask(0x200A, Priority.HIGH, //
 						new DummyRegisterElement(0x200A, 0x200D),
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(0x200E).wordOrder(WordOrder.MSWLSW)
@@ -134,11 +133,9 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implem
 								SCALE_FACTOR_3),
 						new DummyRegisterElement(0x2010, 0x2011)),
 
-				new FC3ReadRegistersTask(0x4000, Priority.LOW,
-						m(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY,
-								new FloatDoublewordElement(0x4000).wordOrder(WordOrder.MSWLSW)
-										.byteOrder(ByteOrder.BIG_ENDIAN),
-								SCALE_FACTOR_3)));
+				new FC3ReadRegistersTask(0x4000, Priority.LOW, //
+						m(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, new FloatDoublewordElement(0x4000)
+								.wordOrder(WordOrder.MSWLSW).byteOrder(ByteOrder.BIG_ENDIAN), SCALE_FACTOR_3)));
 	}
 
 	@Override

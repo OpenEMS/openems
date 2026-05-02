@@ -171,7 +171,7 @@
 	bnd.identity;id='io.openems.edge.meter.bgetech',\
 	bnd.identity;id='io.openems.edge.meter.camillebauer.aplus',\
 	bnd.identity;id='io.openems.edge.meter.carlo.gavazzi',\
-	bnd.identity;id='io.openems.edge.meter.chint.ddsu666',\
+	bnd.identity;id='io.openems.edge.meter.chint',\
 	bnd.identity;id='io.openems.edge.meter.discovergy',\
 	bnd.identity;id='io.openems.edge.meter.eastron',\
 	bnd.identity;id='io.openems.edge.meter.hager',\
@@ -380,7 +380,7 @@
 	io.openems.edge.meter.bgetech;version=snapshot,\
 	io.openems.edge.meter.camillebauer.aplus;version=snapshot,\
 	io.openems.edge.meter.carlo.gavazzi;version=snapshot,\
-	io.openems.edge.meter.chint.ddsu666;version=snapshot,\
+	io.openems.edge.meter.chint;version=snapshot,\
 	io.openems.edge.meter.discovergy;version=snapshot,\
 	io.openems.edge.meter.eastron;version=snapshot,\
 	io.openems.edge.meter.hager;version=snapshot,\
