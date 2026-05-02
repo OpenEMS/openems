@@ -15,6 +15,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.test.DummyTimedata;
 
 public class MeterOpenDtuImplTest {
@@ -112,6 +113,11 @@ public class MeterOpenDtuImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, null) //
+
+						.output(ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT, null) //
+						.output(ManagedSymmetricPvInverter.ChannelId.MAX_ACTIVE_POWER, null) //
+						.output(ManagedSymmetricPvInverter.ChannelId.MAX_APPARENT_POWER, null) //
+						.output(ManagedSymmetricPvInverter.ChannelId.MAX_REACTIVE_POWER, null) //
 
 						.output(MeterOpenDtu.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
 				.deactivate();

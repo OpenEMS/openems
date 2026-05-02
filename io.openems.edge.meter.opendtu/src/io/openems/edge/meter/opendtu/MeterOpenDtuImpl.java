@@ -83,6 +83,7 @@ public class MeterOpenDtuImpl extends AbstractOpenemsComponent implements MeterO
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
+				ManagedSymmetricPvInverter.ChannelId.values(), //
 				MeterOpenDtu.ChannelId.values() //
 		);
 
