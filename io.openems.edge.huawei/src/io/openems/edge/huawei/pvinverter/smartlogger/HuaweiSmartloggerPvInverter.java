@@ -1,54 +1,46 @@
 package io.openems.edge.huawei.pvinverter.smartlogger;
 
-import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
-import io.openems.edge.common.channel.BooleanDoc;
+import static io.openems.common.channel.AccessMode.READ_WRITE;
+import static io.openems.common.channel.PersistencePriority.MEDIUM;
+import static io.openems.common.channel.Unit.HOUR;
+import static io.openems.common.channel.Unit.MILLIVOLT;
+import static io.openems.common.channel.Unit.PERCENT;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.STRING;
+
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.LongDoc;
 import io.openems.edge.common.channel.LongWriteChannel;
-import io.openems.edge.common.channel.StringDoc;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
 public interface HuaweiSmartloggerPvInverter extends ElectricityMeter, ManagedSymmetricPvInverter {
 
 	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MODEL(new StringDoc().accessMode(AccessMode.READ_ONLY)),
-		SERIAL_NUMBER(new StringDoc().accessMode(AccessMode.READ_ONLY)),
+		MODEL(Doc.of(STRING)), //
+		SERIAL_NUMBER(Doc.of(STRING)),
 
-		TOTAL_ENERGY(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		DAILY_ENERGY(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		POWER_GENERATION_TIME(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.HOUR)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		VOLTAGE_L1_L2(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.MILLIVOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		VOLTAGE_L2_L3(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.MILLIVOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		VOLTAGE_L1_L3(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.MILLIVOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-		), //
-		LOCKED(new BooleanDoc().accessMode(AccessMode.READ_ONLY)//
-				.persistencePriority(PersistencePriority.MEDIUM)),
-		CAPACITY(new LongDoc().accessMode(AccessMode.READ_ONLY)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.LOW)), //
-		ACTIVE_POWER_LIMIT_PERCENT(new LongDoc().accessMode(AccessMode.READ_WRITE)//
-				.unit(Unit.PERCENT)//
-				.persistencePriority(PersistencePriority.MEDIUM)//
+		TOTAL_ENERGY(Doc.of(LONG)//
+				.unit(WATT)), //
+		DAILY_ENERGY(Doc.of(LONG)//
+				.unit(WATT)), //
+		POWER_GENERATION_TIME(Doc.of(LONG)//
+				.unit(HOUR)), //
+		VOLTAGE_L1_L2(Doc.of(LONG)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_L2_L3(Doc.of(LONG)//
+				.unit(MILLIVOLT)), //
+		VOLTAGE_L1_L3(Doc.of(LONG)//
+				.unit(MILLIVOLT)), //
+		LOCKED(Doc.of(BOOLEAN)//
+				.persistencePriority(MEDIUM)),
+		CAPACITY(Doc.of(LONG)//
+				.unit(WATT)), //
+		ACTIVE_POWER_LIMIT_PERCENT(Doc.of(LONG)//
+				.accessMode(READ_WRITE)//
+				.unit(PERCENT)//
+				.persistencePriority(MEDIUM)//
 				.onInit(channel -> {
 					// on each Write to the channel -> set the value
 					((LongWriteChannel) channel).onSetNextWrite(channel::setNextValue);

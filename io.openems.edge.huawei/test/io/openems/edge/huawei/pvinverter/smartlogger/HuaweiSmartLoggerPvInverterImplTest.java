@@ -1,10 +1,10 @@
 package io.openems.edge.huawei.pvinverter.smartlogger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
 public class HuaweiSmartLoggerPvInverterImplTest {
@@ -12,7 +12,6 @@ public class HuaweiSmartLoggerPvInverterImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new HuaweiSmartLoggerPvInverterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
 						.setId("pvInverter0") //
@@ -21,8 +20,7 @@ public class HuaweiSmartLoggerPvInverterImplTest {
 						.setModbusUnitId(1) //
 						.setType(MeterType.PRODUCTION) //
 						.build()) //
-				.deactivate() //
-		;
-
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }
