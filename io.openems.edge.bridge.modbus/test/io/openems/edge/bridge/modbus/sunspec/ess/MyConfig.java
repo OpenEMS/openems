@@ -2,7 +2,6 @@ package io.openems.edge.bridge.modbus.sunspec.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig.Builder;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

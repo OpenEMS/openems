@@ -1,15 +1,14 @@
 package io.openems.edge.solaredge.charger;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
-import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.solaredge.enums.ControlMode;
 import io.openems.edge.solaredge.ess.SolarEdgeEssImpl;
@@ -24,7 +23,6 @@ public class SolarEdgeChargerImplTest {
 		var ess = new SolarEdgeEssImpl();
 		new ComponentTest(ess) //
 				.addReference("cycle", new DummyCycle(CYCLE_TIME)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(io.openems.edge.solaredge.ess.MyConfig.create() //
@@ -37,14 +35,13 @@ public class SolarEdgeChargerImplTest {
 
 		var charger = new SolarEdgeChargerImpl();
 		new ComponentTest(charger) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("essInverter", ess) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.activate(MyConfig.create() //
 						.setId("charger0") //
 						.setEssInverterId("ess0") //
 						.build())
-				.next(new TestCase())
+				.next(new TestCase()) //
 				.deactivate();
 	}
 
@@ -58,7 +55,7 @@ public class SolarEdgeChargerImplTest {
 	public void testChannelIds() {
 		var channelIds = SolarEdgeCharger.ChannelId.values();
 		for (var channelId : channelIds) {
-			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull(channelId.doc());
 		}
 	}
 }

@@ -17,7 +17,7 @@ import io.openems.edge.solaredge.enums.SeControlMode;
 public class ApplyPowerHandler {
 
 	static final float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
-	
+
 	/**
 	 * Apply the desired Active-Power Set-Point by setting the appropriate
 	 * REMOTE_CONTROL_COMMAND_MODE and CHARGE/DISCHARGE_LIMIT settings.
@@ -32,7 +32,8 @@ public class ApplyPowerHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	public synchronized void apply(SolarEdgeEss solarEdge, int setActivePower, ControlMode controlMode,
-			Value<Integer> gridActivePower, Value<Integer> essActivePower, boolean isPidEnabled) throws OpenemsNamedException {
+			Value<Integer> gridActivePower, Value<Integer> essActivePower, boolean isPidEnabled)
+			throws OpenemsNamedException {
 
 		// Update Warn Channels
 		this.checkControlModeRequiresRemoteControl(solarEdge, controlMode);
@@ -45,20 +46,25 @@ public class ApplyPowerHandler {
 
 		final ApplyPowerHandler.Result apply;
 		if (gridActivePower.isDefined() && essActivePower.isDefined()) {
-			apply = calculate(solarEdge, setActivePower, pvProduction, controlMode, gridActivePower.get(), essActivePower.get());
+			apply = calculate(solarEdge, setActivePower, pvProduction, controlMode, gridActivePower.get(),
+					essActivePower.get());
 		} else {
 			// If any Channel Value is not available: fall back to AUTO mode
 			apply = handleInternalMode(solarEdge);
 		}
-				
+
 		// Set Channels
-		IntegerWriteChannel remoteControlCommandTimeoutChannel = solarEdge.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_TIMEOUT);
+		IntegerWriteChannel remoteControlCommandTimeoutChannel = solarEdge
+				.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_TIMEOUT);
 		remoteControlCommandTimeoutChannel.setNextWriteValue(60);
-		IntegerWriteChannel remoteControlCommandChargeLimitChannel = solarEdge.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_CHARGE_LIMIT);
+		IntegerWriteChannel remoteControlCommandChargeLimitChannel = solarEdge
+				.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_CHARGE_LIMIT);
 		remoteControlCommandChargeLimitChannel.setNextWriteValue(apply.chargeLimit);
-		IntegerWriteChannel remoteControlCommandDischargeLimitChannel = solarEdge.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT);
-		remoteControlCommandDischargeLimitChannel.setNextWriteValue(apply.dischargeLimit);		
-		EnumWriteChannel remoteControlCommandModeChannel = solarEdge.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE);
+		IntegerWriteChannel remoteControlCommandDischargeLimitChannel = solarEdge
+				.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT);
+		remoteControlCommandDischargeLimitChannel.setNextWriteValue(apply.dischargeLimit);
+		EnumWriteChannel remoteControlCommandModeChannel = solarEdge
+				.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_COMMAND_MODE);
 		remoteControlCommandModeChannel.setNextWriteValue(apply.commandMode);
 	}
 
@@ -66,8 +72,7 @@ public class ApplyPowerHandler {
 	}
 
 	private static ApplyPowerHandler.Result calculate(SolarEdgeEss solarEdge, int activePowerSetPoint, int pvProduction,
-			ControlMode controlMode, int gridActivePower, int essActivePower)
-			throws OpenemsNamedException {
+			ControlMode controlMode, int gridActivePower, int essActivePower) throws OpenemsNamedException {
 		return switch (controlMode) {
 		case INTERNAL //
 			-> handleInternalMode(solarEdge);
@@ -79,7 +84,8 @@ public class ApplyPowerHandler {
 	}
 
 	private static Result handleInternalMode(SolarEdgeEss solarEdge) {
-		return new Result(CommandMode.AUTO, solarEdge.getBattery1MaxChargeContinuesPower().orElse(0), solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0));
+		return new Result(CommandMode.AUTO, solarEdge.getBattery1MaxChargeContinuesPower().orElse(0),
+				solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0));
 	}
 
 	private static Result handleSmartMode(SolarEdgeEss solarEdge, int activePowerSetPoint, int pvProduction,
@@ -95,16 +101,17 @@ public class ApplyPowerHandler {
 		// Is Balancing to zero active?
 		var diffBalancing = activePowerSetPoint - (gridActivePower + essActivePower);
 
-		if ((diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1) && activePowerSetPoint != 0) {
+		if ((diffBalancing > -1 && diffBalancing < 1 || diffSurplus > -1 && diffSurplus < 1)
+				&& activePowerSetPoint != 0) {
 			// avoid rounding errors
 			return handleInternalMode(solarEdge);
-		}	
+		}
 
 		return handleRemoteMode(solarEdge, activePowerSetPoint, pvProduction);
 	}
 
 	private static Result handleRemoteMode(SolarEdgeEss solarEdge, int activePowerSetPoint, int pvProduction) {
-		
+
 		// TODO PV curtail: (surplus power == setpoint && battery soc == 100% => PV
 		// curtail)
 		if (activePowerSetPoint < 0) {
@@ -124,7 +131,18 @@ public class ApplyPowerHandler {
 			// On Surplus Feed-In PV == Set-Point => CHARGE_BAT 0
 			var result = pvProduction - activePowerSetPoint;
 			if (result > 0) {
-				var dischargeEfficencyAbsolute = round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Decrease battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
+				var dischargeEfficencyAbsolute = round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Decrease
+																													// battery
+																													// charge
+																													// by
+																													// DISCHARGE_EFFICIENCY_FACTOR
+																													// to
+																													// Power
+																													// which
+																													// has
+																													// to
+																													// be
+																													// DC-AC-Converted
 				if (result - dischargeEfficencyAbsolute > 0) {
 					result = result - dischargeEfficencyAbsolute;
 				}
@@ -140,9 +158,14 @@ public class ApplyPowerHandler {
 		} else {
 			// Set-Point is positive && bigger than PV-Production -> feed all PV to grid +
 			// discharge battery
-			var result = (activePowerSetPoint - pvProduction) + round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Increase battery charge by DISCHARGE_EFFICIENCY_FACTOR to Power which has to be DC-AC-Converted
+			var result = (activePowerSetPoint - pvProduction)
+					+ round(activePowerSetPoint * (1 - DISCHARGE_EFFICIENCY_FACTOR)); // Increase battery charge by
+																						// DISCHARGE_EFFICIENCY_FACTOR
+																						// to Power which has to be
+																						// DC-AC-Converted
 			if (solarEdge.getSoc().orElse(0) <= 10) {
-				// battery empty (=SOC equals or less than soc_min of 10), limit charge power to zero -> required for Set-Point 0
+				// battery empty (=SOC equals or less than soc_min of 10), limit charge power to
+				// zero -> required for Set-Point 0
 				result = 0;
 			} else if (result > solarEdge.getBattery1MaxDischargeContinuesPower().orElse(0)) {
 				// limit to max discharge power
@@ -151,19 +174,18 @@ public class ApplyPowerHandler {
 			return new Result(CommandMode.DISCHARGE_BAT, 0, result);
 		}
 	}
-	
+
 	/**
-	 * Check if {@link SeControlMode} is set to Remote Control.
-	 * If false warning channel REMOTE_CONTROL_NOT_ENABLED is set to true,
-	 * otherwise to false.
+	 * Check if {@link SeControlMode} is set to Remote Control. If false warning
+	 * channel REMOTE_CONTROL_NOT_ENABLED is set to true, otherwise to false.
 	 *
 	 * @param solarEdge   the SolarEdge ESS
-	 * @param controlMode  the {@link ControlMode} to check control mode
+	 * @param controlMode the {@link ControlMode} to check control mode
 	 */
 	private void checkControlModeRequiresRemoteControl(SolarEdgeEss solarEdge, ControlMode controlMode) {
 		EnumReadChannel seControlModeChannel = solarEdge.channel(SolarEdgeEss.ChannelId.STORAGE_CONTROL_MODE);
 		SeControlMode seControlMode = seControlModeChannel.value().asEnum();
-		
+
 		var enableWarning = switch (seControlMode) {
 		case UNDEFINED -> //
 			// We don't know the Storage Control Mode. Not ready yet (on startup)
@@ -185,20 +207,19 @@ public class ApplyPowerHandler {
 		};
 
 		solarEdge.channel(SolarEdgeEss.ChannelId.REMOTE_CONTROL_NOT_ENABLED).setNextValue(enableWarning);
-	}	
+	}
 
 	/**
-	 * Check if {@link AcChargePolicy} is set to Always allowed.
-	 * If false warning channel AC_CHARGE_NOT_ENABLED is set to true,
-	 * otherwise to false.
+	 * Check if {@link AcChargePolicy} is set to Always allowed. If false warning
+	 * channel AC_CHARGE_NOT_ENABLED is set to true, otherwise to false.
 	 *
 	 * @param solarEdge   the SolarEdge ESS
-	 * @param controlMode  the {@link ControlMode} to check control mode
+	 * @param controlMode the {@link ControlMode} to check control mode
 	 */
 	private void checkControlModeRequiresAcCharge(SolarEdgeEss solarEdge, ControlMode controlMode) {
 		EnumReadChannel acChargePolicyChannel = solarEdge.channel(SolarEdgeEss.ChannelId.STORAGE_AC_CHARGE_POLICY);
 		AcChargePolicy acChargePolicy = acChargePolicyChannel.value().asEnum();
-		
+
 		var enableWarning = switch (acChargePolicy) {
 		case UNDEFINED -> //
 			// We don't know the AC Charge Policy. Not ready yet (on startup)
@@ -217,10 +238,10 @@ public class ApplyPowerHandler {
 				// REMOTE and SMART mode requires AC Charge Policy set to Always allowed
 				true;
 			};
-		};		
-		
+		};
+
 		solarEdge.channel(SolarEdgeEss.ChannelId.AC_CHARGE_NOT_ENABLED).setNextValue(enableWarning);
-	}	
+	}
 
 	/**
 	 * Check current {@link ControlMode} is set to SMART and PID filter is enabled.
@@ -248,12 +269,14 @@ public class ApplyPowerHandler {
 	 * @param controlMode the {@link ControlMode} to check control mode
 	 */
 	private void checkControlModeRequiresSmartMeter(SolarEdgeEss solarEdge, ControlMode controlMode) {
-		EnumReadChannel meterCommunicateStatusChannel = solarEdge.channel(SolarEdgeEss.ChannelId.METER_COMMUNICATE_STATUS);
+		EnumReadChannel meterCommunicateStatusChannel = solarEdge
+				.channel(SolarEdgeEss.ChannelId.METER_COMMUNICATE_STATUS);
 		MeterCommunicateStatus meterCommunicateStatus = meterCommunicateStatusChannel.value().asEnum();
 
 		var enableWarning = switch (meterCommunicateStatus) {
 		case UNDEFINED -> //
-			// We don't know if SolarEdge Smart Meter is connected. Not ready yet (on startup)
+			// We don't know if SolarEdge Smart Meter is connected. Not ready yet (on
+			// startup)
 			false;
 
 		case OK ->
@@ -272,6 +295,6 @@ public class ApplyPowerHandler {
 		};
 
 		solarEdge.channel(SolarEdgeEss.ChannelId.NO_SMART_METER_DETECTED).setNextValue(enableWarning);
-	}	
+	}
 
 }

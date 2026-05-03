@@ -1,9 +1,8 @@
 package io.openems.edge.solaredge.ess;
 
-import io.openems.common.utils.ConfigUtils;
+import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.solaredge.enums.ControlMode;
-import io.openems.common.test.AbstractComponentConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -23,11 +22,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.id = id;
 			return this;
 		}
-		
+
 		public Builder setPvExportLimit(boolean pvExportLimit) {
 			this.pvExportLimit = pvExportLimit;
 			return this;
-		}		
+		}
 
 		public Builder setModbusId(String modbusId) {
 			this.modbusId = modbusId;
@@ -38,16 +37,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
-		
+
 		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
-		
+
 		public Builder setControlMode(ControlMode controlMode) {
 			this.controlMode = controlMode;
 			return this;
-		}		
+		}
 
 		public MyConfig build() {
 			return new MyConfig(this);
@@ -69,27 +68,22 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
-	
+
 	@Override
 	public boolean pvExportLimit() {
 		return this.builder.pvExportLimit;
 	}
-	
+
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
-	
+
 	@Override
 	public ControlMode controlMode() {
 		return this.builder.controlMode;
@@ -98,6 +92,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public SingleOrAllPhase phase() {
 		return this.builder.phase;
-	}	
+	}
 
 }

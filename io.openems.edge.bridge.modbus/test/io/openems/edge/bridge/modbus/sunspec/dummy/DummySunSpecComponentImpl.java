@@ -3,14 +3,9 @@ package io.openems.edge.bridge.modbus.sunspec.dummy;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -24,27 +19,23 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
+public class DummySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 		implements ModbusComponent, OpenemsComponent {
 
-	private static final Map<SunSpecModel, Priority> DEFAULT_ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+	private static final Map<SunSpecModel, Priority> DEFAULT_ACTIVE_MODELS = ImmutableMap
+			.<SunSpecModel, Priority>builder().put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
 			.put(DefaultSunSpecModel.S_701, Priority.HIGH) //
 			.put(DefaultSunSpecModel.S_702, Priority.LOW) //
 			.build();
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	public MySunSpecComponentImpl() {
+	public DummySunSpecComponentImpl() {
 		super(//
 				DEFAULT_ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -52,7 +43,7 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 		);
 	}
 
-	public MySunSpecComponentImpl(List<SunSpecModelEntry> activeModels) {
+	public DummySunSpecComponentImpl(List<SunSpecModelEntry> activeModels) {
 		super(//
 				activeModels, //
 				OpenemsComponent.ChannelId.values(), //
@@ -62,10 +53,7 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), true, config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id(), config.readFromModbusBlock())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), true, config.modbusUnitId(), config.readFromModbusBlock());
 	}
 
 	@Override

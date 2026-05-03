@@ -1,12 +1,6 @@
 package io.openems.edge.solaredge.charger;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.type.Phase.SingleOrAllPhase;
-import io.openems.edge.solaredge.charger.Config;
-import io.openems.edge.solaredge.charger.MyConfig;
-import io.openems.edge.solaredge.charger.MyConfig.Builder;
-import io.openems.edge.solaredge.enums.ControlMode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -27,7 +21,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.essInverter = essInverter;
 			return this;
 		}
-		
+
 		public MyConfig build() {
 			return new MyConfig(this);
 		}
@@ -48,15 +42,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		super(Config.class, builder.id);
 		this.builder = builder;
 	}
-	
+
 	@Override
 	public String essInverter_id() {
 		return this.builder.essInverter;
 	}
-
-	@Override
-	public String essInverter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.essInverter_id());
-	}
-
 }

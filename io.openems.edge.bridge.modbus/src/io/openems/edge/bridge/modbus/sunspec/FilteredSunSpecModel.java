@@ -32,15 +32,14 @@ public class FilteredSunSpecModel implements SunSpecModel {
 
 	/**
 	 * Creates a {@link FilteredSunSpecModel} that delegates to the given
-	 * {@link SunSpecModel} but excludes the specified {@link SunSpecPoint}s
-	 * from the returned {@link SunSpecModel#points()}.
+	 * {@link SunSpecModel} but excludes the specified {@link SunSpecPoint}s from
+	 * the returned {@link SunSpecModel#points()}.
 	 *
 	 * <p>
-	 * This can be used if a device implements a standard SunSpec model but
-	 * does not support some points (e.g. vendor-specific event registers).
-	 * The returned model behaves like the original model except that the
-	 * excluded points are not exposed and therefore not mapped to Modbus
-	 * registers.
+	 * This can be used if a device implements a standard SunSpec model but does not
+	 * support some points (e.g. vendor-specific event registers). The returned
+	 * model behaves like the original model except that the excluded points are not
+	 * exposed and therefore not mapped to Modbus registers.
 	 *
 	 * @param delegate the original {@link SunSpecModel}
 	 * @param excluded the {@link SunSpecPoint}s that should be removed
@@ -48,8 +47,8 @@ public class FilteredSunSpecModel implements SunSpecModel {
 	 */
 	public static FilteredSunSpecModel withoutPoints(SunSpecModel delegate, SunSpecPoint... excluded) {
 		var excludedSet = Arrays.asList(excluded);
-		var filtered = Arrays.stream(delegate.points())
-				.filter(p -> !excludedSet.contains(p))
+		var filtered = Arrays.stream(delegate.points()) //
+				.filter(p -> !excludedSet.contains(p)) //
 				.toArray(SunSpecPoint[]::new);
 		return new FilteredSunSpecModel(delegate, filtered);
 	}

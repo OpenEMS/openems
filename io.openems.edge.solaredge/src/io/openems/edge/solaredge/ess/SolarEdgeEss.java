@@ -5,7 +5,6 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
-
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.FloatReadChannel;
 import io.openems.edge.common.channel.IntegerDoc;
@@ -25,24 +24,24 @@ import io.openems.edge.solaredge.enums.SeControlMode;
 public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		WRONG_PHASE_CONFIGURED(Doc.of(Level.WARNING) //
+		WRONG_PHASE_CONFIGURED(Doc.of(Level.WARNING)//
 				.text("Configured Phase does not match the Model")), //
-		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING) //
+		SMART_MODE_NOT_WORKING_WITH_PID_FILTER(Doc.of(Level.WARNING)//
 				.text("SMART mode does not work correctly with active PID filter")),
-		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING) //
+		NO_SMART_METER_DETECTED(Doc.of(Level.WARNING)//
 				.text("No SolarEdge Smart Meter detected. Only REMOTE mode can work correctly")),
-		REMOTE_CONTROL_NOT_ENABLED(Doc.of(Level.WARNING) //
+		REMOTE_CONTROL_NOT_ENABLED(Doc.of(Level.WARNING)//
 				.text("Storage Control Mode is not set to Remote Control. Please configure inverter using SetApp/LCD")),
-		AC_CHARGE_NOT_ENABLED(Doc.of(Level.WARNING) //
+		AC_CHARGE_NOT_ENABLED(Doc.of(Level.WARNING)//
 				.text("Storage AC Charge Policy is not set to Always allowed. Please configure inverter using SetApp/LCD")),
-		PV_EXPORT_LIMIT_FAILED(Doc.of(Level.FAULT) //
+		PV_EXPORT_LIMIT_FAILED(Doc.of(Level.FAULT)//
 				.text("PV-Export Limit failed")), //
-		DISABLED_PV_EXPORT_LIMIT_FAILED(Doc.of(Level.WARNING) //
+		DISABLED_PV_EXPORT_LIMIT_FAILED(Doc.of(Level.WARNING)//
 				.text("PV-Export Limit is disabled: PV-Export Limit failed")), //
-		
-		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
+
+		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
 				.persistencePriority(PersistencePriority.HIGH)),
-		
+
 		/**
 		 * Read/Set Active Export Power Limit.
 		 *
@@ -52,32 +51,34 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		ACTIVE_EXPORT_POWER_LIMIT(new IntegerDoc() //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.MEDIUM) //
-				.onInit(channel -> { //
+		ACTIVE_EXPORT_POWER_LIMIT(new IntegerDoc()//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.MEDIUM)//
+				.onInit(channel -> {
+					//
 					// on each Write to the channel -> set the value
 					((IntegerWriteChannel) channel).onSetNextWrite(value -> {
 						channel.setNextValue(value);
 					});
-				})),		
-		
+				})),
+
 		/**
 		 * Storage Control Mode is used to set the StorEdge system operating mode.
 		 * <ul>
 		 * <li>0 – Disabled
-		 * <li>1 – Maximize Self Consumption – requires a SolarEdge Electricity meter
-		 * on the grid or load connection point
-		 * <li>2 – Time of Use (Profile programming) – requires a SolarEdge Electricity meter
-		 * on the grid or load connection point
-		 * <li>3 – Backup Only (applicable only for systems support backup functionality)
-		 * <li>4 – Remote Control – the battery charge/discharge state is controlled by an
-		 * external controller
+		 * <li>1 – Maximize Self Consumption – requires a SolarEdge Electricity meter on
+		 * the grid or load connection point
+		 * <li>2 – Time of Use (Profile programming) – requires a SolarEdge Electricity
+		 * meter on the grid or load connection point
+		 * <li>3 – Backup Only (applicable only for systems support backup
+		 * functionality)
+		 * <li>4 – Remote Control – the battery charge/discharge state is controlled by
+		 * an external controller
 		 * </ul>
 		 */
 		STORAGE_CONTROL_MODE(Doc.of(SeControlMode.values())),
-		
+
 		/**
 		 * Defines the AC charge policy for the storage system.
 		 * <ul>
@@ -98,8 +99,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * policy set in the previous register. Either fixed in kWh or percentage is set
 		 * (e.g. 100KWh or 70%). Relevant only for Storage AC Charge Policy = 2 or 3
 		 */
-		STORAGE_AC_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) // Percent or kWh
-				.unit(Unit.PERCENT) //
+		STORAGE_AC_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)// Percent or kWh
+				.unit(Unit.PERCENT)//
 				.persistencePriority(PersistencePriority.HIGH)), // defined in external
 
 		/**
@@ -114,10 +115,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		STORAGE_BACKUP_RESERVED_SETTING(Doc.of(OpenemsType.INTEGER) // Percent. Relevant only for inverters with backup functionality.
-				.unit(Unit.PERCENT) //
+		STORAGE_BACKUP_RESERVED_SETTING(Doc.of(OpenemsType.INTEGER)// Percent. Relevant only for inverters with backup functionality.
+				.unit(Unit.PERCENT)//
 				.persistencePriority(PersistencePriority.HIGH)),
-		
+
 		/**
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
 		 * Charge/Discharge default Mode sets the default mode of operation when Remote
@@ -155,8 +156,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * charge/discharge command sets in Remote Control.
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).unit(Unit.SECONDS)), //
-		REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).unit(Unit.SECONDS) //
-				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT)), //), //
+		REMOTE_CONTROL_COMMAND_TIMEOUT(Doc.of(OpenemsType.INTEGER).accessMode(AccessMode.READ_WRITE).unit(Unit.SECONDS)//
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_TIMEOUT)), // ), //
 
 		/**
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
@@ -189,13 +190,12 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * self-consumption
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_MODE(Doc.of(CommandMode.values())),
-		REMOTE_CONTROL_COMMAND_MODE(Doc.of(CommandMode.values())
-				.accessMode(AccessMode.READ_WRITE)
+		REMOTE_CONTROL_COMMAND_MODE(Doc.of(CommandMode.values()).accessMode(AccessMode.READ_WRITE)
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_MODE)), //
 
 		/**
-		 * Maximum Charge Power Channel. Always positive. Reads and Writes the charge power
-		 * Control mode and charge policy have to be set
+		 * Maximum Charge Power Channel. Always positive. Reads and Writes the charge
+		 * power Control mode and charge policy have to be set
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
@@ -203,13 +203,14 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * </ul>
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)),
-		REMOTE_CONTROL_COMMAND_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		REMOTE_CONTROL_COMMAND_CHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_CHARGE_LIMIT)),
 
 		/**
-		 * Maximum Discharge Power Channel. Always positive. Reads and writes the discharge power.
+		 * Maximum Discharge Power Channel. Always positive. Reads and writes the
+		 * discharge power.
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
@@ -217,8 +218,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * </ul>
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)),
-		REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.READ_WRITE)
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_REMOTE_CONTROL_COMMAND_DISCHARGE_LIMIT)),
 
@@ -232,10 +233,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_CHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		BATTERY1_MAX_CHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.LOW)),
-		
+
 		/**
 		 * Battery 1 Max Discharge Continues Power. Varies with SoC.
 		 *
@@ -246,10 +247,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_DISCHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.LOW)),		
-		
+		BATTERY1_MAX_DISCHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.LOW)),
+
 		/**
 		 * Battery 1 Max Charge Peak Power. Varies with SoC. ?????
 		 *
@@ -260,10 +261,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_CHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		BATTERY1_MAX_CHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.LOW)), // defined in external file
-		
+
 		/**
 		 * Battery 1 Max Discharge Peak Power. Varies with SoC. ?????
 		 *
@@ -274,10 +275,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_DISCHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		BATTERY1_MAX_DISCHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.LOW)),
-		
+
 		/**
 		 * Battery 1 Average Temperature.
 		 *
@@ -288,10 +289,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_AVG_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.LOW)),		
-		
+		BATTERY1_AVG_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.LOW)),
+
 		/**
 		 * Battery 1 Max Temperature.
 		 *
@@ -302,9 +303,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.LOW)),		
+		BATTERY1_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Battery 1 Actual Voltage.
@@ -316,10 +317,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_ACTUAL_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
+		BATTERY1_ACTUAL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT)//
 				.persistencePriority(PersistencePriority.LOW)),
-		
+
 		/**
 		 * Battery 1 Actual Current to or from the battery.
 		 *
@@ -330,10 +331,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_ACTUAL_CURRENT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.AMPERE) //
+		BATTERY1_ACTUAL_CURRENT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.LOW)),
-		
+
 		/**
 		 * Battery 1 Actual Charge/Discharge Power.
 		 *
@@ -345,13 +346,13 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>This is the instantaneous power to or from the battery
 		 * </ul>
 		 */
-		BATTERY1_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.LOW)),	
+		BATTERY1_ACTUAL_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Battery 1 Lifetime Export Energy Counter. "Lifetime" resets every night. Channel not
-		 * really useful!
+		 * Battery 1 Lifetime Export Energy Counter. "Lifetime" resets every night.
+		 * Channel not really useful!
 		 *
 		 * <ul>
 		 * <li>Interface: Ess
@@ -360,13 +361,13 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_LIFETIME_EXPORT_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
+		BATTERY1_LIFETIME_EXPORT_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Battery 1 Lifetime Import Energy Counter. "Lifetime" resets every night. No useful
-		 * information!
+		 * Battery 1 Lifetime Import Energy Counter. "Lifetime" resets every night. No
+		 * useful information!
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
@@ -374,9 +375,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_LIFETIME_IMPORT_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.LOW)),		
+		BATTERY1_LIFETIME_IMPORT_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.WATT_HOURS)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Battery 1 Max. Capacity.
@@ -388,10 +389,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		BATTERY1_MAX_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
-				.persistencePriority(PersistencePriority.LOW)),		
-		
+		BATTERY1_MAX_CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
+				.persistencePriority(PersistencePriority.LOW)),
+
 		/**
 		 * Battery 1 State Of Health.
 		 *
@@ -402,15 +403,15 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		SOH(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.LOW)),		
+		SOH(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.PERCENT)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Batter 1 Status. SE_BATT_STATUS_OFF(0, "Off"), //
-		 * SE_BATT_STATUS_STBY(1, "Standby"), // SE_BATT_STATUS_INIT(2, "Init"), //
-		 * SE_BATT_STATUS_CHARGE(3, "Charge"), // SE_BATT_STATUS_DISCHARGE(4,
-		 * "Discharge"), // SE_BATT_STATUS_FAULT(5, "Fault"), // // 6 doesn´t exist
+		 * Batter 1 Status. SE_BATT_STATUS_OFF(0, "Off"), // SE_BATT_STATUS_STBY(1,
+		 * "Standby"), // SE_BATT_STATUS_INIT(2, "Init"), // SE_BATT_STATUS_CHARGE(3,
+		 * "Charge"), // SE_BATT_STATUS_DISCHARGE(4, "Discharge"), //
+		 * SE_BATT_STATUS_FAULT(5, "Fault"), // // 6 doesn´t exist
 		 * SE_BATT_STATUS_IDLE(7, "Idle"); //
 		 * <ul>
 		 * <li>Interface: Ess
@@ -431,10 +432,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		INVERTER_ACTIVE_DC_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		INVERTER_ACTIVE_DC_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)),
-		
+
 		/**
 		 * Inverter Max Apparent Power.
 		 *
@@ -445,9 +446,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		INVERTER_MAX_APPARENT_POWER(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.LOW)),	
+		INVERTER_MAX_APPARENT_POWER(Doc.of(OpenemsType.FLOAT)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Power Control Fixed Power Limit.
@@ -459,9 +460,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		INVERTER_POWER_LIMIT(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.PERCENT) //
-				.persistencePriority(PersistencePriority.LOW)),	
+		INVERTER_POWER_LIMIT(Doc.of(OpenemsType.FLOAT)//
+				.unit(Unit.PERCENT)//
+				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
 		 * Advanced Power Control Enabled.
@@ -473,7 +474,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * </ul>
 		 */
 		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Export Control Mode.
 		 *
@@ -484,7 +485,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * </ul>
 		 */
 		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Export Control Limit Mode.
 		 *
@@ -493,9 +494,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Type: Integer
 		 * <li>
 		 * </ul>
-		 */		
+		 */
 		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER)),
-		
+
 		/**
 		 * Export Control Site Limit.
 		 *
@@ -506,10 +507,9 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		EXPORT_CONTROL_SITE_LIMIT(Doc.of(OpenemsType.FLOAT) //
-				.unit(Unit.WATT) //
-				.persistencePriority(PersistencePriority.HIGH)
-				.accessMode(AccessMode.READ_WRITE)),	
+		EXPORT_CONTROL_SITE_LIMIT(Doc.of(OpenemsType.FLOAT)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH).accessMode(AccessMode.READ_WRITE)),
 
 		/**
 		 * Active Production Energy.
@@ -521,10 +521,10 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Range: only positive values
 		 * </ul>
 		 */
-		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH)),		
-				
+		ACTIVE_PRODUCTION_ENERGY(Doc.of(OpenemsType.LONG)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
+				.persistencePriority(PersistencePriority.HIGH)),
+
 		/**
 		 * DC-Voltage produced by the ESS. Either for grid or consumption.
 		 *
@@ -535,8 +535,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>
 		 * </ul>
 		 */
-		VOLTAGE_DC(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		VOLTAGE_DC(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/*
@@ -544,8 +544,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * METER_COMMUNICATE_STATUS
 		 * 
 		 */
-		METER_COMMUNICATE_STATUS(Doc.of(MeterCommunicateStatus.values())), //	
-		
+		METER_COMMUNICATE_STATUS(Doc.of(MeterCommunicateStatus.values())), //
+
 		;
 
 		private final Doc doc;
@@ -580,7 +580,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#BATTERY1_MAX_DISCHARGE_CONTINUES_POWER}.
+	 * Gets the Channel for
+	 * {@link ChannelId#BATTERY1_MAX_DISCHARGE_CONTINUES_POWER}.
 	 *
 	 * @return the Channel
 	 */
@@ -631,7 +632,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 */
 	public default Value<Long> getActiveProductionEnergy() {
 		return this.getActiveProductionEnergyChannel().value();
-	}	
+	}
 
 	/**
 	 * Adds DC-charger to ESS hybrid system. Represents PV production
@@ -675,5 +676,5 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 	 * @return {@link Integer}
 	 */
 	public Integer getSurplusPower();
-	
+
 }

@@ -1,7 +1,6 @@
 package io.openems.edge.solaredge.charger;
 
 import io.openems.edge.common.channel.Doc;
-
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.ess.dccharger.api.EssDcCharger;
 
@@ -20,5 +19,5 @@ public interface SolarEdgeCharger extends EssDcCharger, OpenemsComponent {
 			return this.doc;
 		}
 	}
-	
+
 }

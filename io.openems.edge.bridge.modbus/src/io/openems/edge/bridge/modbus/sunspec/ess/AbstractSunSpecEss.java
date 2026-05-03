@@ -3,7 +3,6 @@ package io.openems.edge.bridge.modbus.sunspec.ess;
 import java.util.Map;
 import java.util.Optional;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -41,24 +40,13 @@ public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 	 * @param enabled               Whether the component should be enabled.
 	 *                              Typically 'config.enabled()'
 	 * @param unitId                Unit-ID of the Modbus target
-	 * @param cm                    An instance of ConfigurationAdmin. Receive it
-	 *                              using @Reference
-	 * @param modbusReference       The name of the @Reference setter method for the
-	 *                              Modbus bridge - e.g. 'Modbus' if you have a
-	 *                              setModbus()-method
-	 * @param modbusId              The ID of the Modbus bridge. Typically
-	 *                              'config.modbus_id()'
 	 * @param readFromCommonBlockNo the starting block number
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
 	 * @throws OpenemsException on error
 	 */
 	@Override
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
-			throws OpenemsException {
-		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
-				readFromCommonBlockNo);
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			int readFromCommonBlockNo) throws OpenemsException {
+		super.activate(context, id, alias, enabled, unitId, readFromCommonBlockNo);
 	}
 
 	/**

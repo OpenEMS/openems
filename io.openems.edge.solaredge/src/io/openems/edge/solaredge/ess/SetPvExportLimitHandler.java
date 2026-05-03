@@ -1,6 +1,5 @@
 package io.openems.edge.solaredge.ess;
 
-
 import java.util.Optional;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -22,9 +21,10 @@ public class SetPvExportLimitHandler implements ThrowingConsumer<Optional<Intege
 	/**
 	 * Handles a PV-Inverter Export power limitation request.
 	 * 
-	 * @param activeExportPowerLimitOpt an optional export power site limit; if present,
-	 *                                  it updates the inverter's export site limit
-	 *                                  (used for power manager inverters with a connected smart meter)
+	 * @param activeExportPowerLimitOpt an optional export power site limit; if
+	 *                                  present, it updates the inverter's export
+	 *                                  site limit (used for power manager inverters
+	 *                                  with a connected smart meter)
 	 * @throws OpenemsNamedException on error
 	 */
 	@Override
@@ -38,7 +38,7 @@ public class SetPvExportLimitHandler implements ThrowingConsumer<Optional<Intege
 
 		// Get Export Control Mode Channel
 		exportControlModeChannel = this.parent.channel(SolarEdgeEss.ChannelId.EXPORT_CONTROL_MODE);
-		
+
 		// Get Get AdvancedPwrControlEn Channel
 		advancedPwrControlEnChannel = this.parent.channel(SolarEdgeEss.ChannelId.ADVANCED_PWR_CONTROL_EN);
 
@@ -46,27 +46,30 @@ public class SetPvExportLimitHandler implements ThrowingConsumer<Optional<Intege
 			// We don't know the channel values. Not ready yet (on startup)
 			return;
 		}
-		
-		int advancedPwrControlEn = advancedPwrControlEnChannel.value().get();		
+
+		int advancedPwrControlEn = advancedPwrControlEnChannel.value().get();
 		int exportControlMode = exportControlModeChannel.value().get();
 		int exportControlModeDirectExportLimitation = 1 & exportControlMode;
 		int exportControlModeInDirectExportLimitation = 2 & exportControlMode;
 		int productionLimitation = 4 & exportControlMode;
-				
-		if (advancedPwrControlEn == 0 || (exportControlModeDirectExportLimitation == 0 && exportControlModeInDirectExportLimitation == 0 && productionLimitation == 0)) {
+
+		if (advancedPwrControlEn == 0 || (exportControlModeDirectExportLimitation == 0
+				&& exportControlModeInDirectExportLimitation == 0 && productionLimitation == 0)) {
 			// Inverter configuration not as required ,...
 			if (activeExportPowerLimitOpt.isPresent()) {
 				// and power should be limited -> throw error
 				if (advancedPwrControlEn == 0) {
-					throw new OpenemsException("PV Export Limit Control requested, but inverter configuration is wrong (AdvancedPwrControl not enabled).");
+					throw new OpenemsException(
+							"PV Export Limit Control requested, but inverter configuration is wrong (AdvancedPwrControl not enabled).");
 				} else {
-					throw new OpenemsException("PV Export Limit Control requested, but inverter configuration is wrong (Export Limitation not enabled).");
+					throw new OpenemsException(
+							"PV Export Limit Control requested, but inverter configuration is wrong (Export Limitation not enabled).");
 				}
 			}
 			// and no power limitation is required -> ignore error and exit
 			return;
-		}		
-		
+		}
+
 		if (activeExportPowerLimitOpt.isPresent()) {
 			/*
 			 * A ActiveExportPowerLimit is set
@@ -74,18 +77,18 @@ public class SetPvExportLimitHandler implements ThrowingConsumer<Optional<Intege
 			float activeExportPowerLimit = activeExportPowerLimitOpt.get();
 
 			// keep export power limit in range [>=0].
-			if (activeExportPowerLimit < 0) {  
+			if (activeExportPowerLimit < 0) {
 				activeExportPowerLimit = 0;
-			}	
-			
+			}
+
 			if (
-			  // No value set
-			  !wMaxLimPwrChannel.value().isDefined()
-			  // or value changed
-			  || Math.abs(activeExportPowerLimit - wMaxLimPwrChannel.value().get()) > COMPARE_THRESHOLD) {
-	
+			// No value set
+			!wMaxLimPwrChannel.value().isDefined()
+					// or value changed
+					|| Math.abs(activeExportPowerLimit - wMaxLimPwrChannel.value().get()) > COMPARE_THRESHOLD) {
+
 				// Set Export Power Limitation
-				wMaxLimPwrChannel.setNextWriteValue(activeExportPowerLimit);							
+				wMaxLimPwrChannel.setNextWriteValue(activeExportPowerLimit);
 			}
 		}
 	}
