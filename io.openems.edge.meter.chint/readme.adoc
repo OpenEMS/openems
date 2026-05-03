@@ -1,57 +1,45 @@
-= Chint DDSU666 Single-Phase Energy Meter
+= Chint Energy Meters
 
-Implements the Chint DDSU666 single-phase energy meter using the OpenEMS Modbus bridge.
+Integration with Chint electricity meters via Modbus protocol.
 
-Works over both Modbus/RTU (serial) and Modbus/TCP through the bridge abstraction.
+== Overview
 
-== Component
+This bundle currently provides OpenEMS integration for the Chint DDSU666 single-phase meter. The component communicates through the OpenEMS Modbus bridge and exposes standard `ElectricityMeter` channels for power, voltage, current, frequency, and cumulative energy.
 
-[options="header"]
-|===
-|Property|Description
-|`id`|Component ID, e.g. `meter0`
-|`enabled`|Enable/disable this component
-|`type`|MeterType: `GRID`, `PRODUCTION`, or `CONSUMPTION`
-|`modbus.id`|ID of the Modbus bridge, e.g. `modbus0`
-|`modbusUnitId`|Slave address of the DDSU666 device (default: `1`)
-|`invert`|Invert power sign (use when meter is wired in reverse)
-|===
+== Supported Devices
 
-== Register Map
+* https://chintglobal.com/global/en/products/instruments-meters/electricity-meter/ddsu666.html[Chint DDSU666 icon:external-link[]]
 
-Source: official CHINT DDSU666 Modbus communication protocol document.
-FC3 (Read Holding Registers) throughout. All values are IEEE 754 single-precision
-floats, 2 registers each, ABCD byte order (MSW first, big-endian per word).
+== Components
 
-[options="header"]
-|===
-|Address|Description|Unit|Scale to OpenEMS
-|0x2000|Voltage L1|V|x1000 -> mV
-|0x2002|Current L1|A|x1000 -> mA
-|0x2004|Active power|kW|x1000 -> W
-|0x200E|Frequency|Hz|x1000 -> mHz
-|0x4000|Import active energy|kWh|x1000 -> Wh
-|===
+This bundle implements the following OpenEMS Components:
 
-The physical import-energy counter is also mirrored into the standard OpenEMS
-energy channels. For a non-inverted meter this feeds
-`ACTIVE_PRODUCTION_ENERGY`; with `invert=true` it feeds
-`ACTIVE_CONSUMPTION_ENERGY`.
+=== <<_ddsu666_meter,Chint DDSU666 Meter>>
 
-== Build
+*Name*: Meter Chint DDSU666
 
-Add this bundle to your OpenEMS source checkout alongside the other
-`io.openems.edge.meter.*` bundles, then build with:
+*Factory-PID*: `Meter.Chint.DDSU666`
 
-  ./gradlew :io.openems.edge.meter.chint.ddsu666:jar
+.Implemented Natures/Interfaces
+* MeterChintDdsu666
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
 
-== Felix Web Console Configuration
+*Description*: Single-phase electricity meter via Modbus. The device-specific communication address is exposed as a custom channel, while cumulative import energy is mapped to the standard OpenEMS energy channels.
 
-. Open Apache Felix Web Console -> Configuration
-. Find *Meter Chint DDSU666*
-. Set:
-  - Component-ID: `meter0`
-  - Meter-Type: `GRID`
-  - Modbus-ID: `modbus0`
-  - Modbus Unit-ID: `2`  _(your DDSU666 slave address)_
-. Save
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+
+[[_ddsu666_meter]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.chint[Source Code icon:github[]]

@@ -1,13 +1,16 @@
 package io.openems.edge.meter.chint.ddsu666;
 
 import static io.openems.common.types.MeterType.GRID;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -19,7 +22,6 @@ public class MeterChintDdsu666ImplTest {
 	@Before
 	public void setup() throws OpenemsException, Exception {
 		this.testBasis = new ComponentTest(new MeterChintDdsu666Impl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(0x0006, //
 								0x0002) //
@@ -45,17 +47,39 @@ public class MeterChintDdsu666ImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(2) //
 						.setInvert(false) //
+						.setPhase(L1) //
 						.setType(GRID) //
 						.build()) //
 				.next(new TestCase() //
 						.activateStrictMode() //
+						.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
+						.output(ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED, false) //
 						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 1000000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, null) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 1250) //
-						.output(ElectricityMeter.ChannelId.FREQUENCY, 50000) //
-						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 122000) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1250) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, null) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 5000) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 5000) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1000000L) //
-						.output(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, 1000000)) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L2, null) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, null) //
+						.output(ElectricityMeter.ChannelId.FREQUENCY, 50000) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L1, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L2, null) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER_L3, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE, 122000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 122000) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, null) //
+						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, null)) //
 				.deactivate();
 	}
 
@@ -67,13 +91,13 @@ public class MeterChintDdsu666ImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(2) //
 						.setInvert(true) //
+						.setPhase(L1) //
 						.setType(GRID) //
 						.build()) //
 				.next(new TestCase() //
 						.output(MeterChintDdsu666.ChannelId.COMMUNICATION_ADDRESS, 2) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, -1250) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 1000000L) //
-						.output(MeterChintDdsu666.ChannelId.ACTIVE_IMPORT_ENERGY, 1000000)) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 1000000L)) //
 				.deactivate();
 	}
 }

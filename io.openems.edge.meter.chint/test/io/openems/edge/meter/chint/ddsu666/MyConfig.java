@@ -2,7 +2,7 @@ package io.openems.edge.meter.chint.ddsu666;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -15,6 +15,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private int modbusUnitId = 1;
 		private boolean invert = false;
+		private SinglePhase phase = SinglePhase.L1;
 
 		private Builder() {
 		}
@@ -51,6 +52,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setInvert(boolean invert) {
 			this.invert = invert;
+			return this;
+		}
+
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
 			return this;
 		}
 
@@ -96,11 +102,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
@@ -108,6 +109,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean invert() {
 		return this.builder.invert;
+	}
+
+	@Override
+	public SinglePhase phase() {
+		return this.builder.phase;
 	}
 
 	@Override
