@@ -5,12 +5,26 @@ import io.openems.common.types.OptionsEnum;
 public enum SeControlMode implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
 	DISABLED(0, "Disabled"), //
-	MAX_SELF_CONSUMPTION(1, "Maximize Self Consumption"), // requires a SolarEdge Electricity meter on the grid or load
-															// connection point
-	TIME_OF_USE(2, "Time of Use (Profile programming)"), // requires a SolarEdge Electricity meter on the grid or load
-															// connection point
-	BACKUP_ONLY(3, "Backup Only"), // (applicable only for systems support backup functionality)
-	REMOTE_CONTROL(4, "Remote Control"); // the battery charge/discharge state is controlled by an external controller
+
+	/**
+	 * Requires a SolarEdge Electricity meter on the grid or load connection point.
+	 */
+	MAX_SELF_CONSUMPTION(1, "Maximize Self Consumption"),
+
+	/**
+	 * Requires a SolarEdge Electricity meter on the grid or load connection point.
+	 */
+	TIME_OF_USE(2, "Time of Use (Profile programming)"),
+
+	/**
+	 * Applicable only for systems support backup functionality.
+	 */
+	BACKUP_ONLY(3, "Backup Only"),
+
+	/**
+	 * The battery charge/discharge state is controlled by an external controller.
+	 */
+	REMOTE_CONTROL(4, "Remote Control");
 
 	private final int value;
 	private final String name;

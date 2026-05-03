@@ -20,11 +20,11 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class TasksSupplierImplTest {
 
-	private final static DummyReadTask RT_H_1 = new DummyReadTask("RT_H_1", 49, Priority.HIGH);
-	private final static DummyReadTask RT_H_2 = new DummyReadTask("RT_H_2", 70, Priority.HIGH);
-	private final static DummyReadTask RT_L_1 = new DummyReadTask("RT_L_1", 20, Priority.LOW);
-	private final static DummyReadTask RT_L_2 = new DummyReadTask("RT_L_2", 30, Priority.LOW);
-	private final static DummyWriteTask WT_1 = new DummyWriteTask("WT_1", 90);
+	private static final DummyReadTask RT_H_1 = new DummyReadTask("RT_H_1", 49, Priority.HIGH);
+	private static final DummyReadTask RT_H_2 = new DummyReadTask("RT_H_2", 70, Priority.HIGH);
+	private static final DummyReadTask RT_L_1 = new DummyReadTask("RT_L_1", 20, Priority.LOW);
+	private static final DummyReadTask RT_L_2 = new DummyReadTask("RT_L_2", 30, Priority.LOW);
+	private static final DummyWriteTask WT_1 = new DummyWriteTask("WT_1", 90);
 
 	@Test
 	public void testFull() throws OpenemsException {

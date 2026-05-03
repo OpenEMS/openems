@@ -130,8 +130,9 @@ public class ApplyPowerHandlerTest {
 		assertFalse(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().orElse(0));
 		assertEquals(0, (int) chargeLimit.getNextWriteValue().orElse(0));
-		assertEquals(950, (int) dischargeLimit.getNextWriteValue().get()); // 1000 setActivePower - 300 pvProduction +
-																			// 50 dischargeEfficiencyCompensation
+
+		// 1000 setActivePower - 300 pvProduction + 50 dischargeEfficiencyCompensation
+		assertEquals(950, (int) dischargeLimit.getNextWriteValue().get());
 		assertEquals(CommandMode.DISCHARGE_BAT.getValue(), (int) commandMode.getNextWriteValue().get());
 
 		// Test fallback to AutoMode if gridActivePower or essActivePower are not
@@ -728,8 +729,9 @@ public class ApplyPowerHandlerTest {
 		assertTrue(noSmartMeterDetected.getNextValue().get());
 		assertEquals(60, (int) commandTimeout.getNextWriteValue().get());
 		assertEquals(0, (int) chargeLimit.getNextWriteValue().get());
-		assertEquals(2850, (int) dischargeLimit.getNextWriteValue().get()); // 3000 setActivePower - 300 pvProduction +
-																			// 150 dischargeEfficiencyCompensation
+
+		// 3000 setActivePower - 300 pvProduction + 150 dischargeEfficiencyCompensation
+		assertEquals(2850, (int) dischargeLimit.getNextWriteValue().get());
 		assertEquals(CommandMode.DISCHARGE_BAT.getValue(), commandMode.getNextWriteValue().get().intValue());
 
 		// --- AC set-point of -3kW (import) ---

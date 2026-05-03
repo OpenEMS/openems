@@ -348,7 +348,7 @@ public class SolarEdgeEssImpl extends AbstractSunSpecEss implements SolarEdgeEss
 										.wordOrder(WordOrder.LSWMSW)),
 						// Instantaneous Battery Current (charge / discharge)
 						m(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_CURRENT, new FloatDoublewordElement(0xE172) //
-								.wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3 /* Convert A to mA */ ),
+								.wordOrder(WordOrder.LSWMSW), SCALE_FACTOR_3 /* Convert A to mA */),
 						// Instantaneous Battery Power (charge / discharge)
 						m(SolarEdgeEss.ChannelId.BATTERY1_ACTUAL_POWER, new FloatDoublewordElement(0xE174) //
 								.wordOrder(WordOrder.LSWMSW))));

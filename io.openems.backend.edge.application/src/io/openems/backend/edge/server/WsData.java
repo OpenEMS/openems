@@ -1,8 +1,6 @@
 package io.openems.backend.edge.server;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.java_websocket.WebSocket;
 
@@ -20,7 +18,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 		super(ws);
 	}
 
-	/*package*/ void setEdgeId(String edgeId) {
+	/* package */ void setEdgeId(String edgeId) {
 		this.edgeId = edgeId;
 		super.setDebug(DEBUG_EDGE_IDS.contains(edgeId));
 	}

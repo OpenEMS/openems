@@ -68,27 +68,28 @@ public class AllowedChargeDischargeHandlerTest {
 
 		// Test initial step-up
 		allowedChargeDischargeHandler.accept(componentManger);
-		assertEquals(-50, (int) allowedChargerPower.getNextValue().get()); // Initial step-up value is 150 (5% of 3000)
-																			// - 100 (pvProduction)
-		assertEquals(257, (int) allowedDischargerPower.getNextValue().get()); // Initial step-up value is 143 (5% of
-																				// 3300 * 0,95 dischargeEfficencyFactor)
-																				// + 100 (pvProduction)
+		// Initial step-up value is 150 (5% of 3000) - 100 (pvProduction)
+		assertEquals(-50, (int) allowedChargerPower.getNextValue().get());
+		// Initial step-up value is 143 (5% of 3300 * 0,95 dischargeEfficencyFactor) +
+		// 100 (pvProduction)
+		assertEquals(257, (int) allowedDischargerPower.getNextValue().get());
 
 		// Test block charging and force discharge on battery full
 		TestUtils.withValue(ess, SymmetricEss.ChannelId.SOC, 100);
 		allowedChargeDischargeHandler.accept(componentManger);
-		assertEquals(100, (int) allowedChargerPower.getNextValue().get()); // force discharge of 100W as battery is full
-		assertEquals(257, (int) allowedDischargerPower.getNextValue().get()); // Initial step-up value is 143 (5% of
-																				// 3300 * 0,95 dischargeEfficencyFactor)
-																				// + 100 (pvProduction)
+		// force discharge of 100W as battery is full
+		assertEquals(100, (int) allowedChargerPower.getNextValue().get());
+		// Initial step-up value is 143 (5% of 3300 * 0,95 dischargeEfficencyFactor) +
+		// 100 (pvProduction)
+		assertEquals(257, (int) allowedDischargerPower.getNextValue().get());
 
 		// Test block discharging on battery empty
 		TestUtils.withValue(ess, SymmetricEss.ChannelId.SOC, 0);
 		allowedChargeDischargeHandler.accept(componentManger);
-		assertEquals(-50, (int) allowedChargerPower.getNextValue().get()); // Initial step-up value is 150 (5% of 3000)
-																			// - 100 (pvProduction)
-		assertEquals(100, (int) allowedDischargerPower.getNextValue().get()); // 0 (batteryDischarge) + 100
-																				// (pvProduction)
+		// Initial step-up value is 150 (5% of 3000) - 100 (pvProduction)
+		assertEquals(-50, (int) allowedChargerPower.getNextValue().get());
+		// 0 (batteryDischarge) + 100 (pvProduction)
+		assertEquals(100, (int) allowedDischargerPower.getNextValue().get());
 
 		// Test that inverter output does not exceed the AC limits
 		TestUtils.withValue(ess, SymmetricEss.ChannelId.SOC, 50);
