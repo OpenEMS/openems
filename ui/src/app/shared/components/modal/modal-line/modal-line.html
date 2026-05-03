@@ -62,8 +62,12 @@
           }
           @if (control.type === 'TEXT') {
             <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" [formGroup]="formGroup" class="align_right">
-              <ng-container>{{formGroup.controls[controlName].value |
-                converter:control.valueConverter }}
+              <ng-container>
+                {{
+                  control.valueConverter
+                    ? (formGroup.controls[controlName].value | converter: control.valueConverter)
+                    : formGroup.controls[controlName].value
+                }}
               </ng-container>
             </td>
           }

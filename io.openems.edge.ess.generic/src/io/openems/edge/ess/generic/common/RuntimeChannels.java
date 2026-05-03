@@ -12,17 +12,17 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface RuntimeChannels extends OpenemsComponent {
 
 	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CUMULATED_TIME_OK_STATE(Doc.of(INTEGER) //
-				.unit(CUMULATED_SECONDS) //
+		CUMULATED_TIME_OK_STATE(Doc.of(INTEGER)//
+				.unit(CUMULATED_SECONDS)//
 				.text("Accumulated time the ess spent in OK state")), //
-		CUMULATED_TIME_INFO_STATE(Doc.of(INTEGER) //
-				.unit(CUMULATED_SECONDS) //
+		CUMULATED_TIME_INFO_STATE(Doc.of(INTEGER)//
+				.unit(CUMULATED_SECONDS)//
 				.text("Accumulated time the ess spent in info state")), //
-		CUMULATED_TIME_WARNING_STATE(Doc.of(INTEGER) //
-				.unit(CUMULATED_SECONDS) //
+		CUMULATED_TIME_WARNING_STATE(Doc.of(INTEGER)//
+				.unit(CUMULATED_SECONDS)//
 				.text("Accumulated time the ess spent in warning state")), //
-		CUMULATED_TIME_FAULT_STATE(Doc.of(INTEGER) //
-				.unit(CUMULATED_SECONDS) //
+		CUMULATED_TIME_FAULT_STATE(Doc.of(INTEGER)//
+				.unit(CUMULATED_SECONDS)//
 				.text("Accumulated time the ess spent in fault state")), //
 		;
 

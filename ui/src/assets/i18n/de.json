@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
                 "OPTIMAL": "Kapazitätserweiterung",
                 "PLANNED_EXPANSION": "Geplante Erweiterung",
+                "IN_REFERENCE_CYCLE": "Referenzzyklus aktiv - Speicher wird für die Kapazitätserweiterung vorbereitet.",
                 "PREPARING": "Kapazitätserweiterung wird vorbereitet",
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
                 "REFERENCING_OF_STORAGE": {
@@ -418,8 +419,10 @@
                         "NO_LIMIT_POSSIBLE": "Keine Begrenzung Möglich(Eingeschränkt durch Steuerungen mit höherer Priorität)",
                         "NOT_DEFINED": "Nicht definiert",
                         "PASSED_END_TIME": "Endzeitpunkt der begrenzten Beladung überschritten",
-                        "STORAGE_ALREADY_FULL": "Speicher bereits voll"
+                        "STORAGE_ALREADY_FULL": "Speicher bereits voll",
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist."
                     },
+                    "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
                     "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)"
                 },
                 "HEAT": {
@@ -451,12 +454,16 @@
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
-                    "ACTIVE_LEVEL": "Aktives Level",
+                    "ACTIVE_LEVEL": "Aktives Level",                    
+                    "LEVEL_ONE": "Level 1",
+                    "LEVEL_TWO": "Level 2",
+                    "LEVEL_THREE": "Level 3",
                     "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
                     "CALIBRATION": "Kalibrierung",
                     "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
                     "DONE": "Fertig",
                     "ENDTIME": "Endzeit",
+                    "SET_ENDTIME": "Endzeit setzen",
                     "ENERGY": "Energie",
                     "ENERGY_SINCE_BEGINNING": "Energie seit Beginn",
                     "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",

@@ -8,8 +8,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 		private String id;
-		private String modbusId;
-		private int modbusUnitId;
+		private String iocId;
 
 		private Builder() {
 		}
@@ -19,8 +18,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setModbusId(String modbusId) {
-			this.modbusId = modbusId;
+		public Builder setIocId(String iocId) {
+			this.iocId = iocId;
 			return this;
 		}
 
@@ -46,18 +45,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String modbus_id() {
-		return this.builder.modbusId;
+	public String ioc_id() {
+		return this.builder.iocId;
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
-	public int modbusUnitId() {
-		return this.builder.modbusUnitId;
+	public String ioc_target() {
+		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ioc_id());
 	}
 
 }

@@ -3,6 +3,9 @@ package io.openems.edge.controller.symmetric.peakshaving;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
+
 @ObjectClassDefinition(//
 		name = "Controller Peak-Shaving Symmetric", //
 		description = "Cuts power peaks and recharges the battery in low consumption periods.")
@@ -24,9 +27,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	String meter_id();
 
 	@AttributeDefinition(name = "Peak-Shaving power", description = "Grid purchase power above this value is considered a peak and shaved to this value.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int peakShavingPower();
 
 	@AttributeDefinition(name = "Recharge power", description = "If grid purchase power is below this value battery is recharged.")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int rechargePower();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Peak-Shaving Symmetric [{id}]";

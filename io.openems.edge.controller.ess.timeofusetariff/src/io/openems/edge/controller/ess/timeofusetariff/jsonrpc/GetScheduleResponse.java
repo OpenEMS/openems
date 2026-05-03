@@ -60,6 +60,7 @@ import io.openems.edge.timedata.api.Timedata;
  *     'schedule': [{
  *      'timestamp':...,
  *      'price':...,
+ *      'gridSellPrice':...,
  *      'state':...,
  *      'grid':...,
  *      'production':...,
@@ -90,7 +91,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Builds a {@link GetScheduleResponse} with last three hours data and current
 	 * Schedule.
-	 * 
+	 *
 	 * @param requestId             the JSON-RPC request-id
 	 * @param componentId           the Component-ID of the parent
 	 *                              {@link TimeOfUseTariffController}
@@ -123,7 +124,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Queries the last three hours' data and converts it to a {@link Stream} of
 	 * {@link JsonObject}s suitable for a {@link GetScheduleResponse}.
-	 * 
+	 *
 	 * @param componentId   Component-ID of {@link TimeOfUseTariffControllerImpl}
 	 * @param firstSchedule {@link ZonedDateTime} of the first entry in the Schedule
 	 *                      (rounded down to 15 minutes)
@@ -136,13 +137,14 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 		// Process last three hours of historic data
 		final var fromTime = firstSchedule.minusHours(3);
 		final var toTime = firstSchedule.minusSeconds(1);
-		final var channelQuarterlyPrices = new ChannelAddress(componentId, "QuarterlyPrices");
+		final var channelQuarterlyGridBuyPrices = new ChannelAddress(componentId, "QuarterlyPrices");
+		final var channelQuarterlyGridSellPrices = new ChannelAddress(componentId, "QuarterlyGridSellPrices");
 		final var channelStateMachine = new ChannelAddress(componentId, "StateMachine");
 		SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> data = null;
 		try {
 			data = timedata.queryHistoricData(null, fromTime, toTime, //
-					Set.of(channelQuarterlyPrices, channelStateMachine, //
-							Utils.SUM_GRID, SUM_PRODUCTION, SUM_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC),
+					Set.of(channelQuarterlyGridBuyPrices, channelQuarterlyGridSellPrices, channelStateMachine, //
+							Utils.SUM_GRID, SUM_PRODUCTION, SUM_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC), //
 					new Resolution(15, ChronoUnit.MINUTES));
 		} catch (Exception e) {
 			LOG.warn("Unable to read historic data: " + e.getMessage());
@@ -160,7 +162,9 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 					return buildJsonObject() //
 							.addProperty("timestamp", e.getKey()) //
 							.addProperty("price",
-									getAsOptionalDouble(getter.apply(channelQuarterlyPrices)).orElse(null)) //
+									getAsOptionalDouble(getter.apply(channelQuarterlyGridBuyPrices)).orElse(null)) //
+							.addProperty("gridSellPrice",
+									getAsOptionalDouble(getter.apply(channelQuarterlyGridSellPrices)).orElse(null)) //
 							.addProperty("state",
 									getAsOptionalInt(getter.apply(channelStateMachine)).orElse(BALANCING.getValue())) //
 							.addProperty("grid", getAsOptionalInt(getter.apply(SUM_GRID)).orElse(null)) //
@@ -175,7 +179,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 	/**
 	 * Converts the Schedule to a {@link Stream} of {@link JsonObject}s suitable for
 	 * a {@link GetScheduleResponse}.
-	 * 
+	 *
 	 * @param ess      the {@link SymmetricEss}
 	 * @param schedule the {@link EnergyScheduleHandler} schedule
 	 * @return {@link Stream} of {@link JsonObject}s
@@ -190,11 +194,13 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 
 					return buildJsonObject() //
 							.addProperty("timestamp", e.getKey()) //
-							.addProperty("price", p.price()) //
+							.addProperty("price", p.gridBuyPrice()) //
+							.addProperty("gridSellPrice", p.gridSellPrice()) //
 							.addProperty("state", p.mode().getValue()) //
 							.addProperty("grid", convertEnergyToPower.applyAsInt(p.energyFlow().getGrid())) //
 							.addProperty("production", convertEnergyToPower.applyAsInt(p.energyFlow().getProduction())) //
-							.addProperty("consumption", convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption())) //
+							.addProperty("consumption",
+									convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption())) //
 							.addProperty("ess", convertEnergyToPower.applyAsInt(p.energyFlow().getEss())) //
 							.addProperty("soc", round(fitWithin(0F, 100F, //
 									p.essInitialEnergy() * 100F / essTotalEnergy))) //
@@ -204,7 +210,7 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 
 	/**
 	 * Creates an empty default Schedule in case no Schedule is available.
-	 * 
+	 *
 	 * @param clock        the {@link Clock}
 	 * @param defaultState the default {@link StateMachine}
 	 * @return {@link Stream} of {@link JsonObject}s
@@ -216,8 +222,9 @@ public class GetScheduleResponse extends JsonrpcResponseSuccess {
 		return IntStream.range(0, numberOfPeriods) //
 				.mapToObj(i -> {
 					return buildJsonObject() //
-							.addProperty("timestamp", now.plusMinutes(i * 15)) //
+							.addProperty("timestamp", now.plusMinutes(i * 15L)) //
 							.add("price", JsonNull.INSTANCE) //
+							.add("gridSellPrice", JsonNull.INSTANCE) //
 							.addProperty("state", defaultState.getValue()) //
 							.add("grid", JsonNull.INSTANCE) //
 							.add("production", JsonNull.INSTANCE) //

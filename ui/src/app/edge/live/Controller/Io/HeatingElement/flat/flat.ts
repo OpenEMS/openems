@@ -9,7 +9,7 @@ import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../
 
 
 @Component({
-    selector: "Controller_Io_HeatingElement",
+    selector: "oe-controller-io-heating-element",
     templateUrl: "./flat.html",
     standalone: false,
 })

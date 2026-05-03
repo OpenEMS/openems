@@ -21,9 +21,9 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current state of the Controller")),
 
-		QUARTERLY_PRICES(Doc.of(OpenemsType.DOUBLE)//
-				.unit(Unit.MONEY_PER_MEGAWATT_HOUR)//
-				.text("Price of the electricity for the current Hour")//
+		QUARTERLY_PRICES(Doc.of(OpenemsType.DOUBLE) //
+				.unit(Unit.MONEY_PER_MEGAWATT_HOUR) //
+				.text("Price for buying electricity from the grid in the current quarter-hour")//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
@@ -54,7 +54,7 @@ public interface TimeOfUseTariffController extends Controller, EnergySchedulable
 
 	/**
 	 * Get the {@link EnergyScheduleHandlerV1}.
-	 * 
+	 *
 	 * @return {@link EnergyScheduleHandlerV1}
 	 */
 	@Deprecated

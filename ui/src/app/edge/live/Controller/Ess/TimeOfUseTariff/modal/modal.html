@@ -1,6 +1,6 @@
 @if (isInitialized && formGroup) {
   <oe-modal [title]="component.alias" [component]="component" [formGroup]="formGroup"
-    helpKey="CONTROLLER_ESS_TIME_OF_USE_TARIFF">
+    helpKey="REDIRECT.CONTROLLER_ESS_TIME_OF_USE_TARIFF">
     <!-- Discharge State -->
     <oe-modal-line [name]="'GENERAL.STATUS' | translate" [converter]="CONVERT_TIME_OF_USE_TARIFF_STATE"
       [channelAddress]="component.id + '/StateMachine'"></oe-modal-line>
@@ -20,16 +20,16 @@
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
         <oe-modal-info-line
           [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_TITLE'| translate"></oe-modal-info-line>
-        <statePriceChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-        </statePriceChart>
+        <oe-state-price-chart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
+        </oe-state-price-chart>
         <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_WARNING_NOTE' | translate"
           style="font-size: small;"></oe-modal-info-line>
         @if (edge.roleIsAtLeast('admin')) {
           <oe-modal-horizontal-line></oe-modal-horizontal-line>
           <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.POWER_SOC_CHART_TITLE' | translate">
           </oe-modal-info-line>
-          <powerSocChart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
-          </powerSocChart>
+          <oe-power-soc-chart class="ion-padding" [refresh]="refreshChart" [component]="component" [edge]="edge">
+          </oe-power-soc-chart>
         }
       }
       <!-- OFF Mode -->

@@ -126,7 +126,9 @@ public class XlsxExportUtil {
 		public static final Set<String> CONSUMPTION_NATURES = Set.of("GoodWe.EmergencyPowerMeter",
 				"Simulator.NRCMeter.Acting", "Evcs.AlpitronicHypercharger", "Evcs.Dezony", "Evcs.Goe.ChargerHome",
 				"Evcs.HardyBarth", "Evcs.Keba.KeContact", "Evcs.Ocpp.Abl", "Evcs.Ocpp.IesKeywattSingle",
-				"Evcs.Spelsberg.SMART", "Evcs.Webasto.Next", "Evcs.Webasto.Unite");
+				"Evcs.Spelsberg.SMART", "Evcs.Webasto.Next", "Evcs.Webasto.Unite", "Evse.ChargePoint.Keba.Modbus",
+				"Evse.ChargePoint.Keba.UDP", "Evcs.Keba.P40", "Evse.ChargePoint.HardyBarth",
+				"Evse.ChargePoint.Mennekes");
 	}
 
 }

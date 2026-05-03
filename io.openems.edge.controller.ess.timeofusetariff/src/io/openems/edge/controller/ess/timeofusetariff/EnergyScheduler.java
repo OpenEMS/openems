@@ -20,6 +20,7 @@ import static java.lang.Math.min;
 import static java.lang.Math.round;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
@@ -35,8 +36,8 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Price;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.periods.PeriodData.Price;
 
 public class EnergyScheduler {
 
@@ -82,22 +83,23 @@ public class EnergyScheduler {
 				})
 
 				.setInitialPopulationsProvider((goc, coc, modes) -> {
-					// Prepare Initial Population with cheapest price per valley set to
+					// Prepare Initial Population with cheapest grid-buy price per valley set to
 					// DELAY_DISCHARGE or CHARGE_GRID
 					final var result = ImmutableSortedSet.<InitialPopulation<StateMachine>>naturalOrder();
-					final var prices = goc.streamPeriodsWithPrice() //
-							.map(Period.WithPrice::price) //
-							.mapToDouble(Price::actual) //
+					final var gridBuyPrices = goc.periods().stream()//
+							.map(p -> p.data().gridBuyPrice())//
+							.flatMap(Optional::stream)//
+							.mapToDouble(Price::actual)//
 							.toArray();
 
-					generateInitialPopulation(result, goc, prices, DELAY_DISCHARGE);
+					generateInitialPopulation(result, goc, gridBuyPrices, DELAY_DISCHARGE);
 					var hasChargeGrid = modes.streamForOptimizer().anyMatch(m -> m == CHARGE_GRID);
 					if (hasChargeGrid) {
-						generateInitialPopulation(result, goc, prices, CHARGE_GRID);
+						generateInitialPopulation(result, goc, gridBuyPrices, CHARGE_GRID);
 					}
 					var hasDischargeGrid = modes.streamForOptimizer().anyMatch(m -> m == DISCHARGE_GRID);
 					if (hasDischargeGrid) {
-						generateInitialPopulationForDischargeToGrid(result, goc, prices);
+						generateInitialPopulationForDischargeToGrid(result, goc, gridBuyPrices);
 					}
 					return result.build();
 				})

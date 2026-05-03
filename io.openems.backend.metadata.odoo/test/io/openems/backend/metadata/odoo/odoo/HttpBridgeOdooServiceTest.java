@@ -18,7 +18,7 @@ import io.openems.common.utils.JsonUtils;
 
 public class HttpBridgeOdooServiceTest {
 
-	private static final Credentials DUMMY_ODOO_CREDENTIALS = new Credentials("http://127.0.0.1:8069", 1, "admin",
+	private static final Credentials DUMMY_ODOO_CREDENTIALS = new Credentials("http://127.0.0.1:8069", 1, "admin", "admin",
 			"db");
 	private static final String DUMMY_SESSION_EXPIRED_RESPONSE = """
 			{

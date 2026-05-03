@@ -5,13 +5,12 @@ import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { Subject, takeUntil } from "rxjs";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
+import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { FormUtils } from "src/app/shared/utils/form/form.utils";
 import { SharedControllerIoHeatpump } from "../shared/shared";
 
 @Component({
@@ -28,25 +27,18 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
         { provide: DataService, useClass: LiveDataService },
     ],
 })
-export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyComponent {
+export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyComponent<{ mode: Mode }> {
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
-    private destroy$ = new Subject<void>();
     private route: ActivatedRoute = inject(ActivatedRoute);
 
-    public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge, mode: "AUTOMATIC" | "MANUAL"): OeFormlyView {
-        return SharedControllerIoHeatpump.getFormlyView(translate, component, edge, mode);
+    public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView<{ mode: Mode }> {
+        return SharedControllerIoHeatpump.getFormlyView(translate, component, edge);
     }
 
-    public override async ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-        super.ngOnDestroy();
-    }
-
-    protected override generateView(): OeFormlyView {
+    protected override generateView(): OeFormlyView<{ mode: Mode }> {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
@@ -54,8 +46,7 @@ export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyCompone
 
         this.component = config.getComponentSafely(this.route.snapshot.params.componentId);
         AssertionUtils.assertIsDefined(this.component);
-        const mode = this.component.getPropertyFromComponent("mode") as "AUTOMATIC" | "MANUAL";
-        return ControllerIoHeatpumpSettingsComponent.getFormlyGeneralView(this.translate, this.component, edge, mode);
+        return ControllerIoHeatpumpSettingsComponent.getFormlyGeneralView(this.translate, this.component, edge);
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
@@ -76,26 +67,10 @@ export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyCompone
     }
 
     protected override getFormGroup(): FormGroup {
-        const fg = SharedControllerIoHeatpump.getFormGroup();
-        // Rerender template
-        FormUtils.findFormControlSafely(fg, "mode")?.valueChanges
-            .pipe(takeUntil(this.destroy$))
-            .subscribe((mode: "AUTOMATIC" | "MANUAL") => {
-                this.updateView(mode);
-            });
-        return fg;
+        return SharedControllerIoHeatpump.getFormGroup();
     }
 
     protected override getChannelAddresses(): Promise<ChannelAddress[]> {
         return SharedControllerIoHeatpump.getChannelAddresses(this.service, this.route);
-    }
-
-    protected updateView(mode: "AUTOMATIC" | "MANUAL") {
-        AssertionUtils.assertIsDefined(this.component);
-        const value = mode;
-        const edge = this.service.currentEdge();
-        AssertionUtils.assertIsDefined(edge);
-        const view = SharedControllerIoHeatpump.getFormlyView(this.translate, this.component, edge, value);
-        this.updateWholeViewOnFormControlChange(view, this.form, this.service.websocket);
     }
 }

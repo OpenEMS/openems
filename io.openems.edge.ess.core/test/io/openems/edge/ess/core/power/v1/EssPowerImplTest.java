@@ -26,6 +26,8 @@ import io.openems.edge.common.filter.PidFilter;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.core.power.EssPower;
 import io.openems.edge.ess.core.power.EssPowerImpl;
 import io.openems.edge.ess.core.power.MyConfig;
@@ -73,7 +75,9 @@ public class EssPowerImplTest {
 		expect("#10", ess0, 5000, 3000);
 		ess0.addPowerConstraint("", ALL, ACTIVE, EQUALS, 5000);
 		ess0.addPowerConstraint("", ALL, REACTIVE, EQUALS, 3000);
-		componentTest.next(new TestCase());
+		componentTest.next(new TestCase() //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, 5000) //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 3000));
 	}
 
 	@Test
@@ -175,7 +179,15 @@ public class EssPowerImplTest {
 		expect("#1", ess0, 5000, 3000, 5000, 3000, 5000, 3000);
 		ess0.addPowerConstraint("", ALL, ACTIVE, EQUALS, 15000);
 		ess0.addPowerConstraint("", ALL, REACTIVE, EQUALS, 9000);
-		componentTest.next(new TestCase());
+		componentTest.next(new TestCase() //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, 15000) //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, 9000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1, 5000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L2, 5000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L3, 5000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1, 3000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L2, 3000) //
+				.output("ess0", ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3, 3000));
 	}
 
 	@Test
@@ -224,7 +236,14 @@ public class EssPowerImplTest {
 		expect("#2", ess2, -302, -181);
 		ess0.addPowerConstraint("#2", ALL, ACTIVE, EQUALS, -5000);
 		ess0.addPowerConstraint("#2", ALL, REACTIVE, EQUALS, -3000);
-		componentTest.next(new TestCase("#2"));
+		componentTest.next(new TestCase("#2") //
+				.output("ess1", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, -4697) //
+				.output("ess1", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, -2818) //
+				.output("ess2", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, -302) //
+				.output("ess2", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, -181) //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, -4697 - 302) //
+				.output("ess0", ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, -2818 - 181) //
+		);
 
 		// #3
 		expect("#3", ess1, -4429, -2657);

@@ -1,6 +1,7 @@
 package io.openems.edge.controller.api.modbus.readwrite.rtu;
 
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
 import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -22,6 +23,7 @@ import com.ghgande.j2mod.modbus.util.SerialParameters;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
@@ -30,9 +32,10 @@ import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.api.modbus.AbstractModbusApi;
 import io.openems.edge.controller.api.modbus.CommonConfig;
 import io.openems.edge.controller.api.modbus.ModbusApi;
+import io.openems.edge.controller.api.modbus.readwrite.AbstractModbusReadWriteApi;
+import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -40,8 +43,12 @@ import io.openems.edge.controller.api.modbus.ModbusApi;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusApi implements ControllerApiModbusRtuReadWrite,
-		ModbusApi, Controller, OpenemsComponent, ComponentJsonApi, io.openems.edge.common.modbusslave.ModbusSlave {
+@GenerateTargetsFromReferences("Component")
+public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusReadWriteApi
+		implements ControllerApiModbusRtuReadWrite, ModbusApi, Controller, OpenemsComponent, ComponentJsonApi {
+
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	private volatile Timedata timedata = null;
 
 	@Reference
 	private Meta metaComponent;
@@ -59,38 +66,46 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusApi imple
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ModbusApi.ChannelId.values(), //
+				AbstractModbusReadWriteApi.ChannelId.values(), //
 				ControllerApiModbusRtuReadWrite.ChannelId.values() //
 		);
 		this.apiWorker.setLogChannel(this.getApiWorkerLogChannel());
 	}
 
-	@Override
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE)
+	@Reference(//
+			policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, //
+			target = "(&(id=${config.component_ids})(enabled=true)(!(service.pid=${config.service_pid})))")
 	protected void addComponent(OpenemsComponent component) {
-		super.addComponent(component);
+		super._addComponent(component);
 	}
 
-	@Override
 	protected void removeComponent(OpenemsComponent component) {
-		super.removeComponent(component);
+		super._removeComponent(component);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
-		super.activate(context, this.cm, this.config, this.componentManager.getClock());
+		super.activate(context, this.config, this.componentManager.getClock());
+		this.applyConfig(config.writeChannels());
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsException {
+	private void modified(ComponentContext context, Config config) {
 		this.config = CommonConfig.Rtu.from(config, this.metaComponent);
-		super.modified(context, this.cm, this.config, this.componentManager.getClock());
+		super.modified(context, this.config, this.componentManager.getClock());
+		this.applyConfig(config.writeChannels());
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+	}
+
+	@Override
+	protected ConfigurationAdmin getConfigurationAdmin() {
+		return this.cm;
 	}
 
 	@Override
@@ -107,11 +122,6 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusApi imple
 	}
 
 	@Override
-	protected AccessMode getAccessMode() {
-		return AccessMode.READ_WRITE;
-	}
-
-	@Override
 	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
 		return new ModbusSlaveTable(//
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
@@ -120,19 +130,12 @@ public class ControllerApiModbusRtuReadWriteImpl extends AbstractModbusApi imple
 						.channel(1, ModbusApi.ChannelId.COMPONENT_MISSING_FAULT, ModbusType.UINT16) //
 						.channel(2, ModbusApi.ChannelId.PROCESS_IMAGE_FAULT, ModbusType.UINT16) //
 						.channel(3, ModbusApi.ChannelId.COMPONENT_NO_MODBUS_API_FAULT, ModbusType.UINT16) //
-						.channel(4, ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_ACTIVE_POWER_EQUALS,
-								ModbusType.FLOAT32) //
-						.channel(6, ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_ACTIVE_POWER_GREATER_OR_EQUALS,
-								ModbusType.FLOAT32) //
-						.channel(8, ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_ACTIVE_POWER_LESS_OR_EQUALS,
-								ModbusType.FLOAT32) //
-						.channel(10, ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_REACTIVE_POWER_EQUALS,
-								ModbusType.FLOAT32) //
-						.channel(12,
-								ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_REACTIVE_POWER_GREATER_OR_EQUALS,
-								ModbusType.FLOAT32) //
-						.channel(14, ControllerApiModbusRtuReadWrite.ChannelId.DEBUG_SET_REACTIVE_POWER_LESS_OR_EQUALS,
-								ModbusType.FLOAT32) //
-						.build()); //
+						.build(), //
+				AbstractModbusReadWriteApi.getModbusSlaveNatureTable(accessMode));
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
 	}
 }

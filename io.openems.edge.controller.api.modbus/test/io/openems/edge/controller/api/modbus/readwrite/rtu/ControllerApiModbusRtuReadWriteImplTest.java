@@ -1,12 +1,9 @@
 package io.openems.edge.controller.api.modbus.readwrite.rtu;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
-import io.openems.common.test.TimeLeapClock;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -17,19 +14,15 @@ import io.openems.edge.controller.api.modbus.MyRtuConfig;
 import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerApiModbusRtuReadWriteImplTest {
-
-	private static final String CTRL_ID = "ctrl0";
-
-	private TimeLeapClock clock = new TimeLeapClock(Instant.parse("2024-01-01T01:00:00.00Z"), ZoneOffset.UTC);
-
 	@Test
 	public void test() throws Exception {
+		final var clock = TestUtils.createDummyClock();
 		new ControllerTest(new ControllerApiModbusRtuReadWriteImpl()) //
-				.addReference("componentManager", new DummyComponentManager(this.clock)) //
-				.addReference("metaComponent", new DummyMeta()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("metaComponent", new DummyMeta()) //
 				.activate(MyRtuConfig.create(io.openems.edge.controller.api.modbus.readonly.rtu.Config.class) //
-						.setId(CTRL_ID) //
+						.setId("ctrlApiModbusTcp0") //
 						.setEnabled(false) // do not actually start server
 						.setParity(Parity.NONE).setStopbit(Stopbit.ONE) //
 						.setBaudrate(9600) //
@@ -39,6 +32,7 @@ public class ControllerApiModbusRtuReadWriteImplTest {
 						.setLogVerbosity(LogVerbosity.NONE) //
 						.build()) //
 				.next(new TestCase()) //
+				.deactivate();
 		;
 	}
 }

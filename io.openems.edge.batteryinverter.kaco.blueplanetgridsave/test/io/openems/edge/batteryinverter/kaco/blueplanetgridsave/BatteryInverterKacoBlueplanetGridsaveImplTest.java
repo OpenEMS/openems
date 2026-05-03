@@ -11,8 +11,8 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.util.stream.IntStream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -53,7 +53,8 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 	private static final TimeLeapClock CLOCK = createDummyClock();
 	private static ComponentTest test;
 
-	@Before
+	@BeforeEach
+	@Test
 	public void prepareTest() throws Exception {
 		var sut = new BatteryInverterKacoBlueplanetGridsaveImpl();
 

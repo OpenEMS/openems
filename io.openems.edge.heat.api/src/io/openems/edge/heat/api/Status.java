@@ -28,12 +28,12 @@ public enum Status implements OptionsEnum {
 	 * The Heatingelement has reached the requested or max temperature.
 	 */
 	TEMPERATURE_REACHED(3, "Temperature reached"),
-	
+
 	/**
 	 * No control signal is available.
 	 */
 	NO_CONTROL_SIGNAL(4, "No control signal"),
-	
+
 	/**
 	 * An error occurred on the device.
 	 */

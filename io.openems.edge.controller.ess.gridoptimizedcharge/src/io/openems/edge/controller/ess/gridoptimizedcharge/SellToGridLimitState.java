@@ -9,7 +9,9 @@ public enum SellToGridLimitState implements OptionsEnum {
 	NO_FEASIBLE_SOLUTION(2, "Limit cannot be adapted because of other constraints with higher priority"), //
 	ACTIVE_LIMIT_CONSTRAINT(3, "Active limitation - Minimum charge power "), //
 	DISABLED(4, "SellToGridLimit part is disabled"), //
-	NOT_STARTED(5, "SellToGridLimit part was not started because there is no production or to less production"); //
+	NOT_STARTED(5, "SellToGridLimit part was not started because there is no production or to less production"), //
+	ALLOWED_FEED_IN_LIMIT_TOO_LOW(6,
+			"Not active. The controller has no flexibility left to delay charge, because the limitation is nearly zero."); //
 
 	private final int value;
 	private final String name;

@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
                 "OPTIMAL": "Capacity expansion",
                 "PLANNED_EXPANSION": "Planned Expansion",
+                "IN_REFERENCE_CYCLE": "Reference cycle active - battery is being prepared for capacity extension.",
                 "PREPARING": "Prepare for Capacity Extension",
                 "REACHED_TARGET_SOC": "Ready for Capacity Extension",
                 "REFERENCING_OF_STORAGE": {
@@ -418,8 +419,10 @@
                         "NO_LIMIT_POSSIBLE": "No limitation possible (restricted by controls with higher priority)",
                         "NOT_DEFINED": "Not defined",
                         "PASSED_END_TIME": "End time of limited charging exceeded",
-                        "STORAGE_ALREADY_FULL": "Storage already full"
+                        "STORAGE_ALREADY_FULL": "Storage already full",
+                        "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Limited or delayed charging is not possible because no grid feed-in or only a small amount of grid feed-in is allowed."
                     },
+                    "LIMITED_FUNCTIONALITY": "Limited functionality",
                     "STORAGE_CAPACITY": "Storage capacity (only visible for admin)"
                 },
                 "HEAT": {
@@ -453,11 +456,15 @@
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Active (Minimum runtime)",
                     "ACTIVE_LEVEL": "Active level",
+                    "LEVEL_ONE": "Level 1",
+                    "LEVEL_TWO": "Level 2",
+                    "LEVEL_THREE": "Level 3",
                     "ACTIVED_FORCED_LIMIT": "Active (additional energy)",
                     "CALIBRATION": "Calibration",
                     "CALIBRATION_DESCRIPTION": "The heating element is calibrated to get the power of the single levels of the meter",
                     "DONE": "Done",
                     "ENDTIME": "Endtime",
+                    "SET_ENDTIME": "Set end time",
                     "ENERGY": "Energy",
                     "ENERGY_SINCE_BEGINNING": "Energy since beginning",
                     "GUARANTEE_HEATING": "Guarantee minimum heating energy",

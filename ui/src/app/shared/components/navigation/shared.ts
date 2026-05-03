@@ -419,6 +419,12 @@ export namespace NavigationConstants {
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [
+        "Controller.IO.HeatingElement",
+        "Controller.Ess.FixActivePower",
+        "Controller.Ess.Time-Of-Use-Tariff",
+        "Controller.Ess.GridOptimizedCharge",
+        "Heat.Askoma",
+        "Heat.MyPv.AcThor9s",
         "Controller.Io.HeatPump.SgReady",
     ];
 
@@ -429,5 +435,6 @@ export namespace NavigationConstants {
                 ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
                 : [];
         }
+        export function SETTINGS(translate: TranslateService, children: NavigationTree["children"] = []) { return new NavigationTree("settings", { baseString: "settings" }, { name: "list-outline", color: "warning" }, translate.instant("MENU.SETTINGS"), "label", children, null); };
     }
 }

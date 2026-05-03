@@ -161,8 +161,18 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "_PropertyTargetSoc"),
                     new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
+                    new ChannelAddress(controller.id, "CtrlIsInReferenceCycle"),
                 );
             }
+
+            for (const essId in emergencyReserveCtrl) {
+                const controller = emergencyReserveCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyIsReserveSocEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyReserveSoc"),
+                );
+            }
+
             for (const essId in essSohCycleCtrl) {
                 const controller = essSohCycleCtrl[essId];
                 channelAddresses.push(
@@ -176,6 +186,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "IsMeasured"),
                 );
             }
+
             for (const batteryInverter of this.batteryInverters) {
                 channelAddresses.push(new ChannelAddress(batteryInverter.id, "ActivePower"));
                 channelAddresses.push(new ChannelAddress(batteryInverter.id, "AirTemperature"));
@@ -213,6 +224,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                             } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
 
                                 const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
+                                const isInReferenceCycle = currentData.channel[controller.id + "/CtrlIsInReferenceCycle"] == 1;
 
                                 // Because of ionic segment buttons only accepting a string value, i needed to convert it
                                 const targetTimeSpecified = (currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1).toString();
@@ -248,6 +260,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                     this.formBuilder.group({
                                         controllerId: new FormControl(controller.id),
                                         isRunning: new FormControl(isRunning),
+                                        isInReferenceCycle: new FormControl(isInReferenceCycle),
                                         targetTime: new FormControl(targetTime),
                                         targetTimeSpecified: new FormControl(targetTimeSpecified),
                                         targetSoc: new FormControl(targetSoc),

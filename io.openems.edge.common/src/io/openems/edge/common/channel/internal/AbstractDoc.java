@@ -75,11 +75,15 @@ public abstract class AbstractDoc<T> implements Doc {
 	/**
 	 * PersistencePriority for this Channel.
 	 */
-	private PersistencePriority persistencePriority = PersistencePriority.LOW;
+	private PersistencePriority localPersistencePriority = PersistencePriority.LOW;
+	/**
+	 * PersistencePriority for this Channel.
+	 */
+	private PersistencePriority remotePersistencePriority = PersistencePriority.LOW;
 
 	/**
 	 * Sets the {@link PersistencePriority}. Defaults to
-	 * {@link PersistencePriority#VERY_LOW}.
+	 * {@link PersistencePriority#LOW}.
 	 *
 	 * <p>
 	 * This parameter may be used by persistence services to decide, if the Channel
@@ -89,13 +93,51 @@ public abstract class AbstractDoc<T> implements Doc {
 	 * @return myself
 	 */
 	public AbstractDoc<T> persistencePriority(PersistencePriority persistencePriority) {
-		this.persistencePriority = persistencePriority;
+		this.localPersistencePriority = persistencePriority;
+		this.remotePersistencePriority = persistencePriority;
+		return this.self();
+	}
+
+	/**
+	 * Sets the {@link PersistencePriority} for local databases. Defaults to
+	 * {@link PersistencePriority#LOW}.
+	 *
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 *
+	 * @param persistencePriority the {@link PersistencePriority}
+	 * @return myself
+	 */
+	public AbstractDoc<T> localPersistencePriority(PersistencePriority persistencePriority) {
+		this.localPersistencePriority = persistencePriority;
+		return this.self();
+	}
+
+	/**
+	 * Sets the {@link PersistencePriority} for remote databases/backend. Defaults
+	 * to {@link PersistencePriority#LOW}.
+	 *
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 *
+	 * @param persistencePriority the {@link PersistencePriority}
+	 * @return myself
+	 */
+	public AbstractDoc<T> remotePersistencePriority(PersistencePriority persistencePriority) {
+		this.remotePersistencePriority = persistencePriority;
 		return this.self();
 	}
 
 	@Override
-	public PersistencePriority getPersistencePriority() {
-		return this.persistencePriority;
+	public PersistencePriority getLocalPersistencePriority() {
+		return this.localPersistencePriority;
+	}
+
+	@Override
+	public PersistencePriority getRemotePersistencePriority() {
+		return this.remotePersistencePriority;
 	}
 
 	/*
