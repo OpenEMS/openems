@@ -4,7 +4,6 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import io.openems.edge.app.enums.Wiring;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
@@ -56,7 +55,7 @@ public class EvseProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier, T extends OpenemsAppInstance> //
-	AppDef<APP, Nameable, BundleProvider> configureVehicle() {
+			AppDef<APP, Nameable, BundleProvider> configureVehicle() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.vehicle.label") //
 				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {

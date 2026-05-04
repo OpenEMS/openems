@@ -3,8 +3,8 @@ package io.openems.edge.bridge.modbus;
 import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.edge.bridge.modbus.api.ModbusComponent.ChannelId.MODBUS_COMMUNICATION_FAILED;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
@@ -30,7 +30,7 @@ public class BridgeModbusTcpImplTest {
 	private static final int UNIT_ID = 1;
 	private static final int CYCLE_TIME = 100;
 
-	@Ignore
+	@Disabled
 	@Test
 	public void test() throws Exception {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(CYCLE_TIME);

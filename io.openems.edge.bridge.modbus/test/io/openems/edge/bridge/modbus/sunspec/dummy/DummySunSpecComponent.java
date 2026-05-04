@@ -3,14 +3,9 @@ package io.openems.edge.bridge.modbus.sunspec.dummy;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -18,16 +13,18 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.taskmanager.Priority;
 
-public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
+public class DummySunSpecComponent extends AbstractOpenemsSunSpecComponent
 		implements ModbusComponent, OpenemsComponent {
 
-	private static final Map<SunSpecModel, Priority> DEFAULT_ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+	private static final Map<SunSpecModel, Priority> DEFAULT_ACTIVE_MODELS = ImmutableMap
+			.<SunSpecModel, Priority>builder() //
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
@@ -35,16 +32,12 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 			.put(DefaultSunSpecModel.S_702, Priority.LOW) //
 			.build();
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	public MySunSpecComponentImpl() {
+	public DummySunSpecComponent() {
 		super(//
 				DEFAULT_ACTIVE_MODELS, //
 				OpenemsComponent.ChannelId.values(), //
@@ -52,7 +45,15 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 		);
 	}
 
-	public MySunSpecComponentImpl(List<SunSpecModelEntry> activeModels) {
+	public DummySunSpecComponent(List<SunSpecModelEntry> activeModels) {
+		super(//
+				activeModels, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values() //
+		);
+	}
+
+	public DummySunSpecComponent(Map<SunSpecModel, Priority> activeModels) {
 		super(//
 				activeModels, //
 				OpenemsComponent.ChannelId.values(), //
@@ -62,10 +63,7 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), true, config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id(), config.readFromModbusBlock())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), true, config.modbusUnitId(), config.readFromModbusBlock());
 	}
 
 	@Override
@@ -83,4 +81,19 @@ public class MySunSpecComponentImpl extends AbstractOpenemsSunSpecComponent
 	protected void onSunSpecInitializationCompleted() {
 	}
 
+	/**
+	 * Gets the length of the longest modbus task.
+	 *
+	 * @return the maximum task length
+	 * @throws OpenemsException on error
+	 */
+	public int maximumTaskLenghth() throws OpenemsException {
+		return this.getModbusProtocol() //
+				.getTaskManager() //
+				.getTasks() //
+				.stream() //
+				.mapToInt(Task::getLength) //
+				.max().orElse(0);
+
+	}
 }

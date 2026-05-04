@@ -16,13 +16,13 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface BridgeModbus extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.INFO) //
+		CYCLE_TIME_IS_TOO_SHORT(Doc.of(Level.INFO)//
 				.debounce(10, Debounce.TRUE_VALUES_IN_A_ROW_TO_SET_TRUE)), //
 		/**
 		 * Delay per Cycle before starting to execute Modbus Tasks. Global Cycle-Time
 		 * can be reduced by this amount, without causing CYCLE_TIME_IS_TOO_SHORT.
 		 */
-		CYCLE_DELAY(Doc.of(OpenemsType.LONG) //
+		CYCLE_DELAY(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.MILLISECONDS)),
 
 		BRIDGE_IS_STOPPED(Doc.of(Level.INFO) //

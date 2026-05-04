@@ -2,11 +2,12 @@ package io.openems.edge.bridge.modbus.api.element;
 
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -59,10 +60,10 @@ public class UnsignedWordElementTest {
 		assertNull(sut.channel.getNextValue().get());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testReadWrongLength() throws OpenemsException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(new UnsignedWordElement(0), INTEGER);
-		sut.element.setInputValue(new Register[3]);
+		assertThrows(IllegalArgumentException.class, () -> sut.element.setInputValue(new Register[3]));
 	}
 
 	@Test

@@ -20,8 +20,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -51,8 +49,6 @@ public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements Io
 	private static final int OFFSET = 0;
 	private static final int PRECISION = 100;
 	private static final int MAXIMUM = 10000;
-
-	private final Logger log = LoggerFactory.getLogger(IoMasterBox2v0AoImpl.class);
 
 	@Reference
 	private ConfigurationAdmin cm;
