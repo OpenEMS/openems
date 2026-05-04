@@ -61,8 +61,8 @@ public abstract class AbstractSunSpecEss extends AbstractOpenemsSunSpecComponent
 	@Override
 	public String debugLog() {
 		return new StringBuilder() //
-				.append("SoC:").append(this.getSoc().asString()) //
-				.append("|ESS ActivePower:").append(this.getActivePower().asString()) //
+				.append("|SoC:").append(this.getSoc().asString()) //
+				.append("|L:").append(this.getActivePower().asString()) //
 				.toString();
 	}
 

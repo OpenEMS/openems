@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +150,12 @@ public abstract class AbstractOpenemsSunSpecComponent extends AbstractOpenemsMod
 		super(firstInitialChannelIds, furtherInitialChannelIds);
 		this.activeModels = activeModels;
 		this.modbusProtocol = new ModbusProtocol(this);
+	}
+
+	@Override
+	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			ConfigurationAdmin cm, String modbusReference, String modbusId) {
+		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
 	/**

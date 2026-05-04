@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent.SunSpecModelEntry;
-import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponentImpl;
+import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest;
@@ -20,7 +20,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testDefaultStartBehaviour() throws Exception {
-		final var sut = new DummySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -81,7 +81,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testNotAllRequiredModelsRead() throws Exception {
-		final var sut = new DummySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -141,7 +141,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testReinitializeSunSpecChannels() throws Exception {
-		final var sut = new DummySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -242,7 +242,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testReinitializeSunSpecChannelsDuplicatedModels() throws Exception {
-		final var sut = new DummySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //

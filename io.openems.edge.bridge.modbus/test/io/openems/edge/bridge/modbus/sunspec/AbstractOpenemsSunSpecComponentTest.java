@@ -31,7 +31,7 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S103;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S701;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S701_ACType;
 import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
-import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponentImpl;
+import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
@@ -68,7 +68,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 
 	@Test
 	public void testReadFromModbus() throws Exception {
-		var sut = new DummySunSpecComponentImpl();
+		var sut = new DummySunSpecComponent();
 		new ComponentTest(sut) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(40000, 0x5375, 0x6e53) // isSunSpec
@@ -183,7 +183,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 							.setLogVerbosity(LogVerbosity.READS_AND_WRITES_VERBOSE) //
 							.build());
 
-			var cmp = new DummySunSpecComponentImpl();
+			var cmp = new DummySunSpecComponent();
 			var testCmp = new ComponentTest(cmp) //
 					.addReference("setModbus", bridge) //
 					.activate(MyConfig.create() //
@@ -215,7 +215,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	}
 
 	private static void testWithEndOfMap(ModbusSlave slave, BridgeModbusTcpImpl bridge, ComponentTest testBridge,
-			DummySunSpecComponentImpl cmp, ComponentTest testCmp) throws Exception {
+			DummySunSpecComponent cmp, ComponentTest testCmp) throws Exception {
 		var processImage = new SimpleProcessImage(UNIT_ID);
 		generateSunSpec() //
 				.put(40160, 0xFFFF) // END_OF_MAP
@@ -231,7 +231,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	}
 
 	private static void testWithIllegalAddress(ModbusSlave slave, BridgeModbusTcpImpl bridge, ComponentTest testBridge,
-			DummySunSpecComponentImpl cmp, ComponentTest testCmp) throws Exception {
+			DummySunSpecComponent cmp, ComponentTest testCmp) throws Exception {
 		var processImage = new SimpleProcessImage(UNIT_ID);
 		generateSunSpec() //
 				.build() //
