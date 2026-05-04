@@ -122,11 +122,13 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L1) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
-					ess.onSunSpecInitializationCompleted();
-					assertFalse(warningWrongPhaseConfigured.getNextValue().get());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
+							ess.onSunSpecInitializationCompleted();
+							assertFalse(warningWrongPhaseConfigured.getNextValue().get());
+						})) //
+				.deactivate();
 
 		// Test SinglePhase Inverter with SingleOrAllPhase.ALL configuration
 		new ComponentTest(ess) //
@@ -140,11 +142,13 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.ALL) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
-					ess.onSunSpecInitializationCompleted();
-					assertTrue(warningWrongPhaseConfigured.getNextValue().get());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
+							ess.onSunSpecInitializationCompleted();
+							assertTrue(warningWrongPhaseConfigured.getNextValue().get());
+						})) //
+				.deactivate();
 
 		// Test SinglePhase Inverter with SingleOrAllPhase.L2 configuration
 		new ComponentTest(ess) //
@@ -158,11 +162,13 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L2) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
-					ess.onSunSpecInitializationCompleted();
-					assertFalse(warningWrongPhaseConfigured.getNextValue().get());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							ess.addBlock(1, SolarEdgeEssImpl.S_101_WITHOUT_EVENTS, Priority.HIGH);
+							ess.onSunSpecInitializationCompleted();
+							assertFalse(warningWrongPhaseConfigured.getNextValue().get());
+						})) //
+				.deactivate();
 
 		// Test SplitPhase Inverter with SingleOrAllPhase.L3 configuration (SplitPhase
 		// not supported -> Warning are expected)
@@ -177,11 +183,13 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L3) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					ess.addBlock(1, SolarEdgeEssImpl.S_102_WITHOUT_EVENTS, Priority.HIGH);
-					ess.onSunSpecInitializationCompleted();
-					assertTrue(warningWrongPhaseConfigured.getNextValue().get());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							ess.addBlock(1, SolarEdgeEssImpl.S_102_WITHOUT_EVENTS, Priority.HIGH);
+							ess.onSunSpecInitializationCompleted();
+							assertTrue(warningWrongPhaseConfigured.getNextValue().get());
+						})) //
+				.deactivate();
 
 		// Test ThreePhase Inverter with SingleOrAllPhase.ALL configuration
 		new ComponentTest(ess) //
@@ -195,11 +203,13 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.ALL) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					ess.addBlock(1, SolarEdgeEssImpl.S_103_WITHOUT_EVENTS, Priority.HIGH);
-					ess.onSunSpecInitializationCompleted();
-					assertFalse(warningWrongPhaseConfigured.getNextValue().get());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							ess.addBlock(1, SolarEdgeEssImpl.S_103_WITHOUT_EVENTS, Priority.HIGH);
+							ess.onSunSpecInitializationCompleted();
+							assertFalse(warningWrongPhaseConfigured.getNextValue().get());
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -228,9 +238,11 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L1) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					assertEquals(SinglePhase.L1, ess.getPhase());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							assertEquals(SinglePhase.L1, ess.getPhase());
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -247,9 +259,11 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L2) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					assertEquals(SinglePhase.L2, ess.getPhase());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							assertEquals(SinglePhase.L2, ess.getPhase());
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -266,9 +280,11 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.L3) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					assertEquals(SinglePhase.L3, ess.getPhase());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							assertEquals(SinglePhase.L3, ess.getPhase());
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -285,9 +301,11 @@ public class SolarEdgeEssImplTest {
 						.setModbusUnitId(1) //
 						.setPhase(SingleOrAllPhase.ALL) //
 						.build()) //
-				.next(new TestCase().also(t -> {
-					assertNull(ess.getPhase());
-				})).deactivate();
+				.next(new TestCase() //
+						.also(t -> {
+							assertNull(ess.getPhase());
+						})) //
+				.deactivate();
 	}
 
 	@Test

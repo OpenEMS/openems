@@ -112,7 +112,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Percent
-		 * <li>
 		 * </ul>
 		 */
 		STORAGE_BACKUP_RESERVED_SETTING(Doc.of(OpenemsType.INTEGER)// Percent. Relevant only for inverters with backup functionality.
@@ -123,31 +122,38 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
 		 * Charge/Discharge default Mode sets the default mode of operation when Remote
 		 * Control Command Timeout has expired. The supported Charge/Discharge Modes are
-		 * as follows: 0 – Off 1 – Charge excess PV power only. Only PV excess power not
-		 * going to AC is used for charging the battery. Inverter
-		 * NominalActivePowerLimit (or the inverter rated power whichever is lower) sets
-		 * how much power the inverter is producing to the AC. In this mode, the battery
-		 * cannot be discharged. If the PV power is lower than NominalActivePowerLimit
-		 * the AC production will be equal to the PV power. 2 – Charge from PV first,
-		 * before producing power to the AC. The Battery charge has higher priority than
-		 * AC production. First charge the battery then produce AC. If
-		 * StorageRemoteCtrl_ChargeLimit is lower than PV excess power goes to AC
-		 * according to NominalActivePowerLimit. If NominalActivePowerLimit is reached
-		 * and battery StorageRemoteCtrl_ChargeLimit is reached, PV power is curtailed.
-		 * 3 – Charge from PV+AC according to the max battery power. Charge from both PV
-		 * and AC with priority on PV power. If PV production is lower than
+		 * as follows:
+		 * 
+		 * <ul>
+		 * <li>0 – Off
+		 * <li>1 – Charge excess PV power only. Only PV excess power not going to AC is
+		 * used for charging the battery. Inverter NominalActivePowerLimit (or the
+		 * inverter rated power whichever is lower) sets how much power the inverter is
+		 * producing to the AC. In this mode, the battery cannot be discharged. If the
+		 * PV power is lower than NominalActivePowerLimit the AC production will be
+		 * equal to the PV power.
+		 * <li>2 – Charge from PV first, before producing power to the AC. The Battery
+		 * charge has higher priority than AC production. First charge the battery then
+		 * produce AC. If StorageRemoteCtrl_ChargeLimit is lower than PV excess power
+		 * goes to AC according to NominalActivePowerLimit. If NominalActivePowerLimit
+		 * is reached and battery StorageRemoteCtrl_ChargeLimit is reached, PV power is
+		 * curtailed.
+		 * <li>3 – Charge from PV+AC according to the max battery power. Charge from
+		 * both PV and AC with priority on PV power. If PV production is lower than
 		 * StorageRemoteCtrl_ChargeLimit, the battery will be charged from AC up to
 		 * NominalActivePow-erLimit. In this case AC power =
 		 * StorageRemoteCtrl_ChargeLimit- PVpower. If PV power is larger than
 		 * StorageRemoteCtrl_ChargeLimit the excess PV power will be directed to the AC
-		 * up to the Nominal-ActivePowerLimit beyond which the PV is curtailed. 4 –
-		 * Maximize export – discharge battery to meet max inverter AC limit. AC power
-		 * is maintained to NominalActivePowerLimit, using PV power and/or battery
+		 * up to the Nominal-ActivePowerLimit beyond which the PV is curtailed.
+		 * <li>4 – Maximize export – discharge battery to meet max inverter AC limit. AC
+		 * power is maintained to NominalActivePowerLimit, using PV power and/or battery
 		 * power. If the PV power is not sufficient, battery power is used to complement
 		 * AC power up to StorageRemoteCtrl_DishargeLimit. In this mode, charging excess
-		 * power will occur if there is more PV than the AC limit. 5 – Discharge to meet
-		 * loads consumption. Discharging to the grid is not allowed. 7 – Maximize
-		 * self-consumption
+		 * power will occur if there is more PV than the AC limit.
+		 * <li>5 – Discharge to meet loads consumption. Discharging to the grid is not
+		 * allowed.
+		 * <li>7 – Maximize self-consumption
+		 * </ul>
 		 */
 		STORAGE_CHARGE_DISCHARGE_DEFAULT_MODE(Doc.of(CommandMode.values())),
 
@@ -163,31 +169,38 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * Charge/Discharge default Mode / Remote Control Command Mode Storage
 		 * Charge/Discharge default Mode sets the default mode of operation when Remote
 		 * Control Command Timeout has expired. The supported Charge/Discharge Modes are
-		 * as follows: 0 – Off 1 – Charge excess PV power only. Only PV excess power not
-		 * going to AC is used for charging the battery. Inverter
-		 * NominalActivePowerLimit (or the inverter rated power whichever is lower) sets
-		 * how much power the inverter is producing to the AC. In this mode, the battery
-		 * cannot be discharged. If the PV power is lower than NominalActivePowerLimit
-		 * the AC production will be equal to the PV power. 2 – Charge from PV first,
-		 * before producing power to the AC. The Battery charge has higher priority than
-		 * AC production. First charge the battery then produce AC. If
-		 * StorageRemoteCtrl_ChargeLimit is lower than PV excess power goes to AC
-		 * according to NominalActivePowerLimit. If NominalActivePowerLimit is reached
-		 * and battery StorageRemoteCtrl_ChargeLimit is reached, PV power is curtailed.
-		 * 3 – Charge from PV+AC according to the max battery power. Charge from both PV
-		 * and AC with priority on PV power. If PV production is lower than
+		 * as follows:
+		 * 
+		 * <ul>
+		 * <li>0 – Off
+		 * <li>1 – Charge excess PV power only. Only PV excess power not going to AC is
+		 * used for charging the battery. Inverter NominalActivePowerLimit (or the
+		 * inverter rated power whichever is lower) sets how much power the inverter is
+		 * producing to the AC. In this mode, the battery cannot be discharged. If the
+		 * PV power is lower than NominalActivePowerLimit the AC production will be
+		 * equal to the PV power.
+		 * <li>2 – Charge from PV first, before producing power to the AC. The Battery
+		 * charge has higher priority than AC production. First charge the battery then
+		 * produce AC. If StorageRemoteCtrl_ChargeLimit is lower than PV excess power
+		 * goes to AC according to NominalActivePowerLimit. If NominalActivePowerLimit
+		 * is reached and battery StorageRemoteCtrl_ChargeLimit is reached, PV power is
+		 * curtailed.
+		 * <li>3 – Charge from PV+AC according to the max battery power. Charge from
+		 * both PV and AC with priority on PV power. If PV production is lower than
 		 * StorageRemoteCtrl_ChargeLimit, the battery will be charged from AC up to
 		 * NominalActivePow-erLimit. In this case AC power =
 		 * StorageRemoteCtrl_ChargeLimit- PVpower. If PV power is larger than
 		 * StorageRemoteCtrl_ChargeLimit the excess PV power will be directed to the AC
-		 * up to the Nominal-ActivePowerLimit beyond which the PV is curtailed. 4 –
-		 * Maximize export – discharge battery to meet max inverter AC limit. AC power
-		 * is maintained to NominalActivePowerLimit, using PV power and/or battery
+		 * up to the Nominal-ActivePowerLimit beyond which the PV is curtailed.
+		 * <li>4 – Maximize export – discharge battery to meet max inverter AC limit. AC
+		 * power is maintained to NominalActivePowerLimit, using PV power and/or battery
 		 * power. If the PV power is not sufficient, battery power is used to complement
 		 * AC power up to StorageRemoteCtrl_DishargeLimit. In this mode, charging excess
-		 * power will occur if there is more PV than the AC limit. 5 – Discharge to meet
-		 * loads consumption. Discharging to the grid is not allowed. 7 – Maximize
-		 * self-consumption
+		 * power will occur if there is more PV than the AC limit.
+		 * <li>5 – Discharge to meet loads consumption. Discharging to the grid is not
+		 * allowed.
+		 * <li>7 – Maximize self-consumption
+		 * </ul>
 		 */
 		DEBUG_REMOTE_CONTROL_COMMAND_MODE(Doc.of(CommandMode.values())),
 		REMOTE_CONTROL_COMMAND_MODE(Doc.of(CommandMode.values()).accessMode(AccessMode.READ_WRITE)
@@ -195,7 +208,8 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 
 		/**
 		 * Maximum Charge Power Channel. Always positive. Reads and Writes the charge
-		 * power Control mode and charge policy have to be set
+		 * power Control mode and charge policy have to be set.
+		 * 
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
@@ -211,6 +225,7 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		/**
 		 * Maximum Discharge Power Channel. Always positive. Reads and writes the
 		 * discharge power.
+		 * 
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
@@ -230,7 +245,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_CHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER)//
@@ -244,7 +258,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_DISCHARGE_CONTINUES_POWER(Doc.of(OpenemsType.INTEGER)//
@@ -258,7 +271,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_CHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER)//
@@ -272,7 +284,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_DISCHARGE_PEAK_POWER(Doc.of(OpenemsType.INTEGER)//
@@ -286,7 +297,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: °C
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_AVG_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
@@ -300,7 +310,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
@@ -314,7 +323,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: V
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_ACTUAL_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
@@ -328,7 +336,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: mA
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_ACTUAL_CURRENT(Doc.of(OpenemsType.INTEGER)//
@@ -358,7 +365,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_LIFETIME_EXPORT_ENERGY(Doc.of(OpenemsType.LONG)//
@@ -367,12 +373,12 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 
 		/**
 		 * Battery 1 Lifetime Import Energy Counter. "Lifetime" resets every night. No
-		 * useful information!
+		 * useful information!.
+		 * 
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_LIFETIME_IMPORT_ENERGY(Doc.of(OpenemsType.LONG)//
@@ -386,7 +392,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Wh
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_MAX_CAPACITY(Doc.of(OpenemsType.INTEGER)//
@@ -400,7 +405,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: Ess
 		 * <li>Type: Integer
 		 * <li>Unit: Percent
-		 * <li>
 		 * </ul>
 		 */
 		SOH(Doc.of(OpenemsType.INTEGER)//
@@ -408,16 +412,22 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 				.persistencePriority(PersistencePriority.LOW)),
 
 		/**
-		 * Batter 1 Status. SE_BATT_STATUS_OFF(0, "Off"), // SE_BATT_STATUS_STBY(1,
-		 * "Standby"), // SE_BATT_STATUS_INIT(2, "Init"), // SE_BATT_STATUS_CHARGE(3,
-		 * "Charge"), // SE_BATT_STATUS_DISCHARGE(4, "Discharge"), //
-		 * SE_BATT_STATUS_FAULT(5, "Fault"), // // 6 doesn´t exist
-		 * SE_BATT_STATUS_IDLE(7, "Idle"); //
+		 * Batter 1 Status.
+		 * 
+		 * <ul>
+		 * <li>SE_BATT_STATUS_OFF(0, "Off")
+		 * <li>SE_BATT_STATUS_STBY(1, "Standby")
+		 * <li>SE_BATT_STATUS_INIT(2, "Init")
+		 * <li>SE_BATT_STATUS_CHARGE(3, "Charge")
+		 * <li>SE_BATT_STATUS_DISCHARGE(4, "Discharge")
+		 * <li>SE_BATT_STATUS_FAULT(5, "Fault")
+		 * <li>6 doesn´t exist
+		 * <li>SE_BATT_STATUS_IDLE(7, "Idle")
+		 * </ul>
+		 * 
 		 * <ul>
 		 * <li>Interface: Ess
 		 * <li>Type: enum
-		 * <li>Unit:
-		 * <li>
 		 * </ul>
 		 */
 		BATTERY1_STATUS(Doc.of(BatteryStatus.values())),
@@ -429,7 +439,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
 		 * <li>Unit: W
-		 * <li>
 		 * </ul>
 		 */
 		INVERTER_ACTIVE_DC_POWER(Doc.of(OpenemsType.INTEGER)//
@@ -443,7 +452,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Float
 		 * <li>Unit: Percent
-		 * <li>
 		 * </ul>
 		 */
 		INVERTER_MAX_APPARENT_POWER(Doc.of(OpenemsType.FLOAT)//
@@ -457,7 +465,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Float
 		 * <li>Unit: Percent
-		 * <li>
 		 * </ul>
 		 */
 		INVERTER_POWER_LIMIT(Doc.of(OpenemsType.FLOAT)//
@@ -470,7 +477,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
-		 * <li>
 		 * </ul>
 		 */
 		ADVANCED_PWR_CONTROL_EN(Doc.of(OpenemsType.INTEGER)),
@@ -481,7 +487,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
-		 * <li>
 		 * </ul>
 		 */
 		EXPORT_CONTROL_MODE(Doc.of(OpenemsType.INTEGER)),
@@ -492,7 +497,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <ul>
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
-		 * <li>
 		 * </ul>
 		 */
 		EXPORT_CONTROL_LIMIT_MODE(Doc.of(OpenemsType.INTEGER)),
@@ -504,7 +508,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Float
 		 * <li>Unit: Watt
-		 * <li>
 		 * </ul>
 		 */
 		EXPORT_CONTROL_SITE_LIMIT(Doc.of(OpenemsType.FLOAT)//
@@ -532,7 +535,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		 * <li>Interface: SolarEdgeEss
 		 * <li>Type: Integer
 		 * <li>Unit: mV
-		 * <li>
 		 * </ul>
 		 */
 		VOLTAGE_DC(Doc.of(OpenemsType.INTEGER)//
@@ -542,7 +544,6 @@ public interface SolarEdgeEss extends OpenemsComponent, SymmetricEss {
 		/*
 		 * 
 		 * METER_COMMUNICATE_STATUS
-		 * 
 		 */
 		METER_COMMUNICATE_STATUS(Doc.of(MeterCommunicateStatus.values())), //
 

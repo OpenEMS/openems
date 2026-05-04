@@ -19,6 +19,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "SolarEdge ESS-Inverter", description = "ID of SolarEdge Energy Storage System.")
 	String essInverter_id() default "ess0";
 
-	String webconsole_configurationFactory_nameHint() default "Charger SolarEdge [{id}]";
+	String webconsole_configurationFactory_nameHint() default "SolarEdge Charger [{id}]";
 
 }
