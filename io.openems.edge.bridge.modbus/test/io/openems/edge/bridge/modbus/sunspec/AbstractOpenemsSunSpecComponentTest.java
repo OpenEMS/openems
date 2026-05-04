@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
@@ -61,7 +61,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 
 	private static final int UNIT_ID = 1;
 
-	@Before
+	@BeforeEach
 	public void changeLogLevel() {
 		java.lang.System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", "INFO");
 	}
@@ -158,7 +158,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	}
 
 	// Disabled because of timing issues in CI
-	@Ignore
+	@Disabled
 	@Test
 	public void test() throws Exception {
 		var port = findRandomOpenPortOnAllLocalInterfaces();
