@@ -1,6 +1,5 @@
 package io.openems.edge.solaredge.gridmeter;
 
-import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -8,18 +7,17 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -38,9 +36,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		property = { //
 				"type=GRID" //
 		})
-@EventTopics({ //
-		TOPIC_CYCLE_EXECUTE_WRITE //
-})
+@GenerateTargetsFromReferences("Modbus")
 public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
 		implements SolarEdgeGridMeter, ElectricityMeter, ModbusComponent, OpenemsComponent {
 
@@ -54,11 +50,10 @@ public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
 
 	private static final int READ_FROM_MODBUS_BLOCK = 2;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -78,10 +73,8 @@ public class SolarEdgeGridMeterImpl extends AbstractSunSpecMeter
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.invert())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK, config.invert());
 	}
 
 	@Override

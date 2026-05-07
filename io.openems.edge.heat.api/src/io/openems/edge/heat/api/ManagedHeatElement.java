@@ -13,14 +13,18 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface ManagedHeatElement extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		CONTROL_NOT_ALLOWED(Doc.of(OpenemsType.BOOLEAN) //
+		CONTROL_NOT_ALLOWED(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		DEBUG_TARGET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_TARGET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
-		TARGET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_TARGET_ACTIVE_POWER) //
+		TARGET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_TARGET_ACTIVE_POWER)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		TARGET_GRID_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		;
 

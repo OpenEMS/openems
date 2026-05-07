@@ -10,6 +10,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError;
@@ -27,9 +28,11 @@ import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
+import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 import io.openems.edge.meter.api.PhaseRotation;
 
 @Component(name = "App.Test.TestForceUpdatingConfigComponent")
@@ -43,7 +46,8 @@ public class TestForceUpdatingConfigComponent extends
 
 	public static enum Property
 			implements Type<Property, TestForceUpdatingConfigComponent, TestForceUpdatingConfigComponentParameter> {
-		ID(AppDef.componentId("test0")), PHASE_ROTATION(CommonProps.phaseRotation());
+		ID(AppDef.componentId("test0")), //
+		PHASE_ROTATION(CommonProps.phaseRotation());
 
 		private final AppDef<? super TestForceUpdatingConfigComponent, ? super Property, ? super TestForceUpdatingConfigComponentParameter> def;
 
@@ -90,7 +94,32 @@ public class TestForceUpdatingConfigComponent extends
 							.build()), //
 					ComponentDef.Configuration.defaultConfig() //
 							.withForceUpdateOrCreate(true));
-			return AppConfiguration.create().addTask(Tasks.component(component)).build();
+
+			final var dependencies = Lists.newArrayList(//
+					new DependencyDeclaration("TEST_DEPENDENCY", //
+							DependencyDeclaration.CreatePolicy.NEVER, //
+							DependencyDeclaration.UpdatePolicy.ALWAYS, //
+							DependencyDeclaration.DeletePolicy.NEVER, //
+							DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+							DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+							DependencyDeclaration.AppDependencyConfig.create() //
+									.setAppId("App.Test.TestForceUpdatingConfigProperties") //
+									// test if initial properties are ignored
+									.setInitialProperties(DependencyProperties.fromJson(JsonUtils.buildJsonObject() //
+											.addProperty(
+													TestForceUpdatingConfigProperties.Property.PHASE_ROTATION.name(),
+													PhaseRotation.L2_L3_L1) //
+											.addProperty(TestForceUpdatingConfigProperties.Property.MIN_POWER.name(),
+													100) //
+											.addProperty(TestForceUpdatingConfigProperties.Property.MAX_POWER.name(),
+													1000) //
+											.build(), TestForceUpdatingConfigProperties.Property.PHASE_ROTATION.name()))
+									.build()) //
+			);
+			return AppConfiguration.create() //
+					.addTask(Tasks.component(component)) //
+					.addDependencies(dependencies) //
+					.build();
 		};
 	}
 

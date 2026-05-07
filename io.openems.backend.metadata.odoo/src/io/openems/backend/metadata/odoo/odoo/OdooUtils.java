@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import io.openems.backend.metadata.odoo.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -246,7 +245,7 @@ public class OdooUtils {
 	 * Authenticates a user using Login and Password.
 	 *
 	 * @param credentials used to get Odoo url
-	 * @param login    	  the login ( normally username )
+	 * @param login       the login (normally username)
 	 * @param password    the Password
 	 * @return the session_id
 	 * @throws OpenemsNamedException on login error

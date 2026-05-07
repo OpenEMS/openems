@@ -35,7 +35,12 @@ public class TestUtils {
 						0, 230 // 226–227
 				})//
 				.withRegisters(712, 6, 0, 0, 16) //
-				.withRegisters(1000, 16); //
+				.withRegisters(1000, 16) //
+				.withRegisters(2012, 
+						4140, 11040, // 2012-2013
+						0,0,0,0,0,0, // 2014-2019
+						2, 30, 1, 2  // 2020 onwards
+						);
 	}
 
 }

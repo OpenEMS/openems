@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int modbusUnitId;
 		private boolean readonly = false;
 		private Mode mode = Mode.OFF;
+		private String jsCalendar = "[]";
 		private int maxHeatPower;
 
 		private Builder() {
@@ -39,6 +40,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
+			return this;
+		}
+
+		public Builder setJsCalendar(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 
@@ -86,6 +92,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Mode mode() {
 		return this.builder.mode;
+	}
+
+	@Override
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 
 	@Override

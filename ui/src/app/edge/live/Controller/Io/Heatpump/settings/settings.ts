@@ -5,7 +5,6 @@ import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -33,17 +32,10 @@ export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyCompone
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
-    private destroy$ = new Subject<void>();
     private route: ActivatedRoute = inject(ActivatedRoute);
 
     public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView<{ mode: Mode }> {
         return SharedControllerIoHeatpump.getFormlyView(translate, component, edge);
-    }
-
-    public override async ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-        super.ngOnDestroy();
     }
 
     protected override generateView(): OeFormlyView<{ mode: Mode }> {

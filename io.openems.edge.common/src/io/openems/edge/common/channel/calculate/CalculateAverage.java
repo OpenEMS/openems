@@ -47,6 +47,13 @@ public class CalculateAverage {
 	}
 
 	/**
+	 * Resets the calculator for reuse.
+	 */
+	public void reset() {
+		this.values.clear();
+	}
+
+	/**
 	 * Calculates the average.
 	 *
 	 * @return the average or null

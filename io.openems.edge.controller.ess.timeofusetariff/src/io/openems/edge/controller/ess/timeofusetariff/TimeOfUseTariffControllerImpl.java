@@ -55,7 +55,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateActiveTime;
-import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
+import io.openems.edge.timeofusetariff.api.TariffManager;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -88,9 +88,8 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 	@Reference
 	private Sum sum;
 
-	// This is only required to get the current price for UI chart
 	@Reference
-	private TimeOfUseTariff timeOfUseTariff;
+	private TariffManager tariffManager;
 
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
@@ -229,7 +228,10 @@ public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent impl
 		this._setStateMachine(am.actualMode());
 		this.calculateChargedTime.update(am.actualMode() == CHARGE_GRID);
 		this.calculateDelayedTime.update(am.actualMode() == DELAY_DISCHARGE);
-		this._setQuarterlyPrices(this.timeOfUseTariff.getPrices().getFirst());
+
+		final var gridBuyPrice = this.tariffManager.getGridBuyDayAheadPrices()//
+				.getAt(this.componentManager.getClock().instant());
+		this._setQuarterlyPrices(gridBuyPrice);
 
 		// Apply ActivePower set-point
 		this.ess.setActivePowerEqualsWithFilter(am.setPoint());

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.event.Event;
@@ -106,32 +105,20 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 	 * @param readOnly              In Read-Only mode no power-limitation commands
 	 *                              are sent to the inverter
 	 * @param unitId                Unit-ID of the Modbus target
-	 * @param cm                    An instance of ConfigurationAdmin. Receive it
-	 *                              using @Reference
-	 * @param modbusReference       The name of the @Reference setter method for the
-	 *                              Modbus bridge - e.g. 'Modbus' if you have a
-	 *                              setModbus()-method
-	 * @param modbusId              The ID of the Modbus bridge. Typically
-	 *                              'config.modbus_id()'
 	 * @param readFromCommonBlockNo the starting block number
 	 * @param phase                 the phase the inverter is connected
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
 	 * @throws OpenemsException on error
 	 */
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, boolean readOnly,
-			int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo,
-			SingleOrAllPhase phase) throws OpenemsException {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, boolean readOnly,
+			int unitId, int readFromCommonBlockNo, SingleOrAllPhase phase) throws OpenemsException {
 		this.readOnly = readOnly;
 		this.phase = phase;
-		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
-				readFromCommonBlockNo);
+		super.activate(context, id, alias, enabled, unitId, readFromCommonBlockNo);
 	}
 
 	@Override
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
-			throws OpenemsException {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			int readFromCommonBlockNo) throws OpenemsException {
 		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
@@ -340,7 +327,8 @@ public abstract class AbstractSunSpecPvInverter extends AbstractOpenemsSunSpecCo
 
 		// Can we evaluate the InverterType from this Block?
 		Stream.of(InverterType.values()) //
-				.filter(type -> type.blocks.stream().anyMatch(t -> t.equals(model))) //
+				.filter(type -> type.blocks.stream() //
+						.anyMatch(t -> t.equals(model) || t.name().equals(model.name()))) //
 				.findFirst() //
 				.ifPresent(type -> this.inverterType = type);
 	}
