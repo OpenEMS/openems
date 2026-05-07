@@ -56,14 +56,15 @@ include::pages/edge/core.d/_nav.adoc[]
 *** xref:edge/deploy/docker.adoc[Deploy to Docker]
 
 * OpenEMS UI
+** xref:ui/run-prebuilt.adoc[Run prebuilt UI]
 ** xref:ui/deploy.adoc[Deploy UI to Docker]
 ** xref:ui/setup-ide.adoc[Setup IDE]
 ** xref:ui/architecture.adoc[Architecture]
 ** xref:ui/build.adoc[Build OpenEMS UI]
-*** xref:ui/implementing-a-widget/introduction.adoc[Implementing a UI Widget]
-**** xref:ui/implementing-a-widget/components/flat.adoc[Flat-Widget]
-**** xref:ui/implementing-a-widget/components/modal.adoc[Modal-Widget]
-**** xref:ui/implementing-a-widget/components/chart.adoc[Chart]
+** xref:ui/implementing-a-widget/introduction.adoc[Implementing a UI Widget]
+*** xref:ui/implementing-a-widget/components/flat.adoc[Flat-Widget]
+*** xref:ui/implementing-a-widget/components/modal.adoc[Modal-Widget]
+*** xref:ui/implementing-a-widget/components/chart.adoc[Chart]
 
 * OpenEMS Backend
 ** xref:backend/architecture.adoc[Architecture]

@@ -1,6 +1,6 @@
 package io.openems.edge.bridge.modbus.api.element;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DummyRegisterElementTest {
 

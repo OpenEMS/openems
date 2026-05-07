@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
 import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 
@@ -199,6 +200,9 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
 
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE,
+				this.stateMachine.getCurrentState() == State.REFERENCE_CYCLE);
+
 		return context;
 	}
 
@@ -386,6 +390,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		this._setCtrlIsBlockingEss(false);
 		this._setCtrlIsChargingEss(false);
 		this._setCtrlIsDischargingEss(false);
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE, false);
 		this._setDebugSetActivePower(null);
 		this._setDebugSetActivePowerRaw(null);
 		this._setDebugRampPower(null);

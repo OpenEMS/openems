@@ -36,6 +36,7 @@ import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 
 @Component(name = "App.OpenemsHardware.CM4")
 public class TechbaseCm4 extends AbstractOpenemsAppWithProps<TechbaseCm4, Property, Parameter.BundleParameter>
@@ -90,10 +91,12 @@ public class TechbaseCm4 extends AbstractOpenemsAppWithProps<TechbaseCm4, Proper
 							DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
 							DependencyDeclaration.AppDependencyConfig.create() //
 									.setAppId("App.Hardware.IoGpio") //
-									.setInitialProperties(JsonUtils.buildJsonObject() //
-											.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
-													GpioHardwareType.MODBERRY_X500_M40804_WB) //
-											.build())
+									.setInitialProperties(DependencyProperties.fromJson(//
+											JsonUtils.buildJsonObject() //
+													.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+															GpioHardwareType.MODBERRY_X500_M40804_WB) //
+													.build(),
+											IoGpio.Property.HARDWARE_TYPE.name()))
 									.build()))
 					.build();
 		};

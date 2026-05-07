@@ -2,4 +2,4 @@
 
 This bundle includes a abstract Class for EVSE implementations that internally use a Bender Controller.
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.bender[Source Code icon:github[
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.bender[Source Code icon:github[]]

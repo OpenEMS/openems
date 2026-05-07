@@ -2,7 +2,6 @@ package io.openems.edge.common.channel.calculate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +22,9 @@ public class CalculateLongSum {
 	 * @param channel the Channel
 	 */
 	public void addValue(Channel<Long> channel) {
+		if (channel == null) {
+			return;
+		}
 		var value = channel.value().asOptional();
 		if (value.isPresent()) {
 			try {
@@ -30,24 +32,33 @@ public class CalculateLongSum {
 			} catch (Exception e) {
 				this.log.error("Adding Channel [" + channel.address() + "] value [" + value + "] failed. "
 						+ e.getClass().getSimpleName() + ": " + e.getMessage());
-				e.printStackTrace();
 			}
 		}
 	}
 
 	/**
+	 * Resets the calculator for reuse.
+	 */
+	public void reset() {
+		this.values.clear();
+	}
+
+	/**
 	 * Calculates the sum.
 	 *
-	 * @return the sum or null
-	 * @throws NoSuchElementException on error
+	 * @return the sum or null if no values were added
 	 */
-	public Long calculate() throws NoSuchElementException {
+	public Long calculate() {
 		if (this.values.isEmpty()) {
 			return null;
 		}
-		return this.values //
-				.stream() //
-				.mapToLong(value -> value) //
-				.sum(); //
+
+		long sum = 0L;
+		for (var val : this.values) {
+			if (val != null) {
+				sum += val;
+			}
+		}
+		return sum;
 	}
 }

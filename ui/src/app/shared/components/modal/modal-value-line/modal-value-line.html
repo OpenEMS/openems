@@ -13,7 +13,7 @@
           </td>
           <!-- Value of Parameter on the right side -->
           @if (displayValue) {
-            <td [style.width]="(100 - leftColumnWidth ?? 50)  + '%'" class="align_right">
+            <td [style.width]="(100 - (leftColumnWidth ?? 50))  + '%'" class="align_right">
               <!-- 'Normal' line, name and value  -->
               <ng-container>{{ displayValue }}</ng-container>
             </td>

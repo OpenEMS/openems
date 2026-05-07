@@ -99,7 +99,9 @@ public class ClientReconnectorWorker extends AbstractWorker {
 		try {
 			this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]...");
 			success = ws.connectBlocking(this.config.connectTimeoutSeconds(), TimeUnit.SECONDS);
-			this.callEvent(WebsocketReconnectorEvent.CONNECTED);
+			if (success) {
+				this.callEvent(WebsocketReconnectorEvent.CONNECTED);
+			}
 			this.logAndSetDebugInfo("# Connect Blocking [" + this.config.connectTimeoutSeconds() + "]... done");
 
 		} catch (IllegalStateException e) {
@@ -270,8 +272,19 @@ public class ClientReconnectorWorker extends AbstractWorker {
 				.collect(Collectors.joining(", "));
 	}
 
+	/**
+	 * Handles a failed WebSocket handshake by updating the debug log and emitting
+	 * the corresponding reconnect event.
+	 *
+	 * @param reason a short description of why the handshake failed
+	 */
+	public void notifyHandshakeFailed(String reason) {
+		this.logAndSetDebugInfo(reason);
+		this.callEvent(WebsocketReconnectorEvent.HANDSHAKE_FAILED);
+	}
+
 	public enum WebsocketReconnectorEvent {
-		RESET_WEBSOCKET_CLIENT, CLOSE_FAILED, CONNECTED
+		RESET_WEBSOCKET_CLIENT, CLOSE_FAILED, CONNECTED, HANDSHAKE_FAILED
 	}
 
 }
