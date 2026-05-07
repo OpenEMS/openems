@@ -1,3 +1,42 @@
 = Ancillary Costs
 
+io.openems.edge.timeofusetariff.ancillarycosts is a TimeOfUseTariff component that models (e.g. German) electricity ancillary costs (Netzentgelte / grid fees) as a time-of-use price schedule.
+
+== What it does
+
+It computes TimeOfUsePrices by combining two inputs:
+
+1. Ancillary costs schedule — a JSON config that describes time-variable grid fees (Netzentgelt) in ct/kWh. These vary by time of day (LOW / STANDARD / HIGH tariff bands) and calendar quarter. The schedule can either reference a predefined GermanDSO enum (a known grid operator's published tariff) or a fully custom JSON structure.
+2. Fixed electricity tariff — a flat ct/kWh value (base price, e.g. procurement + VAT without network fees).
+
+The two are summed and converted to EUR/MWh (×10), producing the final time-varying price that the OpenEMS optimizer sees.
+
+== Use case 
+It acts as a standalone tariff source for systems where the electricity price is not fetched from an external API (like Tibber/Awattar), but is instead built from a known network operator's published grid fee schedule plus a static supplier tariff. This is typical for German B2B customers with metered network tariffs (HT/NT pricing).
+
+== Config
+=== Component-ID	
+Unique ID of this Component (id, e.g.`timeOfUseTariff0`)
+
+
+=== Alias	
+Human-readable name of this Component; defaults to Component-ID (alias)
+
+=== Is enabled?	
+Is this Component enabled? (enabled)
+
+=== Fixed Electricty tariff	
+Gross price per kWh without ancillary costs [Cent/kWh] (fixedTariff)
+
+=== Ancillary Costs JSON	
+Ancillary Costs in JSON format (ancillaryCosts)
+
+Example: 
+`{"dso": "BAYERNWERK"}` 
+This uses the definition from https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.api/src/io/openems/edge/timeofusetariff/api/GermanDSO.java[`GermanDSO.java`].
+
+For more details on how to configure this JSON also for a custom definition , see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.entsoe/readme.adoc[`timeofusetariff.entsoe/readme.adoc`].
+
+
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.timeofusetariff.ancillarycosts[Source Code icon:github[]]
