@@ -8,6 +8,7 @@ import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS } from "src/app/edge/history/sha
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
@@ -59,10 +60,12 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
         this.queryHistoricTimeseriesData(PredictionChartComponent.DEFAULT_PERIOD.from, PredictionChartComponent.DEFAULT_PERIOD.to, { unit: ChronoUnit.Type.MINUTES, value: 5 }).then(async response => {
             const result = response.result;
             const datasets = [];
+            const timeZone = this.service.currentEdge()?.getConfig(this.service.websocket).value?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
 
             // Get the 5 min index of the current time
-            const hours = new Date().getHours();
-            const minutes = new Date().getMinutes();
+            const now = DateTimeUtils.toWallClockDate(new Date(), timeZone);
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
             const currIndex = Math.trunc((hours * 60 + minutes) / 5);
 
             // Add one buffer hour at the beginning to see at least one hour of the past soc
@@ -91,15 +94,14 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                     }
                 }
 
-                const targetTime = new Date(0);
-                targetTime.setUTCSeconds(this.targetEpochSeconds);
+                const targetTime = DateTimeUtils.toWallClockDate(new Date(this.targetEpochSeconds * 1000), timeZone);
 
                 // Predicted charge start only used, if a value is present. There's no Channel for it in older Openems Versions.
                 const isChargeStartPresent = this.chargeStartEpochSeconds != null;
-                const chargeStartTime = new Date(0);
+                let chargeStartTime: Date | null = null;
                 let chargeStartIndex = 0;
                 if (isChargeStartPresent) {
-                    chargeStartTime.setUTCSeconds(this.chargeStartEpochSeconds);
+                    chargeStartTime = DateTimeUtils.toWallClockDate(new Date(this.chargeStartEpochSeconds * 1000), timeZone);
                     const chargeStartHours = chargeStartTime.getHours();
                     const chargeStartMinutes = chargeStartTime.getMinutes();
 
@@ -170,7 +172,7 @@ export class PredictionChartComponent extends AbstractHistoryChart implements On
                 // Convert labels
                 const labels: Date[] = [];
                 for (const timestamp of result.timestamps) {
-                    labels.push(new Date(timestamp));
+                    labels.push(DateTimeUtils.toWallClockDate(timestamp, timeZone));
                 }
                 this.labels = labels;
 

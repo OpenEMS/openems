@@ -29,9 +29,10 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
         private fromDate: Date,
         private toDate: Date,
         private channels: ChannelAddress[],
+        private timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
     ) {
         super(QueryHistoricTimeseriesEnergyRequest.METHOD, {
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezone: timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
             toDate: format(toDate, "yyyy-MM-dd"),
             channels: JsonRpcUtils.channelsToStringArray(channels),
@@ -40,7 +41,7 @@ export class QueryHistoricTimeseriesEnergyRequest extends JsonrpcRequest {
         delete this.fromDate;
         delete this.toDate;
         delete this.channels;
+        delete this.timeZone;
     }
 
 }
-

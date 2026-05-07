@@ -6,6 +6,7 @@ import { QueryHistoricTimeseriesEnergyRequest } from "src/app/shared/jsonrpc/req
 import { Service } from "src/app/shared/service/service";
 import { Websocket } from "src/app/shared/service/websocket";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { QueryHistoricTimeseriesEnergyResponse } from "../../shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Edge } from "../../shared/shared";
@@ -38,32 +39,35 @@ export class HistoryDataService extends DataService {
 
                     this.service.historyPeriod.subscribe(date => {
 
-                        const request = new QueryHistoricTimeseriesEnergyRequest(
-                            DateUtils.maxDate(date.from, edge?.firstSetupProtocol),
-                            date.to,
-                            Object.values(this.channelAddresses),
-                        );
+                        this.service.getConfig().then(config => {
+                            const request = new QueryHistoricTimeseriesEnergyRequest(
+                                DateUtils.maxDate(date.from, edge?.firstSetupProtocol),
+                                date.to,
+                                Object.values(this.channelAddresses),
+                                config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone(),
+                            );
 
-                        this.activeQueryData = request.id;
+                            this.activeQueryData = request.id;
 
-                        edge.sendRequest(this.websocket, request)
-                            .then((response) => {
-                                if (this.activeQueryData === response.id) {
-                                    const allComponents = {};
-                                    const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+                            edge.sendRequest(this.websocket, request)
+                                .then((response) => {
+                                    if (this.activeQueryData === response.id) {
+                                        const allComponents = {};
+                                        const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
 
-                                    for (const [key, value] of Object.entries(result.data)) {
-                                        allComponents[key] = value;
+                                        for (const [key, value] of Object.entries(result.data)) {
+                                            allComponents[key] = value;
+                                        }
+
+                                        this.currentValue.set({ allComponents: allComponents });
+                                        this.timestamps = response.result["timestamps"] ?? [];
                                     }
-
-                                    this.currentValue.set({ allComponents: allComponents });
-                                    this.timestamps = response.result["timestamps"] ?? [];
-                                }
-                            })
-                            .catch(err => console.warn(err))
-                            .finally(() => {
-                                this.queryChannelsTimeout = null;
-                            });
+                                })
+                                .catch(err => console.warn(err))
+                                .finally(() => {
+                                    this.queryChannelsTimeout = null;
+                                });
+                        });
                     });
                 }
             }, ChartConstants.REQUEST_TIMEOUT);

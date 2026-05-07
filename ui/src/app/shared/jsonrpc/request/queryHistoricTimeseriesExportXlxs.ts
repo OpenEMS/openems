@@ -25,15 +25,17 @@ export class QueryHistoricTimeseriesExportXlxsRequest extends JsonrpcRequest {
     public constructor(
         private fromDate: Date,
         private toDate: Date,
+        private timeZone: string = Intl.DateTimeFormat().resolvedOptions().timeZone,
     ) {
         super(QueryHistoricTimeseriesExportXlxsRequest.METHOD, {
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezone: timeZone,
             fromDate: format(fromDate, "yyyy-MM-dd"),
             toDate: format(toDate, "yyyy-MM-dd"),
         });
         // delete local fields, otherwise they are sent with the JSON-RPC Request
         delete this.fromDate;
         delete this.toDate;
+        delete this.timeZone;
     }
 
 }

@@ -12,6 +12,7 @@ import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/resp
 import { ChannelAddress, Edge, EdgeConfig, Logger, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
@@ -152,6 +153,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
     private preparePredictionData(
         response: QueryHistoricTimeseriesDataResponse,
     ): { labels: Date[]; datasets: Chart.ChartDataset[] } | null {
+        const timeZone = this.config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
         const result = response?.result;
         const rawSocData = result?.data?.["_sum/EssSoc"];
 
@@ -171,15 +173,13 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
 
         const startSoc = this.findStartSoc(socData, currentIndex);
 
-        const targetTime = new Date(0);
-        targetTime.setUTCSeconds(this.targetEpochSeconds);
+        const targetTime = DateTimeUtils.toWallClockDate(new Date(this.targetEpochSeconds * 1000), timeZone);
 
         const isChargeStartPresent = this.chargeStartEpochSeconds != null;
         let chargeStartIndex = 0;
 
         if (isChargeStartPresent) {
-            const chargeStartTime = new Date(0);
-            chargeStartTime.setUTCSeconds(this.chargeStartEpochSeconds);
+            const chargeStartTime = DateTimeUtils.toWallClockDate(new Date(this.chargeStartEpochSeconds * 1000), timeZone);
 
             const chargeStartHours = chargeStartTime.getHours();
             const chargeStartMinutes = chargeStartTime.getMinutes();
@@ -237,7 +237,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
         }
 
         return {
-            labels: trimmedTimestamps.map(timestamp => new Date(timestamp)),
+            labels: trimmedTimestamps.map(timestamp => DateTimeUtils.toWallClockDate(timestamp, timeZone)),
             datasets: [
                 {
                     type: "line",

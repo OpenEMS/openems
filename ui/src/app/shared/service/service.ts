@@ -25,6 +25,7 @@ import { DefaultTypes } from "../type/defaulttypes";
 import { Language } from "../type/language";
 import { Role } from "../type/role";
 import { DateUtils } from "../utils/date/dateutils";
+import { DateTimeUtils } from "../utils/datetime/datetime-utils";
 import { AbstractService } from "./abstractservice";
 import { RouteService } from "./route.service";
 import { Websocket } from "./websocket";
@@ -289,45 +290,48 @@ export class Service extends AbstractService {
 
                 // send merged requests
                 this.getCurrentEdge().then(edge => {
-                    for (const source of mergedRequests) {
+                    this.getConfig().then(config => {
+                        for (const source of mergedRequests) {
 
-                        // Jump to next request for empty channelAddresses
-                        if (!source?.channels?.length) {
-                            continue;
-                        }
+                            // Jump to next request for empty channelAddresses
+                            if (!source?.channels?.length) {
+                                continue;
+                            }
 
-                        const request = new QueryHistoricTimeseriesEnergyRequest(
-                            DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
-                            source.toDate,
-                            source.channels,
-                        );
+                            const request = new QueryHistoricTimeseriesEnergyRequest(
+                                DateUtils.maxDate(source.fromDate, edge?.firstSetupProtocol),
+                                source.toDate,
+                                source.channels,
+                                config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone(),
+                            );
 
-                        this.activeQueryData = request.id;
-                        edge.sendRequest(this.websocket, request)
-                            .then(response => {
-                                if (this.activeQueryData !== response.id) {
-                                    return;
-                                }
-
-                                const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
-
-                                if (Object.keys(result.data).length === 0) {
-                                    for (const promise of source.promises) {
-                                        promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                            this.activeQueryData = request.id;
+                            edge.sendRequest(this.websocket, request)
+                                .then(response => {
+                                    if (this.activeQueryData !== response.id) {
+                                        return;
                                     }
-                                    return;
-                                }
 
-                                for (const promise of source.promises) {
-                                    promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
-                                }
-                            })
-                            .catch(async reason => {
-                                for (const promise of source.promises) {
-                                    promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
-                                }
-                            });
-                    }
+                                    const result = (response as QueryHistoricTimeseriesEnergyResponse).result;
+
+                                    if (Object.keys(result.data).length === 0) {
+                                        for (const promise of source.promises) {
+                                            promise.reject(new JsonrpcResponseError(response.id, { code: 0, message: "Result was empty" }));
+                                        }
+                                        return;
+                                    }
+
+                                    for (const promise of source.promises) {
+                                        promise.resolve(response as QueryHistoricTimeseriesEnergyResponse);
+                                    }
+                                })
+                                .catch(async reason => {
+                                    for (const promise of source.promises) {
+                                        promise.reject(new JsonrpcResponseError((await response).id, { code: 0, message: "Result was empty" }));
+                                    }
+                                });
+                        }
+                    });
                 });
             }, ChartConstants.REQUEST_TIMEOUT);
         }

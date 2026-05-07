@@ -13,6 +13,7 @@ import { GetScheduleResponse } from "src/app/shared/jsonrpc/response/getSchedule
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Edge, EdgeConfig, Logger, Service, Utils, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
@@ -83,13 +84,14 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
         this.chartObject = this.getChartData();
 
         try {
-            const now = new Date();
+            const timeZone = this.config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+            const now = DateTimeUtils.toWallClockDate(new Date(), timeZone);
             const nowMs = now.getTime();
             // Apply a delay to align datasets: forecast data is in 15-minute intervals,
             // while historical data is in 5-minute intervals, which can cause 15 minute gaps at the transition
             const delayedNowMs = nowMs - 10 * 60 * 1000;
 
-            const startOfToday = new Date();
+            const startOfToday = DateTimeUtils.toWallClockDate(new Date(), timeZone);
             startOfToday.setHours(0, 0, 0, 0);
 
             const endOfToday = new Date(startOfToday);
@@ -108,7 +110,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
 
             const schedule = (scheduleResponse as GetScheduleResponse).result.schedule ?? [];
 
-            const historyTimestamps = historyResponse?.result?.timestamps?.map(timestamp => new Date(timestamp)) ?? [];
+            const historyTimestamps = historyResponse?.result?.timestamps?.map(timestamp => DateTimeUtils.toWallClockDate(timestamp, timeZone)) ?? [];
             const historyValuesRaw =
                 historyResponse?.result?.data?.["_sum/ProductionActivePower"]
                 ?? historyResponse?.result?.data?.[ChannelAddress.fromString("_sum/ProductionActivePower").toString()]
@@ -116,7 +118,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
 
             const historyPoints = historyTimestamps
                 .map((timestamp, index) => ({
-                    timestamp: new Date(timestamp).getTime(),
+                    timestamp: timestamp.getTime(),
                     value: Utils.divideSafely(historyValuesRaw[index], 1000),
                 }))
                 .filter(point =>
@@ -128,7 +130,7 @@ export class ProductionChartComponent extends AbstractHistoryChart implements On
 
             const forecastPoints = schedule
                 .map(entry => ({
-                    timestamp: new Date(entry.timestamp).getTime(),
+                    timestamp: DateTimeUtils.toWallClockDate(entry.timestamp, timeZone).getTime(),
                     value: Utils.divideSafely(entry.production, 1000),
                 }))
                 .filter(point =>

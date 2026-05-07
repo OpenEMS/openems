@@ -59,7 +59,8 @@ export abstract class AbstractHistoryWidget {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution, timeZone);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             const result = (response as QueryHistoricTimeseriesDataResponse).result;
                             this.activeQueryData = response.id;
@@ -76,7 +77,8 @@ export abstract class AbstractHistoryWidget {
             if (this.activeQueryData !== response.id) {
                 return;
             }
-            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
+            const timeZone = this.service.currentEdge()?.getConfig(this.service.websocket).value?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response, timeZone);
         });
         return result;
     }

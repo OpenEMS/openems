@@ -1125,9 +1125,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
         return new Promise<QueryHistoricTimeseriesDataResponse>((resolve, reject) => {
             this.service.getCurrentEdge()
                 .then(edge => this.service.getConfig()
-                    .then(async () => {
+                    .then(async config => {
                         const channelAddresses = (await this.getChannelAddresses()).powerChannels;
-                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution, timeZone);
 
                         edge.sendRequest(this.service.websocket, request)
                             .then(response => {
@@ -1174,10 +1175,11 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
         const result: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(async () => {
+                this.service.getConfig().then(async config => {
 
                     const channelAddresses = (await this.getChannelAddresses()).energyChannels.filter(element => element != null);
-                    const request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                    const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                    const request = new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, resolution, timeZone);
                     if (channelAddresses.length > 0) {
 
 
@@ -1228,9 +1230,10 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
 
         const result: Promise<QueryHistoricTimeseriesEnergyResponse> = new Promise<QueryHistoricTimeseriesEnergyResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
-                this.service.getConfig().then(async () => {
+                this.service.getConfig().then(async config => {
                     const channelAddresses = (await this.getChannelAddresses()).energyChannels?.filter(element => element != null) ?? [];
-                    const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses);
+                    const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                    const request = new QueryHistoricTimeseriesEnergyRequest(DateUtils.maxDate(fromDate, edge?.firstSetupProtocol), toDate, channelAddresses, timeZone);
                     if (channelAddresses.length > 0) {
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             const result = (response as QueryHistoricTimeseriesEnergyResponse)?.result;
@@ -1306,7 +1309,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
             ])
                 .then(([dataResponse, energyResponse]) => {
                     this.chartType = "line";
-                    dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse);
+                    dataResponse = DateTimeUtils.normalizeTimestamps(unit, dataResponse, this.config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone());
                     this.chartObject = this.getChartData();
                     const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, dataResponse, energyResponse);
                     this.datasets = displayValues.datasets;
@@ -1333,7 +1336,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                 this.chartType = "bar";
                 this.chartObject = this.getChartData();
                 // TODO after chartjs migration, look for config
-                energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse);
+                energyPeriodResponse = DateTimeUtils.normalizeTimestamps(unit, energyPeriodResponse, this.config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone());
 
                 const displayValues = AbstractHistoryChart.fillChart(this.chartType, this.chartObject, energyPeriodResponse, energyResponse);
                 this.datasets = displayValues.datasets;

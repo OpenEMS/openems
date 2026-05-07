@@ -30,6 +30,39 @@ export class DateTimeUtils {
     public static getLocaleTimeZone() {
         return Intl.DateTimeFormat().resolvedOptions().timeZone;
     }
+
+    public static toWallClockDate(date: Date | string, timeZone: string = DateTimeUtils.getLocaleTimeZone()): Date {
+        const sourceDate = typeof date === "string" ? new Date(date) : date;
+        const formattedParts = new Intl.DateTimeFormat("sv-SE", {
+            timeZone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hourCycle: "h23",
+        }).formatToParts(sourceDate).reduce((acc, part) => {
+            if (part.type !== "literal") {
+                acc[part.type] = part.value;
+            }
+            return acc;
+        }, {} as { [key: string]: string });
+
+        return new Date(
+            Number(formattedParts.year),
+            Number(formattedParts.month) - 1,
+            Number(formattedParts.day),
+            Number(formattedParts.hour),
+            Number(formattedParts.minute),
+            Number(formattedParts.second),
+            sourceDate.getMilliseconds(),
+        );
+    }
+
+    public static toLocalDateTimeString(date: Date): string {
+        return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+    }
     /**
    * Tests if the given string matches at least one of the ionic supported datetime formats.
    *
@@ -51,7 +84,18 @@ export class DateTimeUtils {
    * @param energyPerPeriodResponse the timeseries data
    * @returns the adjusted timestamps
    */
-    public static normalizeTimestamps(unit: ChronoUnit.Type, energyPerPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse): QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse {
+    public static normalizeTimestamps(
+        unit: ChronoUnit.Type,
+        energyPerPeriodResponse: QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse,
+        timeZone: string = DateTimeUtils.getLocaleTimeZone(),
+    ): QueryHistoricTimeseriesDataResponse | QueryHistoricTimeseriesEnergyPerPeriodResponse {
+
+        energyPerPeriodResponse.result.timestamps = energyPerPeriodResponse.result.timestamps.map(timestamp => {
+            if (timestamp == null) {
+                return timestamp;
+            }
+            return DateTimeUtils.toLocalDateTimeString(DateTimeUtils.toWallClockDate(timestamp, timeZone));
+        });
 
         switch (unit) {
             case ChronoUnit.Type.MONTHS: {

@@ -16,6 +16,7 @@ import { QueryHistoricTimeseriesExportXlxsRequest } from "src/app/shared/jsonrpc
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
 import { UserService } from "src/app/shared/service/user.service";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ChannelAddress, CurrentData, Service, Utils, Websocket } from "../../../../../shared/shared";
 
 @Component({
@@ -78,7 +79,11 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.service.getCurrentEdge().then(edge => {
             this.service.startSpinner(this.spinnerId);
-            edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(DateUtils.maxDate(this.service.historyPeriod.value.from, this.edge?.firstSetupProtocol), this.service.historyPeriod.value.to)).then(response => {
+            this.service.getConfig().then(config => edge.sendRequest(this.websocket, new QueryHistoricTimeseriesExportXlxsRequest(
+                DateUtils.maxDate(this.service.historyPeriod.value.from, this.edge?.firstSetupProtocol),
+                this.service.historyPeriod.value.to,
+                config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone(),
+            )).then(response => {
                 const r = response as Base64PayloadResponse;
                 const binary = atob(r.result.payload.replace(/\s/g, ""));
                 const len = binary.length;
@@ -110,9 +115,7 @@ export class FlatComponent extends AbstractFlatWidget {
                 console.warn(reason);
             }).finally(() => {
                 this.service.stopSpinner(this.spinnerId);
-            }
-            );
+            }));
         });
     }
 }
-

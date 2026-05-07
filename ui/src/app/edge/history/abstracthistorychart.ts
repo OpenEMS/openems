@@ -322,7 +322,8 @@ export abstract class AbstractHistoryChart {
                 this.service.getConfig().then(config => {
                     this.setLabel(config);
                     this.getChannelAddresses(edge, config).then(channelAddresses => {
-                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution);
+                        const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                        const request = new QueryHistoricTimeseriesDataRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution, timeZone);
                         edge.sendRequest(this.service.websocket, request).then(response => {
                             resolve(response as QueryHistoricTimeseriesDataResponse);
                         }).catch(error => {
@@ -340,7 +341,8 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
+            const timeZone = this.service.currentEdge()?.getConfig(this.service.websocket).value?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response, timeZone);
         });
 
         return result;
@@ -363,7 +365,8 @@ export abstract class AbstractHistoryChart {
         const response: Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse> = new Promise<QueryHistoricTimeseriesEnergyPerPeriodResponse>((resolve, reject) => {
             this.service.getCurrentEdge().then(edge => {
                 this.service.getConfig().then(config => {
-                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution)).then(response => {
+                    const timeZone = config?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+                    edge.sendRequest(this.service.websocket, new QueryHistoricTimeseriesEnergyPerPeriodRequest(DateUtils.maxDate(fromDate, this.edge?.firstSetupProtocol), toDate, channelAddresses, resolution, timeZone)).then(response => {
                         resolve(response as QueryHistoricTimeseriesEnergyPerPeriodResponse ?? new QueryHistoricTimeseriesEnergyPerPeriodResponse(response.id, {
                             timestamps: [null], data: { null: null },
                         }));
@@ -381,7 +384,8 @@ export abstract class AbstractHistoryChart {
                 this.service.stopSpinner(this.spinnerId);
                 this.initializeChart();
             }
-            return DateTimeUtils.normalizeTimestamps(resolution.unit, response);
+            const timeZone = this.service.currentEdge()?.getConfig(this.service.websocket).value?.getPropertyFromComponentId<string>("_meta", "timezone") ?? DateTimeUtils.getLocaleTimeZone();
+            return DateTimeUtils.normalizeTimestamps(resolution.unit, response, timeZone);
         });
         return response;
     }
