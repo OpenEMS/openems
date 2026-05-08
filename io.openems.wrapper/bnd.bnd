@@ -35,7 +35,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.9.0',\
 	com.auth0:auth0;version='3.5.0',\
 	com.auth0:java-jwt;version='4.5.2',\
-	com.auth0:jwks-rsa;version='0.23.1',\
+	com.auth0:jwks-rsa;version='0.24.0',\
 	org.jfree:jfreechart;version='1.5.6',\
 	org.tribuo:tribuo-common-tree;version='4.3.2',\
 	org.tribuo:tribuo-core;version='4.3.2',\

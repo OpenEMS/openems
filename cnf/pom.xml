@@ -129,7 +129,9 @@
 			<!--
 			Java library to retrieve RSA public keys from a JWKS (JSON Web Key Set) endpoint
 			Changelog: https://github.com/auth0/jwks-rsa-java/releases
-			Wrapper: io.openems.wrapper/auth0-jwks-rsa.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-jwks-rsa.bnd
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>jwks-rsa</artifactId>
