@@ -305,11 +305,24 @@ public interface Sum extends OpenemsComponent {
 		 *
 		 * <ul>
 		 * <li>Interface: Sum (origin: TimeOfUseTariff)
-		 * <li>Type: Integer
+		 * <li>Type: Double
 		 * <li>Unit: Currency (see {@link Meta.ChannelId#CURRENCY}) per MWh
 		 * </ul>
 		 */
 		GRID_BUY_PRICE(Doc.of(DOUBLE)//
+				.unit(MONEY_PER_MEGAWATT_HOUR)//
+				.persistencePriority(VERY_HIGH)),
+
+		/**
+		 * Grid: Price for Sell-to-Grid.
+		 *
+		 * <ul>
+		 * <li>Interface: Sum (origin: TariffGridSell)
+		 * <li>Type: Double
+		 * <li>Unit: Currency (see {@link Meta.ChannelId#CURRENCY}) per MWh
+		 * </ul>
+		 */
+		GRID_SELL_PRICE(Doc.of(DOUBLE)//
 				.unit(MONEY_PER_MEGAWATT_HOUR)//
 				.persistencePriority(VERY_HIGH)),
 
@@ -1347,6 +1360,25 @@ public interface Sum extends OpenemsComponent {
 	 */
 	public default Value<Double> getGridBuyPrice() {
 		return this.getGridBuyPriceChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_SELL_PRICE}.
+	 *
+	 * @return the Channel
+	 */
+	public default DoubleReadChannel getGridSellPriceChannel() {
+		return this.channel(ChannelId.GRID_SELL_PRICE);
+	}
+
+	/**
+	 * Gets the Sell-to-Grid price [Currency/MWh]. See
+	 * {@link ChannelId#GRID_SELL_PRICE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Double> getGridSellPrice() {
+		return this.getGridSellPriceChannel().value();
 	}
 
 	/**

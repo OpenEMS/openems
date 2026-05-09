@@ -1,0 +1,104 @@
+// @ts-strict-ignore
+import { Component } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
+import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
+
+@Component({
+    selector: "oe-controller-ess-grid-optimized-charge-chart",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: false,
+})
+export class GridOptimizedChargeChartComponent extends AbstractHistoryChart {
+    public static getChartData(component: EdgeConfig.Component, translate: TranslateService): HistoryUtils.ChartData {
+        return {
+            input: [
+                {
+                    name: "DelayChargeMaximumChargeLimit",
+                    powerChannel: new ChannelAddress(component.id, "DelayChargeMaximumChargeLimit"),
+                },
+                {
+                    name: "SellToGridLimitMinimumChargeLimit",
+                    powerChannel: new ChannelAddress(component.id, "SellToGridLimitMinimumChargeLimit"),
+                    converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+                },
+                {
+                    name: "ProductionDcActualPower",
+                    powerChannel: new ChannelAddress("_sum", "ProductionDcActualPower"),
+                },
+                {
+                    name: "EssActivePower",
+                    powerChannel: new ChannelAddress("_sum", "EssActivePower"),
+                },
+                {
+                    name: "EssSoc",
+                    powerChannel: new ChannelAddress("_sum", "EssSoc"),
+                },
+            ],
+            output: (data: HistoryUtils.ChannelData) => ([
+                {
+                    name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_CHARGE"),
+                    converter: () => data["DelayChargeMaximumChargeLimit"],
+                    color: ChartConstants.Colors.YELLOW,
+                    borderDash: [3, 3],
+                },
+                {
+                    name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MINIMUM_CHARGE"),
+                    converter: () => data["SellToGridLimitMinimumChargeLimit"],
+                    color: ChartConstants.Colors.RED,
+                    borderDash: [3, 3],
+                },
+                {
+                    name: translate.instant("GENERAL.CHARGE"),
+                    converter: () =>
+                        (data["ProductionDcActualPower"]
+                            ?
+                            data["ProductionDcActualPower"].map((value, index) => {
+                                return Utils.subtractSafely(data["EssActivePower"][index], value);
+                            })
+                            :
+                            data["EssActivePower"])?.map(val => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(val)) ?? null,
+                    color: ChartConstants.Colors.GREEN,
+                },
+                {
+                    name: translate.instant("GENERAL.SOC"),
+                    converter: () => data["EssSoc"].map(el => Utils.multiplySafely(el, 1000)),
+                    color: "rgb(189, 195, 199)",
+                    borderDash: [10, 10],
+                    yAxisId: ChartAxis.RIGHT,
+                    custom: {
+                        unit: YAxisType.PERCENTAGE,
+                    },
+                },
+            ]),
+            tooltip: {
+                formatNumber: "1.0-2",
+            },
+            yAxes: [{
+                unit: YAxisType.ENERGY,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
+            }, {
+                unit: YAxisType.PERCENTAGE,
+                position: "right",
+                yAxisId: ChartAxis.RIGHT,
+                displayGrid: false,
+            }],
+        };
+    }
+    protected getChartData(): HistoryUtils.ChartData {
+        const edge = this.edge ?? this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
+        const config = this.config ?? edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        const component = this.component ?? config.getComponentSafely(this.routeService.getRouteParam("componentId"));
+        AssertionUtils.assertIsDefined(component);
+        return GridOptimizedChargeChartComponent.getChartData(component, this.translate);
+    }
+
+}

@@ -6,19 +6,24 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.common.statemachine.AbstractContext;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
+import io.openems.edge.ess.generic.symmetric.essfaultbehaviour.EssFaultBehaviourConfig;
 
 public class Context extends AbstractContext<GenericManagedEss> {
 
-	protected final Battery battery;
-	protected final ManagedSymmetricBatteryInverter batteryInverter;
+	public final Battery battery;
+	public final ManagedSymmetricBatteryInverter batteryInverter;
+
 	protected final Clock clock;
 
+	private final EssFaultBehaviourConfig essFaultBehaviour;
+
 	public Context(GenericManagedEss parent, Battery battery, ManagedSymmetricBatteryInverter batteryInverter,
-			Clock clock) {
+			Clock clock, EssFaultBehaviourConfig essFaultBehaviour) {
 		super(parent);
 		this.battery = battery;
 		this.batteryInverter = batteryInverter;
 		this.clock = clock;
+		this.essFaultBehaviour = essFaultBehaviour;
 	}
 
 	/**
@@ -31,7 +36,7 @@ public class Context extends AbstractContext<GenericManagedEss> {
 	 * @return true on any failure
 	 */
 	public boolean hasEssFaults() {
-		return this.getParent().hasFaults() || this.battery.hasFaults() || this.batteryInverter.hasFaults();
+		return this.essFaultBehaviour.hasEssError(this);
 	}
 
 	/**
@@ -43,7 +48,7 @@ public class Context extends AbstractContext<GenericManagedEss> {
 	 * @return true if battery and battery-inverter started
 	 */
 	public boolean isEssStarted() {
-		return this.battery.isStarted() && this.batteryInverter.isStarted();
+		return this.essFaultBehaviour.isEssStarted(this);
 	}
 
 	/**

@@ -34,7 +34,15 @@ export class FormlyAccordionGroupComponent extends FieldType<FieldTypeConfig<For
 
         const accordions: string[] = [];
         this.props.openAccordions?.forEach(openAccordion => {
-            const existingAccordion = this.accordions.find(accordion => accordion.key === openAccordion);
+            const existingAccordion = this.accordions.find(accordion =>
+                // customeId from IBN implementation
+                accordion.props?.["accordionId"] === openAccordion ||
+                // Fallback to App center's original key logic
+                accordion.key === openAccordion ||
+                // Fallback to Formly's auto-generated ID
+                accordion.id === openAccordion
+            );
+
             if (existingAccordion != null) {
                 accordions.push(openAccordion);
             }

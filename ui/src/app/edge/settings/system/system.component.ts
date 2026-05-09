@@ -60,7 +60,7 @@ export class SystemComponent {
             });
 
             const user = this.userService.currentUser();
-            this.edge = await this.service.currentEdge();
+            this.edge = this.service.currentEdge();
             if (!this.edge) {
                 return;
             }

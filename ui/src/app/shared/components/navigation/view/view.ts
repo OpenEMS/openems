@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, HostListener, input, Input, Renderer2, untracked } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, HostListener, input, Input, Renderer2, signal, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -32,7 +32,6 @@ export enum Status {
             }
             .floating-btn {
                 position: fixed;
-                bottom: 5%;
                 right: 10%;
             }
         }
@@ -44,6 +43,7 @@ export class NavigationPageComponent implements AfterViewInit {
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup | null = null;
     protected helpKey = input<HelpButtonComponent["key"]>();
+    protected bottomPx = signal(0);
 
     protected contentHeight: number | null = null;
     protected actionSheetModalHeight: number = 0;
@@ -115,6 +115,7 @@ export class NavigationPageComponent implements AfterViewInit {
             const viewHeight = ViewUtils.getViewHeightInPx(this.navigationService.position());
             this.contentHeight = viewHeight;
         }, 100);
+        this.bottomPx.set(ViewUtils.getActionSheetModalHeightInPx());
     }
 
     protected onDomChange() {

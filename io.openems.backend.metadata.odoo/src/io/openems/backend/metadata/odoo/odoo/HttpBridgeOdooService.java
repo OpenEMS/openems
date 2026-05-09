@@ -136,13 +136,13 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 				OdooGetUserInfoResponse.serializer(), request);
 	}
 
-	private CompletableFuture<String> login(String username, String password) {
+	private CompletableFuture<String> login(String login, String password) {
 		return this.sendRequest("/web/session/authenticate", null, JsonUtils.buildJsonObject() //
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //
 				.add("params", JsonUtils.buildJsonObject() //
 						.addProperty("db", this.credentials.database()) //
-						.addProperty("login", username.toLowerCase()) //
+						.addProperty("login", login.toLowerCase()) //
 						.addProperty("password", password) //
 						.build()) //
 				.build()).thenApply(response -> {
@@ -152,7 +152,7 @@ public class HttpBridgeOdooService implements HttpBridgeService {
 	}
 
 	private CompletableFuture<String> loginAsAdmin() {
-		return this.login("admin", this.credentials.password());
+		return this.login(this.credentials.login(), this.credentials.password());
 	}
 
 	private CompletableFuture<String> authenticateAsAdmin() {

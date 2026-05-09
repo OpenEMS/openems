@@ -3,6 +3,8 @@ package io.openems.edge.core.meta;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.PropertyChannel;
 import io.openems.common.types.CurrencyConfig;
 import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
 import io.openems.edge.common.meta.types.SubdivisionCode;
@@ -18,6 +20,7 @@ import io.openems.edge.common.meta.types.SubdivisionCode;
 	GridFeedInLimitationType gridFeedInLimitationType() default GridFeedInLimitationType.NO_LIMITATION;
 
 	@AttributeDefinition(name = "Maximum Grid Feed In Limit", description = "The target limit for sell-to-grid power; -1 for no fixed limit; 0 for zero-feed-in")
+	@PropertyChannel(localPersistencePriority = PersistencePriority.HIGH, remotePersistencePriority = PersistencePriority.HIGH)
 	int maximumGridFeedInLimit() default -1;
 
 	@AttributeDefinition(name = "Is Ess Charge From Grid Allowed", description = "Charging the battery from grid is allowed.")

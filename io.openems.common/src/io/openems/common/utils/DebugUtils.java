@@ -1,12 +1,9 @@
 package io.openems.common.utils;
 
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.slf4j.Logger;
-
-import com.google.common.base.Stopwatch;
 
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.function.ThrowingSupplier;
@@ -119,11 +116,11 @@ public final class DebugUtils {
 	public static <T, E extends Exception> T measure(String name, ThrowingSupplier<T, E> supplier,
 			Consumer<String> logFn) throws E {
 
-		final var sw = Stopwatch.createStarted();
+		final var start = System.currentTimeMillis();
 		try {
 			return supplier.get();
 		} finally {
-			final var time = sw.elapsed(TimeUnit.MILLISECONDS);
+			final var time = System.currentTimeMillis() - start;
 			logFn.accept("[" + name + "] took " + time + " ms");
 		}
 	}

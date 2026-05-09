@@ -1,7 +1,5 @@
 package io.openems.edge.controller.api.modbus;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
@@ -18,6 +16,7 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 		private boolean enabled;
 		private String portName;
 		private String[] componentIds;
+		private String[] writeChannels = {};
 		private int baudrate;
 		private int databits;
 		private Stopbit stopbit;
@@ -47,6 +46,11 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 
 		public Builder<T> setComponentIds(String... componentIds) {
 			this.componentIds = componentIds;
+			return this;
+		}
+
+		public Builder<T> setWriteChannels(String... writeChannels) {
+			this.writeChannels = writeChannels;
 			return this;
 		}
 
@@ -149,6 +153,11 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 	}
 
 	@Override
+	public String[] writeChannels() {
+		return this.builder.writeChannels;
+	}
+
+	@Override
 	public int maxConcurrentConnections() {
 		return this.builder.maxConcurrentConnections;
 	}
@@ -158,8 +167,4 @@ public class MyRtuConfig<T> extends AbstractComponentConfig
 		return this.builder.logVerbosity;
 	}
 
-	@Override
-	public String Component_target() {
-		return generateReferenceTargetFilter(this.id(), false, this.component_ids());
-	}
 }

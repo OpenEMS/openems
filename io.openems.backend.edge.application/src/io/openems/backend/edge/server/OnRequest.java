@@ -37,7 +37,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.startTimer();
 
 		WsData wsData = ws.getAttachment();
-		var edgeId = wsData.getEdgeIdWithTimeout(10, SECONDS);
+		var edgeId = wsData.getEdgeId();
 		if (edgeId == null) {
 			timer.close();
 			return failedFuture(OpenemsError.JSONRPC_SEND_FAILED.exception());

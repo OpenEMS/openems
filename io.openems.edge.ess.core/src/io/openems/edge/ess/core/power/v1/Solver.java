@@ -1,5 +1,7 @@
 package io.openems.edge.ess.core.power.v1;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.ess.core.power.Utils.fillMetaEssDebugChannels;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL;
 import static io.openems.edge.ess.power.api.SolverStrategy.OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER;
@@ -311,7 +313,7 @@ public class Solver {
 			inv.setLastActivePower(powerTuple.getActivePower());
 		});
 
-		for (ManagedSymmetricEss ess : this.esssSupplier.get()) {
+		for (var ess : this.esssSupplier.get()) {
 			if (ess instanceof MetaEss) {
 				// ignore MetaEss
 				continue;
@@ -358,15 +360,16 @@ public class Solver {
 				}
 
 				// set debug channels on Ess
-				e._setDebugSetActivePower(invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
-				e._setDebugSetReactivePower(
+				setValue(e, ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER,
+						invL1.getActivePower() + invL2.getActivePower() + invL3.getActivePower());
+				setValue(e, ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER,
 						invL1.getReactivePower() + invL2.getReactivePower() + invL3.getReactivePower());
-				e._setDebugSetActivePowerL1(invL1.getActivePower());
-				e._setDebugSetActivePowerL2(invL2.getActivePower());
-				e._setDebugSetActivePowerL3(invL3.getActivePower());
-				e._setDebugSetReactivePowerL1(invL1.getReactivePower());
-				e._setDebugSetReactivePowerL2(invL2.getReactivePower());
-				e._setDebugSetReactivePowerL3(invL3.getReactivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L1, invL1.getActivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L2, invL2.getActivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER_L3, invL3.getActivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L1, invL1.getReactivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L2, invL2.getReactivePower());
+				setValue(e, ManagedAsymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER_L3, invL3.getReactivePower());
 				// apply Power
 				try {
 					e.applyPower(//
@@ -390,8 +393,8 @@ public class Solver {
 				 */
 
 				// set debug channels on Ess
-				ess._setDebugSetActivePower(inv.getActivePower());
-				ess._setDebugSetReactivePower(inv.getReactivePower());
+				setValue(ess, ManagedSymmetricEss.ChannelId.DEBUG_SET_ACTIVE_POWER, inv.getActivePower());
+				setValue(ess, ManagedSymmetricEss.ChannelId.DEBUG_SET_REACTIVE_POWER, inv.getReactivePower());
 
 				// apply Power
 				try {
@@ -411,5 +414,8 @@ public class Solver {
 				this.log.error("No Solution for [" + ess.id() + "] available!");
 			}
 		}
+
+		// Fill Debug-Channels for MetaEss
+		fillMetaEssDebugChannels(this.esssSupplier.get());
 	}
 }
