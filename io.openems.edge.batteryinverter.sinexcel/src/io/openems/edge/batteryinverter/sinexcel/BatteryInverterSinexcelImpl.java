@@ -1,5 +1,7 @@
 package io.openems.edge.batteryinverter.sinexcel;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
@@ -7,7 +9,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
@@ -70,7 +71,6 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -290,11 +290,11 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 
 		// Topping Charge Voltage
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.TOPPING_CHARGE_VOLTAGE,
-				TypeUtils.min(battery.getChargeMaxVoltage().get(), MAX_TOPPING_CHARGE_VOLTAGE));
+				minInt(MAX_TOPPING_CHARGE_VOLTAGE, battery.getChargeMaxVoltage().get()));
 
 		// Float Charge Voltage
 		this.updateIfNotEqual(BatteryInverterSinexcel.ChannelId.FLOAT_CHARGE_VOLTAGE,
-				TypeUtils.min(battery.getChargeMaxVoltage().get(), MAX_TOPPING_CHARGE_VOLTAGE));
+				minInt(MAX_TOPPING_CHARGE_VOLTAGE, battery.getChargeMaxVoltage().get()));
 
 		// Discharge Max Current
 		// negative value is corrected as zero
@@ -356,8 +356,8 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 		}
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0d), //
-				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, REACTIVE, EQUALS, 0), //
+				new BatteryInverterConstraint("Sinexcel inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 
@@ -526,7 +526,8 @@ public class BatteryInverterSinexcelImpl extends AbstractOpenemsModbusComponent
 								chain(SCALE_FACTOR_1, IGNORE_LESS_THAN_100)), //
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(123),
 								SCALE_FACTOR_1), //
-						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(124), SCALE_FACTOR_1), //
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(124),
+								SCALE_FACTOR_1), //
 						m(BatteryInverterSinexcel.ChannelId.COS_PHI, new SignedWordElement(125), SCALE_FACTOR_MINUS_2), //
 						new DummyRegisterElement(126, 131), //
 						m(BatteryInverterSinexcel.ChannelId.TEMPERATURE_OF_AC_HEAT_SINK, new SignedWordElement(132)), //

@@ -6,12 +6,14 @@ import static java.util.stream.Collectors.toUnmodifiableMap;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -46,7 +48,14 @@ import java.util.stream.Stream;
  * scheme://host:port/path?queryParams#fragment
  * </code>
  */
-public final class UrlBuilder {
+public record UrlBuilder(//
+		String scheme, //
+		String host, //
+		Integer port, //
+		String path, //
+		Map<String, String> queryParams, //
+		String fragment //
+) {
 
 	/**
 	 * Parses a raw uri string to the url parts.
@@ -65,7 +74,7 @@ public final class UrlBuilder {
 		return new UrlBuilder(//
 				uri.getScheme(), //
 				uri.getHost(), //
-				uri.getPort(), //
+				uri.getPort() == -1 ? null : uri.getPort(), //
 				uri.getPath(), //
 				queryParams, //
 				uri.getFragment() //
@@ -79,29 +88,6 @@ public final class UrlBuilder {
 	 */
 	public static UrlBuilder create() {
 		return new UrlBuilder(null, null, null, null, Collections.emptyMap(), null);
-	}
-
-	private final String scheme;
-	private final String host;
-	private final Integer port;
-	private final String path;
-	private final Map<String, String> queryParams;
-	private final String fragment;
-
-	private UrlBuilder(//
-			String scheme, //
-			String host, //
-			Integer port, //
-			String path, //
-			Map<String, String> queryParams, //
-			String fragment //
-	) {
-		this.scheme = scheme;
-		this.host = host;
-		this.port = port;
-		this.path = path;
-		this.queryParams = queryParams;
-		this.fragment = fragment;
 	}
 
 	/**
@@ -251,4 +237,40 @@ public final class UrlBuilder {
 				.replace("+", "%20") // " " => "+" => "%20"
 		;
 	}
+
+	/**
+	 * Helper method to decode url values.
+	 *
+	 * @param value the value to decode
+	 * @return the decoded string
+	 */
+	public static String decode(String value) {
+		return URLDecoder.decode(value.replace("%20", "+"), StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Helper method to encode parameters to a url encoded form body.
+	 * 
+	 * @param body the body to encode
+	 * @return the encoded body as a {@link String}
+	 */
+	public static String encodeFormUrlencodedBody(Map<String, String> body) {
+		return body.entrySet().stream() //
+				.map(t -> t.getKey() + "=" + UrlBuilder.encode(t.getValue())) //
+				.collect(Collectors.joining("&"));
+	}
+
+	/**
+	 * Helper method to decode a url encoded form body to its parameters.
+	 * 
+	 * @param body the body to decode
+	 * @return the decoded body parameter
+	 */
+	public static Map<String, String> decodeFormUrlencodedBody(String body) {
+		return Arrays.stream(body.split("&")) //
+				.map(t -> t.split("=")) //
+				.filter(t -> t.length == 2) //
+				.collect(Collectors.toMap(t -> t[0], t -> decode(t[1])));
+	}
+
 }

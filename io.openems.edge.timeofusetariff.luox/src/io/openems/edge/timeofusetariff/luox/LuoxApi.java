@@ -1,12 +1,12 @@
 package io.openems.edge.timeofusetariff.luox;
 
+import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
+
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 
-import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.primitives.Doubles;
 import com.google.gson.JsonPrimitive;
 
@@ -14,6 +14,7 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.common.jsonrpc.serialization.StringParser;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.type.QuarterlyValues;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 
 public final class LuoxApi {
@@ -48,17 +49,17 @@ public final class LuoxApi {
 		 * @return {@link TimeOfUsePrices}
 		 */
 		public TimeOfUsePrices toTimeOfUsePrices() {
-			var validFrom = this.prices.stream().map(Prices::validFrom)
+			var validFrom = this.prices.stream() //
+					.map(Prices::validFrom) //
 					.min(Comparator.comparing(ZonedDateTime::toInstant)).get();
-			var validUntil = this.prices.stream().map(Prices::validUntil)
+			var validUntil = this.prices.stream() //
+					.map(Prices::validUntil) //
 					.max(Comparator.comparing(ZonedDateTime::toInstant)).get();
 
-			var result = IntStream.iterate(0, i -> i + 1) //
-					.mapToObj(i -> validFrom.plusMinutes(i * 15)) //
-					.takeWhile(time -> time.isBefore(validUntil)) //
-					.collect(ImmutableSortedMap.<ZonedDateTime, ZonedDateTime, Double>toImmutableSortedMap(//
-							Comparator.naturalOrder(), //
-							Function.identity(), //
+			var result = QuarterlyValues.streamQuartersExclusive(validFrom, validUntil) //
+					.collect(toImmutableSortedMap(//
+							Instant::compareTo, //
+							time -> time.toInstant(), //
 							time -> {
 								var variablePrice = this.prices.stream() //
 										.flatMap(p -> p.variablePrices.stream()) //

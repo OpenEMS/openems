@@ -1,15 +1,13 @@
-// @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
-import { ModalController } from "@ionic/angular";
-import { TranslateService } from "@ngx-translate/core";
+import { Component, model } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
 import { filter, take } from "rxjs";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
-import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { EvseChargepoint } from "../shared/evse-chargepoint";
 import { ControllerEvseSingleShared } from "../shared/shared";
+import { EvseManualPayload } from "./schedule/js-calender-utils";
 
 @Component({
     selector: "oe-controller-evse-single-home",
@@ -28,40 +26,39 @@ import { ControllerEvseSingleShared } from "../shared/shared";
 })
 export class ModalComponent extends AbstractModal {
 
+    public payload = model(new EvseManualPayload());
     protected showNewFooter: boolean = true;
     protected label: string | null = null;
-    protected chargePoint: EdgeConfig.Component | null = null;
+    protected chargePointComponent: EdgeConfig.Component | null = null;
 
     protected img: OeImageComponent["img"] | null = null;
 
     protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
     protected readonly CONVERT_TO_STATE_MACHINE_LABEL = ControllerEvseSingleShared.CONVERT_TO_STATE_MACHINE_LABEL(this.translate);
-
-    constructor(
-        @Inject(Websocket) protected override websocket: Websocket,
-        @Inject(ActivatedRoute) protected override route: ActivatedRoute,
-        @Inject(Service) protected override service: Service,
-        @Inject(ModalController) public override modalController: ModalController,
-        @Inject(TranslateService) protected override translate: TranslateService,
-        @Inject(FormBuilder) public override formBuilder: FormBuilder,
-        public override ref: ChangeDetectorRef,
-    ) {
-        super(websocket, route, service, modalController, translate, formBuilder, ref);
-    }
+    protected readonly CONVERT_TO_ACTUAL_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_ACTUAL_MODE_LABEL(this.translate);
+    protected readonly CONVERT_TO_PHASE_SWITCH_LABEL = ControllerEvseSingleShared.CONVERT_TO_PHASE_SWITCH_LABEL(this.translate);
+    protected readonly CONVERT_TO_ENERGY_LIMIT_LABEL = ControllerEvseSingleShared.CONVERT_TO_ENERGY_LIMIT_LABEL();
+    protected oneTasks: OneTaskVM[] = [];
 
     public override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
             this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
                 this.component = config.getComponent(params.componentId);
-                this.chargePoint = config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
                 res();
             });
         });
     }
 
     protected override onIsInitialized(): void {
-        const url = ControllerEvseSingleShared.getImgUrlByFactoryId(this.chargePoint.factoryId);
-        this.img = url === null ? null : { url };
+        AssertionUtils.assertIsDefined(this.component);
+        this.chargePointComponent = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id") ?? null;
+
+        const evseChargepoint: EvseChargepoint | null = EvseChargepoint.getEvseChargepoint(this.chargePointComponent);
+        if (evseChargepoint == null || this.chargePointComponent == null) {
+            return;
+        }
+
+        this.img = evseChargepoint.img;
     }
 
     protected override getFormGroup(): FormGroup {
@@ -75,3 +72,9 @@ export class ModalComponent extends AbstractModal {
         this.showNewFooter = !this.showNewFooter;
     }
 }
+
+export interface OneTaskVM {
+    start: string;
+    end: string;
+    mode: string;
+};

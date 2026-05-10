@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -15,11 +16,13 @@ import org.osgi.service.component.ComponentContext;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.common.utils.StringUtils;
@@ -72,6 +75,28 @@ public abstract class AbstractOpenemsAppWithProps<//
 		return def.getDefaultValue().get(this.getApp(), property, l, parameter.get());
 	}
 
+	protected <T> T getObjectOrNull(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final JsonSerializer<T> serializer //
+	) throws OpenemsNamedException {
+		final var value = this.getValueOrDefault(map, l, property, PROPERTY::def, true);
+		if (value == null) {
+			return null;
+		}
+		return serializer.deserialize(value);
+	}
+
+	protected <T> T getObject(//
+			final Map<PROPERTY, JsonElement> map, //
+			final Language l, //
+			final PROPERTY property, //
+			final JsonSerializer<T> serializer //
+	) throws OpenemsNamedException {
+		return serializer.deserialize(this.getValueOrDefault(map, l, property, PROPERTY::def, false));
+	}
+
 	protected String getString(//
 			final Map<PROPERTY, JsonElement> map, //
 			final Language l, //
@@ -94,6 +119,13 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return this.getString(map, Language.DEFAULT, property);
+	}
+
+	protected UUID getUuid(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return UUID.fromString(this.getString(map, Language.DEFAULT, property));
 	}
 
 	protected String getStringOrNull(//
@@ -126,6 +158,29 @@ public abstract class AbstractOpenemsAppWithProps<//
 			final PROPERTY property //
 	) throws OpenemsNamedException {
 		return JsonUtils.getAsJsonArray(this.getValueOrDefault(map, Language.DEFAULT, property, PROPERTY::def, false));
+	}
+
+	protected JsonElement getJsonElementOrNull(final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return this.getJsonElementOrNull(map, property, PROPERTY::def);
+	}
+
+	protected JsonElement getJsonElementOrNull(final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property, //
+			final Function<PROPERTY, AppDef<? super APP, ? super PROPERTY, ? super PARAMETER>> mapper //
+	) throws OpenemsNamedException {
+		var value = this.getValueOrDefault(map, Language.DEFAULT, property, mapper, true);
+		return value == null //
+				? JsonNull.INSTANCE //
+				: value;
+	}
+
+	protected JsonObject getJsonObject(//
+			final Map<PROPERTY, JsonElement> map, //
+			final PROPERTY property //
+	) throws OpenemsNamedException {
+		return JsonUtils.getAsJsonObject(this.getValueOrDefault(map, Language.DEFAULT, property, PROPERTY::def, false));
 	}
 
 	protected int getInt(//

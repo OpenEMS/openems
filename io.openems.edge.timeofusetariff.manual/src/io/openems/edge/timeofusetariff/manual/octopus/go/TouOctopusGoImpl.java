@@ -76,15 +76,13 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 		}
 
 		final var clock = this.componentManager.getClock();
-		final var goSchedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(clock) //
+		final var goSchedule = JSCalendar.Tasks.<Double>create(clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(0, 0)) //
 						.setDuration(Duration.ofHours(5)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(lowPrice) //
-						.build()) //
+						.setPayload(lowPrice)) //
 				.build();
 
 		this.octopusHelper = new TouManualHelper(clock, goSchedule, standardPrice);
@@ -113,6 +111,7 @@ public class TouOctopusGoImpl extends AbstractOpenemsComponent
 	@Override
 	public TimeOfUsePrices getPrices() {
 		return Utils.getPrices(//
+				this.componentManager.getClock(), //
 				this.octopusHelper, //
 				this.ancillaryCostsHelper, //
 				this.config.ancillaryCosts(), //

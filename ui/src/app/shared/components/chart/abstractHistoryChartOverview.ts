@@ -70,7 +70,7 @@ export abstract class AbstractHistoryChartOverview implements OnInit, OnChanges,
     }
 
     public ngOnDestroy() {
-    // Unsubscribe from CurrentData subject
+        // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
     }

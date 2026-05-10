@@ -114,9 +114,11 @@ public class TimeSeriesPreprocessingService {
 
 			var values = sortedTimes.stream().map(timeMap::get).toList();
 
+			// During the switch to winter time, a day can have more than 96 values (100
+			// values). Such days are skipped here to keep only complete days with 96
+			// quarter-hour values.
 			if (values.size() != QUARTERS_PER_DAY) {
-				throw new IllegalStateException("Expected " + QUARTERS_PER_DAY + " values per day, but got "
-						+ values.size() + " for day " + day);
+				continue;
 			}
 
 			index.add(day);

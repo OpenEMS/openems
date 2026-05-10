@@ -3,7 +3,7 @@ package io.openems.edge.predictor.api.prediction;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +17,7 @@ import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.predictor.api.common.LogSeverity;
 
 public abstract class AbstractPredictor extends AbstractOpenemsComponent implements Predictor, OpenemsComponent {
 
@@ -82,7 +83,7 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 
 	@Override
 	public Prediction getPrediction(ChannelAddress channelAddress) {
-		var now = roundDownToQuarter(ZonedDateTime.now(this.getClockProvider().getClock()));
+		var now = roundDownToQuarter(Instant.now(this.getClockProvider().getClock()));
 		var prediction = this.predictions.get(channelAddress);
 		if (Optional.ofNullable(prediction) // handle first-request or unsupported channelAddress
 				.map(p -> p.getFirstTime()) // handle prediction is EMPTY_PREDICTION
@@ -96,14 +97,22 @@ public abstract class AbstractPredictor extends AbstractOpenemsComponent impleme
 		}
 		switch (this.logVerbosity) {
 		case NONE -> doNothing();
-		case REQUESTED_PREDICTIONS, ARCHIVE_LOCALLY ->
-			this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
+		case REQUESTED_PREDICTIONS -> this.logInfo(this.log, "Prediction for [" + channelAddress + "]: " + prediction);
 		}
 		return prediction;
 	}
 
 	protected LogVerbosity getLogVerbosity() {
 		return this.logVerbosity;
+	}
+
+	protected void logWithSeverity(Logger log, LogSeverity severity, String message) {
+		switch (severity) {
+		case ERROR -> logError(log, message);
+		case WARNING -> logWarn(log, message);
+		case INFO -> logInfo(log, message);
+		case DEBUG -> logDebug(log, message);
+		}
 	}
 
 	private static ChannelAddress[] toChannelAddresses(String[] strings) throws OpenemsNamedException {

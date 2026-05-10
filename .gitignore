@@ -234,3 +234,6 @@ io.openems.edge.application/c:/
 
 ### Debian ###
 !tools/debian/**
+
+### Docker - for Dev UI under WSL ###
+docker-compose.override.yml

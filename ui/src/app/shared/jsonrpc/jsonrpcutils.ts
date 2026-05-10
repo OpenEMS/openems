@@ -1,9 +1,26 @@
 import { ChannelAddress } from "../type/channeladdress";
-import { JsonrpcRequest } from "./base";
+import { ObjectUtils } from "../utils/object/object-utils";
+import { JsonrpcRequest, JsonrpcResponseSuccess } from "./base";
 
 export class JsonRpcUtils {
 
     private static THRESHOLD: number = -0.50;
+
+    /**
+     * Gets the most inner/most deeply nested request.
+     *
+     * @param request the request
+     * @returns the most inner request
+     */
+    public static getMostInnerRequest(request: JsonrpcRequest): JsonrpcRequest | null {
+        let innerReq: JsonrpcRequest | null = request;
+        let condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+        while (condition != null) {
+            innerReq = condition;
+            condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+        }
+        return innerReq;
+    }
 
     public static normalizeQueryData(data: (number | null)[]): (number | null)[] {
         return data.map(el => JsonRpcUtils.roundSlightlyNegativeValues(el));
@@ -57,5 +74,18 @@ export class JsonRpcUtils {
         return promise
             .then((data): [null, T] => [null, data])
             .catch((err): [Error, T] => [err, orElse]);
+    }
+
+    /**
+     * Handles a jsonRpcRequests, with fallback value if error thrown
+     *
+     * @param promise the promise
+     * @param orElse the default value to use, if err thrown
+     * @returns either the the result or if error thrown the fallback value orElse
+     */
+    public static handleResponse<T extends JsonrpcResponseSuccess>(promise: Promise<T>): Promise<[null | Error, T | null]> {
+        return promise
+            .then((data): [null, T] => [null, data])
+            .catch((err): [Error, null] => [err, null]);
     }
 }

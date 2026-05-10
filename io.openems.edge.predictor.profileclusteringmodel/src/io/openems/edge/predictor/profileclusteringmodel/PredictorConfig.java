@@ -69,18 +69,11 @@ public interface PredictorConfig {
 	}
 
 	/**
-	 * The minimum number of days to be used for the training window.
+	 * Returns the training window.
 	 *
-	 * @return the minimum number of training days
+	 * @return the the training window in days
 	 */
-	public int minTrainingWindowDays();
-
-	/**
-	 * The maximum number of days to be used for the training window.
-	 *
-	 * @return the maximum number of training days
-	 */
-	public int maxTrainingWindowDays();
+	public int trainingWindowInDays();
 
 	/**
 	 * The maximum allowed size of gaps (in quarters) in the data that will still be
@@ -97,7 +90,15 @@ public interface PredictorConfig {
 	 *
 	 * @return the minimum number of training samples
 	 */
-	public int minTrainingSamplesRequired();
+	public int minTrainingSamples();
+
+	/**
+	 * The maximum number of training samples (whole, valid days) to be used for
+	 * training the classification model.
+	 *
+	 * @return the maximum number of training samples
+	 */
+	public int maxTrainingSamples();
 
 	/**
 	 * Provides the {@link ClustererFitter} that is responsible for training

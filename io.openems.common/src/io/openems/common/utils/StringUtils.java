@@ -109,7 +109,7 @@ public class StringUtils {
 		}
 	}
 
-	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("[^0-9]+([0-9]+)$");
+	private static final Pattern NAME_NUMBER_PATTERN = Pattern.compile("\\D++(\\d++)$");
 
 	/**
 	 * Causes this character sequence to be replaced by the reverse of the sequence.
@@ -131,6 +131,31 @@ public class StringUtils {
 	 */
 	public static boolean containsWithNullCheck(String string, String value) {
 		return string != null && string.contains(value);
+	}
+
+	/**
+	 * Checks if the search string is included in the string ignoring case.
+	 * 
+	 * @param str       the string to check
+	 * @param searchStr the sequence to search for
+	 * @return true if the string contains the search string ignoring case
+	 */
+	public static boolean containsIgnoreCase(String str, String searchStr) {
+		if (str == null || searchStr == null) {
+			return false;
+		}
+
+		final int length = searchStr.length();
+		if (length == 0) {
+			return true;
+		}
+
+		for (int i = str.length() - length; i >= 0; i--) {
+			if (str.regionMatches(true, i, searchStr, 0, length)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -184,5 +209,20 @@ public class StringUtils {
 	 */
 	public static String emptyToNull(String value) {
 		return (value == null || value.isBlank()) ? null : value;
+	}
+
+	/**
+	 * Calls .toString() if the given obj is not null and returns the result. If the
+	 * given obj is null, elseVal is returned.
+	 *
+	 * @param obj     Value to format to string
+	 * @param elseVal Value to return if obj is null
+	 * @return String
+	 */
+	public static String toStringOrElse(Object obj, String elseVal) {
+		if (obj == null) {
+			return elseVal;
+		}
+		return obj.toString();
 	}
 }

@@ -183,12 +183,12 @@ public final class AppCenterHandler {
 			REQUEST, //
 			RESULT, //
 			RESPONSE extends JsonrpcResponseSuccess> //
-	CompletableFuture<? extends JsonrpcResponseSuccess> handleAsync(//
-			final METADATA metadata, //
-			final AppCenterRequest request, //
-			final ThrowingFunction<JsonrpcRequest, REQUEST, OpenemsNamedException> requestMapper, //
-			final BiFunction<METADATA, REQUEST, CompletableFuture<RESULT>> metadataCall, //
-			final ThrowingBiFunction<UUID, RESULT, RESPONSE, OpenemsNamedException> resultMapper //
+			CompletableFuture<? extends JsonrpcResponseSuccess> handleAsync(//
+					final METADATA metadata, //
+					final AppCenterRequest request, //
+					final ThrowingFunction<JsonrpcRequest, REQUEST, OpenemsNamedException> requestMapper, //
+					final BiFunction<METADATA, REQUEST, CompletableFuture<RESULT>> metadataCall, //
+					final ThrowingBiFunction<UUID, RESULT, RESPONSE, OpenemsNamedException> resultMapper //
 	) throws OpenemsNamedException {
 		return metadataCall.apply(metadata, requestMapper.apply(request.getPayload())) //
 				.thenApply(r -> {
@@ -201,15 +201,14 @@ public final class AppCenterHandler {
 	}
 
 	private static <METADATA extends AppCenterMetadata, REQUEST> //
-	CompletableFuture<? extends JsonrpcResponseSuccess> handleAsync(//
-			final METADATA metadata, //
-			final AppCenterRequest request, //
-			final ThrowingFunction<JsonrpcRequest, REQUEST, OpenemsNamedException> requestMapper, //
-			final BiFunction<METADATA, REQUEST, CompletableFuture<Void>> metadataCall //
+			CompletableFuture<? extends JsonrpcResponseSuccess> handleAsync(//
+					final METADATA metadata, //
+					final AppCenterRequest request, //
+					final ThrowingFunction<JsonrpcRequest, REQUEST, OpenemsNamedException> requestMapper, //
+					final BiFunction<METADATA, REQUEST, CompletableFuture<Void>> metadataCall //
 	) throws OpenemsNamedException {
-		return metadataCall.apply(metadata, requestMapper.apply(request.getPayload())).thenApply(r -> {
-			return new GenericJsonrpcResponseSuccess(request.id);
-		});
+		return metadataCall.apply(metadata, requestMapper.apply(request.getPayload())) //
+				.thenApply(r -> new GenericJsonrpcResponseSuccess(request.id));
 	}
 
 	private AppCenterHandler() {

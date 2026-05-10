@@ -30,14 +30,12 @@ public class TouOctopusGoTest {
 		this.clock = TestUtils.createDummyClock();
 
 		// Setup Octopus Go schedule
-		final var schedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(this.clock) //
+		final var schedule = JSCalendar.Tasks.<Double>create(this.clock) //
 				.add(t -> t //
 						.setStart(LocalTime.of(0, 0)) //
 						.setDuration(Duration.ofHours(5)) //
 						.addRecurrenceRule(b -> b.setFrequency(DAILY)) //
-						.setPayload(GO_LOW_PRICE) //
-						.build()) //
+						.setPayload(GO_LOW_PRICE)) //
 				.build();
 		this.goHelper = new TouManualHelper(this.clock, schedule, GO_STANDARD_PRICE);
 	}

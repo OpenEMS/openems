@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: currentColor;
+      }
+    </style>
+  </defs>
+  <polygon class="cls-1" points="10.65 36 5 30.35 5 22.36 10.35 17 15.55 17 15.88 16.67 15.2 15.93 15.13 16 9.94 16 4 21.94 4 30.76 10.24 37 34.56 37 33.64 36 10.65 36"/>
+  <path class="cls-1" d="M39.38,21h-2.88c-.55,0-1-.45-1-1v-4.33s-4.77-4.67-4.77-4.67h-10.6l-3.52,3.52.68.74,3.25-3.25h9.77l4.18,4.09v5.91h4.46l4.04,4.03v5.83l-4.13,4.13h-2.51l.92,1h2l4.72-4.72v-6.66l-4.62-4.62Z"/>
+  <rect class="cls-1" x="24.4" y="2.41" width="1" height="45.2" transform="translate(-10.36 23.43) rotate(-42.57)"/>
+</svg>

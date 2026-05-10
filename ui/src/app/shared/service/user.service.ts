@@ -1,4 +1,4 @@
-import { Directive, effect, signal, WritableSignal } from "@angular/core";
+import { effect, Injectable, signal, WritableSignal } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { Theme, Theme as UserTheme } from "src/app/edge/history/shared";
 import { ThemePopoverComponent } from "src/app/user/theme-selection-popup/theme-selection-popover";
@@ -12,7 +12,7 @@ import { User } from "../jsonrpc/shared";
 import { AssertionUtils } from "../utils/assertions/assertions.utils";
 import { Service } from "./service";
 
-@Directive()
+@Injectable({ providedIn: "root" })
 export class UserService {
 
     public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
@@ -33,7 +33,7 @@ export class UserService {
 
             if (user != null) {
                 this.showThemeSelection(user);
-                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()));
+                this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()?.getConfigSignal()()));
             }
         });
     }
@@ -66,12 +66,12 @@ export class UserService {
     }
 
     /**
-     * Updates the userSettings
+     * Updates the settings from User
      *
      * @param key the key to update
      * @param value the value for given key
      */
-    public async updateUserSettingsWithProperty(key: string, value: boolean | string | number) {
+    public async updateUserSettingsWithProperty(key: string, value: User["settings"][keyof User["settings"]]) {
         const user = this.currentUser();
         AssertionUtils.assertIsDefined(user);
         const updatedSettings = { ...user.settings, [key]: value };
@@ -164,7 +164,7 @@ export class UserService {
         if (environment.backend === "OpenEMS Edge") {
             return Promise.resolve([new UnimplementedInEdgeError(request), null]);
         }
-        return JsonRpcUtils.handle<JsonrpcResponseSuccess>(this.service.websocket.sendSafeRequest(request));
+        return JsonRpcUtils.handle(this.service.websocket.sendRequest(request));
     }
 
     /**

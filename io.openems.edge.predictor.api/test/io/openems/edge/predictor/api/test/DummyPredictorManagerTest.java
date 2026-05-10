@@ -4,8 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static org.junit.Assert.assertEquals;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 import org.junit.Test;
 
@@ -25,7 +24,7 @@ public class DummyPredictorManagerTest {
 	@Test
 	public void test() throws OpenemsNamedException {
 		final var clock = createDummyClock();
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		var sut = new DummyPredictorManager(new DummyPredictor("predictor0", cm,
@@ -42,8 +41,6 @@ public class DummyPredictorManagerTest {
 		assertEquals(sut, sut.self());
 
 		assertEquals(9, sut.getPrediction(SUM_CONSUMPTION_ACTIVE_POWER).getAt(now).intValue());
-		assertEquals(9, sut.getPrediction(SUM_CONSUMPTION_ACTIVE_POWER)
-				.getAt(now.withZoneSameInstant(ZoneId.of("Europe/Berlin"))).intValue());
 	}
 
 }

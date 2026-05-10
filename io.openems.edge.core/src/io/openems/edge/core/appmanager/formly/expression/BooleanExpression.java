@@ -1,5 +1,8 @@
 package io.openems.edge.core.appmanager.formly.expression;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.enums.Operator;
 
@@ -16,6 +19,19 @@ public record BooleanExpression(String expression) {
 	 */
 	public static BooleanExpression of(Variable v1, Operator op, Variable v2) {
 		return new BooleanExpression(v1.variable() + " " + op.getOperation() + " " + v2.variable());
+	}
+
+	/**
+	 * Combines all given {@link BooleanExpression}'s with an OR condition.
+	 *
+	 * @param expressions the {@link BooleanExpression}'s to combine
+	 * @return the created {@link BooleanExpression}
+	 */
+	public static BooleanExpression or(BooleanExpression... expressions) {
+		var newExpression = Arrays.stream(expressions) //
+				.map(BooleanExpression::expression) //
+				.collect(Collectors.joining(" || "));
+		return new BooleanExpression(newExpression);
 	}
 
 	/**

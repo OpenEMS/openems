@@ -5,6 +5,7 @@ import static io.openems.edge.timeofusetariff.api.AncillaryCosts.getScheduleStan
 import static io.openems.edge.timeofusetariff.api.AncillaryCosts.parseForGermany;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.function.Consumer;
 
@@ -52,14 +53,15 @@ public class Utils {
 	 * Combines Octopus prices with ancillary costs using the formula: Final_Price =
 	 * Octopus_Price - (Ancillary_Standard_Price - Ancillary_Actual_Price).
 	 * 
+	 * @param clock                the {@link Clock}
 	 * @param octopusHelper        the Octopus price helper
 	 * @param ancillaryCostsHelper the ancillary costs helper
 	 * @param ancillaryCostsConfig the ancillary costs configuration
 	 * @param logWarn              logger for warnings
 	 * @return combined {@link TimeOfUsePrices}
 	 */
-	public static TimeOfUsePrices getPrices(TouManualHelper octopusHelper, TouManualHelper ancillaryCostsHelper,
-			String ancillaryCostsConfig, Consumer<String> logWarn) {
+	public static TimeOfUsePrices getPrices(Clock clock, TouManualHelper octopusHelper,
+			TouManualHelper ancillaryCostsHelper, String ancillaryCostsConfig, Consumer<String> logWarn) {
 
 		if (isNullOrBlank(ancillaryCostsConfig)) {
 			return octopusHelper.getPrices();
@@ -70,21 +72,23 @@ public class Utils {
 		final var ancillaryPrices = ancillaryCostsHelper.getPrices();
 
 		// Create a new map for the combined prices
-		final var combinedPricesBuilder = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		final var combinedPricesBuilder = ImmutableSortedMap.<Instant, Double>naturalOrder();
 
 		// Iterate over the base octopus price map
 		for (var entry : octopusPrices.toMap().entrySet()) {
-			final var time = entry.getKey();
+			final var instant = entry.getKey();
+			final var time = instant.atZone(clock.getZone());
 			final var octopusPrice = entry.getValue();
 
 			// 0.0 standard price (fallback)
-			final var ancillaryActualPrice = ancillaryPrices.getAtOrElse(time, 0.0) * CENT_PER_KWH_TO_CURRENCY_PER_MWH;
+			final var ancillaryActualPrice = ancillaryPrices.getAtOrElse(instant, 0.0)
+					* CENT_PER_KWH_TO_CURRENCY_PER_MWH;
 			final var ancillaryStandardPrice = getStandardPrice(ancillaryCostsConfig, time)
 					* CENT_PER_KWH_TO_CURRENCY_PER_MWH;
 			final var finalPrice = calculateCombinedPrice(octopusPrice, ancillaryActualPrice, ancillaryStandardPrice,
 					logWarn);
 
-			combinedPricesBuilder.put(time, finalPrice);
+			combinedPricesBuilder.put(instant, finalPrice);
 		}
 
 		return TimeOfUsePrices.from(combinedPricesBuilder.build());

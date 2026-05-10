@@ -17,8 +17,9 @@ import io.openems.common.utils.ThreadPoolUtils;
 
 public class InitializeEdgesWorker {
 
-	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
 	protected final PostgresHandler parent;
+
+	private final Logger log = LoggerFactory.getLogger(InitializeEdgesWorker.class);
 	private final HikariDataSource dataSource;
 	private final Runnable onFinished;
 
@@ -97,7 +98,7 @@ public class InitializeEdgesWorker {
 				.append(error.getClass().getSimpleName()) //
 				.append(": ").append(error.getMessage()) //
 				.toString());
-		error.printStackTrace();
+		this.log.error(error.getMessage(), error);
 	}
 
 	/**

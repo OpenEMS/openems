@@ -12,7 +12,7 @@
             <ion-grid class="ion-no-padding">
               <ion-row>
                 <ion-col>
-                  <ion-item lines="none" (keydown.enter)="toggleSubscribe($event)" (click)="toggleSubscribe($event)">
+                  <ion-item lines="none">
                     <ion-checkbox [labelPlacement]="'start'" (ionChange)="toggleSubscribe($event)" slot="start"
                       [(ngModel)]="isSubscribed">
                       {{'EDGE.CONFIG.LOG.AUTOMATIC_UPDATING' | translate}}

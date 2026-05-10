@@ -1,29 +1,74 @@
 {
-    "EVSE_SINGLE": {
-        "SETTINGS": {
-            "ENERGY_LIMIT": "Energielimit"
-        },
-        "HOME": {
-            "MODE": {
-                "LABEL": "Modus",
-                "ZERO": "Aus",
-                "MINIMUM": "Minimal",
-                "SURPLUS": "PV",
-                "FORCE": "Schnell"
-            },
-            "STATE_MACHINE": {
-                "LABEL": "Status",
-                "EV_NOT_CONNECTED": "EV nicht verbunden",
-                "EV_CONNECTED": "EV verbunden",
-                "CHARGING": "Lädt",
-                "FINISHED_EV_STOP": "Ladevorgang beendet durch EV",
-                "FINISHED_ENERGY_SESSION_LIMIT": "Ladevorgang beendet durch Energielimit",
-                "PHASE_SWITCH_TO_THREE_PHASE": "Wechsel auf 3-phasig",
-                "PHASE_SWITCH_TO_SINGLE_PHASE": "Wechsel auf 1-phasig"
-            },
-            "POWER": "Leistung",
-            "ENERGY_SINCE_START": "Energie seit Ladebeginn",
-            "VEHICLES": "App Center Fahrzeuge"
-        }
+  "EVSE_SINGLE": {
+    "SETTINGS": {
+      "ENERGY_LIMIT": "Energielimit"
+    },
+    "HOME": {
+      "MODE": {
+        "LABEL": "Grundmodus",
+        "ZERO": "Aus",
+        "MINIMUM": "Minimal",
+        "SURPLUS": "PV",
+        "FORCE": "Schnell"
+      },
+      "STATE_MACHINE": {
+        "LABEL": "Status",
+        "EV_NOT_CONNECTED": "EV nicht verbunden",
+        "EV_CONNECTED": "EV verbunden",
+        "CHARGING": "Lädt",
+        "FINISHED_EV_STOP": "Ladevorgang beendet durch EV",
+        "FINISHED_ENERGY_SESSION_LIMIT": "Ladevorgang beendet durch Energielimit",
+        "PHASE_SWITCH_TO_THREE_PHASE": "Wechsel auf 3-phasig",
+        "PHASE_SWITCH_TO_SINGLE_PHASE": "Wechsel auf 1-phasig",
+        "PHASE_SWITCH": "Manuelles Phasenwechseln"
+      },
+      "POWER": "Leistung",
+      "ENERGY_SINCE_START": "Energie seit Ladebeginn",
+      "VEHICLES": "App Center Fahrzeuge",
+      "ACTUAL_MODE": {
+        "LABEL": "Aktiver Modus"
+      }
+    },
+    "SCHEDULE": {
+      "NEXT_TASKS": "Nächste Aufgaben",
+      "EDIT": "Bearbeiten",
+      "ACCEPT": "Übernehmen",
+      "DELETE": "Löschen",
+      "EDIT_TASK": "Aufgabe bearbeiten",
+      "START": "Start",
+      "END": "Ende",
+      "DURATION": "Dauer",
+      "MODE": "Lademodus",
+      "FREQUENCY": "Wiederholung",
+      "ADD": "Hinzufügen",
+      "DAY": {
+        "MONDAY": "Montag",
+        "TUESDAY": "Tuesday",
+        "WEDNESDAY": "Mittwoch",
+        "THURSDAY": "Donnerstag",
+        "FRIDAY": "Freitag",
+        "SATURDAY": "Samstag",
+        "SUNDAY": "Sonntag"
+      },
+      "FREQ": {
+        "DAILY": "Täglich",
+        "WEEKLY": "Wöchentlich",
+        "MONTHLY": "Monatlich",
+        "YEARLY": "Jährlich"
+      },
+      "MODE_SELECTION_PLACEHOLDER": "Lademodus auswählen",
+      "VALIDATION_ERROR_1": "Bitte Startzeit angeben",
+      "VALIDATION_ERROR_2": "Bitte Endzeit angeben",
+      "VALIDATION_ERROR_3": "Bitte Lademodus auswählen",
+      "VALIDATION_ERROR_4": "Bitte Startzeit im Format HH:mm und nur in Viertelstunden (00, 15, 30 oder 45 Minuten) angeben",
+      "VALIDATION_ERROR_5": "Bitte Endzeit im Format HH:mm und nur in Viertelstunden (00, 15, 30 oder 45 Minuten) angeben",
+      "VALIDATION_ERROR_6": "Endzeit muss nach Startzeit liegen",
+      "ADD_SUCCESS": "Task erfolgreich hinzugefügt",
+      "ADD_ERROR": "Task konnte nicht hinzugefügt werden",
+      "EDIT_SUCCESS": "Task erfolgreich angepasst",
+      "EDIT_ERROR": "Task konnte nicht angepasst werden",
+      "DELETE_SUCCESS": "Task erfolgreich gelöscht",
+      "DELETE_ERROR": "Task konnte nicht gelöscht werden"
     }
+  }
 }

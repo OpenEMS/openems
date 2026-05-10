@@ -7,7 +7,10 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.predictor.api.common.PredictionState;
+import io.openems.edge.predictor.api.common.TrainingState;
 import io.openems.edge.predictor.api.prediction.Predictor;
+import io.openems.edge.predictor.production.linearmodel.prediction.SnowStateMachine;
 
 public interface PredictorProductionLinearModel extends Predictor, OpenemsComponent {
 
@@ -28,6 +31,13 @@ public interface PredictorProductionLinearModel extends Predictor, OpenemsCompon
 				.text("Current state of the predictor linear model prediction.")), //
 
 		/**
+		 * Current state of the predictor linear model snow state machine.
+		 */
+		PREDICTOR_PRODUCTION_LINEAR_MODEL_SNOW_STATE(Doc.of(SnowStateMachine.State.values())//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Current state of the predictor linear model snow state machine.")), //
+
+		/**
 		 * Forecasted production power from the linear prediction model, one hour ahead
 		 * (calculated now for +1h).
 		 */
@@ -44,6 +54,24 @@ public interface PredictorProductionLinearModel extends Predictor, OpenemsCompon
 				.unit(Unit.WATT)//
 				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Forecasted production power from the linear prediction model realized at the predicted time (predicted 1h ago).")), //
+
+		/**
+		 * Forecasted production power from the linear prediction model, three hours
+		 * ahead (calculated now for +3h).
+		 */
+		PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_AHEAD(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Forecasted production power from the linear prediction model three hours ahead.")), //
+
+		/**
+		 * Forecasted production power from the linear prediction model, realized at the
+		 * predicted time (value predicted 3h earlier).
+		 */
+		PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_REALIZED(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Forecasted production power from the linear prediction model realized at the predicted time (predicted 3h ago).")), //
 
 		/**
 		 * Forecasted production power from the linear prediction model, six hours ahead
@@ -192,6 +220,36 @@ public interface PredictorProductionLinearModel extends Predictor, OpenemsCompon
 
 	/**
 	 * Gets the Channel for
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_SNOW_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<SnowStateMachine.State> getSnowStateChannel() {
+		return this.channel(ChannelId.PREDICTOR_PRODUCTION_LINEAR_MODEL_SNOW_STATE);
+	}
+
+	/**
+	 * Gets the snow state of the predictor production linear model. See
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_SNOW_STATE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default SnowStateMachine.State getSnowState() {
+		return this.getSnowStateChannel().value().asEnum();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_SNOW_STATE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setSnowState(SnowStateMachine.State value) {
+		this.getSnowStateChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
 	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_1H_AHEAD}.
 	 *
 	 * @return the Channel
@@ -251,6 +309,69 @@ public interface PredictorProductionLinearModel extends Predictor, OpenemsCompon
 	 */
 	public default void _setPrediction1hRealized(Integer value) {
 		this.getPrediction1hRealizedChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_AHEAD}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getPrediction3hAheadChannel() {
+		return this.channel(ChannelId.PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_AHEAD);
+	}
+
+	/**
+	 * Gets the prediction from the linear prediction model three hours ahead. See
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_AHEAD}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Integer getPrediction3hAhead() {
+		return this.getPrediction3hAheadChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_AHEAD}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPrediction3hAhead(Integer value) {
+		this.getPrediction3hAheadChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_REALIZED}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<Integer> getPrediction3hRealizedChannel() {
+		return this.channel(ChannelId.PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_REALIZED);
+	}
+
+	/**
+	 * Gets the realized prediction from the linear prediction model (the value that
+	 * was predicted three hours earlier). See
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_REALIZED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Integer getPrediction3hRealized() {
+		return this.getPrediction3hRealizedChannel().value().get();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#PREDICTOR_PRODUCTION_LINEAR_MODEL_PREDICTION_3H_REALIZED}
+	 * Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setPrediction3hRealized(Integer value) {
+		this.getPrediction3hRealizedChannel().setNextValue(value);
 	}
 
 	/**

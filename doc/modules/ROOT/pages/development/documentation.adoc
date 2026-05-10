@@ -1,0 +1,163 @@
+= Documentation
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+== Concept
+
+The OpenEMS Documentation is built with https://antora.org/[Antora icon:external-link[]].
+
+OpenEMS https://github.com/OpenEMS/openems[Files icon:external-link[]] and https://github.com/OpenEMS/openems.io[Documentation icon:external-link[]] are separated on two different repositories.
+
+The https://github.com/OpenEMS/openems/blob/develop/doc/build/uibundle_openems.zip?raw=true[UI icon:external-link[]] was slightly modified to fit our needs.
+
+NOTE: For more Information regarding https://asciidoctor.org/docs/asciidoc-writers-guide/[AsciiDoc icon:external-link[]] and https://docs.antora.org/antora/1.1/[Antora icon:external-link[]] see their Docs.
+
+== Edit a page
+
+If you want to edit a Docs - Page just click on 'Edit this Page' in the upper right corner to edit the page you are currently visiting.
+
+Edit the Page according to your ideas and commit your changes.
+
+You will see the changes you have made after our frequent Docs - Update.
+
+
+== Add a page
+
+To add a page, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (preferably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
+
+1. Go to https://github.com/OpenEMS/openems/tree/develop/doc/modules/ROOT/pages[doc/modules/ROOT/pages icon:external-link[]] and create a .adoc file with the desired name.
+
+2. Go to https://github.com/OpenEMS/openems/blob/develop/doc/modules/ROOT/nav.adoc[doc/modules/ROOT/nav.adoc icon:external-link[]] and add your page with the correct filename to the nav file. 
+
+== Build Docs
+
+To build the docs, clone the OpenEMS Repository (preferably xref:gettingstarted.adoc#_download_the_source_code[Source Tree]) and open it with a Code Editor (preferably xref:gettingstarted.adoc#_setup_visual_studio_code_for_openems_ui[Visual Studio Code]).
+
+[NOTE]
+====
+NodeJS has to be installed
+====
+
+
+.Build the documents:
+Open the integrated terminal, change to the https://github.com/OpenEMS/openems/tree/develop/[root directory icon:external-link[]] and type
+====
+`gradlew buildAntoraDocs`
+====
+
+Docs should be building.. the finished HTML Folder can be found in your local 'build' folder (inside your https://github.com/OpenEMS/openems/tree/develop/doc/build[repository build folder icon:external-link[]])
+
+NOTE: If you want to build your own docs with Antora see https://fabianfnc.github.io/bocs/[this guide icon:external-link[]] 
+
+
+== Dynamic Documentation Generation
+
+Some parts of the OpenEMS documentation are generated dynamically during the build process.
+
+In the repository you can find includes like `nature.adoc`
+[source,adoc]
+----
+\include::pages/edge/nature.d/_nav.adoc[]
+----
+where the corresponding folder `nature.d` is basically empty. (It only contains a `.gitignore` file to keep it that way in version control.) This is, where the dynamic generation happens.
+
+=== The Process
+(shown at the example of link:https://openems.github.io/openems.io/openems/latest/edge/nature.html[Natures] documentation)
+
+1. Build-Time Generation (in `build.gradle` lines 393-503)
++
+The `copyBundleReadmes` Gradle task runs during the documentation build process and:
++
+--
+1. Scans all bundles in the project looking for `readme.adoc` files
+2. Categorizes bundles by type (nature, controller, scheduler, bridge, deviceService, timedata, backendService)
+3. For each category, it:
+- Copies bundle `readme.adoc` files to the corresponding folder (e.g., `nature.d/\{bundle-name\}.adoc`)
+- Extracts the title from the first line of each `readme.adoc` (the line starting with `= `)
+- Creates xref entries for each bundle, sorted alphabetically by title
+- Generates a `_nav.adoc` file containing all the xref links
+--
+
+2. The Result
++
+The generated `nature.d/_nav.adoc` file contains something like:
++
+[source,adoc]
+----
+* \xref:edge/nature.d/io.openems.edge.battery.api.adoc[Battery]
+* \xref:edge/nature.d/io.openems.edge.batteryinverter.api.adoc[Battery Inverter]
+* \xref:edge/nature.d/io.openems.edge.ess.api.adoc[Energy Storage System]
+* \xref:edge/nature.d/io.openems.edge.meter.api.adoc[Meter]
+...
+----
+
+3. AsciiDoc Processing
++
+When Antora builds the documentation, it processes `nature.adoc` which includes the line:
+[source,adoc]
+----
+\include::nature.d/_nav.adoc[]
+----
+
+This includes all the xref links to the individual bundle documentation files, creating a navigable list of natures.
+
+=== Why This Pattern?
+
+- Automatic: New bundles with `readme.adoc` files automatically appear in the documentation
+- Maintainable: Each bundle documents itself in its own `readme.adoc`
+- DRY: No need to manually maintain a central list
+- Build artifact: The generated files are git-ignored and regenerated on each build
+- Sorted: Entries are automatically sorted alphabetically by title
+
+You can see this in action by running:
+[source,bash]
+----
+./gradlew copyBundleReadmes
+----
+
+This will populate all dynamic documentation folders with individual bundle documentation files and generate `_nav.adoc` files with xref links for all categories (nature, controller, scheduler, bridge, deviceService, timedata, backendService).
+
+
+== Creating Bundle README Files
+
+Each bundle in OpenEMS should include a `readme.adoc` file that documents the component. These files are automatically included in the generated documentation using the xref:_dynamic_documentation_generation[Dynamic Documentation Generation] process.
+
+=== Creating a README with AI Assistance
+
+To simplify the creation of standardized bundle README files, use the provided helper script:
+
+[source,bash]
+----
+./doc/tools/standardize_bundle_readme.sh <bundle_name>
+----
+
+.Example:
+[source,bash]
+----
+./doc/tools/standardize_bundle_readme.sh io.openems.edge.meter.weidmueller
+----
+
+This script will:
+
+1. Extract component metadata from the bundle's implementation files
+2. Parse Factory-PID, component class name, and interfaces
+3. Generate a template ready for AI-powered completion
+4. Provide copy-paste ready instructions
+
+You can then use the extracted metadata to prompt an AI agent (like GitHub Copilot) to generate a complete, well-structured README that follows OpenEMS conventions.
+
+.Steps:
+1. Run the standardization script to extract metadata
+2. Copy the template and metadata to an AI agent prompt
+3. Request the AI to generate a README following OpenEMS documentation standards
+4. Review and refine the generated README as needed
+5. Save the file to `<bundle_name>/readme.adoc`
+6. Run `./gradlew buildAntoraDocs` to verify the documentation builds correctly
+
+For more details, see the script documentation in `doc/tools/standardize_bundle_readme.sh`.

@@ -1,0 +1,23 @@
+{
+  "STORAGE": {
+    "ADMIN_MODAL": {
+      "SOH": {
+        "TITLE": "Kapazitätsbestimmung",
+        "TITLE_TIP": "nur für Administratoren sichtbar",
+        "ENABLED_INFO": "ESS SoH Cycle Controller ist aktiviert",
+        "INFO": "Misst die Batteriekapazität indem ein Testzyklus durchgeführt wird und berechnet somit den State of Health (SOH). Der Prozess kann je nach Batterietyp und -größe mehrere Stunden dauern. Es wird empfohlen, den Testzyklus nur durchzuführen, wenn die Batterie nicht in Gebrauch ist.",
+        "STATE_MACHINE_LABEL": "Zustand",
+        "CAPACITY_MEASURING": "Kapazität wird gemessen",
+        "RESTART_WARNING": "Das Neustarten des SoH-Zyklus setzt die aktuellen Messungen zurück und startet einen neuen Zyklus. Sind Sie sicher, dass Sie neu starten möchten?",
+        "ERROR": "Während des SoH-Zyklus ist ein Fehler aufgetreten. Bitte überprüfen Sie die Systemprotokolle für weitere Details.",
+        "MEASURED_CAPACITY": "Gemessene Kapazität",
+        "SOH_PERCENT": "SoH",
+        "RESTART_CONFIRMATION_TITLE": "Erneut durchführen bestätigen"
+      },
+      "BUTTONS": {
+        "START": "Durchführen",
+        "RESTART": "Erneut durchführen"
+      }
+    }
+  }
+}

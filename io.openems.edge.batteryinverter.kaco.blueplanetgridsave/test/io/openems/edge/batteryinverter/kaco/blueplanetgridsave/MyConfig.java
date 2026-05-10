@@ -1,7 +1,7 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
+import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.errorrestart.ErrorRestartBehaviourConfig;
 import io.openems.edge.common.startstop.StartStopConfig;
 
 @SuppressWarnings("all")
@@ -12,6 +12,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private StartStopConfig startStopConfig = null;
 		private String modbusId = null;
 		private boolean activateWatchdog;
+		private GridCode gridCode;
+		private ErrorRestartBehaviourConfig errorBehaviour = ErrorRestartBehaviourConfig.NO_RESTART;
 
 		private Builder() {
 		}
@@ -33,6 +35,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setActivateWatchdog(boolean activateWatchdog) {
 			this.activateWatchdog = activateWatchdog;
+			return this;
+		}
+
+		public Builder setGridCode(GridCode gridCode) {
+			this.gridCode = gridCode;
+			return this;
+		}
+
+		public Builder setErrorBehaviour(ErrorRestartBehaviourConfig errorBehaviour) {
+			this.errorBehaviour = errorBehaviour;
 			return this;
 		}
 
@@ -68,12 +80,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
 	public boolean activateWatchdog() {
 		return this.builder.activateWatchdog;
 	}
+
+	@Override
+	public GridCode gridCode() {
+		return this.builder.gridCode;
+	}
+
+	@Override
+	public ErrorRestartBehaviourConfig errorBehaviour() {
+		return this.builder.errorBehaviour;
+	}
+
 }

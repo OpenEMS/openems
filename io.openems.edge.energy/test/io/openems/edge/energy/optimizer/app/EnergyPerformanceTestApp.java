@@ -2,7 +2,7 @@ package io.openems.edge.energy.optimizer.app;
 
 import com.google.common.collect.ImmutableMap;
 
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
+import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.optimizer.Simulator;
 import io.openems.edge.energy.optimizer.SimulatorTest;

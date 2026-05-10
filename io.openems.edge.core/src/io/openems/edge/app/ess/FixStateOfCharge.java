@@ -17,7 +17,6 @@ import com.google.gson.JsonElement;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -93,16 +92,16 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 					field.setMin(1);
 					field.setMax(100);
 				}))), //
-		TARGET_SPECIFIED_TIME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".targetSpecifiedTime.label") //
+		TARGET_SPECIFIED_TIME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".targetSpecifiedTime.label")//
 				.setDefaultValue(false)//
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
 				.setRequired(true))), //
 		TARGET_TIME(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".targetTime.label") //
 				.setField(JsonFormlyUtil::buildDateTimeFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(TARGET_SPECIFIED_TIME).notNull());
-				}) //
+				})//
 				.setRequired(true))), //
 		TARGET_TIME_BUFFER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".targetTimeBuffer.label") //
@@ -112,10 +111,10 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.MINUTE, l);
 				}).setRequired(true))), //
-		SELF_TERMINATION(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".selfTermination.label") //
+		SELF_TERMINATION(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".selfTermination.label")//
 				.setDefaultValue(true)//
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
 				.setRequired(true))), //
 		TERMINATION_BUFFER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".terminationBuffer.label") //
@@ -125,15 +124,15 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 					field.onlyPositiveNumbers();
 					field.setUnit(Unit.MINUTE, l);
 				}).setRequired(true))), //
-		CONDITIONAL_TERMINATION(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".conditionalTermination.label") //
+		CONDITIONAL_TERMINATION(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".conditionalTermination.label")//
 				.setDefaultValue(false)//
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
 				.setRequired(true))), //
-		IS_RUNNING(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".isRunning.label") //
-				.setDefaultValue(true) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable) //
+		IS_RUNNING(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".isRunning.label")//
+				.setDefaultValue(true)//
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
 				.bidirectional(CTRL_FIX_STATE_OF_CHARGE_ID, "isRunning", //
 						ComponentManagerSupplier::getComponentManager))), //
 		;
@@ -168,13 +167,6 @@ public class FixStateOfCharge extends AbstractOpenemsAppWithProps<FixStateOfChar
 			@Reference final ComponentUtil componentUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

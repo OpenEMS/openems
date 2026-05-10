@@ -1,0 +1,16 @@
+@if (isInitialized && component) {
+    <oe-navigation-view [title]="component.alias" [component]="component">
+        <oe-schedule-task-form [(startTime)]="startTime" [(endTime)]="endTime" [(payload)]="payload"
+            [(allowedPeriods)]="allowedPeriods" [(recurrenceRuleByDay)]="recurrenceRuleByDay">
+            <ng-content select="[content]"></ng-content>
+        </oe-schedule-task-form>
+        <ion-grid>
+            <ion-row class="ion-justify-content-end ion-padding-top">
+                <ion-button (click)="saveTaskToEdge()">
+                    <ion-icon slot="start" name="add-outline"></ion-icon>
+                    {{ "JS_SCHEDULE.ACCEPT" | translate }}
+                </ion-button>
+            </ion-row>
+        </ion-grid>
+    </oe-navigation-view>
+}

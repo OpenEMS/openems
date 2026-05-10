@@ -13,6 +13,8 @@ import java.util.Queue;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
@@ -24,6 +26,12 @@ import io.openems.edge.core.host.Inet4AddressWithSubnetmask;
 import io.openems.edge.core.host.NetworkInterface;
 
 public class ComponentUtilTest {
+
+	@Test
+	public void testEqualsRecursion() {
+		assertFalse(ComponentUtilImpl.equals(new JsonPrimitive("abc"), new JsonObject()));
+		assertFalse(ComponentUtilImpl.equals(new JsonObject(), new JsonPrimitive("abc")));
+	}
 
 	@Test
 	public void testEqualsJsonElementJsonElement() {
@@ -140,7 +148,7 @@ public class ComponentUtilTest {
 	@Test
 	public void testIsSameConfiguration() {
 		var expected = new ComponentDef("id", "alias", "factorieId", ComponentProperties.emptyProperties(),
-				Configuration.create().build());
+				Configuration.defaultConfig());
 		var actual = new EdgeConfig.Component("id", "alias", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfiguration(null, expected, actual));
 	}
@@ -148,7 +156,7 @@ public class ComponentUtilTest {
 	@Test
 	public void testIsSameConfigurationWithoutAlias() {
 		var expected = new ComponentDef("id", "alias1", "factorieId", ComponentProperties.emptyProperties(),
-				Configuration.create().build());
+				Configuration.defaultConfig());
 		var actual = new EdgeConfig.Component("id", "alias2", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutAlias(null, expected, actual));
 	}
@@ -156,7 +164,7 @@ public class ComponentUtilTest {
 	@Test
 	public void testIsSameConfigurationWithoutId() {
 		var expected = new ComponentDef("id1", "alias", "factorieId", ComponentProperties.emptyProperties(),
-				Configuration.create().build());
+				Configuration.defaultConfig());
 		var actual = new EdgeConfig.Component("id2", "alias", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutId(null, expected, actual));
 	}
@@ -164,7 +172,7 @@ public class ComponentUtilTest {
 	@Test
 	public void testIsSameConfigurationWithoutIdAndAlias() {
 		var expected = new ComponentDef("id1", "alias1", "factorieId", ComponentProperties.emptyProperties(),
-				Configuration.create().build());
+				Configuration.defaultConfig());
 		var actual = new EdgeConfig.Component("id2", "alias2", "factorieId", JsonUtils.buildJsonObject().build());
 		assertTrue(ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(null, expected, actual));
 	}
@@ -176,21 +184,21 @@ public class ComponentUtilTest {
 						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id1") //
 								.build()),
-						Configuration.create().build()),
+						Configuration.defaultConfig()),
 				new ComponentDef("id2", "alias", "factorieId", //
 						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id3") //
 								.build()),
-						Configuration.create().build()),
+						Configuration.defaultConfig()),
 				new ComponentDef("id1", "alias", "factorieId", //
 						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.addProperty("using.id", "id3") //
 								.build()),
-						Configuration.create().build()),
+						Configuration.defaultConfig()),
 				new ComponentDef("id3", "alias", "factorieId", //
 						ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 								.build()),
-						Configuration.create().build()));
+						Configuration.defaultConfig()));
 
 		final var orderedComponents = ComponentUtilImpl.order(components);
 

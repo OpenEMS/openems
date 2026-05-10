@@ -1,6 +1,6 @@
 package io.openems.edge.controller.evse.cluster;
 
-enum DistributionStrategy {
+public enum DistributionStrategy {
 	/**
 	 * Distribute excess power equally among EVs.
 	 */

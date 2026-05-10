@@ -1,30 +1,53 @@
 import { AbstractControl } from "@angular/forms";
+import { FormlyFieldConfig } from "@ngx-formly/core";
 
 export namespace FormlyUtils {
 
     /**
-     * Determines the border-bottom-color for a form field based on its state.
+     * Returns a CSS style object based on the control's validation state.
      *
-     * @param formControl The form control instance.
-     * @param isFocused A boolean indicating if the field is currently focused.
-     * @returns An object with the CSS 'border-bottom-color' property.
+     * @param control The Angular AbstractControl to check
+     * @param isFocused Whether the field is currently focused
+     * @param cssProperty The CSS property to target (e.g., 'border-color', 'border-bottom-color')
      */
-    export function getBorderBottomColor(
-        formControl: AbstractControl,
-        isFocused: boolean
+    export function getControlStyle(
+        control: AbstractControl | null | undefined,
+        isFocused: boolean,
+        cssProperty: string
     ): { [key: string]: string } {
-        let borderBottomColor = "var(--ion-color-dark)"; // Default color
 
-        if (formControl.invalid && formControl.touched) {
-            borderBottomColor = "var(--highlight-color-invalid)";
-        } else if (formControl.valid) {
-            borderBottomColor = "var(--highlight-color-valid)";
-        } else if (isFocused) {
-            borderBottomColor = "var(--highlight-color-focused)";
+        let color = "var(--ion-color-dark)"; // Default
+
+        if (control !== null && control !== undefined) {
+            if (control.touched && control.invalid) {
+                color = "var(--ion-color-danger)";
+            } else if (control.valid && (control.dirty || control.touched || control.value)) {
+                color = "var(--ion-color-success)";
+            } else if (isFocused) {
+                color = "var(--ion-color-primary)";
+            }
         }
 
-        return {
-            "border-bottom-color": borderBottomColor,
-        };
+        return { [cssProperty]: color };
+    }
+
+    /**
+     * Gets the formly field props safely.
+     *
+     * @param key the key
+     * @param fields the formly fields
+     * @returns formly field props if existing, else null
+     */
+    export function changeFormlyFieldProps(
+        key: FormlyFieldConfig["key"],
+        fields: FormlyFieldConfig[],
+        callback: (props: FormlyFieldConfig["props"]) => FormlyFieldConfig["props"]
+    ): FormlyFieldConfig[] {
+        const field = fields.find(el => el.key === key) ?? null;
+        if (field == null || field.props == null) {
+            return fields;
+        }
+        field.props = callback(field.props);
+        return fields;
     }
 }

@@ -7,7 +7,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
+		private boolean enabled;
 		private String accessToken;
+		private LogVerbosity logVerbosity;
 
 		private Builder() {
 		}
@@ -17,8 +19,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setEnabled(boolean enabled) {
+			this.enabled = enabled;
+			return this;
+		}
+
 		public Builder setAccessToken(String accessToken) {
 			this.accessToken = accessToken;
+			return this;
+		}
+
+		public Builder setLogVerbosity(LogVerbosity logVerbosity) {
+			this.logVerbosity = logVerbosity;
 			return this;
 		}
 
@@ -44,8 +56,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public boolean enabled() {
+		return this.builder.enabled;
+	}
+
+	@Override
 	public String accessToken() {
 		return this.builder.accessToken;
 	}
 
+	@Override
+	public LogVerbosity logVerbosity() {
+		return this.builder.logVerbosity;
+	}
 }

@@ -59,7 +59,11 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
     protected isFocused: boolean = false;
 
     public get borderBottomColor(): { [key: string]: string } {
-        return FormlyUtils.getBorderBottomColor(this.formControl, this.isFocused);
+        return FormlyUtils.getControlStyle(
+            this.formControl,
+            this.isFocused,
+            "border-bottom-color"
+        );
     }
 
     /**
@@ -74,8 +78,8 @@ export class FormlyInputSerialNumberWrapperComponent extends FieldWrapper {
     protected onCheckboxChange(checked: boolean): void {
         this.props.checkbox.value = checked;
 
-        if (this.props.checkbox.updateFn) {
-            this.props.checkbox.updateFn(checked);
+        if (this.props.checkbox.onValueChanged) {
+            this.props.checkbox.onValueChanged(checked);
         }
     }
 }

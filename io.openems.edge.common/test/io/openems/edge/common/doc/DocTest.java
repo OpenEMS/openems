@@ -18,9 +18,10 @@ public class DocTest {
 	public void testTextByChannel() throws Exception {
 
 		final var component = new TestComponent("dummy0");
-		final var docForEnum = TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_ENUM.doc();
-		final var docForInt = TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_INTEGER.doc();
-		final var docForString = TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_STRING.doc();
+		final var docForEnum = component.channel(TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_ENUM).channelDoc();
+		final var docForInt = component.channel(TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_INTEGER).channelDoc();
+		final var docForString = component.channel(TestComponent.ChannelId.TEST_ERROR_CHANNEL_FOR_STRING).channelDoc();
+		final var docForCombined = component.channel(TestComponent.ChannelId.TEST_COMBINED).channelDoc();
 		ComponentTest test;
 
 		test = new ComponentTest(component) //
@@ -33,6 +34,7 @@ public class DocTest {
 		assertEquals("value is 1", docForEnum.getText());
 		assertEquals("power has a consistent power range", docForInt.getText());
 		assertEquals("<3", docForString.getText());
+		assertEquals("2500 Interstellar", docForCombined.getText());
 
 		test.next(new AbstractComponentTest.TestCase() //
 				.input(TEST_ENUM_CHANNEL, DummyOptionsEnum.UNDEFINED) //
@@ -42,6 +44,7 @@ public class DocTest {
 		assertEquals("undefined", docForEnum.getText());
 		assertEquals("power is fine", docForInt.getText());
 		assertEquals(":(", docForString.getText());
+		assertEquals("1000 Star Wars 8: The last Jedi Knight", docForCombined.getText());
 
 		test.next(new AbstractComponentTest.TestCase() //
 				.input(TEST_INTEGER_CHANNEL, 5001) //
@@ -65,6 +68,7 @@ public class DocTest {
 		assertEquals("power is fine", docForInt.getText());
 		assertEquals(":|", docForString.getText());
 		assertEquals("undefined", docForEnum.getText());
+		assertEquals("<> <>", docForCombined.getText());
 
 	}
 }

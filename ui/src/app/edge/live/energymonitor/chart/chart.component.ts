@@ -3,6 +3,7 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@ang
 import { Subject, fromEvent } from "rxjs";
 import { debounceTime, delay, takeUntil } from "rxjs/operators";
 import { Service } from "src/app/shared/shared";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { CurrentData } from "../../../../shared/components/edge/currentdata";
 import { ConsumptionSectionComponent } from "./section/consumption.component";
 import { GridSectionComponent } from "./section/grid.component";
@@ -68,9 +69,9 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
    * This method is called on every change of values.
    */
     updateCurrentData(currentData: CurrentData) {
-    /*
-     * Set values for energy monitor
-     */
+        /*
+         * Set values for energy monitor
+         */
         const summary = currentData.summary;
         [this.consumptionSection, this.gridSection, this.productionSection, this.storageSection]
             .filter(section => section != null)
@@ -85,7 +86,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     private updateOnWindowResize(): void {
         let size = 300;
         if (this.chartDiv.nativeElement.offsetParent) {
-            size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
+            size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30 - /**TODO: find reactive way to read style */NumberUtils.parseNumberSafelyOrElse(getComputedStyle(document.documentElement).getPropertyValue("--ion-padding"), 0) * 2;
         }
         if (size > window.innerHeight) {
             size = window.innerHeight;

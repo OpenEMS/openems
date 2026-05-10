@@ -1,0 +1,33 @@
+Bundle-Name: Java-WebSocket
+Bundle-Description: Java-WebSocket
+Bundle-DocURL: https://github.com/TooTallNate/Java-WebSocket
+Bundle-License: https://opensource.org/license/mit
+Bundle-Version: 1.5.7
+
+Include-Resource: \
+	@lib/Java-WebSocket.jar,\
+	OSGI-OPT/src=@lib/Java-WebSocket-sources.jar
+
+Export-Package: \
+	org.java_websocket,\
+	org.java_websocket.client,\
+	org.java_websocket.drafts,\
+	org.java_websocket.enums,\
+	org.java_websocket.example,\
+	org.java_websocket.exceptions,\
+	org.java_websocket.extensions,\
+	org.java_websocket.extensions.permessage_deflate,\
+	org.java_websocket.framing,\
+	org.java_websocket.handshake,\
+	org.java_websocket.interfaces,\
+	org.java_websocket.issues,\
+	org.java_websocket.misc,\
+	org.java_websocket.protocols,\
+	org.java_websocket.server,\
+	org.java_websocket.util,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+-sources: true

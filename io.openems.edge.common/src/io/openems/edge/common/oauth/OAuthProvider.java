@@ -13,10 +13,10 @@ import io.openems.edge.common.oauth.jsonrpc.InitiateOAuthConnect;
 public interface OAuthProvider extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		OAUTH_CONNECTION_STATE(Doc.of(ConnectionState.values()) //
+		OAUTH_CONNECTION_STATE(Doc.of(ConnectionState.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
-		OAUTH_NOT_AUTHENTICATED(Doc.of(Level.INFO) //
-				.translationKey(OAuthProvider.class, "OAuthProvider.OauthNotAuthenticated") //
+		OAUTH_NOT_AUTHENTICATED(Doc.of(Level.INFO)//
+				.translationKey(OAuthProvider.class, "OAuthProvider.OauthNotAuthenticated")//
 				.onInit(channel -> {
 					((OAuthProvider) channel.getComponent()).getOAuthConnectionStateChannel()
 							.onUpdate(connectionStateValue -> {

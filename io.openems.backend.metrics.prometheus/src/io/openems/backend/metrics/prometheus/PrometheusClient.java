@@ -59,6 +59,10 @@ public class PrometheusClient extends AbstractOpenemsBackendComponent implements
 		this.prometheusRegistry.register(PrometheusMetrics.THREAD_POOL_MAX_SIZE);
 		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_QUEUE);
 		this.prometheusRegistry.register(PrometheusMetrics.ALERTING_MESSAGES_SENT);
+		this.prometheusRegistry.register(PrometheusMetrics.WEBSOCKET_REQUEST);
+
+		this.prometheusRegistry.register(PrometheusMetrics.HTTP_REQUEST);
+		this.prometheusRegistry.register(PrometheusMetrics.HTTP_REQUEST_RESULT);
 
 		this.startServer(config.port(), config.bearerToken());
 	}

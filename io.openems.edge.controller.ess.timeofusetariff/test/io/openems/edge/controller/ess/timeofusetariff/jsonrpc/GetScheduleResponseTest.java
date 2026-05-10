@@ -2,36 +2,37 @@ package io.openems.edge.controller.ess.timeofusetariff.jsonrpc;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.JsonUtils.getAsJsonArray;
+import static io.openems.common.utils.UuidUtils.getNilUuid;
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyBalancing;
 import static io.openems.edge.controller.ess.timeofusetariff.UtilsTest.CLOCK;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
-import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_PRICES;
+import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_GRID_BUY_PRICES;
+import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_HOURLY_GRID_SELL_PRICES;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_SOC;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PAST_STATES;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PRODUCTION_888_20231106;
 import static io.openems.edge.controller.ess.timeofusetariff.jsonrpc.TestData.PRODUCTION_PREDICTION_QUARTERLY;
-import static io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 import static org.junit.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.UuidUtils;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImplTest;
 import io.openems.edge.controller.ess.timeofusetariff.Utils;
-import io.openems.edge.energy.api.RiskLevel;
+import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.Version;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.periods.Periods;
 import io.openems.edge.ess.test.DummyManagedSymmetricEss;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -49,8 +50,7 @@ public class GetScheduleResponseTest {
 				/* essMaxDischarge */ 0, //
 				/* gridMaxBuy */ 4000, //
 				/* gridMaxSell */ 10000);
-		var consumption = model.finalizeConsumption();
-		applyBalancing(model, consumption);
+		applyBalancing(model);
 		final var energyFlow = model.solve();
 
 		// Simulate historic data
@@ -58,7 +58,9 @@ public class GetScheduleResponseTest {
 		final var fromDate = now.minusHours(3);
 		for (var i = 0; i < 12; i++) {
 			var quarter = fromDate.plusMinutes(i * 15);
-			timedata.add(quarter, new ChannelAddress("ctrl0", "QuarterlyPrices"), PAST_HOURLY_PRICES[i]);
+			timedata.add(quarter, new ChannelAddress("ctrl0", "QuarterlyPrices"), PAST_HOURLY_GRID_BUY_PRICES[i]);
+			timedata.add(quarter, new ChannelAddress("ctrl0", "QuarterlyGridSellPrices"),
+					PAST_HOURLY_GRID_SELL_PRICES[i]);
 			timedata.add(quarter, new ChannelAddress("ctrl0", "StateMachine"), PAST_STATES[i]);
 			timedata.add(quarter, Utils.SUM_PRODUCTION, PRODUCTION_PREDICTION_QUARTERLY[i]);
 			timedata.add(quarter, Utils.SUM_CONSUMPTION, CONSUMPTION_PREDICTION_QUARTERLY[i]);
@@ -70,15 +72,15 @@ public class GetScheduleResponseTest {
 		// Simulate future Schedule
 		var ctrl = TimeOfUseTariffControllerImplTest.create(CLOCK, Version.V2_ENERGY_SCHEDULABLE, ess, timedata);
 		var esh = ctrl.getEnergyScheduleHandler();
-		esh.initialize(new GlobalOptimizationContext(CLOCK, RiskLevel.MEDIUM, null, null, null, null, //
-				new GlobalOptimizationContext.Ess(0, 0, 0, 0), ImmutableList.of()));
+		esh.initialize(new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, null, null, null, null, //
+				new GlobalOptimizationContext.Ess(0, 0, 0, 0), Periods.empty()));
 		esh.applySchedule(ImmutableSortedMap.<ZonedDateTime, Period.Transition>naturalOrder() //
-				.put(now.plusMinutes(0), new Period.Transition(QUARTER, 1, 0.1, energyFlow, 5000)) //
-				.put(now.plusMinutes(15), new Period.Transition(QUARTER, 0, 0.2, energyFlow, 6000)) //
-				.put(now.plusMinutes(30), new Period.Transition(QUARTER, 0, 0.3, energyFlow, 7000)) //
+				.put(now.plusMinutes(0), new Period.Transition(QUARTER, 1, 0.1, 86.0, energyFlow, 5000)) //
+				.put(now.plusMinutes(15), new Period.Transition(QUARTER, 0, 0.2, 87.0, energyFlow, 6000)) //
+				.put(now.plusMinutes(30), new Period.Transition(QUARTER, 0, 0.3, 0.9, energyFlow, 7000)) //
 				.build());
 
-		final var gsr = GetScheduleResponse.from(UuidUtils.getNilUuid(), "ctrl0", CLOCK, ess, timedata, esh);
+		final var gsr = GetScheduleResponse.from(getNilUuid(), "ctrl0", CLOCK, ess, timedata, esh);
 
 		var schedule = getAsJsonArray(gsr.getResult(), "schedule");
 
@@ -87,6 +89,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T21:00:00Z",
 				    "price": 158.0,
+				    "gridSellPrice": 75.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -97,6 +100,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T21:15:00Z",
 				    "price": 160.0,
+				    "gridSellPrice": 75.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -107,6 +111,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T21:30:00Z",
 				    "price": 171.0,
+				    "gridSellPrice": 75.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -117,6 +122,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T21:45:00Z",
 				    "price": 174.0,
+				    "gridSellPrice": 75.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -127,6 +133,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T22:00:00Z",
 				    "price": 161.0,
+				    "gridSellPrice": 0.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -137,6 +144,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T22:15:00Z",
 				    "price": 152.0,
+				    "gridSellPrice": 0.0,
 				    "state": 3,
 				    "grid": 0,
 				    "production": 0,
@@ -147,6 +155,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T22:30:00Z",
 				    "price": 120.0,
+				    "gridSellPrice": 0.0,
 				    "state": 3,
 				    "grid": 0,
 				    "production": 0,
@@ -157,6 +166,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T22:45:00Z",
 				    "price": 111.0,
+				    "gridSellPrice": 0.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -167,6 +177,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T23:00:00Z",
 				    "price": 105.0,
+				    "gridSellPrice": 75.0,
 				    "state": 2,
 				    "grid": 0,
 				    "production": 0,
@@ -177,6 +188,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T23:15:00Z",
 				    "price": 105.0,
+				    "gridSellPrice": 75.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 0,
@@ -187,6 +199,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T23:30:00Z",
 				    "price": 74.0,
+				    "gridSellPrice": 75.0,
 				    "state": 2,
 				    "grid": 0,
 				    "production": 0,
@@ -197,6 +210,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "1999-12-31T23:45:00Z",
 				    "price": 73.0,
+				    "gridSellPrice": 75.0,
 				    "state": 2,
 				    "grid": 0,
 				    "production": 0,
@@ -207,7 +221,8 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "2000-01-01T00:00:00Z",
 				    "price": 0.1,
-				    "state": 1,
+				    "gridSellPrice": 86.0,
+				    "state": 0,
 				    "grid": 0,
 				    "production": 10000,
 				    "consumption": 2000,
@@ -217,6 +232,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "2000-01-01T00:15:00Z",
 				    "price": 0.2,
+				    "gridSellPrice": 87.0,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 10000,
@@ -227,6 +243,7 @@ public class GetScheduleResponseTest {
 				  {
 				    "timestamp": "2000-01-01T00:30:00Z",
 				    "price": 0.3,
+				    "gridSellPrice": 0.9,
 				    "state": 1,
 				    "grid": 0,
 				    "production": 10000,

@@ -22,7 +22,7 @@ import io.openems.common.utils.JsonUtils;
 public class FieldTypeConflictHandler {
 
 	private static final Pattern FIELD_TYPE_CONFLICT_EXCEPTION_PATTERN = Pattern.compile(
-			"^.*partial write: field type conflict: input field \"(?<channel>.*)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d+$");
+			"partial write: field type conflict: input field \"(?<channel>[^\"]*+)\" on measurement \"data\" is type (?<thisType>\\w+), already exists as type (?<requiredType>\\w+) dropped=\\d++$");
 
 	private final Logger log = LoggerFactory.getLogger(FieldTypeConflictHandler.class);
 	private final TimedataInfluxDb parent;

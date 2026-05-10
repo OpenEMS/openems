@@ -1,7 +1,9 @@
-// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ModalController } from "@ionic/angular";
+import { IonicModule, ModalController } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
+import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetStateChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/getStateChannelsOfComponentRequest";
 import { GetChannelsOfComponentResponse } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
@@ -13,16 +15,21 @@ import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
 @Component({
     selector: StatusSingleComponent.SELECTOR,
     templateUrl: "./status.component.html",
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonModule,
+        TranslateModule,
+        IonicModule,
+    ],
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
-    private static readonly SELECTOR = "statussingle";
+    private static readonly SELECTOR = "oe-status-single";
 
     public subscribedInfoChannels: ChannelAddress[] = [];
     public onInfoChannels: ChannelAddress[] = [];
-    public edge?: Edge;
-    public config: EdgeConfig;
-    public components: CategorizedComponents[];
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public components: CategorizedComponents[] | null = null;
     protected channels: { [componentId: string]: { [channelId: string]: { text: string, level: string } } } = {};
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
@@ -45,12 +52,13 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
         this.components.forEach(categorizedComponent => {
             categorizedComponent.components.forEach(component => {
                 // sets all arrow buttons to standard position (folded)
-                component["showProperties"] = false;
+                component.showProperties = false;
                 this.subscribedInfoChannels.push(
                     new ChannelAddress(component.id, "State"),
                 );
             });
         });
+
         //need to subscribe on currentedge because component is opened by app.component
         this.service.getCurrentEdge().then(edge => {
             this.edge = edge;
@@ -86,9 +94,20 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
 
     private getStateChannels(componentId: string): Promise<typeof this.channels["componentId"]> {
         return new Promise((resolve, reject) => {
+            if (this.edge == null) {
+                reject("No edge selected");
+                return;
+            }
             if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
                 const channels: typeof this.channels["componentId"] = {};
-                for (const [key, value] of Object.entries(this.config.components[componentId].channels)) {
+                if (this.config == null || this.config.components[componentId] == null) {
+                    reject("Component not found in EdgeConfig");
+                    return;
+                }
+
+                const configChannels = this.config.components[componentId].channels ?? {};
+
+                for (const [key, value] of Object.entries(configChannels)) {
 
                     // show only state channels
                     if (value.category !== "STATE") {
@@ -101,12 +120,13 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
+            this.edge.sendRequest<JsonrpcResponseSuccess>(this.websocket, new ComponentJsonApiRequest({
                 componentId: "_componentManager",
                 payload: new GetStateChannelsOfComponentRequest({ componentId: componentId }),
-            })).then((response: GetChannelsOfComponentResponse) => {
+            })).then((response) => {
+                const data = response as GetChannelsOfComponentResponse;
                 const channels: typeof this.channels["componentId"] = {};
-                for (const item of response.result.channels) {
+                for (const item of data.result.channels) {
                     channels[item.id] = { text: item.text, level: item.level };
                 }
                 resolve(channels);

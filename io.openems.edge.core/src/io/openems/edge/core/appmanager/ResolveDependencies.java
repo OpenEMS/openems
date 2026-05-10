@@ -94,7 +94,7 @@ public class ResolveDependencies implements Runnable {
 						// can not resolve dependency automatically
 						LOG.warn(String.format("Unable to automatically add dependency for %s and key %s.",
 								instance.instanceId, dependency.key));
-						yield false;
+						yield true;
 					}
 					case IF_NOT_EXISTING -> instances.stream().anyMatch(t -> t.appId.equals(config.appId));
 					case ALWAYS -> false;
@@ -108,7 +108,7 @@ public class ResolveDependencies implements Runnable {
 								new AddAppInstance.Request(//
 										config.appId, "key", //
 										config.alias, //
-										config.initialProperties),
+										config.getPropertiesForInstanceCreation().toJson()),
 								true);
 						resolveDependencies(user, appManagerImpl, appManagerUtil);
 						return;

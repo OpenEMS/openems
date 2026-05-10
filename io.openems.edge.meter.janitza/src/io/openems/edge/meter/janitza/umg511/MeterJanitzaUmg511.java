@@ -20,5 +20,4 @@ public interface MeterJanitzaUmg511 extends ElectricityMeter, OpenemsComponent, 
 			return this.doc;
 		}
 	}
-
 }

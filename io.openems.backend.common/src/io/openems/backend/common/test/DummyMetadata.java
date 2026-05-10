@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -25,6 +26,7 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 
 public class DummyMetadata implements Metadata {
 
@@ -83,27 +85,17 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
-	}
-
-	@Override
-	public User authenticate(String token) throws OpenemsNamedException {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
-	}
-
-	@Override
-	public void logout(User user) {
-		throw new UnsupportedOperationException("Unsupported by Dummy Class");
-	}
-
-	@Override
 	public Optional<String> getEdgeIdForApikey(String apikey) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
 	public Optional<Edge> getEdgeBySetupPassword(String setupPassword) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public CompletableFuture<User> getUserByExternalId(String login) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
@@ -183,13 +175,17 @@ public class DummyMetadata implements Metadata {
 	}
 
 	@Override
-	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
+	public CompletableFuture<List<EdgeMetadata>> getPageDevice(User user, PaginationOptions paginationOptions) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 
 	@Override
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+	public Role getUserRole(User user, String edgeId) {
+		throw new UnsupportedOperationException("Unsupported by Dummy Class");
+	}
+
+	@Override
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId) {
 		throw new UnsupportedOperationException("Unsupported by Dummy Class");
 	}
 

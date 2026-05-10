@@ -41,7 +41,7 @@ import io.openems.edge.controller.api.Controller;
 public class ControllerDebugLogImpl extends AbstractOpenemsComponent
 		implements ControllerDebugLog, Controller, OpenemsComponent {
 
-	private static final Pattern COMPONENT_ID_PATTERN = Pattern.compile("([^0-9]+)([0-9]+)$");
+	private static final Pattern COMPONENT_ID_PATTERN = Pattern.compile("(\\D++)(\\d++)$");
 
 	private final Logger log = LoggerFactory.getLogger(ControllerDebugLogImpl.class);
 	private final TreeMultimap<String, String> additionalChannels = TreeMultimap.create();

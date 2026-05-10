@@ -1,5 +1,7 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
+import static io.openems.common.utils.IntUtils.minInt;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -62,6 +64,13 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	 * time when production is lower or higher than consumption.
 	 */
 	protected static final int DEFAULT_POWER_BUFFER = 100;
+
+	/**
+	 * Minimum sell to grid limit in [W], when the sell to grid limit will be
+	 * ignored. As the limitation nearly zero, the controller has no flexibility
+	 * left to delay charging.
+	 */
+	private static final int MINIMUM_SELL_TO_GRID_LIIMT = 1000;
 
 	protected final RampFilter rampFilter = new RampFilter();
 	protected int maximumSellToGridPower = 0;
@@ -190,18 +199,8 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		// Updates the time channels.
 		this.calculateTime();
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = this.ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			this._setSellToGridLimitState(SellToGridLimitState.UNDEFINED);
 			this._setDelayChargeState(DelayChargeState.UNDEFINED);
 			return;
@@ -237,6 +236,14 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				}
 			}
 			this._setStartEpochSeconds(LocalTime.now(clock), clock);
+		}
+
+		// No setpoint applied, when the sellToGridLimit is zero or nearly zero.
+		// Limitation of the charge power is anyways not possible.
+		if (this.maximumSellToGridPower <= MINIMUM_SELL_TO_GRID_LIIMT) {
+			this._setSellToGridLimitState(SellToGridLimitState.ALLOWED_FEED_IN_LIMIT_TOO_LOW);
+			this._setDelayChargeState(DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW);
+			return;
 		}
 
 		Integer sellToGridLimitMinChargePower = null;
@@ -296,7 +303,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		if (sellToGridLimitIsDefined && delayChargeIsDefined) {
 			if (sellToGridLimitMinChargePower <= delayChargeMaxChargePower) {
 
-				this.ess.setActivePowerEquals(sellToGridLimitMinChargePower);
+				this.ess.setActivePowerEqualsWithFilter(sellToGridLimitMinChargePower);
 				this.sellToGridLimit.setSellToGridLimitChannelsAndLastLimit(SellToGridLimitState.ACTIVE_LIMIT_FIXED,
 						sellToGridLimitMinChargePower);
 				this.logDebug("Applying both constraints not possible - Set active power according to SellToGridLimit: "
@@ -477,16 +484,15 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	}
 
 	private void updateMaximumSellToGridPower() {
-		if (!this.ess.getMaxApparentPower().isDefined()) {
-			this.maximumSellToGridPower = 0;
-			return;
+		final var gridSellHardLimit = this.meta.getGridSellHardLimit();
+		final Integer dynamicGridFeedInLimit;
+		var maxApparentPower = this.ess.getMaxApparentPower();
+		if (this.rcr != null && this.rcr.isEnabled() && maxApparentPower.isDefined()) {
+			dynamicGridFeedInLimit = this.rcr.getDynamicGridFeedInLimit(maxApparentPower.get());
+		} else {
+			dynamicGridFeedInLimit = null;
 		}
-		var maxApparentPower = this.ess.getMaxApparentPower().get();
-		if (this.meta.getGridFeedInLimitationType() == GridFeedInLimitationType.DYNAMIC_LIMITATION) {
-			this.maximumSellToGridPower = (this.rcr != null && this.rcr.isEnabled())
-					? this.rcr.getDynamicGridFeedInLimit(maxApparentPower)
-					: this.meta.getMaximumGridFeedInLimitValue().orElse(maxApparentPower);
-		}
+		this.maximumSellToGridPower = minInt(gridSellHardLimit, dynamicGridFeedInLimit);
 	}
 
 	/**

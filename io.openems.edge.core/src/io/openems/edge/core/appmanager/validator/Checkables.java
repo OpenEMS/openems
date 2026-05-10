@@ -46,7 +46,17 @@ public final class Checkables {
 	 * @return the {@link CheckableConfig}
 	 */
 	public static CheckableConfig checkIndustrialL() {
-		return empty(CheckIndustrial.COMPONENT_NAME);
+		return empty(CheckIndustrialL.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is an
+	 * Industrial Xl.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkIndustrialXl() {
+		return empty(CheckIndustrialXl.COMPONENT_NAME);
 	}
 
 	/**

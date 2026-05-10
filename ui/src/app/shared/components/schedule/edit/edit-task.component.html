@@ -1,0 +1,25 @@
+@if (isInitialized && component) {
+  <oe-navigation-view [title]="component.alias" [component]="component">
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    <oe-schedule-task-form [(startTime)]="startTime" [(endTime)]="endTime" [(payload)]="payload"
+      [(allowedPeriods)]="allowedPeriods" [(recurrenceRuleByDay)]="recurrenceRuleByDay">
+      <ng-content select="[content]"></ng-content>
+    </oe-schedule-task-form>
+    <ion-grid>
+      <ion-row class="ion-justify-content-end ion-padding-top">
+        <ion-col size="auto" class="ion-justify-content-end">
+          <ion-button (click)="deleteTask()" fill="outline" color="danger">
+            <ion-icon slot="start" name="trash-outline"></ion-icon>
+            {{ "JS_SCHEDULE.DELETE" | translate }}
+          </ion-button>
+        </ion-col>
+        <ion-col size="auto" class="ion-justify-content-end">
+          <ion-button (click)="saveTask()">
+            <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+            {{ "JS_SCHEDULE.ACCEPT" | translate }}
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </oe-navigation-view>
+}

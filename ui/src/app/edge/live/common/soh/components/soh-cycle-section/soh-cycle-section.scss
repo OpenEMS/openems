@@ -1,0 +1,61 @@
+.soh-section-margin-top {
+    margin-top: 2%;
+}
+
+.soh-spinner-wrapper {
+    position: relative;
+    padding-top: 8rem;
+}
+
+.soh-debug-block {
+    border: 1px solid red;
+}
+
+.soh-status {
+    margin-top: 1rem;
+    text-align: center;
+    --inner-padding-start: 0;
+    --inner-padding-end: 0;
+}
+
+.soh-status::part(native) {
+    justify-content: center;
+}
+
+.soh-status ion-text,
+.soh-status ion-text i,
+.soh-status ion-text strong {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.soh-status--running {
+    color: var(--ion-color-primary);
+}
+
+.soh-status--error {
+    color: var(--ion-color-danger);
+}
+
+.soh-restart-block {
+    max-width: 36rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+}
+
+.soh-restart-action {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    --inner-padding-start: 0;
+    --inner-padding-end: 0;
+}
+
+.soh-restart-action::part(native) {
+    justify-content: center;
+}
+
+.soh-restart-action ion-button {
+    margin-inline: auto;
+}

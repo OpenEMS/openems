@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ public class SchedulerAggregateTaskImplTest {
 				config.getConfiguration(SchedulerAggregateTask.class).componentOrder());
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(SchedulerAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(SchedulerAggregateTask.class), emptyMap());
 		assertTrue(errors.isEmpty());
 	}
 

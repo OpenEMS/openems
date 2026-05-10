@@ -5,10 +5,12 @@ import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static java.util.Collections.emptyMap;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -27,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
@@ -38,6 +39,7 @@ import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.DurationUnit;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -57,7 +59,7 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		implements TimeOfUseTariff, OpenemsComponent, TimeOfUseTariffGroupe {
 	private static final String URL = "https://api.tariffs.groupe-e.ch/v1/tariffs?start_timestamp=%s&end_timestamp=%s";
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+	private static final DateTimeFormatter DATE_FORMATTER = ISO_OFFSET_DATE_TIME;
 	private static final int INTERNAL_ERROR = -1; // parsing, handle exception...
 
 	private final Logger log = LoggerFactory.getLogger(TimeOfUseTariffGroupeImpl.class);
@@ -181,7 +183,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -197,7 +199,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, double exchangeRate) throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		var data = parseToJsonArray(jsonData);
 		for (var element : data) {
 			var priceString = "vario_plus";
@@ -208,7 +210,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 			var startTimeString = getAsString(element, "start_timestamp");
 
 			// Convert LocalDateTime to ZonedDateTime
-			var startTimeStamp = ZonedDateTime.parse(startTimeString, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+			var startTimeStamp = ZonedDateTime.parse(startTimeString, ISO_OFFSET_DATE_TIME).toInstant();
 
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);

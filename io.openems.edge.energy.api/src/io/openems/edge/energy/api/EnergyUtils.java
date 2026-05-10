@@ -24,6 +24,17 @@ public class EnergyUtils {
 	}
 
 	/**
+	 * Calculates the State-of-Charge (SOC) [%] based on the current energy [Wh].
+	 *
+	 * @param currentEnergy the currently stored energy in Wh
+	 * @param totalEnergy   the total battery capacity in Wh
+	 * @return the SOC in percent (0–100)
+	 */
+	public static int energyToSoc(int currentEnergy, int totalEnergy) {
+		return (int) Math.round(currentEnergy * 100. / totalEnergy);
+	}
+
+	/**
 	 * Finds the last index of the first valley in an array of doubles, e.g. prices.
 	 * 
 	 * @param fromIndex start searching from this index

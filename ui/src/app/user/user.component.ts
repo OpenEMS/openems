@@ -2,6 +2,7 @@
 import { KeyValue } from "@angular/common";
 import { Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
+import { NavController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { environment, Theme as SystemTheme } from "../../environments";
@@ -12,6 +13,9 @@ import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInfo
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
 import { GetUserInformationResponse } from "../shared/jsonrpc/response/getUserInformationResponse";
+import { UserSettings } from "../shared/jsonrpc/shared";
+import { States } from "../shared/ngrx-store/states";
+import { RouteService } from "../shared/service/route.service";
 import { UserService } from "../shared/service/user.service";
 import { Service, Websocket } from "../shared/shared";
 import { COUNTRY_OPTIONS } from "../shared/type/country";
@@ -60,6 +64,9 @@ export class UserComponent implements OnInit {
             label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
             disabled: true,
         },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
+        },
     },
     {
         key: "lastname",
@@ -67,6 +74,9 @@ export class UserComponent implements OnInit {
         props: {
             label: this.translate.instant("REGISTER.FORM.LASTNAME"),
             disabled: true,
+        },
+        validators: {
+            validation: ["person-name-prohibited-characters"],
         },
     }];
     protected companyInformationFields: FormlyFieldConfig[] = [];
@@ -82,6 +92,8 @@ export class UserComponent implements OnInit {
         private websocket: Websocket,
         private userService: UserService,
         private navigationService: NavigationService,
+        private routeService: RouteService,
+        protected navCtrl: NavController,
     ) {
         effect(async () => {
             const user = this.userService.currentUser();
@@ -94,13 +106,14 @@ export class UserComponent implements OnInit {
                 this.showInformation = this.form != null;
                 this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
                 this.useNewUi = user.getUseNewUIFromSettings();
-                this.newNavigationForced = NavigationService.forceNewNavigation(untracked(() => this.service.currentEdge()));
+                const config = await untracked(() => this.service.currentEdge().getFirstValidConfig(service.websocket));
+                this.newNavigationForced = NavigationService.forceNewNavigation(config);
             }
         });
     }
 
     ngOnInit() {
-        this.currentLanguage = Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT;
+        this.currentLanguage = Language.getCurrentLanguage();
         this.systemTheme = environment.theme as SystemTheme;
     }
 
@@ -151,7 +164,7 @@ export class UserComponent implements OnInit {
     public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
         return new Promise(resolve => {
             const interval = setInterval(() => {
-                if (this.websocket.status === "online") {
+                if (States.isAtLeast(this.websocket.state(), States.AUTHENTICATED)) {
                     this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
                         const user = response.result.user;
                         resolve({
@@ -204,6 +217,14 @@ export class UserComponent implements OnInit {
     //     });
     // }
 
+    public navigateToChangelog(event: Event) {
+        event.preventDefault();
+        const prev = this.routeService.getCurrentUrl();
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/changelog";
+        this.navCtrl.navigateRoot(userUrl);
+    }
+
     public toggleDebugMode(event: Event) {
         localStorage.setItem("DEBUGMODE", (event as CustomEvent).detail["checked"]);
         this.environment.debugMode = (event as CustomEvent).detail["checked"];
@@ -212,7 +233,7 @@ export class UserComponent implements OnInit {
     public async toggleNewUI(event: Event) {
         const isToggleOn = (event as CustomEvent).detail["checked"];
         this.service.startSpinner("user");
-        await this.userService.updateUserSettingsWithProperty("useNewUI", isToggleOn);
+        await this.userService.updateUserSettingsWithProperty(UserSettings.USE_NEW_UI, isToggleOn);
         this.service.stopSpinner("user");
     }
 
@@ -316,14 +337,7 @@ export class UserComponent implements OnInit {
      * @returns true, if user is allowed to see contact details
      */
     private isUserAllowedToSeeContactDetails(id: string): boolean {
-        switch (id) {
-            case "demo@fenecon.de":
-            case "pv@schachinger-gaerten.de":
-            case "pv@studentenpark1-straubing.de":
-                return false;
-            default:
-                return true;
-        }
+        return true;
     }
 }
 

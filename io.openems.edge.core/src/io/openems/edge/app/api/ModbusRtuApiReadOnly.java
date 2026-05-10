@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -68,19 +67,19 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 		CONTROLLER_ID(AppDef.componentId("ctrlApiModbusRtu0")), //
 		// Properties
 		ALIAS(alias()), //
-		API_TIMEOUT(ModbusApiProps.apiTimeout() //
+		API_TIMEOUT(ModbusApiProps.apiTimeout()//
 				.setRequired(true)), //
-		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false) //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false)//
 				.setRequired(true)), //
-		PORT_NAME(ModbusApiProps.portName() //
+		PORT_NAME(ModbusApiProps.portName()//
 				.setRequired(true)), //
-		BAUDRATE(ModbusApiProps.baudrate() //
+		BAUDRATE(ModbusApiProps.baudrate()//
 				.setRequired(true)), //
-		DATABITS(ModbusApiProps.databits() //
+		DATABITS(ModbusApiProps.databits()//
 				.setRequired(true)),
-		STOPBITS(ModbusApiProps.stopbits() //
+		STOPBITS(ModbusApiProps.stopbits()//
 				.setRequired(true)), //
-		PARITY(ModbusApiProps.parity() //
+		PARITY(ModbusApiProps.parity()//
 				.setRequired(true)); //
 
 		private final AppDef<? super ModbusRtuApiReadOnly, ? super Property, ? super BundleParameter> def;
@@ -109,13 +108,6 @@ public class ModbusRtuApiReadOnly extends AbstractOpenemsAppWithProps<ModbusRtuA
 	public ModbusRtuApiReadOnly(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

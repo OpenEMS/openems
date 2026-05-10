@@ -21,6 +21,7 @@ public final class LinkBuilder extends FormlyBuilder<LinkBuilder> {
 		public static JsonSerializer<Link> serializer() {
 			final var polymorphicSerializer = PolymorphicSerializer.<Link>create() //
 					.add(AppUpdateLink.class, AppUpdateLink.serializer(), AppUpdateLink.identifier()) //
+					.add(AppInstallLink.class, AppInstallLink.serializer(), AppInstallLink.identifier()) //
 					.build();
 			return jsonSerializer(Link.class, json -> {
 				return json.polymorphic(polymorphicSerializer,
@@ -60,6 +61,32 @@ public final class LinkBuilder extends FormlyBuilder<LinkBuilder> {
 			});
 		}
 
+	}
+
+	public record AppInstallLink(String appId, String name) implements Link {
+
+		private static String identifier() {
+			return "appInstall";
+		}
+
+		/**
+		 * * Returns a {@link JsonSerializer} for a {@link AppInstallLink}.
+		 * 
+		 * @return the created {@link JsonSerializer}
+		 */
+
+		public static JsonSerializer<AppInstallLink> serializer() {
+			return JsonSerializerUtil.jsonObjectSerializer(AppInstallLink.class, json -> {
+				return new AppInstallLink(json.getString("appId"),
+						json.getString("name"));
+			}, obj -> {
+				return JsonUtils.buildJsonObject() //
+						.addProperty("type", AppInstallLink.identifier()) //
+						.addProperty("appId", obj.appId) //
+						.addProperty("name", obj.name) //
+						.build();
+			});
+		}
 	}
 
 	public LinkBuilder() {

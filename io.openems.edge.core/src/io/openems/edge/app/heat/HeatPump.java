@@ -20,7 +20,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -122,7 +121,7 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5, 6 }), //
 										PreferredRelay.of(4, new int[] { 2, 3 }), //
 										PreferredRelay.of(8, new int[] { 2, 3 }))) //
@@ -189,13 +188,6 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 					.addDependencies(dependencies) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

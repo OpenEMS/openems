@@ -1,7 +1,7 @@
 package io.openems.edge.controller.symmetric.limitactivepower;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
-import static io.openems.edge.common.type.TypeUtils.fitWithin;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;

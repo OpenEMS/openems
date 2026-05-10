@@ -70,7 +70,7 @@ export abstract class AbstractModal implements OnInit, OnDestroy {
                 this.edge = edge;
                 this.config = config;
 
-                await this.updateComponent(config);
+                this.updateComponent(config);
 
                 // If component is passed
                 let channelAddresses: ChannelAddress[] = [];

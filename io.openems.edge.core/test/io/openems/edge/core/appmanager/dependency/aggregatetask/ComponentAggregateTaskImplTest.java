@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -202,7 +203,7 @@ public class ComponentAggregateTaskImplTest {
 		this.task.create(DUMMY_ADMIN, emptyList());
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
 		assertTrue(String.join(", ", errors), errors.isEmpty());
 	}
 
@@ -215,7 +216,7 @@ public class ComponentAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
 		assertFalse("No errors while validating configuration", errors.isEmpty());
 	}
 

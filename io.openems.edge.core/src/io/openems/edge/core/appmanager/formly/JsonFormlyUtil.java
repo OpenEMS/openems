@@ -7,6 +7,7 @@ import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
 import io.openems.edge.core.appmanager.formly.builder.DateTimeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.FieldGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LazySelectBuilder;
 import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RangeBuilder;
 import io.openems.edge.core.appmanager.formly.builder.RepeatBuilder;
@@ -14,6 +15,8 @@ import io.openems.edge.core.appmanager.formly.builder.SelectBuilder;
 import io.openems.edge.core.appmanager.formly.builder.SelectGroupBuilder;
 import io.openems.edge.core.appmanager.formly.builder.TariffTableBuilder;
 import io.openems.edge.core.appmanager.formly.builder.TextBuilder;
+import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionBuilder;
+import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionGroupBuilder;
 
 /**
  * Source https://formly.dev/examples/introduction.
@@ -118,6 +121,16 @@ public class JsonFormlyUtil {
 	}
 
 	/**
+	 * Creates a JsonObject Formly Lazy Select Builder for the given enum.
+	 *
+	 * @param nameable the {@link Nameable} property
+	 * @return a {@link SelectBuilder}
+	 */
+	public static LazySelectBuilder buildLazySelect(Nameable nameable) {
+		return new LazySelectBuilder(nameable);
+	}
+
+	/**
 	 * Creates a JsonObject Formly Select Group Builder for the given enum.
 	 *
 	 * @param <T>      the type of the enum
@@ -188,6 +201,52 @@ public class JsonFormlyUtil {
 	 */
 	public static RepeatBuilder buildRepeatFromNameable(Nameable nameable) {
 		return new RepeatBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Accord Builder for the given enum.
+	 *
+	 * @param <T>        the type of the enum
+	 * @param <PROPERTY> the property of the accordionBuilder
+	 * @param property   the enum property
+	 * @return a {@link AccordionBuilder}
+	 */
+	public static <T extends Enum<T>, PROPERTY extends Nameable> AccordionBuilder buildAccordion(T property) {
+		return new AccordionBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly Accordion Builder for the given enum.
+	 *
+	 * @param <PROPERTY> the property of the accordionBuilder
+	 * @param nameable   the {@link Nameable} property
+	 * @return a {@link AccordionBuilder}
+	 */
+	public static <PROPERTY extends Nameable> AccordionBuilder buildAccordionFromNameable(Nameable nameable) {
+		return new AccordionBuilder(nameable);
+	}
+
+	/**
+	 * Creates a JsonObject Formly Accord Builder for the given enum.
+	 *
+	 * @param <T>        the type of the enum
+	 * @param <PROPERTY> the property of the accordionBuilder
+	 * @param property   the enum property
+	 * @return a {@link AccordionBuilder}
+	 */
+	public static <T extends Enum<T>, PROPERTY extends Nameable> AccordionGroupBuilder buildAccordionGroup(T property) {
+		return new AccordionGroupBuilder(toNameable(property));
+	}
+
+	/**
+	 * Creates a JsonObject Formly AccordionGroup Builder for the given enum.
+	 *
+	 * @param <PROPERTY> the property of the accordionGroupBuilder
+	 * @param nameable   the {@link Nameable} property
+	 * @return a {@link AccordionBuilder}
+	 */
+	public static <PROPERTY extends Nameable> AccordionGroupBuilder buildAccordionGroupFromNameable(Nameable nameable) {
+		return new AccordionGroupBuilder(nameable);
 	}
 
 	/**

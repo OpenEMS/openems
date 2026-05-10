@@ -91,6 +91,7 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 	}
 
 	private final PredefinedOrder<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent> order = new PredefinedOrder<PredictorManagerByCentralOrderConfiguration.PredictorManagerComponent>()
+			.thenBy(t -> t.factoryId().equals("Predictor.ProfileClusteringModel")) //
 			.thenBy(t -> t.factoryId().equals("Predictor.Production.LinearModel")) //
 			.thenBy(t -> t.factoryId().equals("Predictor.PersistenceModel"));
 
@@ -212,8 +213,12 @@ public class PredictorManagerByCentralOrderAggregateTaskImpl implements Predicto
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration,
-			PredictorManagerByCentralOrderConfiguration configuration) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final PredictorManagerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		if (configuration.components().isEmpty()) {
 			return;
 		}

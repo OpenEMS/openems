@@ -18,6 +18,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
@@ -28,6 +29,7 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome20 {
 
+	private static final int EXPECTED_INSTANTIATED_APPS = 8;
 	private AppManagerTestBundle appManagerTestBundle;
 
 	private SocomecMeter meterApp;
@@ -41,7 +43,10 @@ public class TestFeneconHome20 {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					Apps.sohCycle(t), //
+					Apps.predictionDefault(t), //
+					Apps.predictionUnmanagedConsumption(t), //
+					this.meterApp = Apps.socomecMeter(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
@@ -63,16 +68,19 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(EXPECTED_INSTANTIATED_APPS, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -162,16 +170,19 @@ public class TestFeneconHome20 {
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(EXPECTED_INSTANTIATED_APPS, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {

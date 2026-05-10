@@ -30,6 +30,10 @@ import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi.UpdateJsCalendarRecord;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -44,8 +48,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
-		implements ControllerIoRoomHeating, Controller, ElectricityMeter, OpenemsComponent, TimedataProvider {
+public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent implements ControllerIoRoomHeating,
+		Controller, ElectricityMeter, OpenemsComponent, ComponentJsonApi, TimedataProvider {
 
 	private static final int MINIMUM_SWITCHING_TIME = 180; // [s]
 
@@ -438,5 +442,12 @@ public class ControllerIoRoomHeatingImpl extends AbstractOpenemsComponent
 					.append(this.getActivePower().asString());
 		}
 		return b.toString();
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		JSCalendarApi.buildJsonApiRoutes(builder, JSCalendar.VOID_SERIALIZER, //
+				() -> this.schedule, //
+				() -> new UpdateJsCalendarRecord(this.cm, this.componentManager, this.servicePid(), "schedule"));
 	}
 }

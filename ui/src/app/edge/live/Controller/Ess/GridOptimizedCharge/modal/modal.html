@@ -1,10 +1,20 @@
 @if (isInitialized && formGroup) {
-  <oe-modal [title]="component.alias" helpKey="CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE" [component]="component"
+  <oe-modal [title]="component.alias" helpKey="REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE" [component]="component"
     [formGroup]="formGroup">
     @if (formGroup.value.mode !=='OFF') {
       <!-- SellToGridLimit or DelayCharge -->
       <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="state">
       </oe-modal-line>
+
+      @if (delayChargeState === DelayChargeState.ALLOWED_FEED_IN_LIMIT_TOO_LOW) {
+          <ion-row>
+              <oe-modal-info-line
+                [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.LIMITED_FUNCTIONALITY' | translate, lineStyle:'color: #FFA500'},{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION' | translate}]"
+                [icon]="{name: 'information-outline', size: 'large'}">
+              </oe-modal-info-line>
+          </ion-row>
+      }
+    
       <!-- Minimum-/ Maximum- Charge-Limit -->
       @if (chargeLimit) {
         <oe-modal-line [name]="chargeLimit.name" [converter]="Utils.CONVERT_TO_WATT" [value]="chargeLimit.value">
@@ -68,7 +78,7 @@
                   <ion-item button="true" id="open-date-input">
                     <ion-label>
                       {{ this.formGroup.controls["manualTargetTime"].value.match("/^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/")
-                      ? (this.formGroup.controls["manualTargetTime"].value | date:"HH:mm") 
+                      ? (this.formGroup.controls["manualTargetTime"].value | date:"HH:mm")
                       : this.formGroup.controls["manualTargetTime"].value}}
                     </ion-label>
                     <ion-popover trigger="open-date-input" show-backdrop="false" slot="end">
@@ -105,9 +115,9 @@
           [info]="[{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC'| translate},{text:'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.EXPECTED_SOC_WITHOUT_SELL_TO_GRID_LIMIT'| translate, lineStyle:'color: #666666'}]">
         </oe-modal-info-line>
         <!-- Chart -->
-        <predictionchart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
+        <oe-controller-ess-gridoptimizedcharge-prediction-chart padding-bottom padding-top [refresh]="refreshChart" [component]="component" [edge]="edge"
           [targetEpochSeconds]="targetEpochSeconds" [chargeStartEpochSeconds]="chargeStartEpochSeconds">
-        </predictionchart>
+        </oe-controller-ess-gridoptimizedcharge-prediction-chart>
         <oe-modal-horizontal-line></oe-modal-horizontal-line>
       </ng-container>
       <!--Risk propensity-->

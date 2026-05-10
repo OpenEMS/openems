@@ -4,8 +4,9 @@ import static io.openems.common.utils.JsonUtils.buildJsonObject;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -48,7 +49,7 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	protected Clock clock;
 	protected OPTIMIZATION_CONTEXT coc;
 	private JsonElement sourceLog;
-	private Consumer<String> onRescheduleCallback;
+	private BiConsumer<String, RescheduleMode> onRescheduleCallback;
 
 	public AbstractEnergyScheduleHandler(String parentFactoryPid, String parentId, //
 			Serializer<?> serializer, //
@@ -98,11 +99,13 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	}
 
 	/**
-	 * This method sets the callback for events that require Rescheduling.
-	 * 
-	 * @param callback the {@link Consumer} callback with a reason
+	 * Sets the callback to be invoked when a rescheduling event is triggered.
+	 *
+	 * @param callback a {@link BiConsumer} where the first parameter is the reason
+	 *                 for the reschedule, and the second parameter defines how the
+	 *                 current period is handled.
 	 */
-	public synchronized void setOnRescheduleCallback(Consumer<String> callback) {
+	public synchronized void setOnRescheduleCallback(BiConsumer<String, RescheduleMode> callback) {
 		this.onRescheduleCallback = callback;
 	}
 
@@ -114,14 +117,17 @@ public abstract sealed class AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT,
 	}
 
 	/**
-	 * Trigger Re-Schedule.
-	 * 
-	 * @param reason a reason for debug logging
+	 * Triggers a rescheduling event.
+	 *
+	 * @param reason         a descriptive reason for logging/debugging
+	 * @param rescheduleMode defines how the current period is handled
+	 * @throws NullPointerException if {@code rescheduleMode} is {@code null}
 	 */
-	public void triggerReschedule(String reason) {
+	public void triggerReschedule(String reason, RescheduleMode rescheduleMode) {
+		Objects.requireNonNull(rescheduleMode);
 		var onRescheduleCallback = this.onRescheduleCallback;
 		if (onRescheduleCallback != null) {
-			onRescheduleCallback.accept(reason);
+			onRescheduleCallback.accept(reason, rescheduleMode);
 		}
 	}
 

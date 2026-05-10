@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -20,6 +21,7 @@ import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 
@@ -140,7 +142,12 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration, StaticIpConfiguration config) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final StaticIpConfiguration config, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		// setting ip configuration is not implemented for windows
 		if (this.isWindows) {
 			return;

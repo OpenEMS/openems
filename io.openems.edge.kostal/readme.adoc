@@ -1,14 +1,197 @@
-= KOSTAL
+= KOSTAL Inverters
 
-== KOSTAL PLENTICORE
+Integration with KOSTAL hybrid inverter systems for energy storage, photovoltaic production, and grid monitoring.
 
-* hybrid inverter with battery control and PV production
-* KSEM device
+== Overview
 
-== KOSTAL PIKO
+This bundle provides support for two KOSTAL inverter product families:
 
-- SymmetricEss
-- ElectricityMeter (for Grid meter)
-- EssDcCharger (for PV)
+* **KOSTAL PIKO**: Hybrid inverter with integrated battery management, photovoltaic DC conversion, and grid meter
+* **KOSTAL Plenticore**: Hybrid inverter with energy storage, PV production, and integrated Smart Energy Meter (KSEM)
+
+Both systems communicate via standard network protocols and support read-only (fast internal control) and read-write (slow external control) operating modes where applicable.
+
+== Supported Devices
+
+* https://www.kostal-solar.com/en-gb/products/piko/piko-hybrid-10-0/[KOSTAL PIKO Hybrid icon:external-link[]]
+* https://www.kostal-solar.com/en-gb/products/plenticore/plenticore-plus/[KOSTAL Plenticore Plus icon:external-link[]]
+
+== Components
+
+This bundle implements OpenEMS Components for two KOSTAL inverter families:
+
+=== KOSTAL PIKO Family
+
+The PIKO family components communicate via HTTP/REST API to the inverter.
+
+==== PIKO Core Component
+
+*Name*: KOSTAL PIKO Core
+
+*Factory-PID*: `Kostal.Piko.Core`
+
+.Implemented Natures/Interfaces
+* KostalPikoCore
+* OpenemsComponent
+* EventHandler
+
+*Description*: Core communication component. Always required to establish communication with the inverter.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "kostalPiko0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `ip` (String): IP address of the PIKO inverter (required)
+* `unitID` (Integer): Modbus Unit ID (default: 0xff)
+* `port` (Integer): Port for communication (default: 81)
+
+==== <<_piko_ess,PIKO ESS Component>>
+
+*Name*: KOSTAL PIKO ESS
+
+*Factory-PID*: `Kostal.Piko.Ess`
+
+.Implemented Natures/Interfaces
+* KostalPikoEss
+* SymmetricEss
+* OpenemsComponent
+
+*Description*: Energy storage system component for battery control and monitoring.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "ess0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+
+[[_piko_ess]]
+
+==== <<_piko_charger,PIKO Charger Component>>
+
+*Name*: KOSTAL PIKO PV-Charger
+
+*Factory-PID*: `Kostal.Piko.Charger`
+
+.Implemented Natures/Interfaces
+* KostalPikoCharger
+* EssDcCharger
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: DC Charger/MPP tracker for photovoltaic system.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "charger0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+
+[[_piko_charger]]
+
+==== <<_piko_gridmeter,PIKO Grid Meter Component>>
+
+*Name*: KOSTAL PIKO Grid-Meter
+
+*Factory-PID*: `Kostal.Piko.GridMeter`
+
+.Implemented Natures/Interfaces
+* KostalPikoGridMeter
+* ElectricityMeter
+* OpenemsComponent
+
+*Description*: Grid meter component for monitoring grid power.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+
+[[_piko_gridmeter]]
+
+=== KOSTAL Plenticore Family
+
+The Plenticore family components communicate via Modbus TCP.
+
+==== <<_plenticore_ess,Plenticore ESS Component>>
+
+*Name*: KOSTAL Plenticore ESS
+
+*Factory-PID*: `Kostal.Plenticore.Ess`
+
+.Implemented Natures/Interfaces
+* KostalManagedEss
+* ManagedSymmetricEss
+* SymmetricEss
+* ModbusComponent
+* TimedataProvider
+* EventHandler
+* OpenemsComponent
+
+*Description*: Hybrid energy storage system (battery) with management capabilities.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "ess0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `readOnlyMode` (Boolean): Prevent power commands to inverter (default: true)
+* `controlMode` (Enum): Control mode - INTERNAL or EXTERNAL (default: INTERNAL)
+* `minsoc` (Integer): Minimum battery state of charge in % (default: 5)
+* `watchdog` (Integer): Watchdog timeout in seconds (default: 30)
+* `tolerance` (Integer): Tolerance in watts to skip Modbus writing (default: 50)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `debugMode` (Boolean): Enable debug mode (default: false)
+
+[[_plenticore_ess]]
+
+==== <<_plenticore_pvinverter,Plenticore PV-Inverter Component>>
+
+*Name*: KOSTAL Plenticore PV-Inverter
+
+*Factory-PID*: `Kostal.Plenticore.PV-Inverter`
+
+.Implemented Natures/Interfaces
+* KostalPvInverter
+* ManagedSymmetricPvInverter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* TimedataProvider
+
+*Description*: Hybrid inverter component for photovoltaic production monitoring and power limiting.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "pvInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `readOnly` (Boolean): Prevent power-limitation commands to inverter (default: true)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID (default: 71)
+
+[[_plenticore_pvinverter]]
+
+==== <<_plenticore_ksem,Plenticore KSEM Component>>
+
+*Name*: KOSTAL Smart Energy Meter (KSEM)
+
+*Factory-PID*: `Kostal.Plenticore.KSEM`
+
+.Implemented Natures/Interfaces
+* KostalGridMeter
+* ElectricityMeter
+* OpenemsComponent
+* ModbusComponent
+* TimedataProvider
+
+*Description*: Smart Energy Meter (KSEM) for grid or inverter-based energy monitoring.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID (default: 71)
+* `viaInverter` (Boolean): Read meter data via inverter (default: false)
+* `wordwrap` (Boolean): Use word-wrapped conversion (default: false)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+
+[[_plenticore_ksem]]
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.kostal[Source Code icon:github[]]

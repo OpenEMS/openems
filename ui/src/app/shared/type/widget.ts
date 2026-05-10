@@ -2,6 +2,7 @@
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { EdgePermission } from "../shared";
+import { TEnumKeys } from "./utility";
 
 export enum WidgetClass {
     "Energymonitor",
@@ -42,10 +43,14 @@ export enum WidgetFactory {
     "Controller.Io.HeatPump.SgReady",
     "Controller.Heat.Heatingelement",
     "Controller.Symmetric.PeakShaving",
+    "Controller.Symmetric.Balancing",
     "Controller.TimeslotPeakshaving",
     "Evcs.Cluster.PeakShaving",
     "Evcs.Cluster.SelfConsumption",
+    "Heat.Askoma",
+    "Heat.MyPv.AcThor9s",
     "Weather.OpenMeteo",
+    "Scheduler.JSCalendar",
 }
 
 export type Icon = {
@@ -60,7 +65,7 @@ export type ImageIcon = {
 };
 
 export class Widget {
-    public name: WidgetNature | WidgetFactory | string;
+    public name: TEnumKeys<typeof WidgetNature | typeof WidgetFactory> | string;
     public componentId: string;
     public alias: string;
 }

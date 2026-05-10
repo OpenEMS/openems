@@ -18,7 +18,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -79,8 +78,8 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 		// Properties
 		ALIAS(alias()), //
 		HARDWARE_TYPE(EvcsProps.hardwareType(EVCS_ID)), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp()) //
-				.setDefaultValue("192.168.25.11") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
+				.setDefaultValue("192.168.25.11")//
 				.setRequired(true)), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		// Properties for P40
@@ -88,7 +87,7 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
 				.setDefaultValue(255) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(HARDWARE_TYPE)//
 							.equal(Exp.staticValue(KebaHardwareType.P40)));
 				}))), //
 		;
@@ -178,13 +177,6 @@ public class KebaEvcsReadOnly extends AbstractOpenemsAppWithProps<KebaEvcsReadOn
 					.build();
 		};
 
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

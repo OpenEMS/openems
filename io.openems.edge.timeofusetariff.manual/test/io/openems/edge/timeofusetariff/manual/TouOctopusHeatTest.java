@@ -31,29 +31,25 @@ public class TouOctopusHeatTest {
 		this.clock = TestUtils.createDummyClock();
 
 		// Setup Octopus Heat schedule
-		final var schedule = JSCalendar.Tasks.<Double>create() //
-				.setClock(this.clock) //
+		final var schedule = JSCalendar.Tasks.<Double>create(this.clock) //
 				.add(t -> t // Lower price 02:00-06:00
 						.setStart(LocalTime.of(2, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_LOWER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_LOWER_PRICE)) //
 				.add(t -> t // Lower price 12:00-16:00
 						.setStart(LocalTime.of(12, 0)) //
 						.setDuration(Duration.ofHours(4)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_LOWER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_LOWER_PRICE)) //
 				.add(t -> t // Higher price 18:00-21:00
 						.setStart(LocalTime.of(18, 0)) //
 						.setDuration(Duration.ofHours(3)) //
 						.addRecurrenceRule(b -> b //
 								.setFrequency(DAILY)) //
-						.setPayload(HEAT_HIGHER_PRICE) //
-						.build()) //
+						.setPayload(HEAT_HIGHER_PRICE)) //
 				.build();
 		this.heatHelper = new TouManualHelper(this.clock, schedule, HEAT_STANDARD_PRICE);
 	}

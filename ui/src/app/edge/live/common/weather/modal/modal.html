@@ -1,5 +1,6 @@
 @if(isInitialized && currentHourlyForecast && currentDailyForecast ){
-  <oe-modal [title]="'TITLE_WITH_LOCATION' | translate : { location: placeName }" [component]="component">
+  <oe-modal [title]="'TITLE_WITH_LOCATION' | translate : { location: placeName }" [component]="component"
+    [helpKey]="'REDIRECT.WEATHER_WIDGET'" [useDefaultPrefix]="false">
     @if(gotData){
       <ion-card style="--background: var(--ion-background-color-card-header); box-shadow: none;">
         <ion-card-content>

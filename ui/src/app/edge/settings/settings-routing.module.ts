@@ -21,7 +21,8 @@ export const settingsRoutes: Routes = [
     { path: "component.update/:componentId", component: EdgeSettingsComponentUpdateComponentComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.ADJUST_COMPONENTS" } },
     { path: "network", loadComponent: () => import("./network/network.component").then(m => m.NetworkComponent), canActivate: [hasEdgeRole(Role.INSTALLER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.NETWORK_CONFIGURATION" } },
     { path: "profile", loadComponent: () => import("./profile/profile.component").then(m => m.ProfileComponent), data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.SYSTEM_PROFILE" } },
-    { path: "profile/:componentId", loadComponent: () => import("./profile/aliasupdate.component").then(m => m.AliasUpdateComponent), data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.RENAME_COMPONENTS" } },
+    { path: "profile/location-validation", loadComponent: () => import("./profile/location/location-validator/location-validator").then(m => m.LocationValidatorComponent), data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.SYSTEM_PROFILE" } },
+    { path: "profile/alias-update/:componentId", loadComponent: () => import("./profile/aliasupdate.component").then(m => m.AliasUpdateComponent), data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.RENAME_COMPONENTS" } },
     { path: "systemexecute", component: EdgeSettingsSystemExecuteComponent, canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.SYSTEM_EXECUTE" } },
     { path: "systemlog", loadComponent: () => import("./systemlog/systemlog.component").then(m => m.SystemLogComponent), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.LIVE_LOG" } },
     { path: "system", loadComponent: () => import("./system/system.component").then(m => m.SystemComponent), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.SYSTEM" } },
@@ -32,6 +33,7 @@ export const settingsRoutes: Routes = [
     { path: "app/oauth", data: { navbarTitle: "OAuth" }, loadComponent: () => import("./app/oauth/oauth.component").then(m => m.OAuthIndexComponent), canActivate: [hasEdgeRole(Role.ADMIN)] },
     { path: "alerting", loadChildren: () => import("./alerting/alerting.module").then(m => m.AlertingModule), canActivate: [hasEdgeRole(Role.OWNER)], data: { navbarTitleToBeTranslated: "EDGE.CONFIG.INDEX.ALERTING" } },
     { path: "jsonrpctest", component: JsonrpcTestComponent, data: { navbarTitle: "Jsonrpc Test" } },
+    { path: "powerAssistant", loadComponent: () => import("./assistant/powerassistant/powerassistant").then(m => m.PowerAssistantComponent), canActivate: [hasEdgeRole(Role.ADMIN)], data: { navbarTitle: "Power-Assistant" } },
 ];
 
 @NgModule({

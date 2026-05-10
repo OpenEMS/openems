@@ -24,7 +24,7 @@ import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
 public class GoodWeChargerMpptTwoStringImplTest {
 
-	private static final DummyMeta META = new DummyMeta("meta0");
+	private static final DummyMeta META = new DummyMeta();
 
 	@Test
 	public void test() throws Exception {

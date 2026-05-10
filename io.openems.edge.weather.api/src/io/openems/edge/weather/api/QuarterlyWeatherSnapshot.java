@@ -9,8 +9,13 @@ import io.openems.common.utils.JsonUtils;
 
 public record QuarterlyWeatherSnapshot(//
 		ZonedDateTime datetime, //
-		double globalHorizontalIrradiance, //
-		double directNormalIrradiance) {
+		double shortwaveRadiation, //
+		double directRadiation, //
+		double directNormalIrradiance, //
+		double diffuseRadiation, //
+		double temperature, //
+		double snowfall, //
+		double snowDepth) {
 
 	/**
 	 * Returns a {@link JsonSerializer} for a {@link QuarterlyWeatherSnapshot}.
@@ -21,13 +26,23 @@ public record QuarterlyWeatherSnapshot(//
 		return jsonObjectSerializer(QuarterlyWeatherSnapshot.class, json -> {
 			return new QuarterlyWeatherSnapshot(//
 					json.getZonedDateTime("datetime"), //
-					json.getDouble("globalHorizontalIrradiance"), //
-					json.getDouble("directNormalIrradiance"));
+					json.getDouble("shortwaveRadiation"), //
+					json.getDouble("directRadiation"), //
+					json.getDouble("directNormalIrradiance"), //
+					json.getDouble("diffuseRadiation"), //
+					json.getDouble("temperature"), //
+					json.getDouble("snowfall"), //
+					json.getDouble("snowDepth"));
 		}, obj -> {
 			return JsonUtils.buildJsonObject() //
 					.addProperty("datetime", obj.datetime().toOffsetDateTime().toString())//
-					.addProperty("globalHorizontalIrradiance", obj.globalHorizontalIrradiance())//
-					.addProperty("directNormalIrradiance", obj.globalHorizontalIrradiance())//
+					.addProperty("shortwaveRadiation", obj.shortwaveRadiation())//
+					.addProperty("directRadiation", obj.directRadiation())//
+					.addProperty("directNormalIrradiance", obj.directNormalIrradiance())//
+					.addProperty("diffuseRadiation", obj.diffuseRadiation())//
+					.addProperty("temperature", obj.temperature())//
+					.addProperty("snowfall", obj.snowfall())//
+					.addProperty("snowDepth", obj.snowDepth())//
 					.build();
 		});
 	}

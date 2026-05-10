@@ -33,6 +33,7 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.DummyUser;
 import io.openems.edge.core.meta.geocoding.GeoResult;
@@ -42,7 +43,7 @@ public class GeocodingTest {
 
 	@Test
 	public void testGeocodeRequest_ShouldReturnCorrectResults() throws Exception {
-		final var meta = new DummyMeta("_meta");
+		final var meta = new DummyMeta();
 		final var cm = new DummyConfigurationAdmin();
 		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
 
@@ -67,6 +68,7 @@ public class GeocodingTest {
 				.build();
 		new ComponentTest(sut)//
 				.addReference("cm", cm)//
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("oem", oem)//
 				.addReference("httpBridgeFactory", factory)//
 				.activate(config);
@@ -91,7 +93,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, res1.countryCode());
 		assertEquals("Berlin", res1.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, res1.subdivisionCode());
-		assertEquals("Mitte", res1.placeName());
+		assertEquals("Berlin", res1.placeName());
 		assertEquals("10115", res1.postcode());
 		assertEquals("Invalidenstraße", res1.road());
 		assertEquals("117", res1.houseNumber());
@@ -202,7 +204,7 @@ public class GeocodingTest {
 		assertEquals(CountryCode.DE, result.countryCode());
 		assertEquals("Berlin", result.subdivision());
 		assertEquals(SubdivisionCode.DE_BE, result.subdivisionCode());
-		assertEquals("Mitte", result.placeName());
+		assertEquals("Berlin", result.placeName());
 		assertEquals("10115", result.postcode());
 		assertEquals("Invalidenstraße", result.road());
 		assertEquals("117", result.houseNumber());

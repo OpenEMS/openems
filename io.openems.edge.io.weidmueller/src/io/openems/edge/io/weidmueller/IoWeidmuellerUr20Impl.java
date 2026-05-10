@@ -5,8 +5,8 @@ import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.IntStream;
 
@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.IteratorUtils;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ChannelMetaInfoBitReadAndWrite;
@@ -56,8 +57,12 @@ import io.openems.edge.io.api.DigitalOutput;
 public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 		implements IoWeidmuellerUr20, DigitalOutput, DigitalInput, ModbusComponent, OpenemsComponent {
 
-	// TODO Watchdog
 	// TODO Error/Warning state handling
+	// TODO Implement hardware watchdog
+	// - 0x1030: remaining watchdog time (read, 10ms steps; 0x0000=expired,
+	// 0xFFFF=disabled)
+	// - 0x1120: watchdog timeout (write to enable/retrigger; every write resets the
+	// timer; 0=disable)
 
 	private static final int PROCESS_DATA_INPUT_BASE_REGISTER = 0x8000;
 	private static final int PROCESS_DATA_OUTPUT_BASE_REGISTER = 0x9000;
@@ -65,7 +70,12 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 
 	private final Logger log = LoggerFactory.getLogger(IoWeidmuellerUr20Impl.class);
 	private final ModbusProtocol modbusProtocol;
-	private final TreeMap<URemoteModule, List<BooleanReadChannel>> modules = new TreeMap<>();
+
+	public record Modules(URemoteModule module, List<BooleanReadChannel> channels) {
+
+	}
+
+	private final List<Modules> modules = Collections.synchronizedList(new ArrayList<>());
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -98,21 +108,22 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 
 		this.readNumberOfEntriesInTheCurrentModuleList().thenAccept(numberOfEntries -> {
 			this.readCurrentModuleList(numberOfEntries).thenAccept(moduleIds -> {
-
-				var moduleCount = 0;
 				var writeChannels = new ArrayList<BooleanWriteChannel>();
 				var nextOutputCoil = PROCESS_DATA_OUTPUT_BASE_COIL;
 
-				for (var moduleId : moduleIds) {
+				for (var entry : IteratorUtils.indexedIterable(moduleIds)) {
+					final var moduleCount = entry.index();
+					final var moduleId = entry.value();
 					// Parse URemoteModule from moduleId
 					var moduleOpt = URemoteModule.getByModuleId(moduleId);
 					if (moduleOpt.isEmpty()) {
 						this.logError(this.log, "Unable to identify U-Remote-Module #" + moduleCount //
 								+ " [0x" + Long.toHexString(moduleId) + "]");
-						return;
+						continue;
 					}
 					var module = moduleOpt.get();
-					this.modules.put(module, new ArrayList<>());
+					var currentModule = new Modules(module, new ArrayList<>());
+					this.modules.add(currentModule);
 
 					var inputRegisterOffset = PROCESS_DATA_INPUT_BASE_REGISTER + moduleCount * 32;
 					var outputRegisterOffset = PROCESS_DATA_OUTPUT_BASE_REGISTER + moduleCount * 32;
@@ -124,9 +135,10 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 						for (var i = 0; i < 4; i++) {
 							var channelId = FieldbusChannelId.forDigitalInput(moduleCount, i + 1);
 							var channel = (BooleanReadChannel) this.addChannel(channelId);
-							this.modules.get(module).add(channel);
+							currentModule.channels.add(channel);
 							element.bit(i, channelId);
 						}
+
 						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
 						break;
 					}
@@ -134,18 +146,19 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 					case UR20_8DO_P: {
 						var myTasks = new ArrayList<Task>();
 						var inputElement = new BitsWordElement(outputRegisterOffset, this);
+						var moduleCoilBase = nextOutputCoil;
 						for (var i = 0; i < 8; i++) {
 							var channelId = FieldbusChannelId.forDigitalOutput(moduleCount, i + 1);
 							var channel = (BooleanWriteChannel) this.addChannel(channelId);
 
 							var outputElement = new CoilElement(nextOutputCoil++);
 							var channelMetaInfoBit = new ChannelMetaInfoBitReadAndWrite(inputElement.startAddress, i,
-									PROCESS_DATA_OUTPUT_BASE_COIL, outputElement.startAddress);
+									moduleCoilBase, outputElement.startAddress);
 							writeChannels.add(channel);
 							myTasks.add(new FC5WriteCoilTask(outputElement.startAddress,
 									m(channelId, outputElement, channelMetaInfoBit)));
 
-							this.modules.get(module).add(channel);
+							currentModule.channels.add(channel);
 							inputElement.bit(i, channelId, channelMetaInfoBit);
 						}
 						myTasks.add(new FC3ReadRegistersTask(inputElement.startAddress, Priority.HIGH, inputElement));
@@ -158,7 +171,7 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 						for (var i = 0; i < 16; i++) {
 							var channelId = FieldbusChannelId.forDigitalInput(moduleCount, i + 1);
 							var channel = (BooleanReadChannel) this.addChannel(channelId);
-							this.modules.get(module).add(channel);
+							currentModule.channels.add(channel);
 							element.bit(i, channelId);
 						}
 						tasks = new Task[] { new FC3ReadRegistersTask(element.startAddress, Priority.HIGH, element) };
@@ -169,20 +182,19 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 					if (tasks == null || tasks.length == 0) {
 						this.logError(this.log, "Unable to build Modbus-Task for U-Remote-Module #" + moduleCount //
 								+ " [" + module.name() + "]");
-						return;
+						continue;
 					}
 
 					this.modbusProtocol.addTasks(tasks);
 
-					this.digitalInputChannels = this.modules.values().stream() //
-							.flatMap(cs -> cs.stream()) //
+					this.digitalInputChannels = this.modules.stream() //
+							.flatMap(m -> m.channels().stream()) //
 							.toArray(BooleanReadChannel[]::new);
 					this.digitalOutputChannels = writeChannels.toArray(BooleanWriteChannel[]::new);
-					moduleCount++;
 				}
+
 			});
 		});
-
 	}
 
 	@Override
@@ -213,8 +225,8 @@ public class IoWeidmuellerUr20Impl extends AbstractOpenemsModbusComponent
 		}
 		var b = new StringBuilder();
 		var i = 0;
-		for (var entry : this.modules.entrySet()) {
-			var channels = entry.getValue();
+		for (var module : this.modules) {
+			var channels = module.channels;
 			if (channels.isEmpty()) {
 				continue;
 			}

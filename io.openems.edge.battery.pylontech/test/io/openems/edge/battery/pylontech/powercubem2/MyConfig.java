@@ -11,7 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private String modbusId = null;
 		private int modbusUnitId;
-		private StartStopConfig startStop;
+		private StartStopConfig startStop = StartStopConfig.AUTO;
 
 		private Builder() {
 		}

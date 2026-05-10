@@ -5,7 +5,6 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -25,13 +24,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.bridge.http.api.BridgeHttp;
-import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.common.bridge.http.api.BridgeHttpFactory;
-import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.oem.OpenemsEdgeOem;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.bmw.enums.BatteryState;
 import io.openems.edge.battery.bmw.enums.BatteryStateCommand;
@@ -141,20 +139,29 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 		this.httpBridge = this.httpBridgeFactory.get();
 		this.cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
 
-		final var url = this.getUrl((BridgeModbusTcp) this.getBridgeModbus(), URI_LOGIN, "");
+		this.initializeAuthentication();
+	}
 
+	private void initializeAuthentication() {
 		var auth = this.oem.getBmwBatteryAuth();
 		if (auth == null) {
 			return;
 		}
+
 		final var userName = auth.a();
 		final var password = auth.b();
-		var outData = "{userCredentials: {name: \"" + userName + "\" , password: \"" + password + "\"}}";
-		var map = Map.of(//
-				"Content-Type", "application/json");
-		final var endPoint = new Endpoint(url, HttpMethod.POST, BridgeHttp.DEFAULT_CONNECT_TIMEOUT,
-				BridgeHttp.DEFAULT_READ_TIMEOUT, outData, map);
-		this.token.fetchToken(endPoint);
+
+		final var url = this.getUrl((BridgeModbusTcp) this.getBridgeModbus(), URI_LOGIN, "");
+		final var endpoint = BridgeHttp.create(url) //
+				.setBodyJson(JsonUtils.buildJsonObject() //
+						.add("userCredentials", JsonUtils.buildJsonObject() //
+								.addProperty("name", userName) //
+								.addProperty("password", password) //
+								.build()) //
+						.build())
+				.build();
+
+		this.token.fetchToken(endpoint);
 	}
 
 	public String getToken() {
@@ -244,8 +251,8 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 						m(BatteryBmw.ChannelId.BATTERY_SOC, new UnsignedWordElement(1017)),
 						m(BatteryBmw.ChannelId.REMAINING_CHARGE_CAPACITY, new UnsignedWordElement(1018)), //
 						m(BatteryBmw.ChannelId.REMAINING_DISCHARGE_CAPACITY, new UnsignedWordElement(1019)), //
-						m(BatteryBmw.ChannelId.REMANING_CHARGE_ENERGY, new UnsignedWordElement(1020)), //
-						m(BatteryBmw.ChannelId.REMANING_DISCHARGE_ENERGY, new UnsignedWordElement(1021)), //
+						m(BatteryBmw.ChannelId.REMAINING_CHARGE_ENERGY, new UnsignedWordElement(1020)), //
+						m(BatteryBmw.ChannelId.REMAINING_DISCHARGE_ENERGY, new UnsignedWordElement(1021)), //
 						m(BatteryBmw.ChannelId.NOMINAL_ENERGY, new UnsignedWordElement(1022)), //
 						m(BatteryBmw.ChannelId.NOMINAL_ENERGY_TOTAL, new UnsignedWordElement(1023)), //
 						m(BatteryBmw.ChannelId.NOMINAL_CAPACITY, new UnsignedWordElement(1024)), //
@@ -338,19 +345,42 @@ public class BatteryBmwImpl extends AbstractOpenemsModbusComponent
 	protected synchronized void updateSoc() {
 		Channel<Double> batterySocChannel = this.channel(BatteryBmw.ChannelId.BATTERY_SOC);
 		var batterySoc = batterySocChannel.value();
-		var soc = batterySoc.asOptional().map(t -> {
-			var calculatedBatterySoc = (int) ((t / 100.0 - MIN_ALLOWED_SOC)
-					* (100.0 / (MAX_ALLOWED_SOC - MIN_ALLOWED_SOC)) * 10.0);
-			this._setSocRawValue(calculatedBatterySoc);
-			if (calculatedBatterySoc < 0) {
-				return 0;
-			}
-			if (calculatedBatterySoc > 1000) {
-				return 100;
-			}
-			return calculatedBatterySoc / 10;
-		}).orElse(null);
+		var soc = batterySoc.asOptional().map(this::calculateNormalizedSoc).orElse(null);
 		this._setSoc(soc);
+	}
+
+	/**
+	 * Calculates the normalized State of Charge (SOC) from the raw battery SOC
+	 * value.
+	 * 
+	 * <p>
+	 * This method transforms the battery's raw SOC percentage (which operates in
+	 * the range MIN_ALLOWED_SOC to MAX_ALLOWED_SOC) to a normalized 0-100% range.
+	 * </p>
+	 * 
+	 * @param rawSocPercent the raw SOC percentage from the battery (0-100%)
+	 * @return normalized SOC as integer percentage (0-100%), or null if invalid
+	 */
+	private Integer calculateNormalizedSoc(double rawSocPercent) {
+		// Convert percentage to decimal and subtract the minimum allowed SOC
+		double adjustedSoc = rawSocPercent / 100.0 - MIN_ALLOWED_SOC;
+
+		// Scale to the usable SOC range (MIN_ALLOWED_SOC to MAX_ALLOWED_SOC)
+		double usableRange = MAX_ALLOWED_SOC - MIN_ALLOWED_SOC;
+		double normalizedSoc = (adjustedSoc / usableRange) * 100.0;
+
+		// Convert to integer with 0.1% precision for raw value storage
+		int calculatedBatterySoc = (int) (normalizedSoc * 10.0);
+		this._setSocRawValue(calculatedBatterySoc);
+
+		// Clamp to valid range and convert back to percentage
+		if (calculatedBatterySoc < 0) {
+			return 0;
+		}
+		if (calculatedBatterySoc > 1000) {
+			return 100;
+		}
+		return calculatedBatterySoc / 10;
 	}
 
 	/**

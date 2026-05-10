@@ -11,11 +11,10 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.util.stream.IntStream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.test.DummyBattery;
@@ -53,12 +52,12 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 	private static final TimeLeapClock CLOCK = createDummyClock();
 	private static ComponentTest test;
 
-	@Before
+	@BeforeEach
+	@Test
 	public void prepareTest() throws Exception {
 		var sut = new BatteryInverterKacoBlueplanetGridsaveImpl();
 
 		test = new MyComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(40000, 0x5375, 0x6e53) // isSunSpec
@@ -83,6 +82,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImplTest {
 				.setStartStopConfig(StartStopConfig.START) //
 				.setModbusId("modbus0") //
 				.setActivateWatchdog(true) //
+				.setGridCode(GridCode.UNDEFINED) //
 				.build()); //
 
 		// let SunSpec initialize

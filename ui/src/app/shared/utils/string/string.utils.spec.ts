@@ -45,4 +45,25 @@ describe("StringUtils", () => {
             expect(() => StringUtils.isNotInArr(null, null)).toThrow(new Error(ArrayUtils.INVALID_ARRAY));
         });
     });
+
+    describe("+trailingNumber", () => {
+        it("valid trailing number", () => {
+            expect(StringUtils.getTrailingNumber("abcd1234")).toEqual(1234);
+        });
+        it("valid trailing number with special characters", () => {
+            expect(StringUtils.getTrailingNumber("user-ID-50")).toEqual(50);
+        });
+        it("no trailing number", () => {
+            expect(StringUtils.getTrailingNumber("abcd")).toEqual(null);
+        });
+        it("empty string", () => {
+            expect(StringUtils.getTrailingNumber("")).toEqual(null);
+        });
+        it("should return null if the string is purely numeric", () => {
+            expect(StringUtils.getTrailingNumber("12345")).toBeNull();
+        });
+        it("should correctly handle zero", () => {
+            expect(StringUtils.getTrailingNumber("Index0")).toBe(0);
+        });
+    });
 });

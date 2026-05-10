@@ -1,0 +1,83 @@
+$animation-duration: 600ms;
+$opacity-low: 0.1;
+$opacity-medium: 0.4;
+
+%provide-power-show {
+    opacity: $opacity-medium;
+    transition: opacity 0ms none, transform 0ms none;
+}
+
+%provide-power-hide {
+    opacity: $opacity-low;
+    transition: opacity $animation-duration ease-in, transform $animation-duration ease-in;
+}
+
+%consume-power-show {
+    opacity: $opacity-low;
+    transition: opacity 0ms none, transform 0ms none;
+}
+
+%consume-power-hide {
+    opacity: $opacity-medium;
+    transition: opacity $animation-duration ease-out, transform $animation-duration ease-out;
+}
+
+.grid-buy-show {
+    @extend %provide-power-show; 
+    transform: translateX(0%);
+}
+
+.grid-buy-hide {
+    @extend %provide-power-hide;
+    transform: translateX(17%);
+}
+
+.grid-sell-show {
+    @extend %consume-power-show;
+    transform: translateX(0%);
+}
+
+.grid-sell-hide {
+    @extend %consume-power-hide;
+    transform: translateX(-17%);
+}
+
+.consumption-show {
+    @extend %consume-power-show;
+    transform: translateX(0%);
+}
+
+.consumption-hide {
+    @extend %consume-power-hide;
+    transform: translateX(17%);
+}
+
+.production-show {
+    @extend %provide-power-show;
+    transform: translateY(0%);
+}
+
+.production-hide {
+    @extend %provide-power-hide;
+    transform: translateY(17%);
+}
+
+.storage-discharge-show {
+    @extend %provide-power-show;
+    transform: translateY(0);
+}
+
+.storage-discharge-hide {
+    @extend %provide-power-hide;
+    transform: translateY(-17%);
+}
+
+.storage-charge-show {
+    @extend %consume-power-show; 
+    transform: translateY(0);
+}
+
+.storage-charge-hide {
+    @extend %consume-power-hide;
+    transform: translateY(17%);
+}

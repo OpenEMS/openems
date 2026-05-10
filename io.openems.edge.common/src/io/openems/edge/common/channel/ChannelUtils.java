@@ -179,6 +179,21 @@ public final class ChannelUtils {
 	}
 
 	/**
+	 * Set write value of a {@link LongWriteChannel} if the read value is not equal.
+	 *
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the Write-Values differs from the current Read-Value.
+	 *
+	 * @param channel the {@link LongWriteChannel}
+	 * @param value   value to be set
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setWriteValueIfNotRead(LongWriteChannel channel, Long value) throws OpenemsNamedException {
+		setWriteValueIfNotReadHelper(channel, value);
+	}
+
+	/**
 	 * Set write value of a {@link BooleanWriteChannel} if the read value is not
 	 * equal.
 	 * 

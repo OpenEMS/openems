@@ -14,6 +14,7 @@ export namespace SharedAutarchy {
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
         title: translate.instant("GENERAL.AUTARCHY"),
         helpKey: "REDIRECT.COMMON_AUTARCHY",
+        useDefaultPrefix: false,
         lines: [
             {
                 type: "percentage-bar-line",
@@ -22,8 +23,8 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
+        isCommonWidget: true,
     });
-
 
     export function getChannelAddresses(): ChannelAddress[] {
         return [
@@ -33,7 +34,6 @@ export namespace SharedAutarchy {
     }
 
     export function getAutarchyValue(currentData: CurrentData) {
-
         return Utils.calculateAutarchy(
             currentData.allComponents["_sum/GridActivePower"],
             currentData.allComponents["_sum/ConsumptionActivePower"],
@@ -49,6 +49,6 @@ export namespace SharedAutarchy {
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree("autarchy", { baseString: "common/autarchy" }, { name: "oe-grid", color: "normal" }, translate.instant("GENERAL.AUTARCHY"), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-        ], null).toConstructorParams();
+        ], null, "LOW").toConstructorParams();
     }
 }

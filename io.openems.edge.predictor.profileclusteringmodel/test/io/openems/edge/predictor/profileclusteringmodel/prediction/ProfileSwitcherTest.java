@@ -16,8 +16,8 @@ public class ProfileSwitcherTest {
 	@Test
 	public void testFindBetterProfile_ShouldReturnEmpty_WhenTodaysValuesEmpty() {
 		var profiles = List.of(//
-				createConstantProfile(0, 10), //
-				createConstantProfile(1, 20));
+				createConstantProfile(0, 10, 0), //
+				createConstantProfile(1, 20, 0));
 		var currentProfile = profiles.get(0);
 		var todaysValues = createConstantSeries(Double.NaN);
 
@@ -30,8 +30,8 @@ public class ProfileSwitcherTest {
 	@Test
 	public void testFindBetterProfile_ShouldReturnEmpty_WhenNoProfileIsBetter() {
 		var profiles = List.of(//
-				createConstantProfile(0, 10), //
-				createConstantProfile(1, 20));
+				createConstantProfile(0, 10, 0), //
+				createConstantProfile(1, 20, 0));
 		var currentProfile = profiles.get(0);
 		var todaysValues = createConstantSeries(10.0);
 
@@ -44,8 +44,8 @@ public class ProfileSwitcherTest {
 	@Test
 	public void testFindBetterProfile_ShouldReturnBetterProfile_WhenBetterExists() {
 		var profiles = List.of(//
-				createConstantProfile(0, 10), //
-				createConstantProfile(1, 50));
+				createConstantProfile(0, 10, 0), //
+				createConstantProfile(1, 50, 0));
 		var currentProfile = profiles.get(0);
 		var todaysValues = createConstantSeries(50.0);
 
@@ -59,8 +59,8 @@ public class ProfileSwitcherTest {
 	@Test
 	public void testFindBetterProfile_ShouldNotSwitchTooEarly_WithPartialObservations() {
 		var profiles = List.of(//
-				createConstantProfile(0, 10), //
-				createConstantProfile(1, 50));
+				createConstantProfile(0, 10, 0), //
+				createConstantProfile(1, 50, 0));
 		var currentProfile = profiles.get(0);
 
 		double[] values = new double[Profile.LENGTH];
@@ -82,12 +82,14 @@ public class ProfileSwitcherTest {
 		assertTrue(result.isEmpty());
 	}
 
-	private static Profile createConstantProfile(int clusterIndex, double value) {
+	private static Profile createConstantProfile(int clusterIndex, double value, double upperQuantileValue) {
 		double[] values = new double[Profile.LENGTH];
+		double[] upperQuantileValues = new double[Profile.LENGTH];
 		for (int i = 0; i < Profile.LENGTH; i++) {
 			values[i] = value;
+			upperQuantileValues[i] = upperQuantileValue;
 		}
-		return Profile.fromArray(clusterIndex, values);
+		return Profile.fromArray(clusterIndex, values, upperQuantileValues);
 	}
 
 	private static Series<Integer> createConstantSeries(double value) {

@@ -5,11 +5,10 @@ import static io.openems.common.utils.FunctionUtils.doNothing;
 import org.apache.logging.log4j.util.Supplier;
 
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.PeriodDuration;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 
 /**
  * Helper methods and classes for {@link EnergyScheduleHandler.WithOnlyOneMode}.
@@ -88,8 +87,10 @@ public class OneMode {
 	public static record Period<OPTIMIZATION_CONTEXT>(
 			/** Duration of the Period */
 			PeriodDuration duration,
-			/** Price [1/MWh] */
-			double price, //
+			/** Grid-Buy Price [1/MWh] */
+			Double gridBuyPrice, //
+			/** Grid-Sell Price [1/MWh] */
+			Double gridSellPrice, //
 			/** ControllerOptimizationContext */
 			OPTIMIZATION_CONTEXT coc, //
 			/** Simulated EnergyFlow */
@@ -98,16 +99,16 @@ public class OneMode {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(PeriodDuration duration, double price, EnergyFlow energyFlow) {
+		public static record Transition(PeriodDuration duration, Double gridBuyPrice, Double gridSellPrice,
+				EnergyFlow energyFlow) {
 		}
 
 		/**
-		 * Builds a {@link EnergyScheduleHandler.OneMode.Period} from a
-		 * {@link EnergyScheduleHandler.OneMode.Period.Transition} record.
+		 * Builds a {@link OneMode.Period} from a {@link OneMode.Period.Transition}
+		 * record.
 		 * 
 		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
-		 * @param t                      the
-		 *                               {@link EnergyScheduleHandler.WithDifferentStates.Period.Transition}
+		 * @param t                      the {@link DifferentModes.Period.Transition}
 		 *                               record
 		 * @param coc                    the ControllerOptimizationContext used during
 		 *                               simulation
@@ -115,7 +116,7 @@ public class OneMode {
 		 */
 		public static <OPTIMIZATION_CONTEXT> Period<OPTIMIZATION_CONTEXT> fromTransitionRecord(Period.Transition t,
 				OPTIMIZATION_CONTEXT coc) {
-			return new Period<>(t.duration, t.price, coc, t.energyFlow);
+			return new Period<>(t.duration, t.gridBuyPrice, t.gridSellPrice, coc, t.energyFlow);
 		}
 	}
 
@@ -125,7 +126,7 @@ public class OneMode {
 		 * Simulates one Period of a Schedule.
 		 *
 		 * @param parentComponentId the parent Component-ID
-		 * @param period            the {@link GlobalSimulationsContext.Period}
+		 * @param period            the {@link GlobalOptimizationContext.Period}
 		 * @param gsc               the {@link GlobalScheduleContext}
 		 * @param coc               the ControllerOptimizationContext
 		 * @param csc               the ControllerScheduleContext

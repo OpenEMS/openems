@@ -5,9 +5,9 @@ import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from 
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
-import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
+import { FORMLY_CONFIG, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyIonicModule } from "@ngx-formly/ionic";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
@@ -39,19 +39,41 @@ import { RepeatTypeComponent } from "./components/formly/repeat";
 import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
+import { HelpButtonComponent } from "./components/modal/help-button/help-button";
 import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
+import { TimeLineComponent } from "./components/picktime/picktime.component";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
+import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
+import de from "./i18n/de.json";
+import en from "./i18n/en.json";
 import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
-import { AppStateTracker } from "./ngrx-store/states";
+import { AppStateTracker } from "./ngrx-store/app-state-tracker";
 import { PipeModule } from "./pipe/pipe.module";
 import { Logger } from "./service/logger";
 import { RouteService } from "./service/route.service";
 import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
+import { Language } from "./type/language";
+
+
+export function registerTranslateExtension(translate: TranslateService) {
+    return {
+        validationMessages: [
+            {
+                name: "person-name-prohibited-characters",
+                message(err, field: FormlyFieldConfig) {
+                    const INVALID_CHARACTERS = "< > & \" $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )";
+                    return translate.stream("SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS", { invalidCharacters: INVALID_CHARACTERS, formControlValue: field.formControl.value });
+                },
+            },
+        ],
+    };
+}
+
 
 export function IpValidator(control: FormControl): ValidationErrors {
     return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { "ip": true };
@@ -69,8 +91,31 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
+export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
+    // https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/userprofile/validator/PersonNameProhibitedCharactersValidator.java
+    const INVALID_CHARACTERS: string[] = [
+        // Control characters (ASCII 0–31)
+        "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
+        "\x08", "\x09", "\x0A", "\x0B", "\x0C", "\x0D", "\x0E", "\x0F",
+        "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
+        "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F",
+
+        // DEL (ASCII 127)
+        "\x7F",
+
+        // Symbols
+        "<", ">", "&", "\"", "\v", "$", "%", "!", "#", "?", "§",
+        ";", "*", "~", "/", "\\", "|", "^", "=", "[", "]",
+        "{", "}", "(", ")",
+    ];
+    return [...(control.value ?? "")].some(ch => INVALID_CHARACTERS.includes(ch))
+        ? { "person-name-prohibited-characters": true }
+        : null;
+}
+
 @NgModule({
     imports: [
+        SystemStatusComponent,
         PickdateComponentModule,
         BaseChartDirective,
         BrowserAnimationsModule,
@@ -105,6 +150,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
             validators: [
                 { name: "ip", validation: IpValidator },
                 { name: "subnetmask", validation: SubnetmaskValidator },
+                { name: "person-name-prohibited-characters", validation: PersonNameProhibitedCharactersValidator },
             ],
             validationMessages: [
                 { name: "ip", message: IpValidatorMessage },
@@ -125,6 +171,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         TranslateModule,
         HelpPopoverButtonComponent,
         FlatWidgetButtonComponent,
+        HelpButtonComponent,
+        TimeLineComponent,
     ],
     declarations: [
         AppHeaderComponent,
@@ -155,6 +203,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         FormlySelectOptionsWithImageModalComponent,
     ],
     exports: [
+        SystemStatusComponent,
         AppHeaderComponent,
         BrowserAnimationsModule,
         ChartOptionsComponent,
@@ -178,6 +227,7 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         RouterModule,
         TranslateModule,
         PickDateTimeRangeComponent,
+        TimeLineComponent,
     ],
     providers: [
         AppStateTracker,
@@ -186,6 +236,8 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
         Service,
         Utils,
         Websocket,
+        // Use factory for formly. This allows us to use translations in validationMessages.
+        { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
     ],
 })
 
@@ -193,7 +245,13 @@ export class SharedModule {
 
     public static injector: Injector;
 
-    constructor(private injector: Injector) {
+    constructor(private injector: Injector, private translate: TranslateService) {
         SharedModule.injector = injector;
+
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 }

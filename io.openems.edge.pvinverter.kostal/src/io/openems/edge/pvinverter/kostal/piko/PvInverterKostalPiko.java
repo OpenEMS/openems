@@ -20,10 +20,10 @@ public interface PvInverterKostalPiko extends ManagedSymmetricPvInverter, Openem
 
 		// Total Energy values
 		TOTAL_YIELD(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.KILOWATT_HOURS)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 		DAY_YIELD(Doc.of(OpenemsType.LONG)//
-				.unit(Unit.KILOWATT_HOURS)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		// DC String 1

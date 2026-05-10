@@ -4,13 +4,18 @@ import io.openems.common.types.OptionsEnum;
 
 public enum SolverStrategy implements OptionsEnum {
 	UNDEFINED(-2, "Undefined"), //
+
+	// Solvers for PowerDistributionHandlerV1
 	NONE(-1, "None"), //
 	ALL_CONSTRAINTS(0, "All Constraints"), //
 	OPTIMIZE_BY_MOVING_TOWARDS_TARGET(1, "Optimize By Moving Towards Target"), //
 	OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER(2,
 			"Optimize By Keeping Target Direction And Maximizing In Order"), //
 	OPTIMIZE_BY_KEEPING_ALL_EQUAL(3, "Optimize By Keeping All Inverters Equal"),
-	OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL(4, "Optimize By Keeping All Inverters Nearly Equal"); //
+	OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL(4, "Optimize By Keeping All Inverters Nearly Equal"), //
+
+	// Solvers for PowerDistributionHandlerV2
+	BALANCE(10, "Optimize by Keeping ESS in Balance");
 
 	private final int value;
 	private final String name;

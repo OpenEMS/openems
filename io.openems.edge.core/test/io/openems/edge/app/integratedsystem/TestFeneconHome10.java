@@ -177,7 +177,7 @@ public class TestFeneconHome10 {
 		final var createResponse = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home", "key", "alias", createSettings));
 
-		assertEquals(4, createResponse.instance().dependencies.size());
+		assertEquals(5, createResponse.instance().dependencies.size());
 		assertFalse(this.appManagerTestBundle.sut.getInstantiatedApps().stream()
 				.anyMatch(a -> a.appId.equals("App.Ess.Limiter14a")));
 

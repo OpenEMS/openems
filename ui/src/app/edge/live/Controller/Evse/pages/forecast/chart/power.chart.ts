@@ -79,7 +79,10 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
         this.edge.sendRequest(
             this.websocket,
-            new ComponentJsonApiRequest({ componentId: this.component.id, payload: new GetScheduleRequest() }),
+            new ComponentJsonApiRequest({
+                componentId: "ctrlEvseCluster0",
+                payload: new GetScheduleRequest({ componentId: this.component.id }),
+            }),
         ).then(response => {
             const result = (response as GetScheduleResponse).result;
             const schedule = result.schedule;
@@ -171,8 +174,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
 
     private applyControllerSpecificOptions() {
         const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", ChartConstants.EMPTY_DATASETS, true);
+        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", this.datasets, true);
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
         this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");

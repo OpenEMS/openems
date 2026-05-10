@@ -1,5 +1,7 @@
 package io.openems.edge.ess.generic.common;
 
+import static io.openems.common.utils.IntUtils.maxInteger;
+import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
@@ -39,7 +41,7 @@ import io.openems.edge.ess.power.api.Constraint;
  * Parent class for different implementations of Managed Energy Storage Systems,
  * consisting of a Battery-Inverter component and a Battery component.
  */
-public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & CycleProvider, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
+public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss, BATTERY extends Battery, BATTERY_INVERTER extends ManagedSymmetricBatteryInverter>
 		extends AbstractOpenemsComponent implements GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
 		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
@@ -133,10 +135,10 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		// minimum of MaxAllowedCharge/DischargePower and MaxApparentPower
 		sb //
 				.append("|Allowed:") //
-				.append(TypeUtils.max(//
+				.append(maxInteger(//
 						this.getAllowedChargePower().get(), TypeUtils.multiply(this.getMaxApparentPower().get(), -1)))
 				.append(";") //
-				.append(TypeUtils.min(//
+				.append(minInteger(//
 						this.getAllowedDischargePower().get(), this.getMaxApparentPower().get()));
 	}
 
@@ -173,8 +175,8 @@ public abstract class AbstractGenericManagedEss<ESS extends SymmetricEss & Cycle
 		var constraints = this.getBatteryInverter().getStaticConstraints();
 
 		for (var c : constraints) {
-			result.add(this.getPower().createSimpleConstraint(c.description, this, c.phase, c.pwr, c.relationship,
-					c.value));
+			result.add(this.getPower().createSimpleConstraint(c.description(), this, c.phase(), c.pwr(),
+					c.relationship(), c.value()));
 		}
 
 		// If the GenericEss is not in State "STARTED" block ACTIVE and REACTIVE Power!

@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.predictor;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 
@@ -96,7 +96,7 @@ public class SimulatorPredictorImpl extends AbstractPredictor
 			}
 			values[i] = TypeUtils.averageInt(cache.poll(), cache.poll(), cache.poll());
 		}
-		var today = ZonedDateTime.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.DAYS);
+		var today = Instant.now(this.componentManager.getClock()).truncatedTo(ChronoUnit.DAYS);
 		return Prediction.from(today, values);
 	}
 }

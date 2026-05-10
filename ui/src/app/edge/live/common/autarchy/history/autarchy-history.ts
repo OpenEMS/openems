@@ -4,7 +4,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { ChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
 import { CommonAutarchyHistoryComponent } from "./new-navigation/new-navigation";
-import { OverviewComponent } from "./overview/overview";
+import { CommonAutarchyOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
@@ -14,14 +14,14 @@ import { OverviewComponent } from "./overview/overview";
     declarations: [
         FlatComponent,
         ChartComponent,
-        OverviewComponent,
+        CommonAutarchyOverviewComponent,
         CommonAutarchyHistoryComponent,
         ChartComponent,
     ],
     exports: [
         FlatComponent,
         ChartComponent,
-        OverviewComponent,
+        CommonAutarchyOverviewComponent,
         CommonAutarchyHistoryComponent,
     ],
 })

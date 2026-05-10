@@ -1,54 +1,22 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import java.util.ArrayList;
+
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 
 public record ComponentDef(String id, String alias, String factoryId, ComponentProperties properties,
 		Configuration config) {
 
-	public record Configuration(boolean installAlways) {
-
-		private Configuration(Builder builder) {
-			this(builder.installAlways);
-		}
+	public record Configuration(boolean installAlways, boolean forceUpdateOrCreate) {
 
 		/**
-		 * Creates a new Builder for {@link Configuration}.
-		 *
-		 * @return a new {@link Builder}
+		 * Creates a default {@link Configuration}.
+		 * 
+		 * @return the default {@link Configuration}
 		 */
-		public static Builder create() {
-			return new Builder();
-		}
-
-		/**
-		 * Builder class for {@link Configuration}.
-		 */
-		public static final class Builder {
-			private boolean installAlways = false;
-
-			private Builder() {
-			}
-
-			/**
-			 * Sets whether the component should always be installed.
-			 *
-			 * @param installAlways whether to always install
-			 * @return this builder
-			 */
-			public Builder installAlways(boolean installAlways) {
-				this.installAlways = installAlways;
-				return this;
-			}
-
-			/**
-			 * Builds the {@link Configuration} instance.
-			 *
-			 * @return the built {@link Configuration}
-			 */
-			public Configuration build() {
-				return new Configuration(this);
-			}
+		public static Configuration defaultConfig() {
+			return new Configuration(false, false);
 		}
 
 		/**
@@ -58,8 +26,48 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		 * @return copied {@link Configuration}
 		 */
 		public Configuration withInstallAlways(boolean installAlways) {
-			return Configuration.create().installAlways(installAlways).build();
+			return new Configuration(installAlways, this.forceUpdateOrCreate());
 		}
+
+		/**
+		 * Returns a copy of this {@link Configuration} with a new forceUpdateOrCreate
+		 * value.
+		 *
+		 * @param forceUpdateOrCreate new value
+		 * @return copied {@link Configuration}
+		 */
+		public Configuration withForceUpdateOrCreate(boolean forceUpdateOrCreate) {
+			return new Configuration(this.installAlways(), forceUpdateOrCreate);
+		}
+
+	}
+
+	/**
+	 * Returns a copy of this {@link ComponentDef} with the new properties.
+	 * 
+	 * @param properties the new properties
+	 * @return copied {@link ComponentDef}
+	 */
+	public ComponentDef withProperties(ComponentProperties properties) {
+		return new ComponentDef(this.id, this.alias, this.factoryId, properties, this.config);
+	}
+
+	/**
+	 * Returns a copy of this {@link ComponentDef} with the new properties added to
+	 * the current properties.
+	 * 
+	 * @param properties the properties to add
+	 * @return copied {@link ComponentDef}
+	 */
+	public ComponentDef withAdditionalProperties(ComponentProperties properties) {
+		if (this.properties.values().stream() //
+				.anyMatch(p1 -> properties.values().stream() //
+						.anyMatch(p2 -> p2.name().equals(p1.name())))) {
+			throw new IllegalArgumentException("Duplicated property found");
+		}
+		final var props = new ArrayList<>(this.properties.values());
+		props.addAll(properties.values());
+		return new ComponentDef(this.id, this.alias, this.factoryId, new ComponentProperties(props), this.config);
 	}
 
 	/**
@@ -84,6 +92,6 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 			return null;
 		}
 		return new ComponentDef(comp.getId(), comp.getAlias(), comp.getFactoryId(),
-				ComponentProperties.fromMap(comp.getProperties()), Configuration.create().build());
+				ComponentProperties.fromMap(comp.getProperties()), Configuration.defaultConfig());
 	}
 }

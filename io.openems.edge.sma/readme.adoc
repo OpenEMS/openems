@@ -5,14 +5,7 @@
 Tested on
 - SMA SunnyIsland 6.0H
 - Sunny Island 4.4M
-
-Implemented Natures:
-- SymmetricEss
-- ManagedSymmetricEss
-- AsymmetricEss
-- ManagedAsymmetricEss
-- SinglePhaseEss
-- ManagedSinglePhaseEss
+- SMA STP 10.0 Hybrid ESS. (The implementation is split into Battery, Inverter and DC Charger. The inverter only works with that battery, but the implementation had to be split up as the devices use different Modbus Unit IDs.)
 
 == Meter
 
@@ -30,9 +23,5 @@ Implemented Natures:
 Tested on
 - https://www.sma.de/produkte/solar-wechselrichter/sunny-tripower-80-100.html[SMA SUNNY TRIPOWER 8.0 / 10.0 ]
 - https://www.sma.de/produkte/solar-wechselrichter/sunny-tripower-15000tl-20000tl-25000tl.html[SMA SUNNY TRIPOWER 15000TL / 20000TL / 25000TL]
-
-Implemented Natures:
-- ElectricityMeter
-- ManagedSymmetricPvInverter
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.sma[Source Code icon:github[]]

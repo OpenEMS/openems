@@ -13,11 +13,11 @@ import org.junit.Test;
 
 import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.function.ThrowingFunction;
 import io.openems.common.bridge.http.BridgeHttpImpl;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.JsonUtils;
 
 public class BridgeHttpTest {

@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.app.ess.AppSohCycle.APP_ESS_SOH_CYCLE;
+import static io.openems.edge.app.ess.AppSohCycle.CTRL_ESS_SOH_CYCLE_0;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -16,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.integratedsystem.FeneconHome10;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
@@ -137,17 +140,6 @@ public class AppManagerImplTest {
 								.addProperty("rcrEnable", "DISABLE") //
 								.build()) //
 						.build()) //
-				.add("predictor0", JsonUtils.buildJsonObject() //
-						.addProperty("factoryId", "Predictor.PersistenceModel") //
-						.addProperty("alias", "Prognose") //
-						.add("properties", JsonUtils.buildJsonObject() //
-								.addProperty("enabled", true) //
-								.add("channelAddresses", JsonUtils.buildJsonArray() //
-										.add("_sum/ProductionActivePower") //
-										.add("_sum/ConsumptionActivePower") //
-										.build()) //
-								.build()) //
-						.build()) //
 				.add("ctrlGridOptimizedCharge0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Controller.Ess.GridOptimizedCharge") //
 						.addProperty("alias", "Netzdienliche Beladung") //
@@ -197,12 +189,51 @@ public class AppManagerImplTest {
 								.addProperty("endCondition", "CAPACITY_CHANGED") //
 								.build()) //
 						.build()) //
+				.add(CTRL_ESS_SOH_CYCLE_0, JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Controller.Ess.SoH.Cycle") //
+						.addProperty("alias", "Soh Zyklus") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.addProperty("ess.id", "ess0") //
+								.addProperty("isRunning", false) //
+								.addProperty("referenceCycleEnabled", false) //
+								.addProperty("logVerbosity", "NONE") //
+								.build()) //
+						.build()) //
+				.add("predictor0", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Predictor.PersistenceModel") //
+						.addProperty("alias", "Standardprognose") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.add("channelAddresses", JsonUtils.buildJsonArray() //
+										.add("_sum/ProductionActivePower") //
+										.add("_sum/ConsumptionActivePower") //
+										.build()) //
+								.build()) //
+						.build()) //
+				.add("predictor2", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "Predictor.ProfileClusteringModel") //
+						.addProperty("alias", "Verbrauchsprognose") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.build()) //
+						.build()) //
+				.add("system0", JsonUtils.buildJsonObject() //
+						.addProperty("factoryId", "System.Fenecon.Home") //
+						.addProperty("alias", "Status-LED") //
+						.add("properties", JsonUtils.buildJsonObject() //
+								.addProperty("enabled", true) //
+								.addProperty("relayId", "io1") //
+								.addProperty("ledOrder", "DEFAULT_RED_BLUE_GREEN") //
+								.build()) //
+						.build()) //
 				.add("scheduler0", JsonUtils.buildJsonObject() //
 						.addProperty("factoryId", "Scheduler.AllAlphabetically") //
 						.add("properties", JsonUtils.buildJsonObject() //
 								.addProperty("enabled", true) //
 								.add("controllers.ids", JsonUtils.buildJsonArray() //
 										.add("ctrlPrepareBatteryExtension0") //
+										.add(CTRL_ESS_SOH_CYCLE_0) //
 										.add("ctrlGridOptimizedCharge0") //
 										.add("ctrlEssSurplusFeedToGrid0") //
 										.add("ctrlBalancing0") //
@@ -293,6 +324,37 @@ public class AppManagerImplTest {
 										.addProperty("TARGET_SOC", 30) //
 										.build()) //
 								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", APP_ESS_SOH_CYCLE) //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.addProperty(AppSohCycle.Property.ESS_ID.name(), "ess0") //
+										.build()) //
+								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Prediction.Default") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.build()) //
+								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.Prediction.UnmanagedConsumption") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.build()) //
+								.build())
+						.add(JsonUtils.buildJsonObject() //
+								.addProperty("appId", "App.System.Fenecon.Home") //
+								.addProperty("alias", "") //
+								.addProperty("instanceId", UUID.randomUUID().toString()) //
+								.add("properties", JsonUtils.buildJsonObject() //
+										.addProperty("RELAY_ID", "io1") //
+										.addProperty("LED_ORDER", "DEFAULT_RED_BLUE_GREEN") //
+										.build()) //
+								.build())
 						.build().toString()) //
 				.build();
 
@@ -302,10 +364,13 @@ public class AppManagerImplTest {
 					Apps.gridOptimizedCharge(t), //
 					Apps.selfConsumptionOptimization(t), //
 					Apps.prepareBatteryExtension(t), //
-
+					Apps.sohCycle(t), //
+					Apps.stateLed(t), //
+					Apps.predictionDefault(t), //
+					Apps.predictionUnmanagedConsumption(t), //
 					this.kebaEvcsApp = Apps.kebaEvcs(t), //
 					this.awattarApp = Apps.awattarHourly(t), //
-					this.stromdao = Apps.stromdaoCorrently(t) //
+					this.stromdao = Apps.stromdaoCorrently(t)//
 			);
 		});
 	}
@@ -316,7 +381,7 @@ public class AppManagerImplTest {
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
 		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
-		assertEquals(this.appManagerTestBundle.sut.instantiatedApps.size(), 4);
+		assertEquals(8, this.appManagerTestBundle.sut.instantiatedApps.size());
 
 		this.appManagerTestBundle.assertNoValidationErrors();
 	}

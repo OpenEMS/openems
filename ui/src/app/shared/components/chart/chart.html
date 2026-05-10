@@ -3,7 +3,8 @@
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary);">
       <ion-title style="color: var(--ion-title-color);">{{title}}</ion-title>
       <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="end">
-        <oe-flat-button [link]="{ text: '/device/' + edge.id + newNavigationUrlSegment + '/history'}" color="light">
+        <oe-flat-button [link]="{ text: '/device/' + edge.id + newNavigationUrlSegment + '/history'}" color="light"
+          (click)="triggerResize()">
           <ion-icon name="close-outline" style="color: var(--ion-title-color);"></ion-icon>
         </oe-flat-button>
       </ion-buttons>
@@ -24,8 +25,7 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-content style="width: 100%;"
-    [style]="actionSheetModalHeight === 0 ? 'height: 87%; position: absolute;' : 'height: inherit'">
+  <ion-content>
     <ng-content></ng-content>
   </ion-content>
 }

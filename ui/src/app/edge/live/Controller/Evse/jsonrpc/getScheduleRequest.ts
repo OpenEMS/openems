@@ -8,7 +8,9 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
  *   "jsonrpc": "2.0",
  *   "id": "UUID",
  *   "method": "getSchedule",
- *   "params": {}
+ *   "params": {
+ *     "componentId": "string"
+ *   }
  * }
  * </pre>
  */
@@ -17,8 +19,11 @@ export class GetScheduleRequest extends JsonrpcRequest {
     private static METHOD: string = "getSchedule";
 
     public constructor(
+        public override readonly params: {
+            componentId: string
+        },
     ) {
-        super(GetScheduleRequest.METHOD, {});
+        super(GetScheduleRequest.METHOD, params);
     }
 
 }

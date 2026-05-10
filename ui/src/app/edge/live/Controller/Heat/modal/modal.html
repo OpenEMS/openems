@@ -8,7 +8,7 @@
     </oe-modal-line>
     <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEAT.TEMPERATURE' | translate"
       [channelAddress]="component.id + '/Temperature'"
-      [converter]="Utils.CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
+      [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
     </oe-modal-line>
     @if (isMyPV) {
       <table class="full_width" style="margin-top: 5%">

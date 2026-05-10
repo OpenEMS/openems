@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { EvcsComponent } from "src/app/shared/components/edge/components/evcsComponent";
+import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Formatter } from "src/app/shared/components/shared/formatter";
@@ -15,6 +15,7 @@ import { PopoverComponent } from "../popover/popover";
 
 type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
+    selector: "oe-controller-evcs-modal",
     templateUrl: "./modal.html",
     standalone: false,
 })
@@ -351,7 +352,7 @@ export class ModalComponent extends AbstractModal {
     */
     private getState(enabledCharging: boolean, state: number, plug: number): string {
 
-        if (enabledCharging === false) {
+        if (this.isReadWrite === true && enabledCharging === false) {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
         }
 

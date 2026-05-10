@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { format } from "date-fns";
 import { WebSocketSubject } from "rxjs/webSocket";
 import { environment } from "src/environments";
 import { JsonrpcNotification, JsonrpcRequest, JsonrpcResponse, JsonrpcResponseError, JsonrpcResponseSuccess } from "../jsonrpc/base";
@@ -21,33 +22,45 @@ export class WsData {
    * @param ws
    * @param request
    */
-    public sendRequest(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<JsonrpcResponseSuccess> {
+    public sendRequest<T extends JsonrpcResponseSuccess = JsonrpcResponseSuccess>(ws: WebSocketSubject<any>, request: JsonrpcRequest): Promise<T> {
         if (environment.debugMode) {
             if (request instanceof EdgeRpcRequest) {
-                console.info("Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
+                console.info(this.getLogPrefix() + " Request      [" + request.params.payload.method + ":" + request.params.edgeId + "]", request.params.payload.params);
             } else if (request instanceof AuthenticateWithPasswordRequest) {
-                console.info("Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
+                console.info(this.getLogPrefix() + " Request      [" + AuthenticateWithPasswordRequest.METHOD + "]");
             } else {
-                console.info("Request      [" + request.method + "]", request.params);
+                console.info(this.getLogPrefix() + " Request      [" + request.method + "]", request.params);
             }
         }
+
+        const sanitizedRequest: Exclude<JsonrpcRequest, "requiredState"> = request;
 
         // create Promise
         let promiseResolve: (value?: JsonrpcResponseSuccess | PromiseLike<JsonrpcResponseSuccess>) => void;
         let promiseReject: (reason?: any) => void;
-        const promise = new Promise<JsonrpcResponseSuccess>((resolve, reject) => {
+        const promise = new Promise<T>((resolve, reject) => {
             promiseResolve = resolve;
             promiseReject = reject;
         });
 
         // check for existing Promise with this JSON-RPC Request ID
-        if (request.id in this.requestPromises) {
+        if (sanitizedRequest.id in this.requestPromises) {
             promiseReject("ID already exists"); // TODO JSONRPC_ID_NOT_UNIQUE(4000)
 
         } else {
-            this.requestPromises[request.id] = { resolve: promiseResolve, reject: promiseReject };
-            ws.next(request);
+            this.requestPromises[sanitizedRequest.id] = { resolve: promiseResolve, reject: promiseReject };
+            ws.next(sanitizedRequest);
         }
+
+        promise.then((response) => {
+            if (environment.debugMode) {
+                if (sanitizedRequest instanceof EdgeRpcRequest) {
+                    console.info(this.getLogPrefix() + " Response     [" + sanitizedRequest.params.payload.method + ":" + sanitizedRequest.params.edgeId + "]", response.result["payload"]["result"]);
+                } else {
+                    console.info(this.getLogPrefix() + " Response     [" + request.method + "]", response.result);
+                }
+            }
+        });
 
         return promise;
     }
@@ -91,5 +104,9 @@ export class WsData {
             // TODO throw exception
             console.warn("Got Response without Request", response);
         }
+    }
+
+    private getLogPrefix(): string {
+        return environment.debugMode ? format(new Date(), "HH:mm:ss") : "";
     }
 }

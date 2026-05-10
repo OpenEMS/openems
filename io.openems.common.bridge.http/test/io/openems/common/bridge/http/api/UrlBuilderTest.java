@@ -1,12 +1,23 @@
 package io.openems.common.bridge.http.api;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.junit.Test;
 
 public class UrlBuilderTest {
+
+	@Test
+	public void testInitialPort() {
+		final var urlWithPort = UrlBuilder.parse("https://openems.io:443");
+		assertEquals(443, urlWithPort.port().intValue());
+
+		final var urlWithoutPort = UrlBuilder.parse("https://openems.io");
+		assertNull(urlWithoutPort.port());
+	}
 
 	@Test
 	public void testParse() {
@@ -112,6 +123,21 @@ public class UrlBuilderTest {
 				.withFragment("fragment");
 
 		assertEquals("https://openems.io:443/path?key=va%20lu%2Be#fragment", url.toEncodedString());
+	}
+
+	@Test
+	public void testEncodeFormUrlencodedBody() {
+		final var value = UrlBuilder.encodeFormUrlencodedBody(Map.of("key", "va lu+e"));
+
+		assertEquals("key=va%20lu%2Be", value);
+	}
+
+	@Test
+	public void testDecodeFormUrlencodedBody() {
+		final var values = UrlBuilder.decodeFormUrlencodedBody("key=va%20lu%2Be");
+
+		assertEquals(1, values.size());
+		assertEquals("va lu+e", values.get("key"));
 	}
 
 }

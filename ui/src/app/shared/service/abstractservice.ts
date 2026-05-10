@@ -21,7 +21,7 @@ export abstract class AbstractService extends ErrorHandler {
     abstract setLang(language: Language): void;
 
     /**
-   * Returns the configured language for docs.fenecon.de
+   * Returns the configured language for documentation
    */
     abstract getDocsLang(): string;
 

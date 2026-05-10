@@ -122,7 +122,7 @@ export class PickDatePopoverComponent implements OnInit {
 
     ngOnInit() {
 
-        this.locale = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).key;
+        this.locale = Language.getCurrentLanguage().key;
         // Restrict user to pick date before ibn-date
         this.myDpOptions.disableUntil = { day: Utils.subtractSafely(getDate(this.edge?.firstSetupProtocol), 1) ?? 1, month: Utils.addSafely(getMonth(this.edge?.firstSetupProtocol), 1) ?? 1, year: this.edge?.firstSetupProtocol?.getFullYear() ?? 2013 };
 

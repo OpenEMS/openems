@@ -1,10 +1,14 @@
 package io.openems.edge.battery.protection;
 
+import java.util.function.IntSupplier;
+
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public interface BatteryProtectionDefinition {
+
+	public static final IntSupplier DEFAULT_FORCE_CHARGE_DISCHARGE_CURRENT = () -> 2;
 
 	/**
 	 * Defines the (estimated) maximum expected Charge current.
@@ -112,4 +116,12 @@ public interface BatteryProtectionDefinition {
 	 */
 	public Double getMaxIncreaseAmperePerSecond();
 
+	/**
+	 * Provides a IntSupplier to get the force charge/discharge current in [A].
+	 *
+	 * @return IntSupplier that provides the force current.
+	 */
+	public default IntSupplier getForceChargeDischargeCurrent() {
+		return DEFAULT_FORCE_CHARGE_DISCHARGE_CURRENT;
+	}
 }

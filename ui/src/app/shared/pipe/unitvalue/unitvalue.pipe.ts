@@ -18,7 +18,7 @@ export class UnitvaluePipe implements PipeTransform {
             return "-" + "\u00A0";
         } else {
             // Changes the number format based on the language selected.
-            const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+            const locale: string = Language.geti18nLocale();
 
             if (unit == "kWh" || unit == "kW") {
                 return this.decimalPipe.transform(value / 1000, "1.0-1", locale) + "\u00A0" + unit;

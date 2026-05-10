@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,17 +22,21 @@ import com.google.gson.JsonNull;
 import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtilImpl;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.jsonrpc.GetEstimatedConfiguration;
@@ -168,18 +176,24 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				}
 
 				// check if it is my component
-				if (otherAppComponents.stream().anyMatch(t -> t.id().equals(foundComponentWithSameId.getId()))) {
-					// not my component but only the alias changed
-					if (isSameConfigWithoutAlias) {
-						// TODO maybe warning if the alias can't be set
+				final var componentFromOtherApp = otherAppComponents.stream() //
+						.filter(t -> t.id().equals(comp.id())) //
+						.reduce(ComponentAggregateTaskImpl::reduceBasedOnPriority) //
+						.orElse(null);
+
+				var componentToUpdate = comp;
+				if (componentFromOtherApp != null) {
+					try {
+						componentToUpdate = reduceBasedOnPriorityThrowing(componentFromOtherApp, comp);
+					} catch (OpenemsRuntimeException e) {
+						errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
+								+ "' can not be rewritten. Because the component belongs to another app. "
+								+ e.getMessage());
 						continue;
 					}
-					errors.add("Configuration of component with id '" + foundComponentWithSameId.getId()
-							+ "' can not be rewritten. Because the component belongs to another app.");
-					continue;
 				}
 				try {
-					this.reconfigure(user, comp, foundComponentWithSameId);
+					this.reconfigure(user, componentToUpdate, foundComponentWithSameId);
 				} catch (OpenemsNamedException e) {
 					errors.add(e.getMessage());
 				}
@@ -223,7 +237,13 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		List<String> errors = new ArrayList<>();
 		var notMyComponents = AppConfiguration.getComponentsFromConfigs(otherAppConfigurations);
 		for (var comp : this.components2Delete) {
-			if (notMyComponents.stream().anyMatch(t -> t.id().equals(comp.id()))) {
+			final var componentFromOtherApp = notMyComponents.stream() //
+					.filter(t -> t.id().equals(comp.id())) //
+					.reduce(ComponentAggregateTaskImpl::reduceBasedOnPriority) //
+					.orElse(null);
+			if (componentFromOtherApp != null) {
+				// TODO
+				this.reconfigure(user, componentFromOtherApp, comp.id());
 				continue;
 			}
 			var component = this.componentManager.getEdgeConfig().getComponent(comp.id()).orElse(null);
@@ -245,6 +265,40 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		}
 	}
 
+	private static ComponentDef reduceBasedOnPriority(//
+			ComponentDef componentDef, //
+			ComponentDef componentDef2, //
+			Consumer<String> errorResolver //
+	) {
+		final var properties = Stream
+				.concat(componentDef.properties().values().stream(), componentDef2.properties().values().stream())
+				.collect(StreamUtils.distinctByKey(ComponentProperties.Property::name, (property1, property2) -> {
+					if (property1.priority().isSame(property2.priority())) {
+						if (!property1.value().equals(property2.value())) {
+							errorResolver.accept("Unable to get value based on priority");
+						}
+						return property1;
+					}
+					if (property1.priority().isGreaterThan(property2.priority())) {
+						return property1;
+					}
+					return property2;
+				})) //
+				.toList();
+
+		return componentDef.withProperties(new ComponentProperties(properties));
+	}
+
+	private static ComponentDef reduceBasedOnPriority(ComponentDef componentDef, ComponentDef componentDef2) {
+		return reduceBasedOnPriority(componentDef, componentDef2, FunctionUtils::doNothing);
+	}
+
+	private static ComponentDef reduceBasedOnPriorityThrowing(ComponentDef componentDef, ComponentDef componentDef2) {
+		return reduceBasedOnPriority(componentDef, componentDef2, s -> {
+			throw new OpenemsRuntimeException(s);
+		});
+	}
+
 	@Override
 	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
 		return new ComponentAggregatedExecutionConfiguration(this.components);
@@ -260,9 +314,14 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 	public void validate(//
 			final List<String> errors, //
 			final AppConfiguration appConfiguration, //
-			final ComponentConfiguration config //
+			final ComponentConfiguration config, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		var actualEdgeConfig = this.componentManager.getEdgeConfig();
+
+		final var componentsById = allConfigurations.values().stream() //
+				.flatMap(t -> t.getComponents().stream()) //
+				.collect(Collectors.groupingBy(ComponentDef::id));
 
 		var missingComponents = new ArrayList<String>();
 		for (var expectedComponent : config.components()) {
@@ -276,6 +335,17 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 				missingComponents.add(componentId);
 				continue;
 			}
+
+			final var componentFromOtherInstances = Optional.ofNullable(componentsById.get(componentId)) //
+					.flatMap(t -> t.stream().reduce(ComponentAggregateTaskImpl::reduceBasedOnPriority)) //
+					.orElse(null);
+
+			if (componentFromOtherInstances != null) {
+				ComponentUtilImpl.isSameConfigurationWithoutAlias(errors,
+						reduceBasedOnPriority(expectedComponent, componentFromOtherInstances), actualComponent);
+				continue;
+			}
+
 			// ALIAS should not be validated because it can be different depending on the
 			// language
 			ComponentUtilImpl.isSameConfigurationWithoutAlias(errors, expectedComponent, actualComponent);
@@ -323,6 +393,10 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 			return;
 		}
 
+		this.reconfigure(user, myComp, actualComp.getId());
+	}
+
+	private void reconfigure(User user, ComponentDef myComp, String componentId) throws OpenemsNamedException {
 		// send update request
 		List<Property> properties = myComp.properties().values().stream()//
 				.map(t -> new Property(t.name(), t.value())) //
@@ -330,7 +404,7 @@ public class ComponentAggregateTaskImpl implements ComponentAggregateTask {
 		properties.add(new Property("alias", myComp.alias()));
 
 		this.componentManager.handleUpdateComponentConfigRequest(user,
-				new UpdateComponentConfig.Request(actualComp.getId(), properties));
+				new UpdateComponentConfig.Request(componentId, properties));
 	}
 
 	@Override

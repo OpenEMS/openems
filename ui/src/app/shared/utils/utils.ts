@@ -5,7 +5,7 @@ import { ChartDataset } from "chart.js";
 import { saveAs } from "file-saver-es";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Language } from "src/app/shared/type/language";
-import { EvcsComponent } from "../components/edge/components/evcsComponent";
+import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { Base64PayloadResponse } from "../jsonrpc/response/base64PayloadResponse";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
@@ -182,7 +182,7 @@ export class Utils {
         const set2 = new Set(v2);
 
         return v1.every(item => set2.has(item)) &&
-      v2.every(item => set1.has(item));
+            v2.every(item => set1.has(item));
     }
 
     public static getRandomInteger(min: number, max: number) {
@@ -319,7 +319,11 @@ export class Utils {
    * @param value the value from passed value in html
    * @returns converted value
    */
-    public static CONVERT_TO_WATTHOURS = (value: number): string => {
+    public static CONVERT_TO_WATTHOURS = (value: number | null): string => {
+        if (value == null) {
+            return "";
+        }
+
         const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         return formatNumber(value, locale, "1.0-1") + " Wh";
     };
@@ -333,17 +337,6 @@ export class Utils {
     public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
         const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
-    };
-
-    /**
-   * Converts a value in DEZIDEGREE_CELSIUS [dC] to DEGREE_CELSIUS [°C]
-   *
-   * @param value the value from passed value in html
-   * @returns converted value
-   */
-    public static CONVERT_DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS = (value: number): string => {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
-        return formatNumber(Utils.divideSafely(value, 10), locale, "1.0-1") + " °C";
     };
 
     /**
@@ -426,6 +419,8 @@ export class Utils {
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
                 case 3:
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+                case 5:
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
                 default: // Usually "1"
                     return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
             }
@@ -461,8 +456,8 @@ export class Utils {
    * @param filename the filename without .xlsx suffix
    */
     public static downloadXlsx(response: Base64PayloadResponse, filename: string) {
-    // decode base64 string, remove space for IE compatibility
-    // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
+        // decode base64 string, remove space for IE compatibility
+        // source: https://stackoverflow.com/questions/36036280/base64-representing-pdf-to-blob-javascript/45872086
         const binary = atob(response.result.payload.replace(/\s/g, ""));
         const len = binary.length;
         const buffer = new ArrayBuffer(len);
@@ -521,8 +516,7 @@ export class Utils {
             } else {
                 return /* min 0 */ Math.max(0,
                     /* max 100 */ Math.min(100,
-                        /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100,
-                    ));
+                        /* calculate autarchy */(1 - buyFromGrid / consumptionActivePower) * 100));
             }
 
         } else {
@@ -537,16 +531,6 @@ export class Utils {
    */
     public static roundSlightlyNegativeValues(value: number | null): number | null {
         return (value > -0.49 && value < 0) ? 0 : value;
-    }
-
-    /**
-   * Shuffles an array
-   *
-   * @param array the array to be shuffled
-   * @returns the shuffled array
-   */
-    public static shuffleArray<T>(array: T[]): T[] {
-        return array.sort(() => Math.random() - 0.5);
     }
 
     /**
@@ -795,7 +779,7 @@ export namespace HistoryUtils {
     };
 
     export class ChartData {
-    /** Static empty instance */
+        /** Static empty instance */
         public static readonly EMPTY = new ChartData();
 
         constructor(
@@ -824,7 +808,7 @@ export namespace HistoryUtils {
     }
 
     export type yAxes = {
-    /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
+        /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
         unit: YAxisType,
         position: "left" | "right" | "bottom" | "top",
         yAxisId: ChartAxis,
@@ -886,6 +870,7 @@ export namespace TimeOfUseTariffUtils {
         DelayDischarge = 0,
         Balancing = 1,
         ChargeGrid = 3,
+        PeakShaving = 5,
     }
 
     /**
@@ -925,6 +910,7 @@ export namespace TimeOfUseTariffUtils {
         const dischargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
         const chargeConsumptionLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
         const balancingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
+        const peakShavingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
         const gridBuyLabel = translate.instant("GENERAL.GRID_BUY");
 
         // Switch case to handle different labels
@@ -935,6 +921,7 @@ export namespace TimeOfUseTariffUtils {
             case dischargeLabel:
             case chargeConsumptionLabel:
             case balancingLabel:
+            case peakShavingLabel:
                 return label + ": " + formatNumber(value, locale, ChartConstants.NumberFormat.TWO) + " " + currencyLabel;
 
             default:

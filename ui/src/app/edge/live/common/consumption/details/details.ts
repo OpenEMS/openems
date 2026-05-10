@@ -6,6 +6,7 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedConsumption } from "../shared/shared";
 
 @Component({
+    selector: "oe-common-consumption-details",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

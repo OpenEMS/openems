@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -27,7 +26,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -81,13 +79,6 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.API };
 	}
@@ -107,18 +98,18 @@ public class AppEnerixControl extends AbstractOpenemsAppWithProps<AppEnerixContr
 		return (t, p, l) -> {
 			final var id = this.getId(t, p, Property.CONTROLLER_ID);
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var url = this.getString(p, Property.URL);
+			final var url = this.getValueOrDefault(p, Property.URL, null);
 
 			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(id, alias, "Controller.Clever-PV", //
 							JsonUtils.buildJsonObject()//
 									.addProperty("url", url)//
 									.addProperty("readOnly", false)//
-									.addProperty("mode", "OFF")//
 									.build()));
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(components)).addTask(Tasks.schedulerByCentralOrder(//
+					.addTask(Tasks.component(components)) //
+					.addTask(Tasks.schedulerByCentralOrder(//
 							new SchedulerComponent(id, "Controller.Clever-PV", this.getAppId()))) //
 					.build();
 		};

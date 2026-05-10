@@ -1,12 +1,26 @@
 import { Component } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { BaseChartDirective } from "ng2-charts";
+import { NgxSpinnerModule } from "ngx-spinner";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { ChannelAddress } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
-    selector: "currentVoltageChart",
+    selector: "oe-current-voltage-chart",
     templateUrl: "../../../../../components/chart/abstracthistorychart.html",
-    standalone: false,
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        BaseChartDirective,
+        ReactiveFormsModule,
+        ChartComponentsModule,
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+    ],
 })
 export class CurrentVoltageSymmetricChartComponent extends AbstractHistoryChart {
 

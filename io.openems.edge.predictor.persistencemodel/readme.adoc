@@ -1,4 +1,4 @@
-= Persistence-Model Predictor
+= Persistence-Model
 
 Predicts values using the 'same-as-last-day' approach.
 

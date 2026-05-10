@@ -14,7 +14,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private Mode mode;
 		private String electricVehicleId;
 		private PhaseSwitching phaseSwitching;
-		private String smartConfig;
+		private String oneShot;
+		private String jsCalendar;
 		private int manualEnergySessionLimit;
 		private LogVerbosity logVerbosity;
 
@@ -46,8 +47,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setSmartConfig(String smartConfig) {
-			this.smartConfig = smartConfig;
+		public Builder setOneShot(String oneShot) {
+			this.oneShot = oneShot;
+			return this;
+		}
+		
+		public Builder setJsCalendar(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 
@@ -103,8 +109,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String smartConfig() {
-		return this.builder.smartConfig;
+	public String oneShot() {
+		return this.builder.oneShot;
+	}
+
+	@Override
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 
 	@Override

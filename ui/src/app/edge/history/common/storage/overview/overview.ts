@@ -28,7 +28,7 @@ import { StorageTotalChartComponent } from "../chart/totalchart";
         FooterNavigationComponentsModule,
     ],
 })
-export class OverviewComponent extends AbstractHistoryChartOverview {
+export class CommonStorageOverviewComponent extends AbstractHistoryChartOverview {
 
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected navigationButtons: NavigationOption[] = [];

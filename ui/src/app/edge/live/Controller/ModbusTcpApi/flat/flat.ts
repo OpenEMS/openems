@@ -28,6 +28,9 @@ export class FlatComponent extends AbstractFlatWidget {
     };
 
     protected override getChannelAddresses(): ChannelAddress[] {
+        if (this.component == null) {
+            return [];
+        }
 
         return [
             new ChannelAddress(this.component.id, "OverrideStatus"),
@@ -35,6 +38,9 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+        if (this.component == null) {
+            return;
+        }
         this.overrideStatus = this.getTranslatedState(currentData.allComponents[this.component.id + "/OverrideStatus"]);
     }
 

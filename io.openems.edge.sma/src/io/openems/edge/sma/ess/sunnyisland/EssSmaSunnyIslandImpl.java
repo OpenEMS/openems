@@ -5,12 +5,12 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,6 +20,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -46,14 +47,15 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.sma.ess.sunnyisland.enums.PowerSupplyStatus;
-import io.openems.edge.sma.ess.sunnyisland.enums.SetControlMode;
+import io.openems.edge.sma.ess.enums.PowerSupplyStatus;
+import io.openems.edge.sma.ess.enums.SetControlMode;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Ess.SMA.SunnyIsland", //
 		immediate = true, //
 		configurationPolicy = REQUIRE)
+@GenerateTargetsFromReferences("Modbus")
 public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, ModbusComponent, OpenemsComponent {
@@ -61,11 +63,10 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private Power power;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -91,10 +92,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 
 		// Evaluate 'SinglePhase'
 		this.singlePhase = switch (config.phase()) {
@@ -109,7 +107,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		}
 
 		this._setCapacity(Math.max(0, config.capacity()));
-		this._setGridMode(GridMode.ON_GRID);
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID);
 	}
 
 	@Override
@@ -241,7 +239,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 											gridMode = GridMode.UNDEFINED;
 										}
 									}
-									this._setGridMode(gridMode);
+									setValue(this, SymmetricEss.ChannelId.GRID_MODE, gridMode);
 
 									return intValue;
 								}))),

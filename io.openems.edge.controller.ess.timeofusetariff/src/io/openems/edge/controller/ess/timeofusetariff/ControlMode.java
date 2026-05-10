@@ -1,5 +1,11 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+
+import java.util.Arrays;
+
+import com.google.common.collect.ImmutableList;
+
 public enum ControlMode {
 	/**
 	 * Delays discharge during low-price hours.
@@ -26,9 +32,13 @@ public enum ControlMode {
 			StateMachine.DISCHARGE_GRID //
 	);
 
-	public final StateMachine[] modes;
+	public final ImmutableList<StateMachine> modes;
+	@Deprecated
+	public final StateMachine[] modesArray;
 
 	private ControlMode(StateMachine... modes) {
-		this.modes = modes;
+		this.modesArray = modes;
+		this.modes = Arrays.stream(modes) //
+				.collect(toImmutableList());
 	}
 }

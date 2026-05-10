@@ -1,11 +1,8 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
-import static io.openems.edge.energy.api.simulation.Coefficient.ESS;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;
-import static org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -21,7 +18,7 @@ public class EnergySchedulerTest {
 		var esh = EnergyScheduler.buildEnergyScheduleHandler(new DummyController("ctrl0"), () -> null);
 		var t = EnergyScheduleTester.from(esh);
 		var t0 = t.simulatePeriod();
-		assertEquals(4000 /* no discharge limitation */, (int) t0.ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
+		assertEquals(4000 /* no discharge limitation */, t0.ef().setEss(4000));
 	}
 
 	@Test
@@ -33,8 +30,7 @@ public class EnergySchedulerTest {
 
 		var t = EnergyScheduleTester.from(esh);
 		var t0 = t.simulatePeriod();
-		assertEquals(500 /* max limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
-		assertEquals(500 /* min limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MINIMIZE));
+		assertEquals(500 /* max limited */, t0.ef().setEss(4000));
 	}
 
 	@Test
@@ -44,9 +40,7 @@ public class EnergySchedulerTest {
 		var t = EnergyScheduleTester.from(esh);
 
 		var t0 = t.simulatePeriod();
-		t0.ef().logMinMaxValues();
-		assertEquals(4000 /* max not limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
-		assertEquals(500 /* min limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MINIMIZE));
+		assertEquals(500 /* max limited */, t0.ef().setEss(4000));
 	}
 
 	@Test
@@ -56,8 +50,6 @@ public class EnergySchedulerTest {
 		var t = EnergyScheduleTester.from(esh);
 
 		var t0 = t.simulatePeriod();
-		t0.ef().logMinMaxValues();
-		assertEquals(500 /* max limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MAXIMIZE));
-		assertEquals(-3894 /* min not limited */, (int) t0.ef().getExtremeCoefficientValue(ESS, MINIMIZE));
+		assertEquals(500 /* max limited */, t0.ef().setEss(4000));
 	}
 }

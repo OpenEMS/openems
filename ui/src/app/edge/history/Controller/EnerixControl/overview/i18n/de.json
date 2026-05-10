@@ -1,3 +1,5 @@
 {
-  "LEGEND_DESCRIPTION": "Legende Betriebszustand"
+    "ENERIX_CONTROL": {
+        "LEGEND_DESCRIPTION": "Legende Betriebszustand"
+    }
 }

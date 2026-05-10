@@ -34,7 +34,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.lowPrice = lowPrice;
 			return this;
 		}
-		
+
 		public Builder setAncillaryCosts(String ancillaryCosts) {
 			this.ancillaryCosts = ancillaryCosts;
 			return this;
@@ -75,7 +75,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public double lowPrice() {
 		return this.builder.lowPrice;
 	}
-	
+
 	@Override
 	public String ancillaryCosts() {
 		return this.builder.ancillaryCosts;

@@ -1,5 +1,6 @@
 package io.openems.edge.pvinverter.kostal;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
 import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -22,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -29,7 +31,6 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
@@ -46,8 +47,9 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE, //
+		TOPIC_CYCLE_EXECUTE_WRITE, //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class PvInverterKostalImpl extends AbstractSunSpecPvInverter implements PvInverterKostal, SunSpecPvInverter,
 		ManagedSymmetricPvInverter, ElectricityMeter, ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
 
@@ -69,7 +71,9 @@ public class PvInverterKostalImpl extends AbstractSunSpecPvInverter implements P
 	private ConfigurationAdmin cm;
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -88,11 +92,8 @@ public class PvInverterKostalImpl extends AbstractSunSpecPvInverter implements P
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(),
-				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK,
-				SingleOrAllPhase.ALL)) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK, SingleOrAllPhase.ALL);
 	}
 
 	@Override

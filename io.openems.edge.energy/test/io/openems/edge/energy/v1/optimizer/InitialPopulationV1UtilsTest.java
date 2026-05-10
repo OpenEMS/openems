@@ -35,7 +35,7 @@ public class InitialPopulationV1UtilsTest {
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.modes) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.modesArray) //
 					.setExistingSchedule(prepareExistingSchedule(TIME)) //
 					.build());
 			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
@@ -46,7 +46,7 @@ public class InitialPopulationV1UtilsTest {
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.modes) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.modesArray) //
 					.setExistingSchedule(prepareExistingSchedule(TIME, BALANCING, BALANCING)) //
 					.build());
 			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
@@ -57,7 +57,7 @@ public class InitialPopulationV1UtilsTest {
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.modes) //
+					.setStates(ControlMode.CHARGE_CONSUMPTION.modesArray) //
 					.setExistingSchedule(prepareExistingSchedule(TIME, //
 							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
 					.build()).get(1);
@@ -74,7 +74,7 @@ public class InitialPopulationV1UtilsTest {
 					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(TO_ENERGY).toArray()) //
 					.setPrices(hourlyToQuarterly(interpolateDoubleArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.DELAY_DISCHARGE.modes) //
+					.setStates(ControlMode.DELAY_DISCHARGE.modesArray) //
 					.setExistingSchedule(prepareExistingSchedule(TIME, //
 							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
 					.build()).get(1);

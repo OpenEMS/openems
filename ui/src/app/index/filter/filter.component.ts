@@ -1,18 +1,18 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { v4 as uuidv4 } from "uuid";
 
+import { v4 as uuidv4 } from "uuid";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { Service } from "src/app/shared/shared";
 import { TKeyValue } from "src/app/shared/type/utility";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { JsonUtils } from "src/app/shared/utils/json/json-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 
 @Component({
     selector: "oe-filter",
     templateUrl: "./filter.component.html",
-    standalone: true,
     imports: [
         CommonUiModule,
     ],
@@ -23,17 +23,25 @@ export class FilterComponent {
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected defaultFilterValues: FilterCategory = {};
     protected allFilters: (Filter<string | null> | SortOrderFilter | null)[] = [];
+    protected columnSize: number = 0;
 
     constructor(public service: Service) { }
 
-    @Input() public set filters(_filters: (Filter<string> | SortOrderFilter)[]) {
+    @Input() public set filters(_filters: typeof this.allFilters) {
+
+        if (ArrayUtils.arraysDeepEqualHash<Filter<string | null> | SortOrderFilter | null>(this.allFilters, _filters)) {
+            return;
+        }
+
         this.allFilters = _filters
-            .filter(f => f != null)
-            .map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION);
+            ?.filter(f => f != null)
+            ?.map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION) ?? null;
 
         if (this.allFilters == null || this.allFilters.length === 0) {
             return;
         }
+
+        this.columnSize = Math.max(NumberUtils.divideSafely(12, this.allFilters.length) ?? 0, 4);
 
         this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.allFilters);
 
@@ -173,6 +181,10 @@ export class FilterComponent {
         const ids: string[] = Array.isArray(input) ? input : [input];
         const values = FilterComponent.getFilterValues(ids, filter).flat();
 
+        if (JSON.stringify(this.searchParams.get(filter.category)) === JSON.stringify(values)) {
+            return;
+        }
+
         let additionalFilter: ChosenFilter | null = null;
         if (filter.setAdditionalFilter) {
             additionalFilter = filter.setAdditionalFilter();
@@ -186,10 +198,10 @@ export class FilterComponent {
             }
         } else {
             this.searchParams.set(filter.category, values);
-        }
 
-        if (additionalFilter) {
-            this.searchParams.set(additionalFilter.key, additionalFilter.value);
+            if (additionalFilter) {
+                this.searchParams.set(additionalFilter.key, additionalFilter.value);
+            }
         }
 
         this.persistSelection(filter);

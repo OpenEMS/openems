@@ -6,7 +6,7 @@ import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/view-component/help-popover/help-popover";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { AlertingComponent } from "../alerting.component";
+import { AlertingComponent } from "../component/alerting.component";
 
 @Component({
     selector: "formly-other-users-alerting",

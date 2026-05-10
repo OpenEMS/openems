@@ -1,8 +1,10 @@
 package io.openems.edge.predictor.production.linearmodel;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
+import static java.time.temporal.ChronoUnit.HOURS;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -91,9 +93,9 @@ public class PredictionPersistenceService {
 	 *                   for different time horizons
 	 */
 	public void updatePredictionAheadChannels(Prediction prediction) {
-		var now = roundDownToQuarter(ZonedDateTime.now(this.clockSupplier.get()));
+		var now = roundDownToQuarter(Instant.now(this.clockSupplier.get()));
 		for (var channelMapping : this.channelMappings) {
-			var value = prediction.getAt(now.plusHours(channelMapping.hoursAhead()));
+			var value = prediction.getAt(now.plus(channelMapping.hoursAhead(), HOURS));
 			channelMapping.predictionAheadSetter.accept(value);
 		}
 	}
@@ -110,7 +112,7 @@ public class PredictionPersistenceService {
 								channelMapping.channelAheadAddress())//
 								.orElse(null));
 			} catch (OpenemsNamedException e) {
-				this.log.error("Failed to shift prediction for channel {} ({}h ahead)", //
+				this.log.info("Failed to shift prediction for channel {} ({}h ahead)", //
 						channelMapping.channelAheadAddress(), //
 						channelMapping.hoursAhead(), //
 						e);
@@ -160,6 +162,11 @@ public class PredictionPersistenceService {
 						parent.getPrediction1hAheadChannel().address(), //
 						parent::_setPrediction1hAhead, //
 						parent::_setPrediction1hRealized), //
+				new ChannelMapping(//
+						3, //
+						parent.getPrediction3hAheadChannel().address(), //
+						parent::_setPrediction3hAhead, //
+						parent::_setPrediction3hRealized), //
 				new ChannelMapping(//
 						6, //
 						parent.getPrediction6hAheadChannel().address(), //

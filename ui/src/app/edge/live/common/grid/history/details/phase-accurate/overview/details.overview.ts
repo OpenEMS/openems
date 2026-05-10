@@ -8,6 +8,7 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
+    selector: "oe-common-grid-history-details-phase-accurate-overview",
     templateUrl: "./details.overview.html",
     standalone: false,
 })

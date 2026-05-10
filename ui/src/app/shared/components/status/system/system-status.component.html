@@ -1,0 +1,7 @@
+@if(icon !== null){
+  <ion-button (keydown.enter)="presentSingleStatusModal()" class="ion-toolbar-button"
+    (click)="presentSingleStatusModal()" fill="solid" shape="round">
+    <ion-icon [color]="icon.color" [name]="icon.name" size="medium"
+      [style]="'font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(' + icon.style + '));'"></ion-icon>
+  </ion-button>
+}

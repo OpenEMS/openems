@@ -17,7 +17,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -55,8 +54,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"ACCESS_TOKEN": {token},
-    	"CONTROL_MODE": {@link ControlMode}
+    	"ACCESS_TOKEN": {token}
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -90,12 +88,12 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 											return null;
 										}
 										return new JsonPrimitive("xxx");
-									}) //
+									})//
 									.orElse(null);
 						}))), //
 		MULTIPLE_HOMES_CHECK(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label") //
-				.setDefaultValue(false) //
+				.setTranslatedLabelWithAppPrefix(".multipleHomesCheck.label")//
+				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))),
 		FILTER(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".filterForHome.label") //
@@ -103,7 +101,7 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 				.setDefaultValue("") //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(MULTIPLE_HOMES_CHECK).notNull());
-				}) //
+				})//
 				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "filter",
 						ComponentManagerSupplier::getComponentManager))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
@@ -172,13 +170,6 @@ public class Tibber extends AbstractOpenemsAppWithProps<Tibber, Property, Type.P
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

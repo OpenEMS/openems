@@ -1,18 +1,19 @@
 // @ts-strict-ignore
-import { Component, effect, OnDestroy } from "@angular/core";
+import { Component, effect, model, OnDestroy, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, ViewWillEnter } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Subject } from "rxjs";
-import { filter, take } from "rxjs/operators";
+import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
+import { ORDER_STATES } from "../shared/order-state";
 import { SUM_STATES } from "../shared/sumState";
 
 @Component({
@@ -29,15 +30,12 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public loggedInUserCanInstall: boolean = false;
 
     public form: FormGroup;
-    public filteredEdges: Edge[] = [];
+    public filteredEdges = model<Edge[]>([]);
 
-    protected loading: boolean = false;
+    protected loading = signal(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
-    protected isAtLeastInstaller: boolean = false;
-    protected readonly filters: FilterComponent["allFilters"] = [
-        environment.PRODUCT_TYPES(this.translate),
-        SUM_STATES(this.translate),
-    ];
+    protected isAtLeastOwner: boolean = false;
+    protected filters: FilterComponent["allFilters"] | null = null;
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -48,7 +46,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if all available edges for this user had been retrieved */
     private limitReached: boolean = false;
 
-    private lastReqId: string | null = null;
+    private sub: Subscription = new Subscription();
 
     constructor(
         public service: Service,
@@ -59,24 +57,41 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         protected route: ActivatedRoute,
         private router: Router,
         private userService: UserService,
+        private platform: Platform,
     ) {
 
-        effect(() => {
+        effect(async () => {
             const user = this.userService.currentUser();
-
             if (user) {
-                this.isAtLeastInstaller = user.isAtLeast(Role.INSTALLER);
+                this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
+                this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
+
+                this.filters = [
+                    ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
+                    ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
+                ];
+                this.filteredEdges.set(await this.loadNextPage());
             }
         });
     }
 
     ionViewWillEnter() {
         this.page = 0;
-        this.filteredEdges = [];
         this.limitReached = false;
-        this.service.metadata.pipe(filter(metadata => !!metadata), take(1)).subscribe(() => {
-            this.init();
-        });
+    }
+
+    ionViewDidEnter() {
+        // TODO implement gestures
+        // prevent url segment pop by back navigation gesture
+        this.sub = this.platform.backButton.subscribeWithPriority(1, () => { });
+    }
+
+    ionViewWillLeave() {
+        this.filteredEdges.set([]);
+        this.sub?.unsubscribe();
+        this.page = 0;
+        this.limitReached = false;
+        this.ngOnDestroy();
     }
 
     /**
@@ -88,7 +103,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         setTimeout(() => {
             this.page++;
             this.loadNextPage().then((edges) => {
-                this.filteredEdges.push(...edges);
+                this.filteredEdges.update(el => { el.push(...edges); return el; });
                 infiniteScroll.target.complete();
             }).catch(() => {
                 infiniteScroll.target.complete();
@@ -103,7 +118,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
 
     loadNextPage(): Promise<Edge[]> {
 
-        this.loading = true;
+        this.loading.set(true);
         return new Promise<Edge[]>((resolve, reject) => {
             if (this.limitReached) {
                 resolve([]);
@@ -123,24 +138,38 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
 
-            this.lastReqId = req.id;
-
             this.service.getEdges(req)
                 .then((edges) => {
-                    if (this.lastReqId !== req.id) {
-                        resolve(this.filteredEdges);
-                    }
+
                     this.limitReached = edges.length < this.limit;
+                    const user = this.userService.currentUser();
+
+                    if (this.shouldRedirectToFirstFems(user, edges)) {
+                        const edge = edges[0];
+                        setTimeout(() => {
+                            this.router.navigate(["/device", edge.id]);
+                        }, 100);
+                    }
                     resolve(edges);
                 }).catch((err) => {
                     reject(err);
                 });
         }).finally(() =>
-            this.loading = false);
+            this.loading.set(false));
+    }
+
+    protected shouldRedirectToFirstFems(user: User, edges: Edge[]): boolean {
+        return (
+            (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) ||
+            (
+                (user.globalRole === "guest" || user.globalRole === "owner") &&
+                (user.hasMultipleEdges === false && edges.length == 1)
+            )
+        );
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
-        this.pagination.getAndSubscribeEdge(edge);
+        this.pagination.getAndSubscribeEdge(edge.id);
     }
 
     /**
@@ -154,41 +183,13 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
             this.searchParams = searchParams;
         }
 
-        this.filteredEdges = [];
+        this.filteredEdges.set([]);
+
         this.page = 0;
         this.limitReached = false;
 
         this.loadNextPage().then((edges) => {
-            this.filteredEdges = edges;
+            this.filteredEdges.set(edges);
         });
     }
-
-    private init() {
-
-        this.loadNextPage().then((edges) => {
-            this.service.metadata
-                .pipe(
-                    filter(metadata => !!metadata),
-                    take(1),
-                )
-                .subscribe(metadata => {
-                    const edgeIds = Object.keys(metadata.edges);
-                    this.noEdges = edgeIds.length === 0;
-                    this.loggedInUserCanInstall = Role.isAtLeast(metadata.user.globalRole, "installer");
-
-                    // Forward directly to device page, if
-                    // - Direct local access to Edge
-                    // - No installer (i.e. guest or owner) and access to only one Edge
-                    if (environment.backend == "OpenEMS Edge" || (!this.loggedInUserCanInstall && edgeIds.length == 1)) {
-                        const edge = metadata.edges[edgeIds[0]];
-                        setTimeout(() => {
-                            this.router.navigate(["/device", edge.id]);
-                        }, 100);
-                        return;
-                    }
-                    this.filteredEdges = edges;
-                });
-        });
-    }
-
 }

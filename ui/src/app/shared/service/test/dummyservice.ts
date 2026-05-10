@@ -11,7 +11,7 @@ import { AbstractService } from "../abstractservice";
 export class DummyService extends AbstractService {
 
     public readonly edge = new Edge("edge0", "comment", "productype"
-        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date());
+        , "1234.56.78", Role.ADMIN, true, new Date(), SumState.OK, new Date(), {});
 
     public currentEdge: WritableSignal<Edge> = signal(this.edge);
 

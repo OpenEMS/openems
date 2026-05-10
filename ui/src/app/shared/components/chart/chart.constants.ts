@@ -27,6 +27,8 @@ export namespace ChartConstants {
 
         public static Datasets = class {
 
+            public static readonly DEFAULT_BORDER_DASH: number[] = [10, 10];
+
             public static POINT_STYLE = (dataset: HistoryUtils.DisplayValue<any>): TPartialBy<Pick<ChartDataset<any>, "pointStyle" | "borderDash">, "borderDash"> | EmptyObj => {
                 const res = ChartConstants.Plugins.POINT_STYLE({ data: [], ...(dataset["borderDash"] != null && { borderDash: dataset["borderDash"] }) });
                 return {
@@ -87,7 +89,7 @@ export namespace ChartConstants {
                     case 2:
                         return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE");
                     case 3:
-                        return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.FORCE_CHARGE");
+                        return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID");
                     default:
                         return "";
                 }
@@ -142,10 +144,14 @@ export namespace ChartConstants {
            * @returns the horizontally centered position for the y axis title
           */
                     function calculateXPositionForTitle(chart, totalScaleWidth, scale: string): number {
-                        if (scale === ChartAxis.RIGHT) {
+                        const rightAxes = [ChartAxis.RIGHT, ChartAxis.RIGHT_2].filter(axis => {
+                            const scale = chart.scales[axis];
+                            return scale && scale.options.display !== false;
+                        });
 
+                        if (scale === ChartAxis.RIGHT) {
                             // two right axis
-                            if ("scales" in chart && ChartAxis.RIGHT_2 in chart.scales) {
+                            if (rightAxes.length === 2) {
                                 const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
                                 const right2Scale = chart.scales[ChartAxis.RIGHT_2];
                                 const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
@@ -158,7 +164,13 @@ export namespace ChartConstants {
 
                         // second right axis
                         if (scale === ChartAxis.RIGHT_2) {
-                            return chart.width - totalScaleWidth / 4;
+                            if (rightAxes.length === 2) {
+                                const { ctx }: { ctx: CanvasRenderingContext2D } = chart;
+                                const right2Scale = chart.scales[ChartAxis.RIGHT_2];
+                                const right2ScaleWidth = calculateTicksWidth(right2Scale, ctx);
+                                return chart.width - right2ScaleWidth / 4;
+                            }
+                            return chart.width - totalScaleWidth / 2;
                         }
 
                         // Left scale
@@ -172,7 +184,7 @@ export namespace ChartConstants {
 
                     const currentScale = chart.scales[id];
 
-                    if (!currentScale) {
+                    if (!currentScale || currentScale.options.display === false) {
                         return;
                     }
 
@@ -221,7 +233,7 @@ export namespace ChartConstants {
             ...ChartDataLabels,
             color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
             formatter: (value, ctx) => {
-                const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+                const locale: string = Language.geti18nLocale();
                 return formatNumber(value, locale, "1.0-0") + "\xa0" + unit;
             },
             ...{
@@ -277,6 +289,7 @@ export namespace ChartConstants {
     export class NumberFormat {
         public static NO_DECIMALS: string = "1.0-0";
         public static ZERO_TO_TWO: string = "1.0-2";
+        public static ONE_TO_TWO: string = "1.1-2";
         public static TWO: string = "1.2-2";
     }
 
@@ -296,6 +309,7 @@ export namespace ChartConstants {
         if (showYAxisTitle) {
             Chart.register(ChartConstants.Plugins.YAXIS_TITLE_POSITION(yAxis.yAxisId));
         }
+        const axisDatasets = datasets.filter(d => d["yAxisID"] === yAxis.yAxisId);
 
         return {
             title: {
@@ -331,6 +345,7 @@ export namespace ChartConstants {
                     return Formatter.formatSafely(value, formatNumber);
                 },
             },
+            display: axisDatasets?.some(d => !d.hidden) ?? true,
         };
     };
 
@@ -403,7 +418,7 @@ export namespace ChartConstants {
 
                 return arr;
             }, { min: null, max: null, stepSize: null })
-      ?? null;
+            ?? null;
     }
 
     /**

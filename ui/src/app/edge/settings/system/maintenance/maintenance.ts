@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
@@ -39,7 +39,7 @@ enum SystemRestartState {
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class MaintenanceComponent implements OnInit {
+export class MaintenanceComponent implements OnInit, OnDestroy {
 
     private static readonly SELECTOR: string = "oe-maintenance";
     private static readonly TIMEOUT: number = 3000;
@@ -58,6 +58,7 @@ export class MaintenanceComponent implements OnInit {
     protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         private websocket: Websocket,
@@ -101,9 +102,13 @@ export class MaintenanceComponent implements OnInit {
             });
         });
 
-        this.systemRestartState.subscribe(state => {
-            this.updateOptions(state.key);
-        });
+        this.subscriptions.add(
+            this.systemRestartState.subscribe(state => this.updateOptions(state.key))
+        );
+    }
+
+    public ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
     protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {

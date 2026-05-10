@@ -1,8 +1,8 @@
 #!/bin/bash
 
 JAVA_VERSION=21
-NODE_MAJOR=22
-NPM_VERSION=10
+NODE_MAJOR=24
+NPM_VERSION=11
 
 # Build/Update 'openems-build' Container for Drone/Woodpecker CI
 
@@ -14,7 +14,8 @@ FROM eclipse-temurin:${JAVA_VERSION}-jdk
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_MAJOR}.x | bash -
 
 RUN apt-get update  && apt-get install --no-install-recommends -y \
-        git nodejs wget unzip xz-utils libvips-dev;
+        git nodejs wget unzip xz-utils libvips-dev \
+        python3-google-auth python3-google-auth-oauthlib python3-google-auth-httplib2 python3-requests;
 
 # Source: https://stackoverflow.com/questions/62588767/running-google-chrome-on-wsl-ubuntu-as-headless-no-sandbox-gives-multiple
 RUN wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \

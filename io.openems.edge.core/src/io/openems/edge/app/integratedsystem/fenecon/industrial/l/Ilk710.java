@@ -2,8 +2,12 @@ package io.openems.edge.app.integratedsystem.fenecon.industrial.l;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.battery;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.batteryInverter;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.batteryOld;
+import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.cycle;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essCluster;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.essGenericManagedSymmetric;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.io;
@@ -13,6 +17,7 @@ import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconI
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.power;
 import static io.openems.edge.app.integratedsystem.fenecon.industrial.l.FeneconIndustrialLComponents.system;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -27,7 +32,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.app.integratedsystem.fenecon.industrial.l.Ilk710.Property;
@@ -36,7 +40,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -112,13 +115,6 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.INTEGRATED_SYSTEM };
 	}
@@ -165,12 +161,13 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 				final var batteryNumber = oneBased + 20;
 				final var batteryInverterNumber = oneBased + 10;
 
-				if (batteryFirmwareVersion == BatteryFirmwareVersion.WUERTH_VERSION_1_0_9) {
-					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
-							batteryFirmwareVersion.getValue(), "Battery.WuerthBms"));
+				if (batteryFirmwareVersion == BatteryFirmwareVersion.WUERTH_VERSION_CURRENT) {
+					components.add(battery(bundle, batteryId, oneBased, batteryModbusId, "Battery.WuerthBms"));
+					components.add(cycle(500));
 				} else {
-					components.add(battery(bundle, batteryId, oneBased, batteryModbusId,
+					components.add(batteryOld(bundle, batteryId, oneBased, batteryModbusId,
 							batteryFirmwareVersion.getValue(), "Battery.EnfasBms"));
+					components.add(cycle(1000));
 				}
 
 				components.add(batteryInverter(bundle, oneBased, batteryInverterModbusId));
@@ -182,6 +179,9 @@ public class Ilk710 extends AbstractOpenemsAppWithProps<Ilk710, Property, Bundle
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
+					.addDependencies(List.of(//
+							predictionDefault(), //
+							predictionUnmanagedConsumption()))
 					.build();
 		};
 	}

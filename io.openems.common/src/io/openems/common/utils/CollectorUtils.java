@@ -31,10 +31,10 @@ public final class CollectorUtils {
 	 * @return the {@link Collector}
 	 */
 	public static final <INPUT, FIRST_KEY, SECOND_KEY, VALUE> //
-	Collector<INPUT, ?, Map<FIRST_KEY, Map<SECOND_KEY, VALUE>>> toDoubleMap(//
-			Function<INPUT, FIRST_KEY> firstKeyMapper, //
-			Function<INPUT, SECOND_KEY> secondKeyMapper, //
-			Function<INPUT, VALUE> valueMapper //
+			Collector<INPUT, ?, Map<FIRST_KEY, Map<SECOND_KEY, VALUE>>> toDoubleMap(//
+					Function<INPUT, FIRST_KEY> firstKeyMapper, //
+					Function<INPUT, SECOND_KEY> secondKeyMapper, //
+					Function<INPUT, VALUE> valueMapper //
 	) {
 		return Collectors.groupingBy(firstKeyMapper, Collectors.toMap(secondKeyMapper, valueMapper));
 	}
@@ -49,7 +49,7 @@ public final class CollectorUtils {
 	 * @return the {@link Collector}
 	 */
 	public static final <KEY extends Comparable<KEY>, KEY2 extends Comparable<KEY2>, VALUE> //
-	Collector<Entry<KEY, Map<KEY2, VALUE>>, ?, TreeBasedTable<KEY, KEY2, VALUE>> toTreeBasedTable() {
+			Collector<Entry<KEY, Map<KEY2, VALUE>>, ?, TreeBasedTable<KEY, KEY2, VALUE>> toTreeBasedTable() {
 		return Collector.of(TreeBasedTable::create, (t, u) -> {
 			for (var entry : u.getValue().entrySet()) {
 				t.put(u.getKey(), entry.getKey(), entry.getValue());

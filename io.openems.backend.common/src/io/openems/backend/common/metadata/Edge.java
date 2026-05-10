@@ -21,18 +21,19 @@ import io.openems.common.utils.JsonUtils;
 
 public class Edge {
 
-	private final Logger log = LoggerFactory.getLogger(Edge.class);
-	private final Metadata parent;
+	private static final Logger LOG = LoggerFactory.getLogger(Edge.class);
 
+	private final Metadata parent;
 	private final String id;
-	private String comment;
 	private final AtomicReference<SemanticVersion> version = new AtomicReference<>(SemanticVersion.ZERO);
 	private final AtomicReference<String> producttype = new AtomicReference<>("");
 	private final AtomicReference<ZonedDateTime> lastmessage = new AtomicReference<>(null);
-	private boolean isOnline = false;
 	private final AtomicReference<Level> sumState = new AtomicReference<>(null);
-
 	private final List<EdgeUser> user;
+	private final AtomicReference<JsonObject> settings = new AtomicReference<>(null);
+
+	private String comment;
+	private boolean isOnline = false;
 
 	public Edge(Metadata parent, String id, String comment, String version, String producttype,
 			ZonedDateTime lastmessage) {
@@ -77,6 +78,7 @@ public class Edge {
 				.addProperty("online", this.isOnline) //
 				.addProperty("sumState", this.sumState.get()) //
 				.addPropertyIfNotNull("lastmessage", this.lastmessage.get()) //
+				.addIfNotNull("settings", this.settings.get()) //
 				.build();
 	}
 
@@ -90,6 +92,7 @@ public class Edge {
 				+ "lastmessage=" + this.lastmessage + ", " //
 				+ "isOnline=" + this.isOnline + ", " //
 				+ "sumState=" + this.sumState //
+				+ "settings=" + this.settings //
 				+ "]";
 	}
 
@@ -128,7 +131,7 @@ public class Edge {
 	/**
 	 * Sets the Last-Message-Timestamp (truncated to Minutes) and emits a
 	 * ON_SET_LASTMESSAGE event; but only max one event per Minute.
-	 * 
+	 *
 	 * @param timestamp the Last-Message-Timestamp
 	 */
 	public void setLastmessage(ZonedDateTime timestamp) {
@@ -179,7 +182,7 @@ public class Edge {
 		}
 		var oldVersion = this.version.getAndSet(version);
 		if (emitEvent && !Objects.equal(oldVersion, version)) { // on change
-			this.log.info("Edge [" + this.getId() + "]: Update version from [" + oldVersion + "] to [" + version + "]");
+			LOG.info("Edge [{}]: Update version from [{}] to [{}]", this.getId(), oldVersion, version);
 
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_VERSION) //
 					.addArg(Events.OnSetVersion.EDGE, this) //
@@ -211,8 +214,7 @@ public class Edge {
 		}
 		var oldProducttype = this.producttype.getAndSet(producttype);
 		if (emitEvent && !Objects.equal(oldProducttype, producttype)) { // on change
-			this.log.info("Edge [" + this.getId() + "]: Update Product-Type from [" + oldProducttype + "] to ["
-					+ producttype + "]");
+			LOG.info("Edge [{}]: Update Product-Type from [{}] to [{}]", this.getId(), oldProducttype, producttype);
 
 			EventBuilder.from(this.parent.getEventAdmin(), Events.ON_SET_PRODUCTTYPE) //
 					.addArg(Events.OnSetProducttype.EDGE, this) //
@@ -244,6 +246,15 @@ public class Edge {
 	 */
 	public Level getSumState() {
 		return this.sumState.get();
+	}
+
+	/**
+	 * Settings JSON to store additional information.
+	 * 
+	 * @return the settings JSON
+	 */
+	public JsonObject getSettings() {
+		return this.settings.get();
 	}
 
 	/**

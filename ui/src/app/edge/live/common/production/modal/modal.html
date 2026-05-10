@@ -1,5 +1,6 @@
 @if (isInitialized) {
-  <oe-modal [title]="'GENERAL.PRODUCTION'| translate" helpKey="REDIRECT.COMMON_PRODUCTION" useDefaultPrefix="false">
+  <oe-modal [title]="'GENERAL.PRODUCTION'| translate" helpKey="REDIRECT.COMMON_PRODUCTION" useDefaultPrefix="false"
+    isCommonWidget="true">
     <!-- total summary of AC + DC -->
     @if (productionMeters?.length > 0 && chargerComponents?.length > 0) {
       <oe-modal-line [name]="'GENERAL.TOTAL'| translate" channelAddress="_sum/ProductionActivePower"

@@ -58,7 +58,7 @@ export class StorageComponent extends AbstractFlatWidget {
      * @returns only positive and 0
      */
     public convertPower(value: number, isCharge?: boolean) {
-        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        const locale: string = Language.geti18nLocale();
         if (value == null) {
             return "-";
         }
@@ -120,6 +120,7 @@ export class StorageComponent extends AbstractFlatWidget {
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
+                new ChannelAddress(controller.id, "CtrlIsInReferenceCycle"),
                 new ChannelAddress(controller.id, "_PropertyIsRunning"),
                 new ChannelAddress(controller.id, "_PropertyTargetTimeSpecified"),
                 new ChannelAddress(controller.id, "_PropertyTargetTime"),
@@ -199,6 +200,7 @@ export class StorageComponent extends AbstractFlatWidget {
                     currentData.allComponents[controller.id + "/CtrlIsBlockingEss"],
                     currentData.allComponents[controller.id + "/CtrlIsChargingEss"],
                     currentData.allComponents[controller.id + "/CtrlIsDischargingEss"],
+                    currentData.allComponents[controller.id + "/CtrlIsInReferenceCycle"] == 1,
                     currentData.allComponents[controller.id + "/_PropertyTargetTimeSpecified"],
                     currentData.allComponents[controller.id + "/_PropertyTargetTime"],
                 ));
@@ -215,10 +217,14 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
 
-    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
+    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, isInReferenceCycle: boolean, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
 
         if (!isRunning) {
             return null;
+        }
+
+        if (isInReferenceCycle) {
+            return { color: "orange", text: this.translate.instant("EDGE.INDEX.RETROFITTING.PREPARING") };
         }
         // Planned Expansion
         if (targetTimeSpecified && targetDate) {

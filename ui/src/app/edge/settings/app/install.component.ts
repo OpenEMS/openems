@@ -1,8 +1,8 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ModalController } from "@ionic/angular";
+import { ModalController, NavController } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
@@ -11,9 +11,13 @@ import { takeUntil } from "rxjs/operators";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { RouteService } from "src/app/shared/service/route.service";
 import { CommonUiModule } from "../../../shared/common-ui.module";
 import { Edge, Service, Utils, Websocket } from "../../../shared/shared";
+import { extractErrorMessage } from "../../../shared/utils/error/error.utils";
 import { AddAppInstance } from "./jsonrpc/addAppInstance";
+import { Flags } from "./jsonrpc/flag/flags";
+import { GetApp } from "./jsonrpc/getApp";
 import { GetAppAssistant } from "./jsonrpc/getAppAssistant";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
@@ -55,6 +59,8 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private edge: Edge | null = null;
     private hasPredefinedKey: boolean = false;
     private isAppFree: boolean = false;
+    private isAppFreeFromEdge: boolean = false;
+    private routeService = inject(RouteService);
 
     public constructor(
         private route: ActivatedRoute,
@@ -64,26 +70,21 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         private modalController: ModalController,
         private router: Router,
         private translate: TranslateService,
+        private navController: NavController,
     ) { }
 
     /**
- * Displays a error toast with the string supplied from the messageBuilder.
- * If the error is from a Jsonrpc call the error message gets extracted.
- *
- * @param service the service to open the toast with
- * @param messageBuilder the message supplier
- * @returns a method to handle a catch from a promise
- */
+     * Displays a error toast with the string supplied from the messageBuilder.
+     *
+     * @param service the service to open the toast with
+     * @param messageBuilder the message supplier
+     * @returns a method to handle a catch from a promise
+     */
     public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
         return (reason) => {
-            if (reason.error) {
-                reason = reason.error;
-                if (reason.message) {
-                    reason = reason.message;
-                }
-            }
+            const errorMessage = extractErrorMessage(reason);
             console.error(reason);
-            service.toast(messageBuilder(reason), "danger");
+            service.toast(messageBuilder(errorMessage), "danger");
         };
     }
 
@@ -117,6 +118,17 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 this.isAppFree = false;
             });
 
+            this.edge.sendRequest(this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new GetApp.Request({ appId: appId }),
+                })).then(response => {
+                const result = (response as GetApp.Response).result;
+                this.appName = result.app.name;
+
+                this.isAppFreeFromEdge = Flags.getByType(result.app.flags, Flags.FREE_FROM_DEPENDENCY) !== undefined;
+            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App [" + appId + "]: " + error));
+
             this.service.metadata
                 .pipe(takeUntil(this.stopOnDestroy))
                 .subscribe(entry => {
@@ -129,7 +141,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 })).then(response => {
                 const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
 
-                this.fields = GetAppAssistant.setInitialModel(appAssistant.fields, {});
+                this.fields = GetAppAssistant.getInitialFields(appAssistant.fields, {});
                 this.appName = appAssistant.name;
                 this.model = {};
                 this.form = new FormGroup({});
@@ -180,7 +192,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 }),
             });
             // if key not set send request with supplied key
-            if (!key) {
+            if (!key && !this.isAppFreeFromEdge) {
                 request = new AppCenter.Request({
                     payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
                         installRequest: request,
@@ -203,6 +215,9 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 }
 
                 this.form.markAsPristine();
+                if (this.routeService.getQueryParam("callback")) {
+                    this.navController.back();
+                }
                 if (this.steps.length > 1) {
                     this.router.navigate(["device/" + (this.edge.id) + "/settings/app/update/" + (this.appId)], { queryParams: { name: this.appName } });
                 } else {
@@ -236,6 +251,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 return;
             }
             if (this.isAppFree) {
+                resolve(null);
+                return;
+            }
+            if (this.isAppFreeFromEdge) {
                 resolve(null);
                 return;
             }

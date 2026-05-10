@@ -84,8 +84,8 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 	private final PriorityBlockingQueue<CycleEndpointCountdown> cycleEndpoints = new PriorityBlockingQueue<>(11,
 			(e1, e2) -> e1.getCycleCount() - e2.getCycleCount());
 
-	public HttpBridgeCycleServiceImpl(BridgeHttp bridgeHttp, CycleSubscriber cycleSubscriber, EndpointFetcher urlFetcher,
-			BridgeHttpExecutor pool) {
+	public HttpBridgeCycleServiceImpl(BridgeHttp bridgeHttp, CycleSubscriber cycleSubscriber,
+			EndpointFetcher urlFetcher, BridgeHttpExecutor pool) {
 		this.bridgeHttp = bridgeHttp;
 		this.cycleSubscriber = cycleSubscriber;
 		this.cycleSubscriber.subscribe(this::handleEvent);
@@ -159,7 +159,7 @@ public class HttpBridgeCycleServiceImpl implements HttpBridgeService, HttpBridge
 		return () -> {
 			try {
 				final var result = this.urlFetcher.fetchEndpoint(endpointItem.getCycleEndpoint().endpoint().get(),
-						this.bridgeHttp.getDebugMode());
+						this.bridgeHttp.getDebugMode(), this.bridgeHttp);
 				endpointItem.getCycleEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointItem.getCycleEndpoint().onError().accept(e);

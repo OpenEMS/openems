@@ -6,11 +6,13 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
@@ -29,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
@@ -43,6 +44,7 @@ import io.openems.common.bridge.http.time.DelayTimeProvider.Delay;
 import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.oem.OpenemsEdgeOem.OAuthClientRegistration;
 import io.openems.common.types.HttpStatus;
@@ -296,7 +298,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -309,7 +311,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, PriceComponents priceComponent)
 			throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		var data = getAsJsonArray(parseToJsonObject(jsonData), "records");
 		for (var element : data) {
 			// Cent/kWh -> Currency/MWh
@@ -323,11 +325,12 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 			// Converting time string to ZonedDateTime.
 			final var startTimeStamp = ZonedDateTime //
 					.parse(getAsString(element, "timestamp")) //
-					.truncatedTo(ChronoUnit.HOURS);
+					.truncatedTo(HOURS) //
+					.toInstant();
 
 			// Adding the values in the Map for each 15-minute interval.
 			for (var minutes = 0; minutes <= 45; minutes += 15) {
-				result.put(startTimeStamp.plusMinutes(minutes), marketPrice);
+				result.put(startTimeStamp.plus(minutes, MINUTES), marketPrice);
 			}
 		}
 		return TimeOfUsePrices.from(result.build());

@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo;
 
+import static io.openems.backend.metadata.odoo.MetadataOdoo.EXPECTED_NUMBER_OF_EDGES;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -16,26 +18,24 @@ import io.openems.common.types.SemanticVersion;
 
 public class EdgeCache {
 
-	public static final int EXPECTED_CACHE_SIZE = 1_000;
-
 	private final MetadataOdoo parent;
 
 	/**
 	 * Map Edge-ID (String) to Edge. Initialized with expected cache size.
 	 */
-	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	/**
 	 * Map Odoo-ID (Integer) to Edge-ID (String). Initialized with expected cache
 	 * size.
 	 */
-	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	/**
 	 * Map Apikey (String) to Edge-ID (String). Initialized with expected cache
 	 * size.
 	 */
-	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	public EdgeCache(MetadataOdoo parent) {
 		this.parent = parent;

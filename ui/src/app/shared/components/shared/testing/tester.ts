@@ -6,13 +6,14 @@ import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/resp
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { HistoryUtils } from "src/app/shared/utils/utils";
 
 import { AbstractHistoryChart } from "../../chart/abstracthistorychart";
 import { XAxisType } from "../../chart/chart.constants";
 import { ButtonLabel } from "../../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../../modal/modal-line/modal-line";
+import { OeImageComponent } from "../../oe-img/oe-img";
 import { Converter } from "../converter";
 import { OeFormlyField, OeFormlyView } from "../oe-formly-component";
 import { OeTester } from "./common";
@@ -36,7 +37,9 @@ export class OeFormlyViewTester {
              */
             case "children-line": {
                 const tmp = OeFormlyViewTester.applyLineWithChildren(field, context);
-
+                if (tmp == null) {
+                    return null; // filter did not pass
+                }
                 // Prepare result
                 const result: OeFormlyViewTester.Field.ChildrenLine = {
                     type: field.type,
@@ -142,6 +145,17 @@ export class OeFormlyViewTester {
                 return {
                     type: field.type,
                     name: field.name,
+                    style: field.style ?? "",
+                };
+            }
+
+            /**
+             * OeFormlyField.SvgLine
+             */
+            case "image-line": {
+                return {
+                    type: field.type,
+                    img: field.img,
                 };
             }
 
@@ -159,6 +173,18 @@ export class OeFormlyViewTester {
             case "buttons-from-form-control-line": {
                 return {
                     type: "buttons-from-form-control-line",
+                    name: field.name,
+                    controlName: field.controlName,
+                    buttons: field.buttons,
+                };
+            }
+
+            /**
+            * {@link OeFormlyField.RadioButtonsFromFormControlLine}
+            */
+            case "radio-buttons-from-form-control-line": {
+                return {
+                    type: "radio-buttons-from-form-control-line",
                     name: field.name,
                     controlName: field.controlName,
                     buttons: field.buttons,
@@ -376,13 +402,16 @@ export namespace OeFormlyViewTester {
         | Field.ValueLine
         | Field.ButtonsFromFormControlLine
         | Field.RangeButtonFromFormControlLine
+        | Field.RadioButtonsFromFormControlLine
+        | Field.ImageLine
         ;
 
     export namespace Field {
 
         export type InfoLine = {
             type: "info-line",
-            name: string
+            name: string | { text: string, lineStyle?: string }[],
+            style?: string,
         };
 
         export type Item = {
@@ -402,6 +431,7 @@ export namespace OeFormlyViewTester {
             name: string,
             value?: string,
             indentation?: TextIndentation,
+            filter?: (currentData: CurrentData) => boolean,
         };
 
         export type ChildrenLine = {
@@ -420,16 +450,37 @@ export namespace OeFormlyViewTester {
             controlName: string,
             buttons: ButtonLabel[],
         };
+
+        export type RadioButtonsFromFormControlLine = {
+            type: "radio-buttons-from-form-control-line";
+            name: string;
+            controlName: string;
+            buttons: ButtonLabel[];
+        };
         export type RangeButtonFromFormControlLine<T = any> = {
             type: "range-button-from-form-control-line",
             controlName: string,
             expectedValue: T,
             properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
         };
+        export type ImageLine = {
+            type: "image-line",
+            img: OeImageComponent["img"],
+        };
     }
 
     export function applyLineWithChildren(field: OeFormlyField.ChildrenLine, context: Context): { rawValue: number | null, value: string }
         | null {
+
+        // Apply filter
+        if (field.filter && field.channel) {
+            const rawValues = field.channel.toString() in context ? context[field.channel.toString()] : null;
+            const isVisible = field.filter(rawValues) ?? null;
+
+            if (isVisible == false) {
+                return null;
+            }
+        }
 
         let value: string | null = null;
         let rawValue: number | null = null;
@@ -449,7 +500,7 @@ export namespace OeFormlyViewTester {
         };
     }
 
-    export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string } {
+    export function applyValueLineFromChannels(field: OeFormlyField.ValueFromChannelsLine, context: Context): { rawValues: number[] | null, value: string, currentData: CurrentData } {
 
         // Read values from channels
         const rawValues = field.channelsToSubscribe.map(channel => channel && channel.toString() in context ? context[channel.toString()] : null);
@@ -460,7 +511,6 @@ export namespace OeFormlyViewTester {
             return null;
         }
 
-
         // Apply converter
         const value: string = field.value
             ? field.value(currentData)
@@ -469,6 +519,7 @@ export namespace OeFormlyViewTester {
         return {
             rawValues: rawValues,
             value: value,
+            currentData: currentData,
         };
     }
 }

@@ -62,7 +62,9 @@ public class EnergyScheduler {
 							};
 							// Find first period with Production > Consumption
 							var firstExcessEnergyOpt = periods.stream() //
-									.filter(p -> p.production() > p.consumption()) //
+									.filter(p -> p.data().consumption() //
+											.map(c -> p.data().production() > c.actual()) //
+											.orElse(false)) //
 									.findFirst();
 							if (firstExcessEnergyOpt.isEmpty()
 									|| targetTime.isBefore(firstExcessEnergyOpt.get().time())) {

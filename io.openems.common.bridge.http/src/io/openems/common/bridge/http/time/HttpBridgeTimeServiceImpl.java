@@ -121,7 +121,7 @@ public class HttpBridgeTimeServiceImpl implements HttpBridgeService, HttpBridgeT
 			HttpError error = null;
 			try {
 				result = this.endpointFetcher.fetchEndpoint(endpointCountdown.getTimeEndpoint().endpoint().get(),
-						this.bridgeHttp.getDebugMode());
+						this.bridgeHttp.getDebugMode(), this.bridgeHttp);
 				endpointCountdown.getTimeEndpoint().onResult().accept(result);
 			} catch (HttpError e) {
 				endpointCountdown.getTimeEndpoint().onError().accept(e);

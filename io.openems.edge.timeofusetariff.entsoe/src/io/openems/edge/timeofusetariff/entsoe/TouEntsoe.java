@@ -8,6 +8,12 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 public interface TouEntsoe extends OpenemsComponent, TimeOfUseTariff {
 
+	/**
+	 * Triggers a price update. The method is running asynchronous, so it will take
+	 * a few seconds before the new prices are set.
+	 */
+	void triggerPriceUpdate();
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		HTTP_STATUS_CODE(Doc.of(OpenemsType.INTEGER)//
 				.text("Displays the HTTP status code")), //

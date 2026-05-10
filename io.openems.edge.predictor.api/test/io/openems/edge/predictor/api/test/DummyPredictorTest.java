@@ -5,7 +5,7 @@ import static io.openems.edge.predictor.api.test.DummyPredictorManagerTest.SUM_P
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.Assert.assertEquals;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class DummyPredictorTest {
 	@Test
 	public void test() throws OpenemsNamedException {
 		final var clock = createDummyClock();
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		var sut = new DummyPredictor("predictor0", cm,
@@ -36,7 +36,7 @@ public class DummyPredictorTest {
 	@Test
 	public void testEmpty() throws OpenemsNamedException {
 		final var clock = createDummyClock();
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		var sut = new DummyPredictor("predictor0", cm,

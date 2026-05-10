@@ -1,4 +1,3 @@
-
 @switch (chargeMode) {
   @case ('EXCESS_POWER') {
     <ion-card-content>
@@ -9,20 +8,19 @@
     </ion-card-content>
     <ion-card-content>
       <oe-modal-info-line [info]="('EDGE.INDEX.WIDGETS.EVCS.OPTIMIZED_CHARGE_MODE.INFO' | translate)"
-      style="text-align: center"></oe-modal-info-line>
+        style="text-align: center"></oe-modal-info-line>
     </ion-card-content>
   }
   @case ('FORCE_CHARGE') {
     <ion-card-content>
-      <oe-modal-info-line [info]="('GENERAL.MANUALLY' | translate)"
-      style="text-align: center"></oe-modal-info-line>
+      <oe-modal-info-line [info]="('GENERAL.MANUALLY' | translate)" style="text-align: center"></oe-modal-info-line>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
     </ion-card-content>
     <ion-card-content>
       <oe-modal-info-line [info]="('EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.INFO' | translate)"
-      style="text-align: center"></oe-modal-info-line>
+        style="text-align: center"></oe-modal-info-line>
       <oe-modal-info-line [info]="('EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE_MODE.MAX_CHARGING_DETAILS' | translate)"
-      style="text-align: center"></oe-modal-info-line>
+        style="text-align: center"></oe-modal-info-line>
     </ion-card-content>
   }
 }

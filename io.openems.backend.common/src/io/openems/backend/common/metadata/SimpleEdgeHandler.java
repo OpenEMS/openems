@@ -38,12 +38,10 @@ public class SimpleEdgeHandler implements EdgeHandler {
 			if (!diff.isDifferent()) {
 				return;
 			}
-			this.log.info("Edge [" + edge.getId() + "]. Update config: " + diff.toString());
+			this.log.info("Edge [{}]. Update config: {}", edge.getId(), diff.toString());
 			onChange.accept(edge, oldConfig, newConfig);
 		} catch (OpenemsNamedException e) {
-			this.log.warn("Edge [" + edge.getId() + "]. Update config (unable to compoare old and new EdgeConfig): "
-					+ e.getMessage());
-			e.printStackTrace();
+			this.log.warn("Edge [{}]. Update config (unable to compoare old and new EdgeConfig)", edge.getId(), e);
 		}
 
 		// Update EdgeConfig even without comparing

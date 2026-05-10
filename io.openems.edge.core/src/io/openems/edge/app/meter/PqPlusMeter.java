@@ -17,7 +17,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -85,21 +84,21 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 		MODBUS_ID(AppDef.componentId("modbus2")), //
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		INTEGRATION_TYPE(CommunicationProps.modbusType() //
+		INTEGRATION_TYPE(CommunicationProps.modbusType()//
 				.setRequired(true)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def //
@@ -108,9 +107,9 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.RTU)));
-				})) //
+				}))//
 				.setAutoGenerateField(false)), //
 		MODEL(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".productModel") //
@@ -119,9 +118,9 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(PqPlusModel.class), l);
 				}))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.setDefaultValue(6))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
@@ -212,13 +211,6 @@ public class PqPlusMeter extends AbstractOpenemsAppWithProps<PqPlusMeter, Proper
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

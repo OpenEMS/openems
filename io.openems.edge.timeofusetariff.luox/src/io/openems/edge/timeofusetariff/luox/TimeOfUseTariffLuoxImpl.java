@@ -5,7 +5,7 @@ import static io.openems.edge.common.oauth.OAuthUtils.generateCodeChallenge;
 import static io.openems.edge.common.oauth.OAuthUtils.generateCodeVerifier;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -137,7 +137,7 @@ public class TimeOfUseTariffLuoxImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	@Override

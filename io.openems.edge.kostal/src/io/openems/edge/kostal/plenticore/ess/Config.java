@@ -30,8 +30,8 @@ import io.openems.edge.kostal.plenticore.enums.ControlMode;
 	@AttributeDefinition(name = "Watchdog", description = "The watchdog configured at the inverter to return into internal operation mode.")
 	int watchdog() default 30;
 
-	@AttributeDefinition(name = "Tolerance", description = "The tolerance value in watts to skip the modbus writing if the timer is not yet elapsed (smart-mode).")
-	int tolerance() default 20;
+	@AttributeDefinition(name = "Tolerance", description = "The tolerance value in watts to skip the modbus writing if the timer is not yet elapsed (smart-mode), small power values are set to 0 (idle zone).")
+	int tolerance() default 50;
 
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";

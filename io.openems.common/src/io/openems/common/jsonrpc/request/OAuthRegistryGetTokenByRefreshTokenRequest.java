@@ -30,7 +30,8 @@ public class OAuthRegistryGetTokenByRefreshTokenRequest extends JsonrpcRequest {
 	public record OAuthGetTokenByRefreshTokenRequest(String identifier, String refreshToken, List<String> scopes) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link OAuthGetTokenByRefreshTokenRequest}.
+		 * Returns a {@link JsonSerializer} for a
+		 * {@link OAuthGetTokenByRefreshTokenRequest}.
 		 *
 		 * @return the created {@link JsonSerializer}
 		 */
@@ -61,7 +62,8 @@ public class OAuthRegistryGetTokenByRefreshTokenRequest extends JsonrpcRequest {
 		this.metadata = metadata;
 	}
 
-	public OAuthRegistryGetTokenByRefreshTokenRequest(JsonrpcRequest request, OAuthGetTokenByRefreshTokenRequest metadata) {
+	public OAuthRegistryGetTokenByRefreshTokenRequest(JsonrpcRequest request,
+			OAuthGetTokenByRefreshTokenRequest metadata) {
 		super(request, OAuthRegistryGetTokenByRefreshTokenRequest.METHOD);
 		this.metadata = metadata;
 	}

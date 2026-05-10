@@ -11,11 +11,11 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerChannelThreshold extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")),
 
 		CUMULATED_ACTIVE_TIME(Doc.of(LONG)//
-				.unit(CUMULATED_SECONDS) //
+				.unit(CUMULATED_SECONDS)//
 				.persistencePriority(HIGH));
 
 		private final Doc doc;

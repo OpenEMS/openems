@@ -7,12 +7,9 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-
 import io.openems.backend.alerting.Message;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
-import io.openems.common.utils.JsonUtils;
+import io.openems.backend.common.mail.MailContext;
 
 public class OfflineEdgeMessage extends Message {
 
@@ -76,19 +73,16 @@ public class OfflineEdgeMessage extends Message {
 	}
 
 	@Override
-	public JsonObject getParams() {
-		return JsonUtils.buildJsonObject() //
-				.add("recipients", JsonUtils.generateJsonArray(//
-						this.getCurrentRecipients(), s -> new JsonPrimitive(s.userLogin())))//
-				.addProperty("edgeId", this.getEdgeId()) //
-				.build();
+	public MailContext getContext() {
+		return new OfflineEdgeMailContext(this);
 	}
 
 	@Override
 	public String toString() {
 		final var rec = this.getCurrentRecipients().stream() //
-				.map(s -> String.valueOf(s.userLogin())) //
+				.map(OfflineEdgeAlertingSetting::userLogin) //
 				.collect(Collectors.joining(","));
+
 		return OfflineEdgeMessage.class.getSimpleName() + "{for=" + this.getEdgeId() + ", to=[" + rec + "], at="
 				+ this.getNotifyStamp() + "}";
 	}
@@ -104,5 +98,13 @@ public class OfflineEdgeMessage extends Message {
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.getEdgeId(), this.offlineAt, this.recipients);
+	}
+
+	private static class OfflineEdgeMailContext extends MailContext {
+		public OfflineEdgeMailContext(OfflineEdgeMessage msg) {
+			super(msg.getEdgeId(), msg.getCurrentRecipients().stream() //
+					.map(OfflineEdgeAlertingSetting::userLogin) //
+					.toList());
+		}
 	}
 }

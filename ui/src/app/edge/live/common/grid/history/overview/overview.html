@@ -3,8 +3,8 @@
     [period]="service.historyPeriod">
     <gridchart [isOnlyChart]="true" [showPhases]="showPhases" [showTotal]="showTotal">
     </gridchart>
+    @if (isAllowed) {
+      <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+    }
   </oe-chart>
-}
-@if (isInitialized && isAllowed) {
-  <oe-footer-subnavigation [navigationOptions]="navigationButtons" ></oe-footer-subnavigation>
 }

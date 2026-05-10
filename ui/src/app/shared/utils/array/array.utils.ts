@@ -1,4 +1,5 @@
 import { Utils } from "../../shared";
+import { ObjectUtils } from "../object/object-utils";
 
 export namespace ArrayUtils {
 
@@ -126,6 +127,56 @@ export namespace ArrayUtils {
         return inputArr?.filter(item => restArrays.includes(item) == false) as T ?? null;
     }
 
+
+    export function findObjectInArray<T extends object>(array: T[], target: Partial<T>): T | undefined {
+        return array.find(obj =>
+            deepEqual(obj, target)
+        );
+    }
+
+    export function deepEqual(a: any, b: any): boolean {
+        if (a === b) { return true; }
+
+        if (typeof a !== "object" || a === null || typeof b !== "object" || b === null) { return false; }
+
+        const keysA = Object.keys(a);
+        const keysB = Object.keys(b);
+
+        if (keysA.length !== keysB.length) { return false; }
+
+        return keysA.every(key => deepEqual(a[key], b[key]));
+    }
+
+    export function arraysDeepEqualHash<T = any>(arr1: T[], arr2: T[]): boolean {
+        if (arr1 == null || arr2 == null) {
+            return false;
+        }
+        if (arr1.length !== arr2.length) {
+            return false;
+        }
+
+        for (let i = 0; i < arr1.length; i++) {
+            if (hashObject(arr1[i]) !== hashObject(arr2[i])) {
+                return false;
+            };
+        }
+        return true;
+    }
+
+    function hashObject(obj: any): string {
+        return JSON.stringify(obj, Object.keys(obj).sort()); // deterministic key order
+    }
+
+    export function getFirstElementWhereOrNull<T extends Record<string, any>, K extends keyof T>(arr: T[], property: K, propertyValue: string): T | null {
+        const results = arr.filter(el => ObjectUtils.getKeySafely(el, property) === propertyValue) ?? [];
+
+        if (results.length == 1) {
+            return arr[0];
+        }
+        return null;
+    }
+
+
     export namespace ReducerFunctions {
         export const sum = ((acc: number, val: number) => acc + val);
         export const STRINGIFY_SAFELY: (
@@ -138,5 +189,19 @@ export namespace ArrayUtils {
                 arr.push(item.toString());
                 return arr;
             };
+    }
+
+    /**
+     * Shuffles an array using the Fisher-Yates algorithm
+     *
+     * @param array the array to be shuffled
+     * @returns the shuffled array
+     */
+    export function shuffleArray<T>(array: T[]): T[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
 }

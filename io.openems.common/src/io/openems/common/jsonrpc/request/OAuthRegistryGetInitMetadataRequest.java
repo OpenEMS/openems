@@ -12,7 +12,8 @@ public class OAuthRegistryGetInitMetadataRequest extends JsonrpcRequest {
 	public static final String METHOD = "getInitMetadata";
 
 	/**
-	 * Creates a {@link OAuthRegistryGetInitMetadataRequest} from a {@link JsonrpcRequest}.
+	 * Creates a {@link OAuthRegistryGetInitMetadataRequest} from a
+	 * {@link JsonrpcRequest}.
 	 *
 	 * @param r the {@link JsonrpcRequest}
 	 * @return a {@link OAuthRegistryGetInitMetadataRequest}

@@ -1,19 +1,23 @@
 package io.openems.common.bridge.http.api;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.DebugMode;
 
 public interface EndpointFetcher {
 
 	/**
-	 * Creates a {@link Runnable} to execute a request with the given parameters.
+	 * Fetches the given {@link BridgeHttp.Endpoint}.
 	 * 
-	 * @param endpoint the {@link BridgeHttp.Endpoint} to fetch
-	 * @param mode     the {@link DebugMode}
+	 * @param endpoint    the {@link BridgeHttp.Endpoint} to fetch
+	 * @param mode        the {@link DebugMode}
+	 * @param eventRaiser the {@link BridgeHttpEventRaiser} to raise events on
 	 * 
 	 * @return the result of the {@link BridgeHttp.Endpoint}
-	 * @throws OpenemsNamedException on error
+	 * @throws HttpError on error
 	 */
-	public HttpResponse<String> fetchEndpoint(BridgeHttp.Endpoint endpoint, DebugMode mode) throws HttpError;
+	public HttpResponse<String> fetchEndpoint(//
+			BridgeHttp.Endpoint endpoint, //
+			DebugMode mode, //
+			BridgeHttpEventRaiser eventRaiser //
+	) throws HttpError;
 
 }
