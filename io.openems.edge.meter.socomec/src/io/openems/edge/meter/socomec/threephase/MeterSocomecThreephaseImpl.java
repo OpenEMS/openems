@@ -4,23 +4,23 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1_AND_INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -40,25 +40,24 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 @Component(//
 		name = "Meter.Socomec.Threephase", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
+@GenerateTargetsFromReferences("Modbus")
 public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements MeterSocomecThreephase, SocomecMeter,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(MeterSocomecThreephaseImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
 	private Config config;
 
-	public MeterSocomecThreephaseImpl() throws OpenemsException {
+	public MeterSocomecThreephaseImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
@@ -74,10 +73,7 @@ public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements 
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 		this.config = config;
 		this.identifySocomecMeter();
 	}
@@ -126,6 +122,7 @@ public class MeterSocomecThreephaseImpl extends AbstractSocomecMeter implements 
 						m(ElectricityMeter.ChannelId.CURRENT, new UnsignedDoublewordElement(0xC588)), //
 						new DummyRegisterElement(0xC58A, 0xC58B), //
 						m(ElectricityMeter.ChannelId.VOLTAGE, new UnsignedDoublewordElement(0xC58C), SCALE_FACTOR_1))); //
+
 		if (this.config.invert()) {
 			this.modbusProtocol.addTask(new FC3ReadRegistersTask(0xC702, Priority.LOW, //
 					m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, new UnsignedDoublewordElement(0xC702),
