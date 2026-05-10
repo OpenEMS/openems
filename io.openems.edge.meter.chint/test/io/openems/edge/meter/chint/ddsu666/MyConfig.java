@@ -1,4 +1,4 @@
-package io.openems.edge.meter.socomec.singlephase;
+package io.openems.edge.meter.chint.ddsu666;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
@@ -7,13 +7,15 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
-	protected static class Builder {
+	protected static final class Builder {
 		private String id;
+		private String alias = "";
+		private boolean enabled = true;
+		private MeterType type = MeterType.GRID;
 		private String modbusId;
-		private int modbusUnitId;
-		private MeterType type;
-		private boolean invert;
-		private SinglePhase phase;
+		private int modbusUnitId = 1;
+		private boolean invert = false;
+		private SinglePhase phase = SinglePhase.L1;
 
 		private Builder() {
 		}
@@ -23,13 +25,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setModbusId(String modbusId) {
-			this.modbusId = modbusId;
+		public Builder setAlias(String alias) {
+			this.alias = alias;
+			return this;
+		}
+
+		public Builder setEnabled(boolean enabled) {
+			this.enabled = enabled;
 			return this;
 		}
 
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setModbusId(String modbusId) {
+			this.modbusId = modbusId;
+			return this;
+		}
+
+		public Builder setModbusUnitId(int modbusUnitId) {
+			this.modbusUnitId = modbusUnitId;
 			return this;
 		}
 
@@ -49,9 +66,9 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	/**
-	 * Create a Config builder.
+	 * Creates a builder for test configuration values.
 	 *
-	 * @return a {@link Builder}
+	 * @return the builder
 	 */
 	public static Builder create() {
 		return new Builder();
@@ -65,6 +82,21 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String alias() {
+		return this.builder.alias;
+	}
+
+	@Override
+	public boolean enabled() {
+		return this.builder.enabled;
+	}
+
+	@Override
+	public MeterType type() {
+		return this.builder.type;
+	}
+
+	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
 	}
@@ -72,11 +104,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
-	}
-
-	@Override
-	public MeterType type() {
-		return this.builder.type;
 	}
 
 	@Override

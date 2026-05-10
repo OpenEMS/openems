@@ -1,0 +1,45 @@
+= Chint Energy Meters
+
+Integration with Chint electricity meters via Modbus protocol.
+
+== Overview
+
+This bundle currently provides OpenEMS integration for the Chint DDSU666 single-phase meter. The component communicates through the OpenEMS Modbus bridge and exposes standard `ElectricityMeter` channels for power, voltage, current, frequency, and cumulative energy.
+
+== Supported Devices
+
+* https://chintglobal.com/global/en/products/instruments-meters/electricity-meter/ddsu666.html[Chint DDSU666 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_ddsu666_meter,Chint DDSU666 Meter>>
+
+*Name*: Meter Chint DDSU666
+
+*Factory-PID*: `Meter.Chint.DDSU666`
+
+.Implemented Natures/Interfaces
+* MeterChintDdsu666
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Single-phase electricity meter via Modbus. The device-specific communication address is exposed as a custom channel, while cumulative import energy is mapped to the standard OpenEMS energy channels.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+
+[[_ddsu666_meter]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.chint[Source Code icon:github[]]
