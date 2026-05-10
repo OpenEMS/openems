@@ -3,13 +3,13 @@ package io.openems.edge.meter.chint.ddsu666;
 import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -19,7 +19,7 @@ public class MeterChintDdsu666ImplTest {
 
 	private ComponentTest testBasis;
 
-	@Before
+	@BeforeEach
 	public void setup() throws OpenemsException, Exception {
 		this.testBasis = new ComponentTest(new MeterChintDdsu666Impl()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //

@@ -42,9 +42,8 @@ import io.openems.edge.meter.api.SinglePhaseMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @GenerateTargetsFromReferences("Modbus")
-public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent
-		implements MeterChintDdsu666, SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent,
-		ModbusSlave {
+public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent implements MeterChintDdsu666,
+		SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private Config config;
 
@@ -133,9 +132,7 @@ public class MeterChintDdsu666Impl extends AbstractOpenemsModbusComponent
 				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
 				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
 				SinglePhaseMeter.getModbusSlaveNatureTable(accessMode), //
-				MeterChintDdsu666.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(MeterChintDdsu666Impl.class, accessMode, 100) //
-						.build()
-		);
+						.build());
 	}
 }
