@@ -1,4 +1,4 @@
-Bundle-Name: OpenEMS Edge Meter Chint DDSU666
+Bundle-Name: OpenEMS Edge Meter Chint
 Bundle-Vendor: Watt Works Foundation Limited dba Nearly Free Energy
 Bundle-Version: 1.0.0.${tstamp}
 Bundle-License: https://opensource.org/licenses/EPL-2.0
