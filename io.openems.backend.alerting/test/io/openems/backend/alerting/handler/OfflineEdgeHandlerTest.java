@@ -1,10 +1,10 @@
 package io.openems.backend.alerting.handler;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
@@ -27,10 +27,10 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.test.DummyMetadata;
 
-public class TestOfflineEdgeHandler {
+class OfflineEdgeHandlerTest {
 
 	@Test
-	public void testGetterSetter() {
+	void testGetterSetter() {
 		final var mss = new MessageSchedulerServiceImpl();
 		final var meta = new SimpleMetadataImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
@@ -39,18 +39,18 @@ public class TestOfflineEdgeHandler {
 	}
 
 	@Test
-	public void testActivate() {
+	void testActivate() {
 		final var service = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
 		var handler = new OfflineEdgeHandler(service, timer, null, new SimpleMetadataImpl(), 1);
 		assertEquals(1, service.msgScheduler.size());
-		assertTrue(service.msgScheduler.get(0).isFor(handler));
+		assertTrue(service.msgScheduler.getFirst().isFor(handler));
 		handler.stop();
 		assertEquals(0, service.msgScheduler.size());
 	}
 
 	@Test
-	public void send() {
+	void send() {
 		final var mailer = new MailerImpl();
 		final var msgsch = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
@@ -75,7 +75,7 @@ public class TestOfflineEdgeHandler {
 	}
 
 	@Test
-	public void checkmetadata() {
+	void checkmetadata() {
 		final var metadata = Utility.getTestMetadata();
 		final var msgsch = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
@@ -84,8 +84,7 @@ public class TestOfflineEdgeHandler {
 		final var expected = (int) metadata.getOfflineSettings().values().stream() //
 				.filter(setting -> setting.stream() //
 						.filter(s -> s.delay() > 0) //
-						.filter(s -> s.lastNotification().isBefore(Utility.now)) //
-						.count() != 0) //
+						.anyMatch(s -> s.lastNotification().isBefore(Utility.now))) //
 				.count();
 		assertEquals(expected, msgsch.find(handler).size());
 
@@ -101,27 +100,25 @@ public class TestOfflineEdgeHandler {
 	}
 
 	@Test
-	public void checkMetadataEmergencyStop() {
+	void checkMetadataEmergencyStop() {
 		final var msgMeta = new Utility.ToManyMsgsMetadata();
 		final var msgMsgsch = new MessageSchedulerServiceImpl();
 		final var msgCount = new AtomicInteger();
 		final var timer = new MinuteTimer(Clock.systemUTC());
-		msgMeta.getAllOfflineEdges().stream().map(e -> msgMeta.getEdgeOfflineAlertingSettings(e.getId())).forEach(e -> {
-			e.forEach(s -> {
-				if (s.lastNotification().plusMinutes(s.delay()).isBefore(Utility.now)) {
-					msgCount.getAndIncrement();
-				}
-			});
-		});
+		msgMeta.getAllOfflineEdges().stream() //
+				.map(e -> msgMeta.getEdgeOfflineAlertingSettings(e.getId())) //
+				.forEach(e -> e.forEach(s -> {
+					if (s.lastNotification().plusMinutes(s.delay()).isBefore(Utility.now)) {
+						msgCount.getAndIncrement();
+					}
+				}));
 
-		assertTrue(msgCount.get() + " are Not enought mails to trigger",
-				msgCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS);
+		assertTrue(msgCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_MSGS,
+				msgCount.get() + " are Not enough mails to trigger");
 
 		final var handler = new OfflineEdgeHandler(msgMsgsch, timer, null, msgMeta, 0);
 
 		assertEquals(0, msgMsgsch.find(handler).size());
-
-		//
 
 		final var edgeMeta = new Utility.ToManyEdgesMetadata();
 		final var edgeMsgsch = new MessageSchedulerServiceImpl();
@@ -131,7 +128,7 @@ public class TestOfflineEdgeHandler {
 					edgeCount.getAndIncrement();
 				});
 
-		assertTrue("Not enought mails to trigger", edgeCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES);
+		assertTrue(edgeCount.get() > OfflineEdgeHandler.MAX_SIMULTANEOUS_EDGES, "Not enough mails to trigger");
 
 		final var edgeHandler = new OfflineEdgeHandler(edgeMsgsch, timer, null, edgeMeta, 0);
 
@@ -139,18 +136,18 @@ public class TestOfflineEdgeHandler {
 	}
 
 	@Test
-	public void getEdgeTest() {
+	void getEdgeTest() {
 		final var metadata = Utility.getTestMetadata();
 		final var mss = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
 		final var handler = new OfflineEdgeHandler(mss, timer, null, metadata, 1);
 		final var illegalEdge = new Edge(null, null, null, null, null, null);
-		assertNull("Message should be null if edge is null", handler.getEdgeMessage(null));
-		assertNull("Message should be null if edge.id is null", handler.getEdgeMessage(illegalEdge));
+		assertNull(handler.getEdgeMessage(null), "Message should be null if edge is null");
+		assertNull(handler.getEdgeMessage(illegalEdge), "Message should be null if edge.id is null");
 	}
 
 	@Test
-	public void getEventHandlerTest() {
+	void getEventHandlerTest() {
 		final var metadata = Utility.getTestMetadata();
 		final var mss = new MessageSchedulerServiceImpl();
 		final var timer = new MinuteTimer(Clock.systemUTC());
@@ -159,8 +156,8 @@ public class TestOfflineEdgeHandler {
 		var metadataInializedHandler = handler.getEventHandler(Metadata.Events.AFTER_IS_INITIALIZED);
 		var noHandler = handler.getEventHandler("NO_EVENT");
 
-		assertNotNull("Should have handler for Edge.ON_SET_ONLINE event", offlineEdgeHandler);
-		assertNotNull("Should have handler for Metadata.AFTER_IS_INITIALIZED event", metadataInializedHandler);
+		assertNotNull(offlineEdgeHandler, "Should have handler for Edge.ON_SET_ONLINE event");
+		assertNotNull(metadataInializedHandler, "Should have handler for Metadata.AFTER_IS_INITIALIZED event");
 		assertNull(noHandler);
 	}
 
@@ -205,7 +202,7 @@ public class TestOfflineEdgeHandler {
 			private final ZonedDateTime now = ZonedDateTime.now();
 			private final ZonedDateTime yesterday = this.now.minusDays(1);
 
-			private List<OfflineEdgeAlertingSetting> userList = List.of(
+			private final List<OfflineEdgeAlertingSetting> userList = List.of(
 					new OfflineEdgeAlertingSetting("edge1", "user0", 60, this.yesterday),
 					new OfflineEdgeAlertingSetting("edge1", "user1", 15, this.yesterday),
 					new OfflineEdgeAlertingSetting("edge1", "user2", 10, this.yesterday),
