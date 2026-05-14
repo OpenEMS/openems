@@ -90,6 +90,10 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 		return this.state;
 	}
 
+	protected StateHandler<STATE, CONTEXT> getCurrentStateHandler() {
+		return this.stateHandlers.get(this.state);
+	}
+
 	/**
 	 * Forcibly change the next State from outside. Use with care!
 	 *
@@ -168,9 +172,14 @@ public abstract class AbstractStateMachine<STATE extends State<STATE>, CONTEXT e
 			}
 		}
 
+		this.applyStateData(context);
+
 		// Handle Exception
 		if (exception != null) {
 			throw exception;
 		}
+	}
+
+	protected void applyStateData(CONTEXT context) {
 	}
 }

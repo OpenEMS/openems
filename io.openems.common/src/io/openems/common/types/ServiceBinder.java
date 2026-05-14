@@ -1,4 +1,4 @@
-package io.openems.edge.goodwe.batteryinverter;
+package io.openems.common.types;
 
 import java.util.HashMap;
 import java.util.Hashtable;
