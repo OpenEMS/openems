@@ -1,15 +1,15 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
-import { history } from "src/app/app-routing.module";
-import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
-import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
-import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
-import { CommonConsumptionHomeComponent } from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
-import { CommonProductionDetailsComponent } from "src/app/edge/live/common/production/details/details";
-import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
-import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
-import { CommonProductionHomeComponent } from "src/app/edge/live/common/production/new-navigation/new-navigation";
-import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
+import {NgModule} from "@angular/core";
+import {RouterModule, Routes} from "@angular/router";
+import {history} from "src/app/app-routing.module";
+import {CommonConsumptionDetailsComponent} from "src/app/edge/live/common/consumption/details/details";
+import {CommonConsumptionHistoryComponent} from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
+import {CommonConsumptionSingleHistoryOverviewComponent} from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
+import {CommonConsumptionHomeComponent} from "src/app/edge/live/common/consumption/new-navigation/new-navigation";
+import {CommonProductionDetailsComponent} from "src/app/edge/live/common/production/details/details";
+import {CommonProductionHistoryComponent} from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
+import {CommonProductionSingleHistoryOverviewComponent} from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
+import {CommonProductionHomeComponent} from "src/app/edge/live/common/production/new-navigation/new-navigation";
+import {ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerSettingsComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/settings/settings";
@@ -27,6 +27,10 @@ import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/sc
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
+import {HeatScheduleComponent} from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
+import {HeatAddTaskComponent} from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
+import {HeatEditTaskComponent} from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
+import {ControllerHeatSettingsComponent} from "src/app/edge/live/Controller/Heat/settings/settings";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
 import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
@@ -114,6 +118,10 @@ export const newNavigationRoutes: Routes = [
     { path: "controller/heatingelement/:componentId/history", component: ControllerHeatingElementHistoryComponent },
     { path: "controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
     { path: "controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
+    { path: "controller/heat/:componentId/settings", component: ControllerHeatSettingsComponent },
+    { path: "controller/heat/:componentId/schedule", component: HeatScheduleComponent },
+    { path: "controller/heat/:componentId/schedule/add-task", component: HeatAddTaskComponent },
+    { path: "controller/heat/:componentId/schedule/edit-task", component: HeatEditTaskComponent },
     { path: "controller/channelthreshold/:componentId", component: ChannelthresholdHomeComponent },
     { path: "controller/channelthreshold/:componentId/history", component: ControllerChannelthresholdHistoryComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
@@ -132,4 +140,3 @@ export const newNavigationRoutes: Routes = [
     ],
 })
 export class NavigationRoutingModule { }
-
