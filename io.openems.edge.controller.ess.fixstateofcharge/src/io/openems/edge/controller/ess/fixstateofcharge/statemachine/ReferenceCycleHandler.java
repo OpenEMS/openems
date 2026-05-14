@@ -1,5 +1,6 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget.CHARGE_TO_HUNDRED;
 import static io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget.DISCHARGE_TO_ZERO;
 
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
+import io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 
 /**
@@ -62,12 +64,20 @@ public class ReferenceCycleHandler extends StateHandler<State, Context> {
 	private boolean advanceAndCheckIfCompleted(Context context) {
 		var referenceTarget = this.ensureReferenceTargetInitialized(context);
 
-		if (referenceTarget.isReached(context.soc)) {
+		if (referenceTarget.isReached(context.soc) || this.isPauseStarted(context)) {
+			return this.isReferencePauseComplete(context);
+		}
+
+		if (this.isFallbackTimeoutReached(context, referenceTarget)) {
 			return this.isReferencePauseComplete(context);
 		}
 
 		this.applyReferencePower(context, referenceTarget);
 		return false;
+	}
+
+	private boolean isPauseStarted(Context context) {
+		return context.getParent().getReferenceCyclePauseStartMs() != null;
 	}
 
 	private ReferenceCycleTarget ensureReferenceTargetInitialized(Context context) {
@@ -90,11 +100,39 @@ public class ReferenceCycleHandler extends StateHandler<State, Context> {
 		var maxReferencePower = ReferenceCycleUtils.calculateMaxReferencePower(context.maxApparentPower, capacityWh);
 
 		final var targetPower = switch (referenceTarget) {
-			case CHARGE_TO_HUNDRED -> -maxReferencePower;
-			case DISCHARGE_TO_ZERO -> +maxReferencePower;
+		case CHARGE_TO_HUNDRED -> -maxReferencePower;
+		case DISCHARGE_TO_ZERO -> +maxReferencePower;
 		};
 
 		context.setTargetPower(targetPower);
+	}
+
+	private boolean isFallbackTimeoutReached(Context context, ReferenceCycleTarget referenceTarget) {
+		var ess = context.getParent().getEss();
+		var allowedPower = switch (referenceTarget) {
+		case CHARGE_TO_HUNDRED -> ess.getAllowedChargePower();
+		case DISCHARGE_TO_ZERO -> ess.getAllowedDischargePower();
+		};
+
+		// Ignore undefined values to avoid false positives during startup
+		if (!allowedPower.isDefined() || allowedPower.get() != 0) {
+			context.getParent().clearReferenceCycleFallbackStart();
+			return false;
+		}
+
+		var fallbackStartMs = context.getParent().getReferenceCycleFallbackStartMs();
+		if (fallbackStartMs == null) {
+			context.getParent().setReferenceCycleFallbackStartMs(context.clock.millis());
+			return false;
+		}
+
+		if ((context.clock.millis() - fallbackStartMs) < ReferenceCycleUtils.FALLBACK_TIMEOUT_MS) {
+			return false;
+		}
+
+		log.warn("Reference cycle fallback triggered for target [{}]: allowed power stayed at 0 W for >= 30 minutes."
+				+ " Advancing to pause phase.", referenceTarget);
+		return true;
 	}
 
 	private boolean isReferencePauseComplete(Context context) {
@@ -117,6 +155,7 @@ public class ReferenceCycleHandler extends StateHandler<State, Context> {
 	}
 
 	private void startPauseTimer(Context context) {
+		context.getParent().clearReferenceCycleFallbackStart();
 		context.getParent().setReferenceCyclePauseStartMs(context.clock.millis());
 	}
 
@@ -127,7 +166,6 @@ public class ReferenceCycleHandler extends StateHandler<State, Context> {
 		return pauseDurationMs < ReferenceCycleUtils.REFERENCE_CYCLE_PAUSE_MS;
 	}
 
-
 	private static State transitionToNextState(Context context) {
 		return Context.getSocState(context.soc, context.targetSoc);
 	}
@@ -136,6 +174,7 @@ public class ReferenceCycleHandler extends StateHandler<State, Context> {
 	protected void onExit(Context context) throws OpenemsNamedException {
 		context.getParent().clearReferenceCycleTarget();
 		context.getParent().clearReferenceCyclePauseStart();
+		context.getParent().clearReferenceCycleFallbackStart();
 		super.onExit(context);
 	}
 }
