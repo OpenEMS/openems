@@ -9,6 +9,8 @@ import { CommonProductionDetailsComponent } from "src/app/edge/live/common/produ
 import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
 import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
 import { CommonProductionHomeComponent } from "src/app/edge/live/common/production/new-navigation/new-navigation";
+import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
+import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerSettingsComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/settings/settings";
 import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
@@ -112,6 +114,8 @@ export const newNavigationRoutes: Routes = [
     { path: "controller/heatingelement/:componentId/history", component: ControllerHeatingElementHistoryComponent },
     { path: "controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
     { path: "controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
+    { path: "controller/channelthreshold/:componentId", component: ChannelthresholdHomeComponent },
+    { path: "controller/channelthreshold/:componentId/history", component: ControllerChannelthresholdHistoryComponent },
     { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
     { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },

@@ -7,7 +7,7 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 
 @Component({
     selector: "oe-controller-channel-threshold-chart",
-    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
 export class TotalChartComponent extends AbstractHistoryChart {
