@@ -3,21 +3,21 @@ import org.gradle.api.tasks.Delete
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-	extra["agp_version"] = "8.4.0"
+	val agpVersion = project.providers.gradleProperty("android.agpVersion").get()
+	val googleServicesVersion = project.providers.gradleProperty("android.googleServicesVersion").get()
+
 	repositories {
 		google()
 		mavenCentral()
 	}
 	dependencies {
-		classpath("com.android.tools.build:gradle:${extra["agp_version"]}")
-		classpath("com.google.gms:google-services:4.3.15")
+		classpath("com.android.tools.build:gradle:$agpVersion")
+		classpath("com.google.gms:google-services:$googleServicesVersion")
 
 		// NOTE: Do not place your application dependencies here; they belong
 		// in the individual module build.gradle files
 	}
 }
-
-apply(from = "variables.gradle.kts")
 
 allprojects {
 	repositories {

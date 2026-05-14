@@ -20,12 +20,16 @@ java {
 
 data class OpenemsVersion(val name: String, val code: Int)
 
+fun Project.stringGradleProperty(name: String): String = providers.gradleProperty(name).get()
+
+fun Project.intGradleProperty(name: String): Int = stringGradleProperty(name).toInt()
+
 fun getVersionCode(): Int {
 	val dateStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"))
 	return dateStr.toInt()
 }
 
-fun getVersion(): OpenemsVersion {
+fun resolveVersion(): OpenemsVersion {
 	val versionEnv = System.getenv("VERSION")
 	if (versionEnv == null) {
 		logger.warn("WARNING: environment VERSION not specified! using `SNAPSHOT` instead.")
@@ -37,18 +41,28 @@ fun getVersion(): OpenemsVersion {
 	return OpenemsVersion(name = v, code = c)
 }
 
-val version = getVersion()
+val version = resolveVersion()
+
+val androidCompileSdk = intGradleProperty("android.compileSdkVersion")
+val androidMinSdk = intGradleProperty("android.minSdkVersion")
+val androidTargetSdk = intGradleProperty("android.targetSdkVersion")
+val androidxAppCompatVersion = stringGradleProperty("androidx.appCompatVersion")
+val androidxCoordinatorLayoutVersion = stringGradleProperty("androidx.coordinatorLayoutVersion")
+val coreSplashScreenVersion = stringGradleProperty("androidx.coreSplashScreenVersion")
+val junitVersion = stringGradleProperty("test.junitVersion")
+val androidxJunitVersion = stringGradleProperty("test.androidxJunitVersion")
+val androidxEspressoCoreVersion = stringGradleProperty("test.androidxEspressoCoreVersion")
 
 android {
-	compileSdk = rootProject.extra["compileSdkVersion"] as Int
+	compileSdk = androidCompileSdk
 
 	defaultConfig {
-		minSdk = rootProject.extra["minSdkVersion"] as Int
-		targetSdk = rootProject.extra["targetSdkVersion"] as Int
+		minSdk = androidMinSdk
+		targetSdk = androidTargetSdk
 		versionCode = version.code
 		versionName = version.name
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-		aaptOptions {
+		androidResources {
 			// Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
 			// Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
 			ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
@@ -90,21 +104,15 @@ android {
 	}
 }
 
-repositories {
-	flatDir {
-		dirs("../capacitor-cordova-android-plugins/src/main/libs", "libs")
-	}
-}
-
 dependencies {
 	implementation(fileTree(mapOf("include" to listOf("*.jar"), "dir" to "libs")))
-	implementation("androidx.appcompat:appcompat:${rootProject.extra["androidxAppCompatVersion"]}")
-	implementation("androidx.coordinatorlayout:coordinatorlayout:${rootProject.extra["androidxCoordinatorLayoutVersion"]}")
-	implementation("androidx.core:core-splashscreen:${rootProject.extra["coreSplashScreenVersion"]}")
+	implementation("androidx.appcompat:appcompat:$androidxAppCompatVersion")
+	implementation("androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion")
+	implementation("androidx.core:core-splashscreen:$coreSplashScreenVersion")
 	implementation(project(":capacitor-android"))
-	testImplementation("junit:junit:${rootProject.extra["junitVersion"]}")
-	androidTestImplementation("androidx.test.ext:junit:${rootProject.extra["androidxJunitVersion"]}")
-	androidTestImplementation("androidx.test.espresso:espresso-core:${rootProject.extra["androidxEspressoCoreVersion"]}")
+	testImplementation("junit:junit:$junitVersion")
+	androidTestImplementation("androidx.test.ext:junit:$androidxJunitVersion")
+	androidTestImplementation("androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion")
 	implementation(project(":capacitor-cordova-android-plugins"))
 }
 
