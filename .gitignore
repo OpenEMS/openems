@@ -13,7 +13,8 @@
 /bower_components
 
 # IntelliJ IDEA files and metadata
-/.idea
+/.idea/*
+!/.idea/runConfigurations
 *.iml
 *.eml
 
