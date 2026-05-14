@@ -3,6 +3,7 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { SharedModule } from "../../shared/shared.module";
 import { FlatComponent as StorageFlatComponent } from "../live/common/storage/history/flat/flat";
+import { ControllerHeatingElementChartComponent } from "../live/Controller/Io/HeatingElement/history/flat/flat";
 import { ControllerIoHeatpumpFlatHistoryComponent } from "../live/Controller/Io/Heatpump/history/flat/flat";
 import { ChpSocChartComponent } from "./chpsoc/chart.component";
 import { ChpSocWidgetComponent } from "./chpsoc/widget.component";
@@ -33,6 +34,7 @@ import { HistoryParentComponent } from "./historyparent.component";
         DelayedSellToGridChartOverviewComponent,
         DelayedSellToGridWidgetComponent,
         ControllerIoHeatpumpFlatHistoryComponent,
+        ControllerHeatingElementChartComponent,
         TimeslotPeakshavingFlatComponent,
         SymmetricPeakshavingFlatComponent,
         AsymmetricPeakshavingFlatComponent,

@@ -27,7 +27,7 @@ import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOve
 import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/live/Controller/Ess/TimeOfUseTariff/history/overview/overview";
 import { ControllerHeatOverviewComponent } from "./edge/live/Controller/Heat/history/overview/overview";
-import { ControllerHeatingElementHistoryComponent as HeatingelementChartOverviewComponent } from "./edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
+import { ControllerIoHeatingElementOverviewComponent } from "./edge/live/Controller/Io/HeatingElement/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
@@ -48,7 +48,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
         { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
         { path: ":componentId/gridOptimizedChargeChart", component: ControllerEssGridOptimizedChargeOverviewComponent },
-        { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
+        { path: ":componentId/heatingelementchart", component: ControllerIoHeatingElementOverviewComponent },
         { path: ":componentId/heatmypvchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/heatchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/enerixchart", component: EnerixOverviewComponent },
