@@ -9,9 +9,8 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.influxdb:influxdb-client-core;version='8.0.0',\
 	com.influxdb:influxdb-client-java;version='8.0.0',\
 	com.influxdb:influxdb-client-utils;version='8.0.0',\
-	com.oracle.labs.olcut:olcut-config-protobuf;version='5.3',\
-	com.oracle.labs.olcut:olcut-core;version='5.3',\
-	com.oracle.labs.olcut:olcut-config-protobuf;version='5.3',\
+	com.oracle.labs.olcut:olcut-config-protobuf;version='5.3.1',\
+	com.oracle.labs.olcut:olcut-core;version='5.3.1',\
 	com.squareup.okhttp3:okhttp-jvm;version='5.3.2',\
 	com.squareup.retrofit2:adapter-rxjava3;version='3.0.0',\
 	com.squareup.retrofit2:converter-gson;version='3.0.0',\
@@ -22,7 +21,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	eu.chargetime.ocpp:OCPP-J;version='1.0.2',\
 	eu.chargetime.ocpp:v1_6;version='1.1.0',\
 	fr.turri:aXMLRPC;version='1.17.0',\
-	info.faljse:SDNotify;version='1.5.0',\
+	info.faljse:SDNotify;version='1.6.0',\
 	io.helins:linux-common;version='0.1.4',\
 	io.helins:linux-errno;version='1.0.2',\
 	io.helins:linux-i2c;version='1.0.2',\
@@ -32,7 +31,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	org.dhatim:fastexcel-reader;version='0.20.0',\
 	org.dhatim:fastexcel;version='0.20.0',\
 	org.eclipse.paho:org.eclipse.paho.mqttv5.client;version='1.2.5',\
-	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.9.0',\
+	org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm;version='1.10.2',\
 	com.auth0:auth0;version='3.5.0',\
 	com.auth0:java-jwt;version='4.5.2',\
 	com.auth0:jwks-rsa;version='0.24.0',\

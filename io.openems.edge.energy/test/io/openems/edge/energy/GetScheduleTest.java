@@ -139,10 +139,10 @@ class GetScheduleTest {
 				  "_sum": {
 				    "GridBuyPrice": 293.7,
 				    "ProductionActivePower": 0,
-				    "ConsumptionActivePower": 106,
-				    "UnmanagedConsumptionActivePower": 106,
+				    "ConsumptionActivePower": 424,
+				    "UnmanagedConsumptionActivePower": 424,
 				    "EssDischargePower": 0,
-				    "GridActivePower": 106
+				    "GridActivePower": 424
 				  },
 				  "eshs": [
 				    {
@@ -163,11 +163,11 @@ class GetScheduleTest {
 				  "type": "PREDICTION",
 				  "_sum": {
 				    "GridBuyPrice": 260.7,
-				    "ProductionActivePower": 3045,
-				    "ConsumptionActivePower": 59,
-				    "UnmanagedConsumptionActivePower": 59,
+				    "ProductionActivePower": 12180,
+				    "ConsumptionActivePower": 236,
+				    "UnmanagedConsumptionActivePower": 236,
 				    "EssDischargePower": 0,
-				    "GridActivePower": -2986
+				    "GridActivePower": -11944
 				  },
 				  "eshs": [
 				    {
