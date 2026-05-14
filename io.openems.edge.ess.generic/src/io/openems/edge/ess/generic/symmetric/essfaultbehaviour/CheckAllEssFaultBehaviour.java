@@ -6,7 +6,12 @@ public class CheckAllEssFaultBehaviour implements EssFaultBehaviour {
 
 	@Override
 	public boolean hasEssFault(Context context) {
-		return context.getParent().hasFaults() || context.battery.hasFaults() || context.batteryInverter.hasFaults();
+		final var essFault = context.getParent().hasFaults();
+		final var batteryFault = context.battery.hasFaults();
+		final var inverterFault = context.batteryInverter.hasFaults();
+		context.getParent()._setEssFaultDueToBatteryFault(batteryFault);
+		context.getParent()._setEssFaultDueToBatteryInverterFault(inverterFault);
+		return essFault || batteryFault || inverterFault;
 	}
 
 	@Override
