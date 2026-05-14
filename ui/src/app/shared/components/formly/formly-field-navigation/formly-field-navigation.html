@@ -67,7 +67,7 @@
                 <!-- OeFormlyField.ChildrenLine -->
                 @case ('children-line') {
                 <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
-                    [name]="line.name">
+                    [name]="line.name" [hideValue]="true">
                     @for (lineItem of line.children; track lineItem) {
                     <!-- OeFormlyField.Item -->
                     <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"

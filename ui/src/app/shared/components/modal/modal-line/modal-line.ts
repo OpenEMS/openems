@@ -14,6 +14,7 @@ export class ModalLineComponent extends AbstractModalLine {
 
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input({ required: true }) protected leftColumnWidth!: number;
+    @Input({ required: true }) protected hideValue: boolean = false;
 
     @Input() protected button: ButtonLabel | null = null;
     /** ControlName for interactive Button */
