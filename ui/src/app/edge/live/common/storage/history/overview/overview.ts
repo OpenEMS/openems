@@ -3,14 +3,14 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { NavigationOption } from "src/app/shared/components/footer/subnavigation/footerNavigation";
 import { FooterNavigationComponentsModule } from "src/app/shared/components/footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
-import { AbstractHistoryChartOverview } from "../../../../../shared/components/chart/abstractHistoryChartOverview";
-import { EdgeConfig, Service } from "../../../../../shared/shared";
+import { EdgeConfig, Service } from "src/app/shared/shared";
 import { StorageTotalChartComponent } from "../chart/totalchart";
 
 @Component({

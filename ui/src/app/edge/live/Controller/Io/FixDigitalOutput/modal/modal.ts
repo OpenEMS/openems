@@ -4,9 +4,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
@@ -78,7 +77,7 @@ export class ModalComponent extends AbstractFormlyComponent {
         this.form.controls["isOn"].setValue(isOn);
     }
 
-    protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
+    protected override generateView(viewContext: ViewContext): OeFormlyView {
         return ModalComponent.generateView(this.translate, this.component, this.edge);
     }
 

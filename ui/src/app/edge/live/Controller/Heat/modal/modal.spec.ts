@@ -3,7 +3,7 @@ import { OeFormlyViewTester } from "src/app/shared/components/shared/testing/tes
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { EdgeConfig } from "src/app/shared/shared";
 import globalEn from "src/assets/i18n/en.json";
-import {environment} from "../../../../../../themes/openems/environments/edge-dev";
+import { environment } from "../../../../../../themes/openems/environments/edge-dev";
 import heatEn from "../i18n/en.json";
 import { ControllerHeatModalComponent } from "./modal";
 
@@ -102,7 +102,6 @@ describe("ControllerHeatModalComponent", () => {
                 {
                     type: "info-line",
                     name: "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
-                    style: "",
                 },
             ],
         });

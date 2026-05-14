@@ -6,9 +6,8 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
@@ -73,10 +72,9 @@ export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
         this.setFormControlSafelyWithChannel<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
     }
 
-    protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-        this.component = config.getComponent(this.route.snapshot.params.componentId);
-        const edge = this.service.currentEdge();
-        return EvseEnergyLimitComponent.generateView(this.translate, this.component, edge);
+    protected override generateView(viewContext: ViewContext): OeFormlyView {
+        this.component = viewContext.config.getComponent(this.route.snapshot.params.componentId);
+        return EvseEnergyLimitComponent.generateView(this.translate, this.component, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {

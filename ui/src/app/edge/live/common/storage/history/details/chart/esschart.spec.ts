@@ -1,9 +1,9 @@
+import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { History } from "src/app/shared/components/shared/testing/channels.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
 import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { ChartAxis } from "src/app/shared/utils/utils";
-import { DATA, LABELS } from "../../../energy/chart/chart.constants.spec";
 import { expectEssChartViewToEqual } from "../../shared/chart.constants.spec";
 
 describe("History EssChart", () => {

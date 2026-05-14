@@ -29,8 +29,11 @@ export class ModalLineComponent extends AbstractModalLine {
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+
+    /** Range */
     protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 
+    /** Toggle */
     protected toggleOnEnter(event: KeyboardEvent, controlName: string) {
         const control = this.formGroup.get(controlName);
         if (control) {
@@ -38,6 +41,8 @@ export class ModalLineComponent extends AbstractModalLine {
             event.preventDefault();
         }
     }
+
+    /** Select */
     protected selectOnEnter(event: KeyboardEvent, controlName: string) {
         const control = this.formGroup.get(controlName);
         if (control) {

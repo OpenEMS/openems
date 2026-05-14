@@ -9,14 +9,14 @@ import { ChartComponentsModule } from "src/app/shared/components/chart/chart.mod
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 import { TRequiredBy } from "src/app/shared/type/utility";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
-import { ChannelAddress, ChartConstants, EdgeConfig } from "../../../../../../shared/shared";
 
 @Component({
-    selector: "common-storage-details-ess-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    selector: "oe-common-storage-details-ess-chart",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
         CommonUiModule,

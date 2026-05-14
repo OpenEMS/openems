@@ -43,6 +43,9 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     @Input() public value!: number | string;
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
 
+    /** Applies Styling */
+    @Input() public lineStyle?: { name?: Partial<CSSStyleDeclaration> } = {};
+
     /**
      * displayValue is the displayed @Input value in html
     */
@@ -164,9 +167,10 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
 
         } else {
             this.displayName = this._name;
-            if (this.converter) {
-                this.displayValue = this.converter(value);
-            }
+        }
+
+        if (this.converter) {
+            this.displayValue = this.converter(value);
         }
     }
 

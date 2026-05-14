@@ -1,18 +1,17 @@
-import {CommonModule} from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
-import { FormGroup, ReactiveFormsModule} from "@angular/forms";
-import {IonicModule} from "@ionic/angular";
-import {FormlyModule} from "@ngx-formly/core";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import { FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { FormlyModule } from "@ngx-formly/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import {RouteService} from "../../../../../shared/service/route.service";
-import {SharedControllerHeat} from "../shared/shared";
+import { RouteService } from "../../../../../shared/service/route.service";
+import { SharedControllerHeat } from "../shared/shared";
 
 @Component({
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
@@ -40,7 +39,7 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
 
     private readonly routeService: RouteService = inject(RouteService);
 
-    public static generateView(component: EdgeConfig.Component | null, edge: Edge | null, translate : TranslateService): OeFormlyView {
+    public static generateView(component: EdgeConfig.Component | null, edge: Edge | null, translate: TranslateService): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
@@ -70,10 +69,10 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         );
     }
 
-    protected override generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
-        this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
+    protected override generateView(viewContext: ViewContext): OeFormlyView {
+        this.component = viewContext.config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         const edge = this.service.currentEdge();
-        return ControllerHeatSettingsComponent.generateView(this.component, edge, translate);
+        return ControllerHeatSettingsComponent.generateView(this.component, edge, viewContext.translate);
     }
 
     protected override getFormGroup(): FormGroup {
