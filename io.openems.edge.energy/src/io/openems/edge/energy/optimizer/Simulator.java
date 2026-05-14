@@ -194,12 +194,12 @@ public class Simulator {
 			final int gridToCons = buyFromGrid - gridToEss;
 
 			period.data().gridBuyPrice().ifPresent(p -> {
-				final double gridBuyPrice = p.actual();
+				final double shiftedGridBuyPrice = p.positiveShifted();
 
 				// Cost for direct consumption
-				final double directCost = gridToCons * gridBuyPrice;
+				final double directCost = gridToCons * shiftedGridBuyPrice;
 				// Cost for future consumption after storage
-				final double costWithStorage = gridToEss * gridBuyPrice * EFFICIENCY_FACTOR;
+				final double costWithStorage = gridToEss * shiftedGridBuyPrice * EFFICIENCY_FACTOR;
 
 				fitness.addGridBuyCostScore(directCost + costWithStorage);
 			});

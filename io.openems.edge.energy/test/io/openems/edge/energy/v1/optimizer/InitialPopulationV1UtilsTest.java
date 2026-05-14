@@ -13,12 +13,12 @@ import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1Test.prepareExistingSchedule;
 import static java.util.Arrays.stream;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 

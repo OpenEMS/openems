@@ -23,7 +23,7 @@ public record Fitness(//
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * @implNote A {@link Fitness} instance is considered <i>better</i> than another
 	 *           one if this method returns a value smaller than {@code 0}. In other
 	 *           words: {@code a.compareTo(b) < 0} means that {@code a} is preferred

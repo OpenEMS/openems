@@ -2,11 +2,11 @@ package io.openems.edge.energy.v1.optimizer;
 
 import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculateChargeEnergyInChargeGrid;
 import static io.openems.edge.energy.v1.optimizer.ParamsUtilsV1.calculatePeriodLengthHourFromIndex;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("deprecation")
 public class ParamsUtilsV1Test {

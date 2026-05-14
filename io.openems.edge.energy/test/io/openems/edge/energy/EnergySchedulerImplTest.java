@@ -25,7 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;

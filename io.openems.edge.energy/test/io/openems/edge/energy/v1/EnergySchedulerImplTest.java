@@ -17,7 +17,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
