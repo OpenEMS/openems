@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
-import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget.CHARGE_TO_HUNDRED;
 import static io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget.DISCHARGE_TO_ZERO;
 
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.controller.ess.fixstateofcharge.api.FixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 
 /**
