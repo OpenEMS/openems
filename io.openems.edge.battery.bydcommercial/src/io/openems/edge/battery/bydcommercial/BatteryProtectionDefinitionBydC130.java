@@ -90,4 +90,14 @@ public class BatteryProtectionDefinitionBydC130 implements BatteryProtectionDefi
 	public PolyLine getDischargeSocToPercent() {
 		return PolyLine.empty();
 	}
+
+	@Override
+	public boolean isChargeAllowed() {
+		return true;
+	}
+
+	@Override
+	public boolean isDischargeAllowed() {
+		return true;
+	}
 }

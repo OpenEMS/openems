@@ -5,10 +5,9 @@ import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
@@ -59,7 +58,7 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
             {
                 type: "info-line",
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING_INFO"),
-                style: "font-weight: bold; text-align: center; font-size: 1rem; padding-bottom: calc(var(--ion-padding) * 4)",
+                style: { name: { fontWeight: "bold", textAlign: "center", fontSize: "1rem", paddingBottom: "calc(var(--ion-padding) * 4)" } },
             },
             {
                 type: "radio-buttons-from-form-control-line",
@@ -99,10 +98,9 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
         this.setFormControlSafelyWithChannel<number>(this.form, EvsePhaseSwitchingComponent.formControlName, currentData, this.phaseSwitchingChannel);
     }
 
-    protected override generateView(config: EdgeConfig, role: Role): OeFormlyView {
-        this.controller = config.getComponent(this.route.snapshot.params.componentId);
-        const edge = this.service.currentEdge();
-        return EvsePhaseSwitchingComponent.generateView(this.translate, this.controller, edge);
+    protected override generateView(viewContext: ViewContext): OeFormlyView {
+        this.controller = viewContext.config.getComponent(this.route.snapshot.params.componentId);
+        return EvsePhaseSwitchingComponent.generateView(this.translate, this.controller, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {

@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+
 import io.openems.edge.common.update.ProgressPublisher;
 
 public class UpdateHandler implements AutoCloseable {
@@ -15,8 +17,8 @@ public class UpdateHandler implements AutoCloseable {
 
 	private final SerialPortHandler serialPortHandler;
 
-	public UpdateHandler(String portName, int baudRate) throws Exception {
-		this.serialPortHandler = new SerialPortHandler(portName, baudRate);
+	public UpdateHandler(String portName, int baudRate, Logger logger) throws Exception {
+		this.serialPortHandler = new SerialPortHandler(portName, baudRate, logger);
 	}
 
 	@Override

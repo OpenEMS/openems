@@ -60,6 +60,11 @@ public enum OpenemsAppCategory {
 	HARDWARE("hardware"),
 
 	/**
+	 * The base network configuration used by the OpenEMS service.
+	 */
+	SYSTEM_BASE("systemBase"),
+
+	/**
 	 * The hardware on which the OpenEMS software runs.
 	 */
 	OPENEMS_DEVICE_HARDWARE("openemsDeviceHardware"),

@@ -21,6 +21,8 @@ export enum DateTimeFormats { /* https://date-fns.org/v4.1.0/docs/format */
     HOUR_MINUTE = "HH:mm",
     HOUR_MINUTE_SECONDS = "HH:mm:ss",
     ONE_TO_24_HOUR_MINUTE_SECONDS = "kk:mm:ss",
+    DAY_MONTH_YEAR = "dd.MM.yyyy",
+    YEAR_MONTH_DAY_TIME_WITH_TZ = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX",
 }
 
 export class DateTimeUtils {
@@ -126,5 +128,12 @@ export class DateTimeUtils {
         return new Intl.DateTimeFormat(language.i18nLocaleKey, {
             hour: "numeric",
         }).format(date);
+    }
+
+    public static format(date: Date | null, dateFormat: DateTimeFormats): string | null {
+        if (date == null) {
+            return null;
+        }
+        return format(date, dateFormat);
     }
 }

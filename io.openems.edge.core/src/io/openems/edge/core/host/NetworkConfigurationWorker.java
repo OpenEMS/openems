@@ -30,8 +30,8 @@ public class NetworkConfigurationWorker extends AbstractWorker {
 	@Override
 	protected void forever() {
 		try {
-			var actualNetworkConfiguration = JsonUtils
-					.prettyToString(this.parent.operatingSystem.getNetworkConfiguration().toJson());
+			var networkConfig = this.parent.operatingSystem.getNetworkConfiguration();
+			var actualNetworkConfiguration = JsonUtils.prettyToString(networkConfig.toJson());
 			var persistedNetworkConfiguration = this.parent.config.networkConfiguration();
 
 			if (!actualNetworkConfiguration.equals(persistedNetworkConfiguration)) {

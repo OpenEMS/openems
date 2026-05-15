@@ -63,11 +63,6 @@ export namespace SharedEssFixDigitalPowerControl {
             {
                 type: "value-from-channels-line",
                 name: translate.instant("GENERAL.CHARGE"),
-                nameCallback: (currentData: CurrentData) => {
-                    const power = currentData.allComponents[component.id + "/_PropertyPower"];
-                    const powerValue = Utils.convertChargeDischargePower(translate, power);
-                    return powerValue.name;
-                },
                 channelsToSubscribe: [
                     new ChannelAddress(component.id, PROPERTY_MODE),
                     new ChannelAddress(component.id, PROPERTY_POWER),

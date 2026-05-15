@@ -288,6 +288,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         if (this.edge == null) {
             return;
         }
+
         const updateArray: Map<string, Array<Map<string, any>>> = new Map();
         if (this.hasRequiredEdgeVersion) {
             const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];

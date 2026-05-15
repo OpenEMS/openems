@@ -1,4 +1,5 @@
 import { Component, inject } from "@angular/core";
+import { FormGroup } from "@angular/forms";
 import { FieldWrapper } from "@ngx-formly/core";
 import { Service } from "src/app/shared/shared";
 
@@ -23,6 +24,10 @@ export class FormlyFieldNavigationComponent extends FieldWrapper {
     protected service: Service = inject(Service);
 
     protected onSubmit(): void {
+        this.field!.props!.onSubmit(this.form);
+    }
+
+    protected setForm(formGroup: FormGroup) {
         this.field!.props!.onSubmit(this.form);
     }
 }

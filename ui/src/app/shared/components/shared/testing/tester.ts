@@ -145,7 +145,6 @@ export class OeFormlyViewTester {
                 return {
                     type: field.type,
                     name: field.name,
-                    style: field.style ?? "",
                 };
             }
 
@@ -411,7 +410,6 @@ export namespace OeFormlyViewTester {
         export type InfoLine = {
             type: "info-line",
             name: string | { text: string, lineStyle?: string }[],
-            style?: string,
         };
 
         export type Item = {

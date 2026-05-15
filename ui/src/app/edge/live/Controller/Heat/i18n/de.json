@@ -1,0 +1,31 @@
+{
+  "HEAT": {
+    "HOME": {
+      "CHOSEN_MODE": "Ausgewählter Modus"
+    },
+    "READ_ONLY": {
+      "NOT_AVAILABLE": "Im Read-only-Modus nicht verfügbar."
+    },
+    "SCHEDULE": {
+      "SCHEDULE": "Zeitplan",
+      "MODE": "Heizmodus",
+      "MODE_SELECTION_PLACEHOLDER": "Auswählen"
+    },
+    "SETTINGS": {
+      "NO_SETTINGS_AVAILABLE": "Keine Einstellungen verfügbar.",
+      "MODE": {
+        "FAST_HEAT": {
+          "TITLE": "Schnell heizen",
+          "DESCRIPTION": "Der Askoma-Heizstab versucht, mit der maximal möglichen Heizstufe auf die maximal eingestellte Temperatur zu heizen.\nDie maximale Leistungsdauer beträgt 10 h.\nNach dieser Zeit macht der Heizstab eine Stunde Pause."
+        },
+        "SURPLUS": {
+          "TITLE": "PV-Überschuss",
+          "DESCRIPTION": "Die Aktivierung erfolgt automatisch, perfekt angepasst an die überschüssige und verfügbare PV-Energie."
+        },
+        "OFF": {
+          "TITLE": "Keine Beheizung"
+        }
+      }
+    }
+  }
+}

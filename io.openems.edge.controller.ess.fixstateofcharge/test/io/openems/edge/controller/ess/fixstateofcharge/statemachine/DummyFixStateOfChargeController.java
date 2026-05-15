@@ -17,14 +17,24 @@ public class DummyFixStateOfChargeController extends AbstractFixStateOfCharge {
 	private boolean referenceCycleEnabled = false;
 
 	public DummyFixStateOfChargeController() {
-		super(
-				OpenemsComponent.ChannelId.values(),
+		super(//
+				OpenemsComponent.ChannelId.values(), //
 				FixStateOfCharge.ChannelId.values());
 		this.ess = new DummyManagedSymmetricEss("ess0");
 	}
 
 	DummyFixStateOfChargeController withCapacity(int capacityWh) {
 		this.ess = new DummyManagedSymmetricEss("ess0").withCapacity(capacityWh);
+		return this;
+	}
+
+	DummyFixStateOfChargeController withAllowedChargePower(int value) {
+		((DummyManagedSymmetricEss) this.ess).withAllowedChargePower(value);
+		return this;
+	}
+
+	DummyFixStateOfChargeController withAllowedDischargePower(int value) {
+		((DummyManagedSymmetricEss) this.ess).withAllowedDischargePower(value);
 		return this;
 	}
 

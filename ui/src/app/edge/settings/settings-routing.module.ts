@@ -2,7 +2,7 @@ import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
-import { environment } from "src/themes/openems/environments/edge-dev";
+import { environment } from "src/environments";
 import { ChannelsComponent as EdgeSettingsChannelsComponent } from "./channels/channels.component";
 import { IndexComponent as EdgeSettingsComponentInstallIndexComponentComponent } from "./component/install/index.component";
 import { ComponentInstallComponent as EdgeSettingsComponentInstallComponentComponent } from "./component/install/install.component";

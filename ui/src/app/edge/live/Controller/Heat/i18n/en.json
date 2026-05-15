@@ -1,0 +1,31 @@
+{
+  "HEAT": {
+    "HOME": {
+      "CHOSEN_MODE": "Selected mode"
+    },
+    "READ_ONLY": {
+      "NOT_AVAILABLE": "Not available in read-only mode."
+    },
+    "SCHEDULE": {
+      "SCHEDULE": "Schedule",
+      "MODE": "Heating mode",
+      "MODE_SELECTION_PLACEHOLDER": "Select"
+    },
+    "SETTINGS": {
+      "NO_SETTINGS_AVAILABLE": "No settings available.",
+      "MODE": {
+        "FAST_HEAT": {
+          "TITLE": "Quick heating",
+          "DESCRIPTION": "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause."
+        },
+        "SURPLUS": {
+          "TITLE": "PV surplus",
+          "DESCRIPTION": "Enables even heating of different buffer tanks. Activation happens automatically, perfectly adapted to your excess and available PV energy."
+        },
+        "OFF": {
+          "TITLE": "No heating"
+        }
+      }
+    }
+  }
+}

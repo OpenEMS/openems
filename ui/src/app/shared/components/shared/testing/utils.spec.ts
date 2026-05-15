@@ -44,6 +44,7 @@ export namespace TestingUtils {
      * @returns the injected translateService and service
      */
     export async function sharedSetup(): Promise<TestContext> {
+        TestBed.resetTestingModule();
         await TestBed.configureTestingModule(BASE_TEST_BED)
             .compileComponents()
             .then(() => setTranslateParams());
@@ -75,6 +76,7 @@ export namespace TestingUtils {
         });
 
         // Set up the TestBed
+        TestBed.resetTestingModule();
         await TestBed.configureTestingModule(testModuleMetadata)
             .compileComponents();
         await setTranslateParams();

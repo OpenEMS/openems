@@ -15,7 +15,8 @@ public enum ReferenceCycleTarget {
 	};
 
 	/**
-	 * is the target SoC reached.
+	 * Is the target SoC reached?.
+	 * 
 	 * @param soc state of charge
 	 * @return true if is reached otherwise false
 	 */

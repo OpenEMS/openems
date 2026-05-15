@@ -9,6 +9,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCod
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialUtils.isOldGridMeterAppUsedByCommercialApp;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -162,7 +163,6 @@ public class FeneconCommercial92
 					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
 					ComponentDef.from(
 							FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId)), //
-					ComponentDef.from(FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId)), //
 					ComponentDef.from(FeneconHomeComponents.modbusForExternalMeters(bundle, t,
 							modbusToExternalDevicesId, deviceHardware)) //
 			);
@@ -171,10 +171,18 @@ public class FeneconCommercial92
 					deinstallableSelfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
-					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId), //
 					FeneconHomeComponents.predictionDefault(), //
 					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
+
+			if (isOldGridMeterAppUsedByCommercialApp(this.appManagerUtil, this.getAppId())) {
+				dependencies.add(//
+						FeneconCommercialComponents.gridMeterWithOldDependency(bundle, gridMeterId,
+								modbusToGridMeterId));
+			} else {
+				dependencies.add(//
+						FeneconCommercialComponents.gridMeter(bundle));
+			}
 
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));

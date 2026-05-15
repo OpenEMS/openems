@@ -189,14 +189,37 @@ public class PeriodsBuilder {
 	}
 
 	private static Function<Double, PeriodData.Price> createPriceFactory(Double min, Double max) {
+		if (min == null || max == null) {
+			return price -> null;
+		}
+
+		final double positiveShift = calculatePositiveShift(min, max);
+
 		return price -> {
-			if (price == null || min == null || max == null) {
+			if (price == null) {
 				return null;
 			}
 
 			final double normalized = DoubleUtils.normalize(price, min, max, 0, 1, false);
-			return new PeriodData.Price(price, normalized);
+			final double positiveShifted = price + positiveShift;
+
+			return new PeriodData.Price(price, normalized, positiveShifted);
 		};
+	}
+
+	@VisibleForTesting
+	static double calculatePositiveShift(double min, double max) {
+		if (min >= 0) {
+			return 0.0;
+		}
+
+		final double range = max - min;
+		// The offset values (range / 2.0 and 1e-6) are chosen arbitrarily to ensure
+		// the minimum price has sufficient distance to zero. They have no
+		// domain-specific reasoning and are only intended to provide a clear separation
+		// from zero, ensuring that "not buying" (cost 0) remains preferable to any
+		// buying action.
+		return -min + (range > 0 ? range / 2.0 : 1e-6);
 	}
 
 	private PeriodData toPeriodData(//

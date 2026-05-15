@@ -630,13 +630,11 @@ export const LINE_HORIZONTAL: OeFormlyViewTester.Field = {
 export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
     type: "info-line",
     name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
-    style: "",
 };
 
 export const LINE_INFO = (text: string, style: string = ""): OeFormlyViewTester.Field => ({
     type: "info-line",
     name: text,
-    style: style,
 });
 export const LINE_BUTTONS_FROM_FORM_CONTROL = (text: string, controlName: string, buttons: ButtonLabel[]): OeFormlyViewTester.Field => ({
     type: "buttons-from-form-control-line",
