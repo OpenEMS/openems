@@ -5,9 +5,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
-import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
@@ -43,7 +42,7 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
             {
                 type: "info-line",
                 name: translate.instant("EVSE_SINGLE.SETTINGS.CHARGE_MODE"),
-                style: "font-weight: bold; text-align: center; font-size: 1rem; padding-bottom: calc(var(--ion-padding) * 4)",
+                style: { name: { fontWeight: "bold", textAlign: "center", fontSize: "1rem", paddingBottom: "calc(var(--ion-padding) * 4)" } },
             },
             {
                 type: "radio-buttons-from-form-control-line",
@@ -81,10 +80,9 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
         this.setFormControlSafelyWithChannel<number>(this.form, "mode", currentData, this.modeChannel);
     }
 
-    protected override generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView {
-        this.component = config.getComponent(this.route.snapshot.params.componentId);
-        const edge = this.service.currentEdge();
-        return ChargeModeComponent.generateView(translate, this.component, edge);
+    protected override generateView(viewContext: ViewContext): OeFormlyView {
+        this.component = viewContext.config.getComponent(this.route.snapshot.params.componentId);
+        return ChargeModeComponent.generateView(viewContext.translate, this.component, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {

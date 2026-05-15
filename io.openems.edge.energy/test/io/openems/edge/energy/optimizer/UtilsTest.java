@@ -4,8 +4,8 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.energy.optimizer.Utils.calculateExecutionLimitSeconds;
 import static io.openems.edge.energy.optimizer.Utils.calculateSleepMillis;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -14,7 +14,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.energy.api.EnergySchedulable;

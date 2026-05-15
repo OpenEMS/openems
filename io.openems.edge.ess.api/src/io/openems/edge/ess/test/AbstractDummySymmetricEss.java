@@ -1,5 +1,7 @@
 package io.openems.edge.ess.test;
 
+import io.openems.common.channel.Level;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.TestUtils;
@@ -65,6 +67,17 @@ public abstract class AbstractDummySymmetricEss<SELF extends AbstractDummySymmet
 	 */
 	public final SELF withActivePower(Integer value) {
 		TestUtils.withValue(this, SymmetricEss.ChannelId.ACTIVE_POWER, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link OpenemsComponent.ChannelId#STATE}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withLevel(Level value) {
+		TestUtils.withValue(this, OpenemsComponent.ChannelId.STATE, value);
 		return this.self();
 	}
 

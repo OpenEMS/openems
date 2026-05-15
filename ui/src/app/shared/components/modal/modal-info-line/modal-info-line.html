@@ -1,27 +1,27 @@
 @if (info) {
-  <ion-row size="12" [style]="rowStyle" class="full_width"
+<ion-row size="12" [style]="rowStyle" class="full_width"
     style="display: flex; align-items: center;line-height: 1.4; margin-top: 2%;">
     @if (icon) {
-      <ion-col [size]="icon ? 1: 0">
+    <ion-col [size]="icon ? 1: 0">
         <ion-icon [color]="icon?.color ?? 'primary'" [name]="icon?.name ?? 'information-outline'"
-          [size]="icon?.size ?? 'small'">
+            [size]="icon?.size ?? 'small'">
         </ion-icon>
-      </ion-col>
+    </ion-col>
     }
     <ion-col [size]="!icon ? 12: 11">
-      @if ((info | typeof) !== 'string') {
+        @if ((info | typeof) !== 'string') {
         @for (line of info; track line) {
-          <div [style]="line.lineStyle">
+        <div [style]="line.lineStyle">
             {{ line.text }} @if (info.length > 1) {
             <br>
             }
-          </div>
-        }
-      } @else {
-        <div [style]="lineStyle">
-          {{info}}
         </div>
-      }
+        }
+        } @else {
+        <div [style]="lineStyle">
+            {{info}}
+        </div>
+        }
     </ion-col>
-  </ion-row>
+</ion-row>
 }

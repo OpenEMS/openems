@@ -803,4 +803,29 @@ public class TypeUtils {
 		}
 		return Math.abs(value);
 	}
+
+	/**
+	 * Checks if a value is within a defined range where the lower boundary and the
+	 * upper boundary are inclusive.
+	 *
+	 * <pre>
+	 * value >= lowerInclusive && value <= upperInclusive
+	 * </pre>
+	 * 
+	 * <pre>
+	 * isBetween(7, 5, 10) -> true
+	 * isBetween(5, 5, 10) -> true
+	 * isBetween(10, 5, 10) -> true
+	 * </pre>
+	 *
+	 * @param value          the value to check
+	 * @param lowerInclusive the lower boundary (inclusive)
+	 * @param upperInclusive the upper boundary (inclusive)
+	 * @return true if the value is greater than or equal {@code lowerExclusive} and
+	 *         less than or equal to {@code upperInclusive}; otherwise false
+	 */
+	public static boolean isBetween(int value, int lowerInclusive, int upperInclusive) {
+		return value >= lowerInclusive && value <= upperInclusive;
+	}
+
 }

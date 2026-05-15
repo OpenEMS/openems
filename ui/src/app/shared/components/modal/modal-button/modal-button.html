@@ -15,14 +15,25 @@
     @case("RADIO"){
       <ion-radio-group [formControlName]="controlName">
         @for (button of buttons; track button) {
-          <ion-row class="ion-justify-content-center ion-text-nowrap">
-            <ion-item lines="none" [disabled]="button.disabled" style="--inner-padding-end: 0;">
-              <ion-radio labelPlacement="end" [value]="button.value" (ionSelect)="button.callback">
-                <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
-                <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
-              </ion-radio>
-            </ion-item>
-          </ion-row>
+          <ion-item>
+            <ion-radio style="width: min-content" labelPlacement="end" justify="start" [value]="button.value" alignment="center">
+              <ion-grid>
+                <ion-row>
+                  <ion-label class="ion-text-wrap ion-font-weight-bolder">
+                    <ng-template *ngTemplateOutlet="contentIcon; context: {$implicit: button}"></ng-template>
+                    {{ button.name }}
+                  </ion-label>
+                </ion-row>
+                @if (button.description) {
+                  <ion-row>
+                    <ion-label class="ion-text-wrap">
+                      {{ button.description }}
+                    </ion-label>
+                  </ion-row>
+                }
+              </ion-grid>
+            </ion-radio>
+          </ion-item>
         }
       </ion-radio-group>
     }

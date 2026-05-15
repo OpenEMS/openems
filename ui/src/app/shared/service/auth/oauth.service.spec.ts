@@ -6,7 +6,7 @@ import { TranslateLoader, TranslateModule } from "@ngx-translate/core";
 import { Theme } from "src/app/edge/history/shared";
 import { PlatFormService } from "src/app/platform.service";
 import { User } from "../../jsonrpc/shared";
-import { MyTranslateLoader, Language } from "../../type/language";
+import { Language, MyTranslateLoader } from "../../type/language";
 import { RouteService } from "../route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
@@ -28,7 +28,7 @@ describe("OAuthService", () => {
                 Service,
                 OAuthService,
                 RouteService,
-                ModalController,
+                { provide: ModalController, useValue: {} },
             ],
         });
         service = TestBed.inject(OAuthService);

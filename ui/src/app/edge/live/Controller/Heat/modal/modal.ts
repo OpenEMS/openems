@@ -1,92 +1,62 @@
-import { Component, OnInit } from "@angular/core";
-import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { Converter } from "src/app/shared/components/shared/converter";
+import { Component, Input } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { TranslateService } from "@ngx-translate/core";
+import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { ChannelAddress, CurrentData } from "src/app/shared/shared";
-import { Mode, WorkMode } from "src/app/shared/type/general";
-import { LiveDataService } from "../../../livedataservice";
+import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
+import { Mode, SharedControllerHeat } from "../shared/shared";
 
 @Component({
-    templateUrl: "./modal.html",
+    selector: "heat-modal",
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [
         { provide: DataService, useClass: LiveDataService },
     ],
 })
-export class ControllerHeatModalComponent extends AbstractModal implements OnInit {
+export class ControllerHeatModalComponent extends AbstractFormlyComponent {
+    public static readonly formControlName = "mode";
 
-    protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
-    protected readonly Mode = Mode;
-    protected readonly WorkMode = WorkMode;
+    @Input() public component: EdgeConfig.Component | null = null;
+    @Input() public edge: Edge | null = null;
 
-    protected statusNumber: number = 0;
-    protected status: State | null = null;
-    protected isMyPV: boolean = false;
+    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
+        return SharedControllerHeat.getFormlyModalView(translate, component, edge);
+    }
 
-    protected override onIsInitialized(): void {
-        if (this == null || this.component == null) {
-            return;
+    protected override generateView(): OeFormlyView {
+        return ControllerHeatModalComponent.generateView(this.translate, this.component, this.edge);
+    }
+
+    protected override getFormGroup(): FormGroup {
+        if (this.isReadOnly()) {
+            return new FormGroup({});
         }
 
-        // Check for specific factoryId
-        this.isMyPV = (this.component.factoryId === "Heat.MyPv.AcThor9s");
+        return SharedControllerHeat.getFormGroup();
     }
 
-    protected override getChannelAddresses(): ChannelAddress[] {
-        if (this == null || this.component == null) { return []; }
-
-        const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(this.component.id, "ActivePower"),
-            new ChannelAddress(this.component.id, "Temperature"),
-            new ChannelAddress(this.component.id, "Status"),
-        ];
-        return channelAddresses;
-    }
-
-    protected override onCurrentData(currentData: CurrentData) {
-        if (this != null && this.component != null) {
-
-            // for read-only and write
-            this.statusNumber = currentData.allComponents[this.component.id + "/" + "Status"] ?? Status.error;
-
-            switch (this.statusNumber) {
-                case Status.standby:
-                case Status.excess:
-                case Status.ControlNotAllowed:
-                    this.status = State.heating;
-                    break;
-                case Status.temperatureReached:
-                    this.status = State.temperatureReached;
-                    break;
-                case Status.noControlSignal:
-                    if (currentData.allComponents[this.component.id + "/" + "ActivePower"] > 0) {
-                        this.status = State.heating;
-                    } else {
-                        this.status = State.noHeating;
-                    }
-                    break;
-                case Status.error:
-                    this.status = State.noHeating;
-                    break;
-                default:
-                    this.status = State.noHeating;
-                    break;
-            }
+    protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
+        if (this.component == null) {
+            return [];
         }
+
+        return SharedControllerHeat.getChannelAddressesForComponent(this.component);
     }
-}
 
-enum Status {
-    standby,                    // Device is in standby mode
-    excess,                     // Device is running using excess energy
-    ControlNotAllowed,          // Control is overridden by another system
-    temperatureReached,         // Target temperature has been reached
-    noControlSignal,            // No control signal is available
-    error,                      // An error occurred on the device
-}
+    protected override onCurrentData(currentData: CurrentData): void {
+        this.setFormControlSafelyWithChannel<Mode>(
+            this.form,
+            ControllerHeatModalComponent.formControlName,
+            currentData,
+            this.isReadOnly() || this.component == null
+                ? null
+                : new ChannelAddress(this.component.id, "_PropertyMode"),
+        );
+    }
 
-enum State {
-    heating,                    // Device is heating
-    temperatureReached,         // Target temperature has been reached
-    noHeating,                  // Device is not heating
+    private isReadOnly(): boolean {
+        return this.component?.factoryId !== "Heat.Askoma" || this.component.properties?.readOnly === true;
+    }
 }

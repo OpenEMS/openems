@@ -96,4 +96,13 @@ public interface OperatingSystem {
 	 */
 	public Updateable getSystemUpdateable();
 
+	/**
+	 * Deletes network interface configuration files.
+	 * 
+	 * @param user           the user performing the operation
+	 * @param interfaceNames the list of interface names to delete
+	 * @throws OpenemsNamedException on error
+	 */
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException;
+
 }

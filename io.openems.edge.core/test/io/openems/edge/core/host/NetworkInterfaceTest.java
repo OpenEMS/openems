@@ -1,20 +1,20 @@
 package io.openems.edge.core.host;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class NetworkInterfaceTest {
 
 	private static Inet4AddressWithSubnetmask inet4AddressWithNetmask;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		inet4AddressWithNetmask = Inet4AddressWithSubnetmask.fromString("", "192.168.178.1/24");
 	}
