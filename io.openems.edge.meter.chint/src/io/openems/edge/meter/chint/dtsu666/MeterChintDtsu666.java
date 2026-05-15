@@ -12,7 +12,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 public interface MeterChintDtsu666 extends ElectricityMeter, OpenemsComponent, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		TOTAL_POWER_FACTOR(Doc.of(OpenemsType.INTEGER) //
+		TOTAL_POWER_FACTOR(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.NONE)), //
 		;
 

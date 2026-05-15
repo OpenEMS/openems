@@ -8,8 +8,8 @@ This bundle provides OpenEMS integration for selected Chint electricity meters. 
 
 == Supported Devices
 
-* https://chintglobal.com/global/en/products/instruments-meters/electricity-meter/ddsu666.html[Chint DDSU666 icon:external-link[]]
-* Chint DTSU666
+* https://www.chintglobal.com/global/en/products/instruments-meters/electricity-meter/ddsu666.html[Chint DDSU666 icon:external-link[]]
+* https://www.chintglobal.com/global/en/products/instruments-meters/electricity-meter/dtsu666.html[Chint DTSU666 icon:external-link[]]
 
 == Components
 
