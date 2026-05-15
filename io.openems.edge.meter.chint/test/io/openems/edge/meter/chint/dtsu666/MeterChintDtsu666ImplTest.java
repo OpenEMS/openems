@@ -2,8 +2,8 @@ package io.openems.edge.meter.chint.dtsu666;
 
 import static io.openems.common.types.MeterType.GRID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsException;
@@ -19,7 +19,7 @@ public class MeterChintDtsu666ImplTest {
 
 	private ComponentTest testBasis;
 
-	@Before
+	@BeforeEach
 	public void setup() throws OpenemsException, Exception {
 		this.testBasis = new ComponentTest(new MeterChintDtsu666Impl()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
