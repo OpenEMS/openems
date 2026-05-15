@@ -715,7 +715,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -724,7 +724,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
