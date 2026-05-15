@@ -128,7 +128,7 @@ public class UpdateManager implements ComponentJsonApi {
 				throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(call.getRequest().id());
 			}
 
-			return new GetUpdateState.Response(updateable.updateable().getUpdateState());
+			return new GetUpdateState.Response(updateable.updateable().getUpdateState(user.getLanguage()));
 		});
 	}
 

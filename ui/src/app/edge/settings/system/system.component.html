@@ -40,7 +40,7 @@
               </ion-item>
               <ion-card-content>
                 {{ updateableState.updateable.description }}
-                @switch (updateableState.updateState?.type) {
+                @switch (updateableState.updateState?.type || "unknown") {
                   @case ("unknown") {
                     <!-- Update State is unknown  -->
                     <ion-item lines="none">
@@ -67,6 +67,20 @@
                           <ion-item lines="none">
                             <ion-label color="success" class="ion-text-wrap">
                               {{ 'SETTINGS.SYSTEM_UPDATE.LATEST_VERISON'| translate}}
+                            </ion-label>
+                          </ion-item>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  }
+                  @case ("error") {
+                    <!-- Last update installation failed -->
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col size="12">
+                          <ion-item lines="none">
+                            <ion-label color="warning" class="ion-text-wrap">
+                              {{ updateableState.updateState.errorMessage }}
                             </ion-label>
                           </ion-item>
                         </ion-col>
@@ -118,7 +132,7 @@
                       <ion-label>
                         {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_PROGRESS'| translate}}
                         <br />
-                        {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate}}
+                        {{ 'SETTINGS.SYSTEM_UPDATE.UPDATE_TIME'| translate: { minutes: updateableState.updateState.avgDurationInMinutes || 10 } }}
                       </ion-label>
                     </ion-item>
                     <ion-item lines="none">

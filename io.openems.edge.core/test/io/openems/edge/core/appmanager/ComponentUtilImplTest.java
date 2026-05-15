@@ -1,20 +1,40 @@
 package io.openems.edge.core.appmanager;
 
+import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 
+import com.google.gson.JsonObject;
+
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.ComponentUtil.PreferredRelay;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayContactInfo;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayInfo;
+import io.openems.edge.core.host.Config;
+import io.openems.edge.core.host.HostImpl;
+import io.openems.edge.core.host.MyConfig;
+import io.openems.edge.core.host.NetworkInterface;
+import io.openems.edge.core.host.Routes;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 import io.openems.edge.io.test.DummyInputOutput;
 
 public class ComponentUtilImplTest {
@@ -23,11 +43,140 @@ public class ComponentUtilImplTest {
 	private DummyPseudoComponentManager componentManager;
 	private ComponentUtil componentUtil;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
 		this.cm = new DummyConfigurationAdmin();
 		this.componentUtil = new ComponentUtilImpl(this.componentManager);
+		final var finalComponentManager = this.componentManager;
+
+		final var hostComponent = new HostImpl() {
+
+			@Activate
+			protected void activate(ComponentContext componentContext, BundleContext bundleContext,
+					io.openems.edge.core.host.Config config) throws OpenemsException {
+				super.activate(componentContext, bundleContext, config);
+			}
+
+			@Modified
+			protected void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
+				super.modified(componentContext, bundleContext, config);
+			}
+
+			@Override
+			@Deactivate
+			protected void deactivate() {
+				super.deactivate();
+			}
+
+			@Override
+			public void handleSetNetworkConfigRequest(User user, SetNetworkConfig.Request request)
+					throws OpenemsError.OpenemsNamedException {
+				var newInterfaces = request.networkInterfaces();
+
+				var interfacesJson = new JsonObject();
+				for (NetworkInterface<?> ni : newInterfaces) {
+					interfacesJson.add(ni.getName(), ni.toJson());
+				}
+
+				var newConfigJson = JsonUtils.buildJsonObject().add("interfaces", interfacesJson).build();
+
+				finalComponentManager.updateHostConfiguration(newConfigJson.toString());
+			}
+		};
+		new ComponentTest(hostComponent) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("cm", this.cm) //
+				.activate(MyConfig.create() //
+						.setNetworkConfiguration("""
+								{
+								    "interfaces": {
+								        "eth0": {
+								            "dhcp": false,
+								            "linkLocalAddressing": false,
+								            "gateway": "172.23.20.254",
+								            "addresses": [
+								                {
+								                    "label": "",
+								                    "address": "172.23.20.1",
+								                    "subnetmask": "255.255.255.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "10.12.119.157",
+								                    "subnetmask": "255.255.255.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "192.168.100.200",
+								                    "subnetmask": "255.255.255.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "192.168.100.100",
+								                    "subnetmask": "255.255.255.0"
+								                }
+								            ],
+								            "gatewayOnLink": true
+								        },
+								        "eth1": {
+								            "dhcp": false,
+								            "addresses": [
+								                {
+								                    "label": "",
+								                    "address": "10.4.0.1",
+								                    "subnetmask": "255.255.0.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "192.168.1.9",
+								                    "subnetmask": "255.255.255.248"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "10.5.0.1",
+								                    "subnetmask": "255.255.0.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "172.23.21.1",
+								                    "subnetmask": "255.255.255.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "192.168.100.120",
+								                    "subnetmask": "255.255.255.0"
+								                },
+								                {
+								                    "label": "",
+								                    "address": "192.168.0.2",
+								                    "subnetmask": "255.255.255.224"
+								                }
+								            ],
+								            "routes": [
+								                {
+								                    "routeGateway": "172.23.21.254",
+								                    "routeDestination": "172.23.22.0/24",
+								                    "routeGatewayOnLink": true
+								                },
+								                {
+								                    "routeGateway": "172.23.21.254",
+								                    "routeDestination": "172.23.23.0/24",
+								                    "routeGatewayOnLink": true
+								                },
+								                {
+								                    "routeGateway": "172.23.21.254",
+								                    "routeDestination": "172.23.24.0/24",
+								                    "routeGatewayOnLink": true
+								                }
+								            ]
+								        }
+								    }
+								}
+								""") //
+						.setUsbConfiguration("") //
+						.build());
+		this.componentManager.addComponent(hostComponent);
 
 		this.createTestRelay("io0");
 	}
@@ -114,5 +263,31 @@ public class ComponentUtilImplTest {
 		final var dummyRelay = new DummyInputOutput(ioName);
 		this.cm.getOrCreateEmptyConfiguration(ioName);
 		this.componentManager.addComponent(dummyRelay);
+	}
+
+	@Test
+	public void updateHosts() throws Exception {
+		this.componentUtil.updateHosts(DUMMY_ADMIN, List.of(//
+				new InterfaceConfiguration("eth0") //
+		), List.of(//
+				new InterfaceConfiguration("eth0") //
+						.setDhcp(false), //
+				new InterfaceConfiguration("eth1") //
+						.addRoute(Routes.builder() //
+								.setRouteGateway("172.23.21.254") //
+								.setRouteDestination("172.23.22.0/24") //
+								.setRouteGatewayOnLink(true) //
+								.build())));
+
+		final var newInterfaces = this.componentUtil.getInterfaces();
+
+		final var eth1 = newInterfaces.stream().filter(t -> t.getName().equals("eth1")).findAny().orElse(null);
+		final var hasRoute = eth1.getRoutes().getValue().stream().anyMatch(route -> {
+			return route.getRouteGateway().equals("172.23.21.254")//
+					&& route.getRouteDestination().equals("172.23.22.0/24")//
+					&& route.isRouteGatewayOnLink();
+		});
+
+		assertFalse(hasRoute);
 	}
 }

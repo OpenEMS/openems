@@ -25,7 +25,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.DummyConfigurationAdmin;
@@ -41,7 +41,9 @@ import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 import io.openems.edge.predictor.api.test.DummyPredictorManager;
 import io.openems.edge.scheduler.api.test.DummyScheduler;
+import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.test.DummyTimedata;
+import io.openems.edge.timeofusetariff.test.DummyTariffManager;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
 public class EnergySchedulerImplTest {
@@ -71,6 +73,8 @@ public class EnergySchedulerImplTest {
 				Prediction.from(sum, SUM_UNMANAGED_CONSUMPTION, midnight, CONSUMPTION_PREDICTION_QUARTERLY),
 				SUM_UNMANAGED_CONSUMPTION);
 		final var timeOfUseTariff = DummyTimeOfUseTariffProvider.fromHourlyPrices(clock, HOURLY_PRICES_SUMMER);
+		final var tariffManager = new DummyTariffManager() //
+				.withTariffGridBuyProvider(timeOfUseTariff);
 
 		final var sut = new EnergySchedulerImpl();
 		new ComponentTest(sut) //
@@ -90,6 +94,7 @@ public class EnergySchedulerImplTest {
 				.addReference("predictorManager", new DummyPredictorManager(predictor0, predictor1)) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("timeOfUseTariff", timeOfUseTariff) //
+				.addReference("tariffManager", tariffManager) //
 				.addReference("scheduler", new DummyScheduler("scheduler0")) //
 				.addReference("addSchedulable", dummyEssEmergencyCapacityReserve("ctrlEmergencyCapacityReserve0", 20)) //
 				.addReference("addSchedulable", dummyEssLimitTotalDischarge("ctrlLimitTotalDischarge0", 0)) //
@@ -121,4 +126,14 @@ public class EnergySchedulerImplTest {
 		return getValueViaReflection(energyScheduler, "optimizer");
 	}
 
+	/**
+	 * Gets the {@link Timedata} via Java Reflection.
+	 * 
+	 * @param energyScheduler the {@link EnergySchedulerImpl}
+	 * @return the object
+	 * @throws Exception on error
+	 */
+	public static DummyTimedata getTimedata(EnergySchedulerImpl energyScheduler) throws Exception {
+		return getValueViaReflection(energyScheduler, "timedata");
+	}
 }

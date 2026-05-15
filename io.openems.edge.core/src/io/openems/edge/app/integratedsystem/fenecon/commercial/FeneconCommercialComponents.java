@@ -2,9 +2,11 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -83,7 +85,7 @@ public final class FeneconCommercialComponents {
 
 	/**
 	 * Creates a battery inverter with extended GoodWe Settings.
-	 * 
+	 *
 	 * @param bundle                   the translation bundle
 	 * @param batteryInverterId        the id of the battery inverter
 	 * @param hasEmergencyReserve      the id of the modbus bridge
@@ -322,23 +324,31 @@ public final class FeneconCommercialComponents {
 
 	/**
 	 * Creates a default gridMeter dependency for a FENECON Commercial 92.
+	 *
+	 * @param bundle the translation bundle
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration gridMeter(//
+			final ResourceBundle bundle //
+	) {
+		return gridMeterBase(bundle);
+	}
+
+	/**
+	 * Creates a default gridMeter dependency for a FENECON Commercial 92.
 	 * 
 	 * @param bundle      the translation bundle
 	 * @param gridMeterId the id of the grid meter
 	 * @param modbusId    the id of the modbus bridge
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration gridMeter(//
+	public static DependencyDeclaration gridMeterWithOldDependency(//
 			final ResourceBundle bundle, //
 			final String gridMeterId, //
 			final String modbusId //
 	) {
-		return new DependencyDeclaration("GRID_METER", //
-				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
-				DependencyDeclaration.UpdatePolicy.ALWAYS, //
-				DependencyDeclaration.DeletePolicy.IF_MINE, //
-				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+		return gridMeterBase(//
+				bundle, //
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.Meter.Kdk") //
 						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
@@ -347,8 +357,45 @@ public final class FeneconCommercialComponents {
 								.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusId) //
 								.addProperty(KdkMeter.Property.MODBUS_UNIT_ID.name(), 5) //
 								.addProperty(KdkMeter.Property.TYPE.name(), MeterType.GRID) //
-								.build())
+								.build()) //
 						.build());
+	}
+
+	private static DependencyDeclaration gridMeterBase(//
+			final ResourceBundle bundle, //
+			final DependencyDeclaration.AppDependencyConfig... extraAppConfigs //
+	) {
+		var configs = Stream.concat(//
+				Arrays.stream(getGridMeterAppConfigs(bundle)), //
+				Arrays.stream(extraAppConfigs)) //
+				.toArray(DependencyDeclaration.AppDependencyConfig[]::new);
+
+		return new DependencyDeclaration("GRID_METER", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+				configs);
+	}
+
+	private static DependencyDeclaration.AppDependencyConfig[] getGridMeterAppConfigs(//
+			final ResourceBundle bundle //
+	) {
+		return new DependencyDeclaration.AppDependencyConfig[] { //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.GridMeter.Kdk") //
+						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.build()) //
+						.build(),
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.GridMeter.Janitza") //
+						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.build()) //
+						.build() //
+		};
 	}
 
 	private FeneconCommercialComponents() {

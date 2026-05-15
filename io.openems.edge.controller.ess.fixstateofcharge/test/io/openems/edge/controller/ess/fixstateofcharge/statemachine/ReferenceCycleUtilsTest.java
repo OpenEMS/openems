@@ -56,7 +56,7 @@ class ReferenceCycleUtilsTest {
 		var controller = new DummyFixStateOfChargeController().withCapacity(CAPACITY_WH);
 		var config = new ConfigProperties(true, TARGET_SOC, false, null, 0, false, 0, false,
 				EndCondition.CAPACITY_CHANGED);
-		var context = new Context(controller, config,  MAX_APPARENT_POWER, socStart, TARGET_SOC, null, CLOCK);
+		var context = new Context(controller, config, MAX_APPARENT_POWER, socStart, TARGET_SOC, null, CLOCK);
 
 		// Calculate using the utility method
 		var actualSeconds = ReferenceCycleUtils.calculateRequiredTimeWithReferenceCycle(context);

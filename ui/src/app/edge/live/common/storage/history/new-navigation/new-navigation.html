@@ -1,0 +1,12 @@
+@if (edge) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+      @if (!ref.children.length) {
+        <pickdate></pickdate>
+      }
+    </ion-buttons>
+    <oe-common-storage-total-chart [isOnlyChart]="true">
+    </oe-common-storage-total-chart>
+  </oe-navigation-view>
+}

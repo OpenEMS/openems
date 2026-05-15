@@ -7,6 +7,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
@@ -40,11 +41,16 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.types.ServiceBinder;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.statemachine.Context;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
+import io.openems.edge.battery.fenecon.home.update.BatteryData;
+import io.openems.edge.battery.fenecon.home.update.BatteryFeneconHomeUpdateParams;
+import io.openems.edge.battery.fenecon.home.update.BatteryFeneconHomeUpdateable;
+import io.openems.edge.battery.fenecon.home.update.BatteryFeneconHomeUpdateable.FeneconBatteryUpdateEvent;
 import io.openems.edge.battery.protection.BatteryProtection;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -76,6 +82,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.common.update.Updateable;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -100,6 +107,20 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	protected final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
 
+	private final ServiceBinder<BatteryFeneconHomeUpdateParams, BatteryFeneconHomeUpdateable> updateServiceBinder = new ServiceBinder<>(
+			Updateable.class, updateParams -> {
+				final var bridge = this.getBridgeModbus();
+				if (bridge == null || this.config == null) {
+					return null;
+				}
+
+				return new BatteryFeneconHomeUpdateable(bridge, this.config.modbusUnitId(), updateParams,
+						BatteryData.byBattery(this), this::handleBatteryUpdateEvent,
+						OpenemsComponent.getComponentLogger(BatteryFeneconHomeUpdateable.class, this));
+			}, BatteryFeneconHomeUpdateable::deactivate);
+	// Null-safety for deactivate() is guaranteed by deactivateBindService() null
+	// check
+
 	private final Logger log = LoggerFactory.getLogger(BatteryFeneconHomeImpl.class);
 	private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
 
@@ -117,13 +138,33 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
+		this.updateServiceBinder.updateConfiguration();
 	}
 
 	private Config config;
-	private BatteryProtection batteryProtection;
+	protected BatteryProtection batteryProtection;
 
 	@Reference
 	private SerialNumberStorage serialNumberStorage;
+
+	@Reference(//
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MULTIPLE //
+	)
+	private void bindUpdateParams(BatteryFeneconHomeUpdateParams updateParams) {
+		this.updateServiceBinder.bindService(updateParams);
+	}
+
+	/**
+	 * Called by OSGi framework when updateParams is unregistered.
+	 * 
+	 * @param updateParams Value before unbind
+	 */
+	@SuppressWarnings("unused")
+	private void unbindUpdateParams(BatteryFeneconHomeUpdateParams updateParams) {
+		this.updateServiceBinder.unbindService(updateParams);
+	}
 
 	public BatteryFeneconHomeImpl() {
 		super(//
@@ -141,6 +182,9 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		this.config = config;
 		this.updateHardwareType(BatteryFeneconHomeHardwareType.DEFAULT); // initialize to default
 
+		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
+		this.updateServiceBinder.updateConfiguration();
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -153,6 +197,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
+		this.updateServiceBinder.deactivate();
 	}
 
 	@Override
@@ -174,7 +219,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Handles the State-Machine.
 	 */
-	private void handleStateMachine() {
+	protected void handleStateMachine() {
 		// Store the current State
 		this.channel(BatteryFeneconHome.ChannelId.STATE_MACHINE).setNextValue(this.stateMachine.getCurrentState());
 
@@ -200,6 +245,26 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		} catch (OpenemsNamedException e) {
 			this.channel(BatteryFeneconHome.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
+		}
+	}
+
+	private void handleBatteryUpdateEvent(FeneconBatteryUpdateEvent event) {
+		try {
+			switch (event) {
+			case FeneconBatteryUpdateEvent.UpdateRunning() -> {
+				setValue(BatteryFeneconHomeImpl.this, BatteryFeneconHome.ChannelId.RUNNING_FIRMWARE_UPDATE, true);
+			}
+			case FeneconBatteryUpdateEvent.UpdateFailed(var ex) -> {
+				setValue(BatteryFeneconHomeImpl.this, BatteryFeneconHome.ChannelId.RUNNING_FIRMWARE_UPDATE, false);
+				this.detectHardwareType();
+			}
+			case FeneconBatteryUpdateEvent.UpdateSuccess() -> {
+				setValue(BatteryFeneconHomeImpl.this, BatteryFeneconHome.ChannelId.RUNNING_FIRMWARE_UPDATE, false);
+				this.detectHardwareType();
+			}
+			}
+		} catch (Exception ex) {
+			this.log.error("Failed to handle battery update event " + event.getClass().getSimpleName(), ex);
 		}
 	}
 
@@ -434,21 +499,17 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	private void updateHardwareType(BatteryFeneconHomeHardwareType hardwareType) {
 		this.getBatteryHardwareTypeChannel().setNextValue(hardwareType);
 
-		var numberOfTowers = this.getNumberOfTowersChannel().getNextValue().orElse(1);
-
 		this.hardwareType = hardwareType;
 		// Set Battery Protection depending on the hardware type
-		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(FeneconHomeBatteryProtection.createProtection(hardwareType,
-						() -> numberOfTowers * FORCE_CHARGE_CURRENT_PER_TOWER), this.componentManager) //
-				.build();
+		this.updateBatteryProtection(this.getNumberOfTowersChannel().getNextValue());
 	}
 
 	protected synchronized void updateBatteryProtection(Value<Integer> numberOfTowers) {
+		var definition = FeneconHomeBatteryProtection.createProtection(this.hardwareType,
+				() -> numberOfTowers.orElse(1) * FORCE_CHARGE_CURRENT_PER_TOWER, this.stateMachine);
 
 		this.batteryProtection = BatteryProtection.create(this) //
-				.applyBatteryProtectionDefinition(FeneconHomeBatteryProtection.createProtection(this.hardwareType,
-						() -> numberOfTowers.orElse(1) * FORCE_CHARGE_CURRENT_PER_TOWER), this.componentManager) //
+				.applyBatteryProtectionDefinition(definition, this.componentManager) //
 				.build();
 	}
 

@@ -1,10 +1,10 @@
 package io.openems.common.websocket;
 
-import org.java_websocket.WebSocket;
-import org.java_websocket.handshake.Handshakedata;
-
 import java.util.Optional;
 import java.util.UUID;
+
+import org.java_websocket.WebSocket;
+import org.java_websocket.handshake.Handshakedata;
 
 public class WebsocketUtils {
 

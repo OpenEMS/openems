@@ -1,0 +1,36 @@
+@if (isAllowedToBeSeen && show) {
+  <table class="full_width" style="line-height: 1.4; margin-top: 0.5%">
+    @if (textIndent) {
+      <tr [style.text-indent]="textIndent">
+        <!-- Name of Parameter on the left side -->
+        <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_left"  [style]="lineStyle?.name ?? {}">
+          @if (displayName) {
+            {{ displayName }}
+          }
+        </td>
+        <!-- Value of Parameter on the right side -->
+        @if (displayValue) {
+          <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right">
+            <!-- 'Normal' line, name and value  -->
+            <ng-container>{{ displayValue }}</ng-container>
+          </td>
+        }
+        @if (formGroup) {
+          <td [formGroup]="formGroup" [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''"
+            class="align_right">
+            <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md"
+              [formControlName]="controlName">
+            </ion-toggle>
+          </td>
+        }
+        <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+        <ng-template #contentTpl>
+          <td [style.width]="(leftColumnWidth ?? 50)  + '%'" class="align_right">
+            <!-- 'Normal' line, name and value  -->
+            <ng-content></ng-content>
+          </td>
+        </ng-template>
+      </tr>
+    }
+  </table>
+}

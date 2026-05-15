@@ -496,13 +496,13 @@ public class DifferentModes {
 		 * @param csc               the ControllerScheduleContext
 		 * @param ef                the {@link EnergyFlow.Model}
 		 * @param mode              the simulated Mode
-		 * @param fitness           the {@link Fitness} result
+		 * @param fitness           the {@link Fitness.Builder} result
 		 * @param isFinalRun        is this the final simulation run?
 		 * @return the post-processed Mode
 		 */
-		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef, MODE mode, Fitness fitness,
-				boolean isFinalRun);
+		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period,
+				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
+				MODE mode, Fitness.Builder fitness, boolean isFinalRun);
 	}
 
 	private DifferentModes() {

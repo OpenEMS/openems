@@ -22,10 +22,10 @@ public class PeriodsBuilderTest {
 
 	@Nested
 	@DisplayName("tryAddPeriod()")
-	public class TryAddPeriodTest {
+	class TryAddPeriodTest {
 
 		@Test
-		public void shouldAddPeriod_whenFirstPeriod() {
+		void shouldAddPeriod_whenFirstPeriod() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 
@@ -35,7 +35,7 @@ public class PeriodsBuilderTest {
 		}
 
 		@Test
-		public void shouldAddEmptyPeriodsUntilLimitReached() {
+		void shouldAddEmptyPeriodsUntilLimitReached() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 2 /* small limit */, (t) -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithNoOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithNoOptionalValues());
@@ -51,7 +51,7 @@ public class PeriodsBuilderTest {
 		}
 
 		@Test
-		public void shouldStopAddingPeriods_whenPeriodIsNotCompatibleWithFirstPeriod() {
+		void shouldStopAddingPeriods_whenPeriodIsNotCompatibleWithFirstPeriod() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithAllOptionalValues());
@@ -67,7 +67,7 @@ public class PeriodsBuilderTest {
 		}
 
 		@Test
-		public void shouldThrowException_whenDuplicatedTimestamps() {
+		void shouldThrowException_whenDuplicatedTimestamps() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
 			final var p0 = new RawPeriod(time(0, 0), null, dataWithAllOptionalValues());
 			final var p1 = new RawPeriod(time(0, 15), null, dataWithAllOptionalValues());
@@ -87,10 +87,10 @@ public class PeriodsBuilderTest {
 
 	@Nested
 	@DisplayName("build()")
-	public class BuildTest {
+	class BuildTest {
 
 		@Test
-		public void shouldBuildPeriods() {
+		void shouldBuildPeriods() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 2);
 			final var periods = List.of(//
 					new RawPeriod(time(0, 0), null, dataWithOneMissingValue()), //
@@ -133,12 +133,47 @@ public class PeriodsBuilderTest {
 		}
 
 		@Test
-		public void shouldReturnEmptyPeriods_whenNoPeriodsAdded() {
+		void shouldReturnEmptyPeriods_whenNoPeriodsAdded() {
 			final var sut = new PeriodsBuilder(Environment.TEST, 96, (t) -> 24);
 
 			final var result = sut.build();
 
 			assertTrue(result.isEmpty());
+		}
+	}
+
+	@Nested
+	@DisplayName("calculatePositiveShift()")
+	class CalculatePositiveShiftTest {
+
+		@Test
+		void shouldReturnZero_whenMinIsNonNegative() {
+			final double shift = PeriodsBuilder.calculatePositiveShift(0.0, 10.0);
+
+			assertEquals(0.0, shift, 0.0);
+		}
+
+		@Test
+		void shouldUseRangeHalf_whenMinIsNegativeAndRangeIsPositive() {
+			final double shift = PeriodsBuilder.calculatePositiveShift(-10.0, 20.0);
+
+			assertEquals(25.0, shift, 1e-12);
+		}
+
+		@Test
+		void shouldUseEpsilon_whenMinIsNegativeAndRangeIsZero() {
+			final double shift = PeriodsBuilder.calculatePositiveShift(-10.0, -10.0);
+
+			assertEquals(10.000001, shift, 1e-12);
+		}
+
+		@Test
+		void shouldMakeMinimumStrictlyPositive_whenMinIsNegativeAndRangeIsZero() {
+			final double min = -10.0;
+			final double shift = PeriodsBuilder.calculatePositiveShift(min, min);
+			final double shiftedMin = min + shift;
+
+			assertEquals(1e-6, shiftedMin, 1e-12);
 		}
 	}
 

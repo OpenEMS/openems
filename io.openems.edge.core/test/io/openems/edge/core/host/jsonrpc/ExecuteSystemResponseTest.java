@@ -1,9 +1,10 @@
 package io.openems.edge.core.host.jsonrpc;
 
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
@@ -25,10 +26,12 @@ public class ExecuteSystemResponseTest {
 		assertEquals(Type.HARD, sut.type);
 	}
 
-	@Test(expected = OpenemsException.class)
+	@Test
 	public void testParseFailed() throws OpenemsNamedException {
-		ExecuteSystemRestartRequest.from(new GenericJsonrpcRequest("executeSystemRestart", buildJsonObject() //
-				.addProperty("type", "foo") //
-				.build()));
+		assertThrows(OpenemsException.class,
+				() -> ExecuteSystemRestartRequest.from(new GenericJsonrpcRequest("executeSystemRestart",
+						buildJsonObject() //
+								.addProperty("type", "foo") //
+								.build())));
 	}
 }
