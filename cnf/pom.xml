@@ -573,9 +573,16 @@
 			<version>2.3.21</version>
 		</dependency>
 		<dependency>
+			<!--
+			Kotlinx Coroutines Core
+			Changelog: https://github.com/Kotlin/kotlinx.coroutines/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/kotlinx-coroutines-core-jvm.bnd
+			-->
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.10.2</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<!--
