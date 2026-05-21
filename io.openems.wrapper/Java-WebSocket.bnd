@@ -1,7 +1,7 @@
 Bundle-Name: Java-WebSocket
 Bundle-Description: Java-WebSocket
 Bundle-DocURL: https://github.com/TooTallNate/Java-WebSocket
-Bundle-License: https://opensource.org/license/mit
+Bundle-License: https://opensource.org/license/MIT
 Bundle-Version: 1.5.7
 
 Include-Resource: \

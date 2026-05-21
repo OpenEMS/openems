@@ -13,7 +13,8 @@
 /bower_components
 
 # IntelliJ IDEA files and metadata
-/.idea
+/.idea/*
+!/.idea/runConfigurations
 *.iml
 *.eml
 
@@ -199,6 +200,9 @@ typings/
 ### Gradle ###
 .gradle
 /build/
+/gradle/build-logic/build/
+/gradle/build-logic/.gradle/
+/gradle/build-logic/.kotlin/
 
 # Ignore Gradle GUI config
 gradle-app.setting

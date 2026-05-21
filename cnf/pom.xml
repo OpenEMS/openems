@@ -111,7 +111,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.5.0</version>
+			<version>3.5.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -129,11 +129,13 @@
 			<!--
 			Java library to retrieve RSA public keys from a JWKS (JSON Web Key Set) endpoint
 			Changelog: https://github.com/auth0/jwks-rsa-java/releases
-			Wrapper: io.openems.wrapper/auth0-jwks-rsa.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-jwks-rsa.bnd
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>jwks-rsa</artifactId>
-			<version>0.23.1</version>
+			<version>0.24.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.tribuo -->
@@ -571,9 +573,16 @@
 			<version>2.3.21</version>
 		</dependency>
 		<dependency>
+			<!--
+			Kotlinx Coroutines Core
+			Changelog: https://github.com/Kotlin/kotlinx.coroutines/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/kotlinx-coroutines-core-jvm.bnd
+			-->
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.10.2</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -706,7 +715,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -715,7 +724,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>

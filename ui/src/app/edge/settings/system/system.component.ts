@@ -1,11 +1,12 @@
 // @ts-strict-ignore
 import { Component, effect } from "@angular/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
-import { Subject, takeUntil, timer } from "rxjs";
+import { filter, timer } from "rxjs";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { UserService } from "src/app/shared/service/user.service";
+import { CancellationToken } from "src/app/shared/type/cancellation-token";
 import { environment } from "src/environments";
 import { ChangelogComponent } from "../../../changelog/view/component/changelog.component";
 import { CommonUiModule } from "../../../shared/common-ui.module";
@@ -53,11 +54,7 @@ export class SystemComponent {
         private websocket: Websocket,
     ) {
         effect(async (onCleanup) => {
-            const subjectOnCleanup = new Subject<void>();
-            onCleanup(() => {
-                subjectOnCleanup.next();
-                subjectOnCleanup.complete();
-            });
+            const cancellationToken = CancellationToken.byCleanup(onCleanup);
 
             const user = this.userService.currentUser();
             this.edge = this.service.currentEdge();
@@ -66,12 +63,12 @@ export class SystemComponent {
             }
 
             this.canSeeSystemRestart = UserPermission.isAllowedToSeeSystemRestart(user, this.edge);
-
             this.canSeeAdditionalUpdates = UserPermission.isAllowedToSeeAdditionalUpdates(this.edge);
-            if (!this.canSeeAdditionalUpdates) {
-                return;
+
+            if (this.canSeeAdditionalUpdates) {
+                this.updateables = await this.fetchUpdateables();
+                await this.initializeUpdateStateFetcher(cancellationToken);
             }
-            this.updateables = await this.fetchUpdateables(subjectOnCleanup);
         });
     }
 
@@ -81,64 +78,68 @@ export class SystemComponent {
             payload: new ExecuteUpdate.Request({ id: updateableState.updateable.id }),
         })).then(_ => {
             updateableState.updateState = { type: "running", percentCompleted: 0, logs: [] };
-            this.subscribeUpdateState(updateableState);
         });
     }
 
-    private async fetchUpdateables(subjectOnCleanup: Subject<void>): Promise<UpdateableState[]> {
+    private async initializeUpdateStateFetcher(cancellationToken: CancellationToken): Promise<void> {
+        let isUpdatePending = false;
+
+        const source = timer(1, SystemComponent.REFRESH_UPDATE_STATE_INTERVAL);
+        source.pipe(
+            cancellationToken.observablePipe(),
+            filter(_ => this.edge.isOnline && !isUpdatePending)
+        ).subscribe(async _ => {
+            isUpdatePending = true;
+            try {
+                const updateablesToFetch = this.updateables.filter(x => this.doesUpdateableRequireStateUpdate(x));
+                const promises = updateablesToFetch.map(x => this.updateUpdateableState(x));
+                await Promise.allSettled(promises);
+            } catch (err) {
+                console.error("Failed to update updateable states", err);
+            } finally {
+                isUpdatePending = false;
+            }
+        });
+    }
+
+    private async fetchUpdateables(): Promise<UpdateableState[]> {
         const result = (await this.edge.sendRequest<GetUpdateables.Response>(this.websocket, new ComponentJsonApiRequest({
             componentId: "_updateManager",
             payload: new GetUpdateables.Request(),
         }))).result;
 
-        return result.updateables.map(u => {
-            const updateableState: UpdateableState = { updateable: u, unsubscribe: new Subject<void>() };
-            subjectOnCleanup.subscribe(() => {
-                updateableState.unsubscribe.next();
-                updateableState.unsubscribe.complete();
-            });
-            this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
-                componentId: "_updateManager",
-                payload: new GetUpdateState.Request({ id: u.id }),
-            })).then(response => {
-                const result = response.result;
-                updateableState.updateState = result.state;
-
-                if (updateableState.updateState.type === "running") {
-                    this.subscribeUpdateState(updateableState);
-                }
-            });
-            return updateableState;
-        });
+        return result.updateables.map(u => <UpdateableState>{ updateable: u });
     }
 
-    private subscribeUpdateState(updateableState: UpdateableState) {
-        const source = timer(0, SystemComponent.REFRESH_UPDATE_STATE_INTERVAL);
-        source.pipe(
-            takeUntil(updateableState.unsubscribe),
-        ).subscribe(_ => {
-            if (!this.edge.isOnline) {
-                return;
-            }
+    private doesUpdateableRequireStateUpdate(updateable: UpdateableState): boolean {
+        if (updateable.updateState == null) {
+            return true;
+        }
 
-            this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
-                componentId: "_updateManager",
-                payload: new GetUpdateState.Request({ id: updateableState.updateable.id }),
-            })).then(response => {
-                const result = response.result;
-                updateableState.updateState = result.state;
-
-                if (result.state.type !== "running") {
-                    updateableState.unsubscribe.next();
-                }
-            });
-        });
+        switch (updateable.updateState.type) {
+            case "running":
+            case "unknown":
+                return true;
+            default:
+                return false;
+        }
     }
 
+    private async updateUpdateableState(updateable: UpdateableState): Promise<void> {
+        try {
+            const response = await this.edge.sendRequest<GetUpdateState.Response>(this.websocket, new ComponentJsonApiRequest({
+                componentId: "_updateManager",
+                payload: new GetUpdateState.Request({ id: updateable.updateable.id }),
+            }));
+
+            updateable.updateState = response.result.state;
+        } catch (err) {
+            console.error(`Failed to fetch update state for updateable ${updateable.updateable.id}`, err);
+        }
+    }
 }
 
 type UpdateableState = {
     updateable: Updateable,
-    updateState?: UpdateState,
-    unsubscribe: Subject<void>,
+    updateState?: UpdateState
 };

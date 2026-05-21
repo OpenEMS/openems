@@ -39,7 +39,7 @@ public final class EshWithOnlyOneMode<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 	@SuppressWarnings("unchecked")
 	@Override
 	public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-			EnergyFlow.Model ef, Fitness fitness) {
+			EnergyFlow.Model ef, Fitness.Builder fitness) {
 		this.simulator.simulate(this.getParentId(), period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef, fitness);
 	}
 

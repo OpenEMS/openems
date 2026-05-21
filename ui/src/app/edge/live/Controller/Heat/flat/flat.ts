@@ -4,6 +4,7 @@ import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 import { ControllerHeatModalComponent } from "../modal/modal";
+import { CONVERT_TO_MODE_LABEL } from "../shared/shared";
 
 @Component({
     selector: "oe-controller-heat",
@@ -13,6 +14,7 @@ import { ControllerHeatModalComponent } from "../modal/modal";
 export class ControllerHeatComponent extends AbstractFlatWidget {
     protected readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL = CONVERT_TO_MODE_LABEL(this.translate);
 
     protected statusNumber: number | null = null;
     protected status: State | null = null;
@@ -27,22 +29,10 @@ export class ControllerHeatComponent extends AbstractFlatWidget {
             component: ControllerHeatModalComponent,
             componentProps: {
                 component: this.component,
+                edge: this.edge,
             },
         };
     };
-
-    protected async presentModal() {
-        if (!this.isInitialized) {
-            return;
-        }
-        const modal = await this.modalController.create({
-            component: ControllerHeatModalComponent,
-            componentProps: {
-                component: this.component,
-            },
-        });
-        return await modal.present();
-    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         if (this == null) { return []; }
@@ -54,6 +44,7 @@ export class ControllerHeatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, "ControlNotAllowed"),
             new ChannelAddress(this.component.id, "ActivePower"),
             new ChannelAddress(this.component.id, "Temperature"),
+            ...(this.component.factoryId === "Heat.Askoma" ? [new ChannelAddress(this.component.id, "_PropertyMode")] : []),
         ];
 
         return channelAddresses;
@@ -92,7 +83,7 @@ export class ControllerHeatComponent extends AbstractFlatWidget {
     }
 }
 
-enum Status {
+export enum Status {
     standby,                    // Device is in standby mode
     excess,                     // Device is running using excess energy
     ControlNotAllowed,          // Control is overridden by another system
@@ -101,7 +92,7 @@ enum Status {
     error,                      // An error occurred on the device
 }
 
-enum State {
+export enum State {
     heating,                    // Device is heating
     temperatureReached,         // Target temperature has been reached
     noHeating,                  // Device is not heating

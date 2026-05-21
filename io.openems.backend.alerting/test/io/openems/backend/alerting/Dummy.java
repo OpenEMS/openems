@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -54,7 +55,8 @@ public class Dummy {
 		public final List<Mail> sentMails = new LinkedList<>();
 
 		@Override
-		public synchronized CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String template, List<MailContext> context) {
+		public synchronized CompletableFuture<Integer> sendMail(ZonedDateTime sendAt, String template,
+				List<MailContext> context) {
 			this.sentMails.add(new Mail(sendAt, template));
 			return CompletableFuture.completedFuture(context.size());
 		}
@@ -76,8 +78,10 @@ public class Dummy {
 		 */
 		@SuppressWarnings("unchecked")
 		public <T extends Message> MessageScheduler<T> find(Handler<T> handler) {
-			return (MessageScheduler<T>) this.msgScheduler.stream().filter(s -> s.isFor(handler)).findFirst()
-					.orElseGet(null);
+			return (MessageScheduler<T>) this.msgScheduler.stream() //
+					.filter(s -> s.isFor(handler)) //
+					.findFirst() //
+					.orElse(null);
 		}
 
 		@Override
@@ -136,7 +140,7 @@ public class Dummy {
 
 		@Override
 		public Optional<Edge> getEdge(String edgeId) {
-			return this.edges.stream().filter(e -> e.getId() == edgeId).findFirst();
+			return this.edges.stream().filter(e -> Objects.equals(e.getId(), edgeId)).findFirst();
 		}
 
 		@Override
@@ -163,16 +167,8 @@ public class Dummy {
 			this.getEdge(edgeId).ifPresent(e -> e.setSumState(sumState));
 		}
 
-		public Collection<Edge> getEdges() {
-			return this.edges;
-		}
-
 		public Map<String, List<OfflineEdgeAlertingSetting>> getOfflineSettings() {
 			return this.offlineSettings;
-		}
-
-		public Map<String, List<SumStateAlertingSetting>> getSumStateSettings() {
-			return this.sumStateSettings;
 		}
 	}
 
@@ -197,7 +193,6 @@ public class Dummy {
 	public static class TimeLeapMinuteTimer extends MinuteTimer {
 
 		private final TimeLeapClock timeLeapClock;
-		private int advanced = 0;
 
 		public TimeLeapMinuteTimer(Instant instant) {
 			this(new TimeLeapClock(instant));
@@ -216,42 +211,8 @@ public class Dummy {
 		public void leap(long amount) {
 			for (int i = 0; i < amount; i++) {
 				this.timeLeapClock.leap(1, ChronoUnit.MINUTES);
-				this.advanced += 1;
 				this.cycle();
 			}
-		}
-
-		/**
-		 * Try to advance the Clock to a specific amount of minutes after
-		 * initialization. If the given point is ahead, the time will leap by the
-		 * missing amount. If the given point is behind, nothing will happen.
-		 * 
-		 * <p>
-		 * A return value >=0 means, the clock has advanced the given amount in minutes
-		 * with this call.
-		 * 
-		 * <p>
-		 * A return value <0 means, the clock has already advanced the given amount
-		 * above.
-		 *
-		 * @param point to advance to
-		 * @return difference
-		 */
-		public long leapTo(long point) {
-			var advancement = point - this.advanced;
-			if (advancement > 0) {
-				this.leap(advancement);
-			}
-			return advancement;
-		}
-
-		/**
-		 * Get the amount this Timer has advanced since it was initialized.
-		 *
-		 * @return total leapt minutes.
-		 */
-		public int advanced() {
-			return this.advanced;
 		}
 	}
 

@@ -85,7 +85,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	@SuppressWarnings("unchecked")
 	@Override
 	public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-			EnergyFlow.Model ef, int modeIndex, Fitness fitness, boolean isFinalRun) {
+			EnergyFlow.Model ef, int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
 		var postProcessedMode = this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc,
 				ef, this.modes.get(modeIndex), fitness, isFinalRun);
 		return this.modes.getIndex(postProcessedMode);

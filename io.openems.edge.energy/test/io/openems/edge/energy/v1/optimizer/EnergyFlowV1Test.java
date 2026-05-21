@@ -5,14 +5,14 @@ import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.postprocessSimulatorState;
 import static java.lang.Math.max;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.function.TriFunction;
 import io.openems.edge.energy.v1.optimizer.ParamsV1.OptimizePeriod;
@@ -24,26 +24,27 @@ public class EnergyFlowV1Test {
 	public static final EnergyFlowV1 NO_FLOW = new EnergyFlowV1(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 	private static void assertEnergyFlow(EnergyFlowV1 ef) {
-		assertTrue("Production is positive", ef.production() >= 0);
-		assertTrue("Consumption is positive", ef.consumption() >= 0);
-		assertTrue("ProductionToConsumption is positive", ef.productionToConsumption() >= 0);
-		assertTrue("ProductionToGrid is positive", ef.productionToGrid() >= 0);
-		assertTrue("ProductionToEss is positive", ef.productionToEss() >= 0);
-		assertTrue("GridToConsumption is positive", ef.gridToConsumption() >= 0);
-		assertTrue("EssToConsumption is positive", ef.essToConsumption() >= 0);
+		assertTrue(ef.production() >= 0, "Production is positive");
+		assertTrue(ef.consumption() >= 0, "Consumption is positive");
+		assertTrue(ef.productionToConsumption() >= 0, "ProductionToConsumption is positive");
+		assertTrue(ef.productionToGrid() >= 0, "ProductionToGrid is positive");
+		assertTrue(ef.productionToEss() >= 0, "ProductionToEss is positive");
+		assertTrue(ef.gridToConsumption() >= 0, "GridToConsumption is positive");
+		assertTrue(ef.essToConsumption() >= 0, "EssToConsumption is positive");
 
-		assertEquals("Sum of Grid", 0, ef.grid() + ef.productionToGrid() - ef.gridToConsumption() - ef.gridToEss());
-		assertEquals("Sum of Ess", 0, ef.ess() + ef.productionToEss() - ef.essToConsumption() + ef.gridToEss());
-		assertEquals("Sum of Production", 0,
-				ef.production() - ef.productionToConsumption() - ef.productionToEss() - ef.productionToGrid());
-		assertEquals("Sum of Consumption", 0,
-				ef.consumption() - ef.essToConsumption() - ef.gridToConsumption() - ef.productionToConsumption());
-		assertEquals("Overall Sum", 0, ef.grid() + ef.ess() + ef.production() - ef.consumption());
+		assertEquals(0, ef.grid() + ef.productionToGrid() - ef.gridToConsumption() - ef.gridToEss(), "Sum of Grid");
+		assertEquals(0, ef.ess() + ef.productionToEss() - ef.essToConsumption() + ef.gridToEss(), "Sum of Ess");
+		assertEquals(0, ef.production() - ef.productionToConsumption() - ef.productionToEss() - ef.productionToGrid(),
+				"Sum of Production");
+		assertEquals(0,
+				ef.consumption() - ef.essToConsumption() - ef.gridToConsumption() - ef.productionToConsumption(),
+				"Sum of Consumption");
+		assertEquals(0, ef.grid() + ef.ess() + ef.production() - ef.consumption(), "Overall Sum");
 	}
 
 	private static ParamsV1.Builder P;
 
-	@Before
+	@BeforeEach
 	public void prepareParams() {
 		P = ParamsV1.create() //
 				.setTime(TIME) //
@@ -288,22 +289,17 @@ public class EnergyFlowV1Test {
 
 	@Test
 	public void testUtilsPostprocessPeriodState() {
-		assertEquals("BALANCING stays BALANCING", //
-				BALANCING, postprocessSimulatorState(BALANCING, //
-						NO_FLOW, NO_FLOW, NO_FLOW));
+		assertEquals(BALANCING, postprocessSimulatorState(BALANCING, //
+				NO_FLOW, NO_FLOW, NO_FLOW), "BALANCING stays BALANCING");
 
-		assertEquals("DELAY_DISCHARGE stays DELAY_DISCHARGE", //
-				DELAY_DISCHARGE, postprocessSimulatorState(DELAY_DISCHARGE, //
-						NO_FLOW, charge(EnergyFlowV1::withDelayDischarge), NO_FLOW));
-		assertEquals("DELAY_DISCHARGE to BALANCING", //
-				BALANCING, postprocessSimulatorState(DELAY_DISCHARGE, //
-						NO_FLOW, NO_FLOW, NO_FLOW));
+		assertEquals(DELAY_DISCHARGE, postprocessSimulatorState(DELAY_DISCHARGE, //
+				NO_FLOW, charge(EnergyFlowV1::withDelayDischarge), NO_FLOW), "DELAY_DISCHARGE stays DELAY_DISCHARGE");
+		assertEquals(BALANCING, postprocessSimulatorState(DELAY_DISCHARGE, //
+				NO_FLOW, NO_FLOW, NO_FLOW), "DELAY_DISCHARGE to BALANCING");
 
-		assertEquals("CHARGE_GRID stays CHARGE_GRID", //
-				CHARGE_GRID, postprocessSimulatorState(CHARGE_GRID, //
-						NO_FLOW, NO_FLOW, charge(EnergyFlowV1::withChargeGrid)));
-		assertEquals("CHARGE_GRID to BALANCING", //
-				BALANCING, postprocessSimulatorState(CHARGE_GRID, //
-						NO_FLOW, NO_FLOW, NO_FLOW));
+		assertEquals(CHARGE_GRID, postprocessSimulatorState(CHARGE_GRID, //
+				NO_FLOW, NO_FLOW, charge(EnergyFlowV1::withChargeGrid)), "CHARGE_GRID stays CHARGE_GRID");
+		assertEquals(BALANCING, postprocessSimulatorState(CHARGE_GRID, //
+				NO_FLOW, NO_FLOW, NO_FLOW), "CHARGE_GRID to BALANCING");
 	}
 }

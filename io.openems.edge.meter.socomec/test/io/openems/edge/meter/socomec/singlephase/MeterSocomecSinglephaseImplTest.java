@@ -3,10 +3,9 @@ package io.openems.edge.meter.socomec.singlephase;
 import static io.openems.common.types.MeterType.GRID;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 
@@ -14,11 +13,10 @@ public class MeterSocomecSinglephaseImplTest {
 
 	private static MeterSocomecSinglephaseImpl meter;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		meter = new MeterSocomecSinglephaseImpl();
 		new ComponentTest(meter) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //

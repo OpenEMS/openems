@@ -3,6 +3,8 @@ package io.openems.edge.common.type;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.google.common.base.Strings;
+
 import io.openems.common.session.Language;
 
 public abstract class TextProvider {
@@ -38,7 +40,7 @@ public abstract class TextProvider {
 	 * @param translationKey Translation key to lookup
 	 * @return Text provider
 	 */
-	public static TextProvider byTranslation(Class<?> clazz, String translationKey) {
+	public static TranslationTextProvider byTranslation(Class<?> clazz, String translationKey) {
 		return new TranslationTextProvider(clazz, translationKey);
 	}
 
@@ -55,11 +57,31 @@ public abstract class TextProvider {
 		}
 	}
 
-	static class TranslationTextProvider extends TextProvider {
+	static class FormatTextProvider extends TextProvider {
+		private final TextProvider text;
+		private final Object[] arguments;
+
+		FormatTextProvider(TextProvider text, Object[] arguments) {
+			this.text = text;
+			this.arguments = arguments;
+		}
+
+		@Override
+		public String getText(Language lang) {
+			var msg = this.text.getText(lang);
+			if (Strings.isNullOrEmpty(msg)) {
+				return msg;
+			}
+
+			return String.format(msg, this.arguments);
+		}
+	}
+
+	public static class TranslationTextProvider extends TextProvider {
 		private final Class<?> clazz;
 		private final String translationKey;
 
-		public TranslationTextProvider(Class<?> clazz, String translationKey) {
+		private TranslationTextProvider(Class<?> clazz, String translationKey) {
 			this.clazz = clazz;
 			this.translationKey = translationKey;
 		}
@@ -83,6 +105,17 @@ public abstract class TextProvider {
 			}
 
 			return this.translationKey;
+		}
+
+		/**
+		 * Creates a new text provider that formats the message of this text provider
+		 * with the given arguments.
+		 * 
+		 * @param arguments Arguments for formatting (Used in String.format)
+		 * @return New text provider
+		 */
+		public TextProvider formatWithArguments(Object... arguments) {
+			return new FormatTextProvider(this, arguments);
 		}
 
 		private static ResourceBundle getResourceBundle(Language lang, Class<?> clazz) {
