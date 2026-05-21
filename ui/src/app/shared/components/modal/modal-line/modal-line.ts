@@ -14,6 +14,7 @@ export class ModalLineComponent extends AbstractModalLine {
 
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input({ required: true }) protected leftColumnWidth!: number;
+    @Input({ required: true }) protected hideValue: boolean = false;
 
     @Input() protected button: ButtonLabel | null = null;
     /** ControlName for interactive Button */
@@ -29,8 +30,11 @@ export class ModalLineComponent extends AbstractModalLine {
 
     /** Fixed indentation of the modal-line */
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
+
+    /** Range */
     protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 
+    /** Toggle */
     protected toggleOnEnter(event: KeyboardEvent, controlName: string) {
         const control = this.formGroup.get(controlName);
         if (control) {
@@ -38,6 +42,8 @@ export class ModalLineComponent extends AbstractModalLine {
             event.preventDefault();
         }
     }
+
+    /** Select */
     protected selectOnEnter(event: KeyboardEvent, controlName: string) {
         const control = this.formGroup.get(controlName);
         if (control) {

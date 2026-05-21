@@ -85,7 +85,7 @@ public class Simulator {
 		return (int) this.generationsCounter.get();
 	}
 
-	protected static Fitness simulate(//
+	protected static Fitness.Builder simulate(//
 			GlobalOptimizationContext goc, //
 			ModeCombinations modeCombinations, //
 			int[] schedule, //
@@ -101,7 +101,7 @@ public class Simulator {
 		}
 		final var cscs = cscsBuilder.build();
 		final var noOfPeriods = goc.periods().size();
-		final var fitness = new Fitness();
+		final var fitness = Fitness.builder();
 
 		for (var periodIndex = 0; periodIndex < noOfPeriods; periodIndex++) {
 			var modeCombination = modeCombinations.get(schedule[periodIndex]);
@@ -110,7 +110,7 @@ public class Simulator {
 
 		final var modePreferencePenalty = calculateModePreferencePenalty(goc, modeCombinations, schedule,
 				normalizedEshModePreferenceRanks);
-		fitness.setModePreferencePenalty(modePreferencePenalty);
+		fitness.withModePreferencePenalty(modePreferencePenalty);
 
 		final var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
 		fitness.addSoftConstraintViolation(runLengthCost);
@@ -125,7 +125,7 @@ public class Simulator {
 	 * @param cscs            the ControllerScheduleContexts
 	 * @param periodIndex     the index of the simulated period
 	 * @param modeCombination the {@link ModeCombination} of the simulated period
-	 * @param fitness         the {@link Fitness} result
+	 * @param fitness         the {@link Fitness.Builder} result
 	 * @param bsc             the {@link BestScheduleCollector}; or null
 	 */
 	public static void simulatePeriod(//
@@ -133,7 +133,7 @@ public class Simulator {
 			ImmutableMap<EnergyScheduleHandler, Object> cscs, //
 			int periodIndex, //
 			ModeCombination modeCombination, //
-			Fitness fitness, //
+			Fitness.Builder fitness, //
 			BestScheduleCollector bsc) {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
@@ -194,12 +194,12 @@ public class Simulator {
 			final int gridToCons = buyFromGrid - gridToEss;
 
 			period.data().gridBuyPrice().ifPresent(p -> {
-				final double gridBuyPrice = p.actual();
+				final double shiftedGridBuyPrice = p.positiveShifted();
 
 				// Cost for direct consumption
-				final double directCost = gridToCons * gridBuyPrice;
+				final double directCost = gridToCons * shiftedGridBuyPrice;
 				// Cost for future consumption after storage
-				final double costWithStorage = gridToEss * gridBuyPrice * EFFICIENCY_FACTOR;
+				final double costWithStorage = gridToEss * shiftedGridBuyPrice * EFFICIENCY_FACTOR;
 
 				fitness.addGridBuyCostScore(directCost + costWithStorage);
 			});
@@ -283,7 +283,9 @@ public class Simulator {
 		var engine = Engine //
 				.builder(gt -> {
 					this.simulationsCounter.incrementAndGet();
-					return simulate(this.goc, this.modeCombinations, gt, null, this.normalizedEshModePreferenceRanks);
+					final var result = simulate(this.goc, this.modeCombinations, gt, null,
+							this.normalizedEshModePreferenceRanks);
+					return result.build();
 				}, codec) //
 				.selector(//
 						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //

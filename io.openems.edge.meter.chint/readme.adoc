@@ -1,0 +1,85 @@
+= Chint Energy Meters
+
+Integration with Chint electricity meters via Modbus protocol.
+
+== Overview
+
+This bundle provides OpenEMS integration for selected Chint electricity meters. The components communicate through the OpenEMS Modbus bridge and expose standard `ElectricityMeter` channels for power, voltage, current, frequency, and cumulative energy.
+
+== Supported Devices
+
+* https://www.chintglobal.com/global/en/products/instruments-meters/electricity-meter/ddsu666.html[Chint DDSU666 icon:external-link[]]
+* https://www.chintglobal.com/global/en/products/instruments-meters/electricity-meter/dtsu666.html[Chint DTSU666 icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_ddsu666_meter,Chint DDSU666 Meter>>
+
+*Name*: Meter Chint DDSU666
+
+*Factory-PID*: `Meter.Chint.DDSU666`
+
+.Implemented Natures/Interfaces
+* MeterChintDdsu666
+* SinglePhaseMeter
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Single-phase electricity meter via Modbus. The device-specific communication address is exposed as a custom channel, while cumulative import energy is mapped to the standard OpenEMS energy channels.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+* `phase` (Enum): Which phase is measured - L1, L2, or L3 (default: L1)
+
+[[_ddsu666_meter]]
+
+=== <<_dtsu666_meter,Chint DTSU666 Meter>>
+
+*Name*: Meter Chint DTSU666
+
+*Factory-PID*: `Meter.Chint.DTSU666`
+
+.Implemented Natures/Interfaces
+* MeterChintDtsu666
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Three-phase, four-wire electricity meter via Modbus input registers. This implementation supports `phaseRotation`, maps the total import-energy register to standard OpenEMS cumulative energy channels, and exposes the total power factor as a device-specific channel.
+
+Unlike the DDSU666 single-phase support in this bundle, DTSU666 uses `FC4` / input registers for the verified live register map.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+* `phaseRotation` (Enum): Phase mapping for the three-phase meter (default: `L1_L2_L3`)
+
+*Configuration note*: the OSGi attribute is named `modbus_id`, but in FileInstall/Felix `.config` files the property key is typically `modbus.id`.
+
+*Verified DTSU666 communication assumptions*:
+* Use `FC4` / input registers
+* Recommended serial bridge settings are `9600-N-8-2`
+* Total import energy is read from register `0x4000`
+* Total power factor is read from register `0x202A` and exposed as an integer-style OpenEMS value with scale `1000 = 1.000`
+
+*Scope note*: `DTSU666` is the supported three-phase, four-wire model in this bundle. The separate `DSSU666` three-phase, three-wire variant is intentionally not included here.
+
+[[_dtsu666_meter]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.meter.chint[Source Code icon:github[]]

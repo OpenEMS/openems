@@ -4,9 +4,8 @@ import { SharedConsumption } from "src/app/edge/live/common/consumption/shared/s
 import { SharedGrid } from "src/app/edge/live/common/grid/shared/shared";
 import { SharedProduction } from "src/app/edge/live/common/production/shared/shared";
 import { SharedSelfConsumption } from "src/app/edge/live/common/selfconsumption/shared/shared";
-import { SharedEssFixDigitalPowerControl } from "src/app/edge/live/Controller/Ess/FixActivePower/shared/shared";
-import { SharedGridOptimizedCharge } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/shared/shared";
-import { SharedControllerEssTimeOfUseTariff } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/shared/shared";
+import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
+import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
@@ -59,6 +58,8 @@ export class Widgets {
                 return SharedConsumption.getNavigationTree(edge, config, translate);
             case "Common_Production":
                 return SharedProduction.getNavigationTree(edge, config, translate);
+            case "Storage":
+                return SharedStorage.getNavigationTree(edge, translate, config);
             default:
                 return null;
         }
@@ -73,14 +74,8 @@ export class Widgets {
         switch (widget.name) {
             case "Controller.IO.HeatingElement":
                 return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
-            case "Controller.Ess.FixActivePower":
-                return SharedEssFixDigitalPowerControl.getNavigationTree(translate, component);
-            case "Controller.Ess.GridOptimizedCharge":
-                return SharedGridOptimizedCharge.getNavigationTree(translate, component);
             case "Controller.Io.HeatPump.SgReady":
                 return SharedControllerIoHeatpump.getNavigationTree(translate, component);
-            case "Controller.Ess.Time-Of-Use-Tariff":
-                return SharedControllerEssTimeOfUseTariff.getNavigationTree(translate, component);
             case "Heat.Askoma":
                 return SharedControllerHeat.getNavigationTree(translate, component);
             case "Heat.MyPv.AcThor9s":
@@ -89,6 +84,8 @@ export class Widgets {
                 return SharedSchedulerJsCalendar.getNavigationTree(translate, widget.componentId);
             case "Evse.Controller.Single":
                 return ControllerEvseSingleShared.getNavigationTree(edge, translate, widget.componentId, config);
+            case "Controller.ChannelThreshold":
+                return SharedControllerChannelThreshold.getNavigationTree(translate, component);
             default:
                 return null;
         }

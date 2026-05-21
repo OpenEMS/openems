@@ -72,7 +72,7 @@ public record SimulationResult(//
 	/**
 	 * An empty {@link SimulationResult}.
 	 */
-	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(new Fitness(), //
+	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(Fitness.builder().build(), //
 			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), 0, 0);
 
 	protected static class BestScheduleCollector {
@@ -141,7 +141,7 @@ public record SimulationResult(//
 				.collect(toImmutableSet());
 
 		return new SimulationResult(//
-				fitness, //
+				fitness.build(), //
 				periods, //
 				schedules, //
 				eshsWithOnlyOneMode, //

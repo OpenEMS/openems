@@ -15,6 +15,19 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.utils.JsonUtils;
 
+/**
+ * Represents a configurable network interface on the Edge device.
+ * 
+ * <p>
+ * This class provides access to network configuration parameters such as DHCP,
+ * static IP addresses, gateway, DNS, routing, IPv4 forwarding, and IP
+ * masquerading. It also supports JSON serialization and de-serialization for
+ * integration with OpenEMS configuration systems.
+ * </p>
+ *
+ * @param <A> an optional attachment type, e.g. a configuration file path or
+ *            additional metadata.
+ */
 public class NetworkInterface<A> {
 
 	/**
@@ -57,13 +70,22 @@ public class NetworkInterface<A> {
 					json.getOptionalSet("addresses", Inet4AddressWithSubnetmask.serializer())
 							.map(ConfigurationProperty::of) //
 							.orElseGet(ConfigurationProperty::asNotSet), //
-					json.getOptionalInt("metric") //
+					json.getOptionalInt("dhpcRouteMetric") //
 							.map(ConfigurationProperty::of) //
 							.orElseGet(ConfigurationProperty::asNotSet), //
 					json.getOptionalBoolean("ipv4Forwarding") //
 							.map(ConfigurationProperty::of) //
 							.orElseGet(ConfigurationProperty::asNotSet), //
 					json.getOptionalEnum("ipMasquerade", IpMasqueradeSetting.class) //
+							.map(ConfigurationProperty::of) //
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					json.getOptionalSet("destination", Inet4AddressWithSubnetmask.serializer())
+							.map(ConfigurationProperty::of) //
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					json.getOptionalBoolean("gatewayOnLink") //
+							.map(ConfigurationProperty::of) //
+							.orElseGet(ConfigurationProperty::asNotSet), //
+					json.getOptionalSet("routes", Routes.serializer()) //
 							.map(ConfigurationProperty::of) //
 							.orElseGet(ConfigurationProperty::asNotSet), //
 					null);
@@ -78,8 +100,8 @@ public class NetworkInterface<A> {
 					.onlyIf(obj.getGateway().isSetAndNotNull(), t -> {
 						t.addProperty("gateway", obj.getGateway().getValue().getHostAddress());
 					}) //
-					.onlyIf(!obj.getMetric().isNull(), t -> {
-						t.addProperty("metric", obj.getMetric().getValue());
+					.onlyIf(!obj.getDhcpRouteMetric().isNull(), t -> {
+						t.addProperty("dhpcRouteMetric", obj.getDhcpRouteMetric().getValue());
 					}) //
 					.onlyIf(!obj.getDns().isNull(), t -> {
 						t.addProperty("dns", obj.getDns().getValue().getHostAddress());
@@ -94,17 +116,26 @@ public class NetworkInterface<A> {
 					.onlyIf(obj.getIpMasquerade().isSetAndNotNull(), t -> {
 						t.addProperty("ipMasquerade", obj.getIpMasquerade().getValue());
 					}) //
+					.onlyIf(obj.getDestination().isSetAndNotNull(),
+							t -> t.add("destination",
+									Inet4AddressWithSubnetmask.serializer().toSetSerializer()
+											.serialize(obj.getDestination().getValue()))) //
+					.onlyIf(obj.getGatewayOnLink().isSetAndNotNull(),
+							t -> t.addProperty("gatewayOnLink", obj.getGatewayOnLink().getValue())) //
+					.onlyIf(obj.getRoutes().isSet(), t -> { //
+						t.add("routes", Routes.serializer().toSetSerializer().serialize(obj.getRoutes().getValue()));
+					}) //
 					.build();
 		});
 	}
 
 	/**
-	 * Parses a JsonObject to a {@link NetworkInterface} object.
+	 * Parses a {@link JsonElement} into a {@link NetworkInterface} instance.
 	 *
-	 * @param name the name of the network interface, e.g. "eth0"
-	 * @param j    the JsonObject
-	 * @return the new {@link NetworkInterface}
-	 * @throws OpenemsNamedException on error
+	 * @param name the name of the network interface (e.g. "eth0")
+	 * @param j    the JSON object containing configuration
+	 * @return a new {@link NetworkInterface} instance
+	 * @throws OpenemsNamedException if parsing fails
 	 */
 	public static NetworkInterface<?> from(String name, JsonElement j) throws OpenemsNamedException {
 		return serializer(name).deserialize(j);
@@ -116,9 +147,12 @@ public class NetworkInterface<A> {
 	private ConfigurationProperty<Inet4Address> gateway;
 	private ConfigurationProperty<Inet4Address> dns;
 	private ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses;
-	private ConfigurationProperty<Integer> metric;
+	private ConfigurationProperty<Integer> dhcpRouteMetric;
 	private ConfigurationProperty<Boolean> ipv4Forwarding;
 	private ConfigurationProperty<IpMasqueradeSetting> ipMasquerade;
+	private ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> destination;
+	private ConfigurationProperty<Boolean> gatewayOnLink;
+	private ConfigurationProperty<Set<Routes>> routes;
 
 	public enum IpMasqueradeSetting {
 		NO("no"), //
@@ -160,10 +194,12 @@ public class NetworkInterface<A> {
 			ConfigurationProperty<Inet4Address> gateway, //
 			ConfigurationProperty<Inet4Address> dns, //
 			ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> addresses, //
-			ConfigurationProperty<Integer> metric, //
+			ConfigurationProperty<Integer> dhpcRouteMetric, //
 			ConfigurationProperty<Boolean> ipv4Forwarding, //
 			ConfigurationProperty<IpMasqueradeSetting> ipMasquerade, //
-			A attachment //
+			ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> destination, //
+			ConfigurationProperty<Boolean> gatewayOnLink, //
+			ConfigurationProperty<Set<Routes>> routes, A attachment //
 	) {
 		this.name = name;
 		this.dhcp = dhcp;
@@ -172,9 +208,16 @@ public class NetworkInterface<A> {
 		this.dns = dns;
 		this.attachment = attachment;
 		this.addresses = addresses;
-		this.metric = metric;
+		this.dhcpRouteMetric = dhpcRouteMetric;
 		this.ipv4Forwarding = ipv4Forwarding;
 		this.ipMasquerade = ipMasquerade;
+		this.destination = destination;
+		this.gatewayOnLink = gatewayOnLink;
+		this.routes = routes != null ? routes : ConfigurationProperty.asNotSet();
+	}
+
+	public ConfigurationProperty<Set<Routes>> getRoutes() {
+		return this.routes;
 	}
 
 	/**
@@ -233,12 +276,12 @@ public class NetworkInterface<A> {
 	}
 
 	/**
-	 * Gets the network interface metric.
+	 * Gets the network interface dhcp RouteMetric.
 	 *
 	 * @return the Metric
 	 */
-	public ConfigurationProperty<Integer> getMetric() {
-		return this.metric;
+	public ConfigurationProperty<Integer> getDhcpRouteMetric() {
+		return this.dhcpRouteMetric;
 	}
 
 	/**
@@ -251,7 +294,7 @@ public class NetworkInterface<A> {
 	}
 
 	/**
-	 * Sets the ip v4 forwarding option.
+	 * Sets the IP v4 forwarding option.
 	 * 
 	 * @param ipv4Forwarding the option to set
 	 */
@@ -278,6 +321,24 @@ public class NetworkInterface<A> {
 	}
 
 	/**
+	 * Gets the destination network configuration.
+	 * 
+	 * @return the destination property
+	 */
+	public ConfigurationProperty<Set<Inet4AddressWithSubnetmask>> getDestination() {
+		return this.destination;
+	}
+
+	/**
+	 * Gets whether the gateway is directly reachable.
+	 * 
+	 * @return the gatewayOnLink property
+	 */
+	public ConfigurationProperty<Boolean> getGatewayOnLink() {
+		return this.gatewayOnLink;
+	}
+
+	/**
 	 * Gets the network interface attachment.
 	 *
 	 * <p>
@@ -288,6 +349,45 @@ public class NetworkInterface<A> {
 	 */
 	public A getAttachment() {
 		return this.attachment;
+	}
+
+	/**
+	 * Sets the routes.
+	 * 
+	 * @param routes the routes to set
+	 */
+	public void setRoutes(ConfigurationProperty<Set<Routes>> routes) {
+		this.routes = routes;
+	}
+
+	public void setDhcp(ConfigurationProperty<Boolean> dhcp) {
+		this.dhcp = dhcp;
+	}
+
+	public void setDns(ConfigurationProperty<Inet4Address> dns) {
+		this.dns = dns;
+	}
+
+	public void setDhcpRouteMetric(ConfigurationProperty<Integer> dhcpRouteMetric) {
+		this.dhcpRouteMetric = dhcpRouteMetric;
+	}
+
+	/**
+	 * Sets the gateway configuration.
+	 *
+	 * @param gateway the gateway property
+	 */
+	public void setGateway(ConfigurationProperty<Inet4Address> gateway) {
+		this.gateway = gateway;
+	}
+
+	/**
+	 * Sets whether the gateway is directly reachable.
+	 *
+	 * @param gatewayOnLink the gatewayOnLink property
+	 */
+	public void setGatewayOnLink(ConfigurationProperty<Boolean> gatewayOnLink) {
+		this.gatewayOnLink = gatewayOnLink;
 	}
 
 	/**
@@ -338,6 +438,10 @@ public class NetworkInterface<A> {
 	 */
 	public boolean updateFrom(NetworkInterface<?> change) {
 		var isChanged = false;
+		if (change.getRoutes().isSet() && !change.getRoutes().equals(this.routes)) {
+			this.routes = change.getRoutes();
+			isChanged = true;
+		}
 		if (change.getDhcp().isSet()) {
 			this.dhcp = change.getDhcp();
 			isChanged = true;
@@ -350,8 +454,8 @@ public class NetworkInterface<A> {
 			this.gateway = change.getGateway();
 			isChanged = true;
 		}
-		if (change.getMetric().isSet()) {
-			this.metric = change.getMetric();
+		if (change.getDhcpRouteMetric().isSet()) {
+			this.dhcpRouteMetric = change.getDhcpRouteMetric();
 			isChanged = true;
 		}
 		if (change.getDns().isSet()) {
@@ -368,6 +472,14 @@ public class NetworkInterface<A> {
 		}
 		if (!change.getIpMasquerade().equals(this.ipMasquerade)) {
 			this.ipMasquerade = change.getIpMasquerade();
+			isChanged = true;
+		}
+		if (!change.getDestination().equals(this.destination)) {
+			this.destination = change.getDestination();
+			isChanged = true;
+		}
+		if (!change.getGatewayOnLink().equals(this.gatewayOnLink)) {
+			this.gatewayOnLink = change.getGatewayOnLink();
 			isChanged = true;
 		}
 		return isChanged;

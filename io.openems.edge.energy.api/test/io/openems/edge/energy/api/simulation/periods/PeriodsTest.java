@@ -112,8 +112,8 @@ public class PeriodsTest {
 		return PeriodData.builder()//
 				.withProduction(1000)//
 				.withConsumption(new PeriodData.Prediction(500, 500))//
-				.withGridBuyPrice(new PeriodData.Price(100, 0))//
-				.withGridSellPrice(new PeriodData.Price(25, 0))//
+				.withGridBuyPrice(new PeriodData.Price(100, 0, 100))//
+				.withGridSellPrice(new PeriodData.Price(25, 0, 25))//
 				.build();
 	}
 
@@ -121,7 +121,7 @@ public class PeriodsTest {
 		return PeriodData.builder()//
 				.withProduction(1000)//
 				.withConsumption(new PeriodData.Prediction(500, 500))//
-				.withGridSellPrice(new PeriodData.Price(25, 0))//
+				.withGridSellPrice(new PeriodData.Price(25, 0, 25))//
 				.build();
 	}
 }

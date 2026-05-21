@@ -960,7 +960,7 @@
             "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
             "UPDATE_PROGRESS": "Update wird ausgeführt...",
             "UPDATE_SEARCH": "Suche nach Updates...",
-            "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
+            "UPDATE_TIME": "(Dies kann bis zu {{minutes}} min dauern)",
             "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
         }
     },

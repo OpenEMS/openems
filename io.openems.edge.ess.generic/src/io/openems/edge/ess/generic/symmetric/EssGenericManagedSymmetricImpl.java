@@ -228,6 +228,8 @@ public class EssGenericManagedSymmetricImpl
 			this._setTimeoutStartBatteryInverter(false);
 			this._setTimeoutStopBattery(false);
 			this._setTimeoutStopBatteryInverter(false);
+			this._setEssFaultDueToBatteryFault(false);
+			this._setEssFaultDueToBatteryInverterFault(false);
 
 			if (this.battery instanceof BatteryErrorAcknowledge b) {
 				b.executeBatteryErrorAcknowledge();

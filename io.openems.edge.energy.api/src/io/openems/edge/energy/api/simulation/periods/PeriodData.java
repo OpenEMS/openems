@@ -164,13 +164,17 @@ public class PeriodData {
 
 	/**
 	 * Price information for a {@link GlobalOptimizationContext.Period}.
-	 *
-	 * @param actual     the actual (Average) Price for the Period in [1/MWh].
-	 * @param normalized the normalized Price for the Period in range [0,1]
-	 *                   (inclusive).
+	 * 
+	 * @param actual          the actual (Average) Price for the Period in [1/MWh].
+	 * @param normalized      the normalized Price for the Period in range [0,1]
+	 *                        (inclusive).
+	 * @param positiveShifted the price after shifting all prices by a constant
+	 *                        offset so that the lowest value is slightly above
+	 *                        zero.
 	 */
 	public record Price(//
 			double actual, //
-			double normalized) {
+			double normalized, //
+			double positiveShifted) {
 	}
 }

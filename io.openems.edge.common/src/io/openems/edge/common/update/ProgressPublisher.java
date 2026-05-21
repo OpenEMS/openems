@@ -64,6 +64,15 @@ public class ProgressPublisher {
 		};
 	}
 
+	public void setPercentageByStep(int step, int totalSteps) {
+		this.setPercentageByStep(step, totalSteps, null);
+	}
+
+	public void setPercentageByStep(int step, int totalSteps, String stepTitle) {
+		int percentage = (int) Math.floor(((double) step / totalSteps) * 100.0);
+		this.setPercentage(percentage, stepTitle);
+	}
+
 	public void setPercentage(int percentage) {
 		this.setPercentage(percentage, null);
 	}

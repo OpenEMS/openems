@@ -58,8 +58,8 @@ public class PeriodDataTest {
 		return PeriodData.builder()//
 				.withProduction(1000)//
 				.withConsumption(new PeriodData.Prediction(600, 800))//
-				.withGridBuyPrice(new PeriodData.Price(100.0, 1.0))//
-				.withGridSellPrice(new PeriodData.Price(25.0, 1.0))//
+				.withGridBuyPrice(new PeriodData.Price(100.0, 1.0, 100.0))//
+				.withGridSellPrice(new PeriodData.Price(25.0, 1.0, 25.0))//
 				.build();
 	}
 
@@ -67,8 +67,8 @@ public class PeriodDataTest {
 		return PeriodData.builder()//
 				.withProduction(2000)//
 				.withConsumption(new PeriodData.Prediction(500, 700))//
-				.withGridBuyPrice(new PeriodData.Price(80.0, 0.0))//
-				.withGridSellPrice(new PeriodData.Price(20.0, 0.0))//
+				.withGridBuyPrice(new PeriodData.Price(80.0, 0.0, 80.0))//
+				.withGridSellPrice(new PeriodData.Price(20.0, 0.0, 20.0))//
 				.build();
 	}
 
@@ -80,8 +80,8 @@ public class PeriodDataTest {
 	private static PeriodData missingOneOptionalField() {
 		return PeriodData.builder()//
 				.withProduction(2000)//
-				.withGridBuyPrice(new PeriodData.Price(80.0, 0.0))//
-				.withGridSellPrice(new PeriodData.Price(20.0, 0.0))//
+				.withGridBuyPrice(new PeriodData.Price(80.0, 0.0, 80.0))//
+				.withGridSellPrice(new PeriodData.Price(20.0, 0.0, 20.0))//
 				.build();
 	}
 }

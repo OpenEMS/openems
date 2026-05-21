@@ -63,4 +63,5 @@ export namespace GetUpdateState {
 export type UpdateState = { type: "unknown" }
     | { type: "updated", version: string }
     | { type: "available", currentVersion: string, latestVersion: string }
-    | { type: "running", percentCompleted: number, logs: string[] };
+    | { type: "running", percentCompleted: number, logs: string[] }
+    | { type: "error", errorMessage: string };

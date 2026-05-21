@@ -62,6 +62,9 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	private ReferenceCycleTarget referenceCycleTarget;
 	// Reference-cycle pause start timestamp in ms (epoch), persisted across ticks
 	private Long referenceCyclePauseStartMs;
+	// Reference-cycle fallback start timestamp in ms (epoch), persisted across
+	// ticks
+	private Long referenceCycleFallbackStartMs;
 	// Last target power persisted across ticks for dead band and state transitions
 	private Float lastTargetPower;
 
@@ -189,8 +192,8 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			return null;
 		}
 
-		var context = new Context(this, this.config, maxApparentPower.get(), socToUse,
-				this.config.getTargetSoc(), this.targetDateTime, this.getComponentManager().getClock());
+		var context = new Context(this, this.config, maxApparentPower.get(), socToUse, this.config.getTargetSoc(),
+				this.targetDateTime, this.getComponentManager().getClock());
 		try {
 			this.stateMachine.run(context);
 			this.channel(Controller.ChannelId.RUN_FAILED).setNextValue(false);
@@ -642,6 +645,31 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 */
 	public void clearReferenceCyclePauseStart() {
 		this.referenceCyclePauseStartMs = null;
+	}
+
+	/**
+	 * Get the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @return reference cycle fallback start timestamp in ms (epoch)
+	 */
+	public Long getReferenceCycleFallbackStartMs() {
+		return this.referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Set the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @param referenceCycleFallbackStartMs timestamp in ms (epoch)
+	 */
+	public void setReferenceCycleFallbackStartMs(Long referenceCycleFallbackStartMs) {
+		this.referenceCycleFallbackStartMs = referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Clear the reference cycle fallback start timestamp.
+	 */
+	public void clearReferenceCycleFallbackStart() {
+		this.referenceCycleFallbackStartMs = null;
 	}
 
 	public Float getLastTargetPower() {

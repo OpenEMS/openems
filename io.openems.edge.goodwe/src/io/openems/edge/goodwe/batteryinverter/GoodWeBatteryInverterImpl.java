@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.types.ServiceBinder;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHome;
 import io.openems.edge.batteryinverter.api.BatteryInverterConstraint;
@@ -126,7 +127,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				return new GoodWeBatteryInverterUpdateable(bridge, updateParams, this.getGoodweTypeChannel(),
 						this.channel(GoodWe.ChannelId.DSP_FM_VERSION_MASTER),
 						this.channel(GoodWe.ChannelId.DSP_BETA_VERSION), this.channel(GoodWe.ChannelId.ARM_FM_VERSION),
-						this.channel(GoodWe.ChannelId.ARM_BETA_VERSION));
+						this.channel(GoodWe.ChannelId.ARM_BETA_VERSION),
+						OpenemsComponent.getComponentLogger(GoodWeBatteryInverterUpdateable.class, this));
 			}, GoodWeBatteryInverterUpdateable::deactivate);
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)

@@ -131,11 +131,11 @@ public class OneMode {
 		 * @param coc               the ControllerOptimizationContext
 		 * @param csc               the ControllerScheduleContext
 		 * @param ef                the {@link EnergyFlow.Model}
-		 * @param fitness           the {@link Fitness} result
+		 * @param fitness           the {@link Fitness.Builder} result
 		 */
 		public void simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
-				Fitness fitness);
+				Fitness.Builder fitness);
 	}
 
 	private OneMode() {

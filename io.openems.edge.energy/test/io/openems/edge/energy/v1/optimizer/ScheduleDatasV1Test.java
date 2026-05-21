@@ -15,16 +15,16 @@ import static io.openems.edge.energy.v1.optimizer.ScheduleDatas.fromLogString;
 import static io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData.fromHistoricDataQuery;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_CONSUMPTION;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.SUM_PRODUCTION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.SortedMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedMap;

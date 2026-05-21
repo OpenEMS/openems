@@ -75,6 +75,20 @@ public record TwoPartVersion(int major, int minor) {
 	}
 
 	/**
+	 * Converts this version number into a 16-bit register value. High byte = major
+	 * version, low byte = minor version.
+	 *
+	 * <p>
+	 * Example: major=1, minor=2 -> 0x0102
+	 * </p>
+	 * 
+	 * @return 16-bit encoded number
+	 */
+	public int toRegisterValue() {
+		return (((this.major & 0xFF) << 8) | (this.minor & 0xFF));
+	}
+
+	/**
 	 * Checks if this version is at least as high as the given
 	 * {@link TwoPartVersion}.
 	 *

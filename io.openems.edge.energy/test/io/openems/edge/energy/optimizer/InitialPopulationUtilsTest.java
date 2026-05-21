@@ -4,10 +4,10 @@ import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUART
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 

@@ -21,6 +21,7 @@ export type ButtonLabel = {
     /** Name of Label, displayed below the icon */
     name: string;
     value: string | number | boolean;
+    description?: string;
     /** Icons for Button, displayed above the corresponding name */
     icon?: Icon;
     callback?: () => void;
