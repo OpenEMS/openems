@@ -608,49 +608,81 @@
 			<version>1.22.2</version>
 		</dependency>
 		<dependency>
+			<!--
+			JUnit Jupiter API
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
-			Core package for the JUnit Jupiter test engine
+			JUnit Jupiter Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
-			Public API for configuring and launching test plans
+			JUnit Jupiter Params
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			A thin layer on top of JUnit 4 to allow running vintage tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			JUnit Jupiter extension for running parameterized tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Commons
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-commons</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Engine API
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-engine</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Launcher
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Vintage Engine
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
