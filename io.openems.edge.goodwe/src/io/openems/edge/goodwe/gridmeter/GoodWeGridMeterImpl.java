@@ -5,7 +5,10 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_2;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.abortAfterNthErrors;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsUntil;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.restartAfterChannelChange;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
@@ -55,6 +58,7 @@ import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.common.type.TypeUtils;
@@ -99,6 +103,9 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
+
 	public GoodWeGridMeterImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -116,6 +123,8 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
+		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWeGridMeter.ChannelId.SERIAL_NUMBER));
+
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;
@@ -137,6 +146,7 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		var protocol = new ModbusProtocol(this, //
+
 				// States
 				new FC3ReadRegistersTask(36003, Priority.LOW,
 						m(new UnsignedWordElement(36003)).build().onUpdateCallback(this::convertMeterConnectStatus),
@@ -167,6 +177,11 @@ public class GoodWeGridMeterImpl extends AbstractOpenemsModbusComponent implemen
 						m(GoodWeGridMeter.ChannelId.P_GRID_T, new SignedDoublewordElement(35134),
 								this.ignoreZeroAndScaleFactorMinus2)) //
 		);
+
+		readElementsUntil(protocol, abortAfterNthErrors(5),
+				restartAfterChannelChange(this.getModbusCommunicationFailedChannel()),
+				executeStateConsumer -> new FC3ReadRegistersTask(executeStateConsumer, 33943, Priority.LOW,
+						m(GoodWeGridMeter.ChannelId.SERIAL_NUMBER, new StringWordElement(33943, 8))));
 
 		/*
 		 * Handle different GoodWe Types & versions.

@@ -1,9 +1,8 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
-import io.openems.edge.common.statemachine.StateHandler;
 
-public class UndefinedHandler extends StateHandler<State, Context> {
+public class UndefinedHandler extends StateMachine.BatteryStateHandler {
 
 	@Override
 	public State runAndGetNextState(Context context) {
@@ -16,6 +15,10 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 		case START -> {
 			// force START
+			if (battery.isFirmwareUpdateRunning()) {
+				yield State.FIRMWARE_UPDATE;
+			}
+
 			if (battery.getModbusCommunicationFailed()) {
 				// Modbus Communication Failed -> try to start
 				yield State.GO_RUNNING;
@@ -34,6 +37,16 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 			// force STOP
 			State.GO_STOPPED;
 		};
+	}
+
+	@Override
+	public boolean isChargeAllowed(Context context) {
+		return false;
+	}
+
+	@Override
+	public boolean isDischargeAllowed(Context context) {
+		return false;
 	}
 
 }

@@ -1,9 +1,8 @@
 package io.openems.edge.battery.fenecon.home.statemachine;
 
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
-import io.openems.edge.common.statemachine.StateHandler;
 
-public class ErrorHandler extends StateHandler<State, Context> {
+public class ErrorHandler extends StateMachine.BatteryStateHandler {
 
 	@Override
 	public State runAndGetNextState(Context context) {
@@ -19,4 +18,13 @@ public class ErrorHandler extends StateHandler<State, Context> {
 		}
 	}
 
+	@Override
+	public boolean isChargeAllowed(Context context) {
+		return false;
+	}
+
+	@Override
+	public boolean isDischargeAllowed(Context context) {
+		return false;
+	}
 }

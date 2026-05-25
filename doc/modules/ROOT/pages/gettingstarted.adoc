@@ -186,7 +186,7 @@ NOTE: Values will differ slightly for you, but note how the Controller now tells
 
 == Run OpenEMS UI
 
-NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI as described below, or xref:ui/deploy.adoc[deploy the OpenEMS UI as docker image].
+NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI as described below, or xref:ui/deploy/docker.adoc[deploy the OpenEMS UI as docker image].
 
 . To use the prebuilt UI, go to the https://github.com/OpenEMS/openems/releases/[OpenEMS release page] on GitHub and download the latest `openems-ui.tar.xz`. Extract it to a local directory.
 

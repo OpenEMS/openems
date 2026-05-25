@@ -1,6 +1,5 @@
 package io.openems.edge.controller.ess.fixstateofcharge.statemachine;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -36,7 +35,7 @@ public class NotStartedHandlerTest {
 	void beforeEach() {
 		clock = new TimeLeapClock(Instant.parse("2023-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 		this.sut = new NotStartedHandler();
-		this.controller = new DummyFixStateOfChargeController()
+		this.controller = new DummyFixStateOfChargeController() //
 				.withCapacity(ESS_CAPACITY_WH); //
 		this.config = new ConfigProperties(true, SOC_TARGET, true, "2023-01-01T09:00:00+00:00", TARGET_TIME_BUFFER_MIN,
 				false, 0, false, EndCondition.CAPACITY_CHANGED);
@@ -51,8 +50,8 @@ public class NotStartedHandlerTest {
 		this.controller.withReferenceCycle();
 		var configNoTargetTime = new ConfigProperties(true, SOC_TARGET, false, null, TARGET_TIME_BUFFER_MIN, false, 0,
 				false, EndCondition.CAPACITY_CHANGED);
-		var context = new Context(this.controller, configNoTargetTime, MAX_APPARENT_POWER, SOC_START, SOC_TARGET,
-				null, clock);
+		var context = new Context(this.controller, configNoTargetTime, MAX_APPARENT_POWER, SOC_START, SOC_TARGET, null,
+				clock);
 
 		var nextState = this.sut.runAndGetNextState(context);
 		assertEquals(State.REFERENCE_CYCLE, nextState);
@@ -66,8 +65,8 @@ public class NotStartedHandlerTest {
 	public void testImmediateStartNoTargetTimeWithoutReferenceCycle() throws Exception {
 		var configNoTargetTime = new ConfigProperties(true, SOC_TARGET, false, null, TARGET_TIME_BUFFER_MIN, false, 0,
 				false, EndCondition.CAPACITY_CHANGED);
-		var context = new Context(this.controller, configNoTargetTime, MAX_APPARENT_POWER, SOC_START, SOC_TARGET,
-				null, clock);
+		var context = new Context(this.controller, configNoTargetTime, MAX_APPARENT_POWER, SOC_START, SOC_TARGET, null,
+				clock);
 
 		var nextState = this.sut.runAndGetNextState(context);
 		// SOC_START (20) < SOC_TARGET-2 (28) -> BELOW_TARGET_SOC
@@ -146,8 +145,8 @@ public class NotStartedHandlerTest {
 		clock.leap(2, ChronoUnit.HOURS);
 
 		// Second run - should now transition to REFERENCE_CYCLE
-		var context2 = new Context(this.controller, this.config, MAX_APPARENT_POWER, SOC_START, SOC_TARGET,
-				targetTime, clock);
+		var context2 = new Context(this.controller, this.config, MAX_APPARENT_POWER, SOC_START, SOC_TARGET, targetTime,
+				clock);
 		var secondState = this.sut.runAndGetNextState(context2);
 		assertEquals(State.REFERENCE_CYCLE, secondState);
 
@@ -174,8 +173,8 @@ public class NotStartedHandlerTest {
 		clock.leap(1, ChronoUnit.DAYS);
 
 		// Second run - should now transition to SoC state (start time passed)
-		var context2 = new Context(this.controller, this.config, MAX_APPARENT_POWER, SOC_START, SOC_TARGET,
-				targetTime, clock);
+		var context2 = new Context(this.controller, this.config, MAX_APPARENT_POWER, SOC_START, SOC_TARGET, targetTime,
+				clock);
 		var secondState = this.sut.runAndGetNextState(context2);
 		// SOC_START (20) < SOC_TARGET-2 (28) -> BELOW_TARGET_SOC
 		assertEquals(State.BELOW_TARGET_SOC, secondState);
@@ -211,8 +210,8 @@ public class NotStartedHandlerTest {
 
 		// Create config with 0 buffer for simplicity
 		var configZeroBuffer = new ConfigProperties(true, fixedTargetSoc, true,
-				fixedTargetTime.format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME), 0,
-				false, 0, false, EndCondition.CAPACITY_CHANGED);
+				fixedTargetTime.format(java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME), 0, false, 0, false,
+				EndCondition.CAPACITY_CHANGED);
 
 		this.controller.withReferenceCycle();
 		var context = new Context(this.controller, configZeroBuffer, fixedMaxApparentPower, fixedSocStart,
@@ -240,6 +239,7 @@ public class NotStartedHandlerTest {
 		// time
 		var actualStartEpochSeconds = this.controller.getExpectedStartEpochSecondsValue();
 		assertNotNull(actualStartEpochSeconds, "Start time should be set");
-		assertEquals(expectedStartTime.toEpochSecond(), actualStartEpochSeconds.longValue(), "Start time must include full reference cycle duration");
+		assertEquals(expectedStartTime.toEpochSecond(), actualStartEpochSeconds.longValue(),
+				"Start time must include full reference cycle duration");
 	}
 }

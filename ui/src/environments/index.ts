@@ -84,6 +84,11 @@ export interface Environment {
             readonly ALPITRONIC: string | null,
             readonly MENNEKES: string | null,
         },
+        readonly HEAT: {
+            readonly "ASKOMA": {
+                readonly HEATING_ELEMENT: string | null,
+            }
+        }
     },
     readonly links: {
         readonly REDIRECT: {
