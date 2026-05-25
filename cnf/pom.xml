@@ -453,7 +453,9 @@
 			<!--
 			Fastexcel Writer
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
@@ -463,7 +465,9 @@
 			<!--
 			Fastexcel Reader
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
