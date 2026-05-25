@@ -11,6 +11,9 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -20,7 +23,6 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -35,6 +37,7 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
@@ -49,24 +52,27 @@ import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.sma.ess.enums.PowerSupplyStatus;
 import io.openems.edge.sma.ess.enums.SetControlMode;
+import io.openems.edge.common.startstop.StartStoppable;
+
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Ess.SMA.SunnyIsland", //
 		immediate = true, //
 		configurationPolicy = REQUIRE)
-@GenerateTargetsFromReferences("Modbus")
 public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
-		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
+		implements ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss,StartStoppable, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, ModbusComponent, OpenemsComponent {
 
 	@Reference
 	private Power power;
 
+	@Reference
+	private ConfigurationAdmin cm;
+    private final AtomicReference<StartStop> startStopTarget = new AtomicReference<>(StartStop.UNDEFINED);
+
 	@Override
-	@Reference(//
-			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
-			target = "(&(id=${config.modbus_id})(enabled=true))")
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -84,15 +90,22 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 				ManagedAsymmetricEss.ChannelId.values(), //
 				SinglePhaseEss.ChannelId.values(), //
 				ManagedSinglePhaseEss.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+
 				EssSmaSunnyIsland.ChannelId.values() //
 		);
+		this._setStartStop(StartStop.START);
+
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
+			return;
+		}
 
 		// Evaluate 'SinglePhase'
 		this.singlePhase = switch (config.phase()) {
@@ -115,6 +128,15 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 	protected void deactivate() {
 		super.deactivate();
 	}
+	
+	 @Override
+		public void setStartStop(StartStop value) {
+			if (this.startStopTarget.getAndSet(value) != value) {
+				// Set only if value changed
+			//	this.stateMachine.forceNextState(State.UNDEFINED)
+				;
+			}
+		}
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
@@ -168,7 +190,7 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 						m(SymmetricEss.ChannelId.MAX_APPARENT_POWER, new UnsignedDoublewordElement(30231),
 								new ElementToChannelConverter(v -> {
 									if (v == null) {
-										return null;
+										return 18000;
 									}
 									int value = TypeUtils.getAsType(OpenemsType.INTEGER, v);
 									// Evaluate symmetric/single-phase mode

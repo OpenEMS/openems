@@ -1,7 +1,4 @@
-package io.openems.edge.io.shelly.shellyplus1pm;
-
-import org.osgi.service.event.EventHandler;
-
+package io.openems.edge.io.shelly.shellyplus1pm.temperature;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -12,12 +9,14 @@ import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
+import io.openems.edge.io.api.DigitalOutput;
+import io.openems.edge.thermometer.api.Thermometer;
 
-public interface IoShellyPlus1Pm
-		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent, EventHandler {
+
+public interface IoShellyPlus1PmTemperature
+		extends DigitalOutput, SinglePhaseMeter, ElectricityMeter, OpenemsComponent,Thermometer  {
 
 	public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**

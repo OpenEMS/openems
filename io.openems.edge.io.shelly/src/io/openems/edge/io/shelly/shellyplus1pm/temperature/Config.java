@@ -1,4 +1,4 @@
-package io.openems.edge.io.shelly.shellyplus1pm;
+package io.openems.edge.io.shelly.shellyplus1pm.temperature;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -6,13 +6,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.type.Phase.SinglePhase;
 
+
 @ObjectClassDefinition(//
-		name = "IO Shelly Plus 1PM", //
+		name = "IO Shelly Plus 1PM_Temperature", //
 		description = "Implements the Shelly 2ndGen / Plug WiFi Switch.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "io0";
+	String id() default "temp0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";
@@ -28,9 +29,6 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
-
-	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
-	boolean invert() default false;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus 1PM [{id}]";
 }

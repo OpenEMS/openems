@@ -43,6 +43,7 @@ public class MeterFroniusImpl extends AbstractSunSpecMeter
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
 			.put(DefaultSunSpecModel.S_213, Priority.HIGH) //
+			.put(DefaultSunSpecModel.S_203, Priority.HIGH)//
 			.build();
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;

@@ -1,0 +1,77 @@
+= IO Heating Element
+
+Controls a three-phase heating element via Relays, according to grid active power.
+
+== Phase and Level
+
+The Controller distinguishes the definition of Phase and Level.
+*Phase* represents the electrical phase L1, L2 or L3.
+*Level* represents how many Phases are active at one point in time:
+
+* Level 1: only Phase L1 is active
+* Level 2: Phase L1 and L2 are active
+* Level 3: all three Phases are active
+
+== Channels
+
+Example:
+* the power of the heating element per phase is 1000 W
+* each "x" below represents one hour
+
+Assume the Controller was activating Phases L1, L2 and L3 during the day like this:
+
+----
+L3|           xxx
+L2|        xxxxxxxxx
+L1|     xxxxxxxxxxxxxxxx
+ t|------------------------
+----
+
+Channel _Phase1Time_::
+`= 16 h = *57600 sec*`
+
+----
+        |--------------|
+----
+
+Channel _Phase2Time_::
+`= 9 hours = *32400 sec*`
+
+----
+           |-------|
+----
+
+Channel _Phase3Time_::
+`= 3 hours = *10800 sec*`
+
+----
+              |-|
+----
+
+Channel _Level1Time_::
+`= Phase1Time - Phase2Time = 7 hours = *25200 sec*`
+
+----
+        |-|         |--|
+----
+
+Channel _Level2Time_::
+`= Phase2Time - Phase3Time = 6 hours = *21600 sec*`
+
+----
+           |-|   |-|
+----
+
+Channel _Level3Time_::
+`= Phase3Time = 3 hours = *10800 sec*`
+
+----
+              |-|
+----
+
+Channel _TotalTime_:: `*28000 Wh* = 28 kWh`
+
+Channel _TotalPhaseTime_:: 
+`= Phase1Time + Phase2Time + Phase3Time = 16 + 9 + 3 = 28 h = *100800 sec*`
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]
