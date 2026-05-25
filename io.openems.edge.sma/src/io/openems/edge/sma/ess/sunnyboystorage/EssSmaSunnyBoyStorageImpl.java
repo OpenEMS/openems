@@ -1,20 +1,22 @@
-package io.openems.edge.ess.sma.sunnyboystorage;
+package io.openems.edge.sma.ess.sunnyboystorage;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -24,7 +26,6 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -37,10 +38,11 @@ import io.openems.edge.ess.power.api.Power;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Ess.Sma.SunnyBoyStorage", //
+		name = "Ess.SMA.SunnyBoyStorage", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
+@GenerateTargetsFromReferences("Modbus")
 public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 		implements EssSmaSunnyBoyStorage, ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent,
 		ModbusSlave {
@@ -53,13 +55,12 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 	@Reference
 	private Power power;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	private Config config;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -72,19 +73,18 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 				ManagedSymmetricEss.ChannelId.values(), //
 				EssSmaSunnyBoyStorage.ChannelId.values() //
 		);
-		this._setMaxApparentPower(MAX_APPARENT_POWER);
 	}
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
 		this.config = config;
-		this._setCapacity(config.capacity());
-		this.getAllowedChargePowerChannel().setNextValue(-MAX_APPARENT_POWER);
-		this._setAllowedDischargePower(MAX_APPARENT_POWER);
+
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+
+		setValue(this, SymmetricEss.ChannelId.MAX_APPARENT_POWER, MAX_APPARENT_POWER);
+		setValue(this, SymmetricEss.ChannelId.CAPACITY, config.capacity());
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, -MAX_APPARENT_POWER);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, MAX_APPARENT_POWER);
 	}
 
 	@Override
@@ -129,7 +129,7 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 		 * 0-based Modbus PDU address (non-standard but confirmed by live testing).
 		 *
 		 * Reads:
-		 *   FC4 @ 30775 : Battery Power [W]    int32  (2 words)
+		 *   FC3 @ 30775 : Battery Power [W]    int32  (2 words)
 		 *   FC3 @ 30513 : Energy Total [Wh]    uint64 (4 words)
 		 *   FC3 @ 30845 : State of Charge [%]  uint32 (2 words)
 		 *
@@ -142,13 +142,13 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 		 *   FC16 @ 40801 : Grid Power Setpoint [W] int32  (CmpBMS.GridWSpt)
 		 */
 		return new ModbusProtocol(this, //
-				new FC4ReadInputRegistersTask(30775, Priority.HIGH, //
+				new FC3ReadRegistersTask(30775, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, //
 								new SignedDoublewordElement(30775))), //
 				new FC3ReadRegistersTask(30513, Priority.LOW, //
 						m(EssSmaSunnyBoyStorage.ChannelId.ENERGY_TOTAL, //
 								new UnsignedQuadruplewordElement(30513))), //
-				new FC3ReadRegistersTask(30845, Priority.HIGH, //
+				new FC3ReadRegistersTask(30845, Priority.LOW, //
 						m(SymmetricEss.ChannelId.SOC, //
 								new UnsignedDoublewordElement(30845))), //
 				new FC16WriteRegistersTask(40236, //

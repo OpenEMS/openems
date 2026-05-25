@@ -1,10 +1,9 @@
-package io.openems.edge.ess.sma.sunnyboystorage;
+package io.openems.edge.sma.ess.sunnyboystorage;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.common.test.ComponentTest;
@@ -20,7 +19,6 @@ public class EssSmaSunnyBoyStorageImplTest {
 	@Test
 	public void testActivateDeactivate() throws Exception {
 		new ComponentTest(new EssSmaSunnyBoyStorageImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
@@ -39,7 +37,6 @@ public class EssSmaSunnyBoyStorageImplTest {
 	public void testStaticLimits() throws Exception {
 		var ess = new EssSmaSunnyBoyStorageImpl();
 		new ComponentTest(ess) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create().build());
@@ -62,7 +59,6 @@ public class EssSmaSunnyBoyStorageImplTest {
 	public void testApplyPowerDischarge() throws Exception {
 		var ess = new EssSmaSunnyBoyStorageImpl();
 		new ComponentTest(ess) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create().build());
@@ -96,7 +92,6 @@ public class EssSmaSunnyBoyStorageImplTest {
 	public void testApplyPowerCharge() throws Exception {
 		var ess = new EssSmaSunnyBoyStorageImpl();
 		new ComponentTest(ess) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create().build());
@@ -126,7 +121,6 @@ public class EssSmaSunnyBoyStorageImplTest {
 	public void testReadOnlyMode() throws Exception {
 		var ess = new EssSmaSunnyBoyStorageImpl();
 		new ComponentTest(ess) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("power", new DummyPower()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create().setReadOnlyMode(true).build());

@@ -1,4 +1,4 @@
-package io.openems.edge.ess.sma.sunnyboystorage;
+package io.openems.edge.sma.ess.sunnyboystorage;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
