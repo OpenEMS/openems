@@ -149,8 +149,8 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 		IntegerWriteChannel setReactivePowerChannel = this.channel(EssSmaSunnyIsland.ChannelId.SET_REACTIVE_POWER);
 
 		setControlMode.setNextWriteValue(SetControlMode.START);
-		setActivePowerChannel.setNextWriteValue(activePower);
-		setReactivePowerChannel.setNextWriteValue(reactivePower);
+		setActivePowerChannel.setNextWriteValue(activePower / 3);
+		setReactivePowerChannel.setNextWriteValue(reactivePower / 3);
 	}
 
 	@Override
@@ -281,7 +281,9 @@ public class EssSmaSunnyIslandImpl extends AbstractOpenemsModbusComponent
 
 				new FC16WriteRegistersTask(40149, //
 						m(EssSmaSunnyIsland.ChannelId.SET_ACTIVE_POWER, new SignedDoublewordElement(40149)), //
-						m(EssSmaSunnyIsland.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151)), //
+						m(EssSmaSunnyIsland.ChannelId.SET_CONTROL_MODE, new UnsignedDoublewordElement(40151))), //
+						
+				new FC16WriteRegistersTask(40153,
 						m(EssSmaSunnyIsland.ChannelId.SET_REACTIVE_POWER, new SignedDoublewordElement(40153))), //
 
 				new FC16WriteRegistersTask(43090, //
