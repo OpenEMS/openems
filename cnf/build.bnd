@@ -42,13 +42,13 @@ buildpath: \
 	com.google.gson;version='2.14.0',\
 
 testpath: \
-	junit-jupiter-api;version=6.0.3,\
-	junit-jupiter-engine;version=6.0.3,\
-	junit-jupiter-params;version=6.0.3,\
-	junit-platform-engine;version=6.0.3,\
-	junit-platform-commons;version=6.0.3,\
-	junit-platform-launcher;version=6.0.3,\
-	junit-vintage-engine;version=6.0.3,\
+	junit-jupiter-api;version=6.1.0,\
+	junit-jupiter-engine;version=6.1.0,\
+	junit-jupiter-params;version=6.1.0,\
+	junit-platform-engine;version=6.1.0,\
+	junit-platform-commons;version=6.1.0,\
+	junit-platform-launcher;version=6.1.0,\
+	junit-vintage-engine;version=6.1.0,\
 	org.apache.servicemix.bundles.junit;version=4.12,\
 	org.mockito.mockito-core;version=5.23.0,\
 	org.mockito.junit-jupiter;version=5.23.0,\
