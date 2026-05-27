@@ -14,6 +14,7 @@ updates:
         patterns:
           - "org.dhatim:fastexcel"
           - "org.dhatim:fastexcel-reader"
+          - "com.fasterxml:aalto-xml"
       bouncycastle:
         patterns:
           - "org.bouncycastle:*"
