@@ -25,7 +25,7 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge.")
 	String modbus_id() default "modbus0";
 
-	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
+	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device 240 for Symo, and 200 for Gen24.")
 	int modbusUnitId() default 240;
 
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
