@@ -223,7 +223,8 @@
 	bnd.identity;id='io.openems.edge.timeofusetariff.tibber',\
 	bnd.identity;id='io.openems.edge.victron',\
 	bnd.identity;id='io.openems.edge.weather.openmeteo',\
-
+	bnd.identity;id='io.openems.edge.fronius.gen24.neu',\
+	bnd.identity;id='io.openems.edge.controller.io.heatingelement.with.temp'
 -runbundles: \
 	bcpkix;version='[1.84.0,1.84.1)',\
 	bcprov;version='[1.84.0,1.84.1)',\
@@ -503,4 +504,6 @@
 	org.owasp.encoder;version='[1.4.0,1.4.1)',\
 	reactive-streams;version='[1.0.4,1.0.5)',\
 	rrd4j;version='[3.10.0,3.10.1)',\
-	stax2-api;version='[4.3.0,4.3.1)'
+	stax2-api;version='[4.3.0,4.3.1)',\
+	io.openems.edge.fronius.gen24.neu;version=snapshot,\
+	io.openems.edge.controller.io.heatingelement.with.temp;version=snapshot
