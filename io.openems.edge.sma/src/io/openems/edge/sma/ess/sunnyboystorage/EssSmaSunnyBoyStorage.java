@@ -23,11 +23,13 @@ public interface EssSmaSunnyBoyStorage {
 		// --- Write channels (mapped to Modbus holding registers 40xxx via FC16) ---
 
 		/**
-		 * BMS operating mode.
+		 * BMS operating mode (CmpBMS register 40236).
 		 *
 		 * <ul>
 		 * <li>Register 40236, uint32, FC16
-		 * <li>2424 = Normal, 2289 = Force charge
+		 * <li>2289 = Charge battery
+		 * <li>2290 = Discharge battery
+		 * <li>2424 = Presetting (self-consumption, internal BMS)
 		 * </ul>
 		 */
 		BMS_MODE(Doc.of(OpenemsType.INTEGER) //
@@ -83,10 +85,12 @@ public interface EssSmaSunnyBoyStorage {
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
-		 * Grid power setpoint (CmpBMS.GridWSpt). Positive = discharge (ESS feeds
-		 * grid/load), negative = charge (grid/PV charges ESS). Matches OpenEMS
-		 * ACTIVE_POWER sign convention and verified against the EVCC SBS 2.5
-		 * implementation.
+		 * Grid power setpoint (CmpBMS.GridWSpt).
+		 *
+		 * <p>
+		 * SMA sign convention: positive = import from grid (charging), negative =
+		 * export to grid (discharging). This is the inverse of the OpenEMS
+		 * ACTIVE_POWER convention; write {@code -activePower}.
 		 *
 		 * <ul>
 		 * <li>Register 40801, int32, FC16

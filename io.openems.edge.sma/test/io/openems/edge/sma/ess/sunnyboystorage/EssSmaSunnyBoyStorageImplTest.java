@@ -53,7 +53,7 @@ public class EssSmaSunnyBoyStorageImplTest {
 
 	/**
 	 * Verifies that applyPower() sets the correct write-channel values for
-	 * discharge (activePower > 0).
+	 * discharge (activePower > 0). min=max=activePower forces the exact power rate.
 	 */
 	@Test
 	public void testApplyPowerDischarge() throws Exception {
@@ -64,6 +64,72 @@ public class EssSmaSunnyBoyStorageImplTest {
 				.activate(MyConfig.create().build());
 
 		ess.applyPower(1000, 0);
+
+		IntegerWriteChannel bmsModeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.BMS_MODE);
+		assertEquals(Integer.valueOf(2290), bmsModeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel minChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_CHARGE_POWER);
+		assertEquals(Integer.valueOf(0), minChargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel maxChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_CHARGE_POWER);
+		assertEquals(Integer.valueOf(0), maxChargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel minDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_DISCHARGE_POWER);
+		assertEquals(Integer.valueOf(1000), minDischargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel maxDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_DISCHARGE_POWER);
+		assertEquals(Integer.valueOf(1000), maxDischargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel gridSetpointChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.GRID_POWER_SETPOINT);
+		assertEquals(Integer.valueOf(0), gridSetpointChannel.getNextWriteValue().get());
+	}
+
+	/**
+	 * Verifies that applyPower() sets the correct write-channel values for
+	 * charge (activePower < 0). min=max=abs(activePower) forces the exact rate.
+	 */
+	@Test
+	public void testApplyPowerCharge() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build());
+
+		ess.applyPower(-800, 0);
+
+		IntegerWriteChannel bmsModeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.BMS_MODE);
+		assertEquals(Integer.valueOf(2289), bmsModeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel minChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_CHARGE_POWER);
+		assertEquals(Integer.valueOf(800), minChargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel maxChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_CHARGE_POWER);
+		assertEquals(Integer.valueOf(800), maxChargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel minDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_DISCHARGE_POWER);
+		assertEquals(Integer.valueOf(0), minDischargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel maxDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_DISCHARGE_POWER);
+		assertEquals(Integer.valueOf(0), maxDischargeChannel.getNextWriteValue().get());
+
+		IntegerWriteChannel gridSetpointChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.GRID_POWER_SETPOINT);
+		assertEquals(Integer.valueOf(0), gridSetpointChannel.getNextWriteValue().get());
+	}
+
+	/**
+	 * Verifies that applyPower(0) sets BMS mode to Presetting (self-consumption)
+	 * and allows full charge/discharge range for internal BMS control.
+	 */
+	@Test
+	public void testApplyPowerStandby() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build());
+
+		ess.applyPower(0, 0);
 
 		IntegerWriteChannel bmsModeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.BMS_MODE);
 		assertEquals(Integer.valueOf(2424), bmsModeChannel.getNextWriteValue().get());
@@ -78,40 +144,10 @@ public class EssSmaSunnyBoyStorageImplTest {
 		assertEquals(Integer.valueOf(0), minDischargeChannel.getNextWriteValue().get());
 
 		IntegerWriteChannel maxDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_DISCHARGE_POWER);
-		assertEquals(Integer.valueOf(1000), maxDischargeChannel.getNextWriteValue().get());
-
-		IntegerWriteChannel gridSetpointChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.GRID_POWER_SETPOINT);
-		assertEquals(Integer.valueOf(1000), gridSetpointChannel.getNextWriteValue().get());
-	}
-
-	/**
-	 * Verifies that applyPower() sets the correct write-channel values for
-	 * charge (activePower < 0).
-	 */
-	@Test
-	public void testApplyPowerCharge() throws Exception {
-		var ess = new EssSmaSunnyBoyStorageImpl();
-		new ComponentTest(ess) //
-				.addReference("power", new DummyPower()) //
-				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
-				.activate(MyConfig.create().build());
-
-		ess.applyPower(-800, 0);
-
-		IntegerWriteChannel minChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_CHARGE_POWER);
-		assertEquals(Integer.valueOf(0), minChargeChannel.getNextWriteValue().get());
-
-		IntegerWriteChannel maxChargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_CHARGE_POWER);
-		assertEquals(Integer.valueOf(800), maxChargeChannel.getNextWriteValue().get());
-
-		IntegerWriteChannel minDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MIN_DISCHARGE_POWER);
-		assertEquals(Integer.valueOf(0), minDischargeChannel.getNextWriteValue().get());
-
-		IntegerWriteChannel maxDischargeChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.MAX_DISCHARGE_POWER);
 		assertEquals(Integer.valueOf(0), maxDischargeChannel.getNextWriteValue().get());
 
 		IntegerWriteChannel gridSetpointChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.GRID_POWER_SETPOINT);
-		assertEquals(Integer.valueOf(-800), gridSetpointChannel.getNextWriteValue().get());
+		assertEquals(Integer.valueOf(0), gridSetpointChannel.getNextWriteValue().get());
 	}
 
 	/**
