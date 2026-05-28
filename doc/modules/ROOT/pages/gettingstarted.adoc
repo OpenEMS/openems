@@ -223,14 +223,14 @@ NOTE: Apache Felix Web Console for OpenEMS Backend is started on port 8079 by de
 +
 Login with username *admin* and password *admin*.
 
-. Configure Edge.Websocket
+. Configure Edge.Manager
 +
-NOTE: The _**Edge.Websocket**_ service is responsible for the communication between OpenEMS Backend and OpenEMS Edge.
+NOTE: The _**Edge.Manager**_ service is responsible for the communication between OpenEMS Backend and OpenEMS Edge.
 +
 In the example we are configuring the `Port '8081'`. This port needs to match with what we configure later in OpenEMS Edge. The `Debug Mode 'DETAILED'` setting helps us to get some more details on the internal behaviour. 
 +
-.Configuration of Backend Edge.Websocket
-image::config-backend-edge.websocket.png[Configuration of Backend Edge.Websocket]
+.Configuration of Backend Edge.Manager
+image::config-backend-edge.websocket.png[Configuration of Backend Edge.Manager]
 
 . Configure Ui.Websocket
 +
@@ -266,12 +266,12 @@ You should have seen some important log messages by now, that indicate that the 
 INFO  [d.timedata.dummy.TimedataDummy] [Timedata.Dummy] Activate
 INFO  [d.metadata.dummy.MetadataDummy] [Metadata.Dummy] Activate
 INFO  [socket.AbstractWebsocketServer] [Ui.Websocket] Starting websocket server [port=8082]
-INFO  [socket.AbstractWebsocketServer] [Edge.Websocket] Starting websocket server [port=8081]
+INFO  [socket.AbstractWebsocketServer] [Edge.Manager] Starting websocket server [port=8081]
 ```
 
 === Configure OpenEMS Edge
 
-Next we will configure OpenEMS Edge to connect to the OpenEMS Backend _**Edge.Websocket**_ service. 
+Next we will configure OpenEMS Edge to connect to the OpenEMS Backend _**Edge.Manager**_ service. 
 
 . Switch back to the http://localhost:8080/system/console/configMgr[Apache Felix Web Console Configuration for OpenEMS Edge icon:external-link[]].
 
@@ -283,7 +283,7 @@ image::config-controller-api-backend.png[Configuration of Controller Api Backend
 Some configuration parameters are still noteworthy here:
 +
 .. _Apikey_ is used to authenticate this Edge at the Backend Metadata service. It has to be unique for each Edge.
-.. _Uri_ is set to `ws://localhost:8081`. This defines an unencrypted websocket (`ws://`) connection to the local computer on port `8081` like we configured before for the _**Edge.Websocket**_. For a production setup you would want to use a TLS encrypted websocket with a `wss://` uri.
+.. _Uri_ is set to `ws://localhost:8081`. This defines an unencrypted websocket (`ws://`) connection to the local computer on port `8081` like we configured before for the _**Edge.Manager**_. For a production setup you would want to use a TLS encrypted websocket with a `wss://` uri.
 +
 Once you press btn:[save] you should see logs in OpenEMS Edge
 +
