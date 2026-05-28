@@ -11,7 +11,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.function.Consumer;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -48,9 +47,6 @@ public class FroniusGen24DcChargerImpl extends AbstractOpenemsComponent
 		implements EssDcCharger, TimedataProvider, EventHandler, OpenemsComponent {
 
 	protected Config config = null;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private BatteryInverterFroniusGen24 inverter;
