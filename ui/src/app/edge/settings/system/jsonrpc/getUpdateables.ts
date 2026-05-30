@@ -58,4 +58,5 @@ export type Updateable = {
     id: string,
     name: string,
     description: string,
+    avgDurationInMinutes?: number
 };

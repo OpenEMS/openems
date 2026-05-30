@@ -1,6 +1,6 @@
 package io.openems.backend.alerting;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.backend.alerting.Dummy.AlertingMetadataImpl;
 import io.openems.backend.alerting.Dummy.MailerImpl;
@@ -20,21 +20,21 @@ import io.openems.backend.common.metadata.Edge;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 
-public class SumStateAlertingTest {
+class SumStateAlertingTest {
 
 	private static class TestEnvironment {
 		record SimpleAlertingSetting(String user, int faultDelay, int warningDelay) {
 		}
 
-		private AlertingMetadataImpl meta;
-		private MailerImpl mailer;
-		private TimeLeapMinuteTimer timer;
+		private final AlertingMetadataImpl meta;
+		private final MailerImpl mailer;
+		private final TimeLeapMinuteTimer timer;
 
-		private Alerting alerting;
-		private Scheduler scheduler;
+		private final Alerting alerting;
+		private final Scheduler scheduler;
 
-		private HashMap<String, Edge> edges;
-		private Map<String, List<SumStateAlertingSetting>> settings;
+		private final HashMap<String, Edge> edges;
+		private final Map<String, List<SumStateAlertingSetting>> settings;
 
 		public TestEnvironment() {
 			var instant = Instant.ofEpochMilli(System.currentTimeMillis());
@@ -69,7 +69,7 @@ public class SumStateAlertingTest {
 			this.alerting.metadata = this.meta;
 		}
 
-		public void createEdge(String id, boolean online, ZonedDateTime lastMessage,
+		void createEdge(String id, boolean online, ZonedDateTime lastMessage,
 				SimpleAlertingSetting... settings) {
 			var edge = new Edge(this.meta, id, null, null, null, lastMessage);
 			edge.setOnline(online);
@@ -83,7 +83,7 @@ public class SumStateAlertingTest {
 			this.settings.put(edge.getId(), list);
 		}
 
-		public void setState(Level state, String... edges) {
+		void setState(Level state, String... edges) {
 			for (String edgeId : edges) {
 				var edge = this.edges.get(edgeId);
 				edge.setLastmessage(this.timer.now());
@@ -98,7 +98,7 @@ public class SumStateAlertingTest {
 			}
 		}
 
-		public void setOnline(boolean value, String... edges) {
+		void setOnline(boolean value, String... edges) {
 			for (String edgeId : edges) {
 				var edge = this.edges.get(edgeId);
 				edge.setOnline(value);
@@ -115,7 +115,7 @@ public class SumStateAlertingTest {
 	}
 
 	@Test
-	public void integrationTest() {
+	void integrationTest() {
 		var env = new TestEnvironment();
 
 		var config = Dummy.testConfig(15, false, true);
@@ -186,7 +186,7 @@ public class SumStateAlertingTest {
 	}
 
 	@Test
-	public void deactivateTest() {
+	void deactivateTest() {
 		var env = new TestEnvironment();
 		/* All off */
 		var config = Dummy.testConfig(5, false, true);

@@ -36,7 +36,7 @@ import io.openems.edge.timeofusetariff.test.DummyTariffGridSellProvider;
 import io.openems.edge.timeofusetariff.test.DummyTariffManager;
 import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 
-public class GlobalOptimizationContextTest {
+class GlobalOptimizationContextTest {
 
 	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
 	private static final Instant NOW = Instant.now(CLOCK);
@@ -74,7 +74,7 @@ public class GlobalOptimizationContextTest {
 								4002, 8002, 6002, 2002, 3002, 5002, 7002, 9002, //
 								4003, 8003, 6003, 2003, 3003, 5003, 7003, 9003, //
 								4004, 8004, 6004, 2004, 3004, 5004, 7004, 9004, //
-						}), EnergyConstants.SUM_UNMANAGED_CONSUMPTION),
+						}), EnergyConstants.SUM_UNMANAGED_CONSUMPTION), //
 				new DummyPredictor("predictor1", this.cm, Prediction.from(this.sum, //
 						EnergyConstants.SUM_PRODUCTION, NOW, new Integer[] { //
 								8000, 9000, 10000, 11000, 7000, 4000, 3000, 5000, //
@@ -85,14 +85,14 @@ public class GlobalOptimizationContextTest {
 						}), EnergyConstants.SUM_PRODUCTION));
 
 		final var tariffGridBuy = new DummyTimeOfUseTariffProvider(CLOCK, TimeOfUsePrices.from(Instant.now(CLOCK), //
-				11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, //
+				-11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, //
 				11.1, 12.1, 13.1, 14.1, 15.1, 16.1, 17.1, 18.1, //
 				11.2, 12.2, 13.2, 14.2, 15.2, 16.2, 17.2, 18.2, //
 				11.3, 12.3, 13.3, 14.3, 15.3, 16.3, 17.3, 18.3, //
 				11.4, 12.4, 13.4, 14.4, 15.4, 16.4, 17.4, 18.4 //
 		));
 		final var tariffGridSell = new DummyTariffGridSellProvider(CLOCK, TimeOfUsePrices.from(Instant.now(CLOCK), //
-				21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, //
+				-21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, //
 				21.1, 22.1, 23.1, 24.1, 25.1, 26.1, 27.1, 28.1, //
 				21.2, 22.2, 23.2, 24.2, 25.2, 26.2, 27.2, 28.2, //
 				21.3, 22.3, 23.3, 24.3, 25.3, 26.3, 27.3, 28.3, //
@@ -104,7 +104,7 @@ public class GlobalOptimizationContextTest {
 	}
 
 	@Test
-	public void testComplete() {
+	void testComplete() {
 		var goc = GlobalOptimizationContext.builder() //
 				.setComponentManager(this.cm) //
 				.setMeta(this.meta) //
@@ -131,17 +131,19 @@ public class GlobalOptimizationContextTest {
 
 		final var gridBuyPrice = p0.data().gridBuyPrice();
 		assertTrue(gridBuyPrice.isPresent());
-		assertEquals(11.0, gridBuyPrice.get().actual(), 0.001);
+		assertEquals(-11.0, gridBuyPrice.get().actual(), 0.001);
 		assertEquals(0.0, gridBuyPrice.get().normalized(), 0.001);
+		assertEquals(14.7, gridBuyPrice.get().positiveShifted(), 0.001);
 
 		final var gridSellPrice = p0.data().gridSellPrice();
 		assertTrue(gridSellPrice.isPresent());
-		assertEquals(21.0, gridSellPrice.get().actual(), 0.001);
+		assertEquals(-21.0, gridSellPrice.get().actual(), 0.001);
 		assertEquals(0.0, gridSellPrice.get().normalized(), 0.001);
+		assertEquals(24.7, gridSellPrice.get().positiveShifted(), 0.001);
 	}
 
 	@Test
-	public void testWithoutGridBuyPrices() {
+	void testWithoutGridBuyPrices() {
 		var goc = GlobalOptimizationContext.builder() //
 				.setComponentManager(this.cm) //
 				.setMeta(this.meta) //
@@ -172,12 +174,13 @@ public class GlobalOptimizationContextTest {
 
 		final var gridSellPrice = p0.data().gridSellPrice();
 		assertTrue(gridSellPrice.isPresent());
-		assertEquals(21.0, gridSellPrice.get().actual(), 0.001);
+		assertEquals(-21.0, gridSellPrice.get().actual(), 0.001);
 		assertEquals(0.0, gridSellPrice.get().normalized(), 0.001);
+		assertEquals(24.7, gridSellPrice.get().positiveShifted(), 0.001);
 	}
 
 	@Test
-	public void testCalculatePeriodDurationHourFromIndex() {
+	void testCalculatePeriodDurationHourFromIndex() {
 		assertEquals(24, calculatePeriodDurationHourFromIndex(ZonedDateTime.parse("2020-03-04T14:00:00.00Z")));
 		assertEquals(24 + 3, calculatePeriodDurationHourFromIndex(ZonedDateTime.parse("2020-03-04T14:15:00.00Z")));
 		assertEquals(24 + 2, calculatePeriodDurationHourFromIndex(ZonedDateTime.parse("2020-03-04T14:30:00.00Z")));

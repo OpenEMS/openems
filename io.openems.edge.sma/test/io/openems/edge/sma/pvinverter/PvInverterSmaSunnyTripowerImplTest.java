@@ -2,9 +2,8 @@ package io.openems.edge.sma.pvinverter;
 
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -14,7 +13,6 @@ public class PvInverterSmaSunnyTripowerImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new PvInverterSmaSunnyTripowerImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
 						.setId("pvInverter0") //

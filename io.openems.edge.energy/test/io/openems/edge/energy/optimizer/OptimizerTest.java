@@ -1,9 +1,9 @@
 package io.openems.edge.energy.optimizer;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -29,11 +29,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.openems.common.utils.DateUtils;
 import io.openems.edge.common.test.DummyChannel;
@@ -41,7 +41,7 @@ import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.test.DummyGlobalOptimizationContext;
 import io.openems.edge.energy.optimizer.Optimizer.CancellationToken;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OptimizerTest {
 
 	@Mock
@@ -58,7 +58,7 @@ public class OptimizerTest {
 	private DummyChannel dummyChannel2;
 	private Clock clock;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.simulator = spy(new Simulator(SimulatorTest.GOC));
 		this.dummyChannel1 = DummyChannel.of("DummyChannel1");
@@ -98,7 +98,7 @@ public class OptimizerTest {
 				this.dummyChannel2));
 
 		doNothing().when(sut)//
-				.restartOptimization(anyString(), any(Duration.class), anyBoolean());
+				.restartOptimization(anyString(), anyBoolean());
 
 		// Execution / Assertions
 		sut.activate();
@@ -126,7 +126,7 @@ public class OptimizerTest {
 				goc -> this.simulator));
 
 		doNothing().doCallRealMethod().when(sut)//
-				.restartOptimization(anyString(), any(Duration.class), anyBoolean());
+				.restartOptimization(anyString(), anyBoolean());
 		sut.activate();
 
 		sut.getCurrentToken().set(this.token);
@@ -162,7 +162,7 @@ public class OptimizerTest {
 				goc -> this.simulator));
 
 		doNothing().when(sut)//
-				.restartOptimization(anyString(), any(Duration.class), anyBoolean());
+				.restartOptimization(anyString(), anyBoolean());
 		sut.activate();
 
 		assertNull(sut.getCurrentToken().get());

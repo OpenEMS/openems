@@ -9,6 +9,8 @@ import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.AbstractSerialTransportListener;
@@ -47,6 +49,8 @@ import io.openems.edge.common.startstop.StartStoppable;
 })
 public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler, StartStoppable {
+
+	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
 
 	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
@@ -143,8 +147,10 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		}
 		if (!this._connection.isOpen()) {
 			try {
+				this.log.info("Open serial modbus connection to " + this.portName + " ...");
 				this._connection.open();
 			} catch (Exception e) {
+				this.log.error("Failed to open serial modbus connection to " + this.portName, e);
 				throw new OpenemsException("Connection via [" + this.portName + "] failed: " + e.getMessage());
 			}
 

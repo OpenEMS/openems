@@ -789,6 +789,10 @@ public interface Battery extends StartStoppable, OpenemsComponent {
 		this.getInnerResistanceChannel().setNextValue(value);
 	}
 
+	public default boolean isFirmwareUpdateRunning() {
+		return false;
+	}
+
 	/**
 	 * Generates a default DebugLog message for {@link Battery} implementations with
 	 * a State-Machine.

@@ -1,9 +1,9 @@
 package io.openems.edge.pvinverter.kaco.blueplanet;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
 public class PvInverterKacoBlueplanetImplTest {
@@ -11,7 +11,6 @@ public class PvInverterKacoBlueplanetImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new PvInverterKacoBlueplanetImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
 						.setId("pvInverter0") //
@@ -19,6 +18,7 @@ public class PvInverterKacoBlueplanetImplTest {
 						.setModbusId("modbus0") //
 						.setModbusUnitId(1) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

@@ -12,8 +12,8 @@ import static io.openems.edge.energy.v1.optimizer.TestDataV1.TO_ENERGY;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateArray;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.interpolateDoubleArray;
 import static java.util.Arrays.stream;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.DoubleStream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -38,7 +38,7 @@ public class SimulatorV1Test {
 
 	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
 
-	@Before
+	@BeforeEach
 	public void before() {
 		// Make reproducible results
 		System.setProperty("io.jenetics.util.defaultRandomGenerator", "Random");
@@ -70,8 +70,8 @@ public class SimulatorV1Test {
 	}
 
 	private static void assertPeriod(String message, Period period, int essChargeDischarge, int grid, double cost) {
-		assertEquals(period.state() + "-essChargeDischarge: " + message, essChargeDischarge, period.ef().ess());
-		assertEquals(period.state() + "-grid: " + message, grid, period.ef().grid());
+		assertEquals(essChargeDischarge, period.ef().ess(), () -> period.state() + "-essChargeDischarge: " + message);
+		assertEquals(grid, period.ef().grid(), () -> period.state() + "-grid: " + message);
 	}
 
 	@Test

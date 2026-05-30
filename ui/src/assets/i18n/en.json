@@ -1452,7 +1452,7 @@
             "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
             "UPDATE_PROGRESS": "Update in progress.",
             "UPDATE_SEARCH": "Checking for updates...",
-            "UPDATE_TIME": "(This can take up to 10 minutes)",
+            "UPDATE_TIME": "(This can take up to {{minutes}} minutes)",
             "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
         }
     },

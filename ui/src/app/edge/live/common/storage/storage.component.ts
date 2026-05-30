@@ -5,10 +5,8 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
-import { Role } from "src/app/shared/type/role";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
-import { AdminStorageModalComponent } from "./admin-modal/admin-modal.component";
 import { InstallerOwnerGuestStorageModalComponent } from "./installer-owner-guest-modal/installer-owner-guest-modal.component";
 
 @Component({
@@ -85,7 +83,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected getModalComponent(): Modal {
         return {
-            component: this.edge.roleIsAtLeast(Role.ADMIN) ? AdminStorageModalComponent : InstallerOwnerGuestStorageModalComponent,
+            component: InstallerOwnerGuestStorageModalComponent,
             componentProps: {
                 edge: this.edge,
                 component: this.component,
@@ -112,7 +110,6 @@ export class StorageComponent extends AbstractFlatWidget {
                     [component.properties["ess.id"]]: component,
                 };
             }, {});
-
 
         for (const essId in this.prepareBatteryExtensionCtrl) {
             const controller = this.prepareBatteryExtensionCtrl[essId];

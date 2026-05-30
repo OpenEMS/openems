@@ -285,11 +285,4 @@ public class GocBuilder {
 		case TRACE -> this.log.info("OPTIMIZER {}", message);
 		}
 	}
-
-	private void logWarn(String message) {
-		switch (this.logVerbosity) {
-		case NONE, DEBUG_LOG -> doNothing();
-		case TRACE -> this.log.warn("OPTIMIZER {}", message);
-		}
-	}
 }

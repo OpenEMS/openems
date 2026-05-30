@@ -62,6 +62,11 @@ export const OemMeta: BaseMeta = {
             ALPITRONIC: null,
             MENNEKES: null,
         },
+        HEAT: {
+            ASKOMA: {
+                HEATING_ELEMENT: null,
+            },
+        },
     },
     links: {
         DATA_PROTECTION: null,

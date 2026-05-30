@@ -11,7 +11,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
@@ -19,7 +18,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 
 public class SerialPortHandler implements AutoCloseable {
 
-	private final Logger log = LoggerFactory.getLogger(SerialPortHandler.class);
+	private final Logger log;
 
 	private static final int DATA_BITS = 8;
 	private static final int STOP_BITS = SerialPort.ONE_STOP_BIT;
@@ -37,11 +36,12 @@ public class SerialPortHandler implements AutoCloseable {
 
 	private static class SerialPortMessageListener implements com.fazecast.jSerialComm.SerialPortMessageListener {
 
-		private final Logger log = LoggerFactory.getLogger(SerialPortMessageListener.class);
 		private final Queue<CompletableFuture<String>> writeList;
+		private final Logger log;
 
-		public SerialPortMessageListener(Queue<CompletableFuture<String>> writeList) {
+		public SerialPortMessageListener(Queue<CompletableFuture<String>> writeList, Logger logger) {
 			this.writeList = writeList;
+			this.log = logger;
 		}
 
 		@Override
@@ -92,11 +92,12 @@ public class SerialPortHandler implements AutoCloseable {
 		}
 	}
 
-	public SerialPortHandler(String portName, int baudRate) throws Exception {
+	public SerialPortHandler(String portName, int baudRate, Logger logger) throws Exception {
+		this.log = logger;
 		this.portName = portName;
 		this.baudRate = baudRate;
 		this.serialPort = SerialPort.getCommPort(this.portName);
-		this.serialPortDataListener = new SerialPortMessageListener(this.writeList);
+		this.serialPortDataListener = new SerialPortMessageListener(this.writeList, logger);
 		this.initializeSerialPort();
 	}
 

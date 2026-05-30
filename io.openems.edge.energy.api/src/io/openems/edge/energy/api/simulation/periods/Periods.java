@@ -182,6 +182,8 @@ public class Periods {
 	}
 
 	public static class InvalidPeriodsException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+
 		public InvalidPeriodsException(String message) {
 			super(message);
 		}

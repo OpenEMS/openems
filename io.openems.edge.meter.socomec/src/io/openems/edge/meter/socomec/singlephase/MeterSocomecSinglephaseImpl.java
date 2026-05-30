@@ -12,7 +12,6 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -24,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -45,18 +45,17 @@ import io.openems.edge.meter.socomec.SocomecMeter;
 @Component(//
 		name = "Meter.Socomec.Singlephase", //
 		immediate = true, //
-		configurationPolicy = REQUIRE //
-)
+		configurationPolicy = REQUIRE)
+@GenerateTargetsFromReferences("Modbus")
 public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements MeterSocomecSinglephase, SocomecMeter,
 		SinglePhaseMeter, ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(MeterSocomecSinglephaseImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -76,10 +75,7 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 		this.config = config;
 		this.identifySocomecMeter();
 	}
@@ -192,6 +188,11 @@ public class MeterSocomecSinglephaseImpl extends AbstractSocomecMeter implements
 
 	@Override
 	protected void identifiedDirisB30() throws OpenemsException {
+		this.thisIsNotASinglePhaseMeter();
+	}
+
+	@Override
+	protected void identifiedCountisE47_E48() throws OpenemsException {
 		this.thisIsNotASinglePhaseMeter();
 	}
 

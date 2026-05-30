@@ -3,7 +3,6 @@ package io.openems.edge.bridge.modbus.sunspec.battery;
 import java.util.List;
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -34,11 +33,9 @@ public abstract class AbstractSunSpecBattery extends AbstractOpenemsSunSpecCompo
 	}
 
 	@Override
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
-			ConfigurationAdmin cm, String modbusReference, String modbusId, int readFromCommonBlockNo)
-			throws OpenemsException {
-		return super.activate(context, id, alias, enabled, unitId, cm, modbusReference, modbusId,
-				readFromCommonBlockNo);
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
+			int readFromCommonBlockNo) throws OpenemsException {
+		super.activate(context, id, alias, enabled, unitId, readFromCommonBlockNo);
 	}
 
 	@Override

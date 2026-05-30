@@ -21,8 +21,6 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -49,8 +47,6 @@ import io.openems.edge.system.fenecon.masterbox2v0.utils.MasterBoxReadWriteModbu
 })
 public class IoMasterBox2v0RelayImpl extends AbstractOpenemsComponent implements IoMasterBox2v0Relay, DigitalOutput,
 		OpenemsComponent, EventHandler, MasterBoxReadWriteModbusComponent {
-
-	private final Logger log = LoggerFactory.getLogger(IoMasterBox2v0RelayImpl.class);
 
 	@Reference
 	private ConfigurationAdmin cm;

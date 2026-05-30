@@ -3,10 +3,13 @@ package io.openems.edge.core.appmanager;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.Collections.emptyList;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -115,11 +118,25 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return false;
 		}
 		for (NetworkInterface<?> networkInterface : otherInterfaces) {
-			var netinterface = interfaces.stream().filter(t -> t.getName().equals(networkInterface.getName()))
+			var netInterface = interfaces.stream().filter(t -> t.getName().equals(networkInterface.getName()))
 					.findFirst().orElse(null);
-			if (netinterface == null || netinterface.getAddresses().getValue().size() //
-					!= networkInterface.getAddresses().getValue().size() || !netinterface.getAddresses().getValue()
-							.stream().allMatch(t -> networkInterface.getAddresses().getValue().contains(t))) {
+
+			if (netInterface == null) {
+				return false;
+			}
+			var netInterfaceAddresses = netInterface.getAddresses().getValue();
+			var networkInterfaceAddresses = networkInterface.getAddresses().getValue();
+
+			if (netInterfaceAddresses == null && networkInterfaceAddresses == null) {
+				continue;
+			}
+			if (netInterfaceAddresses == null || networkInterfaceAddresses == null) {
+				return false;
+			}
+			if (netInterfaceAddresses.size() != networkInterfaceAddresses.size()) {
+				return false;
+			}
+			if (!networkInterfaceAddresses.containsAll(netInterfaceAddresses)) {
 				return false;
 			}
 		}
@@ -149,13 +166,16 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public List<NetworkInterface<?>> getInterfaces() throws OpenemsNamedException {
 		var hostConfig = this.componentManager.getEdgeConfig().getComponent(Host.SINGLETON_COMPONENT_ID).get();
-		var config = hostConfig.getProperty("networkConfiguration").get().getAsJsonObject();
+		final var configRaw = hostConfig.getProperty("networkConfiguration").get();
+		var config = configRaw.isJsonObject() //
+				? configRaw.getAsJsonObject() //
+				: JsonUtils.parseToJsonObject(configRaw.getAsString());
 		var interfaces = config.get("interfaces").getAsJsonObject();
 		return getInterfaces(interfaces);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent.
+	 * Checks if the expected components match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
@@ -730,39 +750,116 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public void updateHosts(//
 			final User user, //
-			final List<InterfaceConfiguration> ips, //
-			final List<InterfaceConfiguration> oldIps //
+			final List<InterfaceConfiguration> newInterfaceConfigs, //
+			final List<InterfaceConfiguration> oldInterfaceConfigs //
 	) throws OpenemsNamedException {
-		if ((ips == null || ips.isEmpty()) && (oldIps == null || oldIps.isEmpty())) {
+		if ((newInterfaceConfigs == null || newInterfaceConfigs.isEmpty())
+				&& (oldInterfaceConfigs == null || oldInterfaceConfigs.isEmpty())) {
 			return;
 		}
 
 		final var errors = new ArrayList<String>();
+		var interfacesToCreate = new ArrayList<InterfaceConfiguration>();
+		var interfacesToDelete = new ArrayList<String>();
 
-		var interfaces = this.getInterfaces();
+		// Collect interfaces to create
+		if (newInterfaceConfigs != null) {
+			for (var interfaceConfig : newInterfaceConfigs) {
+				if (interfaceConfig.getCreateIfNotExist() != null && interfaceConfig.getCreateIfNotExist()) {
+					interfacesToCreate.add(interfaceConfig);
+				}
+			}
+		}
+
+		// Collect interfaces to delete
+		if (oldInterfaceConfigs != null) {
+			for (var oldInterfaceConfig : oldInterfaceConfigs) {
+				var existsInNew = newInterfaceConfigs != null && newInterfaceConfigs.stream()//
+						.anyMatch(ip -> ip.interfaceName.equals(oldInterfaceConfig.interfaceName));
+
+				if (!existsInNew) {
+					// Only delete if it was created by the app
+					if (oldInterfaceConfig.getCreateIfNotExist() != null && oldInterfaceConfig.getCreateIfNotExist()) {
+						interfacesToDelete.add(oldInterfaceConfig.interfaceName);
+					}
+				}
+			}
+		}
+
+		if (!interfacesToCreate.isEmpty()) {
+			try {
+				this.createNetworkInterfaces(user, interfacesToCreate);
+				// TODO Required for; systemd-networkd to recognize the interfaces
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				errors.add("Failed to create network interfaces: " + e.getMessage());
+			}
+		}
+
+		// Delete removed interfaces
+		if (!interfacesToDelete.isEmpty()) {
+			try {
+				this.deleteNetworkInterfaces(user, interfacesToDelete);
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				errors.add("Failed to delete network interfaces: " + e.getMessage());
+			}
+		}
+
+		final var interfaces = this.getInterfaces().stream()//
+				.filter(iface -> !interfacesToDelete.contains(iface.getName()))//
+				.toList();
 		interfaces.stream() //
 				.forEach(networkInterface -> {
-					if (oldIps != null) {
-						// remove ip's in the old configuration
-						oldIps.stream() //
+					// remove ip's in the old configuration
+					if (oldInterfaceConfigs != null) {
+						oldInterfaceConfigs.stream() //
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
-									networkInterface.getAddresses().getValue().removeAll(t.getIps());
-
+									if (networkInterface.getAddresses().isSet()
+											&& networkInterface.getAddresses().getValue() != null) {
+										networkInterface.getAddresses().getValue().removeAll(t.getIps());
+									}
 									if (t.getIpv4Forwarding() != null) {
 										networkInterface.setIpv4Forwarding(ConfigurationProperty.asNotSet());
 									}
 									if (t.getIpMasquerade() != null) {
 										networkInterface.setIpMasquerade(ConfigurationProperty.asNotSet());
 									}
+									if (t.getDhcp() != null) {
+										networkInterface.setDhcp(ConfigurationProperty
+												.of(Objects.equals(networkInterface.getName(), "eth0") ? true : false));
+									}
+									if (t.getDns() != null) {
+										networkInterface.setDns(ConfigurationProperty.of(null));
+									}
+									if (t.getDhcpRouteMetric() != 0) {
+										networkInterface.setDhcpRouteMetric(ConfigurationProperty.of(null));
+									}
+									// Gateway removal
+									if (t.getGateway() != null) {
+										networkInterface.setGateway(ConfigurationProperty.of(null));
+									}
+									// GatewayOnLink removal
+									if (t.getGatewayOnLink() != null) {
+										networkInterface.setGatewayOnLink(ConfigurationProperty.of(null));
+									}
+									if (!t.getRoutes().isEmpty()) {
+										var currentRoutes = new HashSet<>(networkInterface.getRoutes().getValue());
+										t.getRoutes().forEach(currentRoutes::remove);
+										networkInterface.setRoutes(ConfigurationProperty.of(currentRoutes));
+									}
 								});
 					}
-					if (ips != null) {
+					if (newInterfaceConfigs != null) {
 						// add new ip's
-						ips.stream() //
+						newInterfaceConfigs.stream() //
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
-									networkInterface.getAddresses().getValue().addAll(t.getIps());
+									if (networkInterface.getAddresses().isSet()
+											&& networkInterface.getAddresses().getValue() != null) {
+										networkInterface.getAddresses().getValue().addAll(t.getIps());
+									}
 
 									if (t.getIpv4Forwarding() != null) {
 										networkInterface
@@ -771,19 +868,73 @@ public class ComponentUtilImpl implements ComponentUtil {
 									if (t.getIpMasquerade() != null) {
 										networkInterface.setIpMasquerade(ConfigurationProperty.of(t.getIpMasquerade()));
 									}
+
+									if (t.getDhcp() != null) {
+										networkInterface.setDhcp(ConfigurationProperty.of(t.getDhcp()));
+									}
+
+									if (t.getDns() != null) {
+										try {
+											var inet4Address = (Inet4Address) Inet4Address.getByName(t.getDns());
+											networkInterface.setDns(ConfigurationProperty.of(inet4Address));
+										} catch (Exception e) {
+											errors.add("Invalid DNS address: " + t.getDns());
+										}
+									}
+
+									if (t.getDhcpRouteMetric() != 0) {
+										networkInterface
+												.setDhcpRouteMetric(ConfigurationProperty.of(t.getDhcpRouteMetric()));
+									}
+
+									// Gateway addition
+									if (t.getGateway() != null) {
+										try {
+											var inet4Address = (Inet4Address) Inet4Address.getByName(t.getGateway());
+											networkInterface.setGateway(ConfigurationProperty.of(inet4Address));
+										} catch (Exception e) {
+											errors.add("Invalid Gateway address: " + t.getGateway());
+										}
+									}
+
+									// GatewayOnLink addition
+									if (t.getGatewayOnLink() != null) {
+										try {
+											networkInterface
+													.setGatewayOnLink(ConfigurationProperty.of(t.getGatewayOnLink()));
+										} catch (Exception e) {
+											errors.add("Invalid GatewayOnLink value: " + t.getGatewayOnLink());
+										}
+									}
+
+									if (networkInterface.getRoutes().isSet()
+											&& networkInterface.getRoutes().getValue() != null) {
+										var currentRoutes = new HashSet<>(networkInterface.getRoutes().getValue());
+										currentRoutes.addAll(t.getRoutes());
+										networkInterface.setRoutes(ConfigurationProperty.of(currentRoutes));
+									} else {
+										networkInterface
+												.setRoutes(ConfigurationProperty.of(new HashSet<>(t.getRoutes())));
+									}
 								});
 					}
 				});
 
-		ips.stream() //
-				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
-				.map(ic -> "Can not add Ip-Addresses for interface '" + ic.interfaceName + "'") //
-				.forEach(errors::add);
+		if (newInterfaceConfigs != null) {
+			newInterfaceConfigs.stream() //
+					.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+					.filter(ic -> ic.getCreateIfNotExist() == null || !ic.getCreateIfNotExist()) //
+					.map(ic -> "Can not add Ip-Addresses for interface '" + ic.interfaceName + "'") //
+					.forEach(errors::add);
+		}
 
-		oldIps.stream() //
-				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
-				.map(ic -> "Can not remove Ip-Addresses for interface '" + ic.interfaceName + "'") //
-				.forEach(errors::add);
+		if (oldInterfaceConfigs != null) {
+			oldInterfaceConfigs.stream() //
+					.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+					.filter(ic -> ic.getCreateIfNotExist() == null || !ic.getCreateIfNotExist())
+					.map(ic -> "Can not remove Ip-Addresses for interface '" + ic.interfaceName + "'") //
+					.forEach(errors::add);
+		}
 
 		try {
 			this.updateInterfaces(user, interfaces);
@@ -794,6 +945,66 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	/**
+	 * Creates network interface configuration files for interfaces that don't exist
+	 * yet.
+	 * 
+	 * @param user             the user performing the operation
+	 * @param interfaceConfigs the list of interface configurations to create
+	 * @throws OpenemsNamedException or UnknownHostException on error.
+	 */
+	private void createNetworkInterfaces(User user, List<InterfaceConfiguration> interfaceConfigs)
+			throws OpenemsNamedException, UnknownHostException {
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		var networkInterfaces = new ArrayList<NetworkInterface<?>>();
+		for (var config : interfaceConfigs) {
+			var addresses = new HashSet<>(config.getIps());
+			var routes = new HashSet<>(config.getRoutes());
+			var networkInterface = new NetworkInterface<Void>(config.interfaceName, config.getDhcp() != null //
+					? ConfigurationProperty.of(config.getDhcp())//
+					: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.asNotSet(), //
+					config.getGateway() != null//
+							? ConfigurationProperty.of((Inet4Address) Inet4Address.getByName(config.getGateway()))//
+							: ConfigurationProperty.asNotSet(), //
+					config.getDns() != null//
+							? ConfigurationProperty.of((Inet4Address) Inet4Address.getByName(config.getDns()))//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.of(addresses), //
+					config.getDhcpRouteMetric() != 0 //
+							? ConfigurationProperty.of(config.getDhcpRouteMetric())//
+							: ConfigurationProperty.asNotSet(), //
+					config.getIpv4Forwarding() != null //
+							? ConfigurationProperty.of(config.getIpv4Forwarding())//
+							: ConfigurationProperty.asNotSet(), //
+					config.getIpMasquerade() != null //
+							? ConfigurationProperty.of(config.getIpMasquerade())//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.asNotSet(), // destination
+					config.getGatewayOnLink() != null //
+							? ConfigurationProperty.of(config.getGatewayOnLink())//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.of(routes), //
+					null);
+
+			networkInterfaces.add(networkInterface);
+		}
+
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfig.Request(networkInterfaces));
+	}
+
+	/**
+	 * Deletes network interface configuration files.
+	 * 
+	 * @param user           the user performing the operation
+	 * @param interfaceNames the list of interface names to delete
+	 * @throws OpenemsNamedException on error
+	 */
+	private void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		host.deleteNetworkInterfaces(user, interfaceNames);
 	}
 
 	@Override

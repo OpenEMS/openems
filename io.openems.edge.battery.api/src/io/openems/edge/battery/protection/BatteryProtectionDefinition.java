@@ -124,4 +124,19 @@ public interface BatteryProtectionDefinition {
 	public default IntSupplier getForceChargeDischargeCurrent() {
 		return DEFAULT_FORCE_CHARGE_DISCHARGE_CURRENT;
 	}
+
+	/**
+	 * Returns whether charge is allowed. Called every cycle by battery protection.
+	 * 
+	 * @return true if charge is allowed, false if not.
+	 */
+	public boolean isChargeAllowed();
+
+	/**
+	 * Returns whether discharge is allowed. Called every cycle by battery
+	 * protection.
+	 * 
+	 * @return true if discharge is allowed, false if not.
+	 */
+	public boolean isDischargeAllowed();
 }

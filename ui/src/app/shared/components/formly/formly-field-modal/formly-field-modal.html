@@ -16,7 +16,7 @@
             }
 
             @case ('children-line') {
-              <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+              <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name" [hideValue]="true">
                 @for (lineItem of line.children; track lineItem) {
                   <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
                     [converter]="lineItem.converter">
