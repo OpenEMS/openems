@@ -46,9 +46,9 @@ public class EshUtils {
 
 		protected static EnergyDistribution fromSimulator(Period period, OptimizationContext clusterCoc,
 				ClusterScheduleContext clusterCsc, SingleModes mode) {
-			final var surplusEnergy = period instanceof Period.WithPrediction wp //
-					? wp.prediction().excessProduction() //
-					: 0; // default to zero
+			final int surplusEnergy = period.data().consumption()//
+					.map(c -> period.data().production() - c.actual())//
+					.orElse(0);
 
 			final var entries = clusterCoc.clusterConfig().singleParams().values().stream() //
 					.map(p -> {

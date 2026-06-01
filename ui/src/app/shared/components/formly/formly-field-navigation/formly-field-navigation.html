@@ -1,181 +1,206 @@
 <formly-form [form]="form" [fields]="field.fieldGroup" [model]="model"></formly-form>
 
 @if (field && field.props && field.props.options[0].component) {
-  <oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)">
+<oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm(form)">
     @if (props.attributes.title || props.attributes.helpKey) {
-      <ion-toolbar color="transparent">
+    <ion-toolbar color="transparent">
         <ion-grid class="ion-no-padding">
-          <ion-row class="ion-justify-content-center ion-align-items-center">
-            @if (props.attributes.title) {
-              <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">                
-                <ion-row class="ion-justify-content-end ion-align-items-end">
-                </ion-row>
-              </ion-col>
-              <ion-col [size]="service.isSmartphoneResolution ? 10 : 5.4">
-                <ion-row class="custom-title ion-align-items-center ion-justify-content-center">
-                  @if (props.attributes.icon) {
-                  <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large" style="padding-right: 0.2rem;"></ion-icon>
-                  }
-                  <ion-label [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }">{{ props.attributes.title }}</ion-label>                  
-                </ion-row>
-              </ion-col>
-            }
+            <ion-row class="ion-justify-content-center ion-align-items-center">
+                @if (props.attributes.title) {
+                <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
+                    <ion-row class="ion-justify-content-end ion-align-items-end">
+                    </ion-row>
+                </ion-col>
+                <ion-col [size]="service.isSmartphoneResolution ? 10 : 5.4">
+                    <ion-row
+                        class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
+                        @if (props.attributes.icon) {
+                        <ion-icon [name]="props.attributes.icon" [size]="props.options[0].icon.size ?? large"
+                            style="padding-right: 0.2rem;"></ion-icon>
+                        }
+                        <ion-label [ngClass]="{ 'oe-ci-font-family-bold': props.options[0].isCommonWidget }">{{
+                            props.attributes.title }}</ion-label>
+                    </ion-row>
+                </ion-col>
+                }
 
-            <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
-              @if (props.attributes.helpKey) {
-                  <ion-buttons
-                    [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'">
-                    <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear"
-                      style="color: var(--ion-text-color);"
-                      [useDefaultPrefix]="props.attributes.useDefaultPrefix ?? true"></oe-help-button>
-                  </ion-buttons>
-              }
-            </ion-col>
-          </ion-row>
+                <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
+                    @if (props.attributes.helpKey) {
+                    <ion-buttons
+                        [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'">
+                        <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear"
+                            style="color: var(--ion-text-color);"
+                            [useDefaultPrefix]="props.options[0].useDefaultPrefix ?? true"></oe-help-button>
+                    </ion-buttons>
+                    }
+                </ion-col>
+            </ion-row>
         </ion-grid>
-      </ion-toolbar>
+    </ion-toolbar>
     }
     <ngx-spinner name="formly-field-modal"></ngx-spinner>
     <ion-grid>
-      <ion-row class="ion-justify-content-center">
-        <ion-col size-md="8" size-lg="6" size-xl="6">
-          @for(f of field.fieldGroup; track f){
-            @if(f.hide !== true){
+        <ion-row class="ion-justify-content-center">
+            <ion-col size-md="8" size-lg="6" size-xl="6">
+                @for(f of field.fieldGroup; track f){
+                @if(f.hide !== true){
 
-              @for (entry of f.props.options; track entry) {
+                @for (entry of f.props.options; track entry) {
                 @let line = entry.line;
 
-                    @switch (line.type) {
-                  @case('advanced-electricity-meter-line') {
-                    <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
-                  }
+                @switch (line.type) {
+                @case('advanced-electricity-meter-line') {
+                <oe-electricity-meter [component]="line.component"></oe-electricity-meter>
+                }
 
-                  @case('advanced-ess-charger-line') {
-                    <oe-ess-charger [component]="line.component"></oe-ess-charger>
-                  }
+                @case('advanced-ess-charger-line') {
+                <oe-ess-charger [component]="line.component"></oe-ess-charger>
+                }
 
-                  <!-- OeFormlyField.ChannelLine -->
-                  @case ('channel-line') {
-                    <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name"
-                      [channelAddress]="line.channel" [converter]="line.converter">
-                    </oe-modal-line>
-                  }
+                <!-- OeFormlyField.ChannelLine -->
+                @case ('channel-line') {
+                <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
+                    [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter">
+                </oe-modal-line>
+                }
 
-                  <!-- OeFormlyField.ChildrenLine -->
-                  @case ('children-line') {
-                    <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name">
-                      @for (lineItem of line.children; track lineItem) {
-                        <!-- OeFormlyField.Item -->
-                        <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
-                          [converter]="lineItem.converter">
-                        </oe-modal-line-item>
-                      }
-                    </oe-modal-line>
-                  }
-
-                  <!-- OeFormlyField.SvgLine -->
-                  @case ('image-line') {
-                    <oe-img [img]="line.img">
-                    </oe-img>
-                  }
-
-                  <!-- OeFormlyField.InfoLine -->
-                  @case ('info-line') {
-                    <oe-modal-info-line [info]="line.name" [icon]="line.icon" [rowStyle]="line.style">
-                    </oe-modal-info-line>
-                  }
-
-                  <!-- OeFormlyField.HorizontalLine -->
-                  @case ('horizontal-line') {
-                    <oe-modal-horizontal-line></oe-modal-horizontal-line>
-                  }
-
-                  @case ('value-from-channels-line') {
-                    <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe"
-                      [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value"
-                      [filters]="line.filter ?? null" [name]="line.name" [singleLine]="line.singleLine ?? false">
-                    </oe-modal-value-line>
-                  }
-
-                  <!-- FormGrouped -->
-                  @case ('value-from-form-control-line') {
-                    <oe-modal-line [controlName]="line.controlName" [formGroup]="form" [name]="line.name"
-                      [control]="{type: 'TEXT', valueConverter: line.converter}">
-                    </oe-modal-line>
-                  }
-
-                  @case ('radio-buttons-from-form-control-line') {
-                    @if (form.controls[line.controlName] !== null) {
-                      <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
-                        [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null"
-                        [control]="{type: 'RADIO'}">
-                      </oe-modal-buttons>
+                <!-- OeFormlyField.ChildrenLine -->
+                @case ('children-line') {
+                <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'"
+                    [name]="line.name" [hideValue]="true">
+                    @for (lineItem of line.children; track lineItem) {
+                    <!-- OeFormlyField.Item -->
+                    <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
+                        [converter]="lineItem.converter">
+                    </oe-modal-line-item>
                     }
-                  }
+                </oe-modal-line>
+                }
 
-                  @case ('button-from-form-control-line') {
-                    <oe-modal-line [name]="line.name" [formGroup]="form" [component]="component"
-                      [control]="{type: 'BUTTON', button: line.button}">
-                    </oe-modal-line>
-                  }
+                <!-- OeFormlyField.SvgLine -->
+                @case ('image-line') {
+                <oe-img [img]="line.img">
+                </oe-img>
+                }
 
-                  @case ('buttons-from-form-control-line') {
-                    @if (form.controls[line.controlName] !== null) {
-                      <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
-                        [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null">
-                      </oe-modal-buttons>
-                    }
-                  }
+                <!-- OeFormlyField.InfoLine -->
+                @case ('info-line') {
+                @if (line.html !== undefined) {
+                <ng-container style="font-size: smaller">
+                    <span [innerHtml]="line.html"></span>
+                </ng-container>
+                } @else {
+                <oe-modal-info-line [info]="line.name" [icon]="line.icon">
+                </oe-modal-info-line>
+                }
+                }
 
-                  <!-- OeFormlyField.RangeButtonFromFormControlLine -->
-                  @case ('range-button-from-form-control-line') {
-                    <oe-modal-line [controlName]="line.controlName"
-                      [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
-                    </oe-modal-line>
-                  }
+                <!-- OeFormlyField.HorizontalLine -->
+                @case ('horizontal-line') {
+                <oe-modal-horizontal-line></oe-modal-horizontal-line>
+                }
 
-                  <!-- OeFormlyField.ToggleLine -->
-                  @case ('toggle-line') {
-                    <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{type: 'TOGGLE'}"
-                      [formGroup]="form" leftColumnWidth="100">
-                    </oe-modal-line>
-                  }
+                @case ('value-from-channels-line') {
+                <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe"
+                    [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null"
+                    [name]="line.name" [singleLine]="line.singleLine ?? false">
+                </oe-modal-value-line>
+                }
 
-                  @case ('input-line') {
-                    <oe-modal-line [name]="line.name" [controlName]="line.controlName"
-                      [control]="{type: 'INPUT', properties: line.properties}" [formGroup]="form" leftColumnWidth="50">
-                    </oe-modal-line>
-                  }
+                <!-- FormGrouped -->
+                @case ('value-from-form-control-line') {
+                <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [formGroup]="form"
+                    [name]="line.name" [control]="{type: 'TEXT', valueConverter: line.converter}">
+                </oe-modal-line>
+                }
 
-                  <!-- OeFormlyField.ComponentLine -->
+                @case ('radio-buttons-from-form-control-line') {
+                @if (form.controls[line.controlName] !== null) {
+                <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component"
+                    [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null"
+                    [control]="{type: 'RADIO'}">
+                </oe-modal-buttons>
+                }
+                }
+
+                @case ('button-from-form-control-line') {
+                <oe-modal-line [lineStyle]="line.style" [name]="line.name" [formGroup]="form" [component]="component"
+                    [control]="{type: 'BUTTON', button: line.button}">
+                </oe-modal-line>
+                }
+
+                @case ('buttons-from-form-control-line') {
+                @if (form.controls[line.controlName] !== null) {
+                <oe-modal-buttons [lineStyle]="line.style" [formGroup]="form" [controlName]="line.controlName"
+                    [component]="component" [buttons]="line.buttons"
+                    [channelAddress]="line.channel?.toString() ?? null">
+                </oe-modal-buttons>
+                }
+                }
+
+                <!-- OeFormlyField.RangeButtonFromFormControlLine -->
+                @case ('range-button-from-form-control-line') {
+                <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName"
+                    [control]="{type: 'RANGE', properties: line.properties}" [formGroup]="form">
+                </oe-modal-line>
+                }
+
+                <!-- OeFormlyField.ToggleLine -->
+                @case ('toggle-line') {
+                <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName"
+                    [control]="{type: 'TOGGLE'}" [formGroup]="form" leftColumnWidth="100">
+                </oe-modal-line>
+                }
+
+                @case ('toggle-line-with-formcontrol-value') {
+                <oe-modal-toggle-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName"
+                    [formGroup]="form" [channelAddress]="line.channel" [togglePrefix]="line.togglePrefix">
+                </oe-modal-toggle-line>
+                }
+
+                @case ('input-line') {
+                <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName"
+                    [control]="{type: 'INPUT', properties: line.properties}" [formGroup]="form" leftColumnWidth="50">
+                </oe-modal-line>
+                }
+
+                @case ('select-line') {
+                <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName"
+                    [control]="{type: 'SELECT', options: line.options}" [formGroup]="form" leftColumnWidth="50">
+                </oe-modal-line>
+                }
+
+                @case ('time-line') {
+                <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form">
+                </oe-time-line>
+                }
+
+                @case ('date-time-line') {
+                <oe-date-time-line [defaultLabel]="line.defaultLabel" [controlName]="line.controlName"
+                    [formGroup]="form" [label]="line.label">
+                </oe-date-time-line>
+                }
+
+                @case ('percentage-bar-line') {
+                <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value">
+                </oe-flat-widget-percentagebar>
+                }
+                <!-- OeFormlyField.ComponentLine -->
                 @case ('component-line') {
-                    <ng-container
-                      *ngComponentOutlet="line.component; inputs: line.inputs">
-                    </ng-container>
+                <ng-container *ngComponentOutlet="line.component; inputs: line.inputs">
+                </ng-container>
                 }
 
-                  @case ('select-line') {
-                    <oe-modal-line [name]="line.name" [controlName]="line.controlName"
-                      [control]="{type: 'SELECT', options: line.options}" [formGroup]="form" leftColumnWidth="50">
-                    </oe-modal-line>
-                  }
-
-                  @case ('time-line') {
-                    <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form">
-                    </oe-time-line>
-                  }
-
-                  @case ('percentage-bar-line') {
-                    <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value">
-                    </oe-flat-widget-percentagebar>
-                  }
+                @case ('name-line') {
+                <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
                 }
-              }
+                }
+                }
 
-            }
-          }
-        </ion-col>
-      </ion-row>
+                }
+                }
+            </ion-col>
+        </ion-row>
     </ion-grid>
-  </oe-navigation-view>
+</oe-navigation-view>
 }

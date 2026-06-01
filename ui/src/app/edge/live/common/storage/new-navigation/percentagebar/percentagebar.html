@@ -1,0 +1,13 @@
+@if(essComponentId() !== null){
+  <oe-flat-widget-percentagebar [channelAddress]="essComponentId() + '/Soc'">
+    <!-- Shown if emergencyReserve is enabled for this ess -->
+    @if (isEmergencyReserveEnabled) {
+      @if (reserveSoc) {
+        <svg>
+          <rect y="2" rx="0" ry="0" width="1%" height="18"
+            [style]="'x: calc(' + (reserveSoc > 98 ? 98 : reserveSoc) + '% + 2px); fill: #0008;'" />
+        </svg>
+      }
+    }
+  </oe-flat-widget-percentagebar>
+}

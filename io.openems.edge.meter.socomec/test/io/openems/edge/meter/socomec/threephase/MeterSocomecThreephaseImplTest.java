@@ -2,10 +2,10 @@ package io.openems.edge.meter.socomec.threephase;
 
 import static io.openems.common.types.MeterType.GRID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.test.InvertTest;
@@ -15,11 +15,10 @@ public class MeterSocomecThreephaseImplTest {
 	private MeterSocomecThreephaseImpl meter;
 	private ComponentTest test;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
 		this.meter = new MeterSocomecThreephaseImpl();
 		this.test = new ComponentTest(this.meter) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")//
 						.withRegisters(0xc558,
 								// VOLTAGE_L1
@@ -161,6 +160,71 @@ public class MeterSocomecThreephaseImplTest {
 	public void testDirisB30() throws Exception {
 		this.activateNonInvert();
 		this.meter.identifiedDirisB30();
+	}
+
+	private static ComponentTest setupE47_E48(boolean invert) throws OpenemsException, Exception {
+		// E47/E48 has different scaling for Frequency compared to E23/E24
+		// Need separate test data because Frequency uses SCALE_FACTOR_1 (×10)
+		return new ComponentTest(new MeterSocomecThreephaseImpl()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")//
+						.withRegisters(0xc558,
+								// VOLTAGE_L1: 23000 (V 10⁻²) → ×10 = 230000 mV
+								0x0000, 0x59D8,
+								// VOLTAGE_L2
+								0x0000, 0x59D8,
+								// VOLTAGE_L3
+								0x0000, 0x59D8,
+								// FREQUENCY: 500 (Hz 10⁻²) → ×10 = 5000 mHz (50 Hz)
+								0x0000, 0x01F4,
+								// CURRENT_L1: 5000 (mA) → ×1 = 5000 mA (5 A)
+								0x0000, 0x03E8,
+								// CURRENT_L2
+								0x0000, 0x03E8,
+								// CURRENT_L3
+								0x0000, 0x03E8,
+								// DUMMY
+								0x0000, 0x0000,
+								// ACTIVE_POWER: 500 (W 10) → ×10 = 5000 W
+								0x0000, 0x01F4,
+								// REACTIVE_POWER: 300 (var 10) → ×10 = 3000 var
+								0x0000, 0x012C,
+								// DUMMY
+								0x0000, 0x0000, 0x0000, 0x0000,
+								// ACTIVE_POWER_L1/L2/L3
+								0x0000, 0x00A0, 0x0000, 0x00A0, 0x0000, 0x00A0,
+								// REACTIVE_POWER_L1/L2/L3
+								0x0000, 0x0064, 0x0000, 0x0064, 0x0000, 0x0064)
+						.withRegisters(0xC702,
+								// ACTIVE_PRODUCTION_ENERGY: 1000 (Wh 10) → ×10 = 13000 Wh
+								0x0000, 0x0514,
+								// DUMMY
+								0x0000, 0x0000, 0x0000, 0x0000,
+								// ACTIVE_CONSUMPTION_ENERGY
+								0x0000, 0x0000))
+				.activate(MyConfig.create() //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setType(GRID) //
+						.setInvert(invert) //
+						.build());
+	}
+
+	@Test
+	public void testCountisE47_E48() throws Exception {
+		var test = setupE47_E48(false);
+		final var sut = (MeterSocomecThreephaseImpl) test.sut;
+		sut.identifiedCountisE47_E48();
+		test.next(InvertTest.testEnergyInvert(false));
+		// test.next(InvertTest.testInvert(false));
+	}
+
+	@Test
+	public void testCountisE47_E48Invert() throws Exception {
+		var test = setupE47_E48(true);
+		final var sut = (MeterSocomecThreephaseImpl) test.sut;
+		sut.identifiedCountisE47_E48();
+		test.next(InvertTest.testEnergyInvert(true));
+		// test.next(InvertTest.testInvert(true));
 	}
 
 }

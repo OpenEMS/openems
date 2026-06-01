@@ -3,15 +3,15 @@ package io.openems.edge.bridge.modbus.sunspec;
 import static io.openems.common.test.TestUtils.findRandomOpenPortOnAllLocalInterfaces;
 import static io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent.preprocessModbusElements;
 import static java.util.stream.IntStream.range;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -20,7 +20,6 @@ import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.BridgeModbusTcpImpl;
 import io.openems.edge.bridge.modbus.MyConfigTcp;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
@@ -32,8 +31,8 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S103;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S701;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel.S701_ACType;
 import io.openems.edge.bridge.modbus.sunspec.Point.ModbusElementPoint;
+import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig;
-import io.openems.edge.bridge.modbus.sunspec.dummy.MySunSpecComponentImpl;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -62,16 +61,15 @@ public class AbstractOpenemsSunSpecComponentTest {
 
 	private static final int UNIT_ID = 1;
 
-	@Before
+	@BeforeEach
 	public void changeLogLevel() {
 		java.lang.System.setProperty("org.ops4j.pax.logging.DefaultServiceLog.level", "INFO");
 	}
 
 	@Test
 	public void testReadFromModbus() throws Exception {
-		var sut = new MySunSpecComponentImpl();
+		var sut = new DummySunSpecComponent();
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0") //
 						.withRegisters(40000, 0x5375, 0x6e53) // isSunSpec
 						.withRegisters(40002, 1, 66) // Block 1
@@ -160,7 +158,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	}
 
 	// Disabled because of timing issues in CI
-	@Ignore
+	@Disabled
 	@Test
 	public void test() throws Exception {
 		var port = findRandomOpenPortOnAllLocalInterfaces();
@@ -185,9 +183,8 @@ public class AbstractOpenemsSunSpecComponentTest {
 							.setLogVerbosity(LogVerbosity.READS_AND_WRITES_VERBOSE) //
 							.build());
 
-			var cmp = new MySunSpecComponentImpl();
+			var cmp = new DummySunSpecComponent();
 			var testCmp = new ComponentTest(cmp) //
-					.addReference("cm", new DummyConfigurationAdmin()) //
 					.addReference("setModbus", bridge) //
 					.activate(MyConfig.create() //
 							.setId("cmp0") //
@@ -218,7 +215,7 @@ public class AbstractOpenemsSunSpecComponentTest {
 	}
 
 	private static void testWithEndOfMap(ModbusSlave slave, BridgeModbusTcpImpl bridge, ComponentTest testBridge,
-			MySunSpecComponentImpl cmp, ComponentTest testCmp) throws Exception {
+			DummySunSpecComponent cmp, ComponentTest testCmp) throws Exception {
 		var processImage = new SimpleProcessImage(UNIT_ID);
 		generateSunSpec() //
 				.put(40160, 0xFFFF) // END_OF_MAP
@@ -230,11 +227,11 @@ public class AbstractOpenemsSunSpecComponentTest {
 
 		cycle(testBridge, testCmp, 5, 100);
 
-		assertEquals(101, cmp.channels().size());
+		assertEquals(130, cmp.channels().size());
 	}
 
 	private static void testWithIllegalAddress(ModbusSlave slave, BridgeModbusTcpImpl bridge, ComponentTest testBridge,
-			MySunSpecComponentImpl cmp, ComponentTest testCmp) throws Exception {
+			DummySunSpecComponent cmp, ComponentTest testCmp) throws Exception {
 		var processImage = new SimpleProcessImage(UNIT_ID);
 		generateSunSpec() //
 				.build() //
@@ -246,6 +243,6 @@ public class AbstractOpenemsSunSpecComponentTest {
 		cycle(testBridge, testCmp, 1, 2000); // wait for defective component
 		cycle(testBridge, testCmp, 2, 100);
 
-		assertEquals(101, cmp.channels().size());
+		assertEquals(130, cmp.channels().size());
 	}
 }

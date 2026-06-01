@@ -48,7 +48,7 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
         if (mode == Mode.OFF) {
             return {
                 title: component.alias,
-                helpKey: "CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
+                helpKey: "REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
                 icon: { name: "oe-grid-storage", color: "dark", size: "large" },
                 lines: lines,
                 component: new EdgeConfig.Component(),
@@ -87,7 +87,7 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
 
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
+            helpKey: "REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
             icon: { name: "oe-grid-storage", color: "dark", size: "large" },
             lines: lines,
             component: new EdgeConfig.Component(),

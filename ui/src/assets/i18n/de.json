@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "am {{date}} um {{time}}",
                 "OPTIMAL": "Kapazitätserweiterung",
                 "PLANNED_EXPANSION": "Geplante Erweiterung",
+                "IN_REFERENCE_CYCLE": "Referenzzyklus aktiv - Speicher wird für die Kapazitätserweiterung vorbereitet.",
                 "PREPARING": "Kapazitätserweiterung wird vorbereitet",
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
                 "REFERENCING_OF_STORAGE": {
@@ -453,12 +454,16 @@
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
-                    "ACTIVE_LEVEL": "Aktives Level",
+                    "ACTIVE_LEVEL": "Aktives Level",                    
+                    "LEVEL_ONE": "Level 1",
+                    "LEVEL_TWO": "Level 2",
+                    "LEVEL_THREE": "Level 3",
                     "ACTIVED_FORCED_LIMIT": "Aktiv (Zusatzenergie)",
                     "CALIBRATION": "Kalibrierung",
                     "CALIBRATION_DESCRIPTION": "Der Heizstab wird kalibriert, um die Leistung der einzelnen Level des Zählers zu bekommen",
                     "DONE": "Fertig",
                     "ENDTIME": "Endzeit",
+                    "SET_ENDTIME": "Endzeit setzen",
                     "ENERGY": "Energie",
                     "ENERGY_SINCE_BEGINNING": "Energie seit Beginn",
                     "GUARANTEE_HEATING": "Minimale Heizenergie garantieren",
@@ -955,7 +960,7 @@
             "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
             "UPDATE_PROGRESS": "Update wird ausgeführt...",
             "UPDATE_SEARCH": "Suche nach Updates...",
-            "UPDATE_TIME": "(Dies kann bis zu 10 min dauern)",
+            "UPDATE_TIME": "(Dies kann bis zu {{minutes}} min dauern)",
             "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
         }
     },

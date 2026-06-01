@@ -2,6 +2,7 @@ package io.openems.edge.goodwe.gridmeter;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
@@ -56,7 +57,11 @@ public interface GoodWeGridMeter extends ElectricityMeter, OpenemsComponent {
 		EXTERNAL_METER_RATIO(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)
 				.text("External meter ratio (e.g. the selected CT is 3000A:5A, the CT ratio value is 600")),
-		EXTENDED_POWER_VALUES(Doc.of(OpenemsType.BOOLEAN)); //
+		EXTENDED_POWER_VALUES(Doc.of(OpenemsType.BOOLEAN)), //
+
+		SERIAL_NUMBER(Doc.of(OpenemsType.STRING)//
+				.persistencePriority(PersistencePriority.HIGH)), //
+		;
 
 		private final Doc doc;
 

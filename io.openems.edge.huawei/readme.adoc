@@ -1,0 +1,26 @@
+= Huawei 
+
+== PV inverter
+
+Tested on 
+
+- Huawei PV Inverter SUN2000 directly
+- Huawei Pv Inverter SUN2000 via SmartLogger (probably model 3000) 
+
+Implemented Natures:
+
+- ElectricityMeter
+- ManagedSymmetricPvInverter
+
+ 
+Compatibility:
+
+* Firmware version: 
+** SUN2000 V100R001C95 or later
+** SmartLogger V100R001C00 or later
+** SmartLogger V100R002C00 or later
+** SmartLogger V200R001C00 or later
+** SmartLogger V300R001C00 or later
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.huawei[Source Code icon:github[]]

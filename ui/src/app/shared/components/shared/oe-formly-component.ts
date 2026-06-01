@@ -6,11 +6,10 @@ import { Subject } from "rxjs";
 import { filter, take, takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
-import { Role } from "../../type/role";
 import { Icon } from "../../type/widget";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
-import { AbstractHistoryChart } from "../chart/abstracthistorychart";
+import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
 import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
@@ -53,9 +52,8 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
             edge.getConfig(this.service.websocket)
                 .pipe(filter(config => !!config), takeUntil(this.stopOnDestroy))
                 .subscribe(async (config) => {
-                    const view = await this.generateView(config, edge.role, this.translate);
+                    const view = await this.generateView({ edge: edge, config: config, translate: this.translate });
                     this.form = this.getFormGroup();
-
                     this.setFields(view, this.form, websocket);
                 });
         });
@@ -139,8 +137,27 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
-        const updateComponentArray: { name: string, value: any }[] = [];
         service.startSpinner("formly-field-modal");
+        edge.updateComponentConfig(websocket, component.id, this.buildUpdateComponentArr(fg))
+            .then(() => {
+                service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+            }).catch(reason => {
+                service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
+            }).finally(() => {
+                this.skipCurrentData = true;
+                fg.markAsPristine();
+                service.stopSpinner("formly-field-modal");
+            });
+    }
+
+    /**
+     * Builds the update component array for the {@link Edge.updateComponentConfig} request.
+     *
+     * @param fg the form group
+     * @returns the update component array
+     */
+    protected buildUpdateComponentArr(fg: FormGroup<any>): { name: string; value: any; }[] {
+        const updateComponentArray: { name: string, value: any }[] = [];
         for (const key in fg.controls) {
             const control = fg.controls[key];
 
@@ -154,21 +171,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                 value: fg.value[key],
             });
         }
-
-        if (!edge || !component) {
-            throw new Error("Either edge or component not provided");
-        }
-
-        edge.updateComponentConfig(websocket, component.id, updateComponentArray)
-            .then(() => {
-                service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-            }).catch(reason => {
-                service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-            }).finally(() => {
-                this.skipCurrentData = true;
-                fg.markAsPristine();
-                service.stopSpinner("formly-field-modal");
-            });
+        return updateComponentArray;
     }
 
     /**
@@ -242,6 +245,9 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                         onInit: (field) => {
                             field.form?.valueChanges.subscribe(value => {
                                 field.hide = el.hide?.(value) ?? false;
+                                if (el.nameCallback != null && typeof el.nameCallback === "function" && "name" in el) {
+                                    el.name = el.nameCallback(value);
+                                }
                             });
                         },
                     },
@@ -266,6 +272,8 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                                 color: view.icon.color,
                             },
                         } : {}),
+                        ...(view.isCommonWidget != null ? { isCommonWidget: view.isCommonWidget } : {}),
+                        ...(view.useDefaultPrefix != null ? { useDefaultPrefix: view.useDefaultPrefix } : {}),
                     },
                 ],
                 onSubmit: (fg: FormGroup) => {
@@ -282,13 +290,19 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
       * @param role  the Role of the User for this Edge
       * @param translate the Translate-Service
       */
-    protected abstract generateView(config: EdgeConfig, role: Role, translate: TranslateService): OeFormlyView<T>;
+    protected abstract generateView(viewContext: ViewContext): OeFormlyView<T>;
 }
+
+export type ViewContext = Readonly<{
+    edge: Edge,
+    config: EdgeConfig,
+    translate: TranslateService,
+}>;
 
 export type OeFormlyView<T = unknown> = {
     title: string,
     lines: OeFormlyField<T>[];
-    isCommonWidget?: string,
+    isCommonWidget?: boolean,
     helpKey?: string | null,
     icon?: Icon,
     useDefaultPrefix?: boolean | null,
@@ -296,7 +310,7 @@ export type OeFormlyView<T = unknown> = {
     edge?: Edge,
 };
 
-export type OeFormlyField<T = unknown> =
+export type OeFormlyField<T = any> =
     (| OeFormlyField.ImageLine
         | OeFormlyField.InfoLine
         | OeFormlyField.Item
@@ -306,6 +320,7 @@ export type OeFormlyField<T = unknown> =
         | OeFormlyField.ChildrenLine
         | OeFormlyField.NameLine
         | OeFormlyField.ChannelLine
+        | OeFormlyField.TimeLine
         | OeFormlyField.DateTimeLine
         | OeFormlyField.HorizontalLine
         | OeFormlyField.ComponentLine
@@ -317,6 +332,7 @@ export type OeFormlyField<T = unknown> =
         | OeFormlyField.RadioButtonsFromFormControlLine
         | OeFormlyField.PercentageBarFromFormControlLine
         | OeFormlyField.ToggleLine
+        | OeFormlyField.ToggleLineWithValue<T>
         | OeFormlyField.InputLine
         | OeFormlyField.SelectLine
         | OeFormlyField.PercentageBarFromFormControlLine
@@ -324,6 +340,9 @@ export type OeFormlyField<T = unknown> =
         | OeFormlyField.Advanced.EssChargerLine)
     & {
         hide?: (field: T) => boolean;
+        /** Executes a  applyable if according name field exists for this line type */
+        nameCallback?: (field: T) => string;
+        style?: AbstractModalLine["lineStyle"];
     };
 
 export namespace OeFormlyField {
@@ -341,9 +360,9 @@ export namespace OeFormlyField {
 
     export type InfoLine = {
         type: "info-line",
-        name: string | { text: string, lineStyle?: string }[],
+        name?: string | { text: string, lineStyle?: string }[],
+        html?: string,
         icon?: Icon,
-        style?: string
     };
 
     export type ImageLine = {
@@ -351,7 +370,7 @@ export namespace OeFormlyField {
         img: OeImageComponent["img"],
     };
 
-    export type ComponentLine<T extends AbstractHistoryChart = AbstractHistoryChart> = {
+    export type ComponentLine<T = unknown> = {
         type: "component-line";
         component: Type<T>;
         inputs?: Record<string, unknown>;
@@ -391,19 +410,21 @@ export namespace OeFormlyField {
 
     export type ValueFromChannelsLine = {
         type: "value-from-channels-line",
-        name: string,
-        value: (data: CurrentData) => string,
+        name?: string,
+        value: (data: CurrentData) => string | null,
         channelsToSubscribe: ChannelAddress[],
         indentation?: TextIndentation,
         filter?: (currentData: CurrentData) => boolean,
+
+        /** displays the value without a given name in one line */
         singleLine?: boolean,
     };
 
     export type ButtonsFromFormControlLine = {
         type: "buttons-from-form-control-line",
-        name: string,
         controlName: string,
-        buttons: ButtonLabel[];
+        buttons: ButtonLabel[],
+        name?: string,
     };
 
     export type ButtonFromFormControlLine = {
@@ -423,8 +444,8 @@ export namespace OeFormlyField {
         type: "range-button-from-form-control-line",
         controlName: string,
         properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
-        // channel: string,
     };
+
     export type ValueFromFormControlLine = {
         type: "value-from-form-control-line",
         controlName: string,
@@ -444,7 +465,13 @@ export namespace OeFormlyField {
     export type ToggleLine = {
         type: "toggle-line",
         name: string,
-        controlName: string,
+        controlName: string
+    };
+    export type ToggleLineWithValue<T> = {
+        type: "toggle-line-with-formcontrol-value",
+        name: string,
+        controlName: string
+        togglePrefix: (value: T) => string;
     };
 
     export type InputLine = {
@@ -463,9 +490,16 @@ export namespace OeFormlyField {
         options: { value: string, name: string }[],
     };
 
-    export type DateTimeLine = {
+    export type TimeLine = {
         type: "time-line",
         name: string,
         controlName: string,
+    };
+
+    export type DateTimeLine = {
+        type: "date-time-line",
+        controlName: string,
+        label: (controlValue: number | string | null) => string,
+        defaultLabel?: string,
     };
 }

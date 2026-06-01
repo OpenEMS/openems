@@ -243,6 +243,7 @@
                 "ON_DATE_AT_TIME": "on {{date}} at {{time}}",
                 "OPTIMAL": "Capacity expansion",
                 "PLANNED_EXPANSION": "Planned Expansion",
+                "IN_REFERENCE_CYCLE": "Reference cycle active - battery is being prepared for capacity extension.",
                 "PREPARING": "Prepare for Capacity Extension",
                 "REACHED_TARGET_SOC": "Ready for Capacity Extension",
                 "REFERENCING_OF_STORAGE": {
@@ -455,11 +456,15 @@
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Active (Minimum runtime)",
                     "ACTIVE_LEVEL": "Active level",
+                    "LEVEL_ONE": "Level 1",
+                    "LEVEL_TWO": "Level 2",
+                    "LEVEL_THREE": "Level 3",
                     "ACTIVED_FORCED_LIMIT": "Active (additional energy)",
                     "CALIBRATION": "Calibration",
                     "CALIBRATION_DESCRIPTION": "The heating element is calibrated to get the power of the single levels of the meter",
                     "DONE": "Done",
                     "ENDTIME": "Endtime",
+                    "SET_ENDTIME": "Set end time",
                     "ENERGY": "Energy",
                     "ENERGY_SINCE_BEGINNING": "Energy since beginning",
                     "GUARANTEE_HEATING": "Guarantee minimum heating energy",
@@ -1447,7 +1452,7 @@
             "UPDATE_NOT_POSSIBLE": "System cannot be updated!",
             "UPDATE_PROGRESS": "Update in progress.",
             "UPDATE_SEARCH": "Checking for updates...",
-            "UPDATE_TIME": "(This can take up to 10 minutes)",
+            "UPDATE_TIME": "(This can take up to {{minutes}} minutes)",
             "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
         }
     },

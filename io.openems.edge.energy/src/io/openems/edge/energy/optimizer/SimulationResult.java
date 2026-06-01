@@ -29,6 +29,8 @@ import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Hour;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Quarter;
 import io.openems.edge.energy.api.simulation.GocUtils;
+import io.openems.edge.energy.api.simulation.periods.PeriodData.Price;
+import io.openems.edge.energy.api.simulation.periods.Periods;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 
 public record SimulationResult(//
@@ -70,7 +72,7 @@ public record SimulationResult(//
 	/**
 	 * An empty {@link SimulationResult}.
 	 */
-	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(new Fitness(), //
+	public static final SimulationResult EMPTY_SIMULATION_RESULT = new SimulationResult(Fitness.builder().build(), //
 			ImmutableSortedMap.of(), ImmutableMap.of(), ImmutableSet.of(), 0, 0);
 
 	protected static class BestScheduleCollector {
@@ -92,8 +94,7 @@ public record SimulationResult(//
 
 	/**
 	 * Re-Simulate a {@link Genotype} to create a {@link SimulationResult}.
-	 * 
-	 * @param cache              the {@link GenotypeCache}
+	 *
 	 * @param goc                the {@link GlobalOptimizationContext}
 	 * @param schedule           the schedule as defined by {@link EshCodec}
 	 * @param simulationsCounter the total number of simulations
@@ -118,16 +119,18 @@ public record SimulationResult(//
 											Comparator.naturalOrder(), //
 											Entry::getKey, // time
 											e2 -> { // Period.Transition
-												var mode = e2.getValue();
-												var p = periods.get(e2.getKey());
-												var price = switch (p.period) {
-												case GlobalOptimizationContext.Period.WithPrice wp ->
-													wp.price().actual();
-												default -> null;
-												};
+												final var mode = e2.getValue();
+												final var p = periods.get(e2.getKey());
+												final var gridBuyPrice = p.period.data().gridBuyPrice()//
+														.map(Price::actual)//
+														.orElse(null);
+												final var gridSellPrice = p.period.data().gridSellPrice()//
+														.map(Price::actual)//
+														.orElse(null);
 
 												return new DifferentModes.Period.Transition(p.period.duration(), mode, //
-														price, p.energyFlow(), p.essInitialEnergy());
+														gridBuyPrice, gridSellPrice, p.energyFlow(),
+														p.essInitialEnergy());
 											}));
 							return subMap;
 						}));
@@ -138,7 +141,7 @@ public record SimulationResult(//
 				.collect(toImmutableSet());
 
 		return new SimulationResult(//
-				fitness, //
+				fitness.build(), //
 				periods, //
 				schedules, //
 				eshsWithOnlyOneMode, //
@@ -169,7 +172,7 @@ public record SimulationResult(//
 		}
 
 		// Convert to Quarters
-		final var quarterPeriods = GlobalOptimizationContext.Periods.copyOfQuarterly(goc.periods());
+		final var quarterPeriods = Periods.copyOfQuarterly(goc.periods());
 		final var quarterGoc = new GlobalOptimizationContext(goc.clock(), goc.environment(), goc.startTime(),
 				goc.eshs(), goc.eshsWithDifferentModes(), goc.grid(), goc.ess(), quarterPeriods);
 		final var quarterSchedule = IntStream.range(0, goc.periods().size()) //
@@ -208,7 +211,7 @@ public record SimulationResult(//
 			return b.append("NO PERIODS").toString();
 		}
 
-		b.append("Time BuyLimit Price  Prod  Cons MCons   Ess  Grid  EssInitial");
+		b.append("Time BuyLimit GridBuyPrice GridSellPrice Prod  Cons MCons   Ess  Grid  EssInitial");
 		firstValue.energyFlow.getManagedConsumptions().keySet() //
 				.forEach(v -> log(b, " %-10s", v.substring(Math.max(0, v.length() - 10))));
 		b.append("\n");
@@ -222,11 +225,16 @@ public record SimulationResult(//
 			Optional.ofNullable(p.period.gridBuySoftLimit()).ifPresentOrElse(//
 					limit -> log(b, "%7d ", limit), //
 					() -> log(b, "%7s ", "-"));
-			if (p.period instanceof GlobalOptimizationContext.Period.WithPrice wp) {
-				log(b, "%5.0f ", wp.price().actual());
-			} else {
-				log(b, "     -");
-			}
+			p.period.data().gridBuyPrice()//
+					.map(Price::actual)//
+					.ifPresentOrElse(//
+							v -> log(b, "%5.0f ", v), //
+							() -> log(b, "            -"));
+			p.period.data().gridSellPrice()//
+					.map(Price::actual)//
+					.ifPresentOrElse(//
+							v -> log(b, "%5.0f ", v), //
+							() -> log(b, "            -"));
 			log(b, "%5d ", ef.getProduction());
 			log(b, "%5d ", ef.getUnmanagedConsumption());
 			log(b, "%5d ", ef.getConsumption());

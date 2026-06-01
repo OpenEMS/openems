@@ -5,10 +5,8 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
-import { Role } from "src/app/shared/type/role";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
-import { AdminStorageModalComponent } from "./admin-modal/admin-modal.component";
 import { InstallerOwnerGuestStorageModalComponent } from "./installer-owner-guest-modal/installer-owner-guest-modal.component";
 
 @Component({
@@ -85,7 +83,7 @@ export class StorageComponent extends AbstractFlatWidget {
 
     protected getModalComponent(): Modal {
         return {
-            component: this.edge.roleIsAtLeast(Role.ADMIN) ? AdminStorageModalComponent : InstallerOwnerGuestStorageModalComponent,
+            component: InstallerOwnerGuestStorageModalComponent,
             componentProps: {
                 edge: this.edge,
                 component: this.component,
@@ -113,13 +111,13 @@ export class StorageComponent extends AbstractFlatWidget {
                 };
             }, {});
 
-
         for (const essId in this.prepareBatteryExtensionCtrl) {
             const controller = this.prepareBatteryExtensionCtrl[essId];
             channelAddresses.push(
                 new ChannelAddress(controller.id, "CtrlIsBlockingEss"),
                 new ChannelAddress(controller.id, "CtrlIsChargingEss"),
                 new ChannelAddress(controller.id, "CtrlIsDischargingEss"),
+                new ChannelAddress(controller.id, "CtrlIsInReferenceCycle"),
                 new ChannelAddress(controller.id, "_PropertyIsRunning"),
                 new ChannelAddress(controller.id, "_PropertyTargetTimeSpecified"),
                 new ChannelAddress(controller.id, "_PropertyTargetTime"),
@@ -199,6 +197,7 @@ export class StorageComponent extends AbstractFlatWidget {
                     currentData.allComponents[controller.id + "/CtrlIsBlockingEss"],
                     currentData.allComponents[controller.id + "/CtrlIsChargingEss"],
                     currentData.allComponents[controller.id + "/CtrlIsDischargingEss"],
+                    currentData.allComponents[controller.id + "/CtrlIsInReferenceCycle"] == 1,
                     currentData.allComponents[controller.id + "/_PropertyTargetTimeSpecified"],
                     currentData.allComponents[controller.id + "/_PropertyTargetTime"],
                 ));
@@ -215,10 +214,14 @@ export class StorageComponent extends AbstractFlatWidget {
         }
     }
 
-    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
+    private getBatteryCapacityExtensionStatus(isRunning: boolean, essIsBlocking: number, essIsCharging: number, essIsDischarging: number, isInReferenceCycle: boolean, targetTimeSpecified: boolean, targetDate: Date): { color: string, text: string } {
 
         if (!isRunning) {
             return null;
+        }
+
+        if (isInReferenceCycle) {
+            return { color: "orange", text: this.translate.instant("EDGE.INDEX.RETROFITTING.PREPARING") };
         }
         // Planned Expansion
         if (targetTimeSpecified && targetDate) {

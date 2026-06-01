@@ -42,174 +42,174 @@ import io.openems.edge.bridge.modbus.sunspec.Point.ValuePoint;
 public enum DefaultSunSpecModel implements SunSpecModel {
 	S_1("Common", //
 			"All SunSpec compliant devices must include this as the first model", //
-			66 /* length */, DefaultSunSpecModel.S1.values(), SunSpecModelType.COMMON), //
+			66/* length */, DefaultSunSpecModel.S1.values(), SunSpecModelType.COMMON), //
 	S_2("Basic Aggregator", //
 			"Aggregates a collection of models for a given model id", //
-			14 /* length */, DefaultSunSpecModel.S2.values(), SunSpecModelType.AGGREGATOR), //
+			14/* length */, DefaultSunSpecModel.S2.values(), SunSpecModelType.AGGREGATOR), //
 	S_15("Interface Counters Model", //
 			"Interface counters", //
-			24 /* length */, DefaultSunSpecModel.S15.values(), SunSpecModelType.NETWORK_CONFIGURATION), //
+			24/* length */, DefaultSunSpecModel.S15.values(), SunSpecModelType.NETWORK_CONFIGURATION), //
 	S_18("Cellular Link", //
 			"Include this model to support a cellular interface link", //
-			22 /* length */, DefaultSunSpecModel.S18.values(), SunSpecModelType.NETWORK_CONFIGURATION), //
+			22/* length */, DefaultSunSpecModel.S18.values(), SunSpecModelType.NETWORK_CONFIGURATION), //
 	S_101("Inverter (Single Phase)", //
 			"Include this model for single phase inverter monitoring", //
-			50 /* length */, DefaultSunSpecModel.S101.values(), SunSpecModelType.INVERTER), //
+			50/* length */, DefaultSunSpecModel.S101.values(), SunSpecModelType.INVERTER), //
 	S_102("Inverter (Split-Phase)", //
 			"Include this model for split phase inverter monitoring", //
-			50 /* length */, DefaultSunSpecModel.S102.values(), SunSpecModelType.INVERTER), //
+			50/* length */, DefaultSunSpecModel.S102.values(), SunSpecModelType.INVERTER), //
 	S_103("Inverter (Three Phase)", //
 			"Include this model for three phase inverter monitoring", //
-			50 /* length */, DefaultSunSpecModel.S103.values(), SunSpecModelType.INVERTER), //
+			50/* length */, DefaultSunSpecModel.S103.values(), SunSpecModelType.INVERTER), //
 	S_111("Inverter (Single Phase) FLOAT", //
 			"Include this model for single phase inverter monitoring using float values", //
-			60 /* length */, DefaultSunSpecModel.S111.values(), SunSpecModelType.INVERTER), //
+			60/* length */, DefaultSunSpecModel.S111.values(), SunSpecModelType.INVERTER), //
 	S_112("Inverter (Split Phase) FLOAT", //
 			"Include this model for split phase inverter monitoring using float values", //
-			60 /* length */, DefaultSunSpecModel.S112.values(), SunSpecModelType.INVERTER), //
+			60/* length */, DefaultSunSpecModel.S112.values(), SunSpecModelType.INVERTER), //
 	S_113("Inverter (Three Phase) FLOAT", //
 			"Include this model for three phase inverter monitoring using float values", //
-			60 /* length */, DefaultSunSpecModel.S113.values(), SunSpecModelType.INVERTER), //
+			60/* length */, DefaultSunSpecModel.S113.values(), SunSpecModelType.INVERTER), //
 	S_120("Nameplate", //
 			"Inverter Controls Nameplate Ratings", //
-			26 /* length */, DefaultSunSpecModel.S120.values(), SunSpecModelType.INVERTER), //
+			26/* length */, DefaultSunSpecModel.S120.values(), SunSpecModelType.INVERTER), //
 	S_121("Basic Settings", //
 			"Inverter Controls Basic Settings", //
-			30 /* length */, DefaultSunSpecModel.S121.values(), SunSpecModelType.INVERTER), //
+			30/* length */, DefaultSunSpecModel.S121.values(), SunSpecModelType.INVERTER), //
 	S_122("Measurements_Status", //
 			"Inverter Controls Extended Measurements and Status", //
-			44 /* length */, DefaultSunSpecModel.S122.values(), SunSpecModelType.INVERTER), //
+			44/* length */, DefaultSunSpecModel.S122.values(), SunSpecModelType.INVERTER), //
 	S_123("Immediate Controls", //
 			"Immediate Inverter Controls", //
-			24 /* length */, DefaultSunSpecModel.S123.values(), SunSpecModelType.INVERTER), //
+			24/* length */, DefaultSunSpecModel.S123.values(), SunSpecModelType.INVERTER), //
 	S_124("Storage", //
 			"Basic Storage Controls", //
-			24 /* length */, DefaultSunSpecModel.S124.values(), SunSpecModelType.INVERTER), //
+			24/* length */, DefaultSunSpecModel.S124.values(), SunSpecModelType.INVERTER), //
 	S_125("Pricing", //
 			"Pricing Signal", //
-			8 /* length */, DefaultSunSpecModel.S125.values(), SunSpecModelType.INVERTER), //
+			8/* length */, DefaultSunSpecModel.S125.values(), SunSpecModelType.INVERTER), //
 	S_127("Freq-Watt Param", //
 			"Parameterized Frequency-Watt", //
-			10 /* length */, DefaultSunSpecModel.S127.values(), SunSpecModelType.INVERTER), //
+			10/* length */, DefaultSunSpecModel.S127.values(), SunSpecModelType.INVERTER), //
 	S_128("Dynamic Reactive Current", //
 			"Dynamic Reactive Current", //
-			14 /* length */, DefaultSunSpecModel.S128.values(), SunSpecModelType.INVERTER), //
+			14/* length */, DefaultSunSpecModel.S128.values(), SunSpecModelType.INVERTER), //
 	S_145("Extended Settings", //
 			"Inverter controls extended settings", //
-			8 /* length */, DefaultSunSpecModel.S145.values(), SunSpecModelType.INVERTER), //
+			8/* length */, DefaultSunSpecModel.S145.values(), SunSpecModelType.INVERTER), //
 	S_201("Meter (Single Phase)single phase (AN or AB) meter", //
 			"Include this model for single phase (AN or AB) metering", //
-			105 /* length */, DefaultSunSpecModel.S201.values(), SunSpecModelType.METER), //
+			105/* length */, DefaultSunSpecModel.S201.values(), SunSpecModelType.METER), //
 	S_202("split single phase (ABN) meter", //
 			"", //
-			105 /* length */, DefaultSunSpecModel.S202.values(), SunSpecModelType.METER), //
+			105/* length */, DefaultSunSpecModel.S202.values(), SunSpecModelType.METER), //
 	S_203("wye-connect three phase (abcn) meter", //
 			"", //
-			105 /* length */, DefaultSunSpecModel.S203.values(), SunSpecModelType.METER), //
+			105/* length */, DefaultSunSpecModel.S203.values(), SunSpecModelType.METER), //
 	S_204("delta-connect three phase (abc) meter", //
 			"", //
-			105 /* length */, DefaultSunSpecModel.S204.values(), SunSpecModelType.METER), //
+			105/* length */, DefaultSunSpecModel.S204.values(), SunSpecModelType.METER), //
 	S_213("wye-connect three phase (abcn) meter", //
 			"", //
-			124 /* length */, DefaultSunSpecModel.S213.values(), SunSpecModelType.METER), //
+			124/* length */, DefaultSunSpecModel.S213.values(), SunSpecModelType.METER), //
 	S_305("GPS", //
 			"Include to support location measurements", //
-			36 /* length */, DefaultSunSpecModel.S305.values(), SunSpecModelType.ENVIRONMENTAL), //
+			36/* length */, DefaultSunSpecModel.S305.values(), SunSpecModelType.ENVIRONMENTAL), //
 	S_306("Reference Point Model", //
 			"Include to support a standard reference point", //
-			4 /* length */, DefaultSunSpecModel.S306.values(), SunSpecModelType.ENVIRONMENTAL), //
+			4/* length */, DefaultSunSpecModel.S306.values(), SunSpecModelType.ENVIRONMENTAL), //
 	S_307("Base Met", //
 			"Base Meteorological Model", //
-			11 /* length */, DefaultSunSpecModel.S307.values(), SunSpecModelType.ENVIRONMENTAL), //
+			11/* length */, DefaultSunSpecModel.S307.values(), SunSpecModelType.ENVIRONMENTAL), //
 	S_308("Mini Met Model", //
 			"Include to support a few basic measurements", //
-			4 /* length */, DefaultSunSpecModel.S308.values(), SunSpecModelType.ENVIRONMENTAL), //
+			4/* length */, DefaultSunSpecModel.S308.values(), SunSpecModelType.ENVIRONMENTAL), //
 	S_701("DER AC Measurement", //
 			"DER AC measurement model.", //
-			153 /* length */, DefaultSunSpecModel.S701.values(), SunSpecModelType.RESERVED_1), //
+			153/* length */, DefaultSunSpecModel.S701.values(), SunSpecModelType.RESERVED_1), //
 	S_702("DER Capacity", //
 			"DER capacity model.", //
-			50 /* length */, DefaultSunSpecModel.S702.values(), SunSpecModelType.RESERVED_1), //
+			50/* length */, DefaultSunSpecModel.S702.values(), SunSpecModelType.RESERVED_1), //
 	S_703("Enter Service", //
 			"Enter service model.", //
-			17 /* length */, DefaultSunSpecModel.S703.values(), SunSpecModelType.RESERVED_1), //
+			17/* length */, DefaultSunSpecModel.S703.values(), SunSpecModelType.RESERVED_1), //
 	S_704("DER AC Controls", //
 			"DER AC controls model.", //
-			57 /* length */, DefaultSunSpecModel.S704.values(), SunSpecModelType.RESERVED_1), //
+			57/* length */, DefaultSunSpecModel.S704.values(), SunSpecModelType.RESERVED_1), //
 	S_705("DER Volt-Var", //
 			"DER Volt-Var model.", //
-			13 /* length */, DefaultSunSpecModel.S705.values(), SunSpecModelType.RESERVED_1), //
+			13/* length */, DefaultSunSpecModel.S705.values(), SunSpecModelType.RESERVED_1), //
 	S_706("DER Volt-Watt", //
 			"DER Volt-Watt model.", //
-			13 /* length */, DefaultSunSpecModel.S706.values(), SunSpecModelType.RESERVED_1), //
+			13/* length */, DefaultSunSpecModel.S706.values(), SunSpecModelType.RESERVED_1), //
 	S_707("DER Trip LV", //
 			"DER low voltage trip model.", //
-			7 /* length */, DefaultSunSpecModel.S707.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S707.values(), SunSpecModelType.RESERVED_1), //
 	S_708("DER Trip HV", //
 			"DER high voltage trip model.", //
-			7 /* length */, DefaultSunSpecModel.S708.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S708.values(), SunSpecModelType.RESERVED_1), //
 	S_709("DER Trip LF", //
 			"DER low frequency trip model.", //
-			7 /* length */, DefaultSunSpecModel.S709.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S709.values(), SunSpecModelType.RESERVED_1), //
 	S_710("DER Trip HF", //
 			"DER high frequency trip model.", //
-			7 /* length */, DefaultSunSpecModel.S710.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S710.values(), SunSpecModelType.RESERVED_1), //
 	S_711("DER Frequency Droop", //
 			"DER Frequency Droop model.", //
-			12 /* length */, DefaultSunSpecModel.S711.values(), SunSpecModelType.RESERVED_1), //
+			12/* length */, DefaultSunSpecModel.S711.values(), SunSpecModelType.RESERVED_1), //
 	S_712("DER Watt-Var", //
 			"DER Watt-Var model.", //
-			12 /* length */, DefaultSunSpecModel.S712.values(), SunSpecModelType.RESERVED_1), //
+			12/* length */, DefaultSunSpecModel.S712.values(), SunSpecModelType.RESERVED_1), //
 	S_713("DER Storage Capacity", //
 			"DER storage capacity.", //
-			7 /* length */, DefaultSunSpecModel.S713.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S713.values(), SunSpecModelType.RESERVED_1), //
 	S_714("DER DC Measurement", //
 			"DER DC measurement.", //
-			18 /* length */, DefaultSunSpecModel.S714.values(), SunSpecModelType.RESERVED_1), //
+			18/* length */, DefaultSunSpecModel.S714.values(), SunSpecModelType.RESERVED_1), //
 	S_715("DERCtl", //
 			"DER Control", //
-			7 /* length */, DefaultSunSpecModel.S715.values(), SunSpecModelType.RESERVED_1), //
+			7/* length */, DefaultSunSpecModel.S715.values(), SunSpecModelType.RESERVED_1), //
 	S_801("Energy Storage Base Model (DEPRECATED)", //
 			"This model has been deprecated.", //
-			1 /* length */, DefaultSunSpecModel.S801.values(), SunSpecModelType.STORAGE), //
+			1/* length */, DefaultSunSpecModel.S801.values(), SunSpecModelType.STORAGE), //
 	S_802("Battery Base Model", //
 			"", //
-			62 /* length */, DefaultSunSpecModel.S802.values(), SunSpecModelType.STORAGE), //
+			62/* length */, DefaultSunSpecModel.S802.values(), SunSpecModelType.STORAGE), //
 	S_64001("Veris Status and Configuration", //
 			"", //
-			71 /* length */, DefaultSunSpecModel.S64001.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			71/* length */, DefaultSunSpecModel.S64001.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64101("Eltek Inverter Extension", //
 			"", //
-			7 /* length */, DefaultSunSpecModel.S64101.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			7/* length */, DefaultSunSpecModel.S64101.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64111("Basic Charge Controller", //
 			"", //
-			23 /* length */, DefaultSunSpecModel.S64111.values(), SunSpecModelType.VENDOR_SPECIFIC), //
+			23/* length */, DefaultSunSpecModel.S64111.values(), SunSpecModelType.VENDOR_SPECIFIC), //
 	S_64112("OutBack FM Charge Controller", //
 			"", //
-			64 /* length */, DefaultSunSpecModel.S64112.values(), SunSpecModelType.VENDOR_SPECIFIC); //
+			64/* length */, DefaultSunSpecModel.S64112.values(), SunSpecModelType.VENDOR_SPECIFIC); //
 
 	public static enum S1 implements SunSpecPoint {
 		MN(new ValuePoint("S1_MN", "Manufacturer", //
 				"Well known value registered with SunSpec for compliance", //
-				STRING16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		MD(new ValuePoint("S1_MD", "Model", //
 				"Manufacturer specific value (32 chars)", //
-				STRING16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OPT(new ValuePoint("S1_OPT", "Options", //
 				"Manufacturer specific value (16 chars)", //
-				STRING8, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING8, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		VR(new ValuePoint("S1_VR", "Version", //
 				"Manufacturer specific value (16 chars)", //
-				STRING8, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING8, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		SN(new ValuePoint("S1_SN", "Serial Number", //
 				"Manufacturer specific value (32 chars)", //
-				STRING16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		DA(new ValuePoint("S1_DA", "Device Address", //
 				"Modbus device address", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		PAD(new ValuePoint("S1_PAD", "", //
 				"Force even alignment", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -226,28 +226,28 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S2 implements SunSpecPoint {
 		AID(new ValuePoint("S2_AID", "AID", //
 				"Aggregated model id", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N(new ValuePoint("S2_N", "N", //
 				"Number of aggregated models", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		UN(new ValuePoint("S2_UN", "UN", //
 				"Update Number.  Incrementing number each time the mapping is changed.  If the number is not changed from the last reading the direct access to a specific offset will result in reading the same logical model as before.  Otherwise the entire model must be read to refresh the changes", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ST(new EnumPoint("S2_ST", "Status", //
 				"Enumerated status code", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S2_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S2_St.values())), //
 		ST_VND(new EnumPoint("S2_ST_VND", "Vendor Status", //
 				"Vendor specific status code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT(new BitFieldPoint("S2_EVT", "Event Code", //
 				"Bitmask event code", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S2_Evt.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S2_Evt.values())), //
 		EVT_VND(new BitFieldPoint("S2_EVT_VND", "Vendor Event Code", //
 				"Vendor specific event code", //
 				BITFIELD32, false /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		CTL(new EnumPoint("S2_CTL", "Control", //
 				"Control register for all aggregated devices", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S2_Ctl.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S2_Ctl.values())), //
 		CTL_VND(new EnumPoint("S2_CTL_VND", "Vendor Control", //
 				"Vendor control register for all aggregated devices", //
 				ENUM32, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
@@ -368,42 +368,42 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S15 implements SunSpecPoint {
 		CLR(new ValuePoint("S15_CLR", "Clear", //
 				"Write a \"1\" to clear all counters", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		IN_CNT(new ValuePoint("S15_IN_CNT", "Input Count", //
 				"Number of bytes received", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		IN_UC_CNT(new ValuePoint("S15_IN_UC_CNT", "Input Unicast Count", //
 				"Number of Unicast packets received", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		IN_N_UC_CNT(new ValuePoint("S15_IN_N_UC_CNT", "Input Non-Unicast Count", //
 				"Number of non-Unicast packets received", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		IN_DSC_CNT(new ValuePoint("S15_IN_DSC_CNT", "Input Discarded Count", //
 				"Number of inbound packets received on the interface but discarded", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		IN_ERR_CNT(new ValuePoint("S15_IN_ERR_CNT", "Input Error Count", //
 				"Number of inbound packets that contain errors (excluding discards)", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		IN_UNK_CNT(new ValuePoint("S15_IN_UNK_CNT", "Input Unknown Count", //
 				"Number of inbound packets with unknown protocol", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OUT_CNT(new ValuePoint("S15_OUT_CNT", "Output Count", //
 				"Total number of bytes transmitted on this interface", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OUT_UC_CNT(new ValuePoint("S15_OUT_UC_CNT", "Output Unicast Count", //
 				"Number of Unicast packets transmitted", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OUT_N_UC_CNT(new ValuePoint("S15_OUT_N_UC_CNT", "Output Non-Unicast Count", //
 				"Number of Non-Unicast packets transmitted", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OUT_DSC_CNT(new ValuePoint("S15_OUT_DSC_CNT", "Output Discarded Count", //
 				"Number of Discarded output packets", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		OUT_ERR_CNT(new ValuePoint("S15_OUT_ERR_CNT", "Output Error Count", //
 				"Number of outbound error packets", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		PAD(new ValuePoint("S15_PAD", "", "", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -420,19 +420,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S18 implements SunSpecPoint {
 		NAM(new ValuePoint("S18_NAM", "Name", //
 				"Interface name", //
-				STRING4, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				STRING4, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		IMEI(new ValuePoint("S18_IMEI", "IMEI", //
 				"International Mobile Equipment Identifier for the interface", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		APN(new ValuePoint("S18_APN", "APN", //
 				"Access Point Name for the interface", //
-				STRING4, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				STRING4, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		NUM(new ValuePoint("S18_NUM", "Number", //
 				"Phone number for the interface", //
-				STRING6, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				STRING6, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		PIN(new ValuePoint("S18_PIN", "PIN", //
 				"Personal Identification Number for the interface", //
-				STRING6, false /* mandatory? */, READ_WRITE, Unit.NONE));
+				STRING6, false/* mandatory? */, READ_WRITE, Unit.NONE));
 
 		private final Point point;
 
@@ -449,94 +449,94 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S101 implements SunSpecPoint {
 		A(new ScaledValuePoint("S101_A", "Amps", //
 				"AC Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S101_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S101_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S101_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S101_A_SF", "", "")), //
 		P_P_VPH_A_B(new ScaledValuePoint("S101_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_B_C(new ScaledValuePoint("S101_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_C_A(new ScaledValuePoint("S101_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S101_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S101_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S101_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S101_V_SF", "", "")), //
 		W(new ScaledValuePoint("S101_W", "Watts", //
 				"AC Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S101_W_SF", "", "")), //
 		HZ(new ScaledValuePoint("S101_HZ", "Hz", //
 				"Line Frequency", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S101_HZ_S_F", "", "")), //
 		VA(new ScaledValuePoint("S101_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S101_VA_SF", "", "")), //
 		V_AR(new ScaledValuePoint("S101_V_AR", "VAr", //
 				"AC Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
 		V_AR_S_F(new ScaleFactorPoint("S101_V_AR_S_F", "", "")), //
 		PF(new ScaledValuePoint("S101_PF", "PF", //
 				"AC Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S101_PF_SF", "", "")), //
 		WH(new ScaledValuePoint("S101_WH", "WattHours", //
 				"AC Energy", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
 		WH_SF(new ScaleFactorPoint("S101_WH_SF", "", "")), //
 		DCA(new ScaledValuePoint("S101_DCA", "DC Amps", //
 				"DC Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
 		DCA_SF(new ScaleFactorPoint("S101_DCA_SF", "", "")), //
 		DCV(new ScaledValuePoint("S101_DCV", "DC Voltage", //
 				"DC Voltage", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
 		DCV_SF(new ScaleFactorPoint("S101_DCV_SF", "", "")), //
 		DCW(new ScaledValuePoint("S101_DCW", "DC Watts", //
 				"DC Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
 		DCW_SF(new ScaleFactorPoint("S101_DCW_SF", "", "")), //
 		TMP_CAB(new ScaledValuePoint("S101_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_SNK(new ScaledValuePoint("S101_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_TRNS(new ScaledValuePoint("S101_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_OT(new ScaledValuePoint("S101_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_S_F(new ScaleFactorPoint("S101_TMP_S_F", "", "")), //
 		ST(new EnumPoint("S101_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S101_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S101_St.values())), //
 		ST_VND(new EnumPoint("S101_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S101_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S101_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S101_Evt1.values())), //
 		EVT2(new BitFieldPoint("S101_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -633,94 +633,94 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S102 implements SunSpecPoint {
 		A(new ScaledValuePoint("S102_A", "Amps", //
 				"AC Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S102_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S102_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S102_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S102_A_SF", "", "")), //
 		P_P_VPH_A_B(new ScaledValuePoint("S102_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_B_C(new ScaledValuePoint("S102_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_C_A(new ScaledValuePoint("S102_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S102_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S102_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S102_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S102_V_SF", "", "")), //
 		W(new ScaledValuePoint("S102_W", "Watts", //
 				"AC Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S102_W_SF", "", "")), //
 		HZ(new ScaledValuePoint("S102_HZ", "Hz", //
 				"Line Frequency", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S102_HZ_S_F", "", "")), //
 		VA(new ScaledValuePoint("S102_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S102_VA_SF", "", "")), //
 		V_AR(new ScaledValuePoint("S102_V_AR", "VAr", //
 				"AC Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
 		V_AR_S_F(new ScaleFactorPoint("S102_V_AR_S_F", "", "")), //
 		PF(new ScaledValuePoint("S102_PF", "PF", //
 				"AC Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S102_PF_SF", "", "")), //
 		WH(new ScaledValuePoint("S102_WH", "WattHours", //
 				"AC Energy", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
 		WH_SF(new ScaleFactorPoint("S102_WH_SF", "", "")), //
 		DCA(new ScaledValuePoint("S102_DCA", "DC Amps", //
 				"DC Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
 		DCA_SF(new ScaleFactorPoint("S102_DCA_SF", "", "")), //
 		DCV(new ScaledValuePoint("S102_DCV", "DC Voltage", //
 				"DC Voltage", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
 		DCV_SF(new ScaleFactorPoint("S102_DCV_SF", "", "")), //
 		DCW(new ScaledValuePoint("S102_DCW", "DC Watts", //
 				"DC Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
 		DCW_SF(new ScaleFactorPoint("S102_DCW_SF", "", "")), //
 		TMP_CAB(new ScaledValuePoint("S102_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_SNK(new ScaledValuePoint("S102_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_TRNS(new ScaledValuePoint("S102_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_OT(new ScaledValuePoint("S102_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_S_F(new ScaleFactorPoint("S102_TMP_S_F", "", "")), //
 		ST(new EnumPoint("S102_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S102_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S102_St.values())), //
 		ST_VND(new EnumPoint("S102_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S102_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S102_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S102_Evt1.values())), //
 		EVT2(new BitFieldPoint("S102_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -817,94 +817,94 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S103 implements SunSpecPoint {
 		A(new ScaledValuePoint("S103_A", "Amps", //
 				"AC Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S103_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S103_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S103_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S103_A_SF", "", "")), //
 		P_P_VPH_A_B(new ScaledValuePoint("S103_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_B_C(new ScaledValuePoint("S103_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_C_A(new ScaledValuePoint("S103_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S103_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S103_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S103_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S103_V_SF", "", "")), //
 		W(new ScaledValuePoint("S103_W", "Watts", //
 				"AC Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S103_W_SF", "", "")), //
 		HZ(new ScaledValuePoint("S103_HZ", "Hz", //
 				"Line Frequency", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S103_HZ_S_F", "", "")), //
 		VA(new ScaledValuePoint("S103_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S103_VA_SF", "", "")), //
 		V_AR(new ScaledValuePoint("S103_V_AR", "VAr", //
 				"AC Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAr_SF")), //
 		V_AR_S_F(new ScaleFactorPoint("S103_V_AR_S_F", "", "")), //
 		PF(new ScaledValuePoint("S103_PF", "PF", //
 				"AC Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S103_PF_SF", "", "")), //
 		WH(new ScaledValuePoint("S103_WH", "WattHours", //
 				"AC Energy", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
 		WH_SF(new ScaleFactorPoint("S103_WH_SF", "", "")), //
 		DCA(new ScaledValuePoint("S103_DCA", "DC Amps", //
 				"DC Current", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
 		DCA_SF(new ScaleFactorPoint("S103_DCA_SF", "", "")), //
 		DCV(new ScaledValuePoint("S103_DCV", "DC Voltage", //
 				"DC Voltage", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "DCV_SF")), //
 		DCV_SF(new ScaleFactorPoint("S103_DCV_SF", "", "")), //
 		DCW(new ScaledValuePoint("S103_DCW", "DC Watts", //
 				"DC Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
 		DCW_SF(new ScaleFactorPoint("S103_DCW_SF", "", "")), //
 		TMP_CAB(new ScaledValuePoint("S103_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_SNK(new ScaledValuePoint("S103_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_TRNS(new ScaledValuePoint("S103_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_OT(new ScaledValuePoint("S103_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_S_F(new ScaleFactorPoint("S103_TMP_S_F", "", "")), //
 		ST(new EnumPoint("S103_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S103_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S103_St.values())), //
 		ST_VND(new EnumPoint("S103_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S103_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S103_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S103_Evt1.values())), //
 		EVT2(new BitFieldPoint("S103_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -1001,82 +1001,82 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S111 implements SunSpecPoint {
 		A(new ValuePoint("S111_A", "Amps", //
 				"AC Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_A(new ValuePoint("S111_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_B(new ValuePoint("S111_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_C(new ValuePoint("S111_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		P_P_VPH_A_B(new ValuePoint("S111_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_B_C(new ValuePoint("S111_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_C_A(new ValuePoint("S111_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_A(new ValuePoint("S111_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_B(new ValuePoint("S111_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_C(new ValuePoint("S111_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		W(new ValuePoint("S111_W", "Watts", //
 				"AC Power", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		HZ(new ValuePoint("S111_HZ", "Hz", //
 				"Line Frequency", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.HERTZ)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.HERTZ)), //
 		VA(new ValuePoint("S111_VA", "VA", //
 				"AC Apparent Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
 		V_AR(new ValuePoint("S111_V_AR", "VAr", //
 				"AC Reactive Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
 		PF(new ValuePoint("S111_PF", "PF", //
 				"AC Power Factor", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		WH(new ValuePoint("S111_WH", "WattHours", //
 				"AC Energy", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
 		DCA(new ValuePoint("S111_DCA", "DC Amps", //
 				"DC Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		DCV(new ValuePoint("S111_DCV", "DC Voltage", //
 				"DC Voltage", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		DCW(new ValuePoint("S111_DCW", "DC Watts", //
 				"DC Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		TMP_CAB(new ValuePoint("S111_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_SNK(new ValuePoint("S111_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_TRNS(new ValuePoint("S111_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_OT(new ValuePoint("S111_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		ST(new EnumPoint("S111_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S111_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S111_St.values())), //
 		ST_VND(new EnumPoint("S111_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S111_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S111_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S111_Evt1.values())), //
 		EVT2(new BitFieldPoint("S111_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -1173,82 +1173,82 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S112 implements SunSpecPoint {
 		A(new ValuePoint("S112_A", "Amps", //
 				"AC Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_A(new ValuePoint("S112_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_B(new ValuePoint("S112_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_C(new ValuePoint("S112_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		P_P_VPH_A_B(new ValuePoint("S112_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_B_C(new ValuePoint("S112_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_C_A(new ValuePoint("S112_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_A(new ValuePoint("S112_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_B(new ValuePoint("S112_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_C(new ValuePoint("S112_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		W(new ValuePoint("S112_W", "Watts", //
 				"AC Power", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		HZ(new ValuePoint("S112_HZ", "Hz", //
 				"Line Frequency", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.HERTZ)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.HERTZ)), //
 		VA(new ValuePoint("S112_VA", "VA", //
 				"AC Apparent Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
 		V_AR(new ValuePoint("S112_V_AR", "VAr", //
 				"AC Reactive Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
 		PF(new ValuePoint("S112_PF", "PF", //
 				"AC Power Factor", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		WH(new ValuePoint("S112_WH", "WattHours", //
 				"AC Energy", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
 		DCA(new ValuePoint("S112_DCA", "DC Amps", //
 				"DC Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		DCV(new ValuePoint("S112_DCV", "DC Voltage", //
 				"DC Voltage", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		DCW(new ValuePoint("S112_DCW", "DC Watts", //
 				"DC Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		TMP_CAB(new ValuePoint("S112_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_SNK(new ValuePoint("S112_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_TRNS(new ValuePoint("S112_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_OT(new ValuePoint("S112_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		ST(new EnumPoint("S112_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S112_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S112_St.values())), //
 		ST_VND(new EnumPoint("S112_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S112_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S112_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S112_Evt1.values())), //
 		EVT2(new BitFieldPoint("S112_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -1345,82 +1345,82 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S113 implements SunSpecPoint {
 		A(new ValuePoint("S113_A", "Amps", //
 				"AC Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_A(new ValuePoint("S113_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_B(new ValuePoint("S113_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		APH_C(new ValuePoint("S113_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		P_P_VPH_A_B(new ValuePoint("S113_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_B_C(new ValuePoint("S113_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		P_P_VPH_C_A(new ValuePoint("S113_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_A(new ValuePoint("S113_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_B(new ValuePoint("S113_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		PH_VPH_C(new ValuePoint("S113_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		W(new ValuePoint("S113_W", "Watts", //
 				"AC Power", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		HZ(new ValuePoint("S113_HZ", "Hz", //
 				"Line Frequency", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.HERTZ)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.HERTZ)), //
 		VA(new ValuePoint("S113_VA", "VA", //
 				"AC Apparent Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE)), //
 		V_AR(new ValuePoint("S113_V_AR", "VAr", //
 				"AC Reactive Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE)), //
 		PF(new ValuePoint("S113_PF", "PF", //
 				"AC Power Factor", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		WH(new ValuePoint("S113_WH", "WattHours", //
 				"AC Energy", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
 		DCA(new ValuePoint("S113_DCA", "DC Amps", //
 				"DC Current", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.AMPERE)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.AMPERE)), //
 		DCV(new ValuePoint("S113_DCV", "DC Voltage", //
 				"DC Voltage", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.VOLT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.VOLT)), //
 		DCW(new ValuePoint("S113_DCW", "DC Watts", //
 				"DC Power", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.WATT)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.WATT)), //
 		TMP_CAB(new ValuePoint("S113_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet Temperature", //
-				FLOAT32, true /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, true/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_SNK(new ValuePoint("S113_TMP_SNK", "Heat Sink Temperature", //
 				"Heat Sink Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_TRNS(new ValuePoint("S113_TMP_TRNS", "Transformer Temperature", //
 				"Transformer Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		TMP_OT(new ValuePoint("S113_TMP_OT", "Other Temperature", //
 				"Other Temperature", //
-				FLOAT32, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
+				FLOAT32, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS)), //
 		ST(new EnumPoint("S113_ST", "Operating State", //
 				"Enumerated value.  Operating state", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S113_St.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S113_St.values())), //
 		ST_VND(new EnumPoint("S113_ST_VND", "Vendor Operating State", //
 				"Vendor specific operating state code", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		EVT1(new BitFieldPoint("S113_EVT1", "Event1", //
 				"Bitmask value. Event fields", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S113_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S113_Evt1.values())), //
 		EVT2(new BitFieldPoint("S113_EVT2", "Event Bitfield 2", //
 				"Reserved for future use", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -1517,73 +1517,73 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S120 implements SunSpecPoint {
 		D_E_R_TYP(new EnumPoint("S120_D_E_R_TYP", "DERTyp", //
 				"Type of DER device. Default value is 4 to indicate PV device.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S120_DERTyp.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S120_DERTyp.values())), //
 		W_RTG(new ScaledValuePoint("S120_W_RTG", "WRtg", //
 				"Continuous power output capability of the inverter.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "WRtg_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "WRtg_SF")), //
 		W_RTG_S_F(new ScaleFactorPoint("S120_W_RTG_S_F", "WRtg_SF", //
 				"Scale factor")), //
 		V_A_RTG(new ScaledValuePoint("S120_V_A_RTG", "VARtg", //
 				"Continuous Volt-Ampere capability of the inverter.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VARtg_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VARtg_SF")), //
 		V_A_RTG_S_F(new ScaleFactorPoint("S120_V_A_RTG_S_F", "VARtg_SF", //
 				"Scale factor")), //
 		V_AR_RTG_Q1(new ScaledValuePoint("S120_V_AR_RTG_Q1", "VArRtgQ1", //
 				"Continuous VAR capability of the inverter in quadrant 1.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
 		V_AR_RTG_Q2(new ScaledValuePoint("S120_V_AR_RTG_Q2", "VArRtgQ2", //
 				"Continuous VAR capability of the inverter in quadrant 2.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
 		V_AR_RTG_Q3(new ScaledValuePoint("S120_V_AR_RTG_Q3", "VArRtgQ3", //
 				"Continuous VAR capability of the inverter in quadrant 3.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
 		V_AR_RTG_Q4(new ScaledValuePoint("S120_V_AR_RTG_Q4", "VArRtgQ4", //
 				"Continuous VAR capability of the inverter in quadrant 4.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArRtg_SF")), //
 		V_AR_RTG_S_F(new ScaleFactorPoint("S120_V_AR_RTG_S_F", "VArRtg_SF", //
 				"Scale factor")), //
 		A_RTG(new ScaledValuePoint("S120_A_RTG", "ARtg", //
 				"Maximum RMS AC current level capability of the inverter.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "ARtg_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "ARtg_SF")), //
 		A_RTG_S_F(new ScaleFactorPoint("S120_A_RTG_S_F", "ARtg_SF", //
 				"Scale factor")), //
 		P_F_RTG_Q1(new ScaledValuePoint("S120_P_F_RTG_Q1", "PFRtgQ1", //
 				"Minimum power factor capability of the inverter in quadrant 1.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
 		P_F_RTG_Q2(new ScaledValuePoint("S120_P_F_RTG_Q2", "PFRtgQ2", //
 				"Minimum power factor capability of the inverter in quadrant 2.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
 		P_F_RTG_Q3(new ScaledValuePoint("S120_P_F_RTG_Q3", "PFRtgQ3", //
 				"Minimum power factor capability of the inverter in quadrant 3.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
 		P_F_RTG_Q4(new ScaledValuePoint("S120_P_F_RTG_Q4", "PFRtgQ4", //
 				"Minimum power factor capability of the inverter in quadrant 4.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "PFRtg_SF")), //
 		P_F_RTG_S_F(new ScaleFactorPoint("S120_P_F_RTG_S_F", "PFRtg_SF", //
 				"Scale factor")), //
 		W_H_RTG(new ScaledValuePoint("S120_W_H_RTG", "WHRtg", //
 				"Nominal energy rating of storage device.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WHRtg_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WHRtg_SF")), //
 		W_H_RTG_S_F(new ScaleFactorPoint("S120_W_H_RTG_S_F", "WHRtg_SF", //
 				"Scale factor")), //
 		AHR_RTG(new ScaledValuePoint("S120_AHR_RTG", "AhrRtg", //
 				"The usable capacity of the battery.  Maximum charge minus minimum charge from a technology capability perspective (Amp-hour capacity rating).", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AhrRtg_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AhrRtg_SF")), //
 		AHR_RTG_S_F(new ScaleFactorPoint("S120_AHR_RTG_S_F", "AhrRtg_SF", //
 				"Scale factor for amp-hour rating.")), //
 		MAX_CHA_RTE(new ScaledValuePoint("S120_MAX_CHA_RTE", "MaxChaRte", //
 				"Maximum rate of energy transfer into the storage device.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "MaxChaRte_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "MaxChaRte_SF")), //
 		MAX_CHA_RTE_S_F(new ScaleFactorPoint("S120_MAX_CHA_RTE_S_F", "MaxChaRte_SF", //
 				"Scale factor")), //
 		MAX_DIS_CHA_RTE(new ScaledValuePoint("S120_MAX_DIS_CHA_RTE", "MaxDisChaRte", //
 				"Maximum rate of energy transfer out of the storage device.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "MaxDisChaRte_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "MaxDisChaRte_SF")), //
 		MAX_DIS_CHA_RTE_S_F(new ScaleFactorPoint("S120_MAX_DIS_CHA_RTE_S_F", "MaxDisChaRte_SF", //
 				"Scale factor")), //
 		PAD(new ValuePoint("S120_PAD", "Pad", //
 				"Pad register.", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -1629,64 +1629,64 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S121 implements SunSpecPoint {
 		W_MAX(new ScaledValuePoint("S121_W_MAX", "WMax", //
 				"Setting for maximum power output. Default to WRtg.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.WATT, "WMax_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.WATT, "WMax_SF")), //
 		V_REF(new ScaledValuePoint("S121_V_REF", "VRef", //
 				"Voltage at the PCC.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.VOLT, "VRef_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.VOLT, "VRef_SF")), //
 		V_REF_OFS(new ScaledValuePoint("S121_V_REF_OFS", "VRefOfs", //
 				"Offset  from PCC to inverter.", //
-				INT16, true /* mandatory? */, READ_WRITE, Unit.VOLT, "VRefOfs_SF")), //
+				INT16, true/* mandatory? */, READ_WRITE, Unit.VOLT, "VRefOfs_SF")), //
 		V_MAX(new ScaledValuePoint("S121_V_MAX", "VMax", //
 				"Setpoint for maximum voltage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT, "VMinMax_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT, "VMinMax_SF")), //
 		V_MIN(new ScaledValuePoint("S121_V_MIN", "VMin", //
 				"Setpoint for minimum voltage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT, "VMinMax_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT, "VMinMax_SF")), //
 		V_A_MAX(new ScaledValuePoint("S121_V_A_MAX", "VAMax", //
 				"Setpoint for maximum apparent power. Default to VARtg.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VAMax_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VAMax_SF")), //
 		V_AR_MAX_Q1(new ScaledValuePoint("S121_V_AR_MAX_Q1", "VArMaxQ1", //
 				"Setting for maximum reactive power in quadrant 1. Default to VArRtgQ1.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
 		V_AR_MAX_Q2(new ScaledValuePoint("S121_V_AR_MAX_Q2", "VArMaxQ2", //
 				"Setting for maximum reactive power in quadrant 2. Default to VArRtgQ2.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
 		V_AR_MAX_Q3(new ScaledValuePoint("S121_V_AR_MAX_Q3", "VArMaxQ3", //
 				"Setting for maximum reactive power in quadrant 3. Default to VArRtgQ3.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
 		V_AR_MAX_Q4(new ScaledValuePoint("S121_V_AR_MAX_Q4", "VArMaxQ4", //
 				"Setting for maximum reactive power in quadrant 4. Default to VArRtgQ4.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VArMax_SF")), //
 		W_GRA(new ScaledValuePoint("S121_W_GRA", "WGra", //
 				"Default ramp rate of change of active power due to command or internal action.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "WGra_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "WGra_SF")), //
 		P_F_MIN_Q1(new ScaledValuePoint("S121_P_F_MIN_Q1", "PFMinQ1", //
 				"Setpoint for minimum power factor value in quadrant 1. Default to PFRtgQ1.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
 		P_F_MIN_Q2(new ScaledValuePoint("S121_P_F_MIN_Q2", "PFMinQ2", //
 				"Setpoint for minimum power factor value in quadrant 2. Default to PFRtgQ2.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
 		P_F_MIN_Q3(new ScaledValuePoint("S121_P_F_MIN_Q3", "PFMinQ3", //
 				"Setpoint for minimum power factor value in quadrant 3. Default to PFRtgQ3.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
 		P_F_MIN_Q4(new ScaledValuePoint("S121_P_F_MIN_Q4", "PFMinQ4", //
 				"Setpoint for minimum power factor value in quadrant 4. Default to PFRtgQ4.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PFMin_SF")), //
 		V_AR_ACT(new EnumPoint("S121_V_AR_ACT", "VArAct", //
 				"VAR action on change between charging and discharging: 1=switch 2=maintain VAR characterization.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S121_VArAct.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S121_VArAct.values())), //
 		CLC_TOT_V_A(new EnumPoint("S121_CLC_TOT_V_A", "ClcTotVA", //
 				"Calculation method for total apparent power. 1=vector 2=arithmetic.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S121_ClcTotVA.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S121_ClcTotVA.values())), //
 		MAX_RMP_RTE(new ScaledValuePoint("S121_MAX_RMP_RTE", "MaxRmpRte", //
 				"Setpoint for maximum ramp rate as percentage of nominal maximum ramp rate. This setting will limit the rate that watts delivery to the grid can increase or decrease in response to intermittent PV generation.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "MaxRmpRte_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "MaxRmpRte_SF")), //
 		E_C_P_NOM_HZ(new ScaledValuePoint("S121_E_C_P_NOM_HZ", "ECPNomHz", //
 				"Setpoint for nominal frequency at the ECP.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.HERTZ, "ECPNomHz_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.HERTZ, "ECPNomHz_SF")), //
 		CONN_PH(new EnumPoint("S121_CONN_PH", "ConnPh", //
 				"Identity of connected phase for single phase inverters. A=1 B=2 C=3.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S121_ConnPh.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S121_ConnPh.values())), //
 		W_MAX_S_F(new ScaleFactorPoint("S121_W_MAX_S_F", "WMax_SF", //
 				"Scale factor for real power.")), //
 		V_REF_S_F(new ScaleFactorPoint("S121_V_REF_S_F", "VRef_SF", //
@@ -1811,59 +1811,59 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S122 implements SunSpecPoint {
 		P_V_CONN(new BitFieldPoint("S122_P_V_CONN", "PVConn", //
 				"PV inverter present/available status. Enumerated value.", //
-				BITFIELD16, true /* mandatory? */, READ_ONLY, S122_PVConn.values())), //
+				BITFIELD16, true/* mandatory? */, READ_ONLY, S122_PVConn.values())), //
 		STOR_CONN(new BitFieldPoint("S122_STOR_CONN", "StorConn", //
 				"Storage inverter present/available status. Enumerated value.", //
-				BITFIELD16, true /* mandatory? */, READ_ONLY, S122_StorConn.values())), //
+				BITFIELD16, true/* mandatory? */, READ_ONLY, S122_StorConn.values())), //
 		E_C_P_CONN(new BitFieldPoint("S122_E_C_P_CONN", "ECPConn", //
 				"ECP connection status: disconnected=0  connected=1.", //
-				BITFIELD16, true /* mandatory? */, READ_ONLY, S122_ECPConn.values())), //
+				BITFIELD16, true/* mandatory? */, READ_ONLY, S122_ECPConn.values())), //
 		ACT_WH(new ValuePoint("S122_ACT_WH", "ActWh", //
 				"AC lifetime active (real) energy output.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS)), //
 		ACT_V_AH(new ValuePoint("S122_ACT_V_AH", "ActVAh", //
 				"AC lifetime apparent energy output.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS)), //
 		ACT_V_ARH_Q1(new ValuePoint("S122_ACT_V_ARH_Q1", "ActVArhQ1", //
 				"AC lifetime reactive energy output in quadrant 1.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
 		ACT_V_ARH_Q2(new ValuePoint("S122_ACT_V_ARH_Q2", "ActVArhQ2", //
 				"AC lifetime reactive energy output in quadrant 2.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
 		ACT_V_ARH_Q3(new ValuePoint("S122_ACT_V_ARH_Q3", "ActVArhQ3", //
 				"AC lifetime negative energy output  in quadrant 3.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
 		ACT_V_ARH_Q4(new ValuePoint("S122_ACT_V_ARH_Q4", "ActVArhQ4", //
 				"AC lifetime reactive energy output  in quadrant 4.", //
-				ACC64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
+				ACC64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS)), //
 		V_AR_AVAL(new ScaledValuePoint("S122_V_AR_AVAL", "VArAval", //
 				"Amount of VARs available without impacting watts output.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArAval_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VArAval_SF")), //
 		V_AR_AVAL_S_F(new ScaleFactorPoint("S122_V_AR_AVAL_S_F", "VArAval_SF", //
 				"Scale factor for available VARs.")), //
 		W_AVAL(new ScaledValuePoint("S122_W_AVAL", "WAval", //
 				"Amount of Watts available.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "WAval_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "WAval_SF")), //
 		W_AVAL_S_F(new ScaleFactorPoint("S122_W_AVAL_S_F", "WAval_SF", //
 				"Scale factor for available Watts.")), //
 		ST_SET_LIM_MSK(new BitFieldPoint("S122_ST_SET_LIM_MSK", "StSetLimMsk", //
 				"Bit Mask indicating setpoint limit(s) reached.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S122_StSetLimMsk.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S122_StSetLimMsk.values())), //
 		ST_ACT_CTL(new BitFieldPoint("S122_ST_ACT_CTL", "StActCtl", //
 				"Bit Mask indicating which inverter controls are currently active.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S122_StActCtl.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S122_StActCtl.values())), //
 		TM_SRC(new ValuePoint("S122_TM_SRC", "TmSrc", //
 				"Source of time synchronization.", //
-				STRING4, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING4, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		TMS(new ValuePoint("S122_TMS", "Tms", //
 				"Seconds since 01-01-2000 00:00 UTC", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		RT_ST(new BitFieldPoint("S122_RT_ST", "RtSt", //
 				"Bit Mask indicating active ride-through status.", //
-				BITFIELD16, false /* mandatory? */, READ_ONLY, S122_RtSt.values())), //
+				BITFIELD16, false/* mandatory? */, READ_ONLY, S122_RtSt.values())), //
 		RIS(new ScaledValuePoint("S122_RIS", "Ris", //
 				"Isolation resistance.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "Ris_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "Ris_SF")), //
 		RIS_S_F(new ScaleFactorPoint("S122_RIS_S_F", "Ris_SF", //
 				"Scale factor for isolation resistance."));
 
@@ -2004,67 +2004,67 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S123 implements SunSpecPoint {
 		CONN_WIN_TMS(new ValuePoint("S123_CONN_WIN_TMS", "Conn_WinTms", //
 				"Time window for connect/disconnect.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		CONN_RVRT_TMS(new ValuePoint("S123_CONN_RVRT_TMS", "Conn_RvrtTms", //
 				"Timeout period for connect/disconnect.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		CONN(new EnumPoint("S123_CONN", "Conn", //
 				"Enumerated valued.  Connection control.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S123_Conn.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S123_Conn.values())), //
 		W_MAX_LIM_PCT(new ScaledValuePoint("S123_W_MAX_LIM_PCT", "WMaxLimPct", //
 				"Set power output to specified level.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.PERCENT, "WMaxLimPct_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.PERCENT, "WMaxLimPct_SF")), //
 		W_MAX_LIM_PCT_WIN_TMS(new ValuePoint("S123_W_MAX_LIM_PCT_WIN_TMS", "WMaxLimPct_WinTms", //
 				"Time window for power limit change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		W_MAX_LIM_PCT_RVRT_TMS(new ValuePoint("S123_W_MAX_LIM_PCT_RVRT_TMS", "WMaxLimPct_RvrtTms", //
 				"Timeout period for power limit.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		W_MAX_LIM_PCT_RMP_TMS(new ValuePoint("S123_W_MAX_LIM_PCT_RMP_TMS", "WMaxLimPct_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		W_MAX_LIM_ENA(new EnumPoint("S123_W_MAX_LIM_ENA", "WMaxLim_Ena", //
 				"Enumerated valued.  Throttle enable/disable control.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S123_WMaxLim_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S123_WMaxLim_Ena.values())), //
 		OUT_P_F_SET(new ScaledValuePoint("S123_OUT_P_F_SET", "OutPFSet", //
 				"Set power factor to specific value - cosine of angle.", //
-				INT16, true /* mandatory? */, READ_WRITE, Unit.NONE, "OutPFSet_SF")), //
+				INT16, true/* mandatory? */, READ_WRITE, Unit.NONE, "OutPFSet_SF")), //
 		OUT_P_F_SET_WIN_TMS(new ValuePoint("S123_OUT_P_F_SET_WIN_TMS", "OutPFSet_WinTms", //
 				"Time window for power factor change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		OUT_P_F_SET_RVRT_TMS(new ValuePoint("S123_OUT_P_F_SET_RVRT_TMS", "OutPFSet_RvrtTms", //
 				"Timeout period for power factor.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		OUT_P_F_SET_RMP_TMS(new ValuePoint("S123_OUT_P_F_SET_RMP_TMS", "OutPFSet_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		OUT_P_F_SET_ENA(new EnumPoint("S123_OUT_P_F_SET_ENA", "OutPFSet_Ena", //
 				"Enumerated valued.  Fixed power factor enable/disable control.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S123_OutPFSet_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S123_OutPFSet_Ena.values())), //
 		V_AR_W_MAX_PCT(new ScaledValuePoint("S123_V_AR_W_MAX_PCT", "VArWMaxPct", //
 				"Reactive power in percent of WMax.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
 		V_AR_MAX_PCT(new ScaledValuePoint("S123_V_AR_MAX_PCT", "VArMaxPct", //
 				"Reactive power in percent of VArMax.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
 		V_AR_AVAL_PCT(new ScaledValuePoint("S123_V_AR_AVAL_PCT", "VArAvalPct", //
 				"Reactive power in percent of VArAval.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VArPct_SF")), //
 		V_AR_PCT_WIN_TMS(new ValuePoint("S123_V_AR_PCT_WIN_TMS", "VArPct_WinTms", //
 				"Time window for VAR limit change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		V_AR_PCT_RVRT_TMS(new ValuePoint("S123_V_AR_PCT_RVRT_TMS", "VArPct_RvrtTms", //
 				"Timeout period for VAR limit.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		V_AR_PCT_RMP_TMS(new ValuePoint("S123_V_AR_PCT_RMP_TMS", "VArPct_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		V_AR_PCT_MOD(new EnumPoint("S123_V_AR_PCT_MOD", "VArPct_Mod", //
 				"Enumerated value. VAR percent limit mode.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S123_VArPct_Mod.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S123_VArPct_Mod.values())), //
 		V_AR_PCT_ENA(new EnumPoint("S123_V_AR_PCT_ENA", "VArPct_Ena", //
 				"Enumerated valued.  Percent limit VAr enable/disable control.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S123_VArPct_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S123_VArPct_Ena.values())), //
 		W_MAX_LIM_PCT_S_F(new ScaleFactorPoint("S123_W_MAX_LIM_PCT_S_F", "WMaxLimPct_SF", //
 				"Scale factor for power output percent.")), //
 		OUT_P_F_SET_S_F(new ScaleFactorPoint("S123_OUT_P_F_SET_S_F", "OutPFSet_SF", //
@@ -2234,51 +2234,51 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S124 implements SunSpecPoint {
 		W_CHA_MAX(new ScaledValuePoint("S124_W_CHA_MAX", "WChaMax", //
 				"Setpoint for maximum charge.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.WATT, "WChaMax_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.WATT, "WChaMax_SF")), //
 		W_CHA_GRA(new ScaledValuePoint("S124_W_CHA_GRA", "WChaGra", //
 				"Setpoint for maximum charging rate. Default is MaxChaRte.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.PERCENT, "WChaDisChaGra_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.PERCENT, "WChaDisChaGra_SF")), //
 		W_DIS_CHA_GRA(new ScaledValuePoint("S124_W_DIS_CHA_GRA", "WDisChaGra", //
 				"Setpoint for maximum discharge rate. Default is MaxDisChaRte.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.PERCENT, "WChaDisChaGra_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.PERCENT, "WChaDisChaGra_SF")), //
 		STOR_CTL_MOD(new BitFieldPoint("S124_STOR_CTL_MOD", "StorCtl_Mod", //
 				"Activate hold/discharge/charge storage control mode. Bitfield value.", //
-				BITFIELD16, true /* mandatory? */, READ_WRITE, S124_StorCtl_Mod.values())), //
+				BITFIELD16, true/* mandatory? */, READ_WRITE, S124_StorCtl_Mod.values())), //
 		V_A_CHA_MAX(new ScaledValuePoint("S124_V_A_CHA_MAX", "VAChaMax", //
 				"Setpoint for maximum charging VA.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VAChaMax_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VAChaMax_SF")), //
 		MIN_RSV_PCT(new ScaledValuePoint("S124_MIN_RSV_PCT", "MinRsvPct", //
 				"Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "MinRsvPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "MinRsvPct_SF")), //
 		CHA_STATE(new ScaledValuePoint("S124_CHA_STATE", "ChaState", //
 				"Currently available energy as a percent of the capacity rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "ChaState_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "ChaState_SF")), //
 		STOR_AVAL(new ScaledValuePoint("S124_STOR_AVAL", "StorAval", //
 				"State of charge (ChaState) minus storage reserve (MinRsvPct) times capacity rating (AhrRtg).", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "StorAval_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "StorAval_SF")), //
 		IN_BAT_V(new ScaledValuePoint("S124_IN_BAT_V", "InBatV", //
 				"Internal battery voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "InBatV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "InBatV_SF")), //
 		CHA_ST(new EnumPoint("S124_CHA_ST", "ChaSt", //
 				"Charge status of storage device. Enumerated value.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S124_ChaSt.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S124_ChaSt.values())), //
 		OUT_W_RTE(new ScaledValuePoint("S124_OUT_W_RTE", "OutWRte", //
 				"Percent of max discharge rate.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "InOutWRte_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "InOutWRte_SF")), //
 		IN_W_RTE(new ScaledValuePoint("S124_IN_W_RTE", "InWRte", //
 				"Percent of max charging rate.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "InOutWRte_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "InOutWRte_SF")), //
 		IN_OUT_W_RTE_WIN_TMS(new ValuePoint("S124_IN_OUT_W_RTE_WIN_TMS", "InOutWRte_WinTms", //
 				"Time window for charge/discharge rate change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		IN_OUT_W_RTE_RVRT_TMS(new ValuePoint("S124_IN_OUT_W_RTE_RVRT_TMS", "InOutWRte_RvrtTms", //
 				"Timeout period for charge/discharge rate.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		IN_OUT_W_RTE_RMP_TMS(new ValuePoint("S124_IN_OUT_W_RTE_RMP_TMS", "InOutWRte_RmpTms", //
 				"Ramp time for moving from current setpoint to new setpoint.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		CHA_GRI_SET(new EnumPoint("S124_CHA_GRI_SET", "", "", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S124_ChaGriSet.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S124_ChaGriSet.values())), //
 		W_CHA_MAX_S_F(new ScaleFactorPoint("S124_W_CHA_MAX_S_F", "WChaMax_SF", //
 				"Scale factor for maximum charge.")), //
 		W_CHA_DIS_CHA_GRA_S_F(new ScaleFactorPoint("S124_W_CHA_DIS_CHA_GRA_S_F", "WChaDisChaGra_SF", //
@@ -2390,26 +2390,26 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S125 implements SunSpecPoint {
 		MOD_ENA(new BitFieldPoint("S125_MOD_ENA", "ModEna", //
 				"Is price-based charge/discharge mode active?", //
-				BITFIELD16, true /* mandatory? */, READ_WRITE, S125_ModEna.values())), //
+				BITFIELD16, true/* mandatory? */, READ_WRITE, S125_ModEna.values())), //
 		SIG_TYPE(new EnumPoint("S125_SIG_TYPE", "SigType", //
 				"Meaning of the pricing signal. When a Price schedule is used, type must match the schedule range variable description.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S125_SigType.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S125_SigType.values())), //
 		SIG(new ScaledValuePoint("S125_SIG", "Sig", //
 				"Utility/ESP specific pricing signal. Content depends on pricing signal type. When H/M/L type is specified. Low=0; Med=1; High=2.", //
-				INT16, true /* mandatory? */, READ_WRITE, Unit.NONE, "Sig_SF")), //
+				INT16, true/* mandatory? */, READ_WRITE, Unit.NONE, "Sig_SF")), //
 		WIN_TMS(new ValuePoint("S125_WIN_TMS", "WinTms", //
 				"Time window for charge/discharge pricing change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RVT_TMS(new ValuePoint("S125_RVT_TMS", "RvtTms", //
 				"Timeout period for charge/discharge pricing change.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RMP_TMS(new ValuePoint("S125_RMP_TMS", "RmpTms", //
 				"Ramp time for moving from current charge or discharge level to new level.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		SIG_S_F(new ScaleFactorPoint("S125_SIG_S_F", "Sig_SF", //
 				"Pricing signal scale factor.")), //
 		PAD(new ValuePoint("S125_PAD", "", "", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -2473,22 +2473,22 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S127 implements SunSpecPoint {
 		W_GRA(new ScaledValuePoint("S127_W_GRA", "WGra", //
 				"The slope of the reduction in the maximum allowed watts output as a function of frequency.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.PERCENT, "WGra_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.PERCENT, "WGra_SF")), //
 		HZ_STR(new ScaledValuePoint("S127_HZ_STR", "HzStr", //
 				"The frequency deviation from nominal frequency (ECPNomHz) at which a snapshot of the instantaneous power output is taken to act as the CAPPED power level (PM) and above which reduction in power output occurs.", //
-				INT16, true /* mandatory? */, READ_WRITE, Unit.HERTZ, "HzStrStop_SF")), //
+				INT16, true/* mandatory? */, READ_WRITE, Unit.HERTZ, "HzStrStop_SF")), //
 		HZ_STOP(new ScaledValuePoint("S127_HZ_STOP", "HzStop", //
 				"The frequency deviation from nominal frequency (ECPNomHz) at which curtailed power output may return to normal and the cap on the power level value is removed.", //
-				INT16, true /* mandatory? */, READ_WRITE, Unit.HERTZ, "HzStrStop_SF")), //
+				INT16, true/* mandatory? */, READ_WRITE, Unit.HERTZ, "HzStrStop_SF")), //
 		HYS_ENA(new BitFieldPoint("S127_HYS_ENA", "HysEna", //
 				"Enable hysteresis", //
-				BITFIELD16, true /* mandatory? */, READ_WRITE, S127_HysEna.values())), //
+				BITFIELD16, true/* mandatory? */, READ_WRITE, S127_HysEna.values())), //
 		MOD_ENA(new BitFieldPoint("S127_MOD_ENA", "ModEna", //
 				"Is Parameterized Frequency-Watt control active.", //
-				BITFIELD16, true /* mandatory? */, READ_WRITE, S127_ModEna.values())), //
+				BITFIELD16, true/* mandatory? */, READ_WRITE, S127_ModEna.values())), //
 		HZ_STOP_W_GRA(new ScaledValuePoint("S127_HZ_STOP_W_GRA", "HzStopWGra", //
 				"The maximum time-based rate of change at which power output returns to normal after having been capped by an over frequency event.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "RmpIncDec_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "RmpIncDec_SF")), //
 		W_GRA_S_F(new ScaleFactorPoint("S127_W_GRA_S_F", "WGra_SF", //
 				"Scale factor for output gradient.")), //
 		HZ_STR_STOP_S_F(new ScaleFactorPoint("S127_HZ_STR_STOP_S_F", "HzStrStop_SF", //
@@ -2496,7 +2496,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		RMP_INC_DEC_S_F(new ScaleFactorPoint("S127_RMP_INC_DEC_S_F", "RmpIncDec_SF", //
 				"Scale factor for increment and decrement ramps.")), //
 		PAD(new ValuePoint("S127_PAD", "", "", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -2543,43 +2543,43 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S128 implements SunSpecPoint {
 		AR_GRA_MOD(new EnumPoint("S128_AR_GRA_MOD", "ArGraMod", //
 				"Indicates if gradients trend toward zero at the edges of the deadband or trend toward zero at the center of the deadband.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S128_ArGraMod.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S128_ArGraMod.values())), //
 		AR_GRA_SAG(new ScaledValuePoint("S128_AR_GRA_SAG", "ArGraSag", //
 				"The gradient used to increase capacitive dynamic current. A value of 0 indicates no additional reactive current support.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE, "ArGra_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE, "ArGra_SF")), //
 		AR_GRA_SWELL(new ScaledValuePoint("S128_AR_GRA_SWELL", "ArGraSwell", //
 				"The gradient used to increase inductive dynamic current.  A value of 0 indicates no additional reactive current support.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE, "ArGra_SF")), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE, "ArGra_SF")), //
 		MOD_ENA(new BitFieldPoint("S128_MOD_ENA", "ModEna", //
 				"Activate dynamic reactive current model", //
-				BITFIELD16, true /* mandatory? */, READ_WRITE, S128_ModEna.values())), //
+				BITFIELD16, true/* mandatory? */, READ_WRITE, S128_ModEna.values())), //
 		FIL_TMS(new ValuePoint("S128_FIL_TMS", "FilTms", //
 				"The time window used to calculate the moving average voltage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		DB_V_MIN(new ScaledValuePoint("S128_DB_V_MIN", "DbVMin", //
 				"The lower delta voltage limit for which negative voltage deviations less than this value no dynamic vars are produced.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
 		DB_V_MAX(new ScaledValuePoint("S128_DB_V_MAX", "DbVMax", //
 				"The upper delta voltage limit for which positive voltage deviations less than this value no dynamic current produced.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
 		BLK_ZN_V(new ScaledValuePoint("S128_BLK_ZN_V", "BlkZnV", //
 				"Block zone voltage which defines a lower voltage boundary below which no dynamic current is produced.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
 		HYS_BLK_ZN_V(new ScaledValuePoint("S128_HYS_BLK_ZN_V", "HysBlkZnV", //
 				"Hysteresis voltage used with BlkZnV.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "VRefPct_SF")), //
 		BLK_ZN_TMMS(new ValuePoint("S128_BLK_ZN_TMMS", "BlkZnTmms", //
 				"Block zone time the time before which reactive current support remains active regardless of how low the voltage drops.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.MILLISECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.MILLISECONDS)), //
 		HOLD_TMMS(new ValuePoint("S128_HOLD_TMMS", "HoldTmms", //
 				"Hold time during which reactive current support continues after the average voltage has entered the dead zone.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.MILLISECONDS)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.MILLISECONDS)), //
 		AR_GRA_S_F(new ScaleFactorPoint("S128_AR_GRA_S_F", "ArGra_SF", //
 				"Scale factor for the gradients.")), //
 		V_REF_PCT_S_F(new ScaleFactorPoint("S128_V_REF_PCT_S_F", "VRefPct_SF", //
 				"Scale factor for the voltage zone and limit settings.")), //
 		PAD(new ValuePoint("S128_PAD", "", "", //
-				ValuePoint.Type.PAD, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				ValuePoint.Type.PAD, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -2640,25 +2640,25 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S145 implements SunSpecPoint {
 		NOM_RMP_UP_RTE(new ScaledValuePoint("S145_NOM_RMP_UP_RTE", "Ramp Up Rate", //
 				"Ramp up rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		NOM_RMP_DN_RTE(new ScaledValuePoint("S145_NOM_RMP_DN_RTE", "NomRmpDnRte", //
 				"Ramp down rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		EMG_RMP_UP_RTE(new ScaledValuePoint("S145_EMG_RMP_UP_RTE", "Emergency Ramp Up Rate", //
 				"Emergency ramp up rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		EMG_RMP_DN_RTE(new ScaledValuePoint("S145_EMG_RMP_DN_RTE", "Emergency Ramp Down Rate", //
 				"Emergency ramp down rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		CONN_RMP_UP_RTE(new ScaledValuePoint("S145_CONN_RMP_UP_RTE", "Connect Ramp Up Rate", //
 				"Connect ramp up rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		CONN_RMP_DN_RTE(new ScaledValuePoint("S145_CONN_RMP_DN_RTE", "Connect Ramp Down Rate", //
 				"Connect ramp down rate as a percentage of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		A_GRA(new ScaledValuePoint("S145_A_GRA", "Default Ramp Rate", //
 				"Ramp rate specified in percent of max current.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "Rmp_SF")), //
 		RMP_S_F(new ScaleFactorPoint("S145_RMP_S_F", "Ramp Rate Scale Factor", //
 				"Ramp Rate Scale Factor"));
 
@@ -2677,186 +2677,186 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S201 implements SunSpecPoint {
 		A(new ScaledValuePoint("S201_A", "Amps", //
 				"Total AC Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S201_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S201_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S201_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S201_A_SF", "", //
 				"Current scale factor")), //
 		PH_V(new ScaledValuePoint("S201_PH_V", "Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S201_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S201_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S201_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PPV(new ScaledValuePoint("S201_PPV", "Voltage LL", //
 				"Line to Line AC Voltage (average of active phases)", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_A_B(new ScaledValuePoint("S201_P_P_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_B_C(new ScaledValuePoint("S201_P_P_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		P_P_VPH_C_A(new ScaledValuePoint("S201_P_P_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S201_V_SF", "", //
 				"Voltage scale factor")), //
 		HZ(new ScaledValuePoint("S201_HZ", "Hz", //
 				"Frequency", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S201_HZ_S_F", "", //
 				"Frequency scale factor")), //
 		W(new ScaledValuePoint("S201_W", "Watts", //
 				"Total Real Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_A(new ScaledValuePoint("S201_WPH_A", "Watts phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_B(new ScaledValuePoint("S201_WPH_B", "Watts phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_C(new ScaledValuePoint("S201_WPH_C", "Watts phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S201_W_SF", "", //
 				"Real Power scale factor")), //
 		VA(new ScaledValuePoint("S201_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_A(new ScaledValuePoint("S201_V_APH_A", "VA phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_B(new ScaledValuePoint("S201_V_APH_B", "VA phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_C(new ScaledValuePoint("S201_V_APH_C", "VA phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S201_VA_SF", "", //
 				"Apparent Power scale factor")), //
 		VAR(new ScaledValuePoint("S201_VAR", "VAR", //
 				"Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_A(new ScaledValuePoint("S201_V_A_RPH_A", "VAR phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_B(new ScaledValuePoint("S201_V_A_RPH_B", "VAR phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_C(new ScaledValuePoint("S201_V_A_RPH_C", "VAR phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		VAR_SF(new ScaleFactorPoint("S201_VAR_SF", "", //
 				"Reactive Power scale factor")), //
 		PF(new ScaledValuePoint("S201_PF", "PF", //
 				"Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_A(new ScaledValuePoint("S201_P_FPH_A", "PF phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_B(new ScaledValuePoint("S201_P_FPH_B", "PF phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_C(new ScaledValuePoint("S201_P_FPH_C", "PF phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S201_PF_SF", "", //
 				"Power Factor scale factor")), //
 		TOT_WH_EXP(new ScaledValuePoint("S201_TOT_WH_EXP", "Total Watt-hours Exported", //
 				"Total Real Energy Exported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_A(new ScaledValuePoint("S201_TOT_WH_EXP_PH_A", "Total Watt-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_B(new ScaledValuePoint("S201_TOT_WH_EXP_PH_B", "Total Watt-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_C(new ScaledValuePoint("S201_TOT_WH_EXP_PH_C", "Total Watt-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP(new ScaledValuePoint("S201_TOT_WH_IMP", "Total Watt-hours Imported", //
 				"Total Real Energy Imported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_A(new ScaledValuePoint("S201_TOT_WH_IMP_PH_A", "Total Watt-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_B(new ScaledValuePoint("S201_TOT_WH_IMP_PH_B", "Total Watt-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_C(new ScaledValuePoint("S201_TOT_WH_IMP_PH_C", "Total Watt-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_S_F(new ScaleFactorPoint("S201_TOT_WH_S_F", "", //
 				"Real Energy scale factor")), //
 		TOT_V_AH_EXP(new ScaledValuePoint("S201_TOT_V_AH_EXP", "Total VA-hours Exported", //
 				"Total Apparent Energy Exported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_A(new ScaledValuePoint("S201_TOT_V_AH_EXP_PH_A", "Total VA-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_B(new ScaledValuePoint("S201_TOT_V_AH_EXP_PH_B", "Total VA-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_C(new ScaledValuePoint("S201_TOT_V_AH_EXP_PH_C", "Total VA-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP(new ScaledValuePoint("S201_TOT_V_AH_IMP", "Total VA-hours Imported", //
 				"Total Apparent Energy Imported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_A(new ScaledValuePoint("S201_TOT_V_AH_IMP_PH_A", "Total VA-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_B(new ScaledValuePoint("S201_TOT_V_AH_IMP_PH_B", "Total VA-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_C(new ScaledValuePoint("S201_TOT_V_AH_IMP_PH_C", "Total VA-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_S_F(new ScaleFactorPoint("S201_TOT_V_AH_S_F", "", //
 				"Apparent Energy scale factor")), //
 		TOT_V_ARH_IMP_Q1(new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q1", "Total VAR-hours Imported Q1", //
 				"Total Reactive Energy Imported Quadrant 1", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_A(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q1_PH_A", "Total VAr-hours Imported Q1 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_B(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q1_PH_B", "Total VAr-hours Imported Q1 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_C(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q1_PH_C", "Total VAr-hours Imported Q1 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2(new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q2", "Total VAr-hours Imported Q2", //
 				"Total Reactive Power Imported Quadrant 2", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_A(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q2_PH_A", "Total VAr-hours Imported Q2 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_B(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q2_PH_B", "Total VAr-hours Imported Q2 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_C(
 				new ScaledValuePoint("S201_TOT_V_ARH_IMP_Q2_PH_C", "Total VAr-hours Imported Q2 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3(new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q3", "Total VAr-hours Exported Q3", //
 				"Total Reactive Power Exported Quadrant 3", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_A(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q3_PH_A", "Total VAr-hours Exported Q3 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_B(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q3_PH_B", "Total VAr-hours Exported Q3 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_C(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q3_PH_C", "Total VAr-hours Exported Q3 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4(new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q4", "Total VAr-hours Exported Q4", //
 				"Total Reactive Power Exported Quadrant 4", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_A(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q4_PH_A", "Total VAr-hours Exported Q4 Imported phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_B(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q4_PH_B", "Total VAr-hours Exported Q4 Imported phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_C(
 				new ScaledValuePoint("S201_TOT_V_ARH_EXP_Q4_PH_C", "Total VAr-hours Exported Q4 Imported phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_S_F(new ScaleFactorPoint("S201_TOT_V_ARH_S_F", "", //
 				"Reactive Energy scale factor")), //
 		EVT(new BitFieldPoint("S201_EVT", "Events", //
 				"Meter Event Flags", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S201_Evt.values()));
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S201_Evt.values()));
 
 		private final Point point;
 
@@ -2908,186 +2908,186 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S202 implements SunSpecPoint {
 		A(new ScaledValuePoint("S202_A", "Amps", //
 				"Total AC Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S202_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S202_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S202_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S202_A_SF", "", //
 				"Current scale factor")), //
 		PH_V(new ScaledValuePoint("S202_PH_V", "Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S202_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S202_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S202_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PPV(new ScaledValuePoint("S202_PPV", "Voltage LL", //
 				"Line to Line AC Voltage (average of active phases)", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A_B(new ScaledValuePoint("S202_PH_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B_C(new ScaledValuePoint("S202_PH_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C_A(new ScaledValuePoint("S202_PH_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S202_V_SF", "", //
 				"Voltage scale factor")), //
 		HZ(new ScaledValuePoint("S202_HZ", "Hz", //
 				"Frequency", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S202_HZ_S_F", "", //
 				"Frequency scale factor")), //
 		W(new ScaledValuePoint("S202_W", "Watts", //
 				"Total Real Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_A(new ScaledValuePoint("S202_WPH_A", "Watts phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_B(new ScaledValuePoint("S202_WPH_B", "Watts phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_C(new ScaledValuePoint("S202_WPH_C", "Watts phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S202_W_SF", "", //
 				"Real Power scale factor")), //
 		VA(new ScaledValuePoint("S202_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_A(new ScaledValuePoint("S202_V_APH_A", "VA phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_B(new ScaledValuePoint("S202_V_APH_B", "VA phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_C(new ScaledValuePoint("S202_V_APH_C", "VA phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S202_VA_SF", "", //
 				"Apparent Power scale factor")), //
 		VAR(new ScaledValuePoint("S202_VAR", "VAR", //
 				"Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_A(new ScaledValuePoint("S202_V_A_RPH_A", "VAR phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_B(new ScaledValuePoint("S202_V_A_RPH_B", "VAR phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_C(new ScaledValuePoint("S202_V_A_RPH_C", "VAR phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		VAR_SF(new ScaleFactorPoint("S202_VAR_SF", "", //
 				"Reactive Power scale factor")), //
 		PF(new ScaledValuePoint("S202_PF", "PF", //
 				"Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_A(new ScaledValuePoint("S202_P_FPH_A", "PF phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_B(new ScaledValuePoint("S202_P_FPH_B", "PF phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_C(new ScaledValuePoint("S202_P_FPH_C", "PF phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S202_PF_SF", "", //
 				"Power Factor scale factor")), //
 		TOT_WH_EXP(new ScaledValuePoint("S202_TOT_WH_EXP", "Total Watt-hours Exported", //
 				"Total Real Energy Exported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_A(new ScaledValuePoint("S202_TOT_WH_EXP_PH_A", "Total Watt-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_B(new ScaledValuePoint("S202_TOT_WH_EXP_PH_B", "Total Watt-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_C(new ScaledValuePoint("S202_TOT_WH_EXP_PH_C", "Total Watt-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP(new ScaledValuePoint("S202_TOT_WH_IMP", "Total Watt-hours Imported", //
 				"Total Real Energy Imported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_A(new ScaledValuePoint("S202_TOT_WH_IMP_PH_A", "Total Watt-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_B(new ScaledValuePoint("S202_TOT_WH_IMP_PH_B", "Total Watt-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_C(new ScaledValuePoint("S202_TOT_WH_IMP_PH_C", "Total Watt-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_S_F(new ScaleFactorPoint("S202_TOT_WH_S_F", "", //
 				"Real Energy scale factor")), //
 		TOT_V_AH_EXP(new ScaledValuePoint("S202_TOT_V_AH_EXP", "Total VA-hours Exported", //
 				"Total Apparent Energy Exported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_A(new ScaledValuePoint("S202_TOT_V_AH_EXP_PH_A", "Total VA-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_B(new ScaledValuePoint("S202_TOT_V_AH_EXP_PH_B", "Total VA-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_C(new ScaledValuePoint("S202_TOT_V_AH_EXP_PH_C", "Total VA-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP(new ScaledValuePoint("S202_TOT_V_AH_IMP", "Total VA-hours Imported", //
 				"Total Apparent Energy Imported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_A(new ScaledValuePoint("S202_TOT_V_AH_IMP_PH_A", "Total VA-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_B(new ScaledValuePoint("S202_TOT_V_AH_IMP_PH_B", "Total VA-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_C(new ScaledValuePoint("S202_TOT_V_AH_IMP_PH_C", "Total VA-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_S_F(new ScaleFactorPoint("S202_TOT_V_AH_S_F", "", //
 				"Apparent Energy scale factor")), //
 		TOT_V_ARH_IMP_Q1(new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q1", "Total VAR-hours Imported Q1", //
 				"Total Reactive Energy Imported Quadrant 1", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_A(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q1_PH_A", "Total VAr-hours Imported Q1 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_B(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q1_PH_B", "Total VAr-hours Imported Q1 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_C(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q1_PH_C", "Total VAr-hours Imported Q1 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2(new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q2", "Total VAr-hours Imported Q2", //
 				"Total Reactive Power Imported Quadrant 2", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_A(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q2_PH_A", "Total VAr-hours Imported Q2 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_B(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q2_PH_B", "Total VAr-hours Imported Q2 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_C(
 				new ScaledValuePoint("S202_TOT_V_ARH_IMP_Q2_PH_C", "Total VAr-hours Imported Q2 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3(new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q3", "Total VAr-hours Exported Q3", //
 				"Total Reactive Power Exported Quadrant 3", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_A(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q3_PH_A", "Total VAr-hours Exported Q3 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_B(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q3_PH_B", "Total VAr-hours Exported Q3 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_C(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q3_PH_C", "Total VAr-hours Exported Q3 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4(new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q4", "Total VAr-hours Exported Q4", //
 				"Total Reactive Power Exported Quadrant 4", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_A(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q4_PH_A", "Total VAr-hours Exported Q4 Imported phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_B(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q4_PH_B", "Total VAr-hours Exported Q4 Imported phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_C(
 				new ScaledValuePoint("S202_TOT_V_ARH_EXP_Q4_PH_C", "Total VAr-hours Exported Q4 Imported phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_S_F(new ScaleFactorPoint("S202_TOT_V_ARH_S_F", "", //
 				"Reactive Energy scale factor")), //
 		EVT(new BitFieldPoint("S202_EVT", "Events", //
 				"Meter Event Flags", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S202_Evt.values()));
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S202_Evt.values()));
 
 		private final Point point;
 
@@ -3147,186 +3147,186 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S203 implements SunSpecPoint {
 		A(new ScaledValuePoint("S203_A", "Amps", //
 				"Total AC Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S203_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S203_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S203_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S203_A_SF", "", //
 				"Current scale factor")), //
 		PH_V(new ScaledValuePoint("S203_PH_V", "Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S203_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S203_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S203_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PPV(new ScaledValuePoint("S203_PPV", "Voltage LL", //
 				"Line to Line AC Voltage (average of active phases)", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A_B(new ScaledValuePoint("S203_PH_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B_C(new ScaledValuePoint("S203_PH_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C_A(new ScaledValuePoint("S203_PH_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S203_V_SF", "", //
 				"Voltage scale factor")), //
 		HZ(new ScaledValuePoint("S203_HZ", "Hz", //
 				"Frequency", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S203_HZ_S_F", "", //
 				"Frequency scale factor")), //
 		W(new ScaledValuePoint("S203_W", "Watts", //
 				"Total Real Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_A(new ScaledValuePoint("S203_WPH_A", "Watts phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_B(new ScaledValuePoint("S203_WPH_B", "Watts phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_C(new ScaledValuePoint("S203_WPH_C", "Watts phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S203_W_SF", "", //
 				"Real Power scale factor")), //
 		VA(new ScaledValuePoint("S203_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_A(new ScaledValuePoint("S203_V_APH_A", "VA phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_B(new ScaledValuePoint("S203_V_APH_B", "VA phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_C(new ScaledValuePoint("S203_V_APH_C", "VA phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S203_VA_SF", "", //
 				"Apparent Power scale factor")), //
 		VAR(new ScaledValuePoint("S203_VAR", "VAR", //
 				"Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_A(new ScaledValuePoint("S203_V_A_RPH_A", "VAR phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_B(new ScaledValuePoint("S203_V_A_RPH_B", "VAR phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_C(new ScaledValuePoint("S203_V_A_RPH_C", "VAR phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		VAR_SF(new ScaleFactorPoint("S203_VAR_SF", "", //
 				"Reactive Power scale factor")), //
 		PF(new ScaledValuePoint("S203_PF", "PF", //
 				"Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_A(new ScaledValuePoint("S203_P_FPH_A", "PF phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_B(new ScaledValuePoint("S203_P_FPH_B", "PF phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_C(new ScaledValuePoint("S203_P_FPH_C", "PF phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S203_PF_SF", "", //
 				"Power Factor scale factor")), //
 		TOT_WH_EXP(new ScaledValuePoint("S203_TOT_WH_EXP", "Total Watt-hours Exported", //
 				"Total Real Energy Exported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_A(new ScaledValuePoint("S203_TOT_WH_EXP_PH_A", "Total Watt-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_B(new ScaledValuePoint("S203_TOT_WH_EXP_PH_B", "Total Watt-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_C(new ScaledValuePoint("S203_TOT_WH_EXP_PH_C", "Total Watt-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP(new ScaledValuePoint("S203_TOT_WH_IMP", "Total Watt-hours Imported", //
 				"Total Real Energy Imported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_A(new ScaledValuePoint("S203_TOT_WH_IMP_PH_A", "Total Watt-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_B(new ScaledValuePoint("S203_TOT_WH_IMP_PH_B", "Total Watt-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_C(new ScaledValuePoint("S203_TOT_WH_IMP_PH_C", "Total Watt-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_S_F(new ScaleFactorPoint("S203_TOT_WH_S_F", "", //
 				"Real Energy scale factor")), //
 		TOT_V_AH_EXP(new ScaledValuePoint("S203_TOT_V_AH_EXP", "Total VA-hours Exported", //
 				"Total Apparent Energy Exported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_A(new ScaledValuePoint("S203_TOT_V_AH_EXP_PH_A", "Total VA-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_B(new ScaledValuePoint("S203_TOT_V_AH_EXP_PH_B", "Total VA-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_C(new ScaledValuePoint("S203_TOT_V_AH_EXP_PH_C", "Total VA-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP(new ScaledValuePoint("S203_TOT_V_AH_IMP", "Total VA-hours Imported", //
 				"Total Apparent Energy Imported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_A(new ScaledValuePoint("S203_TOT_V_AH_IMP_PH_A", "Total VA-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_B(new ScaledValuePoint("S203_TOT_V_AH_IMP_PH_B", "Total VA-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_C(new ScaledValuePoint("S203_TOT_V_AH_IMP_PH_C", "Total VA-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_S_F(new ScaleFactorPoint("S203_TOT_V_AH_S_F", "", //
 				"Apparent Energy scale factor")), //
 		TOT_V_ARH_IMP_Q1(new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q1", "Total VAR-hours Imported Q1", //
 				"Total Reactive Energy Imported Quadrant 1", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_A(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q1_PH_A", "Total VAr-hours Imported Q1 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_B(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q1_PH_B", "Total VAr-hours Imported Q1 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_C(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q1_PH_C", "Total VAr-hours Imported Q1 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2(new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q2", "Total VAr-hours Imported Q2", //
 				"Total Reactive Power Imported Quadrant 2", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_A(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q2_PH_A", "Total VAr-hours Imported Q2 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_B(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q2_PH_B", "Total VAr-hours Imported Q2 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_C(
 				new ScaledValuePoint("S203_TOT_V_ARH_IMP_Q2_PH_C", "Total VAr-hours Imported Q2 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3(new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q3", "Total VAr-hours Exported Q3", //
 				"Total Reactive Power Exported Quadrant 3", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_A(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q3_PH_A", "Total VAr-hours Exported Q3 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_B(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q3_PH_B", "Total VAr-hours Exported Q3 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_C(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q3_PH_C", "Total VAr-hours Exported Q3 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4(new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q4", "Total VAr-hours Exported Q4", //
 				"Total Reactive Power Exported Quadrant 4", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_A(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q4_PH_A", "Total VAr-hours Exported Q4 Imported phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_B(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q4_PH_B", "Total VAr-hours Exported Q4 Imported phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_C(
 				new ScaledValuePoint("S203_TOT_V_ARH_EXP_Q4_PH_C", "Total VAr-hours Exported Q4 Imported phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_S_F(new ScaleFactorPoint("S203_TOT_V_ARH_S_F", "", //
 				"Reactive Energy scale factor")), //
 		EVT(new BitFieldPoint("S203_EVT", "Events", //
 				"Meter Event Flags", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S203_Evt.values()));
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S203_Evt.values()));
 
 		private final Point point;
 
@@ -3386,186 +3386,186 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S204 implements SunSpecPoint {
 		A(new ScaledValuePoint("S204_A", "Amps", //
 				"Total AC Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_A(new ScaledValuePoint("S204_APH_A", "Amps PhaseA", //
 				"Phase A Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_B(new ScaledValuePoint("S204_APH_B", "Amps PhaseB", //
 				"Phase B Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		APH_C(new ScaledValuePoint("S204_APH_C", "Amps PhaseC", //
 				"Phase C Current", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_SF(new ScaleFactorPoint("S204_A_SF", "", //
 				"Current scale factor")), //
 		PH_V(new ScaledValuePoint("S204_PH_V", "Voltage LN", //
 				"Line to Neutral AC Voltage (average of active phases)", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A(new ScaledValuePoint("S204_PH_VPH_A", "Phase Voltage AN", //
 				"Phase Voltage AN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B(new ScaledValuePoint("S204_PH_VPH_B", "Phase Voltage BN", //
 				"Phase Voltage BN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C(new ScaledValuePoint("S204_PH_VPH_C", "Phase Voltage CN", //
 				"Phase Voltage CN", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PPV(new ScaledValuePoint("S204_PPV", "Voltage LL", //
 				"Line to Line AC Voltage (average of active phases)", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_A_B(new ScaledValuePoint("S204_PH_VPH_A_B", "Phase Voltage AB", //
 				"Phase Voltage AB", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_B_C(new ScaledValuePoint("S204_PH_VPH_B_C", "Phase Voltage BC", //
 				"Phase Voltage BC", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		PH_VPH_C_A(new ScaledValuePoint("S204_PH_VPH_C_A", "Phase Voltage CA", //
 				"Phase Voltage CA", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_SF(new ScaleFactorPoint("S204_V_SF", "", //
 				"Voltage scale factor")), //
 		HZ(new ScaledValuePoint("S204_HZ", "Hz", //
 				"Frequency", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		HZ_S_F(new ScaleFactorPoint("S204_HZ_S_F", "", //
 				"Frequency scale factor")), //
 		W(new ScaledValuePoint("S204_W", "Watts", //
 				"Total Real Power", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_A(new ScaledValuePoint("S204_WPH_A", "Watts phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_B(new ScaledValuePoint("S204_WPH_B", "Watts phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		WPH_C(new ScaledValuePoint("S204_WPH_C", "Watts phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_SF(new ScaleFactorPoint("S204_W_SF", "", //
 				"Real Power scale factor")), //
 		VA(new ScaledValuePoint("S204_VA", "VA", //
 				"AC Apparent Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_A(new ScaledValuePoint("S204_V_APH_A", "VA phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_B(new ScaledValuePoint("S204_V_APH_B", "VA phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_APH_C(new ScaledValuePoint("S204_V_APH_C", "VA phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VA_SF(new ScaleFactorPoint("S204_VA_SF", "", //
 				"Apparent Power scale factor")), //
 		VAR(new ScaledValuePoint("S204_VAR", "VAR", //
 				"Reactive Power", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_A(new ScaledValuePoint("S204_V_A_RPH_A", "VAR phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_B(new ScaledValuePoint("S204_V_A_RPH_B", "VAR phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		V_A_RPH_C(new ScaledValuePoint("S204_V_A_RPH_C", "VAR phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "VAR_SF")), //
 		VAR_SF(new ScaleFactorPoint("S204_VAR_SF", "", //
 				"Reactive Power scale factor")), //
 		PF(new ScaledValuePoint("S204_PF", "PF", //
 				"Power Factor", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_A(new ScaledValuePoint("S204_P_FPH_A", "PF phase A", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_B(new ScaledValuePoint("S204_P_FPH_B", "PF phase B", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_FPH_C(new ScaledValuePoint("S204_P_FPH_C", "PF phase C", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		PF_SF(new ScaleFactorPoint("S204_PF_SF", "", //
 				"Power Factor scale factor")), //
 		TOT_WH_EXP(new ScaledValuePoint("S204_TOT_WH_EXP", "Total Watt-hours Exported", //
 				"Total Real Energy Exported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_A(new ScaledValuePoint("S204_TOT_WH_EXP_PH_A", "Total Watt-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_B(new ScaledValuePoint("S204_TOT_WH_EXP_PH_B", "Total Watt-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_EXP_PH_C(new ScaledValuePoint("S204_TOT_WH_EXP_PH_C", "Total Watt-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP(new ScaledValuePoint("S204_TOT_WH_IMP", "Total Watt-hours Imported", //
 				"Total Real Energy Imported", //
-				ACC32, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_A(new ScaledValuePoint("S204_TOT_WH_IMP_PH_A", "Total Watt-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_B(new ScaledValuePoint("S204_TOT_WH_IMP_PH_B", "Total Watt-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_IMP_PH_C(new ScaledValuePoint("S204_TOT_WH_IMP_PH_C", "Total Watt-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_S_F(new ScaleFactorPoint("S204_TOT_WH_S_F", "", //
 				"Real Energy scale factor")), //
 		TOT_V_AH_EXP(new ScaledValuePoint("S204_TOT_V_AH_EXP", "Total VA-hours Exported", //
 				"Total Apparent Energy Exported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_A(new ScaledValuePoint("S204_TOT_V_AH_EXP_PH_A", "Total VA-hours Exported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_B(new ScaledValuePoint("S204_TOT_V_AH_EXP_PH_B", "Total VA-hours Exported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_EXP_PH_C(new ScaledValuePoint("S204_TOT_V_AH_EXP_PH_C", "Total VA-hours Exported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP(new ScaledValuePoint("S204_TOT_V_AH_IMP", "Total VA-hours Imported", //
 				"Total Apparent Energy Imported", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_A(new ScaledValuePoint("S204_TOT_V_AH_IMP_PH_A", "Total VA-hours Imported phase A", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_B(new ScaledValuePoint("S204_TOT_V_AH_IMP_PH_B", "Total VA-hours Imported phase B", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_IMP_PH_C(new ScaledValuePoint("S204_TOT_V_AH_IMP_PH_C", "Total VA-hours Imported phase C", "", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_HOURS, "TotVAh_SF")), //
 		TOT_V_AH_S_F(new ScaleFactorPoint("S204_TOT_V_AH_S_F", "", //
 				"Apparent Energy scale factor")), //
 		TOT_V_ARH_IMP_Q1(new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q1", "Total VAR-hours Imported Q1", //
 				"Total Reactive Energy Imported Quadrant 1", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_A(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q1_PH_A", "Total VAr-hours Imported Q1 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_B(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q1_PH_B", "Total VAr-hours Imported Q1 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q1_PH_C(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q1_PH_C", "Total VAr-hours Imported Q1 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2(new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q2", "Total VAr-hours Imported Q2", //
 				"Total Reactive Power Imported Quadrant 2", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_A(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q2_PH_A", "Total VAr-hours Imported Q2 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_B(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q2_PH_B", "Total VAr-hours Imported Q2 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_IMP_Q2_PH_C(
 				new ScaledValuePoint("S204_TOT_V_ARH_IMP_Q2_PH_C", "Total VAr-hours Imported Q2 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3(new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q3", "Total VAr-hours Exported Q3", //
 				"Total Reactive Power Exported Quadrant 3", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_A(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q3_PH_A", "Total VAr-hours Exported Q3 phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_B(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q3_PH_B", "Total VAr-hours Exported Q3 phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q3_PH_C(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q3_PH_C", "Total VAr-hours Exported Q3 phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4(new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q4", "Total VAr-hours Exported Q4", //
 				"Total Reactive Power Exported Quadrant 4", //
-				ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+				ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_A(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q4_PH_A", "Total VAr-hours Exported Q4 Imported phase A", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_B(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q4_PH_B", "Total VAr-hours Exported Q4 Imported phase B", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_EXP_Q4_PH_C(
 				new ScaledValuePoint("S204_TOT_V_ARH_EXP_Q4_PH_C", "Total VAr-hours Exported Q4 Imported phase C", "", //
-						ACC32, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
+						ACC32, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVArh_SF")), //
 		TOT_V_ARH_S_F(new ScaleFactorPoint("S204_TOT_V_ARH_S_F", "", //
 				"Reactive Energy scale factor")), //
 		EVT(new BitFieldPoint("S204_EVT", "Events", //
 				"Meter Event Flags", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S204_Evt.values()));
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S204_Evt.values()));
 
 		private final Point point;
 
@@ -4118,8 +4118,8 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				BITFIELD32, //
 				true, //
 				READ_ONLY, //
-				S213_Evt.values())); //		
-		
+				S213_Evt.values())); //
+
 		private final Point point;
 
 		private S213(Point point) {
@@ -4174,26 +4174,26 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 			return this.point;
 		}
 	}
-	
+
 	public static enum S305 implements SunSpecPoint {
 		TM(new ValuePoint("S305_TM", "Tm", //
 				"UTC 24 hour time stamp to millisecond hhmmss.sssZ format", //
-				STRING6, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING6, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		DATE(new ValuePoint("S305_DATE", "Date", //
 				"UTC Date string YYYYMMDD format", //
-				STRING4, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING4, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		LOC(new ValuePoint("S305_LOC", "Location", //
 				"Location string (40 chars max)", //
-				STRING20, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING20, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		LAT(new ScaledValuePoint("S305_LAT", "Lat", //
 				"Latitude with seven degrees of precision", //
-				INT32, false /* mandatory? */, READ_ONLY, Unit.NONE, "-7")), //
+				INT32, false/* mandatory? */, READ_ONLY, Unit.NONE, "-7")), //
 		LONG(new ScaledValuePoint("S305_LONG", "Long", //
 				"Longitude with seven degrees of precision", //
-				INT32, false /* mandatory? */, READ_ONLY, Unit.NONE, "-7")), //
+				INT32, false/* mandatory? */, READ_ONLY, Unit.NONE, "-7")), //
 		ALT(new ValuePoint("S305_ALT", "Altitude", //
 				"Altitude measurement in meters", //
-				INT32, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				INT32, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -4210,16 +4210,16 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S306 implements SunSpecPoint {
 		GHI(new ValuePoint("S306_GHI", "GHI", //
 				"Global Horizontal Irradiance", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		A(new ValuePoint("S306_A", "Amps", //
 				"Current measurement at reference point", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		V(new ValuePoint("S306_V", "Voltage", //
 				"Voltage  measurement at reference point", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		TMP(new ValuePoint("S306_TMP", "Temperature", //
 				"Temperature measurement at reference point", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -4235,28 +4235,28 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 	public static enum S307 implements SunSpecPoint {
 		TMP_AMB(new ScaledValuePoint("S307_TMP_AMB", "Ambient Temperature", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
 		RH(new ValuePoint("S307_RH", "Relative Humidity", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		PRES(new ValuePoint("S307_PRES", "Barometric Pressure", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		WND_SPD(new ValuePoint("S307_WND_SPD", "Wind Speed", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		WND_DIR(new ValuePoint("S307_WND_DIR", "Wind Direction", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RAIN(new ValuePoint("S307_RAIN", "Rainfall", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		SNW(new ValuePoint("S307_SNW", "Snow Depth", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		PPT(new ValuePoint("S307_PPT", "Precipitation Type", //
 				"Precipitation Type (WMO 4680 SYNOP code reference)", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELEC_FLD(new ValuePoint("S307_ELEC_FLD", "Electric Field", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		SUR_WET(new ValuePoint("S307_SUR_WET", "Surface Wetness", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		SOIL_WET(new ValuePoint("S307_SOIL_WET", "Soil Wetness", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -4273,14 +4273,14 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S308 implements SunSpecPoint {
 		GHI(new ValuePoint("S308_GHI", "GHI", //
 				"Global Horizontal Irradiance", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		TMP_B_O_M(new ScaledValuePoint("S308_TMP_B_O_M", "Temp", //
 				"Back of module temperature measurement", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
 		TMP_AMB(new ScaledValuePoint("S308_TMP_AMB", "Ambient Temperature", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "-1")), //
 		WND_SPD(new ValuePoint("S308_WND_SPD", "Wind Speed", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -4297,181 +4297,181 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S701 implements SunSpecPoint {
 		A_C_TYPE(new EnumPoint("S701_A_C_TYPE", "AC Wiring Type", //
 				"AC wiring type.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S701_ACType.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S701_ACType.values())), //
 		ST(new EnumPoint("S701_ST", "Operating State", //
 				"Operating state of the DER.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S701_St.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S701_St.values())), //
 		INV_ST(new EnumPoint("S701_INV_ST", "Inverter State", //
 				"Enumerated value.  Inverter state.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S701_InvSt.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S701_InvSt.values())), //
 		CONN_ST(new EnumPoint("S701_CONN_ST", "Grid Connection State", //
 				"Grid connection state of the DER.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S701_ConnSt.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S701_ConnSt.values())), //
 		ALRM(new BitFieldPoint("S701_ALRM", "Alarm Bitfield", //
 				"Active alarms for the DER.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S701_Alrm.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S701_Alrm.values())), //
 		D_E_R_MODE(new BitFieldPoint("S701_D_E_R_MODE", "DER Operational Characteristics", //
 				"Current operational characteristics of the DER.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S701_DERMode.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S701_DERMode.values())), //
 		W(new ScaledValuePoint("S701_W", "Active Power", //
 				"Total active power. Active power is positive for DER generation and negative for absorption.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		VA(new ScaledValuePoint("S701_VA", "Apparent Power", //
 				"Total apparent power.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR(new ScaledValuePoint("S701_VAR", "Reactive Power", //
 				"Total reactive power.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		PF(new ScaledValuePoint("S701_PF", "Power Factor", //
 				"Power factor. The sign of power factor should be the sign of active power.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		A(new ScaledValuePoint("S701_A", "Total AC Current", //
 				"Total AC current.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		LLV(new ScaledValuePoint("S701_LLV", "Voltage LL", //
 				"Line to line AC voltage as an average of active phases.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		LNV(new ScaledValuePoint("S701_LNV", "Voltage LN", //
 				"Line to neutral AC voltage as an average of active phases.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		HZ(new ScaledValuePoint("S701_HZ", "Frequency", //
 				"AC frequency.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.HERTZ, "Hz_SF")), //
 		TOT_WH_INJ(new ScaledValuePoint("S701_TOT_WH_INJ", "Total Energy Injected", //
 				"Total active energy injected (Quadrants 1 & 4).", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_ABS(new ScaledValuePoint("S701_TOT_WH_ABS", "Total Energy Absorbed", //
 				"Total active energy absorbed (Quadrants 2 & 3).", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_VARH_INJ(new ScaledValuePoint("S701_TOT_VARH_INJ", "Total Reactive Energy Inj", //
 				"Total reactive energy injected (Quadrants 1 & 2).", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		TOT_VARH_ABS(new ScaledValuePoint("S701_TOT_VARH_ABS", "Total Reactive Energy Abs", //
 				"Total reactive energy absorbed (Quadrants 3 & 4).", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		TMP_AMB(new ScaledValuePoint("S701_TMP_AMB", "Ambient Temperature", //
 				"Ambient temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_CAB(new ScaledValuePoint("S701_TMP_CAB", "Cabinet Temperature", //
 				"Cabinet temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_SNK(new ScaledValuePoint("S701_TMP_SNK", "Heat Sink Temperature", //
 				"Heat sink temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_TRNS(new ScaledValuePoint("S701_TMP_TRNS", "Transformer Temperature", //
 				"Transformer temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_SW(new ScaledValuePoint("S701_TMP_SW", "IGBT/MOSFET Temperature", //
 				"IGBT/MOSFET temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		TMP_OT(new ScaledValuePoint("S701_TMP_OT", "Other Temperature", //
 				"Other temperature.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.DEGREE_CELSIUS, "Tmp_SF")), //
 		WL1(new ScaledValuePoint("S701_WL1", "Watts L1", //
 				"Active power L1.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		VAL1(new ScaledValuePoint("S701_VAL1", "VA L1", //
 				"Apparent power L1.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR_L1(new ScaledValuePoint("S701_VAR_L1", "Var L1", //
 				"Reactive power L1.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		PFL1(new ScaledValuePoint("S701_PFL1", "PF L1", //
 				"Power factor phase L1.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		AL1(new ScaledValuePoint("S701_AL1", "Amps L1", //
 				"Current phase L1.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		VL1L2(new ScaledValuePoint("S701_VL1L2", "Phase Voltage L1-L2", //
 				"Phase voltage L1-L2.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		VL1(new ScaledValuePoint("S701_VL1", "Phase Voltage L1-N", //
 				"Phase voltage L1-N.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TOT_WH_INJ_L1(new ScaledValuePoint("S701_TOT_WH_INJ_L1", "Total Watt-Hours Inj L1", //
 				"Total active energy injected L1.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_ABS_L1(new ScaledValuePoint("S701_TOT_WH_ABS_L1", "Total Watt-Hours Abs L1", //
 				"Total active energy absorbed L1.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_VARH_INJ_L1(new ScaledValuePoint("S701_TOT_VARH_INJ_L1", "Total Var-Hours Inj L1", //
 				"Total reactive energy injected L1.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		TOT_VARH_ABS_L1(new ScaledValuePoint("S701_TOT_VARH_ABS_L1", "Total Var-Hours Abs L1", //
 				"Total reactive energy absorbed L1.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		WL2(new ScaledValuePoint("S701_WL2", "Watts L2", //
 				"Active power L2.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		VAL2(new ScaledValuePoint("S701_VAL2", "VA L2", //
 				"Apparent power L2.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR_L2(new ScaledValuePoint("S701_VAR_L2", "Var L2", //
 				"Reactive power L2.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		PFL2(new ScaledValuePoint("S701_PFL2", "PF L2", //
 				"Power factor L2.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		AL2(new ScaledValuePoint("S701_AL2", "Amps L2", //
 				"Current L2.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		VL2L3(new ScaledValuePoint("S701_VL2L3", "Phase Voltage L2-L3", //
 				"Phase voltage L2-L3.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		VL2(new ScaledValuePoint("S701_VL2", "Phase Voltage L2-N", //
 				"Phase voltage L2-N.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TOT_WH_INJ_L2(new ScaledValuePoint("S701_TOT_WH_INJ_L2", "Total Watt-Hours Inj L2", //
 				"Total active energy injected L2.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_ABS_L2(new ScaledValuePoint("S701_TOT_WH_ABS_L2", "Total Watt-Hours Abs L2", //
 				"Total active energy absorbed L2.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_VARH_INJ_L2(new ScaledValuePoint("S701_TOT_VARH_INJ_L2", "Total Var-Hours Inj L2", //
 				"Total reactive energy injected L2.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		TOT_VARH_ABS_L2(new ScaledValuePoint("S701_TOT_VARH_ABS_L2", "Total Var-Hours Abs L2", //
 				"Total reactive energy absorbed L2.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		WL3(new ScaledValuePoint("S701_WL3", "Watts L3", //
 				"Active power L3.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		VAL3(new ScaledValuePoint("S701_VAL3", "VA L3", //
 				"Apparent power L3.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR_L3(new ScaledValuePoint("S701_VAR_L3", "Var L3", //
 				"Reactive power L3.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		PFL3(new ScaledValuePoint("S701_PFL3", "PF L3", //
 				"Power factor L3.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		AL3(new ScaledValuePoint("S701_AL3", "Amps L3", //
 				"Current L3.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		VL3L1(new ScaledValuePoint("S701_VL3L1", "Phase Voltage L3-L1", //
 				"Phase voltage L3-L1.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		VL3(new ScaledValuePoint("S701_VL3", "Phase Voltage L3-N", //
 				"Phase voltage L3-N.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TOT_WH_INJ_L3(new ScaledValuePoint("S701_TOT_WH_INJ_L3", "Total Watt-Hours Inj L3", //
 				"Total active energy injected L3.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_WH_ABS_L3(new ScaledValuePoint("S701_TOT_WH_ABS_L3", "Total Watt-Hours Abs L3", //
 				"Total active energy absorbed L3.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "TotWh_SF")), //
 		TOT_VARH_INJ_L3(new ScaledValuePoint("S701_TOT_VARH_INJ_L3", "Total Var-Hours Inj L3", //
 				"Total reactive energy injected L3.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		TOT_VARH_ABS_L3(new ScaledValuePoint("S701_TOT_VARH_ABS_L3", "Total Var-Hours Abs L3", //
 				"Total reactive energy absorbed L3.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE_HOURS, "TotVarh_SF")), //
 		THROT_PCT(new ValuePoint("S701_THROT_PCT", "Throttling In Pct", //
 				"Throttling in pct of maximum active power.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		THROT_SRC(new BitFieldPoint("S701_THROT_SRC", "Throttle Source Information", //
 				"Active throttling source.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S701_ThrotSrc.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S701_ThrotSrc.values())), //
 		A_SF(new ScaleFactorPoint("S701_A_SF", "Current Scale Factor", //
 				"Current scale factor.")), //
 		V_SF(new ScaleFactorPoint("S701_V_SF", "Voltage Scale Factor", //
@@ -4494,7 +4494,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				"Temperature scale factor.")), //
 		MN_ALRM_INFO(new ValuePoint("S701_MN_ALRM_INFO", "Manufacturer Alarm Info", //
 				"Manufacturer alarm information. Valid if MANUFACTURER_ALRM indication is active.", //
-				STRING32, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				STRING32, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -4711,130 +4711,130 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S702 implements SunSpecPoint {
 		W_MAX_RTG(new ScaledValuePoint("S702_W_MAX_RTG", "Active Power Max Rating", //
 				"Maximum active power rating at unity power factor in watts.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_OVR_EXT_RTG(new ScaledValuePoint("S702_W_OVR_EXT_RTG", "Active Power (Over-Excited) Rating", //
 				"Active power rating at specified over-excited power factor in watts.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_OVR_EXT_RTG_P_F(new ScaledValuePoint("S702_W_OVR_EXT_RTG_P_F", "Specified Over-Excited PF", //
 				"Specified over-excited power factor.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		W_UND_EXT_RTG(new ScaledValuePoint("S702_W_UND_EXT_RTG", "Active Power (Under-Excited) Rating", //
 				"Active power rating at specified under-excited power factor in watts.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_UND_EXT_RTG_P_F(new ScaledValuePoint("S702_W_UND_EXT_RTG_P_F", "Specified Under-Excited PF", //
 				"Specified under-excited power factor.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		V_A_MAX_RTG(new ScaledValuePoint("S702_V_A_MAX_RTG", "Apparent Power Max Rating", //
 				"Maximum apparent power rating in voltamperes.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR_MAX_INJ_RTG(new ScaledValuePoint("S702_VAR_MAX_INJ_RTG", "Reactive Power Injected Rating", //
 				"Maximum injected reactive power rating in vars.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		VAR_MAX_ABS_RTG(new ScaledValuePoint("S702_VAR_MAX_ABS_RTG", "Reactive Power Absorbed Rating", //
 				"Maximum absorbed reactive power rating in vars.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		W_CHA_RTE_MAX_RTG(new ScaledValuePoint("S702_W_CHA_RTE_MAX_RTG", "Charge Rate Max Rating", //
 				"Maximum active power charge rate in watts.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		W_DIS_CHA_RTE_MAX_RTG(new ScaledValuePoint("S702_W_DIS_CHA_RTE_MAX_RTG", "Discharge Rate Max Rating", //
 				"Maximum active power discharge rate in watts.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		V_A_CHA_RTE_MAX_RTG(new ScaledValuePoint("S702_V_A_CHA_RTE_MAX_RTG", "Charge Rate Max VA Rating", //
 				"Maximum apparent power charge rate in voltamperes.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_A_DIS_CHA_RTE_MAX_RTG(new ScaledValuePoint("S702_V_A_DIS_CHA_RTE_MAX_RTG", "Discharge Rate Max VA Rating", //
 				"Maximum apparent power discharge rate in voltamperes.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_NOM_RTG(new ScaledValuePoint("S702_V_NOM_RTG", "AC Voltage Nominal Rating", //
 				"AC voltage nominal rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_MAX_RTG(new ScaledValuePoint("S702_V_MAX_RTG", "AC Voltage Max Rating", //
 				"AC voltage maximum rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_MIN_RTG(new ScaledValuePoint("S702_V_MIN_RTG", "AC Voltage Min Rating", //
 				"AC voltage minimum rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		A_MAX_RTG(new ScaledValuePoint("S702_A_MAX_RTG", "AC Current Max Rating", //
 				"AC current maximum rating in amps.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		P_F_OVR_EXT_RTG(new ScaledValuePoint("S702_P_F_OVR_EXT_RTG", "PF Over-Excited Rating", //
 				"Power factor over-excited rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		P_F_UND_EXT_RTG(new ScaledValuePoint("S702_P_F_UND_EXT_RTG", "PF Under-Excited Rating", //
 				"Power factor under-excited rating.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "PF_SF")), //
 		REACT_SUSCEPT_RTG(new ScaledValuePoint("S702_REACT_SUSCEPT_RTG", "Reactive Susceptance", //
 				"Reactive susceptance that remains connected to the Area EPS in the cease to energize and trip state.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "S_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "S_SF")), //
 		NOR_OP_CAT_RTG(new EnumPoint("S702_NOR_OP_CAT_RTG", "Normal Operating Category", //
 				"Normal operating performance category as specified in IEEE 1547-2018.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S702_NorOpCatRtg.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S702_NorOpCatRtg.values())), //
 		ABN_OP_CAT_RTG(new EnumPoint("S702_ABN_OP_CAT_RTG", "Abnormal Operating Category", //
 				"Abnormal operating performance category as specified in IEEE 1547-2018.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S702_AbnOpCatRtg.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S702_AbnOpCatRtg.values())), //
 		CTRL_MODES(new BitFieldPoint("S702_CTRL_MODES", "Supported Control Modes", //
 				"Supported control mode functions.", //
-				BITFIELD32, false /* mandatory? */, READ_ONLY, S702_CtrlModes.values())), //
+				BITFIELD32, false/* mandatory? */, READ_ONLY, S702_CtrlModes.values())), //
 		INT_ISLAND_CAT_RTG(new BitFieldPoint("S702_INT_ISLAND_CAT_RTG", "Intentional Island Categories", //
 				"Intentional island categories.", //
-				BITFIELD16, false /* mandatory? */, READ_ONLY, S702_IntIslandCatRtg.values())), //
+				BITFIELD16, false/* mandatory? */, READ_ONLY, S702_IntIslandCatRtg.values())), //
 		W_MAX(new ScaledValuePoint("S702_W_MAX", "Active Power Max Setting", //
 				"Maximum active power setting used to adjust maximum active power setting.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
 		W_MAX_OVR_EXT(new ScaledValuePoint("S702_W_MAX_OVR_EXT", "Active Power (Over-Excited) Setting", //
 				"Active power setting at specified over-excited power factor in watts.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
 		W_OVR_EXT_P_F(new ScaledValuePoint("S702_W_OVR_EXT_P_F", "Specified Over-Excited PF", //
 				"Specified over-excited power factor.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
 		W_MAX_UND_EXT(new ScaledValuePoint("S702_W_MAX_UND_EXT", "Active Power (Under-Excited) Setting", //
 				"Active power setting at specified under-excited power factor in watts.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
 		W_UND_EXT_P_F(new ScaledValuePoint("S702_W_UND_EXT_P_F", "Specified Under-Excited PF", //
 				"Specified under-excited power factor.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
 		V_A_MAX(new ScaledValuePoint("S702_V_A_MAX", "Apparent Power Max Setting", //
 				"Maximum apparent power setting used to adjust maximum apparent power rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
 		VAR_MAX_INJ(new ScaledValuePoint("S702_VAR_MAX_INJ", "Reactive Power Injected Setting", //
 				"Maximum injected reactive power setting used to adjust maximum injected reactive power rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		VAR_MAX_ABS(new ScaledValuePoint("S702_VAR_MAX_ABS", "Reactive Power Absorbed Setting", //
 				"Maximum absorbed reactive power setting used to adjust maximum absorbed reactive power rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "Var_SF")), //
 		W_CHA_RTE_MAX(new ScaledValuePoint("S702_W_CHA_RTE_MAX", "Charge Rate Max Setting", //
 				"Maximum active power charge rate setting used to adjust maximum active power charge rate rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
 		W_DIS_CHA_RTE_MAX(new ScaledValuePoint("S702_W_DIS_CHA_RTE_MAX", "Discharge Rate Max Setting", //
 				"Maximum active power discharge rate setting used to adjust maximum active power discharge rate rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.WATT, "W_SF")), //
 		V_A_CHA_RTE_MAX(new ScaledValuePoint("S702_V_A_CHA_RTE_MAX", "Charge Rate Max VA Setting", //
 				"Maximum apparent power charge rate setting used to adjust maximum apparent power charge rate rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_A_DIS_CHA_RTE_MAX(new ScaledValuePoint("S702_V_A_DIS_CHA_RTE_MAX", "Discharge Rate Max VA Setting", //
 				"Maximum apparent power discharge rate setting used to adjust maximum apparent power discharge rate rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE, "VA_SF")), //
 		V_NOM(new ScaledValuePoint("S702_V_NOM", "Nominal AC Voltage Setting", //
 				"Nominal AC voltage setting.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
 		V_MAX(new ScaledValuePoint("S702_V_MAX", "AC Voltage Max Setting", //
 				"AC voltage maximum setting used to adjust AC voltage maximum rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
 		V_MIN(new ScaledValuePoint("S702_V_MIN", "AC Voltage Min Setting", //
 				"AC voltage minimum setting used to adjust AC voltage minimum rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.VOLT, "V_SF")), //
 		A_MAX(new ScaledValuePoint("S702_A_MAX", "AC Current Max Setting", //
 				"Maximum AC current setting used to adjust maximum AC current rating.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.AMPERE, "A_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.AMPERE, "A_SF")), //
 		P_F_OVR_EXT(new ScaledValuePoint("S702_P_F_OVR_EXT", "PF Over-Excited Setting", //
 				"Power factor over-excited setting.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
 		P_F_UND_EXT(new ScaledValuePoint("S702_P_F_UND_EXT", "PF Under-Excited Setting", //
 				"Power factor under-excited setting.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "PF_SF")), //
 		INT_ISLAND_CAT(new BitFieldPoint("S702_INT_ISLAND_CAT", "Intentional Island Categories", //
 				"Intentional island categories.", //
-				BITFIELD16, false /* mandatory? */, READ_WRITE, S702_IntIslandCat.values())), //
+				BITFIELD16, false/* mandatory? */, READ_WRITE, S702_IntIslandCat.values())), //
 		W_SF(new ScaleFactorPoint("S702_W_SF", "Active Power Scale Factor", //
 				"Active power scale factor.")), //
 		PF_SF(new ScaleFactorPoint("S702_PF_SF", "Power Factor Scale Factor", //
@@ -4988,31 +4988,31 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S703 implements SunSpecPoint {
 		ES(new EnumPoint("S703_ES", "Permit Enter Service", //
 				"Permit enter service.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S703_ES.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S703_ES.values())), //
 		E_S_V_HI(new ScaledValuePoint("S703_E_S_V_HI", "Enter Service Voltage High", //
 				"Enter service voltage high threshold as percent of normal voltage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "V_SF")), //
 		E_S_V_LO(new ScaledValuePoint("S703_E_S_V_LO", "Enter Service Voltage Low", //
 				"Enter service voltage low threshold as percent of normal voltage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "V_SF")), //
 		E_S_HZ_HI(new ScaledValuePoint("S703_E_S_HZ_HI", "Enter Service Frequency High", //
 				"Enter service frequency high threshold.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.HERTZ, "Hz_SF")), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.HERTZ, "Hz_SF")), //
 		E_S_HZ_LO(new ScaledValuePoint("S703_E_S_HZ_LO", "Enter Service Frequency Low", //
 				"Enter service frequency low threshold.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.HERTZ, "Hz_SF")), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.HERTZ, "Hz_SF")), //
 		E_S_DLY_TMS(new ValuePoint("S703_E_S_DLY_TMS", "Enter Service Delay Time", //
 				"Enter service delay time in seconds.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		E_S_RND_TMS(new ValuePoint("S703_E_S_RND_TMS", "Enter Service Random Delay", //
 				"Enter service random delay in seconds.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		E_S_RMP_TMS(new ValuePoint("S703_E_S_RMP_TMS", "Enter Service Ramp Time", //
 				"Enter service ramp time in seconds.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		E_S_DLY_REM_TMS(new ValuePoint("S703_E_S_DLY_REM_TMS", "Enter Service Delay Remaining", //
 				"Enter service delay time remaining in seconds.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		V_SF(new ScaleFactorPoint("S703_V_SF", "Voltage Scale Factor", //
 				"Voltage percentage scale factor.")), //
 		HZ_S_F(new ScaleFactorPoint("S703_HZ_S_F", "Frequency Scale Factor", //
@@ -5062,115 +5062,115 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S704 implements SunSpecPoint {
 		P_F_W_INJ_ENA(new EnumPoint("S704_P_F_W_INJ_ENA", "Power Factor Enable (W Inj) Enable", //
 				"Power factor enable when injecting active power.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_PFWInjEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_PFWInjEna.values())), //
 		P_F_W_INJ_ENA_RVRT(new EnumPoint("S704_P_F_W_INJ_ENA_RVRT", "Power Factor Reversion Enable (W Inj)", //
 				"Power factor reversion timer when injecting active power enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_PFWInjEnaRvrt.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_PFWInjEnaRvrt.values())), //
 		P_F_W_INJ_RVRT_TMS(new ValuePoint("S704_P_F_W_INJ_RVRT_TMS", "PF Reversion Time (W Inj)", //
 				"Power factor reversion timer when injecting active power.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		P_F_W_INJ_RVRT_REM(new ValuePoint("S704_P_F_W_INJ_RVRT_REM", "PF Reversion Time Rem (W Inj)", //
 				"Power factor reversion time remaining when injecting active power.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		P_F_W_ABS_ENA(new EnumPoint("S704_P_F_W_ABS_ENA", "Power Factor Enable (W Abs) Enable", //
 				"Power factor enable when absorbing active power.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_PFWAbsEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_PFWAbsEna.values())), //
 		P_F_W_ABS_ENA_RVRT(new EnumPoint("S704_P_F_W_ABS_ENA_RVRT", "Power Factor Reversion Enable (W Abs)", //
 				"Power factor reversion timer when absorbing active power enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_PFWAbsEnaRvrt.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_PFWAbsEnaRvrt.values())), //
 		P_F_W_ABS_RVRT_TMS(new ValuePoint("S704_P_F_W_ABS_RVRT_TMS", "PF Reversion Time (W Abs)", //
 				"Power factor reversion timer when absorbing active power.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		P_F_W_ABS_RVRT_REM(new ValuePoint("S704_P_F_W_ABS_RVRT_REM", "PF Reversion Time Rem (W Abs)", //
 				"Power factor reversion time remaining when absorbing active power.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		W_MAX_LIM_PCT_ENA(new EnumPoint("S704_W_MAX_LIM_PCT_ENA", "Limit Max Power Pct Enable", //
 				"Limit maximum active power percent enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WMaxLimPctEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WMaxLimPctEna.values())), //
 		W_MAX_LIM_PCT(new ScaledValuePoint("S704_W_MAX_LIM_PCT", "Limit Max Power Pct Setpoint", //
 				"Limit maximum active power percent value.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "WMaxLimPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "WMaxLimPct_SF")), //
 		W_MAX_LIM_PCT_RVRT(new ScaledValuePoint("S704_W_MAX_LIM_PCT_RVRT", "Reversion Limit Max Power Pct", //
 				"Reversion limit maximum active power percent value.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "WMaxLimPct_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "WMaxLimPct_SF")), //
 		W_MAX_LIM_PCT_ENA_RVRT(new EnumPoint("S704_W_MAX_LIM_PCT_ENA_RVRT", "Reversion Limit Max Power Pct Enable", //
 				"Reversion limit maximum active power percent value enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WMaxLimPctEnaRvrt.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WMaxLimPctEnaRvrt.values())), //
 		W_MAX_LIM_PCT_RVRT_TMS(new ValuePoint("S704_W_MAX_LIM_PCT_RVRT_TMS", "Limit Max Power Pct Reversion Time", //
 				"Limit maximum active power percent reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		W_MAX_LIM_PCT_RVRT_REM(new ValuePoint("S704_W_MAX_LIM_PCT_RVRT_REM", "Limit Max Power Pct Rev Time Rem", //
 				"Limit maximum active power percent reversion time remaining.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		W_SET_ENA(new EnumPoint("S704_W_SET_ENA", "Set Active Power Enable", //
 				"Set active power enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WSetEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WSetEna.values())), //
 		W_SET_MOD(new EnumPoint("S704_W_SET_MOD", "Set Active Power Mode", //
 				"Set active power mode.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WSetMod.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WSetMod.values())), //
 		W_SET(new ScaledValuePoint("S704_W_SET", "Active Power Setpoint (W)", //
 				"Active power setting value in watts.", //
-				INT32, false /* mandatory? */, READ_WRITE, Unit.WATT, "WSet_SF")), //
+				INT32, false/* mandatory? */, READ_WRITE, Unit.WATT, "WSet_SF")), //
 		W_SET_RVRT(new ScaledValuePoint("S704_W_SET_RVRT", "Reversion Active Power (W)", //
 				"Reversion active power setting value in watts.", //
-				INT32, false /* mandatory? */, READ_WRITE, Unit.WATT, "WSet_SF")), //
+				INT32, false/* mandatory? */, READ_WRITE, Unit.WATT, "WSet_SF")), //
 		W_SET_PCT(new ScaledValuePoint("S704_W_SET_PCT", "Active Power Setpoint (Pct)", //
 				"Active power setting value as percent.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "WSetPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "WSetPct_SF")), //
 		W_SET_PCT_RVRT(new ScaledValuePoint("S704_W_SET_PCT_RVRT", "Reversion Active Power (Pct)", //
 				"Reversion active power setting value as percent.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "WSetPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "WSetPct_SF")), //
 		W_SET_ENA_RVRT(new EnumPoint("S704_W_SET_ENA_RVRT", "Reversion Active Power Enable", //
 				"Reversion active power function enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WSetEnaRvrt.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WSetEnaRvrt.values())), //
 		W_SET_RVRT_TMS(new ValuePoint("S704_W_SET_RVRT_TMS", "Active Power Reversion Time", //
 				"Set active power reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		W_SET_RVRT_REM(new ValuePoint("S704_W_SET_RVRT_REM", "Active Power Rev Time Rem", //
 				"Set active power reversion time remaining.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		VAR_SET_ENA(new EnumPoint("S704_VAR_SET_ENA", "Set Reactive Power Enable", //
 				"Set reactive power enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_VarSetEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_VarSetEna.values())), //
 		VAR_SET_MOD(new EnumPoint("S704_VAR_SET_MOD", "Set Reactive Power Mode", //
 				"Set reactive power mode.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_VarSetMod.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_VarSetMod.values())), //
 		VAR_SET_PRI(new EnumPoint("S704_VAR_SET_PRI", "Reactive Power Priority", //
 				"Reactive power priority.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_VarSetPri.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_VarSetPri.values())), //
 		VAR_SET(new ScaledValuePoint("S704_VAR_SET", "Reactive Power Setpoint (Vars)", //
 				"Reactive power setting value in vars.", //
-				INT32, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VarSet_SF")), //
+				INT32, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VarSet_SF")), //
 		VAR_SET_RVRT(new ScaledValuePoint("S704_VAR_SET_RVRT", "Reversion Reactive Power (Vars)", //
 				"Reversion reactive power setting value in vars.", //
-				INT32, false /* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VarSet_SF")), //
+				INT32, false/* mandatory? */, READ_WRITE, Unit.VOLT_AMPERE_REACTIVE, "VarSet_SF")), //
 		VAR_SET_PCT(new ScaledValuePoint("S704_VAR_SET_PCT", "Reactive Power Setpoint (Pct)", //
 				"Reactive power setting value as percent.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "VarSetPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "VarSetPct_SF")), //
 		VAR_SET_PCT_RVRT(new ScaledValuePoint("S704_VAR_SET_PCT_RVRT", "Reversion Reactive Power (Pct)", //
 				"Reversion reactive power setting value as percent.", //
-				INT16, false /* mandatory? */, READ_WRITE, Unit.NONE, "VarSetPct_SF")), //
+				INT16, false/* mandatory? */, READ_WRITE, Unit.NONE, "VarSetPct_SF")), //
 		VAR_SET_ENA_RVRT(new EnumPoint("S704_VAR_SET_ENA_RVRT", "Reversion Reactive Power Enable", //
 				"Reversion reactive power function enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_VarSetEnaRvrt.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_VarSetEnaRvrt.values())), //
 		VAR_SET_RVRT_TMS(new ValuePoint("S704_VAR_SET_RVRT_TMS", "Reactive Power Reversion Time", //
 				"Set reactive power reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		VAR_SET_RVRT_REM(new ValuePoint("S704_VAR_SET_RVRT_REM", "Reactive Power Rev Time Rem", //
 				"Set reactive power reversion time remaining.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		W_RMP(new ValuePoint("S704_W_RMP", "Normal Ramp Rate", //
 				"Ramp rate for increases in active power during normal generation.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		W_RMP_REF(new EnumPoint("S704_W_RMP_REF", "Normal Ramp Rate Reference", //
 				"Ramp rate reference unit for increases in active power or current during normal generation.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_WRmpRef.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_WRmpRef.values())), //
 		VAR_RMP(new ValuePoint("S704_VAR_RMP", "Reactive Power Ramp Rate", //
 				"Ramp rate based on max reactive power per second.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ANTI_ISL_ENA(new EnumPoint("S704_ANTI_ISL_ENA", "Anti-Islanding Enable", //
 				"Anti-islanding enable.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S704_AntiIslEna.values())), //
+				ENUM16, false/* mandatory? */, READ_WRITE, S704_AntiIslEna.values())), //
 		PF_SF(new ScaleFactorPoint("S704_PF_SF", "Power Factor Scale Factor", //
 				"Power factor scale factor.")), //
 		W_MAX_LIM_PCT_S_F(new ScaleFactorPoint("S704_W_MAX_LIM_PCT_S_F", "Limit Max Power Scale Factor", //
@@ -5638,28 +5638,28 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S705 implements SunSpecPoint {
 		ENA(new EnumPoint("S705_ENA", "DER Volt-Var Module Enable", //
 				"Volt-Var control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S705_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S705_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S705_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S705_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S705_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S705_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S705_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV(new ValuePoint("S705_N_CRV", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RVRT_TMS(new ValuePoint("S705_RVRT_TMS", "Reversion Timeout", //
 				"Reversion time in seconds.  0 = No reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RVRT_REM(new ValuePoint("S705_RVRT_REM", "Reversion Time Remaining", //
 				"Reversion time remaining in seconds.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		RVRT_CRV(new ValuePoint("S705_RVRT_CRV", "Reversion Curve", //
 				"Default curve after reversion timeout.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S705_V_SF", "Voltage Scale Factor", //
 				"Scale factor for curve voltage points.")), //
 		DEPT_REF_S_F(new ScaleFactorPoint("S705_DEPT_REF_S_F", "Var Scale Factor", //
@@ -5741,28 +5741,28 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S706 implements SunSpecPoint {
 		ENA(new EnumPoint("S706_ENA", "DER Volt-Watt Module Enable", //
 				"Volt-Watt control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S706_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S706_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S706_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S706_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S706_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S706_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S706_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV(new ValuePoint("S706_N_CRV", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RVRT_TMS(new ValuePoint("S706_RVRT_TMS", "Reversion Timeout", //
 				"Reversion time in seconds.  0 = No reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RVRT_REM(new ValuePoint("S706_RVRT_REM", "Reversion Time Remaining", //
 				"Reversion time remaining in seconds.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		RVRT_CRV(new ValuePoint("S706_RVRT_CRV", "Reversion Curve", //
 				"Default curve after reversion timeout.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S706_V_SF", "Voltage Scale Factor", //
 				"Scale factor for curve voltage points.")), //
 		DEPT_REF_S_F(new ScaleFactorPoint("S706_DEPT_REF_S_F", "Watt Scale Factor", //
@@ -5844,19 +5844,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S707 implements SunSpecPoint {
 		ENA(new EnumPoint("S707_ENA", "DER Trip LV Module Enable", //
 				"DER low voltage trip control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S707_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S707_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S707_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S707_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S707_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S707_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S707_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV_SET(new ValuePoint("S707_N_CRV_SET", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S707_V_SF", "Voltage Scale Factor", //
 				"Scale factor for curve voltage points.")), //
 		TMS_S_F(new ScaleFactorPoint("S707_TMS_S_F", "Time Point Scale Factor", //
@@ -5936,19 +5936,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S708 implements SunSpecPoint {
 		ENA(new EnumPoint("S708_ENA", "DER Trip HV Module Enable", //
 				"DER high voltage trip control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S708_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S708_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S708_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S708_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S708_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S708_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S708_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV_SET(new ValuePoint("S708_N_CRV_SET", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S708_V_SF", "Voltage Scale Factor", //
 				"Scale factor for curve voltage points.")), //
 		TMS_S_F(new ScaleFactorPoint("S708_TMS_S_F", "Time Point Scale Factor", //
@@ -6028,19 +6028,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S709 implements SunSpecPoint {
 		ENA(new EnumPoint("S709_ENA", "DER Trip LF Module Enable", //
 				"DER low frequency trip control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S709_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S709_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S709_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S709_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S709_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S709_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S709_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV_SET(new ValuePoint("S709_N_CRV_SET", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		HZ_S_F(new ScaleFactorPoint("S709_HZ_S_F", "Frequency Scale Factor", //
 				"Scale factor for curve frequency points.")), //
 		TMS_S_F(new ScaleFactorPoint("S709_TMS_S_F", "Time Point Scale Factor", //
@@ -6120,19 +6120,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S710 implements SunSpecPoint {
 		ENA(new EnumPoint("S710_ENA", "DER Trip HF Module Enable", //
 				"DER high frequency trip control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S710_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S710_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S710_ADPT_CRV_REQ", "Adopt Curve Request", //
 				"Index of curve points to adopt. First curve index is 1.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S710_ADPT_CRV_RSLT", "Adopt Curve Result", //
 				"Result of last adopt curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S710_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S710_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S710_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV_SET(new ValuePoint("S710_N_CRV_SET", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		HZ_S_F(new ScaleFactorPoint("S710_HZ_S_F", "Frequency Scale Factor", //
 				"Scale factor for curve frequency points.")), //
 		TMS_S_F(new ScaleFactorPoint("S710_TMS_S_F", "Time Point Scale Factor", //
@@ -6212,25 +6212,25 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S711 implements SunSpecPoint {
 		ENA(new EnumPoint("S711_ENA", "DER Frequency Droop Module Enable", //
 				"DER Frequency-Watt (Frequency-Droop) control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S711_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S711_Ena.values())), //
 		ADPT_CTL_REQ(new ValuePoint("S711_ADPT_CTL_REQ", "Set Active Control Request", //
 				"Set active control. 0 = No active control.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CTL_RSLT(new EnumPoint("S711_ADPT_CTL_RSLT", "Set Active Control Result", //
 				"Result of last set active control operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S711_AdptCtlRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S711_AdptCtlRslt.values())), //
 		N_CTL(new ValuePoint("S711_N_CTL", "Stored Control Count", //
 				"Number of stored controls supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RVRT_TMS(new ValuePoint("S711_RVRT_TMS", "Reversion Timeout", //
 				"Reversion time in seconds.  0 = No reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RVRT_REM(new ValuePoint("S711_RVRT_REM", "Reversion Time Left", //
 				"Reversion time remaining in seconds.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		RVRT_CTL(new ValuePoint("S711_RVRT_CTL", "Reversion Control", //
 				"Default control after reversion timeout.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		DB_S_F(new ScaleFactorPoint("S711_DB_S_F", "Deadband Scale Factor", //
 				"Deadband scale factor.")), //
 		K_SF(new ScaleFactorPoint("S711_K_SF", "Frequency Change Scale Factor", //
@@ -6312,28 +6312,28 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S712 implements SunSpecPoint {
 		ENA(new EnumPoint("S712_ENA", "DER Watt-Var Module Enable", //
 				"DER Watt-Var control enable.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S712_Ena.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S712_Ena.values())), //
 		ADPT_CRV_REQ(new ValuePoint("S712_ADPT_CRV_REQ", "Set Active Curve Request", //
 				"Set active curve. 0 = No active curve.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ADPT_CRV_RSLT(new EnumPoint("S712_ADPT_CRV_RSLT", "Set Active Curve Result", //
 				"Result of last set active curve operation.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S712_AdptCrvRslt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S712_AdptCrvRslt.values())), //
 		N_PT(new ValuePoint("S712_N_PT", "Number Of Points", //
 				"Number of curve points supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		N_CRV(new ValuePoint("S712_N_CRV", "Stored Curve Count", //
 				"Number of stored curves supported.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RVRT_TMS(new ValuePoint("S712_RVRT_TMS", "Reversion Timeout", //
 				"Reversion time in seconds.  0 = No reversion time.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.SECONDS)), //
 		RVRT_REM(new ValuePoint("S712_RVRT_REM", "Reversion Time Left", //
 				"Reversion time remaining in seconds.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.SECONDS)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.SECONDS)), //
 		RVRT_CRV(new ValuePoint("S712_RVRT_CRV", "Reversion Curve", //
 				"Default curve after reversion timeout.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		W_SF(new ScaleFactorPoint("S712_W_SF", "Active Power Scale Factor", //
 				"Scale factor for curve active power points.")), //
 		DEPT_REF_S_F(new ScaleFactorPoint("S712_DEPT_REF_S_F", "Var Scale Factor", //
@@ -6413,19 +6413,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S713 implements SunSpecPoint {
 		W_H_RTG(new ScaledValuePoint("S713_W_H_RTG", "Energy Rating", //
 				"Energy rating of the DER storage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
 		W_H_AVAIL(new ScaledValuePoint("S713_W_H_AVAIL", "Energy Available", //
 				"Energy available of the DER storage (WHAvail = WHRtg * SoC * SoH)", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WH_SF")), //
 		SO_C(new ScaledValuePoint("S713_SO_C", "State of Charge", //
 				"State of charge of the DER storage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "Pct_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "Pct_SF")), //
 		SO_H(new ScaledValuePoint("S713_SO_H", "State of Health", //
 				"State of health of the DER storage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE, "Pct_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE, "Pct_SF")), //
 		STA(new EnumPoint("S713_STA", "Status", //
 				"Storage status.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S713_Sta.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S713_Sta.values())), //
 		WH_SF(new ScaleFactorPoint("S713_WH_SF", "Energy Scale Factor", //
 				"Scale factor for energy capacity.")), //
 		PCT_S_F(new ScaleFactorPoint("S713_PCT_S_F", "Percent Scale Factor", //
@@ -6479,19 +6479,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				BITFIELD32, false /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		N_PRT(new ValuePoint("S714_N_PRT", "Number Of Ports", //
 				"Number of DC ports.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		DCA(new ScaledValuePoint("S714_DCA", "DC Current", //
 				"Total DC current for all ports.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "DCA_SF")), //
 		DCW(new ScaledValuePoint("S714_DCW", "DC Power", //
 				"Total DC power for all ports.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "DCW_SF")), //
 		D_C_WH_INJ(new ScaledValuePoint("S714_D_C_WH_INJ", "DC Energy Injected", //
 				"Total cumulative DC energy injected for all ports.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "DCWH_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "DCWH_SF")), //
 		D_C_WH_ABS(new ScaledValuePoint("S714_D_C_WH_ABS", "DC Energy Absorbed", //
 				"Total cumulative DC energy absorbed for all ports.", //
-				UINT64, false /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "DCWH_SF")), //
+				UINT64, false/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "DCWH_SF")), //
 		DCA_SF(new ScaleFactorPoint("S714_DCA_SF", "DC Current Scale Factor", //
 				"DC current scale factor.")), //
 		DCV_SF(new ScaleFactorPoint("S714_DCV_SF", "DC Voltage Scale Factor", //
@@ -6518,19 +6518,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S715 implements SunSpecPoint {
 		LOC_REM_CTL(new EnumPoint("S715_LOC_REM_CTL", "Control Mode", //
 				"DER control mode. Enumeration.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S715_LocRemCtl.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S715_LocRemCtl.values())), //
 		D_E_R_HB(new ValuePoint("S715_D_E_R_HB", "DER Heartbeat", //
 				"Value is incremented every second by the DER with periodic resets to zero.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CONTROLLER_HB(new ValuePoint("S715_CONTROLLER_HB", "Controller Heartbeat", //
 				"Value is incremented every second by the controller with periodic resets to zero.", //
-				UINT32, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT32, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ALARM_RESET(new ValuePoint("S715_ALARM_RESET", "Alarm Reset", //
 				"Used to reset any latched alarms. 1 = Reset.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		OP_CTL(new EnumPoint("S715_OP_CTL", "Set Operation", //
 				"Commands to PCS. Enumerated value.", //
-				ENUM16, false /* mandatory? */, READ_WRITE, S715_OpCtl.values()));
+				ENUM16, false/* mandatory? */, READ_WRITE, S715_OpCtl.values()));
 
 		private final Point point;
 
@@ -6624,73 +6624,73 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 	public static enum S802 implements SunSpecPoint {
 		A_H_RTG(new ScaledValuePoint("S802_A_H_RTG", "Nameplate Charge Capacity", //
 				"Nameplate charge capacity in amp-hours.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AHRtg_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AHRtg_SF")), //
 		W_H_RTG(new ScaledValuePoint("S802_W_H_RTG", "Nameplate Energy Capacity", //
 				"Nameplate energy capacity in DC watt-hours.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WHRtg_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.CUMULATED_WATT_HOURS, "WHRtg_SF")), //
 		W_CHA_RTE_MAX(new ScaledValuePoint("S802_W_CHA_RTE_MAX", "Nameplate Max Charge Rate", //
 				"Maximum rate of energy transfer into the storage device in DC watts.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "WChaDisChaMax_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "WChaDisChaMax_SF")), //
 		W_DIS_CHA_RTE_MAX(new ScaledValuePoint("S802_W_DIS_CHA_RTE_MAX", "Nameplate Max Discharge Rate", //
 				"Maximum rate of energy transfer out of the storage device in DC watts.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "WChaDisChaMax_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "WChaDisChaMax_SF")), //
 		DIS_CHA_RTE(new ScaledValuePoint("S802_DIS_CHA_RTE", "Self Discharge Rate", //
 				"Self discharge rate.  Percentage of capacity (WHRtg) discharged per day.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "DisChaRte_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "DisChaRte_SF")), //
 		SO_C_MAX(new ScaledValuePoint("S802_SO_C_MAX", "Nameplate Max SoC", //
 				"Manufacturer maximum state of charge, expressed as a percentage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
 		SO_C_MIN(new ScaledValuePoint("S802_SO_C_MIN", "Nameplate Min SoC", //
 				"Manufacturer minimum state of charge, expressed as a percentage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
 		SOC_RSV_MAX(new ScaledValuePoint("S802_SOC_RSV_MAX", "Max Reserve Percent", //
 				"Setpoint for maximum reserve for storage as a percentage of the nominal maximum storage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "SoC_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "SoC_SF")), //
 		SO_C_RSV_MIN(new ScaledValuePoint("S802_SO_C_RSV_MIN", "Min Reserve Percent", //
 				"Setpoint for minimum reserve for storage as a percentage of the nominal maximum storage.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.PERCENT, "SoC_SF")), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.PERCENT, "SoC_SF")), //
 		SO_C(new ScaledValuePoint("S802_SO_C", "State of Charge", //
 				"State of charge, expressed as a percentage.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.PERCENT, "SoC_SF")), //
 		DO_D(new ScaledValuePoint("S802_DO_D", "Depth of Discharge", //
 				"Depth of discharge, expressed as a percentage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "DoD_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "DoD_SF")), //
 		SO_H(new ScaledValuePoint("S802_SO_H", "State of Health", //
 				"Percentage of battery life remaining.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.PERCENT, "SoH_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.PERCENT, "SoH_SF")), //
 		N_CYC(new ValuePoint("S802_N_CYC", "Cycle Count", //
 				"Number of cycles executed in the battery.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CHA_ST(new EnumPoint("S802_CHA_ST", "Charge Status", //
 				"Charge status of storage device. Enumeration.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S802_ChaSt.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S802_ChaSt.values())), //
 		LOC_REM_CTL(new EnumPoint("S802_LOC_REM_CTL", "Control Mode", //
 				"Battery control mode. Enumeration.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S802_LocRemCtl.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S802_LocRemCtl.values())), //
 		HB(new ValuePoint("S802_HB", "Battery Heartbeat", //
 				"Value is incremented every second with periodic resets to zero.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CTRL_HB(new ValuePoint("S802_CTRL_HB", "Controller Heartbeat", //
 				"Value is incremented every second with periodic resets to zero.", //
-				UINT16, false /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		ALM_RST(new ValuePoint("S802_ALM_RST", "Alarm Reset", //
 				"Used to reset any latched alarms.  1 = Reset.", //
-				UINT16, true /* mandatory? */, READ_WRITE, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_WRITE, Unit.NONE)), //
 		TYP(new EnumPoint("S802_TYP", "Battery Type", //
 				"Type of battery. Enumeration.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S802_Typ.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S802_Typ.values())), //
 		STATE(new EnumPoint("S802_STATE", "State of the Battery Bank", //
 				"State of the battery bank.  Enumeration.", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S802_State.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S802_State.values())), //
 		STATE_VND(new EnumPoint("S802_STATE_VND", "Vendor Battery Bank State", //
 				"Vendor specific battery bank state.  Enumeration.", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		WARR_DT(new ValuePoint("S802_WARR_DT", "Warranty Date", //
 				"Date the device warranty expires.", //
-				UINT32, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT32, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		EVT1(new BitFieldPoint("S802_EVT1", "Battery Event 1 Bitfield", //
 				"Alarms and warnings.  Bit flags.", //
-				BITFIELD32, true /* mandatory? */, READ_ONLY, S802_Evt1.values())), //
+				BITFIELD32, true/* mandatory? */, READ_ONLY, S802_Evt1.values())), //
 		EVT2(new BitFieldPoint("S802_EVT2", "Battery Event 2 Bitfield", //
 				"Alarms and warnings.  Bit flags.", //
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
@@ -6702,58 +6702,58 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 				BITFIELD32, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		V(new ScaledValuePoint("S802_V", "External Battery Voltage", //
 				"DC Bus Voltage.", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_MAX(new ScaledValuePoint("S802_V_MAX", "Max Battery Voltage", //
 				"Instantaneous maximum battery voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		V_MIN(new ScaledValuePoint("S802_V_MIN", "Min Battery Voltage", //
 				"Instantaneous minimum battery voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		CELL_V_MAX(new ScaledValuePoint("S802_CELL_V_MAX", "Max Cell Voltage", //
 				"Maximum voltage for all cells in the bank.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
 		CELL_V_MAX_STR(new ValuePoint("S802_CELL_V_MAX_STR", "Max Cell Voltage String", //
 				"String containing the cell with maximum voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CELL_V_MAX_MOD(new ValuePoint("S802_CELL_V_MAX_MOD", "Max Cell Voltage Module", //
 				"Module containing the cell with maximum voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CELL_V_MIN(new ScaledValuePoint("S802_CELL_V_MIN", "Min Cell Voltage", //
 				"Minimum voltage for all cells in the bank.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
 		CELL_V_MIN_STR(new ValuePoint("S802_CELL_V_MIN_STR", "Min Cell Voltage String", //
 				"String containing the cell with minimum voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CELL_V_MIN_MOD(new ValuePoint("S802_CELL_V_MIN_MOD", "Min Cell Voltage Module", //
 				"Module containing the cell with minimum voltage.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		CELL_V_AVG(new ScaledValuePoint("S802_CELL_V_AVG", "Average Cell Voltage", //
 				"Average cell voltage for all cells in the bank.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.VOLT, "CellV_SF")), //
 		A(new ScaledValuePoint("S802_A", "Total DC Current", //
 				"Total DC current flowing to/from the battery bank.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		A_CHA_MAX(new ScaledValuePoint("S802_A_CHA_MAX", "Max Charge Current", //
 				"Instantaneous maximum DC charge current.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "AMax_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "AMax_SF")), //
 		A_DIS_CHA_MAX(new ScaledValuePoint("S802_A_DIS_CHA_MAX", "Max Discharge Current", //
 				"Instantaneous maximum DC discharge current.", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.AMPERE, "AMax_SF")), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.AMPERE, "AMax_SF")), //
 		W(new ScaledValuePoint("S802_W", "Total Power", //
 				"Total power flowing to/from the battery bank.", //
-				INT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		REQ_INV_STATE(new EnumPoint("S802_REQ_INV_STATE", "Inverter State Request", //
 				"Request from battery to start or stop the inverter.  Enumeration.", //
-				ENUM16, false /* mandatory? */, READ_ONLY, S802_ReqInvState.values())), //
+				ENUM16, false/* mandatory? */, READ_ONLY, S802_ReqInvState.values())), //
 		REQ_W(new ScaledValuePoint("S802_REQ_W", "Battery Power Request", //
 				"AC Power requested by battery.", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
+				INT16, false/* mandatory? */, READ_ONLY, Unit.WATT, "W_SF")), //
 		SET_OP(new EnumPoint("S802_SET_OP", "Set Operation", //
 				"Instruct the battery bank to perform an operation such as connecting.  Enumeration.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S802_SetOp.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S802_SetOp.values())), //
 		SET_INV_STATE(new EnumPoint("S802_SET_INV_STATE", "Set Inverter State", //
 				"Set the current state of the inverter.", //
-				ENUM16, true /* mandatory? */, READ_WRITE, S802_SetInvState.values())), //
+				ENUM16, true/* mandatory? */, READ_WRITE, S802_SetInvState.values())), //
 		A_H_RTG_S_F(new ScaleFactorPoint("S802_A_H_RTG_S_F", "", //
 				"Scale factor for charge capacity.")), //
 		W_H_RTG_S_F(new ScaleFactorPoint("S802_W_H_RTG_S_F", "", //
@@ -7069,73 +7069,73 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		CMD(new EnumPoint("S64001_CMD", "Command Code", "", //
 				ENUM16, false /* mandatory? */, READ_WRITE, new OptionsEnum[0])), //
 		H_W_REV(new ValuePoint("S64001_H_W_REV", "Hardware Revision", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		R_S_F_W_REV(new ValuePoint("S64001_R_S_F_W_REV", "RS FW Revision", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		O_S_F_W_REV(new ValuePoint("S64001_O_S_F_W_REV", "OS FW Revision", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		PROD_REV(new ValuePoint("S64001_PROD_REV", "Product Revision", "", //
-				STRING2, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING2, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		BOOTS(new ValuePoint("S64001_BOOTS", "Boot Count", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		SWITCH(new BitFieldPoint("S64001_SWITCH", "DIP Switches", "", //
 				BITFIELD16, false /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		SENSORS(new ValuePoint("S64001_SENSORS", "Num Detected Sensors", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		TALKING(new ValuePoint("S64001_TALKING", "Num Communicating Sensors", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		STATUS(new BitFieldPoint("S64001_STATUS", "System Status", "", //
 				BITFIELD16, false /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		CONFIG(new BitFieldPoint("S64001_CONFIG", "System Configuration", "", //
 				BITFIELD16, false /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		L_E_DBLINK(new ValuePoint("S64001_L_E_DBLINK", "LED Blink Threshold", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		L_E_DON(new ValuePoint("S64001_L_E_DON", "LED On Threshold", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		RESERVED(new ValuePoint("S64001_RESERVED", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		LOC(new ValuePoint("S64001_LOC", "Location String", "", //
-				STRING16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S1ID(new EnumPoint("S64001_S1ID", "Sensor 1 Unit ID", "", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		S1_ADDR(new ValuePoint("S64001_S1_ADDR", "Sensor 1 Address", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S1_O_S_VER(new ValuePoint("S64001_S1_O_S_VER", "Sensor 1 OS Version", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S1_VER(new ValuePoint("S64001_S1_VER", "Sensor 1 Product Version", "", //
-				STRING2, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING2, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S1_SERIAL(new ValuePoint("S64001_S1_SERIAL", "Sensor 1 Serial Num", "", //
-				STRING5, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING5, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S2ID(new EnumPoint("S64001_S2ID", "Sensor 2 Unit ID", "", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		S2_ADDR(new ValuePoint("S64001_S2_ADDR", "Sensor 2 Address", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S2_O_S_VER(new ValuePoint("S64001_S2_O_S_VER", "Sensor 2 OS Version", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S2_VER(new ValuePoint("S64001_S2_VER", "Sensor 2 Product Version", "", //
-				STRING2, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING2, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S2_SERIAL(new ValuePoint("S64001_S2_SERIAL", "Sensor 2 Serial Num", "", //
-				STRING5, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING5, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S3ID(new EnumPoint("S64001_S3ID", "Sensor 3 Unit ID", "", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		S3_ADDR(new ValuePoint("S64001_S3_ADDR", "Sensor 3 Address", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S3_O_S_VER(new ValuePoint("S64001_S3_O_S_VER", "Sensor 3 OS Version", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S3_VER(new ValuePoint("S64001_S3_VER", "Sensor 3 Product Version", "", //
-				STRING2, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING2, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S3_SERIAL(new ValuePoint("S64001_S3_SERIAL", "Sensor 3 Serial Num", "", //
-				STRING5, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING5, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S4ID(new EnumPoint("S64001_S4ID", "Sensor 4 Unit ID", "", //
 				ENUM16, false /* mandatory? */, READ_ONLY, new OptionsEnum[0])), //
 		S4_ADDR(new ValuePoint("S64001_S4_ADDR", "Sensor 4 Address", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S4_O_S_VER(new ValuePoint("S64001_S4_O_S_VER", "Sensor 4 OS Version", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S4_VER(new ValuePoint("S64001_S4_VER", "Sensor 4 Product Version", "", //
-				STRING2, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				STRING2, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		S4_SERIAL(new ValuePoint("S64001_S4_SERIAL", "Sensor 4 Serial Num", "", //
-				STRING5, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				STRING5, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -7151,19 +7151,19 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 	public static enum S64101 implements SunSpecPoint {
 		ELTEK_COUNTRY_CODE(new ValuePoint("S64101_ELTEK_COUNTRY_CODE", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_FEEDING_PHASE(new ValuePoint("S64101_ELTEK_FEEDING_PHASE", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_A_P_D_METHOD(new ValuePoint("S64101_ELTEK_A_P_D_METHOD", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_A_P_D_POWER_REF(new ValuePoint("S64101_ELTEK_A_P_D_POWER_REF", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_R_P_S_METHOD(new ValuePoint("S64101_ELTEK_R_P_S_METHOD", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_R_P_S_Q_REF(new ValuePoint("S64101_ELTEK_R_P_S_Q_REF", "", "", //
-				UINT16, false /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, false/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		ELTEK_R_P_S_COS_PHI_REF(new ValuePoint("S64101_ELTEK_R_P_S_COS_PHI_REF", "", "", //
-				INT16, false /* mandatory? */, READ_ONLY, Unit.NONE));
+				INT16, false/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 
@@ -7179,46 +7179,46 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 	public static enum S64111 implements SunSpecPoint {
 		PORT(new ValuePoint("S64111_PORT", "Port Number", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S64111_V_SF", "", "")), //
 		A_SF(new ScaleFactorPoint("S64111_A_SF", "", "")), //
 		P_SF(new ScaleFactorPoint("S64111_P_SF", "", "")), //
 		AH_SF(new ScaleFactorPoint("S64111_AH_SF", "", "")), //
 		KWH_SF(new ScaleFactorPoint("S64111_KWH_SF", "", "")), //
 		BATT_V(new ScaledValuePoint("S64111_BATT_V", "Battery Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		ARRAY_V(new ScaledValuePoint("S64111_ARRAY_V", "Array Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		OUTPUT_A(new ScaledValuePoint("S64111_OUTPUT_A", "Output Current", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "A_SF")), //
 		INPUT_A(new ScaledValuePoint("S64111_INPUT_A", "Array Current", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "P_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "P_SF")), //
 		CHARGER_ST(new EnumPoint("S64111_CHARGER_ST", "Operating State", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64111_ChargerSt.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64111_ChargerSt.values())), //
 		OUTPUT_W(new ScaledValuePoint("S64111_OUTPUT_W", "Output Wattage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "P_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "P_SF")), //
 		TODAY_MIN_BAT_V(new ScaledValuePoint("S64111_TODAY_MIN_BAT_V", "Today's Minimum Battery Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TODAY_MAX_BAT_V(new ScaledValuePoint("S64111_TODAY_MAX_BAT_V", "Today's Maximum Battery Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		VOCV(new ScaledValuePoint("S64111_VOCV", "VOC", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TODAY_MAX_V_O_C(new ScaledValuePoint("S64111_TODAY_MAX_V_O_C", "Today's Maximum VOC", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		TODAYK_WH_OUTPUT(new ScaledValuePoint("S64111_TODAYK_WH_OUTPUT", "Today's kWh", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "KWH_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "KWH_SF")), //
 		TODAY_A_H_OUTPUT(new ScaledValuePoint("S64111_TODAY_A_H_OUTPUT", "Today's AH", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AH_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS, "AH_SF")), //
 		LIFE_TIME_K_W_H_OUT(new ScaledValuePoint("S64111_LIFE_TIME_K_W_H_OUT", "Lifetime kWh", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "P_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "P_SF")), //
 		LIFE_TIME_A_H_OUT(new ScaledValuePoint("S64111_LIFE_TIME_A_H_OUT", "Lifetime kAH", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.KILOAMPERE_HOURS, "KWH_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.KILOAMPERE_HOURS, "KWH_SF")), //
 		LIFE_TIME_MAX_OUT(new ScaledValuePoint("S64111_LIFE_TIME_MAX_OUT", "Lifetime Maximum Output Wattage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "P_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "P_SF")), //
 		LIFE_TIME_MAX_BATT(new ScaledValuePoint("S64111_LIFE_TIME_MAX_BATT", "Lifetime Maximum Battery Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		LIFE_TIME_MAX_V_O_C(new ScaledValuePoint("S64111_LIFE_TIME_MAX_V_O_C", "Lifetime Maximum VOC Voltage", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF"));
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF"));
 
 		private final Point point;
 
@@ -7266,7 +7266,7 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 
 	public static enum S64112 implements SunSpecPoint {
 		PORT(new ValuePoint("S64112_PORT", "Port Number", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		V_SF(new ScaleFactorPoint("S64112_V_SF", "", "")), //
 		C_SF(new ScaleFactorPoint("S64112_C_SF", "", "")), //
 		H_SF(new ScaleFactorPoint("S64112_H_SF", "", "")), //
@@ -7276,145 +7276,145 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		C_C_CONFIG_FAULT(new BitFieldPoint("S64112_C_C_CONFIG_FAULT", "Faults", "", //
 				BITFIELD16, true /* mandatory? */, READ_ONLY, new SunSpecBitPoint[0])), //
 		C_C_CONFIG_ABSORB_V(new ScaledValuePoint("S64112_C_C_CONFIG_ABSORB_V", "Absorb", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_ABSORB_HR(new ScaledValuePoint("S64112_C_C_CONFIG_ABSORB_HR", "Absorb Time", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "H_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "H_SF")), //
 		C_C_CONFIG_ABSORB_END_A(new ScaledValuePoint("S64112_C_C_CONFIG_ABSORB_END_A", "Absorb End", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
 		C_C_CONFIG_REBULK_V(new ScaledValuePoint("S64112_C_C_CONFIG_REBULK_V", "Rebulk", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_FLOAT_V(new ScaledValuePoint("S64112_C_C_CONFIG_FLOAT_V", "Float", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_MAX_CHG_A(new ScaledValuePoint("S64112_C_C_CONFIG_MAX_CHG_A", "Maximum Charge", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
 		C_C_CONFIG_EQUALIZE_V(new ScaledValuePoint("S64112_C_C_CONFIG_EQUALIZE_V", "Equalize", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_EQUALIZE_HR(new ValuePoint("S64112_C_C_CONFIG_EQUALIZE_HR", "Equalize Time", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_AUTO_EQUALIZE(new ValuePoint("S64112_C_C_CONFIG_AUTO_EQUALIZE", "Auto Equalize Interval", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_M_P_P_T_MODE(new EnumPoint("S64112_C_C_CONFIG_M_P_P_T_MODE", "MPPT mode", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_MPPT_mode.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_MPPT_mode.values())), //
 		C_C_CONFIG_SWEEP_WIDTH(new EnumPoint("S64112_C_C_CONFIG_SWEEP_WIDTH", "Sweep Width", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_sweep_width.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_sweep_width.values())), //
 		C_C_CONFIG_SWEEP_MAX(new EnumPoint("S64112_C_C_CONFIG_SWEEP_MAX", "Sweep Maximum", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_sweep_max.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_sweep_max.values())), //
 		C_C_CONFIG_U_PICK_DUTY_CYC(
 				new ScaledValuePoint("S64112_C_C_CONFIG_U_PICK_DUTY_CYC", "U-Pick PWM Duty Cycle", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "V_SF")), //
 		C_C_CONFIG_GRID_TIE(new EnumPoint("S64112_C_C_CONFIG_GRID_TIE", "Grid Tie Mode", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_grid_tie.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_grid_tie.values())), //
 		C_C_CONFIG_TEMP_COMP(new EnumPoint("S64112_C_C_CONFIG_TEMP_COMP", "Temp Comp Mode", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_temp_comp.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_temp_comp.values())), //
 		C_C_CONFIG_TEMP_COMP_LLIMT(
 				new ScaledValuePoint("S64112_C_C_CONFIG_TEMP_COMP_LLIMT", "Temp Comp Lower Limit", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_TEMP_COMP_HLIMT(
 				new ScaledValuePoint("S64112_C_C_CONFIG_TEMP_COMP_HLIMT", "Temp Comp Upper Limit", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_AUTO_RESTART(new EnumPoint("S64112_C_C_CONFIG_AUTO_RESTART", "Auto Restart Mode", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_auto_restart.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_auto_restart.values())), //
 		C_C_CONFIG_WAKEUP_V_O_C(new ScaledValuePoint("S64112_C_C_CONFIG_WAKEUP_V_O_C", "Wakeup VOC Change", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_SNOOZE_MODE_A(new ScaledValuePoint("S64112_C_C_CONFIG_SNOOZE_MODE_A", "Snooze Mode", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
 		C_C_CONFIG_WAKEUP_INTERVAL(new ValuePoint("S64112_C_C_CONFIG_WAKEUP_INTERVAL", "Wakeup Interval", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_MODE(new EnumPoint("S64112_C_C_CONFIG_A_U_X_MODE", "AUX Output Mode", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_mode.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_mode.values())), //
 		C_C_CONFIG_A_U_X_CONTROL(new EnumPoint("S64112_C_C_CONFIG_A_U_X_CONTROL", "AUX Output Control", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_control.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_control.values())), //
 		C_C_CONFIG_A_U_X_STATE(new EnumPoint("S64112_C_C_CONFIG_A_U_X_STATE", "AUX Output State", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_state.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_state.values())), //
 		C_C_CONFIG_A_U_X_POLARITY(new EnumPoint("S64112_C_C_CONFIG_A_U_X_POLARITY", "AUX Output Polarity", "", //
-				ENUM16, true /* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_polarity.values())), //
+				ENUM16, true/* mandatory? */, READ_ONLY, S64112_CC_Config_AUX_polarity.values())), //
 		C_C_CONFIG_A_U_X_L_BATT_DISC(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_L_BATT_DISC", "AUX Low Battery Disconnect", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_L_BATT_RCON(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_L_BATT_RCON", "AUX Low Battery Reconnect", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_L_BATT_DLY(
 				new ValuePoint("S64112_C_C_CONFIG_A_U_X_L_BATT_DLY", "AUX Low Battery Disconnect Delay", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_VENT_FAN_V(new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_VENT_FAN_V", "AUX Vent Fan", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_P_V_TRIGGER_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_P_V_TRIGGER_V", "AUX PV Trigger", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_P_V_TRG_H_TM(
 				new ValuePoint("S64112_C_C_CONFIG_A_U_X_P_V_TRG_H_TM", "AUX PV Trigger Hold Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_NLITE_THRS_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_NLITE_THRS_V", "AUX Night Light Threshold", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_NLITE_ON_TM(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_NLITE_ON_TM", "AUX Night Light On Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "H_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "H_SF")), //
 		C_C_CONFIG_A_U_X_NLITE_ON_HIST(
 				new ValuePoint("S64112_C_C_CONFIG_A_U_X_NLITE_ON_HIST", "AUX Night Light On Hysteresis", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_NLITE_OFF_HIST(
 				new ValuePoint("S64112_C_C_CONFIG_A_U_X_NLITE_OFF_HIST", "AUX Night Light Off Hysteresis", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_ERROR_BATT_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_ERROR_BATT_V", "AUX Error Output Low Battery", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_DIVERT_H_TIME(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_DIVERT_H_TIME", "AUX Divert Hold Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE, "V_SF")), //
 		C_C_CONFIG_A_U_X_DIVERT_DLY_TIME(
 				new ValuePoint("S64112_C_C_CONFIG_A_U_X_DIVERT_DLY_TIME", "AUX Divert Delay Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_A_U_X_DIVERT_REL_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_DIVERT_REL_V", "AUX Divert Relative", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_A_U_X_DIVERT_HYST_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_A_U_X_DIVERT_HYST_V", "AUX Divert Hysteresis", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_MAJOR_F_W_REV(new ValuePoint("S64112_C_C_CONFIG_MAJOR_F_W_REV", "FM CC Major Firmware Number", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_MID_F_W_REV(new ValuePoint("S64112_C_C_CONFIG_MID_F_W_REV", "FM CC Mid Firmware Number", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_MINOR_F_W_REV(new ValuePoint("S64112_C_C_CONFIG_MINOR_F_W_REV", "FM CC Minor Firmware Number", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_DAY_OFFSET(
 				new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_DAY_OFFSET", "Set Data Log Day Offset", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_CUR_DAY_OFF(
 				new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_CUR_DAY_OFF", "Current Data Log Day Offset", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_DAILY_A_H(new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_DAILY_A_H", "Data Log Daily (Ah)", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE_HOURS)), //
 		C_C_CONFIG_DATA_LOG_DAILY_K_W_H(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_DAILY_K_W_H", "Data Log Daily (kWh)", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "KWH_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.KILOWATT_HOURS, "KWH_SF")), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_A(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_MAX_OUT_A", "Data Log Daily Maximum Output (A)", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.AMPERE, "V_SF")), //
 		C_C_CONFIG_DATA_LOG_MAX_OUT_W(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_MAX_OUT_W", "Data Log Daily Maximum Output (W)", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.WATT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.WATT, "V_SF")), //
 		C_C_CONFIG_DATA_LOG_ABSORB_T(
 				new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_ABSORB_T", "Data Log Daily Absorb Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_FLOAT_T(
 				new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_FLOAT_T", "Data Log Daily Float Time", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_MIN_BATT_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_MIN_BATT_V", "Data Log Daily Minimum Battery", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_DATA_LOG_MAX_BATT_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_MAX_BATT_V", "Data Log Daily Maximum Battery", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_DATA_LOG_MAX_INPUT_V(
 				new ScaledValuePoint("S64112_C_C_CONFIG_DATA_LOG_MAX_INPUT_V", "Data Log Daily Maximum Input", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.VOLT, "V_SF")), //
 		C_C_CONFIG_DATA_LOG_CLEAR(new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_CLEAR", "Data Log Clear", "", //
-				UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE)), //
+				UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE)), //
 		C_C_CONFIG_DATA_LOG_CLR_COMP(
 				new ValuePoint("S64112_C_C_CONFIG_DATA_LOG_CLR_COMP", "Data Log Clear Complement", "", //
-						UINT16, true /* mandatory? */, READ_ONLY, Unit.NONE));
+						UINT16, true/* mandatory? */, READ_ONLY, Unit.NONE));
 
 		private final Point point;
 

@@ -161,6 +161,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                     new ChannelAddress(controller.id, "_PropertyTargetSoc"),
                     new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
                     new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
+                    new ChannelAddress(controller.id, "CtrlIsInReferenceCycle"),
                 );
             }
 
@@ -223,6 +224,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                             } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
 
                                 const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
+                                const isInReferenceCycle = currentData.channel[controller.id + "/CtrlIsInReferenceCycle"] == 1;
 
                                 // Because of ionic segment buttons only accepting a string value, i needed to convert it
                                 const targetTimeSpecified = (currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1).toString();
@@ -258,6 +260,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                                     this.formBuilder.group({
                                         controllerId: new FormControl(controller.id),
                                         isRunning: new FormControl(isRunning),
+                                        isInReferenceCycle: new FormControl(isInReferenceCycle),
                                         targetTime: new FormControl(targetTime),
                                         targetTimeSpecified: new FormControl(targetTimeSpecified),
                                         targetSoc: new FormControl(targetSoc),
@@ -285,6 +288,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         if (this.edge == null) {
             return;
         }
+
         const updateArray: Map<string, Array<Map<string, any>>> = new Map();
         if (this.hasRequiredEdgeVersion) {
             const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];

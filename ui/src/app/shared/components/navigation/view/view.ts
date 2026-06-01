@@ -1,5 +1,4 @@
-// @ts-strict-ignore
-import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, HostListener, input, Input, Renderer2, signal, untracked } from "@angular/core";
+import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, EventEmitter, HostListener, input, Input, Output, Renderer2, signal, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -40,8 +39,10 @@ export enum Status {
 })
 export class NavigationPageComponent implements AfterViewInit {
 
+    @Output() public emitForm: EventEmitter<FormGroup | null> = new EventEmitter();
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup | null = null;
+
     protected helpKey = input<HelpButtonComponent["key"]>();
     protected bottomPx = signal(0);
 
@@ -82,32 +83,8 @@ export class NavigationPageComponent implements AfterViewInit {
 
     // Changes applied together
     public applyChanges() {
-        const updateComponentArray: { name: string, value: any }[] = [];
-        this.service.startSpinner("spinner");
-        for (const key in this.formGroup.controls) {
-            const control = this.formGroup.controls[key];
-            this.formGroup.controls[key];
-
-            // Check if formControl-value didn't change
-            if (control.pristine) {
-                continue;
-            }
-
-            updateComponentArray.push({
-                name: key,
-                value: this.formGroup.value[key],
-            });
-        }
-
-        if (this.edge) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
-                .then(() => {
-                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-                }).catch(reason => {
-                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-                }).finally(() => this.service.stopSpinner("spinner"));
-        }
-        this.formGroup.markAsPristine();
+        this.emitForm.emit(this.formGroup ?? null);
+        return;
     }
 
     ngAfterViewInit() {

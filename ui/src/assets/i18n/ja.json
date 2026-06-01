@@ -606,7 +606,7 @@
       "UPDATE_NOT_POSSIBLE": "システムを更新できません！",
       "UPDATE_PROGRESS": "進行中の更新。",
       "UPDATE_SEARCH": "アップデートの確認...",
-      "UPDATE_TIME": "（これには最大10分かかることがあります）"
+      "UPDATE_TIME": "（これには最大{{minutes}}分かかることがあります）"
     }
   }
 }

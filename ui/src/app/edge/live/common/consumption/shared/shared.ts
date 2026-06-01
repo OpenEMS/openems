@@ -156,6 +156,8 @@ export namespace SharedConsumption {
         return {
             title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
+            useDefaultPrefix: false,
+            isCommonWidget: true,
             lines: lines,
             component: new EdgeConfig.Component(),
         };
@@ -267,9 +269,10 @@ export namespace SharedConsumption {
         return {
             title: translate.instant("GENERAL.CONSUMPTION"),
             helpKey: "REDIRECT.COMMON_CONSUMPTION",
+            useDefaultPrefix: false,
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: "true",
+            isCommonWidget: true,
         };
     }
 }

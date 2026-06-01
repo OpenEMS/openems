@@ -21,6 +21,7 @@ import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents;
 import io.openems.edge.app.meter.MeterProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -71,7 +72,7 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 		ALIAS(alias()), //
 		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
 				.setRequired(true)//
-				.setDefaultValue(1)//
+				.setDefaultValue(5)//
 				.setAutoGenerateField(false)//
 		));
 
@@ -115,13 +116,18 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
 
+			final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+
 			final var meterId = this.getId(t, p, Property.METER_ID);
 			final var modbusId = this.getId(t, p, Property.MODBUS_ID);
 			final var alias = this.getString(p, Property.ALIAS);
 			final var modbusUnitId = this.getInt(p, Property.MODBUS_UNIT_ID);
 
-			final var gridMeter = Lists
-					.newArrayList(new EdgeConfig.Component(meterId, alias, "Meter.CarloGavazzi.EM300", //
+			final var components = Lists
+					.newArrayList(FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusId));
+
+			components.add(//
+					new EdgeConfig.Component(meterId, alias, "Meter.KDK.2PUCT", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("modbus.id", modbusId) //
 									.addProperty("modbusUnitId", modbusUnitId) //
@@ -131,7 +137,7 @@ public class GridMeterKdk extends AbstractOpenemsAppWithProps<GridMeterKdk, Grid
 			);
 
 			return AppConfiguration.create() //
-					.addTask(Tasks.component(gridMeter)) //
+					.addTask(Tasks.component(components)) //
 					.build();
 		};
 	}

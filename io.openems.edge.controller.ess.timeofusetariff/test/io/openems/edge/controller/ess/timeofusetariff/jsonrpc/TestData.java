@@ -95,9 +95,15 @@ public class TestData {
 			76, 79, 83, 87, //
 	};
 
-	protected static final Integer[] PAST_HOURLY_PRICES = { //
+	protected static final Integer[] PAST_HOURLY_GRID_BUY_PRICES = { //
 			158, 160, 171, 174, //
 			161, 152, 120, 111, //
 			105, 105, 74, 73, //
+	};
+
+	protected static final Integer[] PAST_HOURLY_GRID_SELL_PRICES = { //
+			75, 75, 75, 75, //
+			0, 0, 0, 0, //
+			75, 75, 75, 75, //
 	};
 }

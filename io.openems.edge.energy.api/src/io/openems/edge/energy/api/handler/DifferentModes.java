@@ -21,7 +21,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
-import io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration;
+import io.openems.edge.energy.api.simulation.periods.PeriodDuration;
 
 /**
  * Helper methods and classes for
@@ -131,9 +131,9 @@ public class DifferentModes {
 		}
 
 		/**
-		 * Builds an instance of {@link EnergyScheduleHandler.EshWithDifferentModes}.
+		 * Builds an instance of {@link EshWithDifferentModes}.
 		 *
-		 * @return a {@link EnergyScheduleHandler.EshWithDifferentModes}
+		 * @return a {@link EshWithDifferentModes}
 		 */
 		public EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> build() {
 			return new EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>(//
@@ -383,8 +383,10 @@ public class DifferentModes {
 			PeriodDuration duration,
 			/** MODE of the Period */
 			MODE mode,
-			/** Price [1/MWh]; possibly null */
-			Double price, //
+			/** Grid-Buy Price [1/MWh]; possibly null */
+			Double gridBuyPrice, //
+			/** Grid-Sell Price [1/MWh]; possibly null */
+			Double gridSellPrice, //
 			/** ControllerOptimizationContext */
 			OPTIMIZATION_CONTEXT coc, //
 			/** Simulated EnergyFlow */
@@ -395,18 +397,17 @@ public class DifferentModes {
 		/**
 		 * This class is only used internally to apply the Schedule.
 		 */
-		public static record Transition(PeriodDuration duration, int modeIndex, Double price, EnergyFlow energyFlow,
-				int essInitialEnergy) {
+		public static record Transition(PeriodDuration duration, int modeIndex, Double gridBuyPrice,
+				Double gridSellPrice, EnergyFlow energyFlow, int essInitialEnergy) {
 		}
 
 		/**
-		 * Builds a {@link EnergyScheduleHandler.WithDifferentStates.Period} from a
-		 * {@link EnergyScheduleHandler.WithDifferentStates.Period.Transition} record.
+		 * Builds a {@link EnergyScheduleHandler.WithDifferentModes.Period} from a
+		 * {@link DifferentModes.Period.Transition} record.
 		 * 
 		 * @param <MODE>                 the type of the Mode
 		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
-		 * @param t                      the
-		 *                               {@link EnergyScheduleHandler.WithDifferentStates.Period.Transition}
+		 * @param t                      the {@link DifferentModes.Period.Transition}
 		 *                               record
 		 * @param getMode                a method to translate a 'modeIndex' to a MODE
 		 * @param coc                    the ControllerOptimizationContext used during
@@ -415,7 +416,8 @@ public class DifferentModes {
 		 */
 		public static <MODE, OPTIMIZATION_CONTEXT> Period<MODE, OPTIMIZATION_CONTEXT> fromTransitionRecord(
 				Period.Transition t, IntFunction<MODE> getMode, OPTIMIZATION_CONTEXT coc) {
-			return new Period<>(t.duration, getMode.apply(t.modeIndex), t.price, coc, t.energyFlow, t.essInitialEnergy);
+			return new Period<>(t.duration, getMode.apply(t.modeIndex), t.gridBuyPrice, t.gridSellPrice, coc,
+					t.energyFlow, t.essInitialEnergy);
 		}
 	}
 
@@ -494,13 +496,13 @@ public class DifferentModes {
 		 * @param csc               the ControllerScheduleContext
 		 * @param ef                the {@link EnergyFlow.Model}
 		 * @param mode              the simulated Mode
-		 * @param fitness           the {@link Fitness} result
+		 * @param fitness           the {@link Fitness.Builder} result
 		 * @param isFinalRun        is this the final simulation run?
 		 * @return the post-processed Mode
 		 */
 		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
-				MODE mode, Fitness fitness, boolean isFinalRun);
+				MODE mode, Fitness.Builder fitness, boolean isFinalRun);
 	}
 
 	private DifferentModes() {

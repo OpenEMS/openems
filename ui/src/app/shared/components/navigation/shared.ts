@@ -413,12 +413,17 @@ export namespace NavigationConstants {
         "Consumption",
         "Grid",
         "Common_Production",
+        "Storage",
     ];
 
     /**
      * The widget factories to show in new navigation
      */
     export const newWidgets: Widget["name"][] = [
+        "Controller.ChannelThreshold",
+        "Controller.IO.HeatingElement",
+        "Controller.Ess.FixActivePower",
+        "Controller.Ess.Time-Of-Use-Tariff",
         "Controller.Ess.GridOptimizedCharge",
         "Heat.Askoma",
         "Heat.MyPv.AcThor9s",
@@ -426,11 +431,15 @@ export namespace NavigationConstants {
     ];
 
     export namespace CommonNodes {
+        export function SETTINGS(translate: TranslateService, showOrder: NavigationTree["showOrder"] = "LOW") { return new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null, showOrder); };
         export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
         export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
             return edge.roleIsAtLeast(Role.INSTALLER)
                 ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
                 : [];
         }
+        export function HISTORY(translate: TranslateService, children: NavigationTree[] = []) { return new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", children, null); };
+
+
     }
 }

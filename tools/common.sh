@@ -65,11 +65,10 @@ common_build_snapshot_version() {
             VERSION_DEV_BRANCH="$(git branch --show-current)"
         fi
         VERSION_DEV_COMMIT=""
-        git diff --exit-code --quiet
-        if [ $? -ne 0 ]; then
-            VERSION_DEV_COMMIT="dirty"
-        else
+        if git diff --exit-code --quiet; then
             VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
+        else
+            VERSION_DEV_COMMIT="dirty"
         fi
         VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
         # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version

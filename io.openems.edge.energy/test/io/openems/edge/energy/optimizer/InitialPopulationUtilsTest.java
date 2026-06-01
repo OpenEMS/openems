@@ -1,13 +1,13 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 
@@ -54,6 +54,6 @@ public class InitialPopulationUtilsTest {
 	}
 
 	protected static Transition mode(int mode) {
-		return new Transition(QUARTER, mode, 0., null, 0);
+		return new Transition(QUARTER, mode, 0., 0., null, 0);
 	}
 }

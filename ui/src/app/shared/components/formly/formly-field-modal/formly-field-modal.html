@@ -16,7 +16,7 @@
             }
 
             @case ('children-line') {
-              <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name">
+              <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name" [hideValue]="true">
                 @for (lineItem of line.children; track lineItem) {
                   <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter"
                     [converter]="lineItem.converter">
@@ -29,8 +29,19 @@
               <oe-img [img]="line.img"></oe-img>
             }
 
+          <!-- OeFormlyField.InfoLine -->
             @case ('info-line') {
-              <oe-modal-info-line [info]="line.name" [icon]="line.icon"></oe-modal-info-line>
+              @if (line.html !== null && line.html !== undefined) {
+                <ng-container style="font-size: smaller">
+                <span
+                [innerHtml]="line.html"></span>
+                </ng-container>
+              } @else {
+                <oe-modal-info-line
+                  [info]="line.name"
+                  [icon]="line.icon">
+                </oe-modal-info-line>
+              }
             }
 
             @case ('horizontal-line') {

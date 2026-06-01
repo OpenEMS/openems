@@ -1,20 +1,20 @@
 <oe-flat-widget [icon]="icon" [title]="'GENERAL.GRID' | translate" [modalComponent]="modalComponent">
-    @if (isActivated || gridMode === GridMode.GENERATOR) {
+  @if (isActivated || gridMode === GridMode.GENERATOR) {
     <oe-flat-widget-line [name]="'GENERAL.STATE'| translate" [value]="gridState" [leftColumnWidth]="10">
     </oe-flat-widget-line>
     <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line>
-    }
+  }
 
-    @if(gridMode !== GridMode.GENERATOR){
+  @if(gridMode !== GridMode.GENERATOR){
     <oe-flat-widget-line [name]="'GENERAL.GRID_SELL_ADVANCED' | translate" [value]="gridSellPower"
-        [converter]="CONVERT_WATT_TO_KILOWATT">
+      [converter]="CONVERT_WATT_TO_KILOWATT">
     </oe-flat-widget-line>
     <oe-flat-widget-line [name]="'GENERAL.GRID_BUY_ADVANCED'| translate" [value]="gridBuyPower"
-        [converter]="CONVERT_WATT_TO_KILOWATT">
+      [converter]="CONVERT_WATT_TO_KILOWATT">
     </oe-flat-widget-line>
-    }
-    @if (gridMode === GridMode.OFF_GRID) {
+  }
+  @if (gridMode === GridMode.OFF_GRID) {
     <oe-flat-widget-line [name]="'GENERAL.OFF_GRID' | translate">
     </oe-flat-widget-line>
-    }
+  }
 </oe-flat-widget>

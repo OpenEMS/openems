@@ -27,6 +27,8 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new HardyBarth(chargePoint);
             case "Evse.ChargePoint.Alpitronic":
                 return new Alpitronic(chargePoint);
+            case "Evse.ChargePoint.Mennekes":
+                return new Mennekes(chargePoint);
             case null:
             default:
                 return null;
@@ -84,6 +86,17 @@ export class Alpitronic extends EvseChargepoint {
 
     public img = {
         url: environment.images.EVSE.ALPITRONIC,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return false;
+    }
+}
+
+export class Mennekes extends EvseChargepoint {
+
+    public img = {
+        url: environment.images.EVSE.MENNEKES,
     };
 
     public override hasPhaseSwitchingAbility(): boolean {

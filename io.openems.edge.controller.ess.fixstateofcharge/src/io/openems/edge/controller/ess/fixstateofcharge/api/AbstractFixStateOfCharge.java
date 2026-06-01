@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
 import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 
@@ -61,6 +62,9 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	private ReferenceCycleTarget referenceCycleTarget;
 	// Reference-cycle pause start timestamp in ms (epoch), persisted across ticks
 	private Long referenceCyclePauseStartMs;
+	// Reference-cycle fallback start timestamp in ms (epoch), persisted across
+	// ticks
+	private Long referenceCycleFallbackStartMs;
 	// Last target power persisted across ticks for dead band and state transitions
 	private Float lastTargetPower;
 
@@ -188,8 +192,8 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			return null;
 		}
 
-		var context = new Context(this, this.config, maxApparentPower.get(), socToUse,
-				this.config.getTargetSoc(), this.targetDateTime, this.getComponentManager().getClock());
+		var context = new Context(this, this.config, maxApparentPower.get(), socToUse, this.config.getTargetSoc(),
+				this.targetDateTime, this.getComponentManager().getClock());
 		try {
 			this.stateMachine.run(context);
 			this.channel(Controller.ChannelId.RUN_FAILED).setNextValue(false);
@@ -198,6 +202,9 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			this.channel(Controller.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE,
+				this.stateMachine.getCurrentState() == State.REFERENCE_CYCLE);
 
 		return context;
 	}
@@ -386,6 +393,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		this._setCtrlIsBlockingEss(false);
 		this._setCtrlIsChargingEss(false);
 		this._setCtrlIsDischargingEss(false);
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE, false);
 		this._setDebugSetActivePower(null);
 		this._setDebugSetActivePowerRaw(null);
 		this._setDebugRampPower(null);
@@ -637,6 +645,31 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 */
 	public void clearReferenceCyclePauseStart() {
 		this.referenceCyclePauseStartMs = null;
+	}
+
+	/**
+	 * Get the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @return reference cycle fallback start timestamp in ms (epoch)
+	 */
+	public Long getReferenceCycleFallbackStartMs() {
+		return this.referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Set the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @param referenceCycleFallbackStartMs timestamp in ms (epoch)
+	 */
+	public void setReferenceCycleFallbackStartMs(Long referenceCycleFallbackStartMs) {
+		this.referenceCycleFallbackStartMs = referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Clear the reference cycle fallback start timestamp.
+	 */
+	public void clearReferenceCycleFallbackStart() {
+		this.referenceCycleFallbackStartMs = null;
 	}
 
 	public Float getLastTargetPower() {

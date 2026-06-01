@@ -1,7 +1,7 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
@@ -21,7 +21,7 @@ export namespace SharedControllerIoHeatpump {
 
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_IO_HEAT_PUMP_SG_READY",
+            helpKey: "REDIRECT.CONTROLLER_IO_HEAT_PUMP_SG_READY",
             lines: [
                 ...getFormlySharedLines(translate, component),
                 ...getFormlyAutomaticView(translate, component, HIDE_ON_MODE_MANUAL),
@@ -213,7 +213,7 @@ export namespace SharedControllerIoHeatpump {
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree(component.id, { baseString: "controller/heatpump/" + component.id }, { name: "oe-heatpump", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-            new NavigationTree("details", { baseString: "details" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null),
+            NavigationConstants.CommonNodes.SETTINGS(translate),
         ], null).toConstructorParams();
     }
 

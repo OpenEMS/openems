@@ -1,0 +1,46 @@
+= Set up nginx webserver for OpenEMS UI
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+This chapter explains how to set up the nginx webserver for OpenEMS UI.
+
+== Quick setup under Linux
+
+NOTE: These instructions are intended for a quick setup, e.g. to get started with OpenEMS UI. Instructions for a production deployment may be added in the future.
+
+=== Setup
+
+We assume that the files for OpemEMS UI are in /home/user/openems/openems-ui
+
+. Install nginx (e.g. `apt install nginx` on Debian / Ubuntu and derivatives)
+ 
+. Create a file /etc/nginx/conf.d/openems_nginx.conf with the following contents:
++
+```
+server {
+    listen 4200;
+    server_name openems;
+    # OpenEMS Web-Interface
+    location / {
+       root    /home/user/openems/openems-ui;
+       index    index.html index.htm;
+
+       error_page    404    300    /index.html;
+    }
+}
+```
+
+. Start nginx. See `man nginx` and the documentation on https://nginx.org for more information.
+
+OpenEMS UI should now be available on port 4200.
+
+=== Troubleshooting
+
+. If there are error messages saying that port 80 is already used, e.g. by another webserver already running on your machine: Remove /etc/nginx/sites-enabled/default. This is a link to /etc/nginx/sites-available/default where port 80 is configured to be used.
+
+. If the browser shows “403 forbidden”, this may be due to missing permissions. nginx needs read and execute permissions on all directories on the path to the openems-ui directory. You can check this with the command `namei -l /home/user/openems/openems-ui`. For example, /home/user might have “rwx” permissions only for user. In that case, the command `chmod a+rx /home/user` changes the permissions, so that nginx can run openems-ui.

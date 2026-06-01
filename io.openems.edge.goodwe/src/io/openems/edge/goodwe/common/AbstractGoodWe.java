@@ -14,6 +14,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.chain;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementsOnce;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.min;
 
 import java.util.ArrayList;
@@ -169,7 +170,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 									final var isGensetActive = this.getGensetOperatingMode().isDefined()
 											&& this.getGensetOperatingMode().get();
 
-									return mapGridMode(goodWeType, intValue, isGensetActive);
+									final var gridMode = mapGridMode(goodWeType, intValue, isGensetActive);
+									setValue(this, GoodWe.ChannelId.GRID_MODE_FAULT, gridMode == GridMode.UNDEFINED);
+									return gridMode;
 								}))), //
 
 				new FC3ReadRegistersTask(35137, Priority.LOW, //
@@ -938,9 +941,9 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 		/*
 		 * Handle different GoodWe Types.
-		 * 
+		 *
 		 * GoodweType Firmware is differing from Type ET-Plus to ETT.
-		 * 
+		 *
 		 * Register 35011: GoodWeType as String (Not supported for GoodWe 20 & 30 - ETT)
 		 * Register 35003: Serial number as String (Fallback for GoodWe 20 & 30 - ETT)
 		 */
@@ -1057,7 +1060,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Get GoodWe type from the GoodWe string representation.
-	 * 
+	 *
 	 * @param stringValue GoodWe type as String
 	 * @return type as {@link GoodWeType}
 	 */
@@ -1080,7 +1083,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 
 	/**
 	 * Get GoodWe type from serial number.
-	 * 
+	 *
 	 * @param serialNr Serial number
 	 * @return type as {@link GoodWeType}
 	 */
@@ -1189,7 +1192,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 	 * <p>
 	 * For MPPT connectors e.g. two string on one MPPT the power information is
 	 * spread over several registers that should be read as complete blocks.
-	 * 
+	 *
 	 * @param protocol current protocol
 	 * @throws OpenemsException on error
 	 */

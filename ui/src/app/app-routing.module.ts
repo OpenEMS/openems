@@ -3,12 +3,9 @@ import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/r
 import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
-import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/history/Controller/ChannelThreshold/overview/overview";
 import { ControllerEnerixOverviewComponent as EnerixOverviewComponent } from "./edge/history/Controller/EnerixControl/overview/overview";
-import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/history/Controller/Ess/TimeOfUseTariff/overview/overview";
 import { DetailsOverviewComponent as DigitalOutputDetailsOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/details/details.overview";
 import { ControllerIoDigitalOutputOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/overview/overview";
-import { ControllerIoHeatingElementOverviewComponent as HeatingelementChartOverviewComponent } from "./edge/history/Controller/Io/heatingelement/overview/overview";
 import { ControllerModbusTcpApiOverviewComponent as ModbusTcpApiOverviewComponent } from "./edge/history/Controller/ModbusTcpApi/overview/overview";
 import { ControllerPeakShavingAsymmetricOverviewComponent as AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/asymmetric/overview/overview";
 import { ControllerPeakShavingSymmetricOverviewComponent as SymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/symmetric/overview/overview";
@@ -26,8 +23,11 @@ import { CommonGridOverviewComponent } from "./edge/live/common/grid/history/ove
 import { CommonProductionHistoryOverviewComponent } from "./edge/live/common/production/history/overview/overview";
 import { CommonProductionDetailsOverviewComponent } from "./edge/live/common/production/history/phase-accurate/overview/overview";
 import { CommonSelfconsumptionOverviewComponent as SelfconsumptionChartOverviewComponent } from "./edge/live/common/selfconsumption/history/overview/overview";
+import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOverviewComponent } from "./edge/live/Controller/Channelthreshold/history/overview/overview";
 import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
+import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/live/Controller/Ess/TimeOfUseTariff/history/overview/overview";
 import { ControllerHeatOverviewComponent } from "./edge/live/Controller/Heat/history/overview/overview";
+import { ControllerIoHeatingElementOverviewComponent } from "./edge/live/Controller/Io/HeatingElement/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
 import { OverViewComponent } from "./index/overview/overview.component";
@@ -48,13 +48,13 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: ":componentId/asymmetricpeakshavingchart", component: AsymmetricPeakshavingChartOverviewComponent },
         { path: ":componentId/delayedselltogridchart", component: DelayedSellToGridChartOverviewComponent },
         { path: ":componentId/gridOptimizedChargeChart", component: ControllerEssGridOptimizedChargeOverviewComponent },
-        { path: ":componentId/heatingelementchart", component: HeatingelementChartOverviewComponent },
+        { path: ":componentId/heatingelementchart", component: ControllerIoHeatingElementOverviewComponent },
         { path: ":componentId/heatmypvchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/heatchart", component: ControllerHeatOverviewComponent },
         { path: ":componentId/enerixchart", component: EnerixOverviewComponent },
         { path: ":componentId/heatpumpchart", loadChildren: () => import("./edge/live/Controller/Io/Heatpump/history/controller-io-heatpump-history").then(m => m.HeatPumpHistory) },
         { path: ":componentId/modbusTcpApi", component: ModbusTcpApiOverviewComponent },
-        { path: ":componentId/scheduleChart", component: ControllerEssTimeOfUseTariffOverviewComponent },
+        { path: ":componentId/time-of-use", component: ControllerEssTimeOfUseTariffOverviewComponent },
         { path: ":componentId/symmetricpeakshavingchart", component: SymmetricPeakshavingChartOverviewComponent },
         { path: ":componentId/timeslotpeakshavingchart", component: TimeslotPeakshavingChartOverviewComponent },
         { path: "autarchychart", component: CommonAutarchyHistoryOverviewComponent },
@@ -69,7 +69,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         { path: "productionchart/:componentId", component: CommonProductionDetailsOverviewComponent },
         { path: "productionchart/:componentId/currentVoltage", component: CurrentAndVoltageOverviewComponent },
         { path: "selfconsumptionchart", component: SelfconsumptionChartOverviewComponent },
-        { path: "storagechart", loadChildren: () => import("./edge/history/common/storage/storage").then(m => m.CommonStorage) },
+        { path: "storagechart", loadComponent: () => import("./edge/live/common/storage/history/overview/overview").then(m => m.CommonStorageOverviewComponent) },
 
         // Controllers
         { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },

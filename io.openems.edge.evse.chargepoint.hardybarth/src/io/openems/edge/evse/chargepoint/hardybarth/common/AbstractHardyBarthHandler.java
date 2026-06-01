@@ -24,6 +24,7 @@ import org.osgi.service.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.primitives.Ints;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -45,6 +46,7 @@ import io.openems.common.utils.JsonUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleService;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.ChannelId;
 import io.openems.edge.common.channel.StringReadChannel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.type.TypeUtils;
@@ -124,13 +126,14 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 	 * @param event the {@link Event} with TOPIC_CYCLE_AFTER_PROCESS_IMAGE
 	 */
 	public void handleAfterProcessImageEvent(Event event) {
-		final var hb = this.parent;
-		if (hb.isReadOnly()) {
+		if (this.parent.isReadOnly()) {
 			return;
 		}
 		switch (event.getTopic()) {
-		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-			-> this.setManualMode();
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.setManualMode();
+			this.setInternalLimit();
+		}
 		}
 	}
 
@@ -141,12 +144,8 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 	 * Sets the chargemode to manual if not set.
 	 */
 	private void setManualMode() {
-		final var hb = this.parent;
-		if (hb.isReadOnly()) {
-			return;
-		}
 		var chargeMode = "manual";
-		StringReadChannel channelChargeMode = hb.channel(HardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
+		StringReadChannel channelChargeMode = this.parent.channel(HardyBarth.ChannelId.RAW_SALIA_CHARGE_MODE);
 		Optional<String> valueOpt = channelChargeMode.value().asOptional();
 		if (valueOpt.map(t -> t.equals(chargeMode)).orElse(false)) {
 			return;
@@ -161,6 +160,70 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 					case WRITES, READS -> this.logInfo("Set chargemode=" + chargeMode);
 					}
 				});
+	}
+
+	private void setInternalLimit() {
+		var expectedInternalLimit = this.calculateExpectedInternalLimit();
+		if (expectedInternalLimit == null) {
+			return;
+		}
+
+		String currentInternalLimitStr = this.parent
+				.<StringReadChannel>channel(HardyBarth.ChannelId.RAW_SALIA_INTCTRL_LIMIT).value().get();
+		Integer currentInternalLimit;
+		if (currentInternalLimitStr == null
+				|| (currentInternalLimit = Ints.tryParse(currentInternalLimitStr)) == null) {
+			return;
+		}
+
+		if (currentInternalLimit.equals(expectedInternalLimit)) {
+			return;
+		}
+
+		this.httpBridge //
+				.requestJson(this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
+						.addProperty("salia/intctrl_limit", expectedInternalLimit.toString()) //
+						.addProperty("salia/manctrl_limit", expectedInternalLimit.toString()) //
+						.build())) //
+				.thenAccept(t -> {
+					switch (this.logVerbosity) {
+					case NONE, DEBUG_LOG -> FunctionUtils.doNothing();
+					case WRITES, READS -> this.logInfo("Set intctrl_limit=" + expectedInternalLimit);
+					}
+				});
+	}
+
+	private Integer calculateExpectedInternalLimit() {
+		var rawMaxAmpValue = this.parent.<StringReadChannel>channel(HardyBarth.ChannelId.RAW_MAX_AMP).value();
+		Integer rawMaxAmp;
+		if (rawMaxAmpValue.isDefined() && (rawMaxAmp = Ints.tryParse(rawMaxAmpValue.get())) != null) {
+			return rawMaxAmp;
+		}
+
+		var channelIdsWithStringLimit = new ChannelId[] { //
+				HardyBarth.ChannelId.RAW_PHYSICAL_CURRENT_LIMIT, //
+				HardyBarth.ChannelId.RAW_SALIA_SOCKET_MAX_AMP, //
+				HardyBarth.ChannelId.RAW_CABLE_CURRENT_LIMIT, //
+		};
+		Integer lowestLimit = null;
+
+		for (var channelId : channelIdsWithStringLimit) {
+			var value = this.parent.<StringReadChannel>channel(channelId).value();
+			if (!value.isDefined()) {
+				continue;
+			}
+
+			var limitAsNumber = Ints.tryParse(value.get());
+			if (limitAsNumber == null || limitAsNumber <= 0) {
+				continue;
+			}
+
+			if (lowestLimit == null || limitAsNumber < lowestLimit) {
+				lowestLimit = limitAsNumber;
+			}
+		}
+
+		return lowestLimit;
 	}
 
 	/**

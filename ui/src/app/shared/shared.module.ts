@@ -13,6 +13,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
 import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
+import { DateTimeLineComponent } from "./components/datetime-picker/datetime-picker";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FlatWidgetButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -40,6 +41,7 @@ import { AppHeaderComponent } from "./components/header/app-header";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
 import { HelpButtonComponent } from "./components/modal/help-button/help-button";
+import { ModalToggleLineComponent as ModalToggleWithValueLineComponent } from "./components/modal/modal-toggle-line/modal-toggle-line";
 import { ModalComponentsModule } from "./components/modal/modal.module";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
@@ -173,6 +175,8 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         FlatWidgetButtonComponent,
         HelpButtonComponent,
         TimeLineComponent,
+        ModalToggleWithValueLineComponent,
+        DateTimeLineComponent,
     ],
     declarations: [
         AppHeaderComponent,

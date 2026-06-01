@@ -1,148 +1,168 @@
 package io.openems.edge.energy.api.handler;
 
-import static com.google.common.base.MoreObjects.toStringHelper;
+import java.util.Comparator;
 
-public class Fitness implements Comparable<Fitness> {
+public record Fitness(//
+		int hardConstraintViolations, //
+		double gridBuyCostScore, //
+		double gridBuyEnergyWh, //
+		double gridSellRevenueScore, //
+		double gridSellEnergyWh, //
+		double modePreferencePenalty, //
+		int softConstraintViolations//
+) implements Comparable<Fitness> {
 
-	private int hardConstraintViolations = 0;
-	private double gridBuyCost = 0.;
-	private double gridSellRevenue = 0.;
-	private double modePreferencePenalty = 0.;
-	private int softConstraintViolations = 0;
-
-	/**
-	 * Gets the number of Hard-Constraint-Violations.
-	 * 
-	 * @return Hard-Constraint-Violations
-	 */
-	public int getHardConstraintViolations() {
-		return this.hardConstraintViolations;
-	}
-
-	/**
-	 * Add a Hard-Constraint-Violation with degree=1.
-	 */
-	public void addHardConstraintViolation() {
-		this.hardConstraintViolations++;
-	}
+	public static final Comparator<Fitness> DEFAULT_COMPARATOR = Comparator//
+			.comparingInt(Fitness::hardConstraintViolations)//
+			.thenComparingDouble(Fitness::gridBuyCostScore)//
+			.thenComparingDouble(Fitness::gridBuyEnergyWh)//
+			.thenComparing(Comparator.comparingDouble(Fitness::gridSellRevenueScore).reversed())// higher is better
+			.thenComparing(Comparator.comparingDouble(Fitness::gridSellEnergyWh).reversed())// higher is better
+			.thenComparingDouble(Fitness::modePreferencePenalty)//
+			.thenComparingInt(Fitness::softConstraintViolations);
 
 	/**
-	 * Add a Hard-Constraint-Violation.
-	 * 
-	 * @param degree degree of violation
-	 */
-	public void addHardConstraintViolation(int degree) {
-		this.hardConstraintViolations += degree;
-	}
-
-	/**
-	 * Gets the Grid-Buy cost.
-	 * 
-	 * @return Grid-Buy cost
-	 */
-	public double getGridBuyCost() {
-		return this.gridBuyCost;
-	}
-
-	/**
-	 * Add Grid-Buy cost.
-	 * 
-	 * @param cost the cost
-	 */
-	public void addGridBuyCost(double cost) {
-		this.gridBuyCost += cost;
-	}
-
-	/**
-	 * Add Grid-Sell revenue.
-	 * 
-	 * @param revenue the revenue
-	 */
-	public void addGridSellRevenue(double revenue) {
-		this.gridSellRevenue += revenue;
-	}
-
-	/**
-	 * Gets the Mode-Preference penalty.
+	 * {@inheritDoc}
 	 *
-	 * @return Mode-Preference penalty
+	 * @implNote A {@link Fitness} instance is considered <i>better</i> than another
+	 *           one if this method returns a value smaller than {@code 0}. In other
+	 *           words: {@code a.compareTo(b) < 0} means that {@code a} is preferred
+	 *           over {@code b} according to {@link #DEFAULT_COMPARATOR}.
 	 */
-	public double getModePreferencePenalty() {
-		return this.modePreferencePenalty;
-	}
-
-	/**
-	 * Sets the Mode-Preference penalty.
-	 *
-	 * @param penalty the penalty
-	 */
-	public void setModePreferencePenalty(double penalty) {
-		this.modePreferencePenalty = penalty;
-	}
-
-	/**
-	 * Gets the number of Soft-Constraint-Violations.
-	 * 
-	 * @return Soft-Constraint-Violations
-	 */
-	public int getSoftConstraintViolations() {
-		return this.softConstraintViolations;
-	}
-
-	/**
-	 * Add a Soft-Constraint-Violation with degree=1.
-	 */
-	public void addSoftConstraintViolation() {
-		this.softConstraintViolations++;
-	}
-
-	/**
-	 * Add a Soft-Constraint-Violation.
-	 * 
-	 * @param degree degree of violation
-	 */
-	public void addSoftConstraintViolation(int degree) {
-		this.softConstraintViolations += degree;
-	}
-
 	@Override
 	public int compareTo(Fitness o) {
-		// 1st priority: hard constraints (lower is better)
-		if (this.hardConstraintViolations != o.hardConstraintViolations) {
-			return Integer.compare(this.hardConstraintViolations, o.hardConstraintViolations);
-		}
-
-		// 2nd priority: grid buy cost (lower is better); ignore negative costs
-		final var thisGridBuyCost = Math.max(0, this.gridBuyCost);
-		final var otherGridBuyCost = Math.max(0, o.gridBuyCost);
-		if (thisGridBuyCost != otherGridBuyCost) {
-			return Double.compare(thisGridBuyCost, otherGridBuyCost);
-		}
-
-		// 3nd priority: grid sell revenue (higher is better); ignore negative revenue
-		final var thisGridSellRevenue = Math.max(0, this.gridSellRevenue);
-		final var otherGridSellRevenue = Math.max(0, o.gridSellRevenue);
-		if (thisGridSellRevenue != otherGridSellRevenue) {
-			return Double.compare(otherGridSellRevenue, thisGridSellRevenue);
-		}
-
-		// 4th priority: mode preference penalty (lower is better)
-		if (this.modePreferencePenalty != o.modePreferencePenalty) {
-			return Double.compare(this.modePreferencePenalty, o.modePreferencePenalty);
-		}
-
-		// 5th priority: soft constraints (lower is better)
-		return Integer.compare(this.softConstraintViolations, o.softConstraintViolations);
+		return DEFAULT_COMPARATOR.compare(this, o);
 	}
 
-	@Override
-	public String toString() {
-		return toStringHelper(Fitness.class) //
-				.add("hardConstraintViolations", this.hardConstraintViolations) //
-				.add("gridBuyCost", this.gridBuyCost) //
-				.add("gridSellRevenue", this.gridSellRevenue) //
-				.add("modePreferencePenalty", this.modePreferencePenalty) //
-				.add("softConstraintViolations", this.softConstraintViolations) //
-				.toString();
+	/**
+	 * Creates a new builder instance for incrementally constructing a
+	 * {@link Fitness}.
+	 *
+	 * @return a new {@link Builder} used to accumulate fitness components
+	 */
+	public static Builder builder() {
+		return new Builder();
+	}
+
+	public static final class Builder {
+
+		private int hardConstraintViolations;
+		private double gridBuyCostScore;
+		private double gridBuyEnergyWh;
+		private double gridSellRevenueScore;
+		private double gridSellEnergyWh;
+		private double modePreferencePenalty;
+		private int softConstraintViolations;
+
+		private Builder() {
+		}
+
+		/**
+		 * Increments the number of hard constraint violations by 1.
+		 *
+		 * @return this
+		 */
+		public Builder addHardConstraintViolation() {
+			this.hardConstraintViolations++;
+			return this;
+		}
+
+		/**
+		 * Adds a hard constraint violation.
+		 *
+		 * @param degree degree of violation
+		 * @return this
+		 */
+		public Builder addHardConstraintViolation(int degree) {
+			this.hardConstraintViolations += degree;
+			return this;
+		}
+
+		/**
+		 * Adds to the total grid-buy cost score.
+		 *
+		 * @param score cost score to add
+		 * @return this
+		 */
+		public Builder addGridBuyCostScore(double score) {
+			this.gridBuyCostScore += score;
+			return this;
+		}
+
+		/**
+		 * Adds to the total grid-buy energy in Wh.
+		 *
+		 * @param amount amount to add
+		 * @return this
+		 */
+		public Builder addGridBuyEnergyWh(double amount) {
+			this.gridBuyEnergyWh += amount;
+			return this;
+		}
+
+		/**
+		 * Adds to the total grid-sell revenue score.
+		 *
+		 * @param score revenue score to add
+		 * @return this
+		 */
+		public Builder addGridSellRevenueScore(double score) {
+			this.gridSellRevenueScore += score;
+			return this;
+		}
+
+		/**
+		 * Adds to the total grid-sell energy in Wh.
+		 *
+		 * @param amount amount to add
+		 * @return this
+		 */
+		public Builder addGridSellEnergyWh(double amount) {
+			this.gridSellEnergyWh += amount;
+			return this;
+		}
+
+		/**
+		 * Sets the mode preference penalty.
+		 *
+		 * @param penalty penalty value
+		 * @return this
+		 */
+		public Builder withModePreferencePenalty(double penalty) {
+			this.modePreferencePenalty = penalty;
+			return this;
+		}
+
+		/**
+		 * Increments the number of soft constraint violations by 1.
+		 *
+		 * @return this
+		 */
+		public Builder addSoftConstraintViolation() {
+			this.softConstraintViolations++;
+			return this;
+		}
+
+		/**
+		 * Adds a soft constraint violation.
+		 *
+		 * @param degree degree of violation
+		 * @return this
+		 */
+		public Builder addSoftConstraintViolation(int degree) {
+			this.softConstraintViolations += degree;
+			return this;
+		}
+
+		public Fitness build() {
+			return new Fitness(//
+					this.hardConstraintViolations, //
+					this.gridBuyCostScore, //
+					this.gridBuyEnergyWh, //
+					this.gridSellRevenueScore, //
+					this.gridSellEnergyWh, //
+					this.modePreferencePenalty, //
+					this.softConstraintViolations);
+		}
 	}
 }

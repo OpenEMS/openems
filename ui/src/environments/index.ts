@@ -82,7 +82,13 @@ export interface Environment {
             readonly KEBA_P40: string | null,
             readonly HARDY_BARTH: string | null,
             readonly ALPITRONIC: string | null,
+            readonly MENNEKES: string | null,
         },
+        readonly HEAT: {
+            readonly "ASKOMA": {
+                readonly HEATING_ELEMENT: string | null,
+            }
+        }
     },
     readonly links: {
         readonly REDIRECT: {
@@ -94,6 +100,11 @@ export interface Environment {
             readonly COMMON_PRODUCTION: string | null,
             readonly COMMON_SELFCONSUMPTION: string | null,
             readonly OFFLINE_INSTRUCTIONS: string | null,
+
+            readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string,
+            readonly CONTROLLER_IO_HEATING_ELEMENT: string,
+            readonly CONTROLLER_ESS_TIME_OF_USE_TARIFF: string,
+            readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
 
             readonly EVCS_KEBA: string | null,
             readonly EVCS_HARDY_BARTH: string | null,
@@ -112,13 +123,9 @@ export interface Environment {
         readonly FORGET_PASSWORD: string,
         readonly EVCS: string | null,
 
-        readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string,
         readonly CONTROLLER_CHP_SOC: string
         readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string,
         readonly CONTROLLER_IO_FIX_DIGITAL_OUTPUT: string,
-        readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string,
-        readonly CONTROLLER_IO_HEATING_ELEMENT: string,
-        readonly CONTROLLER_ESS_TIME_OF_USE_TARIFF: string,
 
         readonly CONTROLLER_API_MODBUSTCP_READ: string,
         readonly CONTROLLER_API_MODBUSTCP_READWRITE: string,

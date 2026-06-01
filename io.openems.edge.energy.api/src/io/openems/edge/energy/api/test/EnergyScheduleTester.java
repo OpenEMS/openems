@@ -16,6 +16,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 
 public class EnergyScheduleTester {
@@ -65,18 +66,18 @@ public class EnergyScheduleTester {
 		this.cscs = cscsBuilder.build();
 	}
 
-	public static record SimulatedPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
-			EnergyFlow.Model ef, Fitness fitness) {
+	public static record SimulatedPeriod(Period period, GlobalScheduleContext gsc, EnergyFlow.Model ef,
+			Fitness.Builder fitness) {
 	}
 
 	/**
 	 * Test next Period.
 	 * 
-	 * @param fitness the {@link Fitness} result
+	 * @param fitness the {@link Fitness.Builder} result
 	 * @param modes   simulated Modes
 	 * @return a {@link SimulatedPeriod} record
 	 */
-	public SimulatedPeriod simulatePeriod(Fitness fitness, int... modes) {
+	public SimulatedPeriod simulatePeriod(Fitness.Builder fitness, int... modes) {
 		var index = this.nextPeriod++;
 		var gsc = GlobalScheduleContext.from(this.goc);
 		var period = this.goc.periods().get(index);
@@ -116,7 +117,7 @@ public class EnergyScheduleTester {
 	 * @return a {@link SimulatedPeriod} record
 	 */
 	public SimulatedPeriod simulatePeriod(int... modes) {
-		var fitness = new Fitness();
+		var fitness = Fitness.builder();
 		return this.simulatePeriod(fitness, modes);
 	}
 
@@ -128,18 +129,18 @@ public class EnergyScheduleTester {
 	 * @return a {@link SimulatedPeriod} record
 	 */
 	public SimulatedPeriod simulatePeriodIndex(int index, int... modes) {
-		return this.simulatePeriodIndex(index, new Fitness(), modes);
+		return this.simulatePeriodIndex(index, Fitness.builder(), modes);
 	}
 
 	/**
 	 * Test Period with given index.
 	 * 
 	 * @param index   the index of the period
-	 * @param fitness the {@link Fitness} result
+	 * @param fitness the {@link Fitness.Builder} result
 	 * @param modes   simulated Modes
 	 * @return a {@link SimulatedPeriod} record
 	 */
-	public SimulatedPeriod simulatePeriodIndex(int index, Fitness fitness, int... modes) {
+	public SimulatedPeriod simulatePeriodIndex(int index, Fitness.Builder fitness, int... modes) {
 		this.nextPeriod = index;
 		return this.simulatePeriod(fitness, modes);
 	}

@@ -97,7 +97,8 @@ export class CommonProductionDetailsComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            isCommonWidget: "true",
+            useDefaultPrefix: false,
+            isCommonWidget: true,
         };
     }
 }

@@ -11,5 +11,11 @@
       [channelAddress]="component.id + '/Temperature'"
       [converter]="Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS">
     </oe-flat-widget-line>
+    @if (component.factoryId === "Heat.Askoma") {
+      <oe-flat-widget-line [name]="'HEAT.HOME.CHOSEN_MODE' | translate"
+        [channelAddress]="component.id + '/_PropertyMode'"
+        [converter]="CONVERT_TO_MODE_LABEL">
+      </oe-flat-widget-line>
+    }
   </oe-flat-widget>
 }

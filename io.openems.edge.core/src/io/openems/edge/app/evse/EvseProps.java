@@ -5,10 +5,14 @@ import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import io.openems.edge.app.enums.Wiring;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
 
 public class EvseProps {
 
@@ -46,13 +50,22 @@ public class EvseProps {
 	/**
 	 * Creates a {@link AppDef} for configure vehicle.
 	 * 
+	 * @param <T>   the type of the {@link OpenemsApp}
+	 * @param <APP> the App type
 	 * @return the {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> configureVehicle() {
+	public static final <APP extends OpenemsApp & AppManagerUtilSupplier, T extends OpenemsAppInstance> //
+			AppDef<APP, Nameable, BundleProvider> configureVehicle() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.vehicle.label") //
-				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
+					var translationBundle = parameter.bundle();
+					var vehicleName = TranslationUtil.getTranslation(translationBundle,
+							"App.Evse.ElectricVehicle.Generic.Name");
+
+					field.setLink(new LinkBuilder.AppInstallLink("App.Evse.ElectricVehicle.Generic", vehicleName));
+				})//
+				.setAllowedToSave(false)); //
 	}
 
 	/**

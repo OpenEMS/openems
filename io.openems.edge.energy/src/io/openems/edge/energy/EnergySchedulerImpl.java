@@ -1,6 +1,7 @@
 package io.openems.edge.energy;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static io.openems.edge.energy.optimizer.Utils.sortByScheduler;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
 import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
@@ -30,6 +31,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.Call;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffController;
@@ -45,6 +48,7 @@ import io.openems.edge.energy.v1.optimizer.OptimizerV1;
 import io.openems.edge.energy.v1.optimizer.UtilsV1;
 import io.openems.edge.predictor.api.manager.PredictorManager;
 import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timeofusetariff.api.TariffManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 
 @Designate(ocd = Config.class, factory = false)
@@ -54,7 +58,8 @@ import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 		configurationPolicy = ConfigurationPolicy.OPTIONAL //
 )
 @SuppressWarnings("deprecation")
-public class EnergySchedulerImpl extends AbstractOpenemsComponent implements OpenemsComponent, EnergyScheduler {
+public class EnergySchedulerImpl extends AbstractOpenemsComponent
+		implements OpenemsComponent, EnergyScheduler, ComponentJsonApi {
 
 	/** The hard working Optimizer. */
 	private final OptimizerV1 optimizerV1;
@@ -72,21 +77,12 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 	@Reference
 	private PredictorManager predictorManager;
 
-	private volatile TimeOfUseTariff timeOfUseTariff;
-
+	@Deprecated
 	@Reference(policyOption = GREEDY, cardinality = OPTIONAL, target = "(enabled=true)")
-	private void bindTimeOfUseTariff(TimeOfUseTariff tariff) {
-		this.timeOfUseTariff = tariff;
-		this.optimizer.restartOptimization("EnergySchedulerImpl::bindTimeOfUseTariff()", false);
-	}
+	private TimeOfUseTariff timeOfUseTariff;
 
-	@SuppressWarnings("unused")
-	private void unbindTimeOfUseTariff(TimeOfUseTariff tariff) {
-		if (this.timeOfUseTariff == tariff) {
-			this.timeOfUseTariff = null;
-			this.optimizer.restartOptimization("EnergySchedulerImpl::unbindTimeOfUseTariff()", false);
-		}
-	}
+	@Reference
+	private TariffManager tariffManager;
 
 	@Reference
 	private io.openems.edge.scheduler.api.Scheduler scheduler;
@@ -160,14 +156,14 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 							.map(EnergySchedulable::getEnergyScheduleHandler) //
 							.filter(Objects::nonNull) //
 							.collect(toImmutableList());
-					return GlobalOptimizationContext.create() //
+					return GlobalOptimizationContext.builder() //
 							.setComponentManager(this.componentManager) //
 							.setMeta(this.meta) //
 							.setEnvironment(this.config.environment()) //
 							.setEnergyScheduleHandlers(eshs) //
 							.setSum(this.sum) //
 							.setPredictorManager(this.predictorManager) //
-							.setTimeOfUseTariff(this.timeOfUseTariff) //
+							.setTariffManager(this.tariffManager) //
 							.build();
 				}, //
 				this.channel(EnergyScheduler.ChannelId.SIMULATIONS_PER_QUARTER), //
@@ -244,5 +240,20 @@ public class EnergySchedulerImpl extends AbstractOpenemsComponent implements Ope
 		return Optional.ofNullable(this.config) //
 				.map(c -> c.version()) //
 				.orElse(null);
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(new GetSchedule(), //
+				endpoint -> endpoint //
+						.setDescription("""
+								Gets the Schedule.
+								""".stripIndent()), //
+				call -> GetSchedule.Response.from(call.getRequest(), //
+						this.componentManager.getClock(), //
+						this.timedata, this.predictorManager, this.tariffManager, //
+						this.optimizer != null //
+								? this.optimizer.getLatestSimulationResult() //
+								: EMPTY_SIMULATION_RESULT /* no handling for OptimizerV1 */));
 	}
 }

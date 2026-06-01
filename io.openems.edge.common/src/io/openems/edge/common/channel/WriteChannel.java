@@ -96,6 +96,18 @@ public interface WriteChannel<T> extends Channel<T> {
 	public void onSetNextWrite(ThrowingConsumer<T, OpenemsNamedException> callback);
 
 	/**
+	 * Removes an onSetNextWrite callback.
+	 *
+	 * <p>
+	 * The callback can throw an {@link OpenemsNamedException}.
+	 *
+	 * @param callback the callback
+	 */
+	public default void removeOnSetNextWriteCallback(ThrowingConsumer<T, OpenemsNamedException> callback) {
+		this.getOnSetNextWrites().remove(callback);
+	}
+
+	/**
 	 * Gets the onSetNextWrite callbacks.
 	 * 
 	 * @return a List of callbacks
