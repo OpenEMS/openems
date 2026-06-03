@@ -111,7 +111,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.6.0</version>
+			<version>3.7.0</version>
 		</dependency>
 		<dependency>
 			<!--
