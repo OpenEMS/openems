@@ -44,7 +44,7 @@
 			-->
 			<groupId>com.fasterxml</groupId>
 			<artifactId>aalto-xml</artifactId>
-			<version>1.3.4</version>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -99,7 +99,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.34.1</version>
+			<version>4.35.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -111,7 +111,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.5.1</version>
+			<version>3.7.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -369,7 +369,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.8</version>
+			<version>1.1.10</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -453,21 +453,25 @@
 			<!--
 			Fastexcel Writer
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.20.0</version>
+			<version>0.20.1</version>
 		</dependency>
 		<dependency>
 			<!--
 			Fastexcel Reader
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.20.0</version>
+			<version>0.20.1</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
@@ -604,49 +608,81 @@
 			<version>1.22.2</version>
 		</dependency>
 		<dependency>
+			<!--
+			JUnit Jupiter API
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
-			Core package for the JUnit Jupiter test engine
+			JUnit Jupiter Engine
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
-			Public API for configuring and launching test plans
+			JUnit Jupiter Params
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			A thin layer on top of JUnit 4 to allow running vintage tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			JUnit Jupiter extension for running parameterized tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Commons
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-commons</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Engine API
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-engine</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Launcher
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>6.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Vintage Engine
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>6.1.0</version>
 		</dependency>
 		<dependency>
 			<!--

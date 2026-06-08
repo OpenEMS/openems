@@ -109,7 +109,6 @@ public abstract class AbstractModbusApi extends AbstractOpenemsComponent
 	}
 
 	protected void modified(ComponentContext context, CommonConfig config, Clock clock) {
-		this.config = config;
 		this.clock = clock;
 		super.modified(context, config.id(), config.alias(), config.enabled());
 
