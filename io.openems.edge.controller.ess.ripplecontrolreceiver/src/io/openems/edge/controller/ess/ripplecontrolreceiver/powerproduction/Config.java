@@ -1,15 +1,15 @@
-package io.openems.edge.controller.ess.ripplecontrolreceiver;
+package io.openems.edge.controller.ess.ripplecontrolreceiver.powerproduction;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 @ObjectClassDefinition(//
-		name = "Controller Ess Ripple Control Receiver", //
+		name = "Controller Ess Ripple Control Receiver, FNN-2bit", //
 		description = "Controller to optimize energy distribution during peak hours by reducing the inverter output to 0, 30 or 60 percent.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "ctrlEssRippleControlReceiver0";
+	String id() default "limiter0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
 	String alias() default "";

@@ -1,4 +1,4 @@
-package io.openems.edge.controller.ess.limiter14a;
+package io.openems.edge.controller.ess.limiter14a.relaissignal;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -6,6 +6,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -21,6 +22,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.controller.ess.limiter14a.ControllerEssLimiter14a;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -32,8 +34,8 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implements //
-		ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider {
+public class ControllerEssLimiter14aRelaisSignalImpl extends AbstractOpenemsComponent implements //
+		ControllerEssLimiter14aRelaisSignal, ControllerEssLimiter14a, Controller, OpenemsComponent, TimedataProvider {
 
 	@Reference
 	private Sum sum;
@@ -47,7 +49,10 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(target = "(&(id=${config.ess_id})(enabled=true))", //
+			policy = ReferencePolicy.STATIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.MANDATORY)
 	private ManagedSymmetricEss ess;
 
 	private ChannelAddress inputChannelAddress;
@@ -55,7 +60,7 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	private final CalculateActiveTime cumulatedRestrictionTime = new CalculateActiveTime(this,
 			ControllerEssLimiter14a.ChannelId.CUMULATED_RESTRICTION_TIME);
 
-	public ControllerEssLimiter14aImpl() {
+	public ControllerEssLimiter14aRelaisSignalImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				Controller.ChannelId.values(), //
@@ -64,13 +69,19 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
+		this.applyConfig(config);
+	}
 
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
+	@Modified
+	protected void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+		super.modified(context, config.id(), config.alias(), config.enabled()); //
+		this.applyConfig(config);
+	}
+
+	protected void applyConfig(Config config) throws OpenemsNamedException {
+		this.inputChannelAddress = ChannelAddress.fromString(config.inputChannelAddress());
 	}
 
 	@Deactivate
@@ -80,16 +91,22 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		BooleanReadChannel inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
-		var onGrid = this.sum.getGridMode() != GridMode.OFF_GRID;
-		// 0/1 is reversed on relays board
-		var isActive = onGrid && !inputChannel.value().orElse(true);
-		if (isActive) {
+		var isLimitActive = this.determinateIfLimitIsActive();
+		if (isLimitActive) {
 			this.ess.setActivePowerGreaterOrEquals(ESS_LIMIT_14A_ENWG);
 		}
 
-		this._setRestrictionMode(isActive);
-		this.cumulatedRestrictionTime.update(isActive);
+		this._setRestrictionMode(isLimitActive);
+		this.cumulatedRestrictionTime.update(isLimitActive);
+	}
+
+	protected boolean determinateIfLimitIsActive() throws OpenemsNamedException {
+		if (this.sum.getGridMode() != GridMode.ON_GRID) {
+			return false;
+		}
+
+		BooleanReadChannel inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
+		return !inputChannel.value().orElse(true); // 0/1 is reversed on relays board
 	}
 
 	@Override
