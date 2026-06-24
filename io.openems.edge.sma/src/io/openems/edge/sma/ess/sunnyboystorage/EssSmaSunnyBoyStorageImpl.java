@@ -54,13 +54,6 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 	 */
 	private static final int MAX_APPARENT_POWER = 2500;
 
-	/**
-	 * Last BMS_MODE written. Used to detect direction changes (charge↔discharge)
-	 * that require a Presetting (2424) intermediate cycle before the SBS accepts
-	 * the new mode.
-	 */
-	private int lastBmsMode = 2424;
-
 	@Reference
 	private Power power;
 
@@ -110,18 +103,7 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 		}
 
 		// 2289=Charge battery, 2290=Discharge battery, 2424=Presetting (self-consumption)
-		int targetBmsMode = activePower < 0 ? 2289 : (activePower > 0 ? 2290 : 2424);
-
-		// SMA CmpBMS requires a Presetting (2424) intermediate cycle when switching
-		// between charge (2289) and discharge (2290). Jumping directly 2289↔2290
-		// causes the device to ignore the new command and continue on the old one
-		// until the 60 s watchdog expires.
-		boolean directionChange = (this.lastBmsMode == 2289 && targetBmsMode == 2290)
-				|| (this.lastBmsMode == 2290 && targetBmsMode == 2289);
-		int bmsMode = directionChange ? 2424 : targetBmsMode;
-		int effectivePower = directionChange ? 0 : activePower;
-		this.lastBmsMode = bmsMode;
-
+		int bmsMode = activePower < 0 ? 2289 : (activePower > 0 ? 2290 : 2424);
 		IntegerWriteChannel bmsModeChannel = this.channel(EssSmaSunnyBoyStorage.ChannelId.BMS_MODE);
 		bmsModeChannel.setNextWriteValue(bmsMode);
 
@@ -132,20 +114,22 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 		final int maxCharge;
 		final int minDischarge;
 		final int maxDischarge;
-		if (effectivePower < 0) {
-			int absPower = Math.abs(effectivePower);
+		if (activePower < 0) {
+			int absPower = Math.abs(activePower);
 			minCharge = absPower;
 			maxCharge = absPower;
 			minDischarge = 0;
 			maxDischarge = 0;
-		} else if (effectivePower > 0) {
+		} else if (activePower > 0) {
 			minCharge = 0;
 			maxCharge = 0;
-			minDischarge = effectivePower;
-			maxDischarge = effectivePower;
+			minDischarge = activePower;
+			maxDischarge = activePower;
 		} else {
-			// Solver commanded 0 W (or direction-change intermediate): hold battery neutral.
-			// BMS_MODE=2424 (Presetting) with all limits=0 locks the device at 0 W.
+			// Solver commanded 0 W: hold battery neutral.
+			// BMS_MODE=2424 (Presetting) with all limits=0 locks the device at 0 W,
+			// matching EVCC's "Hold" mode. The balancing controller sends explicit
+			// charge/discharge commands every cycle when actual power is needed.
 			minCharge = 0;
 			maxCharge = 0;
 			minDischarge = 0;
