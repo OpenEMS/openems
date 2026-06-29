@@ -55,6 +55,14 @@ public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 		wsData.setId(id);
 
+		// Register this directly-connected Edge so its data notifications are accepted
+		// and persisted. In the multi-edge topology Edges are announced via a
+		// ConnectedEdges.Notification (which creates the EdgeCache); a directly
+		// connected Edge announces only itself via the 'id' header, so register it
+		// here. Without this the EdgeCache is null and handleDataNotification silently
+		// drops every TimestampedData/AggregatedData notification.
+		wsData.updateEdgeStatus(id, true);
+
 		// Send a UpdateMetadataCache.Notification
 		wsData.send(this.generateUpdateMetadataCacheNotification.get());
 
