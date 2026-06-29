@@ -25,6 +25,12 @@ import io.openems.common.channel.PersistencePriority;
 	@AttributeDefinition(name = "Apikey", description = "Apikey for authentication at OpenEMS Backend.", type = AttributeType.PASSWORD)
 	String apikey();
 
+	@AttributeDefinition(name = "Edge-ID", description = "Edge ID for Edge.Manager protocol (Backend 2026.2+). "
+			+ "Set to the Edge ID registered in Backend Metadata.File (e.g. 'my-site-pi-1'). "
+			+ "When set, an 'id' HTTP header is added to the WebSocket handshake so Edge.Manager "
+			+ "can route the connection. Leave empty for 2025.x Backends.")
+	String edgeId() default "";
+
 	@AttributeDefinition(name = "Uri", description = "The connection Uri to OpenEMS Backend.")
 	String uri() default "";
 

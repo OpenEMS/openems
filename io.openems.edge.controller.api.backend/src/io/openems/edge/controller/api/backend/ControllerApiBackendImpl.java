@@ -33,9 +33,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcMessage;
+import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
+import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -146,6 +149,12 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 		Map<String, String> httpHeaders = new HashMap<>();
 		httpHeaders.put(CommonHttpHeader.APIKEY.asString(), config.apikey());
 		httpHeaders.put(CommonHttpHeader.INSTANCE_ID.asString(), this.instanceId);
+		// Edge.Manager (Backend 2026.2+) identifies connections by 'id' header rather
+		// than 'apikey'. Send it when edgeId is configured so both old and new Backends
+		// are supported simultaneously.
+		if (!config.edgeId().isBlank()) {
+			httpHeaders.put("id", config.edgeId());
+		}
 
 		final var uriScheme = uri.getScheme();
 		if (!("https".equalsIgnoreCase(uriScheme) || "wss".equalsIgnoreCase(uriScheme))) {
@@ -165,7 +174,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 				this.getLastSuccessFulResendChannel().address(), //
 				config.resendPriority(), //
 				t -> this.getLastSuccessFulResendChannel().setNextValue(t), //
-				t -> this.websocket.sendMessage(t) //
+				t -> this.websocket.sendMessage(this.wrap(t)) //
 		));
 		this.resendHistoricDataWorker.activate(this.id(), false);
 
@@ -229,7 +238,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 				if (ws == null) {
 					return;
 				}
-				ws.sendMessage(message);
+				ws.sendMessage(this.wrap(message));
 
 				// Trigger sending of all channel values, because a Component might have
 				// disappeared
@@ -272,6 +281,26 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 			return null;
 		}
 		return this.executor.scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	}
+
+	/**
+	 * Wraps a notification in {@link EdgeRpcNotification} when edgeId is set
+	 * (Backend 2026.x edge.manager protocol). Falls back to raw notification for
+	 * 2025.x Backends where edgeId is empty.
+	 */
+	JsonrpcNotification wrap(JsonrpcNotification notification) {
+		var edgeId = this.config.edgeId();
+		if (edgeId == null || edgeId.isBlank()) {
+			return notification;
+		}
+		return new EdgeRpcNotification(edgeId, notification);
+	}
+
+	JsonrpcMessage wrap(JsonrpcMessage message) {
+		if (message instanceof JsonrpcNotification n) {
+			return this.wrap(n);
+		}
+		return message;
 	}
 
 	@Override
