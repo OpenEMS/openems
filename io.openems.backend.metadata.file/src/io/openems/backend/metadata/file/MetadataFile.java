@@ -35,6 +35,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
 import io.openems.backend.common.alerting.SumStateAlertingSetting;
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.alerting.UserAlertingSettings;
 import io.openems.backend.common.metadata.AbstractMetadata;
 import io.openems.backend.common.metadata.Edge;
@@ -132,6 +133,15 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			}
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public synchronized UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		this.refreshData();
+		var apikeysToEdgeIds = this.edges.values().stream() //
+				.filter(edge -> edge.getApikey() != null && !edge.getApikey().isBlank()) //
+				.collect(Collectors.toMap(MyEdge::getApikey, MyEdge::getId, (a, b) -> a));
+		return new UpdateMetadataCache.Notification(apikeysToEdgeIds);
 	}
 
 	@Override
