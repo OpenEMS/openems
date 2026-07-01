@@ -15,6 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import io.openems.common.websocket.CommonHttpHeader;
 import org.osgi.service.component.ComponentContext;
@@ -72,6 +73,9 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	protected static final String COMPONENT_NAME = "Controller.Api.Backend";
 
 	public static final Key<WebsocketClient> WEBSOCKET_CLIENT_KEY = new Key<>("websocketClient", WebsocketClient.class);
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static final Key<Function<JsonrpcNotification, JsonrpcNotification>> NOTIFICATION_WRAPPER_KEY //
+			= new Key<>("notificationWrapper", (Class) Function.class);
 
 	protected final SendChannelValuesWorker sendChannelValuesWorker = new SendChannelValuesWorker(this);
 	protected final ApiWorker apiWorker = new ApiWorker(this);
@@ -180,6 +184,7 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 
 		this.requestHandler.setOnCall(call -> {
 			call.put(WEBSOCKET_CLIENT_KEY, this.websocket);
+			call.put(NOTIFICATION_WRAPPER_KEY, this::wrap);
 			call.put(ComponentConfigRequestHandler.API_WORKER_KEY, this.apiWorker);
 			call.put(EdgeKeys.IS_FROM_BACKEND_KEY, true);
 		});
@@ -287,6 +292,9 @@ public class ControllerApiBackendImpl extends AbstractOpenemsComponent
 	 * Wraps a notification in {@link EdgeRpcNotification} when edgeId is set
 	 * (Backend 2026.x edge.manager protocol). Falls back to raw notification for
 	 * 2025.x Backends where edgeId is empty.
+	 *
+	 * @param notification the {@link JsonrpcNotification}
+	 * @return the wrapped or original {@link JsonrpcNotification}
 	 */
 	JsonrpcNotification wrap(JsonrpcNotification notification) {
 		var edgeId = this.config.edgeId();
