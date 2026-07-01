@@ -29,7 +29,7 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.2.3</version>
+			<version>7.3.0</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
