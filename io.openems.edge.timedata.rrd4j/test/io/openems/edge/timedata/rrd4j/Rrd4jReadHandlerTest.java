@@ -190,6 +190,14 @@ public class Rrd4jReadHandlerTest {
 			assertTrue("Expected a resend row at " + expectedTimestampMillis + "ms", row != null);
 			assertEquals("Expected WATT value " + (i * 100) + " at sample " + i, //
 					new JsonPrimitive((double) (i * 100)), row.get(channelAddress));
+
+			// DUMMY_CHANNEL is OpenemsType.INTEGER, so the resend MUST emit an integer
+			// JSON (no decimal) to match the field type live data writes; otherwise the
+			// timeseries backend drops the whole point on a float-vs-integer conflict.
+			// gson's JsonPrimitive#equals treats 100 and 100.0 as equal, so the check
+			// above passes either way - assert the serialized form explicitly.
+			assertEquals("INTEGER channel must resend as an integer, not a float", //
+					String.valueOf(i * 100), row.get(channelAddress).toString());
 		}
 	}
 
