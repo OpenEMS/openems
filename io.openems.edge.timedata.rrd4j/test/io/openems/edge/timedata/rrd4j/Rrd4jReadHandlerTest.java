@@ -164,6 +164,36 @@ public class Rrd4jReadHandlerTest {
 	}
 
 	@Test
+	public void testQueryResendDataReturnsAverageChannel() throws Exception {
+		// AVERAGE-consolidated channel (Unit.WATT maps to ConsolFun.AVERAGE; see
+		// Rrd4jSupplier.getDsDefForChannel). The previous adjustSeconds = arcStep - 300
+		// logic silently dropped these from the resend. This test asserts that the
+		// WATT samples written by setUp (0, 100, 200, ... every 5 min) are now returned
+		// by queryResendData over a window that spans several of those samples.
+		final var channelAddress = this.dummyComponent.channel(DummyComponent.ChannelId.DUMMY_CHANNEL).address();
+
+		final var result = this.readHandler.queryResendData(this.rrdbId, //
+				START.atZone(ZoneId.of("UTC")), //
+				START.plus(30, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), //
+				Set.of(channelAddress), //
+				false);
+
+		// KEY assertion: the resend must NOT be empty (it was empty under the old code
+		// for AVERAGE channels).
+		assertTrue("queryResendData must return AVERAGE-consolidated WATT data", !result.isEmpty());
+
+		// Each AVERAGE 5-minute sample: 0, 100, 200, 300, 400, 500 at START + n*5min.
+		// Keys are timestamps in MILLISECONDS (see Rrd4jReadHandler.queryResendData).
+		for (int i = 0; i < 6; i++) {
+			final var expectedTimestampMillis = START.plus(5 * i, ChronoUnit.MINUTES).toEpochMilli();
+			final var row = result.get(expectedTimestampMillis);
+			assertTrue("Expected a resend row at " + expectedTimestampMillis + "ms", row != null);
+			assertEquals("Expected WATT value " + (i * 100) + " at sample " + i, //
+					new JsonPrimitive((double) (i * 100)), row.get(channelAddress));
+		}
+	}
+
+	@Test
 	public void testStreamRanges() throws Exception {
 		final var utc = ZoneId.of("UTC");
 		final var from = ZonedDateTime.of(2023, 12, 26, 0, 0, 0, 0, utc);

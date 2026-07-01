@@ -34,6 +34,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.timedata.api.Timeranges;
@@ -223,42 +224,48 @@ public class Rrd4jReadHandler {
 					continue;
 				}
 
+				// Read at the channel's native storage resolution, mirroring
+				// queryHistoricData. The previous per-archive 'adjustSeconds = arcStep - 300'
+				// logic silently dropped AVERAGE channels (e.g. Voltage, Current, Frequency):
+				// for a 300s AVERAGE archive the shift was 0, so the narrow (<=300s) resend
+				// window left rrd4j slots either NaN or just outside the window and only
+				// cumulated (3600s) channels survived. Selecting the archive that matches the
+				// channel's consolidation and reading it at its own step fixes backfill for
+				// instantaneous channels while keeping cumulated channels hourly.
+				final var chDef = Rrd4jSupplier.getDsDefForChannel(channel.channelDoc().getUnit());
+
+				long resolution = Rrd4jConstants.DEFAULT_STEP_SECONDS;
 				for (int i = 0; i < database.getArcCount(); i++) {
-					final var archive = database.getArchive(i);
-					final var arcStep = archive.getArcStep();
+					if (database.getArchive(i).getConsolFun() == chDef.consolFun()) {
+						resolution = database.getArchive(i).getArcStep();
+						break;
+					}
+				}
 
-					final var adjustSeconds = arcStep - Rrd4jConstants.DEFAULT_STEP_SECONDS;
-
-					final var start = Math.max(fromTime - adjustSeconds, archive.getStartTime());
-					final var stop = Math.min(toTime - adjustSeconds, archive.getEndTime());
-					if (start > archive.getEndTime()) {
+				final var fetchData = database
+					.createFetchRequest(chDef.consolFun(), fromTime, toTime, resolution) //
+					.fetchData();
+				final var result = Rrd4jSupplier.postProcessData(fetchData, resolution);
+				final var firstTimestamp = fetchData.getFirstTimestamp();
+				for (int i = 0; i < result.length; i++) {
+					final var value = result[i];
+					if (Double.isNaN(value)) {
 						continue;
 					}
-					if (stop < archive.getStartTime()) {
+					final var timestamp = firstTimestamp + (i * resolution);
+					if (timestamp < fromTime || timestamp > toTime) {
 						continue;
 					}
-
-					final var fetchData = database.createFetchRequest(archive.getConsolFun(), start, stop, arcStep) //
-							.fetchData();
-
-					final var timestamps = fetchData.getTimestamps();
-					final var values = fetchData.getValues()[0];
-					for (int j = 0; j < values.length; j++) {
-						final var value = values[j];
-						if (Double.isNaN(value)) {
-							continue;
-						}
-						final var timestamp = timestamps[j] + adjustSeconds;
-
-						if (timestamp < fromTime //
-								|| timestamp > toTime) {
-							continue;
-						}
-
-						// return timestamps in milliseconds
-						resultMap.computeIfAbsent(timestamp * 1000, t -> new TreeMap<>()) //
-								.put(channelAddress, new JsonPrimitive(value));
-					}
+					// coerce the rrd4j double back to the channel's type so integer/boolean
+					// channels are written with the same InfluxDB field type as live data;
+					// otherwise a float-vs-integer field conflict makes InfluxDB drop the point.
+					final JsonPrimitive jsonValue = switch (channel.getType()) {
+						case BOOLEAN, SHORT, INTEGER, LONG -> new JsonPrimitive(Long.valueOf(Math.round(value)));
+						default -> new JsonPrimitive(Double.valueOf(value));
+					};
+					// return timestamps in milliseconds
+					resultMap.computeIfAbsent(timestamp * 1000, t -> new TreeMap<>()) //
+						.put(channelAddress, jsonValue);
 				}
 
 			} catch (Exception e) {
