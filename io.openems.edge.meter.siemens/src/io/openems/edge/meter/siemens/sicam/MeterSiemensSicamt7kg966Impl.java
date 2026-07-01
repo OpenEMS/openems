@@ -46,7 +46,7 @@ public class MeterSiemensSicamt7kg966Impl extends AbstractOpenemsModbusComponent
 	@Reference
 	protected ConfigurationAdmin cm;
 
-	protected MeterSiemensSicamt7kg966Impl() {
+	public MeterSiemensSicamt7kg966Impl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ModbusComponent.ChannelId.values(), //
