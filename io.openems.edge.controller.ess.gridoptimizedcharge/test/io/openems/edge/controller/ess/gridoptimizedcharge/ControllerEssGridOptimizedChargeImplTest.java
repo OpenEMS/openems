@@ -34,6 +34,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 
+import io.openems.edge.controller.ess.ripplecontrolreceiver.test.DummyPowerProductionLimiter;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -50,7 +51,6 @@ import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.common.test.Plot.Data;
-import io.openems.edge.controller.ess.ripplecontrolreceiver.test.DummyRippleControlReceiver;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
@@ -65,7 +65,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
 	private static final DummyMeta META = new DummyMeta().withGridSellHardLimit(7000);
-	private static final DummyRippleControlReceiver RCR = new DummyRippleControlReceiver("rcr0");
+	private static final DummyPowerProductionLimiter RCR = new DummyPowerProductionLimiter("rcr0");
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0");
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss("ess0");

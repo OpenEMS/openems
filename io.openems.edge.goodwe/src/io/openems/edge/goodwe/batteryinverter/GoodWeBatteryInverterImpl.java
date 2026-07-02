@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.openems.edge.controller.ess.ripplecontrolreceiver.PowerProductionLimiter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -75,7 +76,6 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.update.Updateable;
-import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
@@ -153,7 +153,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private Meta meta;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
-	protected volatile ControllerEssRippleControlReceiver rcr;
+	protected volatile PowerProductionLimiter powerProductionLimiter;
 
 	@Override
 	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
@@ -785,9 +785,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		}
 
 		// Limit from Ripple Control Receiver (Minimum of both limits)
-		if (this.rcr != null && this.rcr.isEnabled()) {
+		if (this.powerProductionLimiter != null) {
+			this.powerProductionLimiter.setMaxNominalProductionPower(maxApparentPower);
+
 			enableFeedInLimit = true;
-			gridFeedInLimit = Math.min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
+			gridFeedInLimit = Math.min(gridFeedInLimit, this.powerProductionLimiter.getGridFeedInLimit());
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
