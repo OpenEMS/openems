@@ -766,9 +766,17 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			this.calculateDischargeEnergy.update(0);
 		}
 
-		// Capacity Channel is also needed for ESS
+		// Capacity Channel is also needed for ESS. Some BMS report the installed
+		// capacity as 0 or null; in that case fall back to the configured capacity
+		// rather than overwriting the channel with 0, which would zero downstream
+		// consumers such as the Time-of-Use optimizer's usable-energy calculation.
 		if (this.battery != null) {
-			this._setCapacity(this.battery.getCapacity().get());
+			final var batteryCapacity = this.battery.getCapacity().get();
+			if (batteryCapacity != null && batteryCapacity > 0) {
+				this._setCapacity(batteryCapacity);
+			} else {
+				this._setCapacity(this.config.capacity());
+			}
 		}
 
 		if (this.batteryInverter != null) {
