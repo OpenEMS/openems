@@ -10,6 +10,7 @@ import { LiveDataService } from "../../../../livedataservice";
 import { CONVERT_GRID_OPTIMIZED_CHARGE_STATE, SharedGridOptimizedCharge } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-ess-grid-optimized-charge-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

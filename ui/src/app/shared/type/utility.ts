@@ -67,3 +67,15 @@ export type TFlattenKeys<T, Prefix extends string = ""> = {
         ? TFlattenKeys<T[K], `${Prefix}${K}.`>
         : `${Prefix}${K}`;
 }[keyof T & string];
+
+
+type FixedLengthArray<
+    T,
+    Length extends number,
+    Acc extends T[] = [],
+> = Acc["length"] extends Length
+    ? Acc
+    : FixedLengthArray<T, Length, [...Acc, T]>;
+
+export type MultiLengthArray<T, L extends number> =
+    L extends any ? FixedLengthArray<T, L> : never;

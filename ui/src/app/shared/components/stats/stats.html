@@ -1,0 +1,39 @@
+<ion-grid class="ion-no-padding">
+    <ion-row class="ion-no-padding">
+        @let colSize = (stats.length === 4 ||stats.length === 2) ? '6' : '4';
+        @for (stat of stats; track $index) {
+        <ion-col [size]="colSize">
+            <ion-card style="height: stretch;">
+                <ion-card-header class="ion-padding-bottom">
+                    <ion-card-subtitle style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{
+                        stat.name }}</ion-card-subtitle>
+                </ion-card-header>
+                <ion-card-content class="ion-text-end">
+                    @if(stat.channelsToSubscribe){
+                    <oe-modal-value-line [channelsToSubscribe]="stat.channelsToSubscribe" [valueCallback]="stat.value"
+                        leftColumnWidth="0"
+                        [lineStyle]="{value: {'textAlign': 'center', 'fontFamily': 'oe-ci-font-family'}}"
+                        singleLine="true">
+                    </oe-modal-value-line>
+                    }@else if(stat.futureValue !== null){
+                    <ion-text
+                        class="ion-margin-bottom ion-display-flex ion-justify-content-end ion-align-items-start ion-text-nowrap">
+                        <span>
+                            <span class="ion-text-bold oe-ci-font-family ion-display-block"
+                                style="font-size: 2rem; line-height: 1">{{stat.historyValue}}</span>
+                            @if(stat.futureValue !== null){
+                            <ion-note class="ion-display-block oe-ci-font-family">+ {{stat.futureValue}}</ion-note>
+                            }
+                        </span>
+                        <ion-note class="ion-padding-start">{{stat.unit}}</ion-note>
+                    </ion-text>
+
+                    }@else{
+                    {{stat.value}}
+                    }
+                </ion-card-content>
+            </ion-card>
+        </ion-col>
+        }
+    </ion-row>
+</ion-grid>

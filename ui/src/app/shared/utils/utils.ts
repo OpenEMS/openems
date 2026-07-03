@@ -655,6 +655,7 @@ export enum YAxisType {
     HEATING_ELEMENT,
     RESTRICTION,
     ENERIX_CONTROL,
+    HIDE,
 }
 
 export enum ChartAxis {
@@ -783,13 +784,14 @@ export namespace HistoryUtils {
         public static readonly EMPTY = new ChartData();
 
         constructor(
+
             /** Input Channels that need to be queried from the database */
             public input: InputChannel[] = [],
 
             /** Output Channels that will be shown in the chart */
             public output: (
                 data: ChannelData,
-                labels?: (string | Date)[]
+                labels?: (string | Date | number)[]
             ) => DisplayValue<HistoryUtils.CustomOptions>[] = () => [],
 
             public tooltip: {

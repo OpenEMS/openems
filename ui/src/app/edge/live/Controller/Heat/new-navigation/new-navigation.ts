@@ -1,9 +1,9 @@
-import {CommonModule} from "@angular/common";
+import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
-import {ReactiveFormsModule} from "@angular/forms";
-import {IonicModule} from "@ionic/angular";
-import {FormlyModule} from "@ngx-formly/core";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { FormlyModule } from "@ngx-formly/core";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -13,6 +13,7 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedControllerHeat } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-heat-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     providers: [

@@ -95,7 +95,10 @@ export namespace ViewUtils {
     * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
     * @returns the available height
     */
-    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+    export function getChartContentHeightInVh(position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+        if (customChartHeightPercentage != null) {
+            return NumberUtils.multiplySafely(NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100), (customChartHeightPercentage / 100));
+        }
         return NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100);
     }
 }

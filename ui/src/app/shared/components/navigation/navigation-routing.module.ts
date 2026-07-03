@@ -65,8 +65,9 @@ import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Cont
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
-import { ModalComponent as IoHeatingRoomComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
-import { HeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
+import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
+import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
+import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
 import { suffixMatcher } from "../../guards/url-matcher";
 
@@ -88,8 +89,8 @@ export const newNavigationRoutes: Routes = [
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
 
-    { path: "io-heating-room", component: HeatingRoomGroupComponent },
-    { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
+    { path: "io-heating-room", component: IoHeatingRoomGroupComponent },
+    { path: "io-heating-room/:componentId", component: IoHeatingRoomModalComponent },
 
     // Common navigation
     { path: "common/autarchy", component: CommonAutarchyHomeComponent },
@@ -131,6 +132,7 @@ export const newNavigationRoutes: Routes = [
     { path: "common/storage/controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
     { path: "common/weather/:componentId", component: WeatherHomeComponent },
 
+    { path: "controller/io-fix-digital-output", component: ControllerFixDigitalOutputGroupComponent },
     { path: "controller/io-fix-digital-output/:componentId", component: ControllerFixDigitalOutputHomeComponent },
     { path: "controller/io-fix-digital-output/:componentId/history", component: FixDigitalDetailsComponent },
     { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },

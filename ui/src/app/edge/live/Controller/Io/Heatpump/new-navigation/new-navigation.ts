@@ -13,6 +13,7 @@ import { EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
+    selector: "oe-controller-io-heatpump-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [

@@ -8,10 +8,10 @@ import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { Service, Utils } from "src/app/shared/shared";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Role } from "src/app/shared/type/role";
-import { Theme } from "../history/shared";
 import { registerTranslateExtension } from "./app/app.module";
 import { SettingsComponent } from "./settings.component";
 
@@ -19,23 +19,7 @@ describe("Edge", () => {
     const serviceSypObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {
         metadata: new BehaviorSubject({
             edges: null,
-            user: {
-                globalRole: "admin", hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {}, getThemeFromSettings() {
-                    return null;
-                },
-                isAtLeast(role) {
-                    return true;
-                },
-                getNavigationTree(navigation, translate) {
-                    return null;
-                },
-                getUseNewUIFromSettings: function (): boolean {
-                    throw new Error("Function not implemented.");
-                },
-                getAnnualReviewFromSettings() {
-                    return [];
-                },
-            },
+            user: new User("", "test.user", "admin", Language.DE.key, true, {}),
         }),
     });
 
@@ -93,24 +77,7 @@ export async function expectNgOnInit(serviceSypObject: jasmine.SpyObj<Service>, 
     serviceSypObject.getCurrentEdge.and.resolveTo(edge);
     serviceSypObject.metadata.next({
         edges: { [edge.id]: edge },
-        user: {
-            globalRole: "admin", hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {},
-            getThemeFromSettings: function (): Theme | null {
-                throw new Error("Function not implemented.");
-            },
-            isAtLeast(role) {
-                return true;
-            },
-            getNavigationTree(navigation, translate) {
-                return null;
-            },
-            getUseNewUIFromSettings: function (): boolean {
-                throw new Error("Function not implemented.");
-            },
-            getAnnualReviewFromSettings() {
-                return [];
-            },
-        },
+        user: new User("", "test.user", "admin", Language.DE.key, true, {}),
     });
     await settingsComponent.ngOnInit();
     return {

@@ -50,6 +50,7 @@ import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pi
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { TimeLineComponent } from "./components/picktime/picktime.component";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
+import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
@@ -181,6 +182,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         AppHeaderContentComponent,
         ModalToggleWithValueLineComponent,
         DateTimeLineComponent,
+        StatsComponent,
     ],
     declarations: [
         AppHeaderComponent,

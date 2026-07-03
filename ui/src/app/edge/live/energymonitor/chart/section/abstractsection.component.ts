@@ -147,6 +147,7 @@ export abstract class AbstractSection {
     protected width: number = 0;
     protected gridMode: GridMode;
     protected restrictionMode: number;
+
     protected readonly targetRoute = computed<string[] | null>(() => {
         const navigationPosition = this.navigationService.position();
         if (navigationPosition == null || navigationPosition === "disabled") {
@@ -335,10 +336,10 @@ export abstract class AbstractSection {
      * ...fontsize of text;
      */
     private getSquare(innerRadius: number): SvgSquare {
-        const imageSize = innerRadius / 2.5;
+        const imageSize = Math.max(0, innerRadius / 2.5);
         const yText = imageSize / 4;
 
-        const fontsize = yText - 3;
+        const fontsize = Math.max(0, yText - 3);
         const yNumber = yText + 5 + fontsize;
 
         const yImage = yNumber + 5;

@@ -14,6 +14,7 @@ import { CurrentDataUtils } from "src/app/shared/type/currentdata";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
+    selector: "oe-channelthreshold",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [

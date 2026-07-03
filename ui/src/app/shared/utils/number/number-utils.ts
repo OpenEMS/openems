@@ -43,11 +43,11 @@ export namespace NumberUtils {
     }
 
     /**
-   * Subtracts values from each other - possibly null values
-   *
-   * @param values the values
-   * @returns a number, if at least one value is not null, else null
-   */
+     * Subtracts values from each other - possibly null values
+     *
+     * @param values the values
+     * @returns a number, if at least one value is not null, else null
+     */
     export function subtractSafely(...values: (number | null)[]): number | null {
         return values
             .filter(value => value !== null && value !== undefined)
@@ -77,6 +77,26 @@ export namespace NumberUtils {
         } else {
             return dividend / divisor;
         }
+    }
+
+    /**
+     * Adds values to each other - possibly null values
+     *
+     * @param values the values
+     * @returns a number, if at least one value is not null, else null
+     */
+    export function addSafely(...values: (number | null)[]): number | null {
+        return values
+            .filter(value => value !== null && value !== undefined)
+            .reduce((sum: number | null, curr) => {
+                if (sum == null) {
+                    sum = curr;
+                } else {
+                    sum += curr;
+                }
+
+                return sum;
+            }, null);
     }
 
     /**

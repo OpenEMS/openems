@@ -648,6 +648,7 @@
         "CURRENT_VALUE": "current value",
         "DARK": "Dark",
         "DATE_FORMAT": "yyyy-MM-dd",
+        "DETAILS": "Details",
         "DIGITAL_INPUTS": "Digital Inputs",
         "DIRECT_CONSUMPTION": "Direct consumption",
         "DISCHARGE": "Discharge",
@@ -666,6 +667,7 @@
         "GRID": "Grid",
         "GRID_BUY": "Buy from grid",
         "GRID_BUY_ADVANCED": "Buy",
+        "GRID_BUY_PRICE": "Electricity price",
         "GRID_SELL": "Sell to grid",
         "GRID_SELL_ADVANCED": "Sell",
         "HEAT_PUMP": "Heat pump",
@@ -1252,6 +1254,7 @@
         "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
+            "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
             "HEATING_ROOM": "Heating"
         },
         "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",

@@ -11,6 +11,7 @@ import { Language } from "src/app/shared/type/language";
 import { ChartComponent } from "../chart/chart";
 
 @Component({
+    selector: "oe-fix-digital-details",
     templateUrl: "./details.html",
     standalone: true,
     imports: [

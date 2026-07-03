@@ -536,6 +536,8 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
 
     delete options.plugins.tooltip.caretPadding;
     delete options.layout;
+    delete options.plugins["syncChart"];
+    delete options.indexAxis;
     options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, ["boxHeight", "boxWidth", "boxPadding"]);
     options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, ["boxHeight", "boxWidth"]);
 

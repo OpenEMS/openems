@@ -4,13 +4,15 @@
       <!-- SoH Status Banner Component -->
       <soh-status-banner></soh-status-banner>
 
-      <ion-grid *ngIf="edge && edge.isOnline" class="ion-no-padding">
+      <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== 'disabled') {
           <ion-row class="ion-justify-content-center ion-padding-top">
-            <ion-col size="12" size-md="5" offset-md="2">
+            <ion-col size="12" size-md="5" offset-md="2" class="ion-margin-bottom no-margin-md-bottom">
               <energymonitor tabindex="0"></energymonitor>
             </ion-col>
-            <ion-col size="12" offset-md="1" size-md="4"></ion-col>
+            <ion-col size="12" offset-md="1" size-md="4" class="ion-align-self-end ion-no-padding fena-live-col">
+              <oe-fena></oe-fena>
+            </ion-col>
           </ion-row>
         } @else {
           <ion-row class="ion-justify-content-center ion-no-padding" *ngIf="widgets">

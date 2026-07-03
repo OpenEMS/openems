@@ -216,7 +216,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     public override ngAfterViewInit(): void {
         setTimeout(() => {
-            this.viewHeight = NumberUtils.divideSafely(ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position()), 2);
+            this.viewHeight = NumberUtils.divideSafely(ViewUtils.getChartContentHeightInVh(this.navigationService.position()), 2) + "dvh";
             this.chart?.chart?.resize();
             this.chart?.update();
         }, 100);

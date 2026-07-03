@@ -58,7 +58,7 @@ export class EdgePermission {
      * @returns True if the edge supports switching ability, false otherwise
      */
     public static hasPhaseSwitchingAbility(edge: Edge, component: EdgeConfig.Component): boolean {
-        return EdgePermission.hasSwitchArchitecture(edge) && StringUtils.isInArr(component.factoryId, ["Evse.ChargePoint.Keba.Modbus", /* TODO: remove, implemented for fems888 */"Evse.ChargePoint.Keba.UDP"]);
+        return EdgePermission.hasSwitchArchitecture(edge) && StringUtils.isInArr(component.factoryId, ["Evse.ChargePoint.Keba.Modbus", "Evse.ChargePoint.Keba.UDP"]);
     }
 
     /**
@@ -195,12 +195,13 @@ export namespace Currency {
      * @param currency The currency enum.
      * @returns the Currencylabel
      */
-    export function getCurrencyLabelByCurrency(currency: string): Label {
+    export function getCurrencyLabelByCurrency(currency: string | null): Label {
         switch (currency) {
             case "SEK":
                 return Label.OERE_PER_KWH;
             case "CHF":
                 return Label.RAPPEN_PER_KWH;
+            case null:
             default:
                 return Label.CENT_PER_KWH;
         }

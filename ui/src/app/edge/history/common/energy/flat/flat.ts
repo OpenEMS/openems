@@ -49,7 +49,7 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     public getChartHeight(): number {
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position());
     }
 
     protected override onCurrentData(currentData: CurrentData) {

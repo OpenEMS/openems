@@ -11,7 +11,7 @@
         @switch (line.type) {
             @case ('channel-line') {
               <oe-modal-line [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name"
-                [channelAddress]="line.channel" [converter]="line.converter">
+                [channelAddress]="line.channel" [converter]="line.converter" [leftColumnWidth]="leftColumnWidth">
               </oe-modal-line>
             }
 

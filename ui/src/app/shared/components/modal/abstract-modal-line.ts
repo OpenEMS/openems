@@ -44,7 +44,7 @@ export abstract class AbstractModalLine implements OnInit, OnDestroy, OnChanges 
     @Input() public roleIsAtLeast?: Role = Role.GUEST;
 
     /** Applies Styling */
-    @Input() public lineStyle?: { name?: Partial<CSSStyleDeclaration> } = {};
+    @Input() public lineStyle?: { name?: Partial<CSSStyleDeclaration>, value?: Partial<CSSStyleDeclaration> } = {};
 
     /**
      * displayValue is the displayed @Input value in html

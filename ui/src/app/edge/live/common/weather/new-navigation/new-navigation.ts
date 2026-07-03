@@ -7,6 +7,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { WeatherPlainComponent } from "./plain-modal";
 
 @Component({
+    selector: "oe-weather",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
 })

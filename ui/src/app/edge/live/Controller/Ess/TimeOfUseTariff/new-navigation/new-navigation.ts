@@ -17,6 +17,7 @@ import { SchedulePowerAndSocChartComponent } from "./power-soc-chart";
 import { ScheduleStateAndPriceChartComponent } from "./state-price-chart";
 
 @Component({
+    selector: "oe-controller-ess-time-of-use-tariff-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [

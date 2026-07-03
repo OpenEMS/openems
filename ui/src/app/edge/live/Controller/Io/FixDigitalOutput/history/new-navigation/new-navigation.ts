@@ -7,9 +7,9 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
 import { Language } from "src/app/shared/type/language";
-import { ChartComponent } from "../details/chart/chart";
 
 @Component({
+    selector: "oe-fix-digital-input-history",
     templateUrl: "./new-navigation.html",
     standalone: true,
     imports: [
@@ -19,7 +19,6 @@ import { ChartComponent } from "../details/chart/chart";
         ChartComponentsModule,
         PickdateComponentModule,
         HistoryDataErrorModule,
-        ChartComponent,
     ],
     providers: [
         { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },

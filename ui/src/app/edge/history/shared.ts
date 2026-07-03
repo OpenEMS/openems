@@ -4,6 +4,7 @@ import * as Chart from "chart.js";
 // cf. https://github.com/import-js/eslint-plugin-import/issues/1479
 import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+import { ChartTypes } from "src/app/shared/components/chart/chart.types";
 
 import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
 import { ChannelAddress, Service } from "src/app/shared/shared";
@@ -160,7 +161,7 @@ export type ChartOptions = {
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     responsive: true,
-
+    indexAxis: "x",
     // Important for point style on chart hover for line chart
     interaction: {
         mode: "index",  // Detect x-axis alignment
@@ -275,7 +276,8 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     },
     layout: {
         padding: {
-            top: 35, // Increase the top padding to create room for the title
+            top: 35,
+            left: 0,
         },
     },
 });
@@ -519,7 +521,7 @@ export type ChartData = {
     yAxisTitle: string,
 };
 
-export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.ChartOptions => ({
+export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.ChartOptions => ({
     responsive: true,
     maintainAspectRatio: false,
     elements: {

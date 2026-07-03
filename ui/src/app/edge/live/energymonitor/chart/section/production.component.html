@@ -5,8 +5,7 @@
 @if (isEnabled && energyFlow) {
   <svg:g>
     <svg:defs>
-      <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1"
-        [attr.x2]="energyFlow.gradient.x2" [attr.y2]="energyFlow.gradient.y2">
+      <svg:linearGradient [attr.id]="sectionId" [attr.x1]="energyFlow.gradient.x1" [attr.y1]="energyFlow.gradient.y1" [attr.x2]="energyFlow.gradient.x2" [attr.y2]="energyFlow.gradient.y2">
         <svg:stop offset="0%" stop-color="var(--ion-item-background)" />
         <svg:stop offset="100%" stop-color="var(--ion-color-production)" />
       </svg:linearGradient>

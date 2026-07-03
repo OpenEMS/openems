@@ -4,6 +4,7 @@ import { TEnumKeys, TPartialBy } from "../../type/utility";
 import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { Edge } from "../edge/edge";
+import { EdgeConfig } from "../edge/edgeconfig";
 
 export enum NavigationId {
     LIVE = "live",
@@ -515,5 +516,81 @@ export namespace NavigationConstants {
         export function HISTORY(translate: TranslateService, children: NavigationTree[] = []) { return new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", children, null); };
 
 
+    }
+}
+
+/**
+ * Utility for creating grouped navigation trees with common sorting and grouping logic.
+ * This is used by multiple components that manage collections of similar sub-components.
+ */
+export namespace GroupedNavigationTreeUtility {
+
+    /**
+     * Creates a grouped navigation tree for multiple component instances.
+     * Components are sorted by alias (if available) then by component ID.
+     *
+     * @param groupId unique identifier for the group
+     * @param groupIcon icon configuration for the group
+     * @param groupLabelKey translation key for the group label
+     * @param translate translation service
+     * @param componentIds the component IDs to group
+     * @param config edge configuration
+     * @param getChildTreeFn function that creates individual navigation trees for children
+     * @returns constructor parameters for a grouped NavigationTree, or null if fewer than two valid children
+     */
+    export function createGroupedNavigationTree(
+        groupId: string,
+        groupIcon: PartialedIcon,
+        groupLabelKey: string,
+        groupBaseString: string,
+        translate: TranslateService,
+        componentIds: EdgeConfig.Component["id"][],
+        config: EdgeConfig,
+        getChildTreeFn: (componentId: EdgeConfig.Component["id"]) => NavigationTree | null,
+    ): ConstructorParameters<typeof NavigationTree> | null {
+
+        const children = componentIds
+            .slice()
+            .sort((left, right) => compareByAliasThenComponentId(config, left, right))
+            .map(componentId => getChildTreeFn(componentId))
+            .filter((child): child is NavigationTree => child != null);
+
+        if (children.length < 2) {
+            return null;
+        }
+
+        return new NavigationTree(
+            groupId,
+            { baseString: groupBaseString },
+            groupIcon,
+            translate.instant(groupLabelKey),
+            "label",
+            children,
+            null,
+        ).toConstructorParams();
+    }
+
+    /**
+     * Compares two component IDs by their aliases (if available) then by ID.
+     * Used for consistent sorting of component collections.
+     *
+     * @param config edge configuration
+     * @param leftComponentId first component ID to compare
+     * @param rightComponentId second component ID to compare
+     * @returns comparison result (-1, 0, 1) for sorting
+     */
+    function compareByAliasThenComponentId(
+        config: EdgeConfig,
+        leftComponentId: string,
+        rightComponentId: string,
+    ): number {
+        const leftAlias = config.getComponentSafely(leftComponentId)?.alias ?? "";
+        const rightAlias = config.getComponentSafely(rightComponentId)?.alias ?? "";
+        const aliasComparison = leftAlias.localeCompare(rightAlias);
+        if (aliasComparison !== 0) {
+            return aliasComparison;
+        }
+
+        return leftComponentId.localeCompare(rightComponentId);
     }
 }

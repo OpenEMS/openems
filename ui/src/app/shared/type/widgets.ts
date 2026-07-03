@@ -21,8 +21,18 @@ import { Widget, WidgetClass, WidgetFactory, WidgetNature } from "./widget";
 
 export class Widgets {
 
-    private static readonly GROUPED_FACTORIES: Partial<Record<Widget["name"], (translate: TranslateService, componentIds: Widget["componentId"][], config: EdgeConfig) => ConstructorParameters<typeof NavigationTree> | null>> = {
-        "Controller.IO.Heating.Room": SharedControllerIoHeatingRoom.getGroupedNavigationTree,
+    private static readonly GROUPED_FACTORIES: Partial<Record<Widget["name"], {
+        grouped: (translate: TranslateService, componentIds: Widget["componentId"][], config: EdgeConfig) => ConstructorParameters<typeof NavigationTree> | null;
+        single: (translate: TranslateService, componentId: Widget["componentId"], config: EdgeConfig) => ConstructorParameters<typeof NavigationTree> | null;
+    }>> = {
+        "Controller.IO.Heating.Room": {
+            grouped: SharedControllerIoHeatingRoom.getGroupedNavigationTree,
+            single: SharedControllerIoHeatingRoom.getNavigationTree,
+        },
+        "Controller.Io.FixDigitalOutput": {
+            grouped: SharedControllerIoFixDigitalOutput.getGroupedNavigationTree,
+            single: SharedControllerIoFixDigitalOutput.getNavigationTree,
+        },
     };
 
     /**
@@ -75,8 +85,6 @@ export class Widgets {
         }
 
         switch (widget.name) {
-            case "Controller.Io.FixDigitalOutput":
-                return SharedControllerIoFixDigitalOutput.getNavigationTree(translate, component);
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.IO.HeatingElement":
@@ -107,7 +115,7 @@ export class Widgets {
             return null;
         }
 
-        return groupedFactory(translate, componentIds, config);
+        return groupedFactory.grouped(translate, componentIds, config);
     }
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
@@ -214,12 +222,22 @@ export class Widgets {
         }
 
         for (const [groupedWidgetName, componentIds] of Object.entries(groupedComponentIdsByWidgetName) as [Widget["name"], Widget["componentId"][]][]) {
-            const groupedNavigationTree = Widgets.getGroupedControllerNavigationTree(
-                groupedWidgetName,
-                translate,
-                componentIds,
-                config,
-            );
+            const groupedFactory = Widgets.GROUPED_FACTORIES[groupedWidgetName];
+            if (groupedFactory == null) {
+                continue;
+            }
+
+            if (componentIds.length < 2) {
+                for (const componentId of componentIds) {
+                    const singleNavigationTree = groupedFactory.single(translate, componentId, config);
+                    if (singleNavigationTree != null) {
+                        navigationTrees.push(singleNavigationTree);
+                    }
+                }
+                continue;
+            }
+
+            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config);
             if (groupedNavigationTree != null) {
                 navigationTrees.push(groupedNavigationTree);
             }

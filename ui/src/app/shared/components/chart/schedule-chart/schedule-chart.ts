@@ -1,0 +1,177 @@
+// @ts-strict-ignore
+import { CommonModule } from "@angular/common";
+import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { Chart, ChartDataset, LineControllerDatasetOptions } from "chart.js";
+import { BaseChartDirective } from "ng2-charts";
+import { NgxSpinnerModule } from "ngx-spinner";
+import { ChartData } from "src/app/edge/history/shared";
+import { PlatFormService } from "src/app/platform.service";
+import { ColorUtils } from "src/app/shared/utils/color/color.utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { ChartAxis, HistoryUtils } from "src/app/shared/utils/utils";
+import { GetSchedule } from "../../edge/config-components/energy/getSchedule";
+import { Edge } from "../../edge/edge";
+import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
+import { AbstractHistoryChart } from "../abstracthistorychart";
+import { ChartConstants } from "../chart.constants";
+import { ChartComponentsModule } from "../chart.module";
+
+@Component({
+    selector: "oe-schedule-chart",
+    templateUrl: "../abstracthistorychart.html",
+    imports: [
+        BaseChartDirective,
+        ReactiveFormsModule,
+        IonicModule,
+        TranslateModule,
+        ChartComponentsModule,
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+        CommonModule,
+    ],
+})
+export abstract class ScheduleChartComponent extends AbstractHistoryChart implements OnChanges {
+    @Input({ required: true }) public refresh!: boolean;
+    @Input({ required: true }) public data!: GetSchedule.Response;
+    @Input({ required: true }) public override edge!: Edge;
+
+    protected numberFormat: ChartData["tooltip"]["formatNumber"] = ChartConstants.NumberFormat.NO_DECIMALS;
+
+    private readonly platFormService = inject(PlatFormService);
+    private readonly hostEl = inject(ElementRef<HTMLElement>);
+
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (!this.config) {
+            return;
+        }
+
+        if (changes["refresh"] || changes["edge"] || changes["data"]) {
+            this.updateChart();
+        }
+    }
+
+    protected override getChartData(): HistoryUtils.ChartData | null {
+        return {
+            input: [],
+            output: (data) => [],
+            tooltip: {
+                formatNumber: this.numberFormat,
+            },
+            yAxes: [],
+        };
+    }
+
+    protected override async loadChart(): Promise<void> {
+        if (this.edge == null) {
+            return;
+        }
+
+        this.labels = this.data.getLabels();
+        this.errorResponse = null;
+        this.loading = true;
+        this.chartType = "line";
+
+        this.options.plugins.tooltip.enabled = false;
+
+        this.options.scales.x = {
+            type: "time",
+            ticks: {
+                ...this.options.scales.x.ticks,
+                display: false,
+            },
+            grid: {
+                display: false,
+            },
+        };
+
+        this.options.scales[ChartAxis.LEFT] = {
+            grid: {
+                display: false,
+            },
+        };
+
+        Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
+        this.options.plugins["syncChart"] = {
+            group: 1,
+        };
+
+        this.datasets = this.fillDatasets();
+        this.stopSpinner();
+        this.loading = false;
+    }
+
+    protected fillDatasets(): ChartDataset[] {
+        const buildConf = this.buildDatasets();
+        const baseDataset = (d: ScheduleChartComponent.Dataset): ChartDataset => ({
+            type: "line",
+            label: "",
+            data: d.data,
+            hidden: false,
+            order: 1,
+            yAxisID: ChartAxis.LEFT,
+            backgroundColor: ColorUtils.rgbStringToRgba(d.color, 0.2),
+            borderColor: d.color,
+            borderDash: d.borderDash,
+            stepped: d.stepped,
+        });
+
+        return buildConf.map(el => baseDataset(el));
+    }
+
+    protected buildDatasets(): ScheduleChartComponent.Dataset[] {
+        return [];
+    }
+
+    protected override getChartHeight(): number | null {
+        const device = this.platFormService.getDevice();
+        const isSmartPhone = device.isSmartphone();
+        const container = this.hostEl.nativeElement.closest("#formlyContainerWidth") as HTMLElement | null;
+        const width = container?.getBoundingClientRect().width ?? window.innerWidth;
+
+        if (isSmartPhone) {
+            return NumberUtils.divideSafely(width, 2);
+        }
+        return NumberUtils.divideSafely(width, 4);
+    }
+}
+
+export namespace ScheduleChartComponent {
+
+    export type Dataset = {
+        color: string;
+        data: (number | null)[];
+        borderDash?: [number, number] | [];
+        stepped?: LineControllerDatasetOptions["stepped"] | false;
+    };
+
+    export function normalizeLines(data: (number | null)[]): { positive: (number | null)[], negative: (number | null)[] } {
+        const positive = data.map(el => el != null && el <= 0 ? Math.abs(el) : null);
+        const negative = data.map(el => el != null && el >= 0 ? el : null);
+
+        for (let i = 0; i < positive.length; i++) {
+            /** When power is 'zero', decide which chart line (charge or discharge) should be visible */
+            if (positive[i] == 0 && negative[i] == 0) { // Find 'zero' power values
+                if (i === 0 // Fallback for first value -> prefer charge
+                    || positive[i - 1] != null // keep charge line visible
+                ) {
+                    negative[i] = null;
+                } else {
+                    positive[i] = null;
+                }
+            }
+
+            /** Fill gaps when switching between charge and discharge lines */
+            if (i > 0) { // Avoid index out of bounds
+                if (positive[i - 1] != null && negative[i] != null) {
+                    negative[i - 1] = 0;
+                } else if (negative[i - 1] != null && positive[i] != null) {
+                    positive[i - 1] = 0;
+                }
+            }
+        }
+        return { positive: positive, negative: negative };
+    }
+}

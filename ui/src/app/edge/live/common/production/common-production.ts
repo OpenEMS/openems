@@ -8,7 +8,6 @@ import { FlatComponent } from "./flat/flat";
 import { CommonProductionHistory } from "./history/production-history";
 import { ModalComponent } from "./modal/modal";
 import { CommonProductionHomeComponent } from "./new-navigation/new-navigation";
-import { ProductionChartComponent } from "./new-navigation/production-chart-component";
 
 @NgModule({
     imports: [
@@ -23,7 +22,6 @@ import { ProductionChartComponent } from "./new-navigation/production-chart-comp
         ModalComponent,
         CommonProductionHomeComponent,
         CommonProductionDetailsComponent,
-        ProductionChartComponent,
     ],
     exports: [
         CommonProductionHomeComponent,

@@ -13,6 +13,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
 import { SharedEssFixDigitalPowerControl } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-ess-fix-active-power-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [

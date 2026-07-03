@@ -41,7 +41,7 @@
     </ion-row>
     <div class="thin-divider"></div>
     <ion-row class="ion-justify-content-between">
-      @for (forecast of upcomingHourlyForecasts ; track forecast) {
+      @for (forecast of upcomingHourlyForecasts; track forecast.datetime) {
         <ion-col size="auto" class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
           <ion-text color="normal" style="font-size: 0.7rem; margin-bottom:0.15rem;">
             {{ forecast.datetime | hourFormat }}
@@ -62,7 +62,7 @@
 
 <ion-card style="--background: var(--ion-background-color); box-shadow: none;">
   <ion-card-content class="ion-no-padding-top ion-no-padding-bottom">
-    @for(forecast of upcomingDailyForecasts; track $index){
+    @for(forecast of upcomingDailyForecasts; track forecast.date){
       <ion-row class="ion-align-items-center">
         <ion-col size="2" size-sm="1" class="ion-text-start ion-text-bold">
           {{ forecast.date | weekdayFormat }}

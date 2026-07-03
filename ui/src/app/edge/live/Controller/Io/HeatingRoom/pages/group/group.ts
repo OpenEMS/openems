@@ -1,12 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { EdgeConfig, Service } from "src/app/shared/shared";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
     selector: "oe-heating-room-group",
@@ -16,29 +15,20 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
         { provide: DataService, useClass: LiveDataService },
     ],
     templateUrl: "./group.html",
-    styles: [`
-        ion-card {
-            margin: 16px;
-        }
-    `],
 })
-export class HeatingRoomGroupComponent {
+export class IoHeatingRoomGroupComponent implements OnInit {
 
     protected components: EdgeConfig.Component[] = [];
 
     private readonly service: Service = inject(Service);
     private readonly router: Router = inject(Router);
 
-    public constructor() {
-        this.service.getCurrentEdge().then(async edge => {
-
-            const config = edge.getCurrentConfig();
-            AssertionUtils.assertIsDefined(config);
-
-            this.components = config.getComponentIdsByFactory("Controller.IO.Heating.Room")
-                ?.map(id => config.getComponent(id))
-                .filter((c): c is EdgeConfig.Component => c != null && c.isEnabled) ?? [];
-        });
+    public async ngOnInit(): Promise<void> {
+        const edge = await this.service.getCurrentEdge();
+        const config = edge.getCurrentConfig();
+        this.components = config?.getComponentIdsByFactory("Controller.IO.Heating.Room")
+            ?.map(id => config.getComponentSafely(id))
+            .filter((c): c is EdgeConfig.Component => !!c && c.isEnabled) ?? [];
     }
 
     public navigateTo(componentId: string): void {

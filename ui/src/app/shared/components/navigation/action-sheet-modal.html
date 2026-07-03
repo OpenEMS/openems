@@ -7,7 +7,7 @@
       <ion-content class="ion-padding">
         <oe-navigation-breadcrumbs (navigate)="navigateTo($event, true)"></oe-navigation-breadcrumbs>
         <ion-grid [style.overflow-y]="childrenPerRow.length === 1 ? 'inherit': 'scroll'">
-          @for (children of childrenPerRow; track children){
+          @for (children of childrenPerRow; track $index){
             <ion-row [style.white-space]="childrenPerRow.length === 1 ? 'inherit': 'nowrap'">
               <oe-navigation-chips [children]="children" (navigate)="navigateTo($event, true)"></oe-navigation-chips>
             </ion-row>

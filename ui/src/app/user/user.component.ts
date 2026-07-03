@@ -42,9 +42,8 @@ type UserInformation = {
 })
 export class UserComponent implements OnInit {
 
-    private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
-    protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
-    protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" Themes.
+    protected userTheme: UserTheme;
+    protected systemTheme: SystemTheme; // SystemTheme as of "FENECON","Heckert" or "OpenEMS" Themes.
 
     protected readonly themes: KeyValue<string, string>[] = [
         { key: "Light", value: "light" },
@@ -115,6 +114,10 @@ export class UserComponent implements OnInit {
             }
         });
     }
+
+    public static get DEFAULT_THEME(): UserTheme {
+        return UserTheme.LIGHT;
+    } // Theme as of "Light","Dark" or "System" Themes.
 
     public static getNavigationTree(service: Service, translate: TranslateService, customLink?: NavigationTree["customLink"]): NavigationTree {
         return new NavigationTree("user", { baseString: "user" }, { name: "person-outline" }, service.metadata.value.user.name, "label", [], null, { showOrder: "LOW" });
