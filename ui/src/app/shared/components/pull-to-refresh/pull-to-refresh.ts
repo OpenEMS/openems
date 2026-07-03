@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, Input, Renderer2 } from "@angular/core";
+import { Component, effect, ElementRef, inject, Input, Renderer2, } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RefresherCustomEvent } from "@ionic/angular";
@@ -7,15 +7,18 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 
-/**
- * Component used to indicate if live data is still updated
- */
+/** Component used to indicate if live data is still updated */
 @Component({
     standalone: true,
     selector: "oe-refresh-view",
     templateUrl: "./pull-to-refresh.html",
     styleUrl: "./pull-to-refresh.scss",
-    imports: [CommonUiModule, BrowserModule, NgxSpinnerModule, ReactiveFormsModule],
+    imports: [
+        CommonUiModule,
+        BrowserModule,
+        NgxSpinnerModule,
+        ReactiveFormsModule,
+    ],
 })
 export class PullToRefreshComponent {
     @Input({ required: true }) public show: boolean = false;
@@ -30,7 +33,6 @@ export class PullToRefreshComponent {
         private readonly renderer: Renderer2,
     ) {
         this.isDesktop = this.deviceService.isDesktop();
-        console.log(this.deviceService.isDesktop());
 
         effect(() => {
             const isActive = this.platFormService.isActiveAgain();
@@ -44,5 +46,7 @@ export class PullToRefreshComponent {
         this.renderer.addClass(hostElement, "ion-page");
     }
 
-    @Input({ required: true }) public refresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {};
+    @Input({ required: true }) public refresh: (
+        ev: RefresherCustomEvent,
+    ) => void = (ev: RefresherCustomEvent) => {};
 }
