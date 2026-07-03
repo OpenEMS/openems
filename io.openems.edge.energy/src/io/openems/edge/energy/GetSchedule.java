@@ -58,7 +58,7 @@ import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timeofusetariff.api.TariffManager;
 
 /**
- * Gets the Schedule of today (history) and forecast.
+ * Gets a 24h Schedule.
  *
  * <p>
  * Request:
@@ -150,7 +150,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 		 */
 		public static Response from(Request request, Clock clock, Timedata timedata, PredictorManager predictorManager,
 				TariffManager tariffManager, SimulationResult sr) {
-			final var from = request.from;
+			final var from = DateUtils.roundDownToQuarter(request.from);
 			final var to = from.plusHours(24);
 			final var nowRaw = ZonedDateTime.now(clock);
 			final var now = to.isBefore(nowRaw) //

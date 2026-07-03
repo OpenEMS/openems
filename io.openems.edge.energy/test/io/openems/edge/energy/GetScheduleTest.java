@@ -56,7 +56,9 @@ class GetScheduleTest {
 		setAttributeViaReflection(optimizer, "latestSimulationResult", DUMMY_PREVIOUS_RESULT);
 		sut.buildJsonApiRoutes(routes);
 
-		final var from = ZonedDateTime.now(clock).minusHours(4);
+		final var from = ZonedDateTime.now(clock) //
+				.minusHours(4) //
+				.plusMinutes(9); // fake non-even request
 		final var call = new Call<JsonrpcRequest, JsonrpcResponse>(
 				GenericJsonrpcRequest.createRequest(new GetSchedule(), new GetSchedule.Request(from)));
 		routes.handle(call);
