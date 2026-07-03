@@ -3,6 +3,7 @@ package io.openems.common.bridge.http.authentication;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -12,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpEventDefinition;
 import io.openems.common.bridge.http.api.BridgeHttpEventListener;
-import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
 import io.openems.common.bridge.http.api.HttpHeader;
@@ -27,16 +27,18 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 	private final BridgeHttp bridgeHttp;
 	private final Supplier<CompletableFuture<String>> tokenSupplier;
 	private final Predicate<Throwable> sessionExpiredPredicate;
+	private final Function<String, String> authenticationHeaderFunction;
 
 	private volatile CompletableFuture<String> loginFuture = CompletableFuture.failedFuture(new RuntimeException());
 
 	public HttpBridgeAuthenticationService(//
 			BridgeHttp bridgeHttp, //
-			Supplier<CompletableFuture<String>> tokenSupplier, Predicate<Throwable> sessionExpiredPredicate //
-	) {
+			Supplier<CompletableFuture<String>> tokenSupplier, Predicate<Throwable> sessionExpiredPredicate, //
+			Function<String, String> authenticationHeaderFunction) {
 		this.bridgeHttp = bridgeHttp;
 		this.tokenSupplier = tokenSupplier;
 		this.sessionExpiredPredicate = sessionExpiredPredicate;
+		this.authenticationHeaderFunction = authenticationHeaderFunction;
 	}
 
 	@Override
@@ -116,15 +118,17 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 
 	private CompletableFuture<HttpResponse<String>> sendAuthenticatedRequest(Endpoint endpoint) {
 		return this.loginFuture.exceptionallyCompose(t -> this.authenticateAsAdmin()) //
-				.thenCompose(token -> this.bridgeHttp.request(addAuthToken(endpoint, token))
+				.thenCompose(token -> this.bridgeHttp
+						.request(addAuthToken(endpoint, this.authenticationHeaderFunction.apply(token)))
 						.exceptionallyCompose(throwable -> {
 
 							// retry once if authentication failed
 							if (this.sessionExpiredPredicate.test(throwable)) {
 								this.log.info("Session expired, re-authenticating as admin and retrying request",
 										throwable);
-								return this.authenticateAsAdmin()
-										.thenCompose(s -> this.bridgeHttp.request(addAuthToken(endpoint, token)));
+								return this.authenticateAsAdmin() //
+										.thenCompose(s -> this.bridgeHttp.request(addAuthToken(endpoint,
+												this.authenticationHeaderFunction.apply(token))));
 							}
 
 							return CompletableFuture.failedFuture(throwable);
@@ -133,7 +137,7 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 
 	private static Endpoint addAuthToken(Endpoint endpoint, String authToken) {
 		return endpoint.toBuilder() //
-				.setHeader(HttpHeader.authorization(HttpAuthorization.bearer(authToken))) //
+				.setHeader(HttpHeader.authorization(authToken)) //
 				.build();
 	}
 
