@@ -2,8 +2,9 @@ import { Component } from "@angular/core";
 import { WeatherBaseComponent } from "../shared/base";
 
 @Component({
-    templateUrl: "./modal.html",
+    selector: "oe-weather-modal-plain",
+    templateUrl: "../new-navigation/new-navigation.html",
     styleUrls: ["../shared/weather.scss"],
     standalone: false,
 })
-export class WeatherModalComponent extends WeatherBaseComponent { }
+export class WeatherPlainComponent extends WeatherBaseComponent { }

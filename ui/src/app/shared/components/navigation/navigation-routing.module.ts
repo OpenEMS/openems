@@ -14,6 +14,7 @@ import { CommonStorageDetailsComponent } from "src/app/edge/live/common/storage/
 import { CommonStorageHistoryComponent } from "src/app/edge/live/common/storage/history/new-navigation/new-navigation";
 import { CommonStorageHomeComponent } from "src/app/edge/live/common/storage/new-navigation/new-navigation";
 import { CommonStorageSettingsComponent } from "src/app/edge/live/common/storage/settings/settings";
+import { WeatherHomeComponent } from "src/app/edge/live/common/weather/new-navigation/new-navigation";
 import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
@@ -119,6 +120,7 @@ export const newNavigationRoutes: Routes = [
     { path: "common/storage/controller/grid-optimized-charge/:componentId/history", component: ControllerEssGridOptimizedChargeHistoryComponent },
     { path: "common/storage/controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
     { path: "common/storage/controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
+    { path: "common/weather/:componentId", component: WeatherHomeComponent },
 
     { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
     { path: "controller/heatpump/:componentId/settings", component: ControllerIoHeatpumpSettingsComponent },

@@ -6,6 +6,8 @@ import { Language } from "src/app/shared/type/language";
 import { WeatherComponent } from "./flat/flat";
 import { WeatherModalComponent } from "./modal/modal";
 import { registerWeatherIcons } from "./models/weather-icon";
+import { WeatherHomeComponent } from "./new-navigation/new-navigation";
+import { WeatherPlainComponent } from "./new-navigation/plain-modal";
 import { DayMonthFormatPipe } from "./pipes/day-month-format.pipe";
 import { HourFormatPipe } from "./pipes/hour-format.pipe";
 import { NumberFormatPipe } from "./pipes/number-format.pipe";
@@ -14,6 +16,7 @@ import { WeatherCodeIconPipe } from "./pipes/weather-code-icon.pipe";
 import { WeekdayFormatPipe } from "./pipes/weekday-format.pipe";
 import de from "./shared/i18n/de.json";
 import en from "./shared/i18n/en.json";
+import { WeatherSharedContentComponent } from "./shared/shared-content";
 import { SecondsToHoursPipe } from "./shared/weather.constants";
 
 @NgModule({
@@ -29,11 +32,16 @@ import { SecondsToHoursPipe } from "./shared/weather.constants";
         HelpButtonComponent,
     ],
     declarations: [
-        WeatherComponent,
+        WeatherPlainComponent,
+        WeatherSharedContentComponent,
         WeatherModalComponent,
+        WeatherHomeComponent,
+        WeatherComponent,
     ],
     exports: [
+        WeatherSharedContentComponent,
         WeatherComponent,
+        WeatherHomeComponent,
     ],
 })
 export class WeatherModule {
