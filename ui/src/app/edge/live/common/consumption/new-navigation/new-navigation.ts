@@ -97,6 +97,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                 converter: Converter.POWER_IN_KILO_WATT,
             });
         }
+
         for (const consumptionMeter of consumptionMeters) {
             lines.push({
                 type: "channel-line",
@@ -159,7 +160,8 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
             .filter(
                 (component) =>
                     component.isEnabled &&
-                    config.isTypeConsumptionMetered(component),
+                    config.isTypeConsumptionMetered(component) &&
+                    !this.evcss.some((el) => el.id === component.id),
             );
 
         return CommonConsumptionHomeComponent.getFormlyGeneralView(

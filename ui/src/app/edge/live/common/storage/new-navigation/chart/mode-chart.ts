@@ -26,7 +26,7 @@ import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 })
 export class ModeChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.result.data.map((e, index) => {
+        const data = this.data.data24h.map((e, index) => {
             const isHistory = index <= this.data.data24hLastHistoryIndex;
             const isPrediction = index >= this.data.data24hLastHistoryIndex;
 
@@ -104,7 +104,7 @@ export class ModeChartComponent extends ScheduleChartComponent {
                 {
                     color,
                     data: predictionData,
-                    transparentBackground: true,
+                    borderDash: [5, 5],
                     stepped: true,
                 },
             );
