@@ -273,8 +273,7 @@
                     "SELL_TO_GRID_POWER_LIMIT": "Charge above"
                 },
                 "ENERIX_CONTROL": {
-                    "CHARGE_CONSUMPTION": "ATTENTION: Actively charging the battery from the grid beyond the technically necessary trickle charge requires registration of the storage system. If in doubt, please contact your installer. By pressing the blue \"Save\" button, you confirm that you have completed this check. Please note: To be eligible for funding under the Renewable Energy Sources Act (EEG 2023), the storage system must only store electricity generated from renewable energy sources and/or mine gas. When this function is activated, the storage system will be charged with grid electricity. Depending on your electricity supply contract, this grid electricity may also be generated from fossil fuels and/or nuclear power. Therefore, we cannot guarantee that the storage system will be charged exclusively with electricity from renewable energy sources and/or mine gas.",
-                    "CHARGE_FROM_GRID": "Charge from grid",
+                    "CHARGE_CONSUMPTION": "<b>ATTENTION:</b> Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/><b>Be aware:</b> Precondition for the German Renewable Energy Sources Act (EEG 2023) grant is that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function the battery is charged with energy from the grid. This energy is, depending on the individual power-supply contract, probably generated from fossil and/or nuclear power sources. Thus we cannot guarantee that the battery is exclusively charged with energy gained from renewable sources and/or pit gas.",
                     "CONNECTED": "Connected",
                     "DISCONNECTED": "Disconnected",
                     "NO_DISCHARGE": "No discharge",
@@ -284,7 +283,10 @@
                     "OVERWRITE": "Overwrite active",
                     "OVERWRITE_INFO": "When this function is activated, the standard settings for charging and discharging the storage system are replaced by external specifications from enerix Franchise GmbH & Co. KG. This may lead to deviations from the usual operating behavior - for example, electricity may be drawn from the grid even though the storage system is sufficiently charged.",
                     "OVERWRITE_MODE": "Overwrite mode",
-                    "READ_ONLY": "Read only"
+                    "READ_ONLY": "Read only",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Allow active discharge into the grid",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ATTENTION:</b> Actively discharging the battery into the grid beyond the operating states required for technical reasons necessitates formal registration of the storage system. If in doubt, please consult your installer. By clicking the blue \"Save\" button, you confirm that this assessment has been carried out.<br/><br/><b>Note:</b> Activating this function enables the feed-in of energy from the battery storage system into the public grid. Depending on the subsidy program, remuneration model, metering concept, and applicable regulatory requirements, this may affect existing claims regarding subsidies, remuneration, or proof of origin.<br/><br/>In particular, it may be necessary to clearly attribute the fed-in electricity and verify its origin through metering. We cannot guarantee that using this function is compatible with the requirements of your specific subsidy or remuneration model.<br/><br/>Please review the implications with your installer, direct marketer, grid operator, or a qualified advisor before activation.",
+                    "CHARGE_FROM_GRID_ALLOWED": "Allow active charging from the grid"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Activate the charging station",
@@ -793,7 +795,10 @@
         "LINK_TEXT": "View the changelog for the beta test",
         "SURVEY": "You can share your feedback on the beta test with us here:",
         "SURVEY_LINK": "Take part in the beta test survey",
-        "HELP": "Help"
+        "HELP": "Help",
+        "CHARGE_ONCE": "Charge Once",
+        "DISCHARGE_ONCE": "Discharge Once",
+        "TARGET_SOC": "Target state of charge"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Charge from grid limitation",

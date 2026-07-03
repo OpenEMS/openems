@@ -273,7 +273,7 @@
                     "SELL_TO_GRID_POWER_LIMIT": "Beladung über"
                 },
                 "ENERIX_CONTROL": {
-                    "CHARGE_CONSUMPTION": "ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/>Beachte: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
+                    "CHARGE_CONSUMPTION": "<b>ACHTUNG:</b> Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/><b>Beachte:</b> Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
                     "CHARGE_FROM_GRID": "Beladung vom Netz erzwungen",
                     "CONNECTED": "Verbunden",
                     "DISCONNECTED": "Keine Verbindung",
@@ -284,7 +284,10 @@
                     "OVERWRITE": "aktive Übersteuerung",
                     "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist.",
                     "OVERWRITE_MODE": "Übersteuerungsmodus",
-                    "READ_ONLY": "Lesend"
+                    "READ_ONLY": "Lesend",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Aktive Entladung in das Netz erlauben",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Einspeisung von Batteriestrom in das Netz, die über die technisch erforderlichen Betriebszustände hinausgeht, macht eine formelle Anmeldung des Speichersystems erforderlich. Wenden Sie sich im Zweifelsfall bitte an Ihren Installateur. Mit einem Klick auf die blaue Schaltfläche „Speichern“ bestätigen Sie, dass diese Prüfung erfolgt ist.<br/><br/><b>Hinweis:</b> Die Aktivierung dieser Funktion ermöglicht die Einspeisung von Energie aus dem Batteriespeicher in das öffentliche Stromnetz. Je nach Förderprogramm, Vergütungsmodell, Messkonzept und geltenden regulatorischen Vorgaben kann dies Auswirkungen auf bestehende Ansprüche im Zusammenhang mit Förderungen, Vergütungen oder Herkunftsnachweisen haben.<br/><br/>Insbesondere kann es erforderlich sein, den eingespeisten Strom eindeutig zuzuordnen und dessen Herkunft messtechnisch nachzuweisen. Wir können nicht gewährleisten, dass die Nutzung dieser Funktion mit den Anforderungen Ihres spezifischen Förder- oder Vergütungsmodells vereinbar ist.<br/><br/>Bitte klären Sie die Auswirkungen vor der Aktivierung mit Ihrem Installateur, Direktvermarkter, Netzbetreiber oder einem qualifizierten Berater ab.",
+                    "CHARGE_FROM_GRID_ALLOWED": "Aktive Beladung aus dem Netz erlauben"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Aktivieren der Ladesäule",
@@ -783,7 +786,13 @@
         "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
         "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
         "LINK": "Details findest du unter folgendem Link:",
-        "HELP": "Hilfe"
+        "LINK_TEXT": "Changelog zum Beta-Test ansehen",
+        "SURVEY": "Hier kannst du uns dein Feedback zum Beta-Test mitteilen:",
+        "SURVEY_LINK": "An der Beta-Test-Umfrage teilnehmen",
+        "HELP": "Hilfe",
+        "CHARGE_ONCE": "Einmalige Beladung",
+        "DISCHARGE_ONCE": "Einmalige Entladung",
+        "TARGET_SOC": "Ziel-Ladezustand"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Bezugslimitierung",

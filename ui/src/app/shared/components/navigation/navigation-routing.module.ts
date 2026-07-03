@@ -20,7 +20,6 @@ import { WeatherHomeComponent } from "src/app/edge/live/common/weather/new-navig
 import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
 import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
-import { ControllerEssFixActivePowerSettingsComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/settings/settings";
 import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHomeComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/settings/settings";
@@ -246,10 +245,6 @@ export const newNavigationRoutes: Routes = [
     {
         path: "common/storage/controller/ess-fix-active-power/:componentId",
         component: ControllerEssFixActivePowerHomeComponent,
-    },
-    {
-        path: "common/storage/controller/ess-fix-active-power/:componentId/settings",
-        component: ControllerEssFixActivePowerSettingsComponent,
     },
     {
         path: "common/weather/:componentId",

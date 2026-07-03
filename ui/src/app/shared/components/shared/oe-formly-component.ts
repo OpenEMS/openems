@@ -357,6 +357,10 @@ export abstract class AbstractFormlyComponent<
                         },
                         hooks: {
                             onInit: (field) => {
+                                // Evaluate hide immediately so fields are not all
+                                // briefly visible before the first valueChanges fires.
+                                field.hide =
+                                    el.hide?.(field.form?.value) ?? false;
                                 field.form?.valueChanges.subscribe((value) => {
                                     field.hide = el.hide?.(value) ?? false;
                                     if (
