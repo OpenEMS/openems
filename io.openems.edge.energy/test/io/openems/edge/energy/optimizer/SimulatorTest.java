@@ -7,6 +7,7 @@ import static io.openems.edge.energy.api.test.DummyGlobalOptimizationContext.CLO
 import static io.openems.edge.energy.api.test.DummyGlobalOptimizationContext.TIME;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
@@ -21,7 +22,7 @@ import com.google.common.collect.ImmutableSortedSet;
 
 import io.jenetics.util.RandomRegistry;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
-import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.OptimizationContext;
+import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.Environment;
@@ -55,11 +56,11 @@ public class SimulatorTest {
 			.withAllowedDischargePower(8_000) //
 			.withCapacity(22_000);
 
-	public static final EshWithDifferentModes<StateMachine, OptimizationContext, Void> ESH_TIME_OF_USE_TARIFF_CTRL = //
+	public static final EshWithDifferentModes<StateMachine, EnergyScheduler.OptimizationContext, Void> ESH_TIME_OF_USE_TARIFF_CTRL = //
 			io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 					.buildEnergyScheduleHandler(new DummyController("ctrlEssTimeOfUseTariff0"), //
 							() -> new io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config(
-									ControlMode.CHARGE_CONSUMPTION));
+									ControlMode.CHARGE_CONSUMPTION.modes, null, null));
 
 	protected static enum Esh2State {
 		FOO, BAR;
@@ -86,7 +87,7 @@ public class SimulatorTest {
 			new int[] { 3, 2, 1 }, 0, 0);
 
 	@BeforeEach
-	public void before() {
+	void before() {
 		// Make reproducible results
 		System.setProperty("io.jenetics.util.defaultRandomGenerator", "Random");
 		RandomRegistry.random(new Random(123));
@@ -114,15 +115,15 @@ public class SimulatorTest {
 	}
 
 	@Test
-	public void testPeriods() {
+	void testPeriods() {
 		final var ps = GOC.periods();
 		for (var i = 0; i < ps.size(); i++) {
 			final var p = ps.get(i);
 			assertEquals(i, p.index(), "Index is not set correctly");
 			if (i < 24) {
-				assertTrue(p instanceof Period.Quarter);
+				assertInstanceOf(Period.Quarter.class, p);
 			} else {
-				assertTrue(p instanceof Period.Hour);
+				assertInstanceOf(Period.Hour.class, p);
 				final var qps = ((Period.Hour) p).quarterPeriods();
 				for (var j = 0; j < 4; j++) {
 					final var qp = qps.get(j);
@@ -133,7 +134,7 @@ public class SimulatorTest {
 	}
 
 	@Test
-	public void testRunOptimization() {
+	void testRunOptimization() {
 		var simulationResult = generateDummySimulationResult();
 
 		assertEquals(2, simulationResult.schedules().size());
@@ -147,7 +148,7 @@ public class SimulatorTest {
 	}
 
 	@Test
-	public void testFlatNegativeGridBuyPriceShouldPreferBalancingOverChargeGrid() {
+	void testFlatNegativeGridBuyPriceShouldPreferBalancingOverChargeGrid() {
 		final var goc = createSinglePeriodContextWithGridBuyPrice(-50.0);
 		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(goc);
 
@@ -185,7 +186,7 @@ public class SimulatorTest {
 				eshs, //
 				filterEshsWithDifferentModes(eshs) //
 						.collect(ImmutableList.toImmutableList()), //
-				new GlobalOptimizationContext.Grid(20_000, 20_000,
+				new GlobalOptimizationContext.Grid(20_000, 20_000, 19_000,
 						io.openems.common.jscalendar.JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(2_200, 22_000, 16_000, 16_000), //
 				periods);

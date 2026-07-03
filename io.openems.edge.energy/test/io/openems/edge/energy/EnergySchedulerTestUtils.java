@@ -4,6 +4,7 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.Clock;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,7 +16,7 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.ess.power.api.Relationship;
@@ -42,10 +43,6 @@ public class EnergySchedulerTestUtils {
 						io.openems.edge.controller.ess.fixactivepower.EnergyScheduler::buildEnergyScheduleHandler,
 						io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext
 								.serializer())),
-		ESS_GRID_OPTIMIZED_CHARGE("Controller.Ess.GridOptimizedCharge",
-				new Factory<io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config>(
-						io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.serializer())),
 		ESS_TIME_OF_USE_TARIFF("Controller.Ess.Time-Of-Use-Tariff",
 				new Factory<io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config>(
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler::buildEnergyScheduleHandler,
@@ -193,33 +190,24 @@ public class EnergySchedulerTestUtils {
 	}
 
 	/**
-	 * Builds a {@link DummyEnergySchedulable} of Controller.Ess.GridOptimizedCharge
-	 * in MANUAL mode.
-	 * 
-	 * @param componentId the Component-ID
-	 * @param localTime   the configured {@link LocalTime}
-	 * @return the {@link DummyEnergySchedulable}
-	 */
-	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssGridOptimizedCharge(
-			String componentId, LocalTime localTime) {
-		return create(Controller.ESS_GRID_OPTIMIZED_CHARGE, componentId,
-				cmp -> io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler //
-						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.gridoptimizedcharge. //
-								EnergyScheduler.Config.Manual(localTime)));
-	}
-
-	/**
 	 * Builds a {@link DummyEnergySchedulable} of Controller.Ess.Time-Of-Use-Tariff.
-	 * 
-	 * @param componentId the Component-ID
-	 * @param controlMode the configured {@link ControlMode}
+	 *
+	 * @param componentId      the Component-ID
+	 * @param activeModes      the active {@link StateMachine} modes
+	 * @param targetSocBuffer  the target SoC buffer for
+	 *                         {@link io.openems.edge.controller.ess.gridoptimizedcharge.Mode#AUTOMATIC}
+	 *                         mode (used by GridOptimizedCharge)
+	 * @param manualTargetTime the manual target time for
+	 *                         {@link io.openems.edge.controller.ess.gridoptimizedcharge.Mode#MANUAL}
+	 *                         mode (used by GridOptimizedCharge), or null for
+	 *                         automatic calculation
 	 * @return the {@link DummyEnergySchedulable}
 	 */
 	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssTimeOfUseTariff(String componentId,
-			ControlMode controlMode) {
-		return create(Controller.ESS_GRID_OPTIMIZED_CHARGE, componentId,
+			List<StateMachine> activeModes, Double targetSocBuffer, LocalTime manualTargetTime) {
+		return create(Controller.ESS_TIME_OF_USE_TARIFF, componentId,
 				cmp -> io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.timeofusetariff. //
-								EnergyScheduler.Config(controlMode)));
+								EnergyScheduler.Config(activeModes, targetSocBuffer, manualTargetTime)));
 	}
 }

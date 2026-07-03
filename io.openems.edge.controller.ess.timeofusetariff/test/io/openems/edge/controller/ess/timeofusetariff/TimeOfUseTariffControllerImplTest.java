@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.timeofusetariff;
 import static io.openems.common.test.TestUtils.createDummyClock;
 import static io.openems.edge.controller.ess.timeofusetariff.ControlMode.CHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.Mode.AUTOMATIC;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 
 import java.time.Clock;
 
@@ -106,6 +107,7 @@ public class TimeOfUseTariffControllerImplTest {
 						.setEnabled(true) //
 						.setEssId("ess0") //
 						.setMode(AUTOMATIC) //
+						.setManualMode(BALANCING) //
 						.setControlMode(CHARGE_CONSUMPTION) //
 						.setEssMaxChargePower(5000) //
 						.setMaxChargePowerFromGrid(10000) //

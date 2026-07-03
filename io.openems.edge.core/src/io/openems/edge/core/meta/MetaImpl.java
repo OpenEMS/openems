@@ -6,6 +6,7 @@ import static io.openems.common.utils.ThreadPoolUtils.shutdownAndAwaitTerminatio
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 import static io.openems.edge.common.jsonapi.EdgeGuards.roleIsAtleast;
+import static java.lang.Math.max;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -228,6 +229,15 @@ public class MetaImpl extends AbstractOpenemsComponent
 		};
 		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
 		return minInt(powerFromFuseLimit, powerFromMaximumGridFeedInLimit);
+	}
+
+	@Override
+	public int getGridSellHardLimitWithBuffer() {
+		final int gridSellHardLimit = this.getGridSellHardLimit();
+
+		// Reduce limit by 5% with a minimum buffer of 150 W
+		final float buffer = max(gridSellHardLimit * 0.05F, 150);
+		return Math.round(gridSellHardLimit - buffer);
 	}
 
 	@Override

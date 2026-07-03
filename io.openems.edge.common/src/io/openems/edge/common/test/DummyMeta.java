@@ -27,6 +27,7 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	private Coordinates coordinates;
 	private ZoneId timezone;
 	private int gridSellHardLimit;
+	private int gridSellHardLimitWithBuffer;
 	private int gridBuyHardLimit;
 	private JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit = JSCalendar.Tasks.empty();
 	private ThirdPartyUsageAcceptance thirdPartyUsageAcceptance;
@@ -80,6 +81,11 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	@Override
 	public int getGridSellHardLimit() {
 		return this.gridSellHardLimit;
+	}
+
+	@Override
+	public int getGridSellHardLimitWithBuffer() {
+		return this.gridSellHardLimitWithBuffer;
 	}
 
 	@Override
@@ -194,6 +200,18 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withGridSellHardLimit(int gridSellHardLimit) {
 		this.gridSellHardLimit = gridSellHardLimit;
+		return this.self();
+	}
+
+	/**
+	 * Sets the Grid-Sell Hard-Limit with safety buffer for this {@link DummyMeta}
+	 * instance and returns the instance itself.
+	 *
+	 * @param gridSellHardLimitWithBuffer the value
+	 * @return myself
+	 */
+	public DummyMeta withGridSellHardLimitWithBuffer(int gridSellHardLimitWithBuffer) {
+		this.gridSellHardLimitWithBuffer = gridSellHardLimitWithBuffer;
 		return this.self();
 	}
 

@@ -50,7 +50,7 @@ public class EshUtilsTest {
 		var params = new Params("ctrl0", null, null, 0, 0, null, null, null, false, null, tasks);
 		var clusterEshConfig = new ClusterEshConfig(null, ImmutableMap.of("ctrl0", params));
 		var goc = new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
-				new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+				new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
 				Periods.builder(Environment.TEST) //
 						.addPeriodIfValid(TIME.plusMinutes(0), null, 0, 700, 123., null) //

@@ -273,6 +273,17 @@ public interface Meta extends ModbusSlave {
 	public int getGridSellHardLimit();
 
 	/**
+	 * Returns the continuous hard limit for Grid-Sell Power in [W] minus a safety
+	 * buffer to reduce the risk of PV curtailment.
+	 *
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit.
+	 *
+	 * @return the value
+	 */
+	public int getGridSellHardLimitWithBuffer();
+
+	/**
 	 * Returns the continuous hard limit for Grid-Buy Power in [W].
 	 * 
 	 * <p>

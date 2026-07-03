@@ -6,7 +6,6 @@ import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssEmergencyCapacityReserve;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssFixActivePower;
-import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssGridOptimizedCharge;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssLimitTotalDischarge;
 import static io.openems.edge.energy.EnergySchedulerTestUtils.dummyEssTimeOfUseTariff;
 import static io.openems.edge.energy.api.EnergyConstants.SUM_PRODUCTION;
@@ -23,7 +22,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +47,7 @@ import io.openems.edge.timeofusetariff.test.DummyTimeOfUseTariffProvider;
 public class EnergySchedulerImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		create(createDummyClock());
 	}
 
@@ -100,9 +98,8 @@ public class EnergySchedulerImplTest {
 				.addReference("addSchedulable", dummyEssLimitTotalDischarge("ctrlLimitTotalDischarge0", 0)) //
 				.addReference("addSchedulable", dummyEssFixActivePower("ctrlFixActivePower0", -1000, GREATER_OR_EQUALS)) //
 				.addReference("addSchedulable",
-						dummyEssGridOptimizedCharge("ctrlGridOptimizedCharge0", LocalTime.of(10, 00))) //
-				.addReference("addSchedulable",
-						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION)) //
+						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION.modes, null,
+								null)) //
 				.addReference("sum", sum) //
 				.activate(MyConfig.create() //
 						.setId("_energy") //

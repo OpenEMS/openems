@@ -7,6 +7,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -381,6 +382,22 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link LocalTime} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, LocalTime value) {
+			this.j.addProperty(property, value == null ? null : value.format(DateTimeFormatter.ISO_LOCAL_TIME));
+			return this;
+		}
+
+		/**
 		 * Add a Duration value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -520,6 +537,24 @@ public final class JsonUtils {
 		 * @return the {@link JsonObjectBuilder}
 		 */
 		public JsonObjectBuilder addPropertyIfNotNull(String property, LocalDate value) {
+			if (value != null) {
+				this.addProperty(property, value);
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link LocalTime} value to the {@link JsonObject} if it is not null.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, LocalTime value) {
 			if (value != null) {
 				this.addProperty(property, value);
 			}
