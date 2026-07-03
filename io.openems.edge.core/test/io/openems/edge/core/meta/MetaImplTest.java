@@ -59,6 +59,7 @@ class MetaImplTest {
 				.addReference("httpBridgeFactory", factory)//
 				.activate(MyConfig.create() //
 						.setCurrency(EUR) //
+						.setIsEssDischargeToGridAllowed(true) //
 						.setGridConnectionPointFuseLimit(32) //
 						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMaximumGridFeedInLimit(12345) //
@@ -147,6 +148,7 @@ class MetaImplTest {
 		// Validate Hard Limits
 		assertEquals(22170, sut.getGridBuyHardLimit());
 		assertEquals(12345, sut.getGridSellHardLimit());
+		assertEquals(12345, sut.getEssDischargeToGridLimit());
 
 		// Test Live Channels
 		test //
@@ -293,5 +295,34 @@ class MetaImplTest {
 
 			assertEquals(expected, result);
 		}
+	}
+
+	@Test
+	public void testGetEssDischargeToGridLimitBlockedByConfig() throws Exception {
+		final var cm = new DummyConfigurationAdmin();
+		cm.getOrCreateEmptyConfiguration(ComponentManager.SINGLETON_SERVICE_PID);
+
+		final var oem = new DummyOpenemsEdgeOem();
+		final var clock = createDummyClock();
+		final var fetcher = dummyEndpointFetcher();
+		final var executor = dummyBridgeHttpExecutor(clock, true);
+		final var factory = ofBridgeImpl(() -> fetcher, () -> executor);
+
+		final var sut = new MetaImpl();
+		new ComponentTest(sut) //
+				.addReference("cm", cm) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
+				.addReference("oem", oem) //
+				.addReference("httpBridgeFactory", factory) //
+				.activate(MyConfig.create() //
+						.setCurrency(EUR) //
+						.setIsEssDischargeToGridAllowed(false) //
+						.setGridConnectionPointFuseLimit(32) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMaximumGridFeedInLimit(12345) //
+						.build());
+
+		assertEquals(0,
+				sut.getEssDischargeToGridLimit());
 	}
 }

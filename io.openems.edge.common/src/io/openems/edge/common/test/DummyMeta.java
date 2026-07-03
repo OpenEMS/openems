@@ -98,6 +98,14 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 		return this.gridBuySoftLimit;
 	}
 
+	@Override
+	public int getEssDischargeToGridLimit() {
+		if (this.getIsEssDischargeToGridAllowed()) {
+			return this.gridSellHardLimit;
+		}
+		return 0;
+	}
+
 	/**
 	 * Set the Grid-Connection-Point Fuse limit.
 	 *
@@ -224,6 +232,17 @@ public class DummyMeta extends AbstractDummyOpenemsComponent<DummyMeta> implemen
 	 */
 	public DummyMeta withGridBuyHardLimit(int gridBuyHardLimit) {
 		this.gridBuyHardLimit = gridBuyHardLimit;
+		return this.self();
+	}
+
+	/**
+	 * Set {@link Meta.ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public DummyMeta withIsEssDischargeToGridAllowed(boolean value) {
+		TestUtils.withValue(this, Meta.ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED, value);
 		return this.self();
 	}
 

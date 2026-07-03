@@ -137,6 +137,7 @@ public class MetaImpl extends AbstractOpenemsComponent
 		this.config = config;
 		setValue(this, Meta.ChannelId.CURRENCY, Currency.fromCurrencyConfig(config.currency()));
 		setValue(this, Meta.ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED, config.isEssChargeFromGridAllowed());
+		setValue(this, Meta.ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED, config.isEssDischargeToGridAllowed());
 		setValue(this, Meta.ChannelId.GRID_FEED_IN_LIMITATION_TYPE,
 				config.gridFeedInLimitationType().getGridFeedInLimitationType());
 
@@ -244,6 +245,14 @@ public class MetaImpl extends AbstractOpenemsComponent
 	public int getGridBuyHardLimit() {
 		final var powerFromFuseLimit = this.getGridConnectionPointFuseLimitInWatt();
 		return powerFromFuseLimit;
+	}
+
+	@Override
+	public int getEssDischargeToGridLimit() {
+		if (this.config.isEssDischargeToGridAllowed()) {
+			return this.getGridSellHardLimit();
+		}
+		return 0;
 	}
 
 	@Override
