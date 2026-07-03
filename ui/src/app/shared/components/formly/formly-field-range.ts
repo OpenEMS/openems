@@ -1,7 +1,6 @@
-import { Component, OnInit } from "@angular/core";
+import { Component } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
-import { ObjectUtils } from "../../utils/object/object-utils";
 
 @Component({
     selector: "formly-range-type",
@@ -11,6 +10,10 @@ import { ObjectUtils } from "../../utils/object/object-utils";
     }
     <ion-range
       class="ion-padding-top"
+      label-placement="stacked"
+      [class.range-invalid]="showError"
+      [label]="props.label"
+      [value]="props.defaultValue"
       [min]="props.min"
       [max]="props.max"
       [step]="props.step || 1"
@@ -25,6 +28,10 @@ import { ObjectUtils } from "../../utils/object/object-utils";
       <ion-label slot="start">{{ props.min }}</ion-label>
       <ion-label slot="end">{{ props.max }}</ion-label>
     </ion-range>
+
+    <ion-text class="range-current-value">
+      {{ 'GENERAL.CURRENT_VALUE' | translate }}: {{ getCurrentValueLabel() }}%
+    </ion-text>
 
     @if (to.description) {
       <p class="description-text">
@@ -43,9 +50,20 @@ import { ObjectUtils } from "../../utils/object/object-utils";
       </ion-text>
     }
     `,
+    styles: [`
+      ion-range.range-invalid::part(label) {
+        color: var(--ion-color-danger);
+      }
+
+      .range-current-value {
+        display: block;
+        text-align: left;
+        font-size: 0.8rem;
+      }
+    `],
     standalone: false,
 })
-export class FormlyRangeTypeComponent extends FieldType implements OnInit {
+export class FormlyRangeTypeComponent extends FieldType {
     protected boundPinFormatter = this.pinFormatter.bind(this);
 
     public onChange(event: any): void {
@@ -54,18 +72,14 @@ export class FormlyRangeTypeComponent extends FieldType implements OnInit {
         }
     }
 
-    ngOnInit(): void {
-        AssertionUtils.assertIsDefined(this.field);
-        AssertionUtils.assertIsDefined(this.field.formControl);
-
-        if (ObjectUtils.isObjectNullOrEmpty(this.field)) {
-            return;
-        }
-        this.field.formControl.setValue(this.field.defaultValue ?? this.field.formControl.value);
-    }
-
     protected pinFormatter(value: number): string {
         const unit = this.props?.unit || "";
         return `${value}${unit}`;
+    }
+
+    protected getCurrentValueLabel(): string {
+        const value = this.formControl.value;
+        AssertionUtils.assertIsDefined(value);
+        return this.pinFormatter(Number(value));
     }
 }

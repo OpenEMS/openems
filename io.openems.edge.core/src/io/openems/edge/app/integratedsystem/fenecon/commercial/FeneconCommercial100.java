@@ -38,6 +38,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.genset;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.stsBox;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocEnd;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocGroup;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocStart;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetEnableCharge;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetMaxPower;
@@ -127,21 +128,22 @@ public class FeneconCommercial100
 
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
 		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)), //
-		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
-		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED)), //
-
 		GENSET_ID(AppDef.componentId("meter1") //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(EMERGENCY_RESERVE_ENABLED).notNull()
-							.and(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull()));
+					field.onlyShowIf(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull());
 				})), //
 		GENSET_RATED_POWER(gensetRatedPower(IS_GENSET_INSTALLED)), //
 		GENSET_PREHEATING_TIME(gensetPreheatingTime(IS_GENSET_INSTALLED)), //
 		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
 		GENSET_ENABLE_CHARGE(gensetEnableCharge(IS_GENSET_INSTALLED)), //
 		GENSET_MAX_POWER(gensetMaxPower(GENSET_ENABLE_CHARGE)), //
-		GENSET_CHARGE_SOC_START(gensetChargeSocStart(GENSET_ENABLE_CHARGE)), //
-		GENSET_CHARGE_SOC_END(gensetChargeSocEnd(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_START(gensetChargeSocStart()), //
+		GENSET_CHARGE_SOC_END(gensetChargeSocEnd()), //
+		GENSET_CHARGE_SOC_GROUP(
+				gensetChargeSocGroup(GENSET_ENABLE_CHARGE, GENSET_CHARGE_SOC_START, GENSET_CHARGE_SOC_END)), //
+		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
+		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED, GENSET_CHARGE_SOC_START,
+				IS_GENSET_INSTALLED, GENSET_ENABLE_CHARGE)), //
 
 		SHADOW_MANAGEMENT_DISABLED(shadowManagementDisabled()), //
 		;
@@ -364,9 +366,9 @@ public class FeneconCommercial100
 		final var builder = ImmutableList.<PropertyParent>builder() //
 				.addAll(Arrays.stream(Property.values()).filter(p -> Stream.of(//
 						Property.HAS_EMERGENCY_RESERVE, //
-						Property.IS_GENSET_INSTALLED, //
 						Property.EMERGENCY_RESERVE_ENABLED, //
 						Property.EMERGENCY_RESERVE_SOC, //
+						Property.IS_GENSET_INSTALLED, //
 						Property.GENSET_ID, //
 						Property.GENSET_RATED_POWER, //
 						Property.GENSET_PREHEATING_TIME, //
@@ -375,6 +377,7 @@ public class FeneconCommercial100
 						Property.GENSET_MAX_POWER, //
 						Property.GENSET_CHARGE_SOC_START, //
 						Property.GENSET_CHARGE_SOC_END, //
+						Property.GENSET_CHARGE_SOC_GROUP, //
 						Property.SHADOW_MANAGEMENT_DISABLED //
 				).allMatch(t -> p != t)).toList());
 
@@ -386,9 +389,9 @@ public class FeneconCommercial100
 
 		builder //
 				.add(Property.HAS_EMERGENCY_RESERVE)//
-				.add(Property.IS_GENSET_INSTALLED)//
 				.add(Property.EMERGENCY_RESERVE_ENABLED)//
 				.add(Property.EMERGENCY_RESERVE_SOC)//
+				.add(Property.IS_GENSET_INSTALLED)//
 				.add(Property.GENSET_ID)//
 				.add(Property.GENSET_RATED_POWER)//
 				.add(Property.GENSET_PREHEATING_TIME)//
@@ -397,6 +400,7 @@ public class FeneconCommercial100
 				.add(Property.GENSET_MAX_POWER)//
 				.add(Property.GENSET_CHARGE_SOC_START)//
 				.add(Property.GENSET_CHARGE_SOC_END)//
+				.add(Property.GENSET_CHARGE_SOC_GROUP)//
 				.add(Property.SHADOW_MANAGEMENT_DISABLED);
 
 		return builder.build() //

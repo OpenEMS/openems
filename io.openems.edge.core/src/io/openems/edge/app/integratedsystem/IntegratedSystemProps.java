@@ -27,6 +27,7 @@ import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -305,9 +306,53 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> emergencyReserveSoc(//
 			final Nameable nameableToBeChecked //
 	) {
+		return createEmergencyReserveSocBase(nameableToBeChecked);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for selecting the emergency reserve soc value.
+	 *
+	 * @param nameableToBeChecked the {@link Nameable} to check if the field should
+	 *                            be shown. Used in combination with
+	 *                            {@link IntegratedSystemProps#emergencyReserveEnabled()}.
+	 *                            Can be null.
+	 * @param genSetSocStart      the {@link Nameable} to validate the emergency
+	 *                            reserve to be greater than the genSet SoC start if
+	 *                            the genSet is installed and the option to charge
+	 *                            from it is enabled
+	 * @param isGenSetInstalled   the {@link Nameable} to check if the genSet is
+	 *                            installed for the validation
+	 * @param genSetEnableCharge  the {@link Nameable} to check if the genSet
+	 *                            enableCharge is activated for the validation
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> emergencyReserveSoc(//
+			final Nameable nameableToBeChecked, //
+			final Nameable genSetSocStart, //
+			final Nameable isGenSetInstalled, //
+			final Nameable genSetEnableCharge //
+	) {
+		return createEmergencyReserveSocBase(nameableToBeChecked).wrapField((app, property, l, parameter, field) -> {
+			if (genSetSocStart != null) {
+				final var validationText = TranslationUtil.getTranslation(parameter.bundle(),
+						"App.FENECON.Commercial.reserveEnergy.validation.error");
+
+				final var validationExpression = Exp.currentModelValue(genSetSocStart).isNull() //
+						.or(Exp.currentModelValue(isGenSetInstalled).isNull()) //
+						.or(Exp.currentModelValue(genSetEnableCharge).isNull()) //
+						.or(Exp.currentModelValue(property).greaterThanEqual(Exp.currentModelValue(genSetSocStart)));
+
+				field.setCustomValidation("reserveEnergyValidation", validationExpression, validationText);
+			}
+		});
+	}
+
+	private static final AppDef<OpenemsApp, Nameable, BundleProvider> createEmergencyReserveSocBase(//
+			final Nameable nameableToBeChecked //
+	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.reserveEnergy.label") //
-				.setDefaultValue(5) //
+				.setDefaultValue(10) //
 				.setField(JsonFormlyUtil::buildRangeFromNameable, (app, property, l, parameter, field) -> {
 					field.setMin(5) //
 							.setMax(100);
@@ -397,7 +442,7 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
-			AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //
