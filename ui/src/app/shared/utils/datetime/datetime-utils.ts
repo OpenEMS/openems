@@ -108,7 +108,11 @@ export class DateTimeUtils {
    * @param datetime the datetime string
    * @returns the datetime string as ISO8601 'YYYY-MM-DDTHH:mm:ss.SSS' format
    */
-    public static formatToISOZonedDateTime(datetime: string | null, timeZone: string = DateTimeUtils.getLocaleTimeZone()): string {
+    public static formatToISOZonedDateTime(datetime: string | null, timeZone: string = DateTimeUtils.getLocaleTimeZone()): string | null {
+        if (datetime == null) {
+            return null;
+        }
+
         if (!DateTimeUtils.isOfValidDateTimeFormat(datetime)) {
             throw new Error(DateTimeUtils.INVALID_DATE_TIME_STRING);
         }
