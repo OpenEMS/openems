@@ -13,7 +13,9 @@
       }
       @if (navigationService.position() === 'left') {
         <ion-split-pane style="--side-max-width: 15%; --side-width: 15%" when="xs" contentId="main">
-          <ng-container *ngTemplateOutlet="sidemenu"></ng-container>
+          @if(navigationService.currentNode() !== null){
+            <ng-container *ngTemplateOutlet="sidemenu"></ng-container>
+          }
           <div id="main">
             <ng-template *ngTemplateOutlet="content"></ng-template>
           </div>
