@@ -47,7 +47,7 @@
     "ng2-charts": "9.0.0",
     "ngx-cookie-service": "21.3.1",
     "ngx-device-detector": "^10.1.0",
-    "ngx-spinner": "^21.1.0",
+    "ngx-spinner": "^19.0.0",
     "roboto-fontface": "^0.10.0",
     "rxjs": "~7.8.2",
     "swiper": "12.1.4",
