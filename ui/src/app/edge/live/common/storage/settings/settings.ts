@@ -377,7 +377,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 type: "range-button-from-form-control-line",
                 controlName: CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_SOC(essComponent),
                 properties: {
-                    tickMin: 0,
+                    tickMin: 5,
                     tickMax: 100,
                     step: 1,
                     tickFormatter: (val) => Converter.STATE_IN_PERCENT(val),
