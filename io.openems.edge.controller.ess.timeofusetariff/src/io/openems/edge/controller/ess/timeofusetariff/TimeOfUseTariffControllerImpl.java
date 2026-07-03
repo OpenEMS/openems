@@ -67,8 +67,8 @@ import io.openems.edge.timeofusetariff.api.TariffManager;
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.Time-Of-Use-Tariff", //
-		immediate = true, configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @GenerateTargetsFromReferences({ "ess", "CtrlGridOptimizedCharge" })
 @SuppressWarnings("deprecation")
 public class TimeOfUseTariffControllerImpl extends AbstractOpenemsComponent implements TimeOfUseTariffController,

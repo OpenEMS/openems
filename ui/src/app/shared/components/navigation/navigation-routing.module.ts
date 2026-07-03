@@ -83,6 +83,7 @@ import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/liv
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
 import { suffixMatcher } from "../../guards/url-matcher";
+import { UserSettings } from "../../jsonrpc/shared";
 
 export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },

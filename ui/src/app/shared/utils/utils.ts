@@ -88,8 +88,9 @@ export class Utils {
     }
 
     /**
-     * Subtracts values from each other - possibly null values
+     * Adds values together - possibly null values
      *
+     * @deprecated Use {@link NumberUtils.addSafely}
      * @param values The values
      * @returns A number, if at least one value is not null, else null
      */

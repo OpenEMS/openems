@@ -15,7 +15,6 @@ import { SharedControllerPeakShavingAsymmetric } from "src/app/edge/live/Control
 import { SharedControllerPeakShavingSymmetric } from "src/app/edge/live/Controller/peak-shaving/symmetric/shared/shared";
 import { SharedControllerTimeslotPeakshaving } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
-
 import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/HeatingRoom/shared/shared";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
