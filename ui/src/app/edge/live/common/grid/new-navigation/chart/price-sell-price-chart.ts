@@ -11,7 +11,7 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 import { ChartConstants } from "src/app/shared/shared";
 
 @Component({
-    selector: "oe-common-grid-buy-price-chart",
+    selector: "oe-common-grid-sell-price-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: true,
     imports: [
@@ -24,18 +24,18 @@ import { ChartConstants } from "src/app/shared/shared";
         NgxSpinnerModule,
     ],
 })
-export class GridBuyPriceChartComponent extends ScheduleChartComponent {
+export class GridSellPriceChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeData24hForChannel("GridBuyPrice");
+        const data = this.data.summarizeData24hForChannel("GridSellPrice");
 
         return [
             {
-                color: ChartConstants.Colors.BLACK,
+                color: ChartConstants.Colors.BLUE_GREY,
                 data: data.history,
                 stepped: true,
             },
             {
-                color: ChartConstants.Colors.BLACK,
+                color: ChartConstants.Colors.BLUE_GREY,
                 data: data.prediction,
                 stepped: true,
                 transparentBackground: true,

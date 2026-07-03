@@ -547,7 +547,7 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
-                    "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)",
+                    "POWER_SOC_CHART_TITLE": "Vorhersagen",
                     "PRICE": "Aktueller Bezugsstrompreis",
                     "STATE": {
                         "BALANCING": "Eigenverbrauchsoptimierung",
@@ -678,6 +678,7 @@
         "GRID_BUY_PRICE": "Strompreis",
         "GRID_SELL": "Netzeinspeisung",
         "GRID_SELL_ADVANCED": "Einspeisung",
+        "GRID_SELL_PRICE": "Einspeisevergütung",
         "HEAT_PUMP": "Wärmepumpe",
         "HISTORY": "Historie",
         "INACTIVE": "Inaktiv",

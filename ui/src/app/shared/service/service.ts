@@ -593,6 +593,8 @@ export class Service extends AbstractService {
                 return "S - Fahrplan - dyn. Tarif";
             case "fems3625":
                 return "M  - Multiuse";
+            case "fems65456":
+                return "H 30 Direktvermarktung";
             default:
                 return comment;
         }

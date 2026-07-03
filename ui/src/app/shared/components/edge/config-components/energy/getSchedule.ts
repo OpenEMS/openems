@@ -39,10 +39,10 @@ export namespace GetSchedule {
     export class Response extends JsonrpcResponseSuccess {
         public static readonly empty: Response = new Response("", { data: [] });
 
-        public readonly lastHistoryIndex;
+        public readonly lastHistoryIndex: number;
 
-        public readonly data24h;
-        public readonly data24hLastHistoryIndex;
+        public readonly data24h: Response["result"]["data"];
+        public readonly data24hLastHistoryIndex: number;
 
         public constructor(
             public override readonly id: string,
@@ -74,6 +74,7 @@ export namespace GetSchedule {
             const now = new Date();
             const from = subHours(now, 4);
             const to = addHours(now, 20);
+
             this.data24h = this.result.data.filter((entry) => {
                 const timestamp = new Date(entry.timestamp);
                 return timestamp >= from && timestamp < to;
@@ -88,6 +89,15 @@ export namespace GetSchedule {
 
         public getLabels24h(): Date[] {
             return this.data24h.map((entry) => new Date(entry.timestamp));
+        }
+
+        public hasDataForChannel(
+            channel: keyof Response["result"]["data"][number]["_sum"] | null,
+        ): boolean {
+            if (channel == null) {
+                return false;
+            }
+            return this.data24h.some((e) => e._sum[channel] != null);
         }
 
         public summarizeData24hForChannel(
@@ -129,6 +139,9 @@ export namespace GetSchedule {
             switch (key) {
                 case "EssSoc":
                     return value;
+                case "GridBuyPrice":
+                case "GridSellPrice":
+                    return NumberUtils.divideSafely(value, 10);
                 default:
                     return NumberUtils.divideSafely(value, 1000);
             }

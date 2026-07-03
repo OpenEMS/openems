@@ -5,13 +5,14 @@ import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-compone
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, Currency, Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedGrid } from "../shared/shared";
 import { GridBuySellChartComponent } from "./chart/buy-sell-chart";
 import { GridBuyPriceChartComponent } from "./chart/price-buy-price-chart";
+import { GridSellPriceChartComponent } from "./chart/price-sell-price-chart";
 
 @Component({
     selector: "oe-common-grid",
@@ -34,7 +35,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
 
         const view = SharedGrid.getFormlyView(config, edge.role, translate);
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
-            view.lines.unshift(
+            const lines: OeFormlyField<unknown>[] = [];
+            lines.push(
                 {
                     type: "component-line",
                     component: SingleXAxisComponent,
@@ -68,29 +70,65 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                         data: energyScheduler.schedule,
                     },
                 },
-                {
-                    type: "channel-line",
-                    name: translate.instant("GENERAL.GRID_BUY_PRICE"),
-                    channel: new ChannelAddress(
-                        "_sum",
-                        "GridBuyPrice",
-                    ).toString(),
-                    converter: Converter.CURRENCY_PER_KWH(currencyLabel),
-                    style: {
-                        name: { fontSize: "large" },
-                        value: { fontSize: "large" },
+            );
+
+            if (energyScheduler.schedule.hasDataForChannel("GridBuyPrice")) {
+                lines.push(
+                    {
+                        type: "channel-line",
+                        name: translate.instant("GENERAL.GRID_BUY_PRICE"),
+                        channel: new ChannelAddress(
+                            "_sum",
+                            "GridBuyPrice",
+                        ).toString(),
+                        converter: Converter.CURRENCY_PER_KWH(currencyLabel),
+                        style: {
+                            name: { fontSize: "large" },
+                            value: { fontSize: "large" },
+                        },
+                        cssClass: "ion-padding-top",
                     },
-                    cssClass: "ion-padding-top",
-                },
-                {
-                    type: "component-line",
-                    component: GridBuyPriceChartComponent,
-                    inputs: {
-                        edge: edge,
-                        refresh: false,
-                        data: energyScheduler.schedule,
+                    {
+                        type: "component-line",
+                        component: GridBuyPriceChartComponent,
+                        inputs: {
+                            edge: edge,
+                            refresh: false,
+                            data: energyScheduler.schedule,
+                        },
                     },
-                },
+                );
+            }
+
+            if (energyScheduler.schedule.hasDataForChannel("GridSellPrice")) {
+                lines.push(
+                    {
+                        type: "channel-line",
+                        name: translate.instant("GENERAL.GRID_SELL_PRICE"),
+                        channel: new ChannelAddress(
+                            "_sum",
+                            "GridSellPrice",
+                        ).toString(),
+                        converter: Converter.CURRENCY_PER_KWH(currencyLabel),
+                        style: {
+                            name: { fontSize: "large" },
+                            value: { fontSize: "large" },
+                        },
+                        cssClass: "ion-padding-top",
+                    },
+                    {
+                        type: "component-line",
+                        component: GridSellPriceChartComponent,
+                        inputs: {
+                            edge: edge,
+                            refresh: false,
+                            data: energyScheduler.schedule,
+                        },
+                    },
+                );
+            }
+
+            lines.push(
                 {
                     type: "horizontal-line",
                 },
@@ -103,6 +141,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                     cssClass: "ion-padding-top",
                 },
             );
+
+            view.lines.unshift(...lines);
         }
 
         return view;

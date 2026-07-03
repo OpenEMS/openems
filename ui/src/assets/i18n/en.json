@@ -557,7 +557,7 @@
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": "By actively charging the battery from grid in periods of low electricity prices, buying energy in periods with high price can be avoided.<br/><br/>ATTENTION: Actively charging the battery from grid beyond the technically necessary maintenance charging, requires an appropriate registration of the storage system. If in doubt, please verify with your installer. By pressing the blue \"Save\" button you confirm that this verification has been done.<br/><br/>Be aware: Precondition for the German Renewable Energy Sources Act (EEG 2023) grant is that only energy from renewable sources and/or pit gas is stored in the battery. By activating this function the battery is charged with energy from the grid. This energy is, depending on the individual power-supply contract, probably generated from fossil and/or nuclear power sources. Thus we cannot guarantee that the battery is exclusively charged with energy gained from renewable sources and/or pit gas."
                     },
-                    "POWER_SOC_CHART_TITLE": "Forecasts (Only for Admins)",
+                    "POWER_SOC_CHART_TITLE": "Forecasts",
                     "PRICE": "Current price",
                     "STATE": {
                         "BALANCING": "Self-consumption optimization",
@@ -686,6 +686,7 @@
         "GRID_BUY_PRICE": "Electricity price",
         "GRID_SELL": "Sell to grid",
         "GRID_SELL_ADVANCED": "Sell",
+        "GRID_SELL_PRICE": "Feed-in compensation",
         "HEAT_PUMP": "Heat pump",
         "HISTORY": "History",
         "INACTIVE": "Inactive",

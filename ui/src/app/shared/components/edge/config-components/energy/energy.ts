@@ -7,7 +7,7 @@ import { EdgeConfig } from "../../edgeconfig";
 import { GetSchedule } from "./getSchedule";
 
 export class EnergySchedulerV2 extends EdgeConfig.Component {
-    private static readonly nowToHistoryInHours = 4;
+    public static readonly nowToHistoryInHours: number = 4;
 
     private _schedule: GetSchedule.Response = GetSchedule.Response.empty;
 
