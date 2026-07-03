@@ -4,8 +4,6 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.common.types.EntsoeBiddingZone;
-
 @ObjectClassDefinition(//
 		name = "Tariff Manual EEG 2025 Grid-Sell", //
 		description = "Implementation of a grid-sell tariff according to EEG 2025, with a fixed grid-sell price that is set to zero if the day-ahead market price is negative.")

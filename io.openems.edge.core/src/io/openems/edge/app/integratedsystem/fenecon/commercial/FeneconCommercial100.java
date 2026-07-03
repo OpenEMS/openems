@@ -2,8 +2,8 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
@@ -44,7 +44,9 @@ import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCom
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetPreheatingTime;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRatedPower;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetRunTime;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.getExtendedGoodWeProperties;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.isGensetInstalled;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.vde4110Settings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +54,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -68,10 +71,12 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
+import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
 import io.openems.edge.common.component.ComponentManager;
@@ -115,6 +120,7 @@ public class FeneconCommercial100
 
 		LINK_FEED_IN(feedInLink()), //
 		FEED_IN_TYPE(IntegratedSystemProps.externalLimitationType()), //
+		VDE_4110_SETTINGS(vde4110Settings(GRID_CODE)), //
 		@Deprecated
 		MAX_FEED_IN_POWER(defaultDef()), //
 		FEED_IN_SETTING(feedInSetting()), //
@@ -175,6 +181,9 @@ public class FeneconCommercial100
 	private static final IntFunction<String> MPPT_ALIAS = value -> "ALIAS_MPPT_" + (value + 1);
 
 	private final Map<String, PropertyParent> pvDefs = new TreeMap<>();
+	private final Map<String, PropertyParent> goodWeDefs = getExtendedGoodWeProperties().entrySet().stream() //
+			.collect(Collectors.toMap(Map.Entry::getKey,
+					t -> new FeneconCommercial100.ParentPropertyImpl(t.getKey(), t.getValue())));
 
 	private final AppManagerUtil appManagerUtil;
 
@@ -242,11 +251,11 @@ public class FeneconCommercial100
 
 			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 
-			final String gridCode;
+			final GridCode gridCode;
 			if (safetyCountry == AppSafetyCountry.GERMANY) {
-				gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+				gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE);
 			} else {
-				gridCode = "UNDEFINED";
+				gridCode = null;
 			}
 
 			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
@@ -276,10 +285,24 @@ public class FeneconCommercial100
 			final var gensetSocStart = this.getInt(p, FeneconCommercial100.Property.GENSET_CHARGE_SOC_START);
 			final var gensetSocEnd = this.getInt(p, FeneconCommercial100.Property.GENSET_CHARGE_SOC_END);
 
+			final EdgeConfig.Component batteryInverter;
+			if (gridCode == GridCode.VDE_4110) {
+				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(bundle,
+						batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal, shadowManagementDisabled,
+						safetyCountry, feedInSetting, naProtection, gridCode.name(), this.goodWeDefs, //
+						propertyParent -> this.getJsonElementOrNull(p, propertyParent));
+			} else {
+				var gridCodeName = gridCode == null //
+						? "UNDEFINED" //
+						: gridCode.name();
+				batteryInverter = FeneconHomeComponents.batteryInverter(bundle, batteryInverterId, hasEmergencyReserve,
+						feedInType, modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting,
+						naProtection, gridCodeName);
+			}
+
 			final var components = Lists.newArrayList(//
-					ComponentDef.from(batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType,
-							modbusIdExternal, shadowManagementDisabled, safetyCountry, feedInSetting, naProtection,
-							gridCode)), //
+					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
+					ComponentDef.from(batteryInverter), //
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
@@ -405,7 +428,8 @@ public class FeneconCommercial100
 				.add(Property.GENSET_CHARGE_SOC_END)//
 				.add(Property.GENSET_CHARGE_SOC_GROUP)//
 				.add(Property.SHADOW_MANAGEMENT_DISABLED);
-
+		this.goodWeDefs.values()//
+				.forEach(builder::add);
 		return builder.build() //
 				.toArray(PropertyParent[]::new);
 	}
