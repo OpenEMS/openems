@@ -51,7 +51,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.oneShot = oneShot;
 			return this;
 		}
-		
+
 		public Builder setJsCalendar(String jsCalendar) {
 			this.jsCalendar = jsCalendar;
 			return this;

@@ -16,7 +16,7 @@ import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
@@ -44,21 +44,23 @@ public class EvseKebaUtils {
 		if (config.readOnly()) {
 			return;
 		}
-		this.applyPhaseSwitch(actions.phaseSwitch());
+		if (actions.phaseSwitch() != null) {
+			this.applyPhaseSwitch(actions.phaseSwitch().direction());
+		}
 		this.applySetPoint(actions.getApplySetPointInMilliAmpere().value());
 	}
 
-	private void applyPhaseSwitch(PhaseSwitch phaseSwitch) {
+	private void applyPhaseSwitch(PhaseSwitchDirection phaseSwitch) {
 		applyPhaseSwitch(this.parent, phaseSwitch);
 	}
 
 	/**
-	 * Applies a {@link PhaseSwitch} action to a given {@link EvseKeba}.
+	 * Applies a {@link PhaseSwitchDirection} action to a given {@link EvseKeba}.
 	 * 
 	 * @param keba        the {@link EvseKeba}
-	 * @param phaseSwitch the {@link PhaseSwitch}
+	 * @param phaseSwitch the {@link PhaseSwitchDirection}
 	 */
-	public static void applyPhaseSwitch(EvseKeba keba, PhaseSwitch phaseSwitch) {
+	public static void applyPhaseSwitch(EvseKeba keba, PhaseSwitchDirection phaseSwitch) {
 		if (phaseSwitch == null) {
 			return;
 		}
@@ -152,11 +154,11 @@ public class EvseKebaUtils {
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxSupportedCurrent)) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
-				.setPhaseSwitch(this.getPhaseSwitchAbility(config)) //
+				.setPhaseSwitchManual(this.getPhaseSwitchAbility(config)) //
 				.build();
 	}
 
-	private PhaseSwitch getPhaseSwitchAbility(CommonConfig config) {
+	private PhaseSwitchDirection getPhaseSwitchAbility(CommonConfig config) {
 		final var keba = this.parent;
 
 		// Set Phase-Switching Ability
@@ -186,8 +188,8 @@ public class EvseKebaUtils {
 		}
 
 		return switch (phaseSwitchState) {
-		case SINGLE_PHASE -> PhaseSwitch.TO_THREE_PHASE;
-		case THREE_PHASE -> PhaseSwitch.TO_SINGLE_PHASE;
+		case SINGLE_PHASE -> PhaseSwitchDirection.TO_THREE_PHASE;
+		case THREE_PHASE -> PhaseSwitchDirection.TO_SINGLE_PHASE;
 		};
 	}
 

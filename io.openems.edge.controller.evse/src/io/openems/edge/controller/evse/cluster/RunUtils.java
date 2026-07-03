@@ -4,8 +4,8 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.controller.evse.cluster.LogVerbosity.TRACE;
-import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_SINGLE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_THREE_PHASE;
+import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE;
+import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.roundDownToPowerStep;
 import static java.lang.Math.max;
 import static java.util.stream.Collectors.joining;
@@ -33,7 +33,8 @@ import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public class RunUtils {
@@ -358,13 +359,15 @@ public class RunUtils {
 	 *
 	 * <p>
 	 * This method is used in {@link #applyChangeLimit(Clock, PowerDistribution)} to
-	 * correctly apply the {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} ramp constraint.
+	 * correctly apply the {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} ramp
+	 * constraint.
 	 *
 	 * <p>
-	 * <b>Problem solved:</b> When a setpoint remained constant over multiple cycles,
-	 * using the last entry as reference caused rounding issues that prevented proper
-	 * power ramping. For example, starting from 6 A and trying to ramp to 16 A would
-	 * fail due to accumulated rounding errors and fall back to the minimum (6 A).
+	 * <b>Problem solved:</b> When a setpoint remained constant over multiple
+	 * cycles, using the last entry as reference caused rounding issues that
+	 * prevented proper power ramping. For example, starting from 6 A and trying to
+	 * ramp to 16 A would fail due to accumulated rounding errors and fall back to
+	 * the minimum (6 A).
 	 *
 	 * <p>
 	 * <b>Solution:</b> By finding the first entry with the same setpoint value, the
@@ -378,8 +381,8 @@ public class RunUtils {
 	 * <li>isReadyForCharging is true</li>
 	 * </ul>
 	 * For example, if the last entry with setpoint 7 A has invalid activePower or
-	 * isReadyForCharging false, the method searches backwards to find the first valid
-	 * entry with 7 A.
+	 * isReadyForCharging false, the method searches backwards to find the first
+	 * valid entry with 7 A.
 	 *
 	 * @param history the {@link Types.History} to search
 	 * @return a {@link Map.Entry} containing the timestamp and history entry of the
@@ -480,7 +483,7 @@ public class RunUtils {
 				// Only entries that do not already apply max set-point
 				.filter(e -> e.setPointInWatt < e.params.combinedAbilities().applySetPoint().max()) //
 				.toList();
-		if (entries.size() == 0) {
+		if (entries.isEmpty()) {
 			return; // avoid divide by zero
 		}
 
@@ -590,7 +593,8 @@ public class RunUtils {
 	}
 
 	/**
-	 * Handles a {@link PhaseSwitch} Action for one {@link ControllerEvseSingle}.
+	 * Handles a {@link PhaseSwitchDirection} Action for one
+	 * {@link ControllerEvseSingle}.
 	 * 
 	 * @param e            the PowerDistribution Entry
 	 * @param logVerbosity the configured {@link LogVerbosity}
@@ -607,31 +611,32 @@ public class RunUtils {
 		}
 
 		final var actions = e.actions;
-		switch (params.phaseSwitching()) { // Evse.Controller.Single wants...
-		case DISABLE -> {
-			// ...no phase switching -> do not set any PhaseSwitch action
-			doNothing();
+		switch (params.phaseSwitching()) {
+		// Evse.Controller.Single wants...
+		case DISABLE -> doNothing(); //
+		case FORCE_SINGLE_PHASE -> //
+			applyPhaseSwitchIfDirectionMatches(ctrl, actions, phaseSwitchAbility, //
+					TO_SINGLE_PHASE, "SINGLE", logVerbosity, logger);
+		case FORCE_THREE_PHASE -> //
+			applyPhaseSwitchIfDirectionMatches(ctrl, actions, phaseSwitchAbility, //
+					TO_THREE_PHASE, "THREE", logVerbosity, logger);
 		}
-		case FORCE_SINGLE_PHASE -> {
-			// ...force switch to Single-Phase...
-			if (phaseSwitchAbility == TO_SINGLE_PHASE) {
-				// ...and ChargePoint and ElectricVehicle support switch to Single-Phase
-				if (logVerbosity == TRACE) {
-					logger.accept(ctrl.id() + ": Force switch to SINGLE phase");
-				}
-				actions.setPhaseSwitch(TO_SINGLE_PHASE);
-			}
+	}
+
+	private static void applyPhaseSwitchIfDirectionMatches(//
+			ControllerEvseSingle ctrl, //
+			ChargePointActions.Builder actions, //
+			ApplyPhaseSwitch phaseSwitchAbility, //
+			PhaseSwitchDirection targetDirection, //
+			String targetPhaseName, //
+			LogVerbosity logVerbosity, //
+			Consumer<String> logger) {
+		if (phaseSwitchAbility.direction() != targetDirection) {
+			return;
 		}
-		case FORCE_THREE_PHASE -> {
-			// ... force switch to Three-Phase
-			if (phaseSwitchAbility == TO_THREE_PHASE) {
-				// ...and ChargePoint and ElectricVehicle support switch to Three-Phase
-				if (logVerbosity == TRACE) {
-					logger.accept(ctrl.id() + ": Force switch to THREE phase");
-				}
-				actions.setPhaseSwitch(TO_THREE_PHASE);
-			}
+		if (logVerbosity == TRACE) {
+			logger.accept(ctrl.id() + ": Force switch to " + targetPhaseName + " phase");
 		}
-		}
+		actions.setPhaseSwitch(phaseSwitchAbility);
 	}
 }

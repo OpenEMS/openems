@@ -81,11 +81,14 @@ public interface EvseChargePointBender extends OpenemsComponent {
 		CHARGE_DURATION(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
 		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_BUILD(Doc.of(INTEGER)), //
 		;
 

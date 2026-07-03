@@ -7,7 +7,6 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L2;
 import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 import static io.openems.edge.meter.api.PhaseRotation.mapLongToPhaseRotatedActivePowerChannel;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import org.osgi.service.event.Event;
@@ -39,7 +38,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		final var phaseRotated = this.getPhaseRotation();
-		var modbusProtocol = new ModbusProtocol(this,
+		return new ModbusProtocol(this,
 				new FC3ReadRegistersTask(104, Priority.HIGH,
 						m(EvseChargePointBender.ChannelId.OCPP_CP_STATUS, new UnsignedWordElement(104))),
 				new FC3ReadRegistersTask(111, Priority.LOW, //
@@ -82,12 +81,9 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L2)), //
 						m(new UnsignedDoublewordElement(210)).build() //
 								.onUpdateCallback(mapLongToPhaseRotatedActivePowerChannel(this, L3)), //
-						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(212),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(214),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
-						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(216),
-								ElementToChannelConverter.SCALE_FACTOR_3), //
+						m(phaseRotated.channelCurrentL1(), new UnsignedDoublewordElement(212)), //
+						m(phaseRotated.channelCurrentL2(), new UnsignedDoublewordElement(214)), //
+						m(phaseRotated.channelCurrentL3(), new UnsignedDoublewordElement(216)), //
 						new DummyRegisterElement(218, 221),
 						m(phaseRotated.channelVoltageL1(), new UnsignedDoublewordElement(222),
 								ElementToChannelConverter.SCALE_FACTOR_3), //
@@ -95,8 +91,6 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 								ElementToChannelConverter.SCALE_FACTOR_3), //
 						m(phaseRotated.channelVoltageL3(), new UnsignedDoublewordElement(226),
 								ElementToChannelConverter.SCALE_FACTOR_3)));
-
-		return modbusProtocol;
 	}
 
 	/**
@@ -132,7 +126,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 
 	/**
 	 * Helper Method that handles a Softwareversion check. Sets
-	 * {@link EvseChargePoint.ChannelId.FIRMWARE_OUTDATED}
+	 * {@link EvseChargePointBender.ChannelId.FIRMWARE_OUTDATED}
 	 *
 	 */
 	public void updateSoftwareVersionOutdated() {
@@ -154,17 +148,12 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	 */
 	public static boolean isSoftwareOutdated(Supplier<Value<Integer>> valMajor, Supplier<Value<Integer>> valMinor,
 			Supplier<Value<Integer>> valPatch, AbstractEvseChargePointBender cp) {
-		final var result = new AtomicBoolean(false);
-		valMajor.get().ifPresent(major -> {
-			valMinor.get().ifPresent(minor -> {
-				valPatch.get().ifPresent(patch -> {
-					var version = new SemanticVersion(major, minor, patch);
+		return SemanticVersion.fromNullable(valMajor.get().get(), valMinor.get().get(), valPatch.get().get())
+				.map(version -> {
 					setValue(cp, EvseChargePointBender.ChannelId.FIRMWARE_VERSION, version.toString());
-					result.set(!version.isAtLeast(OUTDATED_VERSION));
-				});
-			});
-		});
-		return result.get();
+					return !version.isAtLeast(OUTDATED_VERSION);
+				}) //
+				.orElse(false);
 	}
 
 }

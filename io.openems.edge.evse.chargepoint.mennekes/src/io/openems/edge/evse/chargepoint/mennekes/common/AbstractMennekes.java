@@ -30,7 +30,11 @@ public abstract class AbstractMennekes extends AbstractEvseChargePointBender imp
 							m(Mennekes.ChannelId.SET_POWER_LIMIT, new UnsignedWordElement(2002))),
 					new FC3ReadRegistersTask(2012, Priority.HIGH,
 							m(Mennekes.ChannelId.HEMS_MIN_POWER, new UnsignedWordElement(2012)),
-							m(Mennekes.ChannelId.HEMS_MAX_POWER, new UnsignedWordElement(2013))));
+							m(Mennekes.ChannelId.HEMS_MAX_POWER, new UnsignedWordElement(2013))),
+					new FC3ReadRegistersTask(2020, Priority.HIGH,
+							m(Mennekes.ChannelId.PHASE_SWITCH_MODE, new UnsignedWordElement(2020)),
+							m(Mennekes.ChannelId.PHASE_SWITCH_PAUSE, new UnsignedWordElement(2021)),
+							m(Mennekes.ChannelId.PHASE_SWITCH_RUNNING, new UnsignedWordElement(2022))));
 		}
 
 		return modbusProtocol;

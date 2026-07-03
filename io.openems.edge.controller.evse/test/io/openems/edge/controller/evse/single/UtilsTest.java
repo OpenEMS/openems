@@ -19,7 +19,7 @@ public class UtilsTest {
 				.setId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.THREE_PHASE, 6, 16)) //
-						.setPhaseSwitch(null) //
+						.setPhaseSwitchManual(null) //
 						.setIsEvConnected(false) //
 						.setIsReadyForCharging(false)) //
 				.setElectricVehicleAbilities(b -> b//
@@ -39,7 +39,7 @@ public class UtilsTest {
 				.setId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.SINGLE_PHASE, 6, 16)) //
-						.setPhaseSwitch(null) //
+						.setPhaseSwitchManual(null) //
 						.setIsEvConnected(false) //
 						.setIsReadyForCharging(false)) //
 				.setElectricVehicleAbilities(b -> b//
@@ -58,7 +58,7 @@ public class UtilsTest {
 				.setId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.THREE_PHASE, 6, 32)) //
-						.setPhaseSwitch(null) //
+						.setPhaseSwitchManual(null) //
 						.setIsEvConnected(false) //
 						.setIsReadyForCharging(false)) //
 				.setElectricVehicleAbilities(b -> b//
@@ -78,7 +78,7 @@ public class UtilsTest {
 				.setId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.SINGLE_PHASE, 6, 32)) //
-						.setPhaseSwitch(null) //
+						.setPhaseSwitchManual(null) //
 						.setIsEvConnected(false) //
 						.setIsReadyForCharging(false)) //
 				.setElectricVehicleAbilities(b -> b//
