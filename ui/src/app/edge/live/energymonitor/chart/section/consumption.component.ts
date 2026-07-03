@@ -1,7 +1,9 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
@@ -25,9 +27,12 @@ export class ConsumptionSectionComponent extends AbstractSection implements OnIn
         private unitpipe: UnitvaluePipe,
         translate: TranslateService,
         service: Service,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
         private animationService: AnimationService,
     ) {
-        super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, "Consumption");
+        super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, navigationService, router, route, "Consumption", ["common", "consumption"]);
     }
 
     ngOnInit() {

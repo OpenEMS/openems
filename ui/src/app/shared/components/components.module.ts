@@ -24,7 +24,7 @@ import { FooterNavigationComponentsModule, FooterNavigationModule } from "./foot
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
 import { HelpButtonComponent } from "./modal/help-button/help-button";
 import { ModalComponentsModule, ModalModule } from "./modal/modal.module";
-import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
+import { NavigationBreadCrumbsComponent } from "./navigation/breadcrumbs/breadcrumbs";
 import { NavigationChipsComponent } from "./navigation/chips/chips";
 import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
 import { PickdateComponentModule, PickdateModule } from "./pickdate/pickdate.module";

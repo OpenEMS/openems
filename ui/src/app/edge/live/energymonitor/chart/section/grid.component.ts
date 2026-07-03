@@ -1,7 +1,9 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
@@ -30,10 +32,13 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     constructor(
         translate: TranslateService,
         service: Service,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
         private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("GENERAL.GRID", "left", "var(--ion-color-dark)", translate, service, "Grid");
+        super("GENERAL.GRID", "left", "var(--ion-color-dark)", translate, service, navigationService, router, route, "Grid", ["common", "grid"]);
     }
 
     public static getCurrentGridIcon(currentData: CurrentData): Icon {

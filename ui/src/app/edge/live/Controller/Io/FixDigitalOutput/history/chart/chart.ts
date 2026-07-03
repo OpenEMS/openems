@@ -1,15 +1,34 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { BaseChartDirective } from "ng2-charts";
+import { NgxSpinnerModule } from "ngx-spinner";
 
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-controller-io-digital-output-chart",
-    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
-    standalone: false,
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: true,
+    imports: [
+        BaseChartDirective,
+        ReactiveFormsModule,
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+        ChartComponentsModule,
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+    ],
 })
 export class TotalChartComponent extends AbstractHistoryChart {
 
@@ -42,7 +61,7 @@ export class TotalChartComponent extends AbstractHistoryChart {
                         converter: () => {
                             return data[controller.id]
                                 // TODO add logic to not have to adjust non power data manually
-                                .map(val => Utils.multiplySafely(val, 1000));
+                                .map(val => NumberUtils.multiplySafely(val, 1000));
                         },
                         color: ChartConstants.Colors.SHADES_OF_YELLOW[i % (ChartConstants.Colors.SHADES_OF_YELLOW.length - 1)],
                         stack: 0,

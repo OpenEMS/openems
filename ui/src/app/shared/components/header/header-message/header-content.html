@@ -10,19 +10,18 @@
     <ion-col size-md="12" size-sm="6" class="ion-align-content-center">
       <ion-grid class="ion-no-padding-left-right">
         <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message !== null">
-          @if (message !== null) {
-            <ion-col class="ion-no-padding-top ion-padding-left" [class.ion-text-align-right]="!isSmartphone" [class.ion-text-align-left]="isSmartphone">
-              <ion-label style="line-height: 1.2;" class="oe-ci-font-family ion-font-size-xx-large ion-text-wrap ion-no-padding-top">
+          @let alignLeft = isSmartphone;
+          @let alignRight = !alignLeft && message !== null;
+          @let alignCenter = !alignLeft && !alignRight;
+          <ion-col class="ion-no-padding-top ion-padding-left" [class.ion-text-align-left]="alignLeft" [class.ion-text-align-center]="alignCenter" [class.ion-text-align-right]="alignRight">
+            <ion-label style="line-height: 1.2;" [class.ion-font-size-xx-large]="message !== null" [class.ion-font-size-x-large]="message === null" class="oe-ci-font-family ion-text-wrap ion-no-padding-top">
+              @if (message !== null) {
                 <span [innerHTML]="message"></span>
-              </ion-label>
-            </ion-col>
-          } @else {
-            <ion-col style="width: 80%;" class="ion-no-padding-top ion-text-align-center">
-              <ion-label style="line-height: 1.2;" class="ion-font-size-x-large ion-text-wrap ion-no-padding-top oe-ci-font-family-bold">
-                {{navigationService.headerTitle()}}
-              </ion-label>
-            </ion-col>
-          }
+              } @else {
+                {{ navigationService.headerTitle() }}
+              }
+            </ion-label>
+          </ion-col>
           <ion-col size="auto" class="ion-padding-left ion-no-padding-top ion-text-end" style="align-self: start;">
             <oe-system-status></oe-system-status>
           </ion-col>

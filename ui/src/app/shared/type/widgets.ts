@@ -7,6 +7,7 @@ import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
+import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
@@ -74,6 +75,8 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.Io.FixDigitalOutput":
+                return SharedControllerIoFixDigitalOutput.getNavigationTree(translate, component);
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.IO.HeatingElement":

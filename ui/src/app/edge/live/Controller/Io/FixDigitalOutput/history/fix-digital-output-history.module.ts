@@ -4,8 +4,10 @@ import { FooterNavigationModule } from "src/app/shared/components/footer/subnavi
 import { SharedModule } from "src/app/shared/shared.module";
 import { TotalChartComponent } from "./chart/chart";
 import { ChartComponent } from "./details/chart/chart";
-import { DetailsOverviewComponent } from "./details/details.overview";
+import { ControllerIoFixDigitalOutputDetailsOverviewComponent } from "./details/details.overview";
+import { FixDigitalDetailsComponent } from "./details/new-navigation/details";
 import { FlatComponent } from "./flat/flat";
+import { FixDigitalInputHistoryComponent } from "./new-navigation/new-navigation";
 import { ControllerIoDigitalOutputOverviewComponent } from "./overview/overview";
 
 @NgModule({
@@ -13,20 +15,24 @@ import { ControllerIoDigitalOutputOverviewComponent } from "./overview/overview"
         BrowserModule,
         SharedModule,
         FooterNavigationModule,
+        ChartComponent,
+        TotalChartComponent,
+        FixDigitalDetailsComponent,
+        ControllerIoFixDigitalOutputDetailsOverviewComponent,
+        FixDigitalInputHistoryComponent,
     ],
     declarations: [
         FlatComponent,
         ControllerIoDigitalOutputOverviewComponent,
-        TotalChartComponent,
-        DetailsOverviewComponent,
-        ChartComponent,
     ],
     exports: [
         FlatComponent,
         ControllerIoDigitalOutputOverviewComponent,
         TotalChartComponent,
-        DetailsOverviewComponent,
+        ControllerIoFixDigitalOutputDetailsOverviewComponent,
         ChartComponent,
+        FixDigitalInputHistoryComponent,
+        FixDigitalDetailsComponent,
     ],
 })
-export class DigitalOutput { }
+export class FixDigitalOutputHistory { }

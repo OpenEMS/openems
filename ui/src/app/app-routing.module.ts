@@ -4,8 +4,6 @@ import { CookieService } from "ngx-cookie-service";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { ControllerEnerixOverviewComponent as EnerixOverviewComponent } from "./edge/history/Controller/EnerixControl/overview/overview";
-import { DetailsOverviewComponent as DigitalOutputDetailsOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/details/details.overview";
-import { ControllerIoDigitalOutputOverviewComponent } from "./edge/history/Controller/Io/DigitalOutput/overview/overview";
 import { ControllerModbusTcpApiOverviewComponent as ModbusTcpApiOverviewComponent } from "./edge/history/Controller/ModbusTcpApi/overview/overview";
 import { ControllerPeakShavingAsymmetricOverviewComponent as AsymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/asymmetric/overview/overview";
 import { ControllerPeakShavingSymmetricOverviewComponent as SymmetricPeakshavingChartOverviewComponent } from "./edge/history/Controller/peak-shaving/symmetric/overview/overview";
@@ -27,6 +25,8 @@ import { ControllerChannelThresholdOverviewComponent as ChannelthresholdChartOve
 import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/live/Controller/Ess/TimeOfUseTariff/history/overview/overview";
 import { ControllerHeatOverviewComponent } from "./edge/live/Controller/Heat/history/overview/overview";
+import { ControllerIoFixDigitalOutputDetailsOverviewComponent } from "./edge/live/Controller/Io/FixDigitalOutput/history/details/details.overview";
+import { ControllerIoDigitalOutputOverviewComponent } from "./edge/live/Controller/Io/FixDigitalOutput/history/overview/overview";
 import { ControllerIoHeatingElementOverviewComponent } from "./edge/live/Controller/Io/HeatingElement/history/overview/overview";
 import { LiveDataService } from "./edge/live/livedataservice";
 import { LoginComponent } from "./index/login.component";
@@ -74,7 +74,7 @@ export const history: (/** Determines if titles in headers can be set */ customH
         // Controllers
         { path: "channelthresholdchart", component: ChannelthresholdChartOverviewComponent },
         { path: "digitaloutputchart", component: ControllerIoDigitalOutputOverviewComponent },
-        { path: "digitaloutputchart/:componentId", component: DigitalOutputDetailsOverviewComponent },
+        { path: "digitaloutputchart/:componentId", component: ControllerIoFixDigitalOutputDetailsOverviewComponent },
     ],
 }];
 

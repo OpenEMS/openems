@@ -1,8 +1,10 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { CurrentData } from "src/app/shared/components/edge/currentdata";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
@@ -31,10 +33,13 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     constructor(
         translate: TranslateService,
         protected override service: Service,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
         private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "var(--ion-color-success)", translate, service, "Storage");
+        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "var(--ion-color-success)", translate, service, navigationService, router, route, "Storage", ["common", "storage"]);
         this.unitpipe = unitpipe;
     }
 

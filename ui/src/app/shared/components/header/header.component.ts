@@ -29,7 +29,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     protected isHeaderAllowed: boolean = true;
     protected showBackButton: boolean = false;
-    protected isNewNavigation: boolean = false;
     protected edge = this.service.currentEdge;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
@@ -50,8 +49,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     ) {
         effect(() => {
             this.showBackButton = this.navigationService.headerOptions().showBackButton;
-
-            this.isNewNavigation = NavigationService.isNewNavigation(this.userService.currentUser(), this.service.currentEdge()?.getConfigSignal()());
         });
     }
 

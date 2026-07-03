@@ -86,17 +86,19 @@ export namespace NumberUtils {
    * @returns a number, if at least one value is not null, else null
    */
     export function multiplySafely(...values: (number | null)[]): number | null {
-        return values
-            .filter(value => value !== null && value !== undefined)
-            .reduce((sum: number | null, curr) => {
-                if (sum == null) {
-                    sum = curr;
-                } else {
-                    sum *= curr;
-                }
+        const [firstFactor, ...furtherFactors] = values;
+        if (firstFactor == null) {
+            return null;
+        }
 
-                return sum;
-            }, null);
+        let result = firstFactor;
+        for (const factor of furtherFactors) {
+            if (factor != null) {
+                result *= factor;
+            }
+        }
+
+        return result;
     }
 
     /**

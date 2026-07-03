@@ -10,7 +10,7 @@
           }
         </ion-buttons>
       }
-      @if (enableSideMenu && navigationService.position() !== 'left' && !isNewNavigation) {
+      @if (enableSideMenu && navigationService.position() === 'disabled') {
         <ion-buttons slot="start">
           <ion-button (keydown.enter)="toggleMenu()" (click)="toggleMenu()" class="custom-menu-button">
             <ion-icon slot="icon-only" name="menu"></ion-icon>

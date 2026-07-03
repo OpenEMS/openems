@@ -37,13 +37,17 @@
       }
       <ng-template #no_text>-</ng-template>
     </svg:text>
-    <svg:use [class]="svgStyle" style="color: var(--ion-color-success)" [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" [attr.href]="square.image.image + '#root'"></svg:use>
+    <svg:use [class]="svgStyle" style="color: var(--ion-color-success)" [style.cursor]="targetRoute ? 'pointer' : null" [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" [attr.href]="square.image.image + '#root'" (click)="onIconClick($event)"></svg:use>
 
     @if (socPercentage !== null) {
       <svg:text [attr.x]="square.valueText.x" [attr.y]="socPercentage.yPosition" text-anchor="middle" font-family="sans-serif" [attr.font-size]="socPercentage.fontsize" font fill="var(--ion-text-color)">
           <ng-container>{{ socPercentage.value }} %</ng-container>
         <ng-template #no_text>-</ng-template>
       </svg:text>
+    }
+
+    @if (targetRoute() !== null) {
+      <svg:rect [attr.x]="square.image.x" [attr.y]="square.image.y" [attr.width]="square.image.length" [attr.height]="square.image.length" pointer-events="all" opacity="0" cursor="pointer" (click)="onIconClick($event)" />
     }
   </svg:g>
 }

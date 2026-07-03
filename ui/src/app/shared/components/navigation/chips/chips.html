@@ -58,7 +58,7 @@
 
 @if (navigationService.position() === 'bottom') {
   @for (child of children; track child) {
-    <ion-button tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);" shape="round" size="default" color="light" [class.with-label]="child.mode === 'label'">
+    <ion-button tabindex="0" (keydown.enter)="navigateTo(child);" (click)="navigateTo(child);" style="--border-radius: 1vh 1vh 1vh 1vh;" size="default" color="light" [class.with-label]="child.mode === 'label'">
       <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start': 'icon-only'" role="img" [size]="child.icon?.size ?? 'medium'"></ion-icon>
       @if (child.mode === 'label') {
         <ion-label slot="end" style="text-transform: none;">

@@ -1,8 +1,11 @@
 // @ts-strict-ignore
+import { computed } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
 
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { GridMode, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 
@@ -122,7 +125,6 @@ export class EnergyFlow {
 }
 
 export abstract class AbstractSection {
-
     public fillRef: string = "";
     public valuePath: string = "";
     public outlinePath: string = "";
@@ -145,6 +147,14 @@ export abstract class AbstractSection {
     protected width: number = 0;
     protected gridMode: GridMode;
     protected restrictionMode: number;
+    protected readonly targetRoute = computed<string[] | null>(() => {
+        const navigationPosition = this.navigationService.position();
+        if (navigationPosition == null || navigationPosition === "disabled") {
+            return null;
+        }
+
+        return this.newNavigationRoute;
+    });
 
     private lastCurrentData: DefaultTypes.Summary | null = null;
 
@@ -154,18 +164,33 @@ export abstract class AbstractSection {
         public color: string,
         protected translate: TranslateService,
         protected service: Service,
+        private readonly navigationService: NavigationService,
+        private readonly router: Router,
+        private readonly route: ActivatedRoute,
         widgetClass: string,
+        private readonly newNavigationRoute: string[],
     ) {
         this.sectionId = translateName + "-" + uuidv4();
         this.name = translate.instant(translateName);
         this.energyFlow = this.initEnergyFlow(0);
-        service.getConfig().then(config => {
-            config.widgets.classes.forEach(clazz => {
+        service.getConfig().then((config) => {
+            config.widgets.classes.forEach((clazz) => {
                 if (clazz.toString() === widgetClass) {
                     this.isEnabled = true;
                 }
             });
         });
+    }
+
+    public onIconClick(event: MouseEvent): void {
+        event.stopPropagation();
+
+        const targetRoute = this.targetRoute();
+        if (!this.isEnabled || !targetRoute) {
+            return;
+        }
+
+        this.router.navigate(targetRoute, { relativeTo: this.route });
     }
 
     /**
@@ -218,8 +243,7 @@ export abstract class AbstractSection {
     protected adjustFillRefbyBrowser(): void {
         if (navigator.vendor.match(/apple/i)) {
             this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")";
-        }
-        else {
+        } else {
             this.fillRef = "url(#" + this.sectionId + ")";
         }
     }
@@ -286,7 +310,6 @@ export abstract class AbstractSection {
         const svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
         this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
-
 
     /**
      * Calculates sub-value properties - for storage SoC and grid buy price.
@@ -372,5 +395,4 @@ export abstract class AbstractSection {
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
     protected abstract setElementHeight();
-
 }

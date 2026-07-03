@@ -1,21 +1,42 @@
+import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { TranslateService } from "@ngx-translate/core";
+import { ReactiveFormsModule } from "@angular/forms";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { BaseChartDirective } from "ng2-charts";
+import { NgxSpinnerModule } from "ngx-spinner";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
+import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
+import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "detailChart",
-    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
-    standalone: false,
+    templateUrl: "../../../../../../../../shared/components/chart/abstracthistorychart.html",
+    standalone: true,
+    imports: [
+        BaseChartDirective,
+        ReactiveFormsModule,
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+        ChartComponentsModule,
+        HistoryDataErrorModule,
+        NgxSpinnerModule,
+    ],
 })
 export class ChartComponent extends AbstractHistoryChart {
 
-    public static getChartData(config: EdgeConfig, chartType: "line" | "bar", route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
-        const controller: EdgeConfig.Component = config.getComponent(route.snapshot.params.componentId);
+    public static getChartData(config: EdgeConfig, chartType: "line" | "bar", routeService: RouteService, translate: TranslateService): HistoryUtils.ChartData {
+        const controller: EdgeConfig.Component | null = config.getComponentSafely(routeService.getRouteParam("componentId"));
+        if (controller == null) {
+            return HistoryUtils.ChartData.EMPTY;
+        }
 
         const input: HistoryUtils.InputChannel[] = [];
         let inputChannel: ChannelAddress | null = null;
@@ -47,12 +68,12 @@ export class ChartComponent extends AbstractHistoryChart {
                     converter: () => {
 
                         if (chartType == "line") {
-                            return data[controller.id + "output"]?.map(val => Utils.multiplySafely(1000, val));
+                            return data[controller.id + "output"]?.map(val => NumberUtils.multiplySafely(1000, val));
                         }
 
                         return data[controller.id + "output"]
-                        // TODO add logic to not have to adjust non power data manually
-                            ?.map(val => Utils.multiplySafely(val, 1000));
+                            // TODO add logic to not have to adjust non power data manually
+                            ?.map(val => NumberUtils.multiplySafely(val, 1000));
                     },
                     color: ChartConstants.Colors.YELLOW,
                     stack: 0,
@@ -131,20 +152,20 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected static getColor(inputChannel: ChannelAddress): string {
-        if (!inputChannel || inputChannel.channelId != "EssSoc") {
+        if (inputChannel?.channelId !== "EssSoc") {
             return "rgb(0,0,0)";
         }
         return "rgb(189,195,199)";
     }
 
     protected static getConverter(inputChannel: ChannelAddress, data: HistoryUtils.ChannelData): () => {} {
-        if (!inputChannel || inputChannel.channelId != "EssSoc") {
+        if (inputChannel?.channelId !== "EssSoc") {
             return () => data[inputChannel.toString()];
         }
 
         return () => data[inputChannel.toString()]
-        // TODO add logic to not have to adjust non power data manually
-            ?.map((val: number) => Utils.multiplySafely(val, 1000));
+            // TODO add logic to not have to adjust non power data manually
+            ?.map((val: number) => NumberUtils.multiplySafely(val, 1000));
     }
 
     private static getDisplayValue(data: HistoryUtils.ChannelData, inputChannel: ChannelAddress, translate: TranslateService): HistoryUtils.DisplayValue {
@@ -158,6 +179,6 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.config, this.chartType, this.route, this.translate);
+        return ChartComponent.getChartData(this.config, this.chartType, this.routeService, this.translate);
     }
 }

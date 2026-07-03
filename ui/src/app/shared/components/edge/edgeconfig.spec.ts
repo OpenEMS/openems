@@ -546,6 +546,7 @@ export namespace DummyConfig {
             properties: {
                 enabled: true,
                 isOn: true,
+                outputChannelAddress: "io0/Relay3",
             },
             channels: {},
         });

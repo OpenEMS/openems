@@ -39,6 +39,8 @@ import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedul
 import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
 import { ControllerHeatSettingsComponent } from "src/app/edge/live/Controller/Heat/settings/settings";
+import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
+import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
 import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
@@ -129,6 +131,8 @@ export const newNavigationRoutes: Routes = [
     { path: "common/storage/controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
     { path: "common/weather/:componentId", component: WeatherHomeComponent },
 
+    { path: "controller/io-fix-digital-output/:componentId", component: ControllerFixDigitalOutputHomeComponent },
+    { path: "controller/io-fix-digital-output/:componentId/history", component: FixDigitalDetailsComponent },
     { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
     { path: "controller/heatpump/:componentId/settings", component: ControllerIoHeatpumpSettingsComponent },
     { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },

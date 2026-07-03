@@ -8,10 +8,8 @@
   @if (navigationService.position() !== null) {
     <ion-content>
       @if (navigationService.position() === 'disabled') {
-        <ng-template *ngTemplateOutlet="sidemenu">
-        </ng-template>
-        <ng-template *ngTemplateOutlet="content">
-        </ng-template>
+        <ng-template *ngTemplateOutlet="sidemenu"></ng-template>
+        <ng-template *ngTemplateOutlet="content"></ng-template>
       }
       @if (navigationService.position() === 'left') {
         <ion-split-pane style="--side-max-width: 15%; --side-width: 15%" when="xs" contentId="main">
@@ -23,7 +21,6 @@
       }
       @if (navigationService.position() === 'bottom') {
         <ng-container *ngTemplateOutlet="content"></ng-container>
-        <ng-container *ngTemplateOutlet="sidemenu"></ng-container>
       }
     </ion-content>
   }
