@@ -259,15 +259,6 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 	}
 
 	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanDelete(Role.ADMIN)//
-				.setCanInstall(List.of(Role.ADMIN))//
-				.setCanSee(Role.ADMIN)//
-				.build();
-	}
-
-	@Override
 	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
 		return List.of(EMobilityArchitectureType.EVSE);
 	}
