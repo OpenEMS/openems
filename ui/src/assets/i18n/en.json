@@ -596,6 +596,11 @@
         },
         "TITLE": "{{ edgeShortName }}"
     },
+    "EVSE_SINGLE": {
+        "SETTINGS": {
+            "CHARGE_MODE": "What mode should be used for charging"
+        }
+    },
     "FORMLY_FORM": {
         "TARIFF_TABLE": {
             "ADD_TIME_SLOT": "Add Time Slot",
@@ -978,6 +983,7 @@
             "SUMMARY": "Summary",
             "TIME_OF_INSTALLATION": "Time of the installation",
             "ACCEPT_TERMS": "Accept the Warranty Terms to proceed.",
+            "IS_DEVICE_ACTIVE_CHECKED": "Check that the battery and inverter are switched on and confirm this.",
             "VALUE_WITH_LABEL_HOME_DC": "Value MPPT{{ mppt }} {{ symbol }}",
             "WARRANTY_TERMS": "Warranty terms"
         },
@@ -1219,6 +1225,10 @@
             "UPDATE_WARNING": "Version must be updated!"
         },
         "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}"
+    },
+    "JS_SCHEDULE": {
+        "EDIT_TASK": "Edit task",
+        "ADD_TASK": "Add Task"
     },
     "LIVE": {
         "PULL_TO_REFRESH": "Pull this banner to refresh"
@@ -1466,14 +1476,5 @@
             "UPDATE_TIME": "(This can take up to {{minutes}} minutes)",
             "WARNING": "The software will restart after the system update. No data is recorded or components controlled during this time. Please ensure that the entire system is in a safe state."
         }
-    },
-    "EVSE_SINGLE": {
-        "SETTINGS": {
-            "CHARGE_MODE": "What mode should be used for charging"
-        }
-    },
-    "JS_SCHEDULE": {
-        "EDIT_TASK": "Edit task",
-        "ADD_TASK": "Add Task"
     }
 }
