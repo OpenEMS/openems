@@ -1,10 +1,13 @@
-package io.openems.edge.heat.askoma.statemachine;
+package io.openems.edge.heat.mypv.statemachine;
 
-import static io.openems.edge.heat.askoma.statemachine.AskomaConstants.FAST_HEAT_DURATION;
+import static io.openems.edge.heat.mypv.statemachine.MyPvConstants.FAST_HEAT_DURATION;
+import static io.openems.edge.heat.mypv.statemachine.MyPvConstants.OFF_ACTIVE_POWER;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
 public class FastHeatHandler extends AbstractFastHeatHandler {
 	private static final Duration POWER_NOT_APPLIED_DELAY = Duration.ofMinutes(5);
@@ -18,8 +21,9 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 	}
 
 	@Override
-	public StateMachine.State runAndGetNextState(Context context) {
+	public StateMachine.State runAndGetNextState(Context context) throws OpenemsNamedException {
 		if (this.isFastHeatExpired(context.clock)) {
+			context.setTargetActivePowerForHeatElement(OFF_ACTIVE_POWER);
 			return StateMachine.State.FAST_HEAT_PROTECTION_PAUSE;
 		}
 
@@ -35,7 +39,7 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 	}
 
 	private void updateFastHeatPowerResponse(Context context) {
-		if (this.isTargetGridActivePowerApplied(context)) {
+		if (this.isTargetActivePowerApplied(context)) {
 			this.resetFastHeatPowerNotAppliedState(context);
 			return;
 		}
@@ -56,14 +60,14 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 		context.setFastHeatPowerNotApplied(false);
 	}
 
-	private boolean isTargetGridActivePowerApplied(Context context) {
-		var targetGridActivePower = context.getRequestedTargetGridActivePower();
-		if (targetGridActivePower == null || targetGridActivePower >= 0) {
+	private boolean isTargetActivePowerApplied(Context context) {
+		var targetActivePower = context.getRequestedTargetActivePower();
+		if (targetActivePower == null || targetActivePower <= 0) {
 			return false;
 		}
 
 		var activePower = context.getActivePower();
-		return activePower != null && activePower > 0;
+		return activePower > 0;
 	}
 
 	private boolean isFastHeatExpired(Clock clock) {
@@ -73,5 +77,4 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 		}
 		return !clock.instant().isBefore(startedAt.plus(FAST_HEAT_DURATION));
 	}
-
 }

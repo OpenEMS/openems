@@ -287,6 +287,10 @@ public class TestTranslations {
 					.addProperty("ESS_ID", "ess0") //
 					.addProperty("INPUT_CHANNEL_ADDRESS", "io0/Relay1") //
 					.build()));
+			this.apps.add(new TestTranslation(Apps.heatMyPv(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("IP", "192.168.178.152") //
+					.addProperty("MAX_HEAT_POWER", 3000) //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.heatMyPvReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskoma(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.heatAskomaReadOnly(t), true, new JsonObject()));

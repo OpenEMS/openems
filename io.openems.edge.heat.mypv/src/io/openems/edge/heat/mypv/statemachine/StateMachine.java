@@ -1,9 +1,9 @@
-package io.openems.edge.heat.askoma.statemachine;
+package io.openems.edge.heat.mypv.statemachine;
 
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.statemachine.AbstractStateMachine;
 import io.openems.edge.common.statemachine.StateHandler;
-import io.openems.edge.heat.askoma.Mode;
+import io.openems.edge.heat.mypv.Mode;
 
 public class StateMachine extends AbstractStateMachine<StateMachine.State, Context> {
 
@@ -53,9 +53,9 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	 */
 	public static State fromMode(Mode mode) {
 		return switch (mode) {
-		case OFF -> State.OFF;
-		case FAST_HEAT -> State.FAST_HEAT;
-		case SURPLUS -> State.SURPLUS;
+			case OFF -> State.OFF;
+			case FAST_HEAT -> State.FAST_HEAT;
+			case SURPLUS -> State.SURPLUS;
 		};
 	}
 
@@ -64,9 +64,8 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	 * operating mode.
 	 *
 	 * <p>
-	 * This keeps {@link State#FAST_HEAT_PROTECTION_PAUSE} within
-	 * {@link Mode#FAST_HEAT} without forcing a transition back to
-	 * {@link State#FAST_HEAT} on every cycle.
+	 * This keeps {@link State#FAST_HEAT_PROTECTION_PAUSE} within {@link Mode#FAST_HEAT}
+	 * without forcing a transition back to {@link State#FAST_HEAT} on every cycle.
 	 *
 	 * @param state the current state-machine state
 	 * @param mode  the resolved operating mode
@@ -74,19 +73,20 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	 */
 	public static boolean matchesMode(State state, Mode mode) {
 		return switch (mode) {
-		case OFF -> state == State.OFF;
-		case FAST_HEAT -> state == State.FAST_HEAT || state == State.FAST_HEAT_PROTECTION_PAUSE;
-		case SURPLUS -> state == State.SURPLUS;
+			case OFF -> state == State.OFF;
+			case FAST_HEAT -> state == State.FAST_HEAT || state == State.FAST_HEAT_PROTECTION_PAUSE;
+			case SURPLUS -> state == State.SURPLUS;
 		};
 	}
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
 		return switch (state) {
-		case OFF -> new OffHandler();
-		case FAST_HEAT -> new FastHeatHandler();
-		case FAST_HEAT_PROTECTION_PAUSE -> new FastHeatProtectionPauseHandler();
-		case SURPLUS -> new SurplusHandler();
+			case OFF -> new OffHandler();
+			case FAST_HEAT -> new FastHeatHandler();
+			case FAST_HEAT_PROTECTION_PAUSE -> new FastHeatProtectionPauseHandler();
+			case SURPLUS -> new SurplusHandler();
 		};
 	}
 }
+

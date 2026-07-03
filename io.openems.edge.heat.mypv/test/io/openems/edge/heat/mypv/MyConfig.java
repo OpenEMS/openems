@@ -1,7 +1,6 @@
-package io.openems.edge.heat.mypv.acthor9s;
+package io.openems.edge.heat.mypv;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -11,12 +10,30 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId = null;
 		private int modbusUnitId;
 		private boolean readOnly;
+		private Mode mode = Mode.OFF;
+		private String jsCalendar = "[]";
+		private int maxHeatPower;
 
 		private Builder() {
 		}
 
 		public Builder setReadOnly(boolean readOnly) {
 			this.readOnly = readOnly;
+			return this;
+		}
+
+		public Builder setMode(Mode mode) {
+			this.mode = mode;
+			return this;
+		}
+
+		public Builder setJsCalendar(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
+			return this;
+		}
+
+		public Builder setMaxHeatPower(int maxHeatPower) {
+			this.maxHeatPower = maxHeatPower;
 			return this;
 		}
 
@@ -72,7 +89,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
+	public Mode mode() {
+		return this.builder.mode;
+	}
+
+	@Override
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
+	}
+
+	@Override
+	public int maxHeatPower() {
+		return this.builder.maxHeatPower;
 	}
 }

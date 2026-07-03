@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -21,7 +20,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.jenetics.Mutator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
 import io.jenetics.EliteSelector;
-import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Mutator;
 import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
-import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
@@ -48,7 +45,6 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
-import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 

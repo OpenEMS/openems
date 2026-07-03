@@ -183,7 +183,7 @@ class HeatAskomaImplTest {
 						.input(Heat.ChannelId.TEMPERATURE, 500) // still below target
 						.input(HeatAskoma.ChannelId.TEMPERATURE_SETPOINT, 600) //
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, 0) //
-						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PAUSE) //
+						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PROTECTION_PAUSE) //
 						.onAfterControllersCallbacks(() -> { //
 							var config = configurationAdmin.getOrCreateEmptyConfiguration("component0"); //
 							assertEquals(Mode.FAST_HEAT.name(), config.getProperties().get("mode").toString()); //
@@ -191,7 +191,7 @@ class HeatAskomaImplTest {
 				.next(new TestCase("within pause: heating stays off") //
 						.input(Heat.ChannelId.TEMPERATURE, 500) //
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, 0) //
-						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PAUSE)) //
+						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PROTECTION_PAUSE)) //
 				.next(new TestCase("pause expired: heating restarts") //
 						.timeleap(clock, 1, ChronoUnit.HOURS) //
 						.input(Heat.ChannelId.TEMPERATURE, 500) //
@@ -202,11 +202,11 @@ class HeatAskomaImplTest {
 						.timeleap(clock, 10, ChronoUnit.HOURS) //
 						.input(Heat.ChannelId.TEMPERATURE, 500) //
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, 0) //
-						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PAUSE)) //
+						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PROTECTION_PAUSE)) //
 				.next(new TestCase("second cycle: within pause, heating stays off") //
 						.input(Heat.ChannelId.TEMPERATURE, 500) //
 						.output(ManagedHeatElement.ChannelId.TARGET_GRID_ACTIVE_POWER, 0) //
-						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PAUSE)) //
+						.output(HeatAskoma.ChannelId.STATE_MACHINE, State.FAST_HEAT_PROTECTION_PAUSE)) //
 				.next(new TestCase("second cycle: pause expired, heating restarts again") //
 						.timeleap(clock, 1, ChronoUnit.HOURS) //
 						.input(Heat.ChannelId.TEMPERATURE, 500) //

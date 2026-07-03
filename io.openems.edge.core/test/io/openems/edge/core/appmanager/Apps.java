@@ -59,6 +59,7 @@ import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.KMtronic8Channel;
 import io.openems.edge.app.heat.AppHeatAskoma;
+import io.openems.edge.app.heat.AppHeatMyPv;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
 import io.openems.edge.app.heat.HeatAskomaReadOnly;
 import io.openems.edge.app.heat.HeatMyPvReadOnly;
@@ -1343,6 +1344,16 @@ public final class Apps {
 	 */
 	public static final HeatMyPvReadOnly heatMyPvReadOnly(AppManagerTestBundle t) {
 		return app(t, HeatMyPvReadOnly::new, "App.Heat.MyPv.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHeatMyPv}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHeatMyPv heatMyPv(AppManagerTestBundle t) {
+		return app(t, AppHeatMyPv::new, "App.Heat.MyPv");
 	}
 
 	/**

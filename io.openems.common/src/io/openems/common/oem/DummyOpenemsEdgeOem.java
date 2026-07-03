@@ -362,6 +362,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Heat.MyPv", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Heat.MyPv.ReadOnly", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
