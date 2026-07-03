@@ -16,6 +16,7 @@ import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/re
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { PromiseUtils } from "src/app/shared/utils/promise/promise.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedStorage } from "../shared/shared";
 import { ChargeDischargeChartComponent } from "./chart/charge-discharge-chart";
@@ -197,6 +198,8 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
 
     protected override async generateView(): Promise<OeFormlyView> {
         const edge = this.service.currentEdge();
+        AssertionUtils.assertIsDefined(edge);
+
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
@@ -205,7 +208,32 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             endOfToday(),
             [new ChannelAddress("_sum", "EssDcChargeEnergy"), new ChannelAddress("_sum", "EssDcDischargeEnergy")],
         );
-        const historyData = await edge.sendRequest<QueryHistoricTimeseriesEnergyResponse>(this.service.websocket, request);
+
+        // In case the request fails (e.g. because the system is new and doesn't have historical data yet), we return a fallback response with 0 values to still be able to show the rest of the view.
+        const fallbackResponse = new QueryHistoricTimeseriesEnergyResponse(
+            "fallback-id",
+            {
+                data: {
+                    "_sum/EssDcChargeEnergy": 0,
+                    "_sum/EssDcDischargeEnergy": 0,
+                },
+            },
+        );
+
+        const [error, historyData] = await PromiseUtils.Functions.handleOrElse(
+            edge.sendRequest<QueryHistoricTimeseriesEnergyResponse>(
+                this.service.websocket,
+                request,
+            ),
+            fallbackResponse,
+        );
+
+        if (error) {
+            console.warn(
+                "Historic energy data unavailable (system might be new).",
+                error,
+            );
+        }
         const energy = new EnergySchedulerV2(config);
 
         return await CommonStorageHomeComponent.getFormlyGeneralView(this.translate, this.service, edge, config, energy, historyData);
