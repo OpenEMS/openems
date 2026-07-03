@@ -14,7 +14,6 @@ export enum NavigationId {
 }
 
 export enum AvailableScope {
-    GLOBAL = "GLOBAL",
     LOCAL = "LOCAL",
     LIVE_AND_OVERVIEW = "LIVE_AND_OVERVIEW",
 }
@@ -58,10 +57,7 @@ export type PartialedIcon = TPartialBy<
 
 export type NavigationTreeOptions = {
     showOrder?: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
-    availableScope?:
-        | AvailableScope.GLOBAL
-        | AvailableScope.LOCAL
-        | AvailableScope.LIVE_AND_OVERVIEW;
+    availableScope?: AvailableScope.LOCAL | AvailableScope.LIVE_AND_OVERVIEW;
     pageFilter?: PageFilterSet | null;
     customLink?: string | null;
 };
@@ -69,7 +65,6 @@ export type NavigationTreeOptions = {
 export class NavigationTree {
     public showOrder: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
     public availableScope:
-        | AvailableScope.GLOBAL
         | AvailableScope.LOCAL
         | AvailableScope.LIVE_AND_OVERVIEW;
     public pageFilter: PageFilterSet | null;

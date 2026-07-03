@@ -10,8 +10,12 @@ import { environment } from "src/environments";
 import { EvseChargepoint } from "./evse-chargepoint";
 
 export namespace ControllerEvseSingleShared {
-
-    export function getNavigationTree(edge: Edge, translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getNavigationTree(
+        edge: Edge,
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const component = config.getComponentSafely(componentId);
         const baseMode: NavigationTree["mode"] = "label";
 
@@ -20,46 +24,154 @@ export namespace ControllerEvseSingleShared {
         }
 
         return new NavigationTree(
-            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
+            componentId,
+            { baseString: "evse/" + componentId },
+            { name: "oe-evcs", color: "success" },
+            Name.METER_ALIAS_OR_ID(component),
+            baseMode,
+            [
                 ...(edge.roleIsAtLeast(Role.ADMIN)
-                    ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
+                    ? [
+                          new NavigationTree(
+                              "forecast",
+                              { baseString: "forecast" },
+                              { name: "stats-chart-outline", color: "success" },
+                              translate.instant(
+                                  "INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS",
+                              ),
+                              baseMode,
+                              [],
+                              null,
+                          ),
+                      ]
                     : []),
-
-                new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
-                new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null, { showOrder: getPhaseSwitchingShowOrder(componentId, edge, config) }),
-                new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, { showOrder: "HIDE" }),
-                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, { showOrder: "HIDE" }),
-                ], null),
-                new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
+                new NavigationTree(
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    baseMode,
+                    [],
+                    null,
+                ),
+                new NavigationTree(
+                    "energy-limit",
+                    { baseString: "energy-limit" },
+                    { name: "settings-outline", color: "medium" },
+                    translate.instant("GENERAL.ENERGY_LIMIT"),
+                    baseMode,
+                    [],
+                    null,
+                ),
+                new NavigationTree(
+                    "phase-switching",
+                    { baseString: "phase-switching" },
+                    { name: "menu-outline", color: "warning" },
+                    translate.instant(
+                        "EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING",
+                    ),
+                    "label",
+                    [],
+                    null,
+                    {
+                        showOrder: getPhaseSwitchingShowOrder(
+                            componentId,
+                            edge,
+                            config,
+                        ),
+                    },
+                ),
+                new NavigationTree(
+                    "schedule",
+                    { baseString: "schedule" },
+                    { name: "calendar-outline", color: "warning" },
+                    translate.instant(
+                        "EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE",
+                    ),
+                    baseMode,
+                    [
+                        new NavigationTree(
+                            "edit-task",
+                            { baseString: "edit-task" },
+                            { name: "create-outline" },
+                            translate.instant("JS_SCHEDULE.EDIT_TASK"),
+                            "label",
+                            [],
+                            null,
+                            { showOrder: "HIDE" },
+                        ),
+                        new NavigationTree(
+                            "add-task",
+                            { baseString: "add-task" },
+                            { name: "add-outline" },
+                            translate.instant("JS_SCHEDULE.ADD_TASK"),
+                            "label",
+                            [],
+                            null,
+                            { showOrder: "HIDE" },
+                        ),
+                    ],
+                    null,
+                ),
+                new NavigationTree(
+                    "charge-mode",
+                    { baseString: "charge-mode" },
+                    { name: "checkmark-done-outline", color: "medium" },
+                    translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"),
+                    baseMode,
+                    [],
+                    null,
+                ),
                 ...(edge.roleIsAtLeast(Role.OWNER)
-                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                    ? [
+                          new NavigationTree(
+                              "car",
+                              {
+                                  baseString:
+                                      "car/update/App.Evse.ElectricVehicle.Generic",
+                              },
+                              { name: "car-sport-outline", color: "success" },
+                              translate.instant("EVSE_SINGLE.HOME.VEHICLES"),
+                              baseMode,
+                              [],
+                              null,
+                          ),
+                      ]
                     : []),
-            ], null).toConstructorParams();
+            ],
+            null,
+        ).toConstructorParams();
     }
 
     /**
      * Gets the phase switching showOrder.
      *
-     * @param componentId the component id
-     * @param edge the current edge
-     * @param config the edge config
-     * @returns "HIDE" if phase-switching is disabled, else "LOW"
+     * @param componentId The component id
+     * @param edge The current edge
+     * @param config The edge config
+     * @returns HIDE if phase-switching is disabled, else "LOW"
      */
-    export function getPhaseSwitchingShowOrder(componentId: string, edge: Edge, config: EdgeConfig): NavigationTree["showOrder"] {
-
+    export function getPhaseSwitchingShowOrder(
+        componentId: string,
+        edge: Edge,
+        config: EdgeConfig,
+    ): NavigationTree["showOrder"] {
         if (edge == null || config == null) {
             return "HIDE";
         }
 
-        const component = config.getComponentFromOtherComponentsProperty(componentId, "chargePoint.id") ?? null;
+        const component =
+            config.getComponentFromOtherComponentsProperty(
+                componentId,
+                "chargePoint.id",
+            ) ?? null;
 
         if (component == null) {
             return "HIDE";
         }
 
-        const chargePointComponent = EvseChargepoint.getEvseChargepoint(component);
+        const chargePointComponent =
+            EvseChargepoint.getEvseChargepoint(component);
         if (!chargePointComponent?.hasPhaseSwitchingAbility()) {
             return "HIDE";
         }
@@ -70,19 +182,23 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_MODE_LABEL = (translate: TranslateService) => {
         return (raw: string | null): string => {
-            return Converter.IF_STRING(raw, value => {
+            return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case Mode.ZERO:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case Mode.SURPLUS:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.MODE.SURPLUS",
+                        );
                     case Mode.MINIMUM:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.MODE.MINIMUM",
+                        );
                     case Mode.FORCE:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
@@ -95,19 +211,25 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
-    export const CONVERT_TO_PHASE_SWITCH_LABEL = (translate: TranslateService) => {
+    export const CONVERT_TO_PHASE_SWITCH_LABEL = (
+        translate: TranslateService,
+    ) => {
         return (raw: string | null): string => {
-            return Converter.IF_STRING(raw, value => {
+            return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case "DISABLE":
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case "FORCE_SINGLE_PHASE":
-                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE",
+                        );
                     case "FORCE_THREE_PHASE":
-                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE",
+                        );
                     default:
                         return Converter.HIDE_VALUE(value);
                 }
@@ -118,19 +240,25 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
-    export const CONVERT_TO_ACTUAL_MODE_LABEL = (translate: TranslateService) => {
+    export const CONVERT_TO_ACTUAL_MODE_LABEL = (
+        translate: TranslateService,
+    ) => {
         return (raw: number | null): string => {
-            return Converter.IF_NUMBER(raw, value => {
+            return Converter.IF_NUMBER(raw, (value) => {
                 switch (value) {
                     case 0:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case 1:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.MODE.MINIMUM",
+                        );
                     case 2:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                        return translate.instant(
+                            "EVSE_SINGLE.HOME.MODE.SURPLUS",
+                        );
                     case 3:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
@@ -143,12 +271,12 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_ENERGY_LIMIT_LABEL = () => {
         return (raw: number | null): string => {
-            return Converter.IF_NUMBER(raw, value => {
+            return Converter.IF_NUMBER(raw, (value) => {
                 if (value <= 0) {
                     return Converter.HIDE_VALUE(value);
                 }
@@ -160,26 +288,42 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
-    export const CONVERT_TO_STATE_MACHINE_LABEL = (translate: TranslateService) => {
+    export const CONVERT_TO_STATE_MACHINE_LABEL = (
+        translate: TranslateService,
+    ) => {
         return (value: any): string => {
             switch (value) {
                 case StateMachine.EV_NOT_CONNECTED:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED",
+                    );
                 case StateMachine.EV_CONNECTED:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED",
+                    );
                 case StateMachine.CHARGING:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING",
+                    );
                 case StateMachine.FINISHED_EV_STOP:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_EV_STOP");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_EV_STOP",
+                    );
                 case StateMachine.FINISHED_ENERGY_SESSION_LIMIT:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_ENERGY_SESSION_LIMIT");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_ENERGY_SESSION_LIMIT",
+                    );
                 case StateMachine.PHASE_SWITCH_TO_THREE_PHASE:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE",
+                    );
                 case StateMachine.PHASE_SWITCH_TO_SINGLE_PHASE:
-                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
+                    return translate.instant(
+                        "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE",
+                    );
                 default:
                     return "-";
             }
@@ -211,9 +355,9 @@ export namespace ControllerEvseSingleShared {
     }
 
     export type ScheduleChartData = {
-        datasets: ChartDataset[],
-        colors: any[],
-        labels: Date[]
+        datasets: ChartDataset[];
+        colors: any[];
+        labels: Date[];
     };
 
     export enum Mode {
@@ -233,9 +377,13 @@ export namespace ControllerEvseSingleShared {
      * @param translate The Translate service
      * @returns The ScheduleChartData.
      */
-    export function getScheduleChartData(size: number, prices: number[], modes: number[], timestamps: string[],
-        translate: TranslateService): ControllerEvseSingleShared.ScheduleChartData {
-
+    export function getScheduleChartData(
+        size: number,
+        prices: number[],
+        modes: number[],
+        timestamps: string[],
+        translate: TranslateService,
+    ): ControllerEvseSingleShared.ScheduleChartData {
         const datasets: ChartDataset[] = [];
         const colors: any[] = [];
         const labels: Date[] = [];
@@ -247,7 +395,9 @@ export namespace ControllerEvseSingleShared {
         const barForce = Array(size).fill(null);
 
         for (let index = 0; index < size; index++) {
-            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
+            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(
+                prices[index],
+            );
             const mode = modes[index];
             labels.push(new Date(timestamps[index]));
 
@@ -255,16 +405,24 @@ export namespace ControllerEvseSingleShared {
 
             if (mode !== null) {
                 switch (mode) {
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.ZERO):
+                    case modeStates.indexOf(
+                        ControllerEvseSingleShared.Mode.ZERO,
+                    ):
                         barZero[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.MINIMUM):
+                    case modeStates.indexOf(
+                        ControllerEvseSingleShared.Mode.MINIMUM,
+                    ):
                         barMinimum[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.SURPLUS):
+                    case modeStates.indexOf(
+                        ControllerEvseSingleShared.Mode.SURPLUS,
+                    ):
                         barSurplus[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.FORCE):
+                    case modeStates.indexOf(
+                        ControllerEvseSingleShared.Mode.FORCE,
+                    ):
                         barForce[index] = quarterlyPrice;
                         break;
                 }
@@ -316,11 +474,12 @@ export namespace ControllerEvseSingleShared {
             borderColor: "rgba(0, 204, 204,0.7)",
         });
 
-        const scheduleChartData: ControllerEvseSingleShared.ScheduleChartData = {
-            colors: colors,
-            datasets: datasets,
-            labels: labels,
-        };
+        const scheduleChartData: ControllerEvseSingleShared.ScheduleChartData =
+            {
+                colors: colors,
+                datasets: datasets,
+                labels: labels,
+            };
 
         return scheduleChartData;
     }

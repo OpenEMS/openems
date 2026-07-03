@@ -27,11 +27,8 @@ export class NavigationChipsComponent implements OnChanges {
     @Output() public navigate: EventEmitter<any> = new EventEmitter();
     @Output() public navigateAbsolute: EventEmitter<any> = new EventEmitter();
     @Input({ required: true }) public children: (NavigationTree | null)[] = [];
-    @Input({ required: true })
-    public globalChildren: (NavigationTree | null)[] = [];
 
     protected absoluteChildren: NavigationTree[] | null = null;
-    protected absoluteGlobalChildren: NavigationTree[] | null = null;
     protected isVisible: boolean = false;
 
     protected isSmartphone: boolean = false;
@@ -97,19 +94,11 @@ export class NavigationChipsComponent implements OnChanges {
                     absoluteNavigationTree?.getChildren() ?? [],
                 );
             }
-
-            const globalChildren =
-                absoluteNavigationTree != null
-                    ? this.filterIsGloballyAvailable(absoluteNavigationTree)
-                    : [];
-
             if (this.platFormService.getDevice().isSmartphone()) {
-                globalChildren.push(
+                this.absoluteChildren?.push(
                     ...this.filterIsLiveAndOverview(absoluteNavigationTree),
                 );
             }
-
-            this.absoluteGlobalChildren = globalChildren;
         });
 
         this.subscription.add(
@@ -156,72 +145,6 @@ export class NavigationChipsComponent implements OnChanges {
                     ? this.filterVisibleNodes(node.children)
                     : [],
             })) as NavigationTree[];
-    }
-
-    /**
-     * Filters out the nodes to show globally in navigation.
-     *
-     * @param nodes The navigation tree nodes
-     * @returns The adjusted nodes
-     */
-    public filterIsGloballyAvailable(
-        root: NavigationTree | null,
-    ): NavigationTree[] {
-        const result: NavigationTree[] = [];
-        const isMobile = this.platFormService.getDevice().isSmartphone();
-
-        if (root == null) {
-            return result;
-        }
-
-        const visited = new Set<NavigationTree>();
-
-        const traverse = (node: NavigationTree) => {
-            if (visited.has(node)) {
-                return;
-            }
-
-            visited.add(node);
-
-            if (!this.isNodeAllowedByPageFilter(node)) {
-                return;
-            }
-
-            if (node.availableScope === AvailableScope.GLOBAL) {
-                result.push(node);
-            } else if (
-                !isMobile &&
-                node.availableScope === AvailableScope.LIVE_AND_OVERVIEW
-            ) {
-                result.push(node);
-            }
-
-            for (const child of node.getChildren?.() ?? []) {
-                traverse(child);
-            }
-        };
-
-        traverse(root);
-
-        const parent = NavigationTree.of(root.parent);
-
-        if (parent == null) {
-            return result;
-        }
-
-        const parentChilds = parent.getChildren();
-
-        if (parentChilds == null || parentChilds.length === 0) {
-            return result;
-        }
-
-        for (const child of parentChilds) {
-            if (child !== root) {
-                traverse(child);
-            }
-        }
-
-        return result;
     }
 
     /**

@@ -43,6 +43,7 @@ export abstract class ScheduleChartComponent
 
     protected numberFormat: ChartData["tooltip"]["formatNumber"] =
         ChartConstants.NumberFormat.NO_DECIMALS;
+    private hasBooleanValues = false;
 
     private readonly platFormService = inject(PlatFormService);
     private readonly hostEl = inject(ElementRef<HTMLElement>);
@@ -97,24 +98,57 @@ export abstract class ScheduleChartComponent
             },
         };
 
+        // Show Legend if any label is set
+        this.options.plugins.legend.display = true;
+        this.options.plugins.legend.labels.color = getComputedStyle(
+            document.documentElement,
+        ).getPropertyValue("--ion-color-text");
+        this.options.plugins.legend.labels.generateLabels = (chart: Chart) =>
+            Chart.defaults.plugins.legend.labels
+                .generateLabels(chart)
+                .filter((item) => item.text !== null);
+
         Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
         this.options.plugins["syncChart"] = {
             group: 1,
         };
 
         this.datasets = this.fillDatasets();
+
+        // For Charts with Boolean values: scale exactly [0;1]
+        if (this.hasBooleanValues) {
+            this.options.scales[ChartAxis.LEFT] = {
+                ...this.options.scales[ChartAxis.LEFT],
+                min: 0,
+                max: 1.01, // slightly more than 1 to show full line
+                ticks: {
+                    ...this.options.scales[ChartAxis.LEFT]["ticks"],
+                    display: false,
+                },
+            };
+        }
+
         this.stopSpinner();
         this.loading = false;
     }
 
     protected fillDatasets(): ChartDataset[] {
         const buildConf = this.buildDatasets();
+        this.hasBooleanValues = buildConf.some((dataset) =>
+            dataset.data.some((value) => typeof value === "boolean"),
+        );
+
         const baseDataset = (
             d: ScheduleChartComponent.Dataset,
         ): ChartDataset => ({
             type: "line",
-            label: "",
-            data: d.data,
+            label: d.label ?? null,
+            data: d.data.map((value) => {
+                if (typeof value === "boolean") {
+                    return value ? 1 : 0;
+                }
+                return value;
+            }),
             hidden: false,
             order: 1,
             yAxisID: ChartAxis.LEFT,
@@ -123,6 +157,7 @@ export abstract class ScheduleChartComponent
                 d.transparentBackground ? 0.05 : 0.2,
             ),
             borderColor: d.color,
+            borderWidth: 2,
             borderDash: d.borderDash,
             stepped: d.stepped,
         });
@@ -152,8 +187,9 @@ export abstract class ScheduleChartComponent
 
 export namespace ScheduleChartComponent {
     export type Dataset = {
+        label?: string;
         color: string;
-        data: (number | null)[];
+        data: (number | boolean | null)[];
         borderDash?: [number, number] | [];
         stepped?: LineControllerDatasetOptions["stepped"] | false;
         transparentBackground?: boolean;

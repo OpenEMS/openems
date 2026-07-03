@@ -2,7 +2,8 @@ import { Component } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { endOfToday, startOfToday } from "date-fns";
 import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
-import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2, } from "src/app/shared/components/edge/config-components/energy/energy";
+import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
@@ -34,40 +35,54 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
 
         const lines: OeFormlyField[] = [];
 
-        lines.push({
-            type: "component-line",
-            component: SingleXAxisComponent,
-            inputs: {
-                data: energyScheduler?.schedule,
-            },
-        }, {
-            type: "channel-line",
-            name: translate.instant("GENERAL.POWER"),
-            channel: new ChannelAddress("_sum", "ProductionActivePower").toString(),
-            converter: Converter.POWER_IN_KILO_WATT,
-            style: {
-                name: { fontSize: "large" },
-                value: { fontSize: "large" },
-            },
-            cssClass: "ion-padding-top",
-        }, {
-            type: "component-line",
-            component: ProductionChartComponent,
-            inputs: {
-                edge: edge,
-                refresh: false,
-                data: energyScheduler?.schedule,
-            },
-        }, {
-            type: "horizontal-line",
-        }, {
-            type: "name-line",
-            name: translate.instant("GENERAL.DETAILS"),
-            style: {
-                name: { fontSize: "large" },
-            },
-            cssClass: "ion-padding-top",
-        });
+        if (energyScheduler.schedule !== GetSchedule.Response.empty) {
+            lines.push(
+                {
+                    type: "component-line",
+                    component: SingleXAxisComponent,
+                    inputs: {
+                        data: energyScheduler?.schedule,
+                    },
+                },
+                {
+                    type: "horizontal-line",
+                },
+                {
+                    type: "channel-line",
+                    name: translate.instant("GENERAL.POWER"),
+                    channel: new ChannelAddress(
+                        "_sum",
+                        "ProductionActivePower",
+                    ).toString(),
+                    converter: Converter.POWER_IN_KILO_WATT,
+                    style: {
+                        name: { fontSize: "large" },
+                        value: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
+                },
+                {
+                    type: "component-line",
+                    component: ProductionChartComponent,
+                    inputs: {
+                        edge: edge,
+                        refresh: false,
+                        data: energyScheduler?.schedule,
+                    },
+                },
+                {
+                    type: "horizontal-line",
+                },
+                {
+                    type: "name-line",
+                    name: translate.instant("GENERAL.DETAILS"),
+                    style: {
+                        name: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
+                },
+            );
+        }
 
         for (const meter of productionMeterComponents) {
             lines.push({

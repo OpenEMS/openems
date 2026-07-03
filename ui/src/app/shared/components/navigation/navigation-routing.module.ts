@@ -39,6 +39,8 @@ import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedul
 import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
 import { ControllerHeatSettingsComponent } from "src/app/edge/live/Controller/Heat/settings/settings";
+import { ControllerBraiinsHomeComponent } from "src/app/edge/live/Controller/Io/Braiins/new-navigation/new-navigation";
+import { ControllerBraiinsGroupComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/group/group";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
@@ -254,15 +256,15 @@ export const newNavigationRoutes: Routes = [
         component: WeatherHomeComponent,
     },
     {
-        path: "controller/modbus-tcp-api/:componentId",
+        path: "common/storage/controller/modbus-tcp-api/:componentId",
         component: ControllerModbusTcpApiHomeComponent,
     },
     {
-        path: "controller/modbus-tcp-api/:componentId/settings",
+        path: "common/storage/controller/modbus-tcp-api/:componentId/settings",
         component: ControllerModbusTcpApiDetailsComponent,
     },
     {
-        path: "controller/modbus-tcp-api/:componentId/history",
+        path: "common/storage/controller/modbus-tcp-api/:componentId/history",
         component: ControllerModbusTcpApiHistoryComponent,
     },
 
@@ -279,6 +281,14 @@ export const newNavigationRoutes: Routes = [
         component: FixDigitalDetailsComponent,
     },
     {
+        path: "braiins",
+        component: ControllerBraiinsGroupComponent,
+    },
+    {
+        path: "braiins/:componentId",
+        component: ControllerBraiinsHomeComponent,
+    },
+    {
         path: "controller/heatpump/:componentId",
         component: ControllerIoHeatpumpHomeComponent,
     },
@@ -291,53 +301,40 @@ export const newNavigationRoutes: Routes = [
         component: ControllerIoHeatpumpHistoryComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric/:componentId",
+        path: "common/storage/controller/peak-shaving-symmetric/:componentId",
         component: ControllerPeakShavingSymmetricHomeComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric/:componentId/settings",
+        path: "common/storage/controller/peak-shaving-symmetric/:componentId/settings",
         component: ControllerPeakShavingSymmetricSettingsComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric/:componentId/history",
+        path: "common/storage/controller/peak-shaving-symmetric/:componentId/history",
         component: ControllerPeakShavingSymmetricHistoryComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric-time-slot/:componentId",
+        path: "common/storage/controller/peak-shaving-symmetric-time-slot/:componentId",
         component: ControllerPeakShavingSymmetricTimeSlotHomeComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric-time-slot/:componentId/settings",
+        path: "common/storage/controller/peak-shaving-symmetric-time-slot/:componentId/settings",
         component: ControllerPeakShavingSymmetricTimeSlotSettingsComponent,
     },
     {
-        path: "controller/peak-shaving-symmetric-time-slot/:componentId/history",
+        path: "common/storage/controller/peak-shaving-symmetric-time-slot/:componentId/history",
         component: ControllerPeakShavingSymmetricTimeSlotHistoryComponent,
     },
     {
-        path: "controller/peak-shaving-asymmetric/:componentId",
+        path: "common/storage/controller/peak-shaving-asymmetric/:componentId",
         component: ControllerPeakShavingAsymmetricHomeComponent,
     },
     {
-        path: "controller/peak-shaving-asymmetric/:componentId/settings",
+        path: "common/storage/controller/peak-shaving-asymmetric/:componentId/settings",
         component: ControllerPeakShavingAsymmetricSettingsComponent,
     },
     {
-        path: "controller/peak-shaving-asymmetric/:componentId/history",
+        path: "common/storage/controller/peak-shaving-asymmetric/:componentId/history",
         component: ControllerPeakShavingAsymmetricHistoryComponent,
-    },
-
-    {
-        path: "controller/time-of-use/:componentId",
-        component: ControllerEssTimeOfUseTariffHomeComponent,
-    },
-    {
-        path: "controller/time-of-use/:componentId/settings",
-        component: ControllerEssTimeOfUseTariffSettingsComponent,
-    },
-    {
-        path: "controller/time-of-use/:componentId/history",
-        component: ControllerEssTimeOfUseTariffHistoryComponent,
     },
     {
         path: "controller/heat/:componentId",
@@ -364,14 +361,6 @@ export const newNavigationRoutes: Routes = [
         component: ControllerHeatingElementHistoryComponent,
     },
     {
-        path: "controller/ess-fix-active-power/:componentId",
-        component: ControllerEssFixActivePowerHomeComponent,
-    },
-    {
-        path: "controller/ess-fix-active-power/:componentId/settings",
-        component: ControllerEssFixActivePowerSettingsComponent,
-    },
-    {
         path: "controller/heat/:componentId/settings",
         component: ControllerHeatSettingsComponent,
     },
@@ -396,19 +385,19 @@ export const newNavigationRoutes: Routes = [
         component: ControllerChannelthresholdHistoryComponent,
     },
     {
-        path: ":componentId/scheduler-js-calendar",
+        path: "common/storage/:componentId/scheduler-js-calendar",
         component: SchedulerJsCalendarComponent,
     },
     {
-        path: ":componentId/scheduler-js-calendar/schedule",
+        path: "common/storage/:componentId/scheduler-js-calendar/schedule",
         component: ScheduleJsCalendarComponent,
     },
     {
-        path: ":componentId/scheduler-js-calendar/schedule/add-task",
+        path: "common/storage/:componentId/scheduler-js-calendar/schedule/add-task",
         component: SchedulerJsCalendarAddTaskComponent,
     },
     {
-        path: ":componentId/scheduler-js-calendar/schedule/edit-task",
+        path: "common/storage/:componentId/scheduler-js-calendar/schedule/edit-task",
         component: SchedulerJsCalendarEditTaskComponent,
     },
     ...history(true),

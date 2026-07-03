@@ -13,6 +13,7 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedControllerModbusTcpApiReadWrite } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-modbus-tcp-api",
     templateUrl:
         "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,

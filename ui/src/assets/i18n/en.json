@@ -1275,7 +1275,8 @@
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
-            "HEATING_ROOM": "Heating"
+            "HEATING_ROOM": "Heating",
+            "BRAIINS": "Bitcoin Miner"
         },
         "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
         "INDEX": "Index",

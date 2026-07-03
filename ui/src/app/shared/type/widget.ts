@@ -28,6 +28,7 @@ export enum WidgetFactory {
     "Evse.Controller.Cluster",
     "Controller.Api.ModbusTcp.ReadWrite",
     "Controller.Asymmetric.PeakShaving",
+    "Controller.BraiinsOS.Single",
     "Controller.ChannelThreshold",
     "Controller.CHP.SoC",
     "Controller.Clever-PV",
