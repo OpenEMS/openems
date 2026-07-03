@@ -12,6 +12,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -26,6 +27,10 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.taskmanager.Priority;
 
 @Designate(ocd = Config.class, factory = true)
@@ -36,7 +41,7 @@ import io.openems.edge.common.taskmanager.Priority;
 )
 @GenerateTargetsFromReferences("Modbus")
 public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
-		implements MasterBox2v0, ModbusComponent, OpenemsComponent {
+		implements MasterBox2v0, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -85,10 +90,8 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 								.bit(4, MasterBox2v0.ChannelId.HW_CAN_TOWER_ENABLE)), //
 						m(MasterBox2v0.ChannelId.GRID_STATE, new UnsignedWordElement(102)), //
 						m(MasterBox2v0.ChannelId.TEMPERATURE, new UnsignedWordElement(103), //
-								ElementToChannelConverter.chain(ElementToChannelConverter.SCALE_FACTOR_MINUS_1,
-										ElementToChannelConverter.SUBTRACT(40))), //
-						m(MasterBox2v0.ChannelId.HUMIDITY, new UnsignedWordElement(104), //
-								ElementToChannelConverter.SCALE_FACTOR_MINUS_1)), //
+								ElementToChannelConverter.SUBTRACT(400)), //
+						m(MasterBox2v0.ChannelId.HUMIDITY, new UnsignedWordElement(104))), //
 
 				new FC3ReadRegistersTask(105, Priority.HIGH, //
 						m(MasterBox2v0.ChannelId.RELAY_1, new UnsignedWordElement(105),
@@ -148,5 +151,16 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 								ElementToChannelConverter.SCALE_FACTOR_2)), //
 				new FC6WriteRegisterTask(9, //
 						m(MasterBox2v0.ChannelId.ANALOG_OUT_CONTROL, new UnsignedWordElement(9))));
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(MasterBox2v0.class, accessMode, 100) //
+						.channel(0, MasterBox2v0.ChannelId.TEMPERATURE, ModbusType.INT16)
+						.channel(1, MasterBox2v0.ChannelId.HUMIDITY, ModbusType.UINT16) //
+						.build() //
+		);
 	}
 }

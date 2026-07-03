@@ -22,12 +22,16 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.system.fenecon.masterbox2v0.MasterBox2v0;
 import io.openems.edge.system.fenecon.masterbox2v0.utils.IocReadValueMapping;
@@ -47,7 +51,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 })
 @GenerateTargetsFromReferences("ioc")
 public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements MasterBox2v0Meter, OpenemsComponent,
-		EventHandler, ElectricityMeter, TimedataProvider, MasterBoxModbusComponent {
+		EventHandler, ElectricityMeter, TimedataProvider, MasterBoxModbusComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(MasterBox2v0MeterImpl.class);
 
@@ -154,4 +158,13 @@ public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements M
 		}
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(MasterBox2v0Meter.class, accessMode, 100) //
+						.build() //
+		);
+	}
 }

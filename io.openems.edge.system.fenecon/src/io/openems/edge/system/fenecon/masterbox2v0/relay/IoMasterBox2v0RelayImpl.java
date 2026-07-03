@@ -30,6 +30,10 @@ import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.io.api.DigitalOutput;
 import io.openems.edge.system.fenecon.masterbox2v0.MasterBox2v0;
 import io.openems.edge.system.fenecon.masterbox2v0.utils.IocReadValueMapping;
@@ -47,7 +51,7 @@ import io.openems.edge.system.fenecon.masterbox2v0.utils.MasterBoxReadWriteModbu
 })
 @GenerateTargetsFromReferences("ioc")
 public class IoMasterBox2v0RelayImpl extends AbstractOpenemsComponent implements IoMasterBox2v0Relay, DigitalOutput,
-		OpenemsComponent, EventHandler, MasterBoxReadWriteModbusComponent {
+		OpenemsComponent, EventHandler, MasterBoxReadWriteModbusComponent, ModbusSlave {
 
 	@Reference(//
 			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
@@ -173,5 +177,20 @@ public class IoMasterBox2v0RelayImpl extends AbstractOpenemsComponent implements
 			);
 		}
 		return this.writeValueMappings;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(IoMasterBox2v0Relay.class, accessMode, 100) //
+						.channel(0, IoMasterBox2v0Relay.ChannelId.RELAY_1, ModbusType.UINT16) //
+						.channel(1, IoMasterBox2v0Relay.ChannelId.RELAY_2, ModbusType.UINT16) //
+						.channel(2, IoMasterBox2v0Relay.ChannelId.RELAY_3, ModbusType.UINT16) //
+						.channel(3, IoMasterBox2v0Relay.ChannelId.RELAY_4, ModbusType.UINT16) //
+						.channel(4, IoMasterBox2v0Relay.ChannelId.RELAY_5, ModbusType.UINT16) //
+						.channel(5, IoMasterBox2v0Relay.ChannelId.RELAY_6, ModbusType.UINT16) //
+						.build() //
+		);
 	}
 }
