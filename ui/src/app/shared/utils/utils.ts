@@ -1078,6 +1078,18 @@ export namespace TimeOfUseTariffUtils {
         const peakShavingLabel = translate.instant(
             "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING",
         );
+        const delayChargeLabel = translate.instant(
+          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE",
+        );
+        const limitChargeLabel = translate.instant(
+          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE",
+        );
+        const avoidGridSellLimitLabel = translate.instant(
+          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT",
+        );
+        const dischargeConsumptionLabel = translate.instant(
+          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION",
+        );
         const gridBuyLabel = translate.instant("GENERAL.GRID_BUY");
 
         // Switch case to handle different labels
@@ -1091,6 +1103,10 @@ export namespace TimeOfUseTariffUtils {
             case chargeConsumptionLabel:
             case balancingLabel:
             case peakShavingLabel:
+            case delayChargeLabel:
+            case limitChargeLabel:
+            case avoidGridSellLimitLabel:
+            case dischargeConsumptionLabel:
                 return (
                     label +
                     ": " +
