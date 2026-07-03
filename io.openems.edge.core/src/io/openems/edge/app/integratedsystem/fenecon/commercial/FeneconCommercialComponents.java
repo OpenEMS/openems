@@ -16,11 +16,11 @@ import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.EnableDisable;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -92,7 +92,7 @@ public final class FeneconCommercialComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
@@ -111,7 +111,7 @@ public final class FeneconCommercialComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode, //

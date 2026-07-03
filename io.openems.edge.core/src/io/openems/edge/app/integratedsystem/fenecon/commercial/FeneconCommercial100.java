@@ -69,9 +69,9 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
 import io.openems.edge.common.component.ComponentManager;
@@ -110,7 +110,7 @@ public class FeneconCommercial100
 		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
-							.equal(Exp.staticValue(SafetyCountry.GERMANY)));
+							.equal(Exp.staticValue(AppSafetyCountry.GERMANY)));
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -240,10 +240,10 @@ public class FeneconCommercial100
 			final var gridMeterId = "meter0";
 			final var stsBoxId = "stsBox0";
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 
 			final String gridCode;
-			if (safetyCountry == SafetyCountry.GERMANY) {
+			if (safetyCountry == AppSafetyCountry.GERMANY) {
 				gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
 			} else {
 				gridCode = "UNDEFINED";

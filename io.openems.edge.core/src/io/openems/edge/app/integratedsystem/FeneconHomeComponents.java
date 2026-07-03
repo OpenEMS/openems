@@ -11,9 +11,9 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
@@ -153,7 +153,7 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @return the {@link Component}
@@ -165,7 +165,7 @@ public final class FeneconHomeComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled //
 	) {
@@ -182,7 +182,7 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
@@ -195,7 +195,7 @@ public final class FeneconHomeComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode //
@@ -953,7 +953,7 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
@@ -963,7 +963,7 @@ public final class FeneconHomeComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode) {
@@ -977,7 +977,7 @@ public final class FeneconHomeComponents {
 				.addProperty("modbus.id", modbusIdExternal) //
 				.addProperty("modbusUnitId", 247) //
 				.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
-				.addProperty("safetyCountry", safetyCountry) //
+				.addProperty("safetyCountry", safetyCountry.goodWeValue) //
 				.addProperty("setfeedInPowerSettings", feedInSetting) //
 				.addProperty("rcrEnable",
 						feedInType == ExternalLimitationType.EXTERNAL_LIMITATION

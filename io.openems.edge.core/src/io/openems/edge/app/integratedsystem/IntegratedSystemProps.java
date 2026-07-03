@@ -17,10 +17,10 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.session.Language;
 import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
@@ -38,7 +38,7 @@ import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 public final class IntegratedSystemProps {
 
 	/**
-	 * Creates a {@link AppDef} for {@link SafetyCountry}.
+	 * Creates a {@link AppDef} for {@link AppSafetyCountry}.
 	 * 
 	 * @return the created {@link AppDef}
 	 */
@@ -46,7 +46,7 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.safetyCountry.label") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(SafetyCountry.optionsFactory(), l);
+					field.setOptions(AppSafetyCountry.optionsFactory(), l);
 				}));
 	}
 

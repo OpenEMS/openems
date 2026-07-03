@@ -3,21 +3,26 @@ package io.openems.edge.app.enums;
 import io.openems.common.session.Language;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.goodwe.common.enums.SafetyCountry;
 
-public enum SafetyCountry implements TranslatableEnum {
-	GERMANY("germany"), //
-	AUSTRIA("austria"), //
-	SWITZERLAND("switzerland"), //
-	SWEDEN("sweden"), //
-	CZECH("czech"), //
-	HOLLAND("netherlands"), //
-	GREECE_MAINLAND("greece"), //
+public enum AppSafetyCountry implements TranslatableEnum {
+	GERMANY("germany", SafetyCountry.GERMANY), //
+	AUSTRIA("austria", SafetyCountry.AUSTRIA), //
+	SWITZERLAND("switzerland", SafetyCountry.SWITZERLAND), //
+	SWEDEN("sweden", SafetyCountry.SWEDEN), //
+	CZECH("czech", SafetyCountry.CZECH), //
+	HOLLAND("netherlands", SafetyCountry.HOLLAND), //
+	GREECE_MAINLAND("greece", SafetyCountry.GREECE_MAINLAND), //
+	LITHUANIA("lithuania", SafetyCountry.EN50549), //
 	;
+
+	public final SafetyCountry goodWeValue;
 
 	private final String translationKey;
 
-	private SafetyCountry(String translationKey) {
+	private AppSafetyCountry(String translationKey, SafetyCountry goodWeValue) {
 		this.translationKey = translationKey;
+		this.goodWeValue = goodWeValue;
 	}
 
 	@Override
