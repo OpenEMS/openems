@@ -284,8 +284,9 @@ public final class TreeSolver {
 			if (!(entry instanceof Entry.Actual a)) {
 				continue;
 			}
-			var qMax = (int) Math.sqrt(//
-					(long) Math.pow(a.maxApparentPower, 2) - (long) Math.pow(a.activePowerSetPoint, 2));
+			var s2 = (long) a.maxApparentPower * a.maxApparentPower
+					- (long) a.activePowerSetPoint * a.activePowerSetPoint;
+			var qMax = (int) Math.sqrt(Math.max(0, s2));
 			var effMin = a.limitReactivePowerMin != null ? a.limitReactivePowerMin : -qMax;
 			var effMax = a.limitReactivePowerMax != null ? a.limitReactivePowerMax : qMax;
 			a.limitReactivePowerMin = Math.max(Math.min(effMin, qMax), -qMax);
