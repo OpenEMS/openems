@@ -6,10 +6,9 @@ import { InfiniteScrollCustomEvent, Platform, ViewWillEnter, } from "@ionic/angu
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
-import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
+import { Edge, Service, UserPermission, Utils, Websocket, } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
@@ -153,8 +152,11 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 .then((edges) => {
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
-
-                    if (this.shouldRedirectToFirstFems(user, edges)) {
+                    // TODO could be applied before calling getEdges
+                    if (
+                        !UserPermission.isUserAllowedToSeeOverview(user) &&
+                        edges.length > 0
+                    ) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
@@ -166,16 +168,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     reject(err);
                 });
         }).finally(() => this.loading.set(false));
-    }
-
-    protected shouldRedirectToFirstFems(user: User, edges: Edge[]): boolean {
-        return (
-            (environment.backend == "OpenEMS Edge" &&
-                user.hasMultipleEdges === false) ||
-            ((user.globalRole === "guest" || user.globalRole === "owner") &&
-                user.hasMultipleEdges === false &&
-                edges.length == 1)
-        );
     }
 
     protected getAndSubscribeEdge(edge: Edge) {

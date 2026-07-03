@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, SimpleChange } from "@angular/core";
+import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChange, WritableSignal, } from "@angular/core";
 import { filter, Subscription } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
@@ -7,26 +7,28 @@ import { UserService } from "src/app/shared/service/user.service";
 import { Service, UserPermission } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { NavigationService } from "../service/navigation.service";
-import { AvailableScope, NavigationTree, PageFilterMode } from "../shared";
+import { AvailableScope, NavigationId, NavigationTree, PageFilterMode, } from "../shared";
 
 @Component({
     selector: "oe-navigation-chips",
     templateUrl: "./chips.html",
     standalone: false,
-    styles: [`
-        .with-label {
-            &::part(native) {
-              --padding-start: var(--ion-padding);
+    styles: [
+        `
+            .with-label {
+                &::part(native) {
+                    --padding-start: var(--ion-padding);
+                }
             }
-        }`,
+        `,
     ],
 })
 export class NavigationChipsComponent implements OnChanges {
-
     @Output() public navigate: EventEmitter<any> = new EventEmitter();
     @Output() public navigateAbsolute: EventEmitter<any> = new EventEmitter();
     @Input({ required: true }) public children: (NavigationTree | null)[] = [];
-    @Input({ required: true }) public globalChildren: (NavigationTree | null)[] = [];
+    @Input({ required: true })
+    public globalChildren: (NavigationTree | null)[] = [];
 
     protected absoluteChildren: NavigationTree[] | null = null;
     protected absoluteGlobalChildren: NavigationTree[] | null = null;
@@ -36,6 +38,7 @@ export class NavigationChipsComponent implements OnChanges {
     protected isNewNavigation: boolean = false;
     protected currentUrl: string[] = [];
     protected isUserAllowedToSeeOverview: boolean = false;
+    protected isLive: WritableSignal<boolean> = signal(false);
 
     protected userService: UserService = inject(UserService);
     private subscription: Subscription = new Subscription();
@@ -48,17 +51,33 @@ export class NavigationChipsComponent implements OnChanges {
         private service: Service,
         private layoutRefresh: LayoutRefreshService,
     ) {
-        this.isNewNavigation = NavigationService.isNewNavigation(this.userService.currentUser(), this.service.currentEdge()?.getConfigSignal()());
+        this.isNewNavigation = NavigationService.isNewNavigation(
+            this.userService.currentUser(),
+            this.service.currentEdge()?.getConfigSignal()(),
+        );
         const device = this.platFormService.getDevice();
         this.isSmartphone = device.isSmartphone();
         effect(() => {
             const currentNode = navigationService.currentNode();
+            if (currentNode == null) {
+                this.isLive.set(false);
+                return;
+            }
+            const isLive = currentNode.id === NavigationId.LIVE;
 
-            this.currentUrl = currentNode?.routerLink.baseString.split("/").reduce((acc: string[], curr) => {
-                const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
-                acc.push(path);
-                return acc;
-            }, []) ?? [];
+            this.isLive.set(isLive);
+
+            this.currentUrl =
+                currentNode?.routerLink.baseString
+                    .split("/")
+                    .reduce((acc: string[], curr) => {
+                        const path =
+                            acc.length > 0
+                                ? `${acc[acc.length - 1]}/${curr}`
+                                : curr;
+                        acc.push(path);
+                        return acc;
+                    }, []) ?? [];
             this.isVisible = this.children.length > 0;
         });
 
@@ -66,33 +85,49 @@ export class NavigationChipsComponent implements OnChanges {
             const currentNode = navigationService.currentNode();
             const navigationTree = this.navigationService.navigationTree();
             const absoluteNavigationTree = NavigationTree.of(
-                NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)),
+                NavigationService.convertRelativeToAbsoluteLink(
+                    structuredClone(navigationTree),
+                ),
             );
 
             if (currentNode?.id === "system-overview") {
                 this.absoluteChildren = [];
             } else {
-                this.absoluteChildren = this.filterVisibleNodes(absoluteNavigationTree?.getChildren() ?? []);
+                this.absoluteChildren = this.filterVisibleNodes(
+                    absoluteNavigationTree?.getChildren() ?? [],
+                );
             }
 
-            const globalChildren = absoluteNavigationTree != null
-                ? this.filterIsGloballyAvailable(absoluteNavigationTree)
-                : [];
+            const globalChildren =
+                absoluteNavigationTree != null
+                    ? this.filterIsGloballyAvailable(absoluteNavigationTree)
+                    : [];
 
             if (this.platFormService.getDevice().isSmartphone()) {
-                globalChildren.push(...this.filterIsLiveAndOverview(absoluteNavigationTree));
+                globalChildren.push(
+                    ...this.filterIsLiveAndOverview(absoluteNavigationTree),
+                );
             }
 
             this.absoluteGlobalChildren = globalChildren;
         });
 
         this.subscription.add(
-            this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe(metadata => {
-                this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
-            }));
+            this.service.metadata
+                .pipe(filter((metadata) => !!metadata))
+                .subscribe((metadata) => {
+                    this.isUserAllowedToSeeOverview =
+                        UserPermission.isUserAllowedToSeeOverview(
+                            metadata.user,
+                        );
+                }),
+        );
     }
 
-    ngOnChanges(changes: { children: SimpleChange, useDefaultPrefix: SimpleChange }) {
+    ngOnChanges(changes: {
+        children: SimpleChange;
+        useDefaultPrefix: SimpleChange;
+    }) {
         const currentValue = changes.children.currentValue;
 
         if (ObjectUtils.isObjectNullOrEmpty(currentValue)) {
@@ -104,27 +139,34 @@ export class NavigationChipsComponent implements OnChanges {
     /**
      * Filters out the nodes to hide in navigation.
      *
-     * @param nodes the navigation tree nodes
-     * @returns the adjusted nodes
+     * @param nodes The navigation tree nodes
+     * @returns The adjusted nodes
      */
     public filterVisibleNodes(nodes: NavigationTree[]): NavigationTree[] {
         return nodes
-            .filter(node => node.showOrder !== "HIDE"
-                && node.availableScope === AvailableScope.LOCAL
-                && this.isNodeAllowedByPageFilter(node)) // keep only locally visible nodes
-            .map(node => ({
+            .filter(
+                (node) =>
+                    node.showOrder !== "HIDE" &&
+                    node.availableScope === AvailableScope.LOCAL &&
+                    this.isNodeAllowedByPageFilter(node),
+            ) // keep only locally visible nodes
+            .map((node) => ({
                 ...node,
-                children: node.children ? this.filterVisibleNodes(node.children) : [],
+                children: node.children
+                    ? this.filterVisibleNodes(node.children)
+                    : [],
             })) as NavigationTree[];
     }
 
     /**
      * Filters out the nodes to show globally in navigation.
      *
-     * @param nodes the navigation tree nodes
-     * @returns the adjusted nodes
+     * @param nodes The navigation tree nodes
+     * @returns The adjusted nodes
      */
-    public filterIsGloballyAvailable(root: NavigationTree | null): NavigationTree[] {
+    public filterIsGloballyAvailable(
+        root: NavigationTree | null,
+    ): NavigationTree[] {
         const result: NavigationTree[] = [];
         const isMobile = this.platFormService.getDevice().isSmartphone();
 
@@ -148,8 +190,8 @@ export class NavigationChipsComponent implements OnChanges {
             if (node.availableScope === AvailableScope.GLOBAL) {
                 result.push(node);
             } else if (
-                !isMobile
-                && node.availableScope === AvailableScope.LIVE_AND_OVERVIEW
+                !isMobile &&
+                node.availableScope === AvailableScope.LIVE_AND_OVERVIEW
             ) {
                 result.push(node);
             }
@@ -185,10 +227,12 @@ export class NavigationChipsComponent implements OnChanges {
     /**
      * Filters out the nodes that are scoped to live and overview pages.
      *
-     * @param root the root navigation tree node
-     * @returns the nodes with {@link AvailableScope.LIVE_AND_OVERVIEW}
+     * @param root The root navigation tree node
+     * @returns The nodes with {@link AvailableScope.LIVE_AND_OVERVIEW}
      */
-    public filterIsLiveAndOverview(root: NavigationTree | null): NavigationTree[] {
+    public filterIsLiveAndOverview(
+        root: NavigationTree | null,
+    ): NavigationTree[] {
         const result: NavigationTree[] = [];
 
         if (root == null) {
@@ -196,7 +240,10 @@ export class NavigationChipsComponent implements OnChanges {
         }
 
         const currentUrl = this.routeService.getCurrentUrl();
-        if (currentUrl == null || (!currentUrl.endsWith("live") && !currentUrl.endsWith("overview"))) {
+        if (
+            currentUrl == null ||
+            (!currentUrl.endsWith("live") && !currentUrl.endsWith("overview"))
+        ) {
             return result;
         }
 
@@ -237,7 +284,7 @@ export class NavigationChipsComponent implements OnChanges {
     /**
      * Navigates to passed link.
      *
-     * @param link the link segment to navigate to
+     * @param link The link segment to navigate to
      * @returns
      */
     public async navigateTo(node: NavigationTree): Promise<void> {
@@ -247,10 +294,10 @@ export class NavigationChipsComponent implements OnChanges {
 
     /**
      * Navigates absolutely to passed link.
-    *
-    * @param link the link segment to navigate to
-    * @returns
-    */
+     *
+     * @param link The link segment to navigate to
+     * @returns
+     */
     public async navigateAbsolutly(node: NavigationTree): Promise<void> {
         this.navigateAbsolute.emit(node);
         this.layoutRefresh.request(500);
@@ -258,10 +305,10 @@ export class NavigationChipsComponent implements OnChanges {
 
     /**
      * Navigates absolutely to passed link.
-    *
-    * @param link the link segment to navigate to
-    * @returns
-    */
+     *
+     * @param link The link segment to navigate to
+     * @returns
+     */
     public async navigateToRoot(): Promise<void> {
         const node = this.navigationService.navigationTree();
         this.navigateAbsolute.emit(node);
@@ -284,7 +331,7 @@ export class NavigationChipsComponent implements OnChanges {
 
         const currentNodeId = this.navigationService.currentNode()?.id ?? null;
 
-        const results = filterSet.rules.map(rule =>
+        const results = filterSet.rules.map((rule) =>
             this.evaluatePageFilterRule(rule, currentNodeId),
         );
 

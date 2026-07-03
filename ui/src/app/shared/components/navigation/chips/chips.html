@@ -65,4 +65,10 @@
       }
     </ion-button>
   }
+  @if (isUserAllowedToSeeOverview && isLive()) {
+    <ion-button tabindex="0" routerLinkActive="active" routerLink="/overview" style="--border-radius: 1vh 1vh 1vh 1vh" size="default" color="light">
+      <ion-icon class="ion-padding-right" name="menu-outline" size="small"></ion-icon>
+      <ion-label style="text-transform: none">{{ "MENU.OVERVIEW" | translate }}</ion-label>
+    </ion-button>
+  }
 }

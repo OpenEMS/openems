@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, Output, signal, WritableSignal } from "@angular/core";
+import { Component, effect, EventEmitter, Output, signal, WritableSignal, } from "@angular/core";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { RouteService } from "src/app/shared/service/route.service";
 import { NavigationService } from "../service/navigation.service";
@@ -19,7 +19,8 @@ type BreadcrumbItem = {
     styleUrl: "./breadcrumbs.scss",
 })
 export class NavigationBreadCrumbsComponent {
-    @Output() public navigate: EventEmitter<NavigationTree> = new EventEmitter();
+    @Output() public navigate: EventEmitter<NavigationTree> =
+        new EventEmitter();
 
     protected breadCrumbs: WritableSignal<BreadcrumbItem[]> = signal([]);
 
@@ -33,6 +34,7 @@ export class NavigationBreadCrumbsComponent {
             if (currentNode == null) {
                 return;
             }
+
             const breadCrumbs = currentNode.getBreadCrumbs();
             if (breadCrumbs.length === 0) {
                 // no items
@@ -42,13 +44,16 @@ export class NavigationBreadCrumbsComponent {
             // TODO provide link to "system-overview" (breadCrumbs[0])
             const items = breadCrumbs
                 .slice(1) // Remove 'root'
-                .map((node, index) => (<BreadcrumbItem>{
-                    id: node.id,
-                    icon: node.mode == "icon" ? node.icon.name : null,
-                    label: index === 0 ? "" : node.label,
-                    node,
-                    isLast: index === breadCrumbs.length - 2,
-                }));
+                .map(
+                    (node, index) =>
+                        <BreadcrumbItem>{
+                            id: node.id,
+                            icon: node.mode == "icon" ? node.icon.name : null,
+                            label: index === 0 ? "" : node.label,
+                            node,
+                            isLast: index === breadCrumbs.length - 2,
+                        },
+                );
             if (items.length < 3) {
                 // 1 or 2 items: no ellipsis
                 this.breadCrumbs.set(items);
@@ -67,10 +72,12 @@ export class NavigationBreadCrumbsComponent {
         });
     }
 
-    /**
-     * Navigates to passed link
-     */
-    protected handleNavigate(event: MouseEvent, parent: NavigationTree, isLast: boolean) {
+    /** Navigates to passed link */
+    protected handleNavigate(
+        event: MouseEvent,
+        parent: NavigationTree,
+        isLast: boolean,
+    ) {
         // Skip navigation for last breadcrumb
         if (isLast) {
             return;
