@@ -242,7 +242,7 @@ export namespace SharedStorage {
     function getTotalPhasesLines(translate: TranslateService): OeFormlyField[] {
         return Phase.THREE_PHASE.map(phase => ({
             type: "channel-line",
-            channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+            channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
             name: Name.SUFFIX_FOR_ESS_CHARGE_OR_DISCHARGE(translate, translate.instant("GENERAL.PHASE") + " " + phase),
             converter: (value) => SharedStorage.convertToPower(value),
             filter: () => true,
@@ -264,7 +264,7 @@ export namespace SharedStorage {
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+                channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
                 name: translate.instant("GENERAL.CHARGE"),
                 converter: (value) => SharedStorage.convertChargePowerInW(value),
                 filter: Filter.NOT_NULL_OR_UNDEFINED,
@@ -272,7 +272,7 @@ export namespace SharedStorage {
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+                channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
                 name: translate.instant("GENERAL.DISCHARGE"),
                 converter: (value) => SharedStorage.powerInW(value),
                 filter: Filter.NOT_NULL_OR_UNDEFINED,
