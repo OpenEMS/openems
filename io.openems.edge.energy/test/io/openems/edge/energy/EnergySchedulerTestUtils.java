@@ -19,6 +19,7 @@ import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.heat.askoma.HeatAskomaImpl;
 
 public class EnergySchedulerTestUtils {
 
@@ -53,7 +54,12 @@ public class EnergySchedulerTestUtils {
 				new Factory<io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig>(
 						(comp, conf) -> io.openems.edge.controller.evse.cluster.EnergyScheduler
 								.buildEnergyScheduleHandler(comp, () -> CLOCK, conf),
-						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK)));
+						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK))),
+		HEAT_ASKOMA(HeatAskomaImpl.FACTORY_ID,
+				new Factory<io.openems.edge.heat.askoma.EnergyScheduler.Config>(
+						(comp, conf) -> io.openems.edge.heat.askoma.EnergyScheduler
+								.buildEnergyScheduleHandler(comp, () -> CLOCK, conf),
+						io.openems.edge.heat.askoma.EnergyScheduler.Config.serializer(CLOCK)));
 
 		public final String factoryPid;
 		public final Factory<?> factory;

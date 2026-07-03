@@ -676,6 +676,7 @@
         "LIGHT": "Hell",
         "LIVE": "Live",
         "LOAD": "Last",
+        "MANAGED_CONSUMPTION": "Gesteuerter Verbrauch",
         "MANUAL": "Anleitung",
         "MANUALLY": "Manuell",
         "MEASURED_VALUE": "Gemessener Wert",

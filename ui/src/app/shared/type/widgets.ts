@@ -150,16 +150,19 @@ export class Widgets {
                 return SharedControllerHeat.getNavigationTree(
                     translate,
                     component,
+                    true,
                 );
             case "Heat.MyPv":
                 return SharedControllerHeat.getNavigationTree(
                     translate,
                     component,
+                    false,
                 );
             case "Heat.MyPv.AcThor9s":
                 return SharedControllerHeat.getNavigationTree(
                     translate,
                     component,
+                    false,
                 );
             case "Scheduler.JSCalendar":
                 return SharedSchedulerJsCalendar.getNavigationTree(

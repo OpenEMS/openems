@@ -1,6 +1,6 @@
-package io.openems.edge.controller.evse.cluster.jsonrpc;
+package io.openems.edge.heat.askoma.jsonrpc.jsonrpc;
 
-// TODO replace with io.openems.edge.energy/src/io/openems/edge/energy/GetSchedule.java
+//TODO replace with io.openems.edge.energy/src/io/openems/edge/energy/GetSchedule.java
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
@@ -14,13 +14,10 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
-import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Request;
-import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Response;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.heat.askoma.EnergyScheduler;
+import io.openems.edge.heat.askoma.Mode;
 
 /**
  * Gets a Schedule.
@@ -60,7 +57,7 @@ import io.openems.edge.energy.api.handler.EshWithDifferentModes;
  * }
  * </pre>
  */
-public class GetSchedule implements EndpointRequestType<Request, Response> {
+public class GetSchedule implements EndpointRequestType<GetSchedule.Request, GetSchedule.Response> {
 
 	@Override
 	public String getMethod() {
@@ -77,12 +74,12 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 		return Response.serializer();
 	}
 
-	public static record Request(//
+	public record Request(//
 			String componentId //
 	) {
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link AddAppInstance.Request}.
+		 * serializer.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
@@ -103,45 +100,41 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 				int managedConsumption) {
 
 			/**
-			 * Returns a {@link JsonSerializer} for a {@link GetSchedule.Response.Period}.
+			 * Returns a {@link JsonSerializer} for a {@link Period}.
 			 * 
 			 * @return the created {@link JsonSerializer}
 			 */
-			public static JsonSerializer<GetSchedule.Response.Period> serializer() {
-				return jsonObjectSerializer(GetSchedule.Response.Period.class, json -> {
-					return new Period(//
-							json.getZonedDateTime("timestamp"), //
-							json.getDouble("price"), //
-							json.getInt("mode"), //
-							json.getInt("grid"), //
-							json.getInt("production"), //
-							json.getInt("consumption"), //
-							json.getInt("managedConsumption") //
-					);
-				}, obj -> {
-					return buildJsonObject() //
-							.addProperty("timestamp", obj.timestamp) //
-							.addProperty("price", obj.price) //
-							.addProperty("mode", obj.mode) //
-							.addProperty("grid", obj.grid) //
-							.addProperty("production", obj.production) //
-							.addProperty("consumption", obj.consumption) //
-							.addProperty("managedConsumption", obj.managedConsumption) //
-							.build();
-				});
+			public static JsonSerializer<Period> serializer() {
+				return jsonObjectSerializer(Period.class, json -> new Period(//
+						json.getZonedDateTime("timestamp"), //
+						json.getDouble("price"), //
+						json.getInt("mode"), //
+						json.getInt("grid"), //
+						json.getInt("production"), //
+						json.getInt("consumption"), //
+						json.getInt("managedConsumption") //
+				), obj -> buildJsonObject() //
+						.addProperty("timestamp", obj.timestamp) //
+						.addProperty("price", obj.price) //
+						.addProperty("mode", obj.mode) //
+						.addProperty("grid", obj.grid) //
+						.addProperty("production", obj.production) //
+						.addProperty("consumption", obj.consumption) //
+						.addProperty("managedConsumption", obj.managedConsumption) //
+						.build());
 			}
 		}
 
 		/**
-		 * Creates a {@link GetSchedule.Response}.
+		 * Creates a {@link Response}.
 		 * 
 		 * @param request the {@link Request}
 		 * @param esh     the {@link EnergyScheduleHandler}
 		 * 
-		 * @return the created {@link GetSchedule.Response}
+		 * @return the created {@link Response}
 		 */
 		public static Response create(Request request,
-				EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> esh) {
+				EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> esh) {
 			return new Response(esh.getSchedule().entrySet().stream() //
 					.map(e -> {
 						final var componentId = request.componentId;
@@ -149,12 +142,13 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 						final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
 						final var mode = Optional.ofNullable(//
 								// Mode from Schedule
-								p.mode().getMode(componentId))
+								p.mode())
 								// Mode configured in Evse.Controller.Single
-								.orElse(p.coc().clusterConfig().getSingleParams(componentId).mode());
+								.orElse(p.coc().defaultMode());
 
-						return new Response.Period(e.getKey(), p.gridBuyPrice(), //
-								mode.getValue(), //
+						return new Period(e.getKey(), //
+								p.gridBuyPrice(), //
+								mode.ordinal(), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getGrid()), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getProduction()), //
 								convertEnergyToPower.applyAsInt(p.energyFlow().getConsumption()), //
@@ -164,13 +158,13 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 		}
 
 		/**
-		 * Returns a {@link JsonSerializer} for a {@link GetSchedule.Response}.
+		 * Returns a {@link JsonSerializer} for a {@link Response}.
 		 * 
 		 * @return the created {@link JsonSerializer}
 		 */
-		public static JsonSerializer<GetSchedule.Response> serializer() {
-			return jsonObjectSerializer(GetSchedule.Response.class, //
-					json -> new GetSchedule.Response(//
+		public static JsonSerializer<Response> serializer() {
+			return jsonObjectSerializer(Response.class, //
+					json -> new Response(//
 							json.getImmutableList("schedule", Period.serializer())),
 					obj -> buildJsonObject() //
 							.add("schedule", Period.serializer().toListSerializer().serialize(obj.schedule())) //

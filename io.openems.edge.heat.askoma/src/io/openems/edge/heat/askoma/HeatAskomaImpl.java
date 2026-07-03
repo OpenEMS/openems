@@ -3,6 +3,7 @@ package io.openems.edge.heat.askoma;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static io.openems.edge.meter.api.ElectricityMeter.calculatePhasesFromActivePower;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -48,9 +49,13 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
 import io.openems.edge.heat.api.Status;
+import io.openems.edge.heat.askoma.jsonrpc.jsonrpc.GetSchedule;
 import io.openems.edge.heat.askoma.statemachine.Context;
 import io.openems.edge.heat.askoma.statemachine.StateMachine;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -60,15 +65,18 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Heat.Askoma", //
+		name = HeatAskomaImpl.FACTORY_ID, //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
 				"type=CONSUMPTION_METERED" //
 		})
 @GenerateTargetsFromReferences("Modbus")
-public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements HeatAskoma, ModbusComponent,
-		OpenemsComponent, ElectricityMeter, Heat, ManagedHeatElement, TimedataProvider, Controller, ComponentJsonApi {
+public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
+		implements HeatAskoma, ModbusComponent, OpenemsComponent, ElectricityMeter, Heat, ManagedHeatElement,
+		TimedataProvider, Controller, ComponentJsonApi, EnergySchedulable {
+
+	public static final String FACTORY_ID = "Heat.Askoma";
 
 	private final Logger log = LoggerFactory.getLogger(HeatAskomaImpl.class);
 
@@ -77,6 +85,7 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 
 	private final StateMachine stateMachine;
+	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
 
 	private volatile Config config = null;
 	private volatile JSCalendar.Tasks<HeatAskomaPayload> tasks = JSCalendar.Tasks.empty();
@@ -119,12 +128,18 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 	private void activate(ComponentContext context, Config config) {
 		this.applyConfig(config);
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(this, this.componentManager,
+				() -> this.config == null ? null
+						: new EnergyScheduler.Config(this.config.mode(), this.config.maxHeatPower(), this.tasks));
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) {
 		this.applyConfig(config);
 		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		if (this.energyScheduleHandler != null) {
+			this.energyScheduleHandler.triggerReschedule("HeatAskomaImpl::modified()", OPTIMIZE_CURRENT_PERIOD);
+		}
 	}
 
 	private synchronized void applyConfig(Config config) {
@@ -292,6 +307,12 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent implements He
 				() -> this.tasks, //
 				() -> new UpdateJsCalendarRecord(this.configurationAdmin, this.componentManager, this.servicePid(),
 						"jsCalendar"));
+		builder.handleRequest(new GetSchedule(), //
+				call -> GetSchedule.Response.create(call.getRequest(), this.energyScheduleHandler));
 	}
 
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
 }

@@ -685,6 +685,7 @@
         "LIGHT": "Light",
         "LIVE": "Live",
         "LOAD": "Load",
+        "MANAGED_CONSUMPTION": "Managed consumption",
         "MANUAL": "Manual",
         "MANUALLY": "Manually",
         "MEASURED_VALUE": "Measured Value",

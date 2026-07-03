@@ -60,6 +60,11 @@ public class PlotUtils {
 			"PEAK_SHAVING", new Color(218, 120, 8), //
 			"DELAY_DISCHARGE", new Color(0, 0, 0));
 
+	// private static final Map<String, Color> HEAT_MODE_COLORS = Map.of(//
+	// "OFF", new Color(128, 128, 128), //
+	// "FAST_HEAT", new Color(255, 0, 0), //
+	// "SURPLUS", new Color(255, 153, 0));//
+
 	protected static void plotGlobalOptimizationContext(GlobalOptimizationContext goc) {
 		final var domainAxis = new DateAxis("Time");
 		domainAxis.setDateFormatOverride(new SimpleDateFormat("HH:mm"));
@@ -214,6 +219,7 @@ public class PlotUtils {
 
 				// Mode Plot
 				buildModePlot(sr, ESS_MODE_COLORS), //
+				// buildModePlot(sr, HEAT_MODE_COLORS), //
 
 				// Prod Cons Plot
 				new XyPlotBuilder()//

@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.energy.EnergySchedulerTestUtils;
+import io.openems.edge.heat.askoma.Mode;
 
 public class TestConfig {
 
@@ -239,6 +240,34 @@ public class TestConfig {
 						.build()) //
 				.build();
 
+		protected static final JsonObject HEAT_ASKOMA = buildJsonObject() //
+				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.HEAT_ASKOMA.factoryPid) //
+				.addProperty("id", "heat0") //
+				.add("source", buildJsonObject() //
+						.addProperty("defaultMode", Mode.OFF.name()) //
+						.addProperty("maxHeatPower", 3000) //
+						.add("tasks", buildJsonArray() //
+								.add(createTask("10:00:00", "PT2H", Mode.SURPLUS.name())) //
+								.add(createTask("13:00:00", "PT2H", Mode.FAST_HEAT.name())) //
+								.build()) //
+						.build()) //
+				.build();
+	}
+
+	private static JsonObject createTask(String start, String duration, String mode) {
+		return buildJsonObject() //
+				.addProperty("@type", "Task") //
+				.addProperty("start", start) //
+				.addProperty("duration", duration) //
+				.add("recurrenceRules", buildJsonArray() //
+						.add(buildJsonObject() //
+								.addProperty("frequency", "daily") //
+								.build()) //
+						.build()) //
+				.add("openems.io:payload", buildJsonObject() //
+						.addProperty("mode", mode) //
+						.build()) //
+				.build();
 	}
 
 	public static class Periods {
