@@ -9,7 +9,7 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
@@ -32,7 +32,7 @@ public class EvseKebaUtils {
 		this.parent = keba;
 	}
 
-	private Tuple<Instant, Integer> previousCurrent = null;
+	private Tuple2<Instant, Integer> previousCurrent = null;
 
 	/**
 	 * Applies a {@link ChargePointActions}.
@@ -93,7 +93,7 @@ public class EvseKebaUtils {
 		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
 			return;
 		}
-		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
+		this.previousCurrent = Tuple2.of(now, setPointInMilliAmpere);
 
 		try {
 			keba.setSetEnable(setPointInMilliAmpere == 0 //

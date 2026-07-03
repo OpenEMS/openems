@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.types.Tuple2;
 import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
@@ -20,7 +21,6 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
-import io.openems.edge.common.type.Tuple;
 
 /**
  * Supplies Tasks.
@@ -42,7 +42,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	/**
 	 * Queue of LOW priority {@link ReadTask}s.
 	 */
-	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
+	private final Queue<Tuple2<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
 	/**
 	 * Adds (or replaces) the protocol identified by its sourceId.
@@ -142,7 +142,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 *
 	 * @return the next task; null if there is no available task
 	 */
-	private synchronized Tuple<String, ReadTask> getOneLowPriorityReadTask() {
+	private synchronized Tuple2<String, ReadTask> getOneLowPriorityReadTask() {
 		var refilledBefore = false;
 		while (true) {
 			var task = this.nextLowPriorityTasks.poll();
@@ -157,7 +157,7 @@ public class TasksSupplierImpl implements TasksSupplier {
 			this.taskManagers.forEach((id, taskManager) -> {
 				taskManager.getTasks(Priority.LOW).stream() //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						.map(t -> new Tuple<String, ReadTask>(id, t)) //
+						.map(t -> new Tuple2<String, ReadTask>(id, t)) //
 						.forEach(this.nextLowPriorityTasks::add);
 			});
 			refilledBefore = true;

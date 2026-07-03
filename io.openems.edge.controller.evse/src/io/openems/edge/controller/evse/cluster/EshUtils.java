@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
@@ -169,7 +169,7 @@ public class EshUtils {
 		}
 	}
 
-	protected static Tuple<ImmutableTable<String, ZonedDateTime, Mode>, ImmutableTable<String, ZonedDateTime, Smart>> parseTasks(
+	protected static Tuple2<ImmutableTable<String, ZonedDateTime, Mode>, ImmutableTable<String, ZonedDateTime, Smart>> parseTasks(
 			GlobalOptimizationContext goc, ClusterEshConfig clusterConfig) {
 		final var firstTime = goc.periods().getFirst().time();
 		final var lastTime = goc.periods().getLast().time();
@@ -187,7 +187,7 @@ public class EshUtils {
 				}
 			}
 		}
-		return Tuple.of(manualModes.build(), smartPayloads.build());
+		return Tuple2.of(manualModes.build(), smartPayloads.build());
 	}
 
 	protected static JointModes<Mode> generateModes(ClusterEshConfig clusterConfig,
@@ -215,7 +215,7 @@ public class EshUtils {
 		final var allModes = Lists.cartesianProduct(//
 				clusterConfig.singleParams().values().stream() //
 						.map(p -> singleModes.stream() //
-								.map(mode -> new Tuple<String, Mode>(p.ctrlSingleId(), mode)) //
+								.map(mode -> new Tuple2<String, Mode>(p.ctrlSingleId(), mode)) //
 								.toList()) //
 						.toList()) //
 				.stream() //
@@ -223,7 +223,7 @@ public class EshUtils {
 					var addToOptimizer = l.stream().anyMatch(sm -> addToOptimizers.contains(sm.a() /* Component-ID */));
 					return new JointMode<Mode>(//
 							l.stream() //
-									.collect(toImmutableMap(Tuple::a, Tuple::b)), //
+									.collect(toImmutableMap(Tuple2::a, Tuple2::b)), //
 							addToOptimizer, //
 							null); // TODO
 				}) //
