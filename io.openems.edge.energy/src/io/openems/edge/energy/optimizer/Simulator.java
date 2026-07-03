@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.jenetics.Mutator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -278,7 +279,6 @@ public class Simulator {
 
 		// Build the Jenetics Engine
 		final var initialPopulation = generateInitialPopulation(codec);
-		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
 				.builder(gt -> {
@@ -287,15 +287,12 @@ public class Simulator {
 							this.normalizedEshModePreferenceRanks);
 					return result.build();
 				}, codec) //
-				.selector(//
-						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
-								new TournamentSelector<>(3)))
+				.selector(new EliteSelector<IntegerGene, Fitness>(new TournamentSelector<>()))//
 				.alterers(//
-						new ShiftMutator<>(), //
-						new ShuffleMutator<>(), //
-						new SinglePointCrossover<>(), //
-						new GaussianMutator<>()) //
-				.populationSize(populationSize) //
+						new Mutator<>(0.05), //
+						new ShiftMutator<>(0.2), //
+						new SinglePointCrossover<>(0.2)) //
+				.populationSize(300) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {
