@@ -12,6 +12,7 @@ import { StorageSectionComponent } from "./section/storage.component";
 @Component({
     selector: "energymonitor-chart",
     templateUrl: "./chart.component.html",
+    styleUrls: ["./chart.component.scss"],
     standalone: false,
 })
 export class EnergymonitorChartComponent implements OnInit, OnDestroy {

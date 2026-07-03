@@ -1,9 +1,34 @@
 {
+    "singleQuote": false,
     "overrides": [
         {
             "files": "*.html",
             "options": {
-                "parser": "angular"
+                "parser": "angular",
+                "singleAttributePerLine": false,
+                "printWidth": 9999
+            }
+        },
+        {
+            "files": [
+                "*.json",
+                "*.jsonc",
+                ".prettierrc"
+            ],
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 20
+            }
+        },
+        {
+            "files": [
+                "*.ts",
+                "*.mjs",
+                "*.scss"
+            ],
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 9999
             }
         }
     ]

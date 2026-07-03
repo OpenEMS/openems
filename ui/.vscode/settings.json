@@ -1,5 +1,4 @@
 {
-    "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnSave": true,
     "cSpell.enabled": false,
     "i18n-ally.localesPaths": [
@@ -12,31 +11,15 @@
     },
     "files.eol": "\n",
     "files.insertFinalNewline": true,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on",
     "eslint.format.enable": true,
     "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features",
+        "editor.tabSize": 4,
         "editor.codeActionsOnSave": {
             "source.organizeImports": "explicit",
             "source.removeUnusedImports": "explicit"
-        },
-        "typescript.preferences.quoteStyle": "double",
-    },
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
-    },
-    "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features",
-        "editor.tabSize": 2
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "[html]": {
-        "editor.tabSize": 2,
-    },
-    "[scss]": {
-        "editor.defaultFormatter": "vscode.css-language-features"
+        }
     },
     "Workspace_Formatter.excludePattern": [
         "**/build",
@@ -50,9 +33,5 @@
         "*.svg",
         "*.scss"
     ],
-    "html.format.templating": [
-        "angular"
-    ],
-    "editor.tabSize": 4,
-    "editor.detectIndentation": false,
+    "editor.detectIndentation": false
 }
