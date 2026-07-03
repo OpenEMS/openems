@@ -1,5 +1,4 @@
 {
-    "singleQuote": false,
     "overrides": [
         {
             "files": "*.html",
@@ -27,9 +26,17 @@
                 "*.scss"
             ],
             "options": {
-                "tabWidth": 4,
-                "printWidth": 9999
+                "tabWidth": 4
             }
         }
-    ]
+    ],
+    "plugins": [
+        "prettier-plugin-packagejson",
+        "prettier-plugin-sort-json",
+        "prettier-plugin-one-line-imports",
+        "prettier-plugin-multiline-arrays",
+        "prettier-plugin-organize-imports",
+        "prettier-plugin-jsdoc"
+    ],
+    "singleQuote": false
 }

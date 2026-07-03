@@ -47,13 +47,19 @@ import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/C
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
+import { ControllerPeakShavingAsymmetricHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/history/new-navigation/new-navigation";
+import { ControllerPeakShavingAsymmetricHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/new-navigation/new-navigation";
+import { ControllerPeakShavingAsymmetricSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/settings/settings";
+import { ControllerPeakShavingSymmetricHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/history/new-navigation/new-navigation";
+import { ControllerPeakShavingSymmetricHomeComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/new-navigation/new-navigation";
+import { ControllerPeakShavingSymmetricSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/settings/settings";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
 import { SchedulerJsCalendarAddTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/add/add";
 import { SchedulerJsCalendarEditTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
-import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
+import { hasEdgeRole, hasUserSettings, } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
 import { CommonAutarchyHistoryComponent } from "../../../edge/live/common/autarchy/history/new-navigation/new-navigation";
 import { CommonAutarchyHomeComponent } from "../../../edge/live/common/autarchy/new-navigation/new-navigation";
@@ -75,14 +81,29 @@ export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
     { path: "evse/:componentId", component: EvseSingleComponent },
     { path: "evse/:componentId/history", component: EvseHistoryComponent },
-    { path: "evse/:componentId/energy-limit", component: EvseEnergyLimitComponent },
+    {
+        path: "evse/:componentId/energy-limit",
+        component: EvseEnergyLimitComponent,
+    },
     { path: "evse/:componentId/forecast", component: EvseForecastComponent },
-    { path: "evse/:componentId/phase-switching", component: EvsePhaseSwitchingComponent },
+    {
+        path: "evse/:componentId/phase-switching",
+        component: EvsePhaseSwitchingComponent,
+    },
     { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
-    { path: "evse/:componentId/schedule/edit-task", component: EvseEditTaskComponent },
+    {
+        path: "evse/:componentId/schedule/edit-task",
+        component: EvseEditTaskComponent,
+    },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
-    { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
-    { matcher: suffixMatcher("navigation-info"), component: NavigationInfoComponent },
+    {
+        path: "evse/:componentId/schedule/add-task",
+        component: EvseAddTaskComponent,
+    },
+    {
+        matcher: suffixMatcher("navigation-info"),
+        component: NavigationInfoComponent,
+    },
     {
         path: "evse/:componentId/car/update/:appId",
         component: UpdateAppConfigComponent,
@@ -90,83 +111,272 @@ export const newNavigationRoutes: Routes = [
     },
 
     { path: "io-heating-room", component: IoHeatingRoomGroupComponent },
-    { path: "io-heating-room/:componentId", component: IoHeatingRoomModalComponent },
+    {
+        path: "io-heating-room/:componentId",
+        component: IoHeatingRoomModalComponent,
+    },
 
     // Common navigation
     { path: "common/autarchy", component: CommonAutarchyHomeComponent },
-    { path: "common/autarchy/history", component: CommonAutarchyHistoryComponent },
+    {
+        path: "common/autarchy/history",
+        component: CommonAutarchyHistoryComponent,
+    },
     { path: "common/consumption", component: CommonConsumptionHomeComponent },
-    { path: "common/consumption/details", component: CommonConsumptionDetailsComponent },
-    { path: "common/consumption/history", component: CommonConsumptionHistoryComponent },
-    { path: "common/consumption/history/:componentId/details", component: CommonConsumptionSingleHistoryOverviewComponent },
-    { path: "common/consumption/history/:componentId/details/current-voltage", component: CurrentVoltageOverviewComponent },
+    {
+        path: "common/consumption/details",
+        component: CommonConsumptionDetailsComponent,
+    },
+    {
+        path: "common/consumption/history",
+        component: CommonConsumptionHistoryComponent,
+    },
+    {
+        path: "common/consumption/history/:componentId/details",
+        component: CommonConsumptionSingleHistoryOverviewComponent,
+    },
+    {
+        path: "common/consumption/history/:componentId/details/current-voltage",
+        component: CurrentVoltageOverviewComponent,
+    },
     { path: "common/grid", component: CommonGridHomeComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
-    { path: "common/grid/history/external-limitation", component: CommonGridExternalLimitationOverviewComponent },
-    { path: "common/grid/history/:componentId/phase-accurate", component: CommonGridPhaseAccurateOverviewComponent },
-    { path: "common/grid/history/:componentId/phase-accurate/current-voltage", component: CurrentVoltageOverviewComponent },
+    {
+        path: "common/grid/history/external-limitation",
+        component: CommonGridExternalLimitationOverviewComponent,
+    },
+    {
+        path: "common/grid/history/:componentId/phase-accurate",
+        component: CommonGridPhaseAccurateOverviewComponent,
+    },
+    {
+        path: "common/grid/history/:componentId/phase-accurate/current-voltage",
+        component: CurrentVoltageOverviewComponent,
+    },
 
     { path: "common/production", component: CommonProductionHomeComponent },
-    { path: "common/production/details", component: CommonProductionDetailsComponent },
-    { path: "common/production/history", component: CommonProductionHistoryComponent },
-    { path: "common/production/history/phase-accurate", component: CommonProductionDetailsComponent },
-    { path: "common/production/history/:componentId/phase-accurate", component: CommonProductionSingleHistoryOverviewComponent },
-    { path: "common/production/history/:componentId/phase-accurate/current-voltage", component: CurrentVoltageOverviewComponent },
+    {
+        path: "common/production/details",
+        component: CommonProductionDetailsComponent,
+    },
+    {
+        path: "common/production/history",
+        component: CommonProductionHistoryComponent,
+    },
+    {
+        path: "common/production/history/phase-accurate",
+        component: CommonProductionDetailsComponent,
+    },
+    {
+        path: "common/production/history/:componentId/phase-accurate",
+        component: CommonProductionSingleHistoryOverviewComponent,
+    },
+    {
+        path: "common/production/history/:componentId/phase-accurate/current-voltage",
+        component: CurrentVoltageOverviewComponent,
+    },
 
-    { path: "settings", loadChildren: () => import("src/app/edge/settings/settings-routing.module").then(m => m.SettingsRoutingModule) },
+    {
+        path: "settings",
+        loadChildren: () =>
+            import("src/app/edge/settings/settings-routing.module").then(
+                (m) => m.SettingsRoutingModule,
+            ),
+    },
 
-    { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
-    { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
+    {
+        path: "common/selfconsumption",
+        component: CommonSelfConsumptionHomeComponent,
+    },
+    {
+        path: "common/selfconsumption/history",
+        component: CommonSelfConsumptionHistoryComponent,
+    },
     { path: "common/storage", component: CommonStorageHomeComponent },
-    { path: "common/storage/details", component: CommonStorageOwnerGuestInstallerDetailsComponent },
-    { path: "common/storage/settings", component: CommonStorageSettingsComponent },
-    { path: "common/storage/history", component: CommonStorageHistoryComponent },
-    { path: "common/storage/history/:componentId/phase-accurate", component: CommonStorageDetailsComponent },
-    { path: "common/storage/controller/time-of-use/:componentId", component: ControllerEssTimeOfUseTariffHomeComponent },
-    { path: "common/storage/controller/time-of-use/:componentId/settings", component: ControllerEssTimeOfUseTariffSettingsComponent },
-    { path: "common/storage/controller/time-of-use/:componentId/history", component: ControllerEssTimeOfUseTariffHistoryComponent },
-    { path: "common/storage/controller/grid-optimized-charge/:componentId", component: ControllerEssGridOptimizedChargeHomeComponent },
-    { path: "common/storage/controller/grid-optimized-charge/:componentId/settings", component: ControllerEssGridOptimizedChargeSettingsComponent },
-    { path: "common/storage/controller/grid-optimized-charge/:componentId/history", component: ControllerEssGridOptimizedChargeHistoryComponent },
-    { path: "common/storage/controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
-    { path: "common/storage/controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
+    {
+        path: "common/storage/details",
+        component: CommonStorageOwnerGuestInstallerDetailsComponent,
+    },
+    {
+        path: "common/storage/settings",
+        component: CommonStorageSettingsComponent,
+    },
+    {
+        path: "common/storage/history",
+        component: CommonStorageHistoryComponent,
+    },
+    {
+        path: "common/storage/history/:componentId/phase-accurate",
+        component: CommonStorageDetailsComponent,
+    },
+    {
+        path: "common/storage/controller/time-of-use/:componentId",
+        component: ControllerEssTimeOfUseTariffHomeComponent,
+    },
+    {
+        path: "common/storage/controller/time-of-use/:componentId/settings",
+        component: ControllerEssTimeOfUseTariffSettingsComponent,
+    },
+    {
+        path: "common/storage/controller/time-of-use/:componentId/history",
+        component: ControllerEssTimeOfUseTariffHistoryComponent,
+    },
+    {
+        path: "common/storage/controller/grid-optimized-charge/:componentId",
+        component: ControllerEssGridOptimizedChargeHomeComponent,
+    },
+    {
+        path: "common/storage/controller/grid-optimized-charge/:componentId/settings",
+        component: ControllerEssGridOptimizedChargeSettingsComponent,
+    },
+    {
+        path: "common/storage/controller/grid-optimized-charge/:componentId/history",
+        component: ControllerEssGridOptimizedChargeHistoryComponent,
+    },
+    {
+        path: "common/storage/controller/ess-fix-active-power/:componentId",
+        component: ControllerEssFixActivePowerHomeComponent,
+    },
+    {
+        path: "common/storage/controller/ess-fix-active-power/:componentId/settings",
+        component: ControllerEssFixActivePowerSettingsComponent,
+    },
     { path: "common/weather/:componentId", component: WeatherHomeComponent },
 
-    { path: "controller/io-fix-digital-output", component: ControllerFixDigitalOutputGroupComponent },
-    { path: "controller/io-fix-digital-output/:componentId", component: ControllerFixDigitalOutputHomeComponent },
-    { path: "controller/io-fix-digital-output/:componentId/history", component: FixDigitalDetailsComponent },
-    { path: "controller/heatpump/:componentId", component: ControllerIoHeatpumpHomeComponent },
-    { path: "controller/heatpump/:componentId/settings", component: ControllerIoHeatpumpSettingsComponent },
-    { path: "controller/heatpump/:componentId/history", component: ControllerIoHeatpumpHistoryComponent },
-    { path: "controller/time-of-use/:componentId", component: ControllerEssTimeOfUseTariffHomeComponent },
-    { path: "controller/time-of-use/:componentId/settings", component: ControllerEssTimeOfUseTariffSettingsComponent },
-    { path: "controller/time-of-use/:componentId/history", component: ControllerEssTimeOfUseTariffHistoryComponent },
-    { path: "controller/heat/:componentId", component: ControllerHeatHomeComponent },
-    { path: "controller/heat/:componentId/history", component: ControllerHeatHistoryComponent },
-    { path: "controller/heatingelement/:componentId", component: ControllerIoHeatingElementHomeComponent },
-    { path: "controller/heatingelement/:componentId/settings", component: ControllerIoHeatingElementSettingsComponent },
-    { path: "controller/heatingelement/:componentId/history", component: ControllerHeatingElementHistoryComponent },
-    { path: "controller/ess-fix-active-power/:componentId", component: ControllerEssFixActivePowerHomeComponent },
-    { path: "controller/ess-fix-active-power/:componentId/settings", component: ControllerEssFixActivePowerSettingsComponent },
-    { path: "controller/heat/:componentId/settings", component: ControllerHeatSettingsComponent },
-    { path: "controller/heat/:componentId/schedule", component: HeatScheduleComponent },
-    { path: "controller/heat/:componentId/schedule/add-task", component: HeatAddTaskComponent },
-    { path: "controller/heat/:componentId/schedule/edit-task", component: HeatEditTaskComponent },
-    { path: "controller/channelthreshold/:componentId", component: ChannelthresholdHomeComponent },
-    { path: "controller/channelthreshold/:componentId/history", component: ControllerChannelthresholdHistoryComponent },
-    { path: ":componentId/scheduler-js-calendar", component: SchedulerJsCalendarComponent },
-    { path: ":componentId/scheduler-js-calendar/schedule", component: ScheduleJsCalendarComponent },
-    { path: ":componentId/scheduler-js-calendar/schedule/add-task", component: SchedulerJsCalendarAddTaskComponent },
-    { path: ":componentId/scheduler-js-calendar/schedule/edit-task", component: SchedulerJsCalendarEditTaskComponent },
+    {
+        path: "controller/io-fix-digital-output",
+        component: ControllerFixDigitalOutputGroupComponent,
+    },
+    {
+        path: "controller/io-fix-digital-output/:componentId",
+        component: ControllerFixDigitalOutputHomeComponent,
+    },
+    {
+        path: "controller/io-fix-digital-output/:componentId/history",
+        component: FixDigitalDetailsComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId",
+        component: ControllerIoHeatpumpHomeComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId/settings",
+        component: ControllerIoHeatpumpSettingsComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId/history",
+        component: ControllerIoHeatpumpHistoryComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric/:componentId",
+        component: ControllerPeakShavingSymmetricHomeComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric/:componentId/settings",
+        component: ControllerPeakShavingSymmetricSettingsComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric/:componentId/history",
+        component: ControllerPeakShavingSymmetricHistoryComponent,
+    },
+    {
+        path: "controller/peak-shaving-asymmetric/:componentId",
+        component: ControllerPeakShavingAsymmetricHomeComponent,
+    },
+    {
+        path: "controller/peak-shaving-asymmetric/:componentId/settings",
+        component: ControllerPeakShavingAsymmetricSettingsComponent,
+    },
+    {
+        path: "controller/peak-shaving-asymmetric/:componentId/history",
+        component: ControllerPeakShavingAsymmetricHistoryComponent,
+    },
+
+    {
+        path: "controller/time-of-use/:componentId",
+        component: ControllerEssTimeOfUseTariffHomeComponent,
+    },
+    {
+        path: "controller/time-of-use/:componentId/settings",
+        component: ControllerEssTimeOfUseTariffSettingsComponent,
+    },
+    {
+        path: "controller/time-of-use/:componentId/history",
+        component: ControllerEssTimeOfUseTariffHistoryComponent,
+    },
+    {
+        path: "controller/heat/:componentId",
+        component: ControllerHeatHomeComponent,
+    },
+    {
+        path: "controller/heat/:componentId/history",
+        component: ControllerHeatHistoryComponent,
+    },
+    {
+        path: "controller/heatingelement/:componentId",
+        component: ControllerIoHeatingElementHomeComponent,
+    },
+    {
+        path: "controller/heatingelement/:componentId/settings",
+        component: ControllerIoHeatingElementSettingsComponent,
+    },
+    {
+        path: "controller/heatingelement/:componentId/history",
+        component: ControllerHeatingElementHistoryComponent,
+    },
+    {
+        path: "controller/ess-fix-active-power/:componentId",
+        component: ControllerEssFixActivePowerHomeComponent,
+    },
+    {
+        path: "controller/ess-fix-active-power/:componentId/settings",
+        component: ControllerEssFixActivePowerSettingsComponent,
+    },
+    {
+        path: "controller/heat/:componentId/settings",
+        component: ControllerHeatSettingsComponent,
+    },
+    {
+        path: "controller/heat/:componentId/schedule",
+        component: HeatScheduleComponent,
+    },
+    {
+        path: "controller/heat/:componentId/schedule/add-task",
+        component: HeatAddTaskComponent,
+    },
+    {
+        path: "controller/heat/:componentId/schedule/edit-task",
+        component: HeatEditTaskComponent,
+    },
+    {
+        path: "controller/channelthreshold/:componentId",
+        component: ChannelthresholdHomeComponent,
+    },
+    {
+        path: "controller/channelthreshold/:componentId/history",
+        component: ControllerChannelthresholdHistoryComponent,
+    },
+    {
+        path: ":componentId/scheduler-js-calendar",
+        component: SchedulerJsCalendarComponent,
+    },
+    {
+        path: ":componentId/scheduler-js-calendar/schedule",
+        component: ScheduleJsCalendarComponent,
+    },
+    {
+        path: ":componentId/scheduler-js-calendar/schedule/add-task",
+        component: SchedulerJsCalendarAddTaskComponent,
+    },
+    {
+        path: ":componentId/scheduler-js-calendar/schedule/edit-task",
+        component: SchedulerJsCalendarEditTaskComponent,
+    },
     ...history(true),
 ];
 
 @NgModule({
-    imports: [
-        RouterModule.forChild(newNavigationRoutes),
-    ],
-    exports: [
-        RouterModule,
-    ],
+    imports: [RouterModule.forChild(newNavigationRoutes)],
+    exports: [RouterModule],
 })
-export class NavigationRoutingModule { }
+export class NavigationRoutingModule {}

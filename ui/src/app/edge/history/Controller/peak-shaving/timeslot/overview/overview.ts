@@ -7,7 +7,7 @@ import { ChartComponentsModule } from "src/app/shared/components/chart/chart.mod
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
 import { PickdateComponentModule } from "src/app/shared/components/pickdate/pickdate.module";
 import { Language } from "src/app/shared/type/language";
-import { ChartComponent } from "../chart/chart";
+import { TimeslotChartComponent } from "../chart/chart";
 
 @Component({
     selector: "overview",
@@ -20,10 +20,13 @@ import { ChartComponent } from "../chart/chart";
         ChartComponentsModule,
         PickdateComponentModule,
         HistoryDataErrorModule,
-        ChartComponent,
+        TimeslotChartComponent,
     ],
     providers: [
-        { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },
+        {
+            provide: LOCALE_ID,
+            useFactory: () => Language.getCurrentLanguage().key,
+        },
     ],
 })
-export class ControllerPeakShavingTimeslotOverviewComponent extends AbstractHistoryChartOverview { }
+export class ControllerPeakShavingTimeslotOverviewComponent extends AbstractHistoryChartOverview {}

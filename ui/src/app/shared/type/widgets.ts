@@ -5,11 +5,14 @@ import { SharedProduction } from "src/app/edge/live/common/production/shared/sha
 import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
+import { SharedControllerEssTimeOfUseTariff } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
+import { SharedControllerPeakShavingAsymmetric } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/shared/shared";
+import { SharedControllerPeakShavingSymmetric } from "src/app/edge/live/Controller/peak-shaving/symmetric/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/HeatingRoom/shared/shared";
 import { Edge } from "../components/edge/edge";
@@ -20,34 +23,41 @@ import { TEnumKeys } from "./utility";
 import { Widget, WidgetClass, WidgetFactory, WidgetNature } from "./widget";
 
 export class Widgets {
-
-    private static readonly GROUPED_FACTORIES: Partial<Record<Widget["name"], {
-        grouped: (translate: TranslateService, componentIds: Widget["componentId"][], config: EdgeConfig) => ConstructorParameters<typeof NavigationTree> | null;
-        single: (translate: TranslateService, componentId: Widget["componentId"], config: EdgeConfig) => ConstructorParameters<typeof NavigationTree> | null;
-    }>> = {
+    private static readonly GROUPED_FACTORIES: Partial<
+        Record<
+            Widget["name"],
+            {
+                grouped: (
+                    translate: TranslateService,
+                    componentIds: Widget["componentId"][],
+                    config: EdgeConfig,
+                ) => ConstructorParameters<typeof NavigationTree> | null;
+                single: (
+                    translate: TranslateService,
+                    componentId: Widget["componentId"],
+                    config: EdgeConfig,
+                ) => ConstructorParameters<typeof NavigationTree> | null;
+            }
+        >
+    > = {
         "Controller.IO.Heating.Room": {
             grouped: SharedControllerIoHeatingRoom.getGroupedNavigationTree,
             single: SharedControllerIoHeatingRoom.getNavigationTree,
         },
         "Controller.Io.FixDigitalOutput": {
-            grouped: SharedControllerIoFixDigitalOutput.getGroupedNavigationTree,
+            grouped:
+                SharedControllerIoFixDigitalOutput.getGroupedNavigationTree,
             single: SharedControllerIoFixDigitalOutput.getNavigationTree,
         },
     };
 
-    /**
-     * Names of Widgets.
-     */
+    /** Names of Widgets. */
     public readonly names: string[] = [];
 
     constructor(
-        /**
-         * List of all Widgets.
-         */
+        /** List of all Widgets. */
         public readonly list: Widget[] | null,
-        /**
-         * List of Widget-Classes.
-         */
+        /** List of Widget-Classes. */
         public readonly classes: TEnumKeys<typeof WidgetClass>[] | null,
     ) {
         // fill names
@@ -62,15 +72,27 @@ export class Widgets {
         }
     }
 
-    public static getCommonNavigationTree(edge: Edge, clazz: TEnumKeys<typeof WidgetClass>, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
-
+    public static getCommonNavigationTree(
+        edge: Edge,
+        clazz: TEnumKeys<typeof WidgetClass>,
+        translate: TranslateService,
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         switch (clazz) {
             case "Grid":
                 return SharedGrid.getNavigationTree(edge, config, translate);
             case "Consumption":
-                return SharedConsumption.getNavigationTree(edge, config, translate);
+                return SharedConsumption.getNavigationTree(
+                    edge,
+                    config,
+                    translate,
+                );
             case "Common_Production":
-                return SharedProduction.getNavigationTree(edge, config, translate);
+                return SharedProduction.getNavigationTree(
+                    edge,
+                    config,
+                    translate,
+                );
             case "Storage":
                 return SharedStorage.getNavigationTree(edge, translate, config);
             default:
@@ -78,7 +100,12 @@ export class Widgets {
         }
     }
 
-    public static getControllerNavigationTree(edge: Edge, widget: Widget, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    public static getControllerNavigationTree(
+        edge: Edge,
+        widget: Widget,
+        translate: TranslateService,
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const component = config.getComponentSafely(widget.componentId);
         if (component === null) {
             return null;
@@ -88,27 +115,72 @@ export class Widgets {
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.IO.HeatingElement":
-                return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
+                return SharedControllerIoHeatingElement.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Controller.Io.HeatPump.SgReady":
-                return SharedControllerIoHeatpump.getNavigationTree(translate, component);
+                return SharedControllerIoHeatpump.getNavigationTree(
+                    translate,
+                    component,
+                );
+            case "Controller.Symmetric.PeakShaving":
+                return SharedControllerPeakShavingSymmetric.getNavigationTree(
+                    translate,
+                    component,
+                );
+            case "Controller.Asymmetric.PeakShaving":
+                return SharedControllerPeakShavingAsymmetric.getNavigationTree(
+                    translate,
+                    component,
+                );
+            case "Controller.Ess.Time-Of-Use-Tariff":
+                return SharedControllerEssTimeOfUseTariff.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Heat.Askoma":
-                return SharedControllerHeat.getNavigationTree(translate, component);
+                return SharedControllerHeat.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Heat.MyPv":
-                return SharedControllerHeat.getNavigationTree(translate, component);
+                return SharedControllerHeat.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Heat.MyPv.AcThor9s":
-                return SharedControllerHeat.getNavigationTree(translate, component);
+                return SharedControllerHeat.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Scheduler.JSCalendar":
-                return SharedSchedulerJsCalendar.getNavigationTree(translate, widget.componentId);
+                return SharedSchedulerJsCalendar.getNavigationTree(
+                    translate,
+                    widget.componentId,
+                );
             case "Evse.Controller.Single":
-                return ControllerEvseSingleShared.getNavigationTree(edge, translate, widget.componentId, config);
+                return ControllerEvseSingleShared.getNavigationTree(
+                    edge,
+                    translate,
+                    widget.componentId,
+                    config,
+                );
             case "Controller.ChannelThreshold":
-                return SharedControllerChannelThreshold.getNavigationTree(translate, component);
+                return SharedControllerChannelThreshold.getNavigationTree(
+                    translate,
+                    component,
+                );
             default:
                 return null;
         }
     }
 
-    public static getGroupedControllerNavigationTree(widgetName: Widget["name"], translate: TranslateService, componentIds: Widget["componentId"][], config: EdgeConfig,
+    public static getGroupedControllerNavigationTree(
+        widgetName: Widget["name"],
+        translate: TranslateService,
+        componentIds: Widget["componentId"][],
+        config: EdgeConfig,
     ): ConstructorParameters<typeof NavigationTree> | null {
         const groupedFactory = Widgets.GROUPED_FACTORIES[widgetName];
         if (groupedFactory == null) {
@@ -119,78 +191,127 @@ export class Widgets {
     }
 
     public static parseWidgets(edge: Edge, config: EdgeConfig): Widgets {
-        const classes: TEnumKeys<typeof WidgetClass>[] = Object.keys(WidgetClass)
-            .filter((clazz) => {
-                switch (clazz) {
-                    case "Common_Autarchy":
-                    case "Grid":
-                        return config.hasMeter();
-                    case "Energymonitor":
-                    case "Consumption":
-                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    case "Storage":
-                        return config.hasStorage();
-                    case "Common_Production":
-                    case "Common_Selfconsumption":
-                        return config.hasProducer();
-                    case "Controller_ChannelThreshold":
-                        return config.getComponentIdsByFactory("Controller.ChannelThreshold")?.length > 0;
-                    case "Controller_Io_Digital_Outputs":
-                        return config.getComponentIdsByFactories("Controller.Io.FixDigitalOutput", "Controller.IO.ChannelSingleThreshold")?.length > 0;
-                    case "Controller.Api.ModbusTcp.ReadWrite":
-                        return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
-                    default:
+        const classes: TEnumKeys<typeof WidgetClass>[] = Object.keys(
+            WidgetClass,
+        ).filter((clazz) => {
+            switch (clazz) {
+                case "Common_Autarchy":
+                case "Grid":
+                    return config.hasMeter();
+                case "Energymonitor":
+                case "Consumption":
+                    if (
+                        config.hasMeter() == true ||
+                        config.hasProducer() == true ||
+                        config.hasStorage() == true
+                    ) {
+                        return true;
+                    } else {
                         return false;
-                }
-            }) as TEnumKeys<typeof WidgetClass>[];
+                    }
+                case "Storage":
+                    return config.hasStorage();
+                case "Common_Production":
+                case "Common_Selfconsumption":
+                    return config.hasProducer();
+                case "Controller_ChannelThreshold":
+                    return (
+                        config.getComponentIdsByFactory(
+                            "Controller.ChannelThreshold",
+                        )?.length > 0
+                    );
+                case "Controller_Io_Digital_Outputs":
+                    return (
+                        config.getComponentIdsByFactories(
+                            "Controller.Io.FixDigitalOutput",
+                            "Controller.IO.ChannelSingleThreshold",
+                        )?.length > 0
+                    );
+                case "Controller.Api.ModbusTcp.ReadWrite":
+                    return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+                default:
+                    return false;
+            }
+        }) as TEnumKeys<typeof WidgetClass>[];
         const list: Widget[] = [];
 
-        for (const nature of Object.values(WidgetNature).filter(v => typeof v === "string")) {
-            for (const componentId of config.getComponentIdsImplementingNature(nature.toString())) {
-                if (nature === "io.openems.edge.io.api.DigitalInput" && list.some(e => e.name === "io.openems.edge.io.api.DigitalInput")) {
+        for (const nature of Object.values(WidgetNature).filter(
+            (v) => typeof v === "string",
+        )) {
+            for (const componentId of config.getComponentIdsImplementingNature(
+                nature.toString(),
+            )) {
+                if (
+                    nature === "io.openems.edge.io.api.DigitalInput" &&
+                    list.some(
+                        (e) => e.name === "io.openems.edge.io.api.DigitalInput",
+                    )
+                ) {
                     continue;
                 }
                 const component = config.getComponent(componentId);
                 if (component.isEnabled) {
-                    list.push({ name: nature, componentId: componentId, alias: component.alias });
+                    list.push({
+                        name: nature,
+                        componentId: componentId,
+                        alias: component.alias,
+                    });
                 }
             }
         }
-        for (const factory of Object.values(WidgetFactory).filter(v => typeof v === "string")) {
-            for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
+        for (const factory of Object.values(WidgetFactory).filter(
+            (v) => typeof v === "string",
+        )) {
+            for (const componentId of config.getComponentIdsByFactory(
+                factory.toString(),
+            )) {
                 const component = config.getComponent(componentId);
                 if (factory === "Controller.Clever-PV") {
                     // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
-                    const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
+                    const readOnly = config.getPropertyFromComponent<boolean>(
+                        component,
+                        "readOnly",
+                    );
                     if (readOnly !== false) {
                         continue;
                     }
                 }
                 if (component.isEnabled) {
-                    list.push({ name: factory, componentId: componentId, alias: component.alias });
+                    list.push({
+                        name: factory,
+                        componentId: componentId,
+                        alias: component.alias,
+                    });
                 }
             }
         }
 
         // explicitely sort ChannelThresholdControllers by their outputChannelAddress
         list.sort((w1, w2) => {
-            if (w1.name === "Controller.IO.ChannelSingleThreshold" && w2.name === "Controller.IO.ChannelSingleThreshold") {
-                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)["outputChannelAddress"];
+            if (
+                w1.name === "Controller.IO.ChannelSingleThreshold" &&
+                w2.name === "Controller.IO.ChannelSingleThreshold"
+            ) {
+                let outputChannelAddress1: string | string[] =
+                    config.getComponentProperties(w1.componentId)[
+                        "outputChannelAddress"
+                    ];
                 if (typeof outputChannelAddress1 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress1 = outputChannelAddress1[0];
                 }
-                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)["outputChannelAddress"];
+                let outputChannelAddress2: string | string[] =
+                    config.getComponentProperties(w2.componentId)[
+                        "outputChannelAddress"
+                    ];
                 if (typeof outputChannelAddress2 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress2 = outputChannelAddress2[0];
                 }
                 if (outputChannelAddress1 && outputChannelAddress2) {
-                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
+                    return outputChannelAddress1.localeCompare(
+                        outputChannelAddress2,
+                    );
                 }
             }
 
@@ -199,29 +320,44 @@ export class Widgets {
         return new Widgets(list, classes);
     }
 
-    public static getControllerNavigationTrees(edge: Edge, translate: TranslateService, config: EdgeConfig): ConstructorParameters<typeof NavigationTree>[] {
+    public static getControllerNavigationTrees(
+        edge: Edge,
+        translate: TranslateService,
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree>[] {
         const widgets = Widgets.parseWidgets(edge, config).list ?? [];
-        const navigationTrees: ConstructorParameters<typeof NavigationTree>[] = [];
-        const groupedComponentIdsByWidgetName: Partial<Record<Widget["name"], Widget["componentId"][]>> = {};
+        const navigationTrees: ConstructorParameters<typeof NavigationTree>[] =
+            [];
+        const groupedComponentIdsByWidgetName: Partial<
+            Record<Widget["name"], Widget["componentId"][]>
+        > = {};
 
         for (const widget of widgets) {
             const groupedFactory = Widgets.GROUPED_FACTORIES[widget.name];
             if (groupedFactory != null) {
                 groupedComponentIdsByWidgetName[widget.name] ??= [];
-                const groupedComponentIds = groupedComponentIdsByWidgetName[widget.name];
+                const groupedComponentIds =
+                    groupedComponentIdsByWidgetName[widget.name];
                 if (groupedComponentIds != null) {
                     groupedComponentIds.push(widget.componentId);
                 }
                 continue;
             }
 
-            const navigationTree = Widgets.getControllerNavigationTree(edge, widget, translate, config);
+            const navigationTree = Widgets.getControllerNavigationTree(
+                edge,
+                widget,
+                translate,
+                config,
+            );
             if (navigationTree != null) {
                 navigationTrees.push(navigationTree);
             }
         }
 
-        for (const [groupedWidgetName, componentIds] of Object.entries(groupedComponentIdsByWidgetName) as [Widget["name"], Widget["componentId"][]][]) {
+        for (const [groupedWidgetName, componentIds] of Object.entries(
+            groupedComponentIdsByWidgetName,
+        ) as [Widget["name"], Widget["componentId"][]][]) {
             const groupedFactory = Widgets.GROUPED_FACTORIES[groupedWidgetName];
             if (groupedFactory == null) {
                 continue;
@@ -229,7 +365,11 @@ export class Widgets {
 
             if (componentIds.length < 2) {
                 for (const componentId of componentIds) {
-                    const singleNavigationTree = groupedFactory.single(translate, componentId, config);
+                    const singleNavigationTree = groupedFactory.single(
+                        translate,
+                        componentId,
+                        config,
+                    );
                     if (singleNavigationTree != null) {
                         navigationTrees.push(singleNavigationTree);
                     }
@@ -237,7 +377,11 @@ export class Widgets {
                 continue;
             }
 
-            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config);
+            const groupedNavigationTree = groupedFactory.grouped(
+                translate,
+                componentIds,
+                config,
+            );
             if (groupedNavigationTree != null) {
                 navigationTrees.push(groupedNavigationTree);
             }

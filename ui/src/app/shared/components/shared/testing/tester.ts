@@ -206,6 +206,20 @@ export class OeFormlyViewTester {
                     properties: properties,
                 };
             }
+
+            case "input-line": {
+                const expectedValue = fg
+                    ? FormUtils.findFormControlsValueSafely<string>(fg, field.controlName) ?? null
+                    : null;
+
+                return {
+                    type: "input-line",
+                    name: field.name,
+                    controlName: field.controlName,
+                    properties: field.properties,
+                    expectedValue: expectedValue,
+                };
+            }
         }
     }
 
@@ -403,6 +417,7 @@ export namespace OeFormlyViewTester {
         | Field.RangeButtonFromFormControlLine
         | Field.RadioButtonsFromFormControlLine
         | Field.ImageLine
+        | Field.InputLine
         ;
 
     export namespace Field {
@@ -464,6 +479,15 @@ export namespace OeFormlyViewTester {
         export type ImageLine = {
             type: "image-line",
             img: OeImageComponent["img"],
+        };
+        export type InputLine = {
+            type: "input-line",
+            name: string,
+            controlName: string,
+            properties: {
+                unit: string;
+            },
+            expectedValue?: number | string | null,
         };
     }
 

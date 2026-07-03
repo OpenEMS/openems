@@ -659,6 +659,13 @@ export const SVG_LINE = (img: OeImageComponent["img"]): OeFormlyViewTester.Field
     type: "image-line",
     img: img,
 });
+export const LINE_INPUT_FROM_FORM_CONTROL = (text: string, controlName: string, unit: string = "W", expectedValue: number | string | null = null,): OeFormlyViewTester.Field => ({
+    type: "input-line",
+    name: text,
+    controlName,
+    properties: { unit },
+    expectedValue,
+});
 
 export namespace ChartConfig {
 

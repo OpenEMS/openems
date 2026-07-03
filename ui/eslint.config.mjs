@@ -18,10 +18,12 @@ const compat = new FlatCompat({
     allConfig: js.configs.all,
 });
 
-const recommendedHTMLChecks = compat.extends("plugin:@angular-eslint/template/recommended").map((config) => ({
-    ...config,
-    files: ["**/*.html"],
-}));
+const recommendedHTMLChecks = compat
+    .extends("plugin:@angular-eslint/template/recommended")
+    .map((config) => ({
+        ...config,
+        files: ["**/*.html"],
+    }));
 
 const allTsFiles = {
     files: ["**/*.ts"],
@@ -57,7 +59,14 @@ const allTsFiles = {
         "import/order": [
             "error",
             {
-                groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
+                groups: [
+                    "builtin",
+                    "external",
+                    "internal",
+                    "parent",
+                    "sibling",
+                    "index",
+                ],
                 alphabetize: {
                     order: "asc",
                     caseInsensitive: true,
@@ -89,7 +98,6 @@ const allTsFiles = {
         ],
         "@stylistic/semi": "error",
         "@stylistic/quote-props": ["warn", "consistent"],
-        "@stylistic/comma-dangle": ["error", "always-multiline"],
         "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
         "@stylistic/indent": ["error", 4],
@@ -107,7 +115,10 @@ const allTsFiles = {
         "@typescript-eslint/member-ordering": "error",
         "@typescript-eslint/no-unused-expressions": "off",
         "@typescript-eslint/no-empty-object-type": "off",
-        "@stylistic/no-multiple-empty-lines": ["error", { max: 2, maxEOF: 1, maxBOF: 0 }],
+        "@stylistic/no-multiple-empty-lines": [
+            "error",
+            { max: 2, maxEOF: 1, maxBOF: 0 },
+        ],
         "@stylistic/quotes": [
             "error",
             "double",
@@ -167,10 +178,18 @@ export default [
     {
         ignores: ["projects/**/*"],
     },
-    ...compat.extends("eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:@angular-eslint/recommended", "plugin:@angular-eslint/template/process-inline-templates", "plugin:import/recommended").map((config) => ({
-        ...config,
-        files: ["**/*.ts"],
-    })),
+    ...compat
+        .extends(
+            "eslint:recommended",
+            "plugin:@typescript-eslint/recommended",
+            "plugin:@angular-eslint/recommended",
+            "plugin:@angular-eslint/template/process-inline-templates",
+            "plugin:import/recommended",
+        )
+        .map((config) => ({
+            ...config,
+            files: ["**/*.ts"],
+        })),
     allTsFiles,
     tsFileWithSpecificEndings,
     ...recommendedHTMLChecks,

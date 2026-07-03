@@ -1,20 +1,17 @@
-/**
- * Helper functions for interacting with numbers.
- */
+/** Helper functions for interacting with numbers. */
 export namespace NumberUtils {
-
     /**
-   * Parses a string value to a number.
-   *
-   * @param value the value
-   * @returns the casted value if parsable, else null
-   */
+     * Parses a string value to a number.
+     *
+     * @param value The value
+     * @returns The casted value if parsable, else null
+     */
     export function parseNumberSafely(value: string | null): number | null {
         if (value == null || value == "") {
             return null;
         }
         const castedValue = Number.parseInt(value);
-        if (castedValue == null || (Number.isFinite(castedValue) == false)) {
+        if (castedValue == null || Number.isFinite(castedValue) == false) {
             return null;
         }
 
@@ -22,13 +19,16 @@ export namespace NumberUtils {
     }
 
     /**
-   * Parses a string value to a number.
-   *
-   * @param value the value
-   * @param orElse the orElse if value is not parsable
-   * @returns the casted value if parsable, else null
-   */
-    export function parseNumberSafelyOrElse(value: string | null, orElse: number): number {
+     * Parses a string value to a number.
+     *
+     * @param value The value
+     * @param orElse The orElse if value is not parsable
+     * @returns The casted value if parsable, else null
+     */
+    export function parseNumberSafelyOrElse(
+        value: string | null,
+        orElse: number,
+    ): number {
         if (value == null) {
             return orElse;
         }
@@ -45,12 +45,14 @@ export namespace NumberUtils {
     /**
      * Subtracts values from each other - possibly null values
      *
-     * @param values the values
-     * @returns a number, if at least one value is not null, else null
+     * @param values The values
+     * @returns A number, if at least one value is not null, else null
      */
-    export function subtractSafely(...values: (number | null)[]): number | null {
+    export function subtractSafely(
+        ...values: (number | null)[]
+    ): number | null {
         return values
-            .filter(value => value !== null && value !== undefined)
+            .filter((value) => value !== null && value !== undefined)
             .reduce((sum: number | null, curr) => {
                 if (sum == null) {
                     sum = curr;
@@ -65,11 +67,15 @@ export namespace NumberUtils {
     /**
      * Dividing values from each other - possibly null values
      *
-     * @param dividend the dividend value
-     * @param divisor the divisor value
-     * @returns the quotient, if both values are not null and divisor is not zero, else null
+     * @param dividend The dividend value
+     * @param divisor The divisor value
+     * @returns The quotient, if both values are not null and divisor is not
+     *   zero, else null
      */
-    export function divideSafely(dividend: number | null, divisor: number | null): number | null {
+    export function divideSafely(
+        dividend: number | null,
+        divisor: number | null,
+    ): number | null {
         if (dividend == null || divisor == null) {
             return null;
         } else if (divisor == 0) {
@@ -82,12 +88,12 @@ export namespace NumberUtils {
     /**
      * Adds values to each other - possibly null values
      *
-     * @param values the values
-     * @returns a number, if at least one value is not null, else null
+     * @param values The values
+     * @returns A number, if at least one value is not null, else null
      */
     export function addSafely(...values: (number | null)[]): number | null {
         return values
-            .filter(value => value !== null && value !== undefined)
+            .filter((value) => value !== null && value !== undefined)
             .reduce((sum: number | null, curr) => {
                 if (sum == null) {
                     sum = curr;
@@ -95,17 +101,21 @@ export namespace NumberUtils {
                     sum += curr;
                 }
 
-                return sum;
-            }, null);
+                const safeValues = values.filter((v) => v != null);
+
+                return safeValues.reduce((acc, curr) => acc * curr, 1);
+            });
     }
 
     /**
-   * Multiplying values with each other - possibly null values
-   *
-   * @param values the values
-   * @returns a number, if at least one value is not null, else null
-   */
-    export function multiplySafely(...values: (number | null)[]): number | null {
+     * Multiplying values with each other - possibly null values
+     *
+     * @param values The values
+     * @returns A number, if at least one value is not null, else null
+     */
+    export function multiplySafely(
+        ...values: (number | null)[]
+    ): number | null {
         const [firstFactor, ...furtherFactors] = values;
         if (firstFactor == null) {
             return null;
@@ -124,8 +134,9 @@ export namespace NumberUtils {
     /**
      * Ceils a value safely.
      *
-     * @param value the value
-     * @returns the smallest integer greater than or equal to its numeric argument, if valid, else null
+     * @param value The value
+     * @returns The smallest integer greater than or equal to its numeric
+     *   argument, if valid, else null
      */
     export function ceilSafely(value: number | null): number | null {
         if (value === null) {
@@ -137,8 +148,9 @@ export namespace NumberUtils {
     /**
      * Floors a value safely.
      *
-     * @param value the value
-     * @returns the greatest integer less than or equal to its numeric argument, if valid, else null
+     * @param value The value
+     * @returns The greatest integer less than or equal to its numeric argument,
+     *   if valid, else null
      */
     export function floorSafely(value: number | null): number | null {
         if (value === null) {
@@ -148,13 +160,16 @@ export namespace NumberUtils {
     }
 
     /**
- * Converts the number to have a max value
- *
- * @param value the value
- * @param atMost the max number to be allowed
- * @returns the value
- */
-    export function convertNumberToBeAtMost(value: number | null, atMost: number): number | null {
+     * Converts the number to have a max value
+     *
+     * @param value The value
+     * @param atMost The max number to be allowed
+     * @returns The value
+     */
+    export function convertNumberToBeAtMost(
+        value: number | null,
+        atMost: number,
+    ): number | null {
         if (value == null) {
             return value;
         }

@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { IonRange } from "@ionic/angular";
+import { IonInput, IonRange } from "@ionic/angular";
 import { Converter } from "../../shared/converter";
 import { AbstractModalLine } from "../abstract-modal-line";
 import { ButtonLabel } from "../modal-button/modal-button";
@@ -20,7 +20,7 @@ export class ModalLineComponent extends AbstractModalLine {
     /** ControlName for interactive Button */
     @Input({ required: true }) protected control!:
         { type: "TOGGLE" } |
-        { type: "INPUT", properties?: { unit: "W" } } |
+        { type: "INPUT", properties?: { unit: "W", type: IonInput["type"] } } |
         /* the available select options*/
         { type: "SELECT", options: { value: string, name: string }[] } |
         /* the properties for range slider*/
