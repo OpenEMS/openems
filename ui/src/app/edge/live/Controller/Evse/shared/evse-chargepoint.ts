@@ -100,6 +100,6 @@ export class Mennekes extends EvseChargepoint {
     };
 
     public override hasPhaseSwitchingAbility(): boolean {
-        return false;
+        return true;
     }
 }
