@@ -99,15 +99,6 @@ public class AppTariffManualEeg2025GridSell
 	}
 
 	@Override
-	public OpenemsAppPermissions getAppPermissions() {
-		return OpenemsAppPermissions.create()//
-				.setCanSee(Role.ADMIN)//
-				.setCanDelete(Role.ADMIN)//
-				.setCanInstall(Role.ADMIN)//
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TARIFF_GRID_SELL };
 	}
