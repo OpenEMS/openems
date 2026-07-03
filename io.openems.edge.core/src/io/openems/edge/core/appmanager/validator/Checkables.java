@@ -102,6 +102,16 @@ public final class Checkables {
 	}
 
 	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is a
+	 * Commercial 100.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCommercial100() {
+		return empty(CheckCommercial100.COMPONENT_NAME);
+	}
+
+	/**
 	 * Creates a {@link CheckableConfig} which checks if at least one of the checks
 	 * is successful.
 	 *

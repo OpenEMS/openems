@@ -171,7 +171,7 @@ public class Ews extends AbstractOpenemsAppWithProps<Ews, Property, Type.Paramet
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkOr(checkHome(), checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override
