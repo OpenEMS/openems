@@ -117,7 +117,7 @@ export namespace SharedControllerBraiins {
         return createComponentNavigationTree(
             componentId,
             translate.instant("MENU.GROUPS.BRAIINS"),
-            "braiins/" + componentId,
+            "controller/braiins/" + componentId,
             translate,
         ).toConstructorParams();
     }
