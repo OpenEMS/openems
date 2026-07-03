@@ -212,7 +212,6 @@ export namespace SharedControllerIoHeatpump {
 
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree(component.id, { baseString: "controller/heatpump/" + component.id }, { name: "oe-heatpump", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
-            new NavigationTree("forecast", { baseString: "forecast" }, { name: "analytics" }, translate.instant("GENERAL.FORECAST"), "label", [], null),
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
             NavigationConstants.CommonNodes.SETTINGS(translate),
             NavigationConstants.CommonNodes.INFO(translate, { source: component.id }),
