@@ -12,8 +12,10 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -1050,11 +1052,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Build the serial number with prefix.
 	 *
-	 * @param prefix the serial number prefix
-	 * @param value  the serial number
+	 * @param hardwareTypePrefix the serial number prefix
+	 * @param value              the serial number
 	 * @return The serial number
 	 */
-	protected static String buildSerialNumber(String prefix, Integer value) {
+	protected static String buildSerialNumber(Function<LocalDate, String> hardwareTypePrefix, Integer value) {
 		if (value == null || value == 0) {
 			// Old BMS firmware versions do not provide serial number
 			return null;
@@ -1065,8 +1067,10 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		var day = extractNumber(value, 5, 17);
 		var number = extractNumber(value, 16, 1);
 
+		final var date = LocalDate.of(year + 2000, month, day);
+
 		var serialNumber = new StringBuilder();
-		serialNumber.append(prefix);
+		serialNumber.append(hardwareTypePrefix.apply(date));
 		serialNumber.append(year < 10 ? "0" + year : year);
 		serialNumber.append(month < 10 ? "0" + month : month);
 		serialNumber.append(day < 10 ? "0" + day : day);
