@@ -87,7 +87,10 @@ export interface Environment {
         readonly HEAT: {
             readonly "ASKOMA": {
                 readonly HEATING_ELEMENT: string | null,
-            }
+            },
+            readonly "MYPV": {
+                readonly HEATING_ELEMENT: string | null,
+            },
         }
     },
     readonly links: {

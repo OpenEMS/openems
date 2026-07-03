@@ -31,15 +31,16 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
 
     private readonly routeService: RouteService = inject(RouteService);
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge, isMyPv: boolean, isAskoma: boolean): OeFormlyView {
+    public static generateView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge, isMyPV: boolean, isAskoma: boolean, isReadOnly: boolean): OeFormlyView {
         return {
             title: component.alias,
             icon: { name: "flame", color: "normal", size: "normal" },
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
             lines: [
                 ...(isAskoma ? SharedControllerHeat.getAskomaIcon() : []),
-                ...(isAskoma ? SharedControllerHeat.getFormlySharedLines(translate, component, isAskoma) : []),
-                ...(isMyPv ? SharedControllerHeat.getMyPVInfoLine(translate) : []),
+                ...(isMyPV ? SharedControllerHeat.getMyPvIcon() : []),
+                ...SharedControllerHeat.getFormlySharedLines(translate, component, isAskoma),
+                ...(isMyPV && isReadOnly ? SharedControllerHeat.getMyPVInfoLine(translate) : []),
             ],
             component: component,
             edge: edge,
@@ -55,10 +56,12 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(component);
 
         // Check for specific factoryId
-        const isMyPV = component.factoryId === "Heat.MyPv.AcThor9s";
+        const isMyPV =
+            component.factoryId === "Heat.MyPv.AcThor9s" ||
+          component.factoryId === "Heat.MyPv";
         const isAskoma = component.factoryId === "Heat.Askoma";
-
-        return ControllerHeatHomeComponent.generateView(this.translate, component, edge, isMyPV, isAskoma);
+        const isReadOnly = component.properties?.readOnly === true;
+        return ControllerHeatHomeComponent.generateView(this.translate, component, edge, isMyPV, isAskoma, isReadOnly);
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {

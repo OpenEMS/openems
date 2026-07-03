@@ -48,6 +48,7 @@ export enum WidgetFactory {
     "Evcs.Cluster.PeakShaving",
     "Evcs.Cluster.SelfConsumption",
     "Heat.Askoma",
+    "Heat.MyPv",
     "Heat.MyPv.AcThor9s",
     "Weather.OpenMeteo",
     "Scheduler.JSCalendar",

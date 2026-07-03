@@ -66,6 +66,9 @@ export const OemMeta: BaseMeta = {
             ASKOMA: {
                 HEATING_ELEMENT: null,
             },
+            MYPV: {
+                HEATING_ELEMENT: null,
+            },
         },
     },
     links: {

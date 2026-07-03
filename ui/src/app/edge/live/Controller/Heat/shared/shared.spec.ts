@@ -44,12 +44,12 @@ describe("SharedControllerHeat", () => {
         expect(navigationTree.children.map(child => child.id)).toEqual(["history"]);
     });
 
-    it("#getNavigationTree() does not include settings or schedule for non-Askoma Heat", () => {
-        const component = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv.AcThor9s", {});
+    it("#getNavigationTree() includes settings and schedule for MyPV Heat", () => {
+        const component = new EdgeConfig.Component("heat1", "Heat", true, false, "Heat.MyPv", {});
 
         const navigationTree = getNavigationTree(component);
-
-        expect(navigationTree.children.map(child => child.id)).toEqual(["history"]);
+        expect(navigationTree.children.length).toEqual(3);
+        expect(navigationTree.children.map(child => child.id)).toEqual(["history", "schedule", "settings"]);
     });
 
     function getNavigationTree(component: EdgeConfig.Component): NavigationTree {

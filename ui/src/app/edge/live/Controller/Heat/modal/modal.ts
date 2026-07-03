@@ -46,17 +46,20 @@ export class ControllerHeatModalComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<Mode>(
+        const readOnly = this.isReadOnly();
+        const channelAddress =
+            !readOnly && this.component != null
+                ? new ChannelAddress(this.component.id, "_PropertyMode")
+                : null;
+        this.setFormControlSafelyWithChannel<PropertyMode>(
             this.form,
             ControllerHeatModalComponent.formControlName,
             currentData,
-            this.isReadOnly() || this.component == null
-                ? null
-                : new ChannelAddress(this.component.id, "_PropertyMode"),
+            channelAddress,
         );
     }
 
     private isReadOnly(): boolean {
-        return this.component?.factoryId !== "Heat.Askoma" || this.component.properties?.readOnly === true;
+        return this.component == null || this.component?.properties?.readOnly === true;
     }
 }

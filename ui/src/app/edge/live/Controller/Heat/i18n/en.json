@@ -15,7 +15,7 @@
       "NO_SETTINGS_AVAILABLE": "No settings available.",
       "MODE": {
         "FAST_HEAT": {
-          "TITLE": "Quick heating",
+          "TITLE": "Fast heat",
           "DESCRIPTION": "The Askoma heating rod automatically selects the equivalent heating level.\nThe maximum power duration is 10 hours.\nAfter that, it makes 1h pause."
         },
         "SURPLUS": {

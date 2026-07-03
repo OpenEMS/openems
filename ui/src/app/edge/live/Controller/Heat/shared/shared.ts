@@ -17,7 +17,9 @@ export namespace SharedControllerHeat {
         AssertionUtils.assertIsDefined(edge);
 
         const isAskoma = component.factoryId === "Heat.Askoma";
-        const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s";
+        const isMyPv =
+            component.factoryId === "Heat.MyPv.AcThor9s" ||
+          component.factoryId === "Heat.MyPv";
 
         return {
             title: Name.METER_ALIAS_OR_ID(component),
@@ -27,6 +29,7 @@ export namespace SharedControllerHeat {
                 ...getFormlySharedLines(translate, component, isAskoma),
                 ...(isMyPv ? getMyPVInfoLine(translate) : []),
                 ...(isAskoma ? getAskomaIcon() : []),
+                ...(isMyPv ? getMyPvIcon() : []),
             ],
             component,
             edge,
@@ -49,12 +52,13 @@ export namespace SharedControllerHeat {
         channel: component.id + "/Temperature",
         converter: Converter.DEZIDEGREE_CELSIUS_TO_DEGREE_CELSIUS,
     },
-    ...(isAskoma ? [{
+    {
         type: "channel-line" as const,
         name: translate.instant("HEAT.HOME.CHOSEN_MODE"),
-        channel: component.id + "/_PropertyMode",
-        converter: (value: number | null) => convertAskomaMode(translate, value),
-    }] : [])]);
+        channel: component.id + "/Mode",
+        converter: (value: number | null) => CONVERT_CHANNEL_MODE_TO_LABEL(translate)(value),
+        filter: (value: number | null) => value != null,
+    }]);
 
     export const getMyPVInfoLine = (translate: TranslateService): OeFormlyView["lines"] => ([{
         type: "info-line",
@@ -76,13 +80,27 @@ export namespace SharedControllerHeat {
             },
         }]);
 
-    export const getFormlySettingsLines = (translate: TranslateService, isAskoma: boolean): OeFormlyView["lines"] => isAskoma ? [
+    export const getMyPvIcon = (): OeFormlyView["lines"] => ([
+        {
+            type: "image-line",
+            img: {
+                url: environment.images.HEAT.MYPV.HEATING_ELEMENT,
+                width: 50,
+                style: {
+                    maxWidth: "30rem",
+                    justifySelf: "center",
+                    paddingBottom: "var(--ion-padding)",
+                },
+            },
+        }]);
+
+    export const getFormlySettingsLines = (translate: TranslateService): OeFormlyView["lines"] => [
         {
             type: "radio-buttons-from-form-control-line",
             name: "select-mode",
             controlName: "mode",
             buttons: getHeatModeButtons(translate),
-        }] : [];
+        }];
 
     export const getHeatModeButtons = (translate: TranslateService): ButtonLabel[] => [
         {
@@ -114,7 +132,8 @@ export namespace SharedControllerHeat {
             new ChannelAddress(component.id, "Status"),
             new ChannelAddress(component.id, "ActivePower"),
             new ChannelAddress(component.id, "Temperature"),
-            ...(component.factoryId === "Heat.Askoma" ? [new ChannelAddress(component.id, "_PropertyMode")] : []),
+            new ChannelAddress(component.id, "Mode"),
+            new ChannelAddress(component.id, "_PropertyMode"),
         ];
     }
 
@@ -131,8 +150,7 @@ export namespace SharedControllerHeat {
     }
 
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
-        const isAskoma = component.factoryId === "Heat.Askoma";
-        const isAskomaWritable = isAskoma && component.properties?.readOnly !== true;
+        const isWritable = component.properties?.readOnly !== true;
 
         const children = [
             new NavigationTree("history", {baseString: "history"}, {
@@ -141,7 +159,7 @@ export namespace SharedControllerHeat {
             }, translate.instant("GENERAL.HISTORY"), "label", [], null),
         ];
 
-        if (isAskomaWritable) {
+        if (isWritable) {
             children.push(
                 new NavigationTree("schedule", {baseString: "schedule"}, {
                     name: "calendar-outline",

@@ -486,10 +486,12 @@ export namespace Converter {
         return (value: any): string => {
             switch (value) {
                 case 0:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING");
+                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
                 case 1:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.TARGET_TEMPERATURE_REACHED");
+                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING");
                 case 2:
+                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.TARGET_TEMPERATURE_REACHED");
+                case 3:
                     return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
                 case -1:
                 default:
