@@ -25,14 +25,21 @@ import { ChartConstants } from "src/app/shared/shared";
     ],
 })
 export class GridBuyPriceChartComponent extends ScheduleChartComponent {
-
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.summarizeDataForChannel("GridBuyPrice");
 
-        return [{
-            color: ChartConstants.Colors.BLACK, data: data.history, stepped: true,
-        }, {
-            color: ChartConstants.Colors.GREY, data: data.prediction, stepped: true,
-        }];
+        return [
+            {
+                color: ChartConstants.Colors.BLACK,
+                data: data.history,
+                stepped: true,
+            },
+            {
+                color: ChartConstants.Colors.GREY,
+                data: data.prediction,
+                stepped: true,
+                transparentBackground: true,
+            },
+        ];
     }
 }

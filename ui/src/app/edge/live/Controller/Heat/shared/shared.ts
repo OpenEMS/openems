@@ -194,6 +194,21 @@ export const CONVERT_TO_MODE_LABEL = (translate: TranslateService) => {
     };
 };
 
+export const CONVERT_CHANNEL_MODE_TO_LABEL = (translate: TranslateService) => {
+    return (value: number | null): string => {
+        switch (value) {
+            case ChannelMode.FAST_HEAT:
+                return translate.instant("HEAT.SETTINGS.MODE.FAST_HEAT.TITLE");
+            case ChannelMode.SURPLUS:
+                return translate.instant("HEAT.SETTINGS.MODE.SURPLUS.TITLE");
+            case ChannelMode.OFF:
+                return translate.instant("HEAT.SETTINGS.MODE.OFF.TITLE");
+            default:
+                return Converter.HIDE_VALUE(value);
+        }
+    };
+};
+
 export enum ChannelMode {
     UNDEFINED = -1, //
     OFF = 1, //

@@ -25,14 +25,20 @@ import { ChartConstants } from "src/app/shared/shared";
     ],
 })
 export class ProductionChartComponent extends ScheduleChartComponent {
-
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.summarizeDataForChannel("ProductionActivePower");
 
-        return [{
-            color: ChartConstants.Colors.BLUE, data: data.history,
-        }, {
-            color: ChartConstants.Colors.BLUE, data: data.prediction, borderDash: [5, 5],
-        }];
+        return [
+            {
+                color: ChartConstants.Colors.BLUE,
+                data: data.history,
+            },
+            {
+                color: ChartConstants.Colors.BLUE,
+                data: data.prediction,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+        ];
     }
 }

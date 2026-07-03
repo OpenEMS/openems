@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -33,12 +33,16 @@ import { ChartComponentsModule } from "../chart.module";
         CommonModule,
     ],
 })
-export abstract class ScheduleChartComponent extends AbstractHistoryChart implements OnChanges {
+export abstract class ScheduleChartComponent
+    extends AbstractHistoryChart
+    implements OnChanges
+{
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public data!: GetSchedule.Response;
     @Input({ required: true }) public override edge!: Edge;
 
-    protected numberFormat: ChartData["tooltip"]["formatNumber"] = ChartConstants.NumberFormat.NO_DECIMALS;
+    protected numberFormat: ChartData["tooltip"]["formatNumber"] =
+        ChartConstants.NumberFormat.NO_DECIMALS;
 
     private readonly platFormService = inject(PlatFormService);
     private readonly hostEl = inject(ElementRef<HTMLElement>);
@@ -105,20 +109,25 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
 
     protected fillDatasets(): ChartDataset[] {
         const buildConf = this.buildDatasets();
-        const baseDataset = (d: ScheduleChartComponent.Dataset): ChartDataset => ({
+        const baseDataset = (
+            d: ScheduleChartComponent.Dataset,
+        ): ChartDataset => ({
             type: "line",
             label: "",
             data: d.data,
             hidden: false,
             order: 1,
             yAxisID: ChartAxis.LEFT,
-            backgroundColor: ColorUtils.rgbStringToRgba(d.color, 0.2),
+            backgroundColor: ColorUtils.rgbStringToRgba(
+                d.color,
+                d.transparentBackground ? 0.05 : 0.2,
+            ),
             borderColor: d.color,
             borderDash: d.borderDash,
             stepped: d.stepped,
         });
 
-        return buildConf.map(el => baseDataset(el));
+        return buildConf.map((el) => baseDataset(el));
     }
 
     protected buildDatasets(): ScheduleChartComponent.Dataset[] {
@@ -128,8 +137,11 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
     protected override getChartHeight(): number | null {
         const device = this.platFormService.getDevice();
         const isSmartPhone = device.isSmartphone();
-        const container = this.hostEl.nativeElement.closest("#formlyContainerWidth") as HTMLElement | null;
-        const width = container?.getBoundingClientRect().width ?? window.innerWidth;
+        const container = this.hostEl.nativeElement.closest(
+            "#formlyContainerWidth",
+        ) as HTMLElement | null;
+        const width =
+            container?.getBoundingClientRect().width ?? window.innerWidth;
 
         if (isSmartPhone) {
             return NumberUtils.divideSafely(width, 2);
@@ -139,23 +151,33 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
 }
 
 export namespace ScheduleChartComponent {
-
     export type Dataset = {
         color: string;
         data: (number | null)[];
         borderDash?: [number, number] | [];
         stepped?: LineControllerDatasetOptions["stepped"] | false;
+        transparentBackground?: boolean;
     };
 
-    export function normalizeLines(data: (number | null)[]): { positive: (number | null)[], negative: (number | null)[] } {
-        const positive = data.map(el => el != null && el <= 0 ? Math.abs(el) : null);
-        const negative = data.map(el => el != null && el >= 0 ? el : null);
+    export function normalizeLines(data: (number | null)[]): {
+        positive: (number | null)[];
+        negative: (number | null)[];
+    } {
+        const positive = data.map((el) =>
+            el != null && el <= 0 ? Math.abs(el) : null,
+        );
+        const negative = data.map((el) => (el != null && el >= 0 ? el : null));
 
         for (let i = 0; i < positive.length; i++) {
-            /** When power is 'zero', decide which chart line (charge or discharge) should be visible */
-            if (positive[i] == 0 && negative[i] == 0) { // Find 'zero' power values
-                if (i === 0 // Fallback for first value -> prefer charge
-                    || positive[i - 1] != null // keep charge line visible
+            /**
+             * When power is 'zero', decide which chart line (charge or
+             * discharge) should be visible
+             */
+            if (positive[i] == 0 && negative[i] == 0) {
+                // Find 'zero' power values
+                if (
+                    i === 0 || // Fallback for first value -> prefer charge
+                    positive[i - 1] != null // keep charge line visible
                 ) {
                     negative[i] = null;
                 } else {
@@ -164,7 +186,8 @@ export namespace ScheduleChartComponent {
             }
 
             /** Fill gaps when switching between charge and discharge lines */
-            if (i > 0) { // Avoid index out of bounds
+            if (i > 0) {
+                // Avoid index out of bounds
                 if (positive[i - 1] != null && negative[i] != null) {
                     negative[i - 1] = 0;
                 } else if (negative[i - 1] != null && positive[i] != null) {

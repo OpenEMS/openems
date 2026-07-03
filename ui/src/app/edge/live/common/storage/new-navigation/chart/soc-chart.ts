@@ -25,14 +25,20 @@ import { ChartConstants } from "src/app/shared/shared";
     ],
 })
 export class SocChartComponent extends ScheduleChartComponent {
-
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.summarizeDataForChannel("EssSoc");
 
-        return [{
-            color: ChartConstants.Colors.GREY, data: data.history,
-        }, {
-            color: ChartConstants.Colors.GREY, data: data.prediction, borderDash: [5, 5],
-        }];
+        return [
+            {
+                color: ChartConstants.Colors.GREY,
+                data: data.history,
+            },
+            {
+                color: ChartConstants.Colors.GREY,
+                data: data.prediction,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+        ];
     }
 }

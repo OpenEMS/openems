@@ -25,20 +25,34 @@ import { ChartConstants } from "src/app/shared/shared";
     ],
 })
 export class ChargeDischargeChartComponent extends ScheduleChartComponent {
-
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data?.summarizeDataForChannel("EssDischargePower");
         const history = ScheduleChartComponent.normalizeLines(data.history);
-        const prediction = ScheduleChartComponent.normalizeLines(data.prediction);
+        const prediction = ScheduleChartComponent.normalizeLines(
+            data.prediction,
+        );
 
-        return [{
-            color: ChartConstants.Colors.RED, data: history.negative,
-        }, {
-            color: ChartConstants.Colors.GREEN, data: history.positive,
-        }, {
-            color: ChartConstants.Colors.RED, data: prediction.negative, borderDash: [5, 5],
-        }, {
-            color: ChartConstants.Colors.GREEN, data: prediction.positive, borderDash: [5, 5],
-        }];
+        return [
+            {
+                color: ChartConstants.Colors.RED,
+                data: history.negative,
+            },
+            {
+                color: ChartConstants.Colors.GREEN,
+                data: history.positive,
+            },
+            {
+                color: ChartConstants.Colors.RED,
+                data: prediction.negative,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+            {
+                color: ChartConstants.Colors.GREEN,
+                data: prediction.positive,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+        ];
     }
 }

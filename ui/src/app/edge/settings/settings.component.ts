@@ -34,8 +34,8 @@ export class SettingsComponent implements OnInit {
 
     constructor(
         protected utils: Utils,
+        private service: Service,
         private translate: TranslateService,
-        private readonly service: Service,
         private readonly userService: UserService,
     ) {}
 

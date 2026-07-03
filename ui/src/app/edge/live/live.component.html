@@ -7,15 +7,19 @@
       <ion-grid *ngIf="edge.isOnline" class="ion-no-padding ion-full-height">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
           <ion-row class="ion-justify-content-center ion-padding-top ion-full-height">
+            <ion-col size-xl="2" size-lg="1" class="ion-hide-xl-down">
+              <mini-weather componentId="weather0"></mini-weather>
+            </ion-col>
             <!--
             On extra-large (xl): 2 - [5] - 1 - [4]
             On large (lg): 1 - [6] - [5]
             On medium (md): [7] - [5]
             On small and below: [12] / [12]
             -->
-            <ion-col size-xl="5" offset-xl="2" size-lg="6" offset-lg="1" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom">
+            <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom">
               <energymonitor tabindex="0"></energymonitor>
             </ion-col>
+
             <ion-col size-xl="4" offset-xl="1" size-md="5" size="12" class="ion-align-self-end ion-no-padding">
               <oe-fena></oe-fena>
             </ion-col>
@@ -168,15 +172,15 @@
                     </ion-col>
 
                     <ion-col *ngSwitchCase="'Controller.Symmetric.PeakShaving'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                      <Controller_Symmetric_PeakShaving [componentId]="widget.componentId"></Controller_Symmetric_PeakShaving>
+                      <Controller_Symmetric_PeakShaving [componentId]="widget.componentId"> </Controller_Symmetric_PeakShaving>
                     </ion-col>
 
                     <ion-col *ngSwitchCase="'Controller.Asymmetric.PeakShaving'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                      <Controller_Asymmetric_PeakShaving [componentId]="widget.componentId"></Controller_Asymmetric_PeakShaving>
+                      <Controller_Asymmetric_PeakShaving [componentId]="widget.componentId"> </Controller_Asymmetric_PeakShaving>
                     </ion-col>
 
                     <ion-col *ngSwitchCase="'Controller.TimeslotPeakshaving'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                      <Controller_Symmetric_TimeSlot_PeakShaving [componentId]="widget.componentId"></Controller_Symmetric_TimeSlot_PeakShaving>
+                      <Controller_Symmetric_TimeSlot_PeakShaving [componentId]="widget.componentId"> </Controller_Symmetric_TimeSlot_PeakShaving>
                     </ion-col>
 
                     <ion-col *ngSwitchCase="'Controller.Ess.DelayedSellToGrid'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
@@ -204,7 +208,7 @@
                     </ion-col>
 
                     <ion-col size="12" *ngSwitchCase="'Controller.Ess.GridOptimizedCharge'" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                      <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId"></Controller_Ess_GridOptimizedCharge>
+                      <Controller_Ess_GridOptimizedCharge [componentId]="widget.componentId"> </Controller_Ess_GridOptimizedCharge>
                     </ion-col>
 
                     <ion-col size="12" *ngSwitchCase="'Weather.OpenMeteo'" [attr.size-lg]="widgetColumnSize" class="ion-hide-sm-up ion-no-padding">

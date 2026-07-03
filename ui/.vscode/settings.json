@@ -31,8 +31,7 @@
         "**/.git/objects/**": true,
         "**/node_modules/**": true
     },
-    "i18n-ally.keystyle": "nested",
-    "i18n-ally.localesPaths": [
+    "i18n-ally-next.localesPaths": [
         "src/**/i18n"
     ]
 }

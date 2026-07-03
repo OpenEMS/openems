@@ -5,7 +5,6 @@ import { SharedProduction } from "src/app/edge/live/common/production/shared/sha
 import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
-import { SharedControllerEssTimeOfUseTariff } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
@@ -14,6 +13,7 @@ import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heat
 import { SharedControllerPeakShavingAsymmetric } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/shared/shared";
 import { SharedControllerPeakShavingSymmetric } from "src/app/edge/live/Controller/peak-shaving/symmetric/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
+
 import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/HeatingRoom/shared/shared";
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
@@ -131,11 +131,6 @@ export class Widgets {
                 );
             case "Controller.Asymmetric.PeakShaving":
                 return SharedControllerPeakShavingAsymmetric.getNavigationTree(
-                    translate,
-                    component,
-                );
-            case "Controller.Ess.Time-Of-Use-Tariff":
-                return SharedControllerEssTimeOfUseTariff.getNavigationTree(
                     translate,
                     component,
                 );

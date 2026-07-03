@@ -25,20 +25,34 @@ import { ChartConstants } from "src/app/shared/shared";
     ],
 })
 export class GridBuySellChartComponent extends ScheduleChartComponent {
-
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.summarizeDataForChannel("GridActivePower");
         const history = ScheduleChartComponent.normalizeLines(data.history);
-        const prediction = ScheduleChartComponent.normalizeLines(data.prediction);
+        const prediction = ScheduleChartComponent.normalizeLines(
+            data.prediction,
+        );
 
-        return [{
-            color: ChartConstants.Colors.PURPLE, data: history.negative,
-        }, {
-            color: ChartConstants.Colors.BLUE_GREY, data: history.positive,
-        }, {
-            color: ChartConstants.Colors.PURPLE, data: prediction.negative, borderDash: [5, 5],
-        }, {
-            color: ChartConstants.Colors.BLUE_GREY, data: prediction.positive, borderDash: [5, 5],
-        }];
+        return [
+            {
+                color: ChartConstants.Colors.PURPLE,
+                data: history.negative,
+            },
+            {
+                color: ChartConstants.Colors.BLUE_GREY,
+                data: history.positive,
+            },
+            {
+                color: ChartConstants.Colors.PURPLE,
+                data: prediction.negative,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+            {
+                color: ChartConstants.Colors.BLUE_GREY,
+                data: prediction.positive,
+                borderDash: [5, 5],
+                transparentBackground: true,
+            },
+        ];
     }
 }

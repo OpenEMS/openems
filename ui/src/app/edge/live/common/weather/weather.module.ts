@@ -4,6 +4,7 @@ import { HelpButtonComponent } from "src/app/shared/components/modal/help-button
 import { SharedModule } from "src/app/shared/shared.module";
 import { Language } from "src/app/shared/type/language";
 import { WeatherComponent } from "./flat/flat";
+import { MiniWeatherComponent } from "./mini-widget/mini-widget";
 import { WeatherModalComponent } from "./modal/modal";
 import { registerWeatherIcons } from "./models/weather-icon";
 import { WeatherHomeComponent } from "./new-navigation/new-navigation";
@@ -30,6 +31,7 @@ import { SecondsToHoursPipe } from "./shared/weather.constants";
         WeatherCodeDescriptionPipe,
         SecondsToHoursPipe,
         HelpButtonComponent,
+        MiniWeatherComponent,
     ],
     declarations: [
         WeatherPlainComponent,
@@ -42,16 +44,18 @@ import { SecondsToHoursPipe } from "./shared/weather.constants";
         WeatherSharedContentComponent,
         WeatherComponent,
         WeatherHomeComponent,
+        MiniWeatherComponent,
     ],
 })
 export class WeatherModule {
-
     constructor(private translate: TranslateService) {
         registerWeatherIcons();
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
     }
 }

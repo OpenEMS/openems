@@ -175,4 +175,16 @@ export namespace NumberUtils {
         }
         return Math.min(value, atMost);
     }
+
+    /**
+     * Checks whether a value is a finite number (not NaN/Infinity).
+     *
+     * Useful as a type guard before numeric calculations on unknown input.
+     *
+     * @param value The value to validate
+     * @returns True if value is a finite number, else false
+     */
+    export function isPresentNumber(value: unknown): value is number {
+        return typeof value === "number" && Number.isFinite(value);
+    }
 }

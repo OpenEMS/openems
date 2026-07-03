@@ -115,7 +115,6 @@ public class TestTranslations {
 					.addProperty("LOW_PRICE", 14.8) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.rabotCharge(t), true, JsonUtils.buildJsonObject() //
-					.addProperty("ZIP_CODE", "123456789") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.stadtwerkHassfurt(t), true, JsonUtils.buildJsonObject() //
 					.build()));
