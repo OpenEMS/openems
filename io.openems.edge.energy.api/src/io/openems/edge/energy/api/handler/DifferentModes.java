@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Arrays.stream;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,6 +37,7 @@ public class DifferentModes {
 		private InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider = InitialPopulationsProvider
 				.empty();
 		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = Simulator.doNothing();
+		private Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator = Evaluator.doNothing();
 		private PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor = PreProcessor.doNothing();
 
 		/**
@@ -131,6 +133,19 @@ public class DifferentModes {
 		}
 
 		/**
+		 * Sets a {@link Evaluator} that evaluates one simulated period, adjusting
+		 * fitness as needed.
+		 *
+		 * @param evaluator a {@link Evaluator}
+		 * @return myself
+		 */
+		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setEvaluator(
+				Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
+			this.evaluator = Objects.requireNonNullElseGet(evaluator, Evaluator::doNothing);
+			return this;
+		}
+
+		/**
 		 * Builds an instance of {@link EshWithDifferentModes}.
 		 *
 		 * @return a {@link EshWithDifferentModes}
@@ -143,7 +158,8 @@ public class DifferentModes {
 					this.cscFunction, //
 					this.initialPopulationsProvider, //
 					this.preProcessor, //
-					this.simulator);
+					this.simulator, //
+					this.evaluator);
 		}
 	}
 
@@ -503,6 +519,39 @@ public class DifferentModes {
 		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
 				MODE mode, Fitness.Builder fitness, boolean isFinalRun);
+	}
+
+	public interface Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+
+		/**
+		 * A 'do-nothing' {@link Evaluator}.
+		 *
+		 * @param <MODE>                 the type of the Mode
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @return an {@link Evaluator} that performs no action
+		 */
+		static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
+			return (parentComponentId, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+			};
+		}
+
+		/**
+		 * Evaluates one simulated period, adjusting fitness as needed.
+		 *
+		 * @param parentComponentId the parent component ID
+		 * @param period            the {@link GlobalOptimizationContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the {@link EnergyFlow}
+		 * @param mode              the simulated mode
+		 * @param fitness           the {@link Fitness.Builder} to update
+		 * @param isFinalRun        true if this is the final simulation run
+		 */
+		void evaluate(String parentComponentId, GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
+				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow ef, MODE mode, Fitness.Builder fitness,
+				boolean isFinalRun);
 	}
 
 	private DifferentModes() {

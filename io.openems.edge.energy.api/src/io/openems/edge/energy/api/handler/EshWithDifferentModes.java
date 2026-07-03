@@ -30,6 +30,7 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+	private final DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator;
 	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
 	private Modes<MODE> modes = Modes.empty();
@@ -42,12 +43,14 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider, //
 			PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor, //
-			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {
+			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
+			DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
 		this.modesFunction = modesFunction;
 		this.initialPopulationsProvider = initialPopulationsProvider;
 		this.preProcessor = preProcessor;
 		this.simulator = simulator;
+		this.evaluator = evaluator;
 	}
 
 	@Override
@@ -89,6 +92,14 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		var postProcessedMode = this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc,
 				ef, this.modes.get(modeIndex), fitness, isFinalRun);
 		return this.modes.getIndex(postProcessedMode);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow ef,
+			int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
+		this.evaluator.evaluate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
+				this.modes.get(modeIndex), fitness, isFinalRun);
 	}
 
 	@Override

@@ -148,18 +148,15 @@ public class Simulator {
 			return;
 		}
 
-		var eshsWithDifferentModesIndex = 0;
+		// Simulate period
+		int modeIndex = 0;
 		for (var esh : eshs) {
 			try {
 				var csc = cscs.get(esh);
 				switch (esh) {
 				case EnergyScheduleHandler.WithDifferentModes e -> {
-					final var modeIndex = e.modes().isEmpty() //
-							? -1 // none available
-							: Optional.ofNullable(modeCombination.mode(eshsWithDifferentModesIndex++)) //
-									.map(Mode::index) //
-									.orElse(-1); // none available
-					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final int preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
 
 					if (bsc == null) {
 						e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
@@ -181,6 +178,26 @@ public class Simulator {
 		}
 
 		final EnergyFlow energyFlow = ef.solve();
+
+		// Evaluate period
+		modeIndex = 0;
+		for (var esh : eshs) {
+			try {
+				var csc = cscs.get(esh);
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentModes e -> {
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final var preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
+					e.evaluate(period, gsc, csc, energyFlow, preProcessedMode, fitness, bsc != null);
+				}
+				case EnergyScheduleHandler.WithOnlyOneMode e -> //
+					e.evaluate(period, gsc, csc, energyFlow, fitness);
+				}
+			} catch (RuntimeException e) {
+				throw new RuntimeException("Error during evaluation of [" + esh.getParentId() + "] " //
+						+ "Period [" + period.index() + "/" + period.time() + "]: " + e.getMessage(), e);
+			}
+		}
 
 		// Evaluate Grid-Buy Soft-Limit
 		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
@@ -396,6 +413,19 @@ public class Simulator {
 		}
 
 		return penalty;
+	}
+
+	private static int resolveModeIndex(//
+			EnergyScheduleHandler.WithDifferentModes esh, //
+			ModeCombination modeCombination, //
+			int index) {
+		if (esh.modes().isEmpty()) {
+			return -1;
+		}
+
+		return Optional.ofNullable(modeCombination.mode(index))//
+				.map(ModeCombinations.Mode::index)//
+				.orElse(-1);
 	}
 
 	/**
