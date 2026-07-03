@@ -5,6 +5,7 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -44,6 +45,7 @@ import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.MetaSupplier;
@@ -88,7 +90,7 @@ import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
  */
 @Component(name = "App.Evcs.Keba")
 public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier, EMobilityApp {
 
 	public enum Property implements Type<Property, KebaEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -415,5 +417,10 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				SwitchEvcsEvse.METHOD // switch method name
 		));
 		return flags.toArray(Flag[]::new);
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS, EMobilityArchitectureType.EVSE);
 	}
 }

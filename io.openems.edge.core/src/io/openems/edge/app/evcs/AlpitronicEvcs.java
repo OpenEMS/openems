@@ -1,7 +1,10 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.validator.Checkables.checkEvseNotInstalled;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.ResourceBundle;
@@ -11,6 +14,8 @@ import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import io.openems.edge.app.enums.EMobilityArchitectureType;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -59,6 +64,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a Alpitronic evcs app.
@@ -86,7 +92,7 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 @Component(name = "App.Evcs.Alpitronic")
 public class AlpitronicEvcs
 		extends AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, EMobilityApp {
 
 	public static interface ParentProperty extends Type<ParentProperty, AlpitronicEvcs, Parameter.BundleParameter> {
 
@@ -298,6 +304,12 @@ public class AlpitronicEvcs
 	}
 
 	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(checkEvseNotInstalled());
+	}
+
+	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
 	}
@@ -336,6 +348,11 @@ public class AlpitronicEvcs
 	@Override
 	public Meta getMeta() {
 		return this.meta;
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 
 }

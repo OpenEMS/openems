@@ -143,13 +143,13 @@ public final class XlsxExportUtil {
 				"io.openems.edge.goodwe.emergencypowermeter.GoodWeEmergencyPowerMeter", //
 				"io.openems.edge.evse.api.chargepoint.EvseChargePoint", //
 				"io.openems.edge.evcs.api.Evcs", //
-				"io.openems.edge.heat.api.Heat",//
+				"io.openems.edge.heat.api.Heat", //
 				"io.openems.edge.simulator.meter.nrc.acting.SimulatorNrcMeterActing" //
 		);
 
 		public static final Set<String> PRODUCTION_NATURES = Set.of(//
 				"io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", //
-				"io.openems.edge.fenecon.dess.pvmeter.FeneconDessPvMeter",//
+				"io.openems.edge.fenecon.dess.pvmeter.FeneconDessPvMeter", //
 				"io.openems.edge.simulator.meter.production.acting.SimulatorProductionMeterActing" //
 		);
 	}

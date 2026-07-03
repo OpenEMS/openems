@@ -159,6 +159,25 @@ public final class Checkables {
 						.build());
 	}
 
+	/**
+	 * Creates a {@link CheckableConfig} which checks if no EVSE charge point is
+	 * installed.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkEvseNotInstalled() {
+		return empty(CheckEvseNotInstalled.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if no EVCS is installed.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkEvcsNotInstalled() {
+		return empty(CheckEvcsNotInstalled.COMPONENT_NAME);
+	}
+
 	private static CheckableConfig empty(String checkableName) {
 		return new CheckableConfig(checkableName, Collections.emptyMap());
 	}

@@ -2,6 +2,7 @@ package io.openems.edge.app.evse;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
+import static io.openems.edge.core.appmanager.validator.Checkables.checkEvcsNotInstalled;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.edge.app.common.props.AppInstanceProps;
 import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.EvcsProps;
 import io.openems.edge.app.evse.AppMennekesEvse.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -38,6 +40,7 @@ import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
@@ -55,9 +58,11 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+
 @Component(name = AppMennekesEvse.APP_EVSE_MENNEKES)
 public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier, EMobilityApp {
 
 	public static final String APP_EVSE_MENNEKES = "App.Evse.ChargePoint.Mennekes";
 
@@ -224,6 +229,12 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 	}
 
 	@Override
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(checkEvcsNotInstalled());
+	}
+
+	@Override
 	protected Property[] propertyValues() {
 		return Property.values();
 	}
@@ -250,5 +261,10 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 				.setCanInstall(List.of(Role.ADMIN))//
 				.setCanSee(Role.ADMIN)//
 				.build();
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVSE);
 	}
 }
