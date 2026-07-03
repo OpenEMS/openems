@@ -36,7 +36,7 @@ export class NavigationService {
         private routeService: RouteService,
         private router: Router,
         private location: Location,
-        private translate: TranslateService,
+        translate: TranslateService,
     ) {
         this.setPosition();
 

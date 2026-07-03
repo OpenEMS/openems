@@ -567,7 +567,8 @@
                         "DELAY_CHARGE": "Delay charge",
                         "LIMIT_CHARGE": "Limit charge",
                         "AVOID_GRID_SELL_LIMIT": "Avoid feed-in limit",
-                        "DISCHARGE_CONSUMPTION": "Discharge to consumption"
+                        "DISCHARGE_CONSUMPTION": "Discharge to consumption",
+                        "DISCHARGE_GRID": "Discharge to grid"
                     }
                 },
                 "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",
@@ -1393,7 +1394,8 @@
         "Z_TO_A": "Designation Z - A"
     },
     "PAGE_HEADERS": {
-        "ENERGY_JOURNEY": "Analyse Battery extension"
+        "ENERGY_JOURNEY": "Analyse Battery extension",
+        "WRAP_UP_2025": "Your Wrap up 2025"
     },
     "REGISTER": {
         "BUTTON": "Create",

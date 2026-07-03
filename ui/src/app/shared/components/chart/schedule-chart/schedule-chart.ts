@@ -213,7 +213,11 @@ export namespace ScheduleChartComponent {
         transparentBackground?: boolean;
     };
 
-    export function normalizeLines(data: (number | null)[]): {
+    /**
+     * Use this function to split data in positive and abs(negative) values,
+     * ready for visualization in a schedule-chart.
+     */
+    export function normalizePositiveNegativeLines(data: (number | null)[]): {
         positive: (number | null)[];
         negative: (number | null)[];
     } {
@@ -250,5 +254,26 @@ export namespace ScheduleChartComponent {
             }
         }
         return { positive: positive, negative: negative };
+    }
+
+    /**
+     * Use this function to fill gaps for boolean values, ready for
+     * visualization in a schedule-chart.
+     */
+    export function normalizeBooleanLines(
+        data: Record<string, boolean | null>[],
+    ): void {
+        for (let i = data.length - 1; i >= 0; i--) {
+            for (const key of Object.keys(data[i])) {
+                if (
+                    i > 0 &&
+                    (data[i][key] === null || data[i][key] === false) &&
+                    data[i - 1][key] === true
+                ) {
+                    // Keep boolean state charts continuous at state transitions.
+                    data[i][key] = true;
+                }
+            }
+        }
     }
 }

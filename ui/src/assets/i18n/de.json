@@ -557,7 +557,8 @@
                         "DELAY_CHARGE": "Beladung verzögern",
                         "LIMIT_CHARGE": "Beladung limitieren",
                         "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
-                        "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch"
+                        "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch",
+                        "DISCHARGE_GRID": "Entladung ins Netz"
                     }
                 },
                 "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",

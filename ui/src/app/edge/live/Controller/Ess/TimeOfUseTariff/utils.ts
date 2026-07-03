@@ -97,8 +97,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             data: barBalancing,
             hidden: false,
             order: 1,
-            backgroundColor: "rgb(18, 184, 224)",
-            borderColor: "rgb(18, 184, 224)",
+            backgroundColor: ChartConstants.Colors.ESS_MODE_BALANCING,
+            borderColor: ChartConstants.Colors.ESS_MODE_BALANCING,
         });
 
         // Set dataset for ChargeGrid.
@@ -116,8 +116,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barChargeGrid,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(0, 107, 82)",
-                borderColor: "rgb(0, 107, 82)",
+                backgroundColor: ChartConstants.Colors.ESS_MODE_CHARGE_GRID,
+                borderColor: ChartConstants.Colors.ESS_MODE_CHARGE_GRID,
             });
         }
 
@@ -130,8 +130,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
             data: barDelayDischarge,
             hidden: false,
             order: 1,
-            backgroundColor: "rgb(168, 50, 71)",
-            borderColor: "rgb(168, 50, 71)",
+            backgroundColor: ChartConstants.Colors.ESS_MODE_DELAY_DISCHARGE,
+            borderColor: ChartConstants.Colors.ESS_MODE_DELAY_DISCHARGE,
         });
 
         // Set dataset for PeakShaving (if any).
@@ -144,8 +144,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barPeakShaving,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(233, 120, 47)",
-                borderColor: "rgb(233, 120, 47)",
+                backgroundColor: ChartConstants.Colors.ESS_MODE_PEAK_SHAVING,
+                borderColor: ChartConstants.Colors.ESS_MODE_PEAK_SHAVING,
             });
         }
 
@@ -159,8 +159,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barDelayCharge,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(73, 194, 168)",
-                borderColor: "rgb(73, 194, 168)",
+                backgroundColor: ChartConstants.Colors.ESS_MODE_DELAY_CHARGE,
+                borderColor: ChartConstants.Colors.ESS_MODE_DELAY_CHARGE,
             });
         }
 
@@ -174,8 +174,8 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barLimitCharge,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(0, 153, 120)",
-                borderColor: "rgb(0, 153, 120)",
+                backgroundColor: ChartConstants.Colors.ESS_MODE_LIMIT_CHARGE,
+                borderColor: ChartConstants.Colors.ESS_MODE_LIMIT_CHARGE,
             });
         }
 
@@ -189,8 +189,9 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barAvoidGridSellLimit,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(107, 77, 255)",
-                borderColor: "rgb(107, 77, 255)",
+                backgroundColor:
+                    ChartConstants.Colors.ESS_MODE_AVOID_FEED_IN_LIMIT,
+                borderColor: ChartConstants.Colors.ESS_MODE_AVOID_FEED_IN_LIMIT,
             });
         }
 
@@ -204,8 +205,10 @@ export namespace Controller_Ess_TimeOfUseTariffUtils {
                 data: barDischargeConsumption,
                 hidden: false,
                 order: 1,
-                backgroundColor: "rgb(230, 69, 107)",
-                borderColor: "rgb(230, 69, 107)",
+                backgroundColor:
+                    ChartConstants.Colors.ESS_MODE_DISCHARGE_CONSUMPTION,
+                borderColor:
+                    ChartConstants.Colors.ESS_MODE_DISCHARGE_CONSUMPTION,
             });
         }
 

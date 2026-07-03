@@ -101,7 +101,7 @@ export class User {
     }
 
     /**
-     * Checks if new ui is activated from user settings
+     * Checks if ANNUAL_REVIEW (aka Wrap-Up) is activated from user settings
      *
      * @returns True if new ui is activated, else false
      */

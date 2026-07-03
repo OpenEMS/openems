@@ -2,7 +2,7 @@ import { ScheduleChartComponent } from "./schedule-chart";
 
 describe("ScheduleChartComponent.normalizeLines", () => {
     it("fills gaps with zero when switching between charge and discharge lines", () => {
-        const result = ScheduleChartComponent.normalizeLines([
+        const result = ScheduleChartComponent.normalizePositiveNegativeLines([
             -10, -11, -12, 20, 21, 22, -30, -31, -32,
         ]);
 

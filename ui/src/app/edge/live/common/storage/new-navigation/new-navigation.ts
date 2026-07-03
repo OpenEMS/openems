@@ -180,7 +180,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                 },
                 {
                     type: "channel-line",
-                    name: "Ladezustand",
+                    name: translate.instant("GENERAL.SOC"),
                     channel: new ChannelAddress("_sum", "EssSoc").toString(),
                     converter: Converter.STATE_IN_PERCENT,
                     style: {
