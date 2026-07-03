@@ -3,7 +3,8 @@ import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
-import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
+import { CurrentData, Utils } from "../../../../../shared/shared";
+import { SharedControllerPeakShaving } from "../shared/shared";
 import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal/modal.component";
 
 @Component({
@@ -12,7 +13,6 @@ import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal
     standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends AbstractFlatWidget {
-
     public activePower: number;
     public peakShavingPower: number;
     public rechargePower: number;
@@ -32,19 +32,24 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
     }
 
     protected override getChannelAddresses() {
-        return [
-            new ChannelAddress(this.component.properties["meter.id"], "ActivePower"),
-            new ChannelAddress(this.componentId, "_PropertyPeakShavingPower"),
-            new ChannelAddress(this.componentId, "_PropertyRechargePower"),
-        ];
+        return SharedControllerPeakShaving.getWidgetChannelAddresses(
+            this.component.getPropertyFromComponent<string>("meter.id"),
+            this.componentId,
+        );
     }
     protected override onCurrentData(currentData: CurrentData) {
+        const values = SharedControllerPeakShaving.getWidgetValues(
+            currentData,
+            this.component.getPropertyFromComponent<string>("meter.id"),
+            this.component.getPropertyFromComponent<number>(
+                "peakShavingPower",
+            ) ?? 0,
+            this.component.getPropertyFromComponent<number>("rechargePower") ??
+                0,
+        );
 
-        // activePower is 0 for negative Values
-        this.activePower = currentData.allComponents[this.component.properties["meter.id"] + "/ActivePower"] >= 0
-            ? currentData.allComponents[this.component.properties["meter.id"] + "/ActivePower"] : 0;
-        this.peakShavingPower = this.component.properties["peakShavingPower"];
-        this.rechargePower = this.component.properties["rechargePower"];
+        this.activePower = values.activePower;
+        this.peakShavingPower = values.peakShavingPower;
+        this.rechargePower = values.rechargePower;
     }
-
 }

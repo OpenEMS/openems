@@ -12,6 +12,7 @@ import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/I
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
 import { SharedControllerPeakShavingAsymmetric } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/shared/shared";
 import { SharedControllerPeakShavingSymmetric } from "src/app/edge/live/Controller/peak-shaving/symmetric/shared/shared";
+import { SharedControllerTimeslotPeakshaving } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/shared/shared";
 import { SharedSchedulerJsCalendar } from "src/app/edge/live/scheduler/js-calendar/shared-scheduler-js-calendar";
 
 import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/HeatingRoom/shared/shared";
@@ -114,6 +115,11 @@ export class Widgets {
         switch (widget.name) {
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
+            case "Controller.TimeslotPeakshaving":
+                return SharedControllerTimeslotPeakshaving.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Controller.IO.HeatingElement":
                 return SharedControllerIoHeatingElement.getNavigationTree(
                     translate,

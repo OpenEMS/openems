@@ -6,4 +6,4 @@ import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat
     templateUrl: "./flat.html",
     standalone: false,
 })
-export class FlatComponent extends AbstractFlatWidget { }
+export class FlatComponent extends AbstractFlatWidget {}

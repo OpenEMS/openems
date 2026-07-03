@@ -61,7 +61,9 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             value: Math.max(...activePowerArray, 0),
         });
 
-        this.peakShavingPower = this.component.properties["peakShavingPower"];
-        this.rechargePower = this.component.properties["rechargePower"];
+        this.peakShavingPower =
+            this.component.getPropertyFromComponent<number>("peakShavingPower");
+        this.rechargePower =
+            this.component.getPropertyFromComponent<number>("rechargePower");
     }
 }

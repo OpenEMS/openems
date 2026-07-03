@@ -1,10 +1,11 @@
-import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type, } from "@angular/core";
 import { FormGroup } from "@angular/forms";
+import { IonInput } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, finalize, take, takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket, } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { MultiLengthArray, TIntRange } from "../../type/utility";
 import { Icon } from "../../type/widget";
@@ -12,7 +13,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation, } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { Stat } from "../stats/stats";
@@ -20,8 +21,9 @@ import { Converter } from "./converter";
 import { DataService } from "./dataservice";
 
 @Directive()
-export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy {
-
+export abstract class AbstractFormlyComponent<
+    T = unknown,
+> implements OnDestroy {
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
     protected readonly navigationService: NavigationService;
@@ -29,7 +31,8 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     protected dataService: DataService;
     protected fields: FormlyFieldConfig[] = [];
     protected form: FormGroup = new FormGroup({});
-    protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-modal";
+    protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" =
+        "formly-field-modal";
 
     protected stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -40,27 +43,36 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     private view: OeFormlyView<T> | null = null;
 
     constructor() {
-        this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
-        this.navigationService = SharedModule.injector.get<NavigationService>(NavigationService);
+        this.translate =
+            SharedModule.injector.get<TranslateService>(TranslateService);
+        this.navigationService =
+            SharedModule.injector.get<NavigationService>(NavigationService);
         this.dataService = inject(DataService);
         const websocket = inject(Websocket);
 
-        this.service.getCurrentEdge().then(async edge => {
-
+        this.service.getCurrentEdge().then(async (edge) => {
             // Subscribe on channels only once
             edge.getConfig(this.service.websocket)
-                .pipe(filter(config => !!config), take(1))
+                .pipe(
+                    filter((config) => !!config),
+                    take(1),
+                )
                 .subscribe(() => this.subscribeChannels(this.service));
 
             edge.getConfig(this.service.websocket)
                 .pipe(
-                    filter(config => !!config),
+                    filter((config) => !!config),
                     takeUntil(this.stopOnDestroy),
                     finalize(() => {
                         this.navigationService.headerTitle.set(null);
-                    }))
+                    }),
+                )
                 .subscribe(async (config) => {
-                    const view = await this.generateView({ edge: edge, config: config, translate: this.translate });
+                    const view = await this.generateView({
+                        edge: edge,
+                        config: config,
+                        translate: this.translate,
+                    });
                     this.view = view;
                     this.form = this.getFormGroup();
                     this.setFields(view, this.form, websocket);
@@ -68,7 +80,8 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
         });
 
         effect(() => {
-            const isNavigationInitialized = this.navigationService.getIsInitialized();
+            const isNavigationInitialized =
+                this.navigationService.getIsInitialized();
             if (!isNavigationInitialized) {
                 return;
             }
@@ -77,7 +90,9 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     ionViewWillEnter() {
-        this.navigationService.headerTitle.set(this.view?.isCommonWidget ? this.view.title : null);
+        this.navigationService.headerTitle.set(
+            this.view?.isCommonWidget ? this.view.title : null,
+        );
     }
 
     ionViewWillLeave() {
@@ -87,13 +102,15 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     public async ngOnDestroy() {
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
-        this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());
+        this.dataService?.unsubscribeFromChannels(
+            await this.getChannelAddresses(),
+        );
     }
 
     /**
      * Subscribes on passed channels
      *
-     * @param service the service
+     * @param service The service
      * @returns {Promise<void>} A Promise that resolves without a value.
      */
     public async subscribeChannels(service: Service): Promise<void> {
@@ -115,59 +132,81 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
      */
     protected async fetchCurrentData(service: Service) {
         let skipCount = 0;
-        this.subscription = effect(() => {
-            const val = this.dataService.currentValue();
-            if (this.skipCurrentData && skipCount < this.SKIP_COUNT) {
-                skipCount++;
-                return;
-            }
+        this.subscription = effect(
+            () => {
+                const val = this.dataService.currentValue();
+                if (this.skipCurrentData && skipCount < this.SKIP_COUNT) {
+                    skipCount++;
+                    return;
+                }
 
-            this.skipCurrentData = false; // Reset after skipping 2 values
-            service.stopSpinner("formly-field-modal");
-            skipCount = 0;
-            this.onCurrentData(val);
-
-        }, { injector: this.injector });
+                this.skipCurrentData = false; // Reset after skipping 2 values
+                service.stopSpinner("formly-field-modal");
+                skipCount = 0;
+                this.onCurrentData(val);
+            },
+            { injector: this.injector },
+        );
     }
 
     /**
      * Called on every new data - executed on every currentData notification.
      *
-     * @param currentData new data for the subscribed Channel-Addresses
+     * @param currentData New data for the subscribed Channel-Addresses
      */
-    protected onCurrentData(currentData: CurrentData) { }
+    protected onCurrentData(currentData: CurrentData) {}
 
     /**
      * Gets the ChannelAddresses that should be subscribed.
      *
-     * @returns the channel addresses to subscribe
+     * @returns The channel addresses to subscribe
      */
-    protected async getChannelAddresses(): Promise<ChannelAddress[]> { return []; }
+    protected async getChannelAddresses(): Promise<ChannelAddress[]> {
+        return [];
+    }
 
     /**
      * Applys the formGroup changes
      *
+     * @param fg The formGroup
+     * @param service The service
+     * @param websocket The websocket
+     * @param component The current component
+     * @param edge The edge
      * @note calls an {@link UpdateComponentConfigRequest} with the current componentId and the changed controls,
      * form control names resemble edge config properties, so they need to match
-     *
-     *
-     * @param fg the formGroup
-     * @param service the service
-     * @param websocket the websocket
-     * @param component the current component
-     * @param edge the edge
      */
-    protected applyChanges(fg: FormGroup<any>, service: Service, websocket: Websocket, component: EdgeConfig.Component | null, edge: Edge | null) {
+    protected applyChanges(
+        fg: FormGroup<any>,
+        service: Service,
+        websocket: Websocket,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ) {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
         service.startSpinner("formly-field-modal");
-        edge.updateComponentConfig(websocket, component.id, this.buildUpdateComponentArr(fg))
+        edge.updateComponentConfig(
+            websocket,
+            component.id,
+            this.buildUpdateComponentArr(fg),
+        )
             .then(() => {
-                service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-            }).catch(reason => {
-                service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-            }).finally(() => {
+                service.toast(
+                    this.translate.instant("GENERAL.CHANGE_ACCEPTED"),
+                    "success",
+                );
+            })
+            .catch((reason) => {
+                service.toast(
+                    this.translate.instant("GENERAL.CHANGE_FAILED") +
+                        "\n" +
+                        reason.error.message,
+                    "danger",
+                );
+            })
+            .finally(() => {
                 this.skipCurrentData = true;
                 fg.markAsPristine();
                 service.stopSpinner("formly-field-modal");
@@ -175,13 +214,16 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     /**
-     * Builds the update component array for the {@link Edge.updateComponentConfig} request.
+     * Builds the update component array for the
+     * {@link Edge.updateComponentConfig} request.
      *
-     * @param fg the form group
-     * @returns the update component array
+     * @param fg The form group
+     * @returns The update component array
      */
-    protected buildUpdateComponentArr(fg: FormGroup<any>): { name: string; value: any; }[] {
-        const updateComponentArray: { name: string, value: any }[] = [];
+    protected buildUpdateComponentArr(
+        fg: FormGroup<any>,
+    ): { name: string; value: any }[] {
+        const updateComponentArray: { name: string; value: any }[] = [];
         for (const key in fg.controls) {
             const control = fg.controls[key];
 
@@ -204,7 +246,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
      * @note Every formControl resembles the corresponding edgeconfig property, so naming is important
      *
      * @tipp initialize {@link FormControl} with null, hides component dependent on this Formcontrol, till a non null/undefined is set
-     **/
+     */
     protected getFormGroup() {
         return new FormGroup({});
     }
@@ -212,27 +254,43 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     /**
      * Sets the formControls value to a given channel value
      *
-     * @param fg the formGroup
-     * @param formControlName the control name to change
-     * @param currentData the current data
-     * @param channel the channel to use
-     * @returns the new formGroup
+     * @param fg The formGroup
+     * @param formControlName The control name to change
+     * @param currentData The current data
+     * @param channel The channel to use
+     * @returns The new formGroup
      */
-    protected setFormControlSafelyWithChannel<T>(fg: FormGroup, formControlName: string, currentData: CurrentData, channel: ChannelAddress | null) {
+    protected setFormControlSafelyWithChannel<T>(
+        fg: FormGroup,
+        formControlName: string,
+        currentData: CurrentData,
+        channel: ChannelAddress | null,
+    ) {
         if (channel === null) {
             return;
         }
 
         const channelValue = currentData.allComponents[channel.toString()];
         const control = fg.controls[formControlName];
-        if (this.skipCurrentData || fg.dirty || fg.touched || !channel || channelValue == null || control == null) {
+        if (
+            this.skipCurrentData ||
+            fg.dirty ||
+            fg.touched ||
+            !channel ||
+            channelValue == null ||
+            control == null
+        ) {
             return;
         }
 
-        const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
+        const prevFormControlValue: T | null =
+            FormUtils.findFormControlsValueSafely(fg, formControlName);
         const currFormControlValue: T | null = channelValue;
 
-        if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
+        if (
+            currFormControlValue != null &&
+            prevFormControlValue !== currFormControlValue
+        ) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
             this.form = fg;
@@ -242,176 +300,225 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     /**
      * Sets the formControls value to a given channel value
      *
-     * @param fg the formGroup
-     * @param formControlName the control name to change
-     * @param currentData the current data
-     * @param channel the channel to use
-     * @returns the new formGroup
+     * @param fg The formGroup
+     * @param formControlName The control name to change
+     * @param currentData The current data
+     * @param channel The channel to use
+     * @returns The new formGroup
      */
-    protected setFormControlSafelyWithValue<T>(fg: FormGroup, formControlName: string, value: T | null) {
+    protected setFormControlSafelyWithValue<T>(
+        fg: FormGroup,
+        formControlName: string,
+        value: T | null,
+    ) {
         const control = fg.controls[formControlName];
         if (control == null) {
             return;
         }
 
-        const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
+        const prevFormControlValue: T | null =
+            FormUtils.findFormControlsValueSafely(fg, formControlName);
         const currFormControlValue: T | null = value;
 
-        if (currFormControlValue != null && (prevFormControlValue !== currFormControlValue)) {
+        if (
+            currFormControlValue != null &&
+            prevFormControlValue !== currFormControlValue
+        ) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
             this.form = fg;
         }
     }
 
-    private setFields(view: OeFormlyView<T>, fg: FormGroup, websocket: Websocket) {
+    private setFields(
+        view: OeFormlyView<T>,
+        fg: FormGroup,
+        websocket: Websocket,
+    ) {
         this.ionViewWillEnter();
-        this.fields = [{
-            fieldGroup: view.lines.map((el, index) => {
-                return {
-                    props: {
-                        attributes: {
-                            title: view.title,
-                            ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
-                        },
-                        required: true,
-                        options: [{ line: el }],
-                    },
-                    hooks: {
-                        onInit: (field) => {
-                            field.form?.valueChanges.subscribe(value => {
-                                field.hide = el.hide?.(value) ?? false;
-                                if (el.nameCallback != null && typeof el.nameCallback === "function" && "name" in el) {
-                                    el.name = el.nameCallback(value);
-                                }
-                            });
-                        },
-                    },
-                };
-            }),
-            className: "ion-full-height",
-            wrappers: [this.formlyWrapper],
-            props: {
-                attributes: {
-                    title: view.title,
-                    ...(view.icon != null && view.icon.name != null ? { icon: view.icon.name as string } : {}),
-                    ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
-                },
-                required: true,
-                options: [
-                    {
-                        lines: view.lines,
-                        component: view.component,
-                        ...(view.icon != null ? {
-                            icon: {
-                                size: view.icon.size,
-                                color: view.icon.color,
+        this.fields = [
+            {
+                fieldGroup: view.lines.map((el, index) => {
+                    return {
+                        props: {
+                            attributes: {
+                                title: view.title,
+                                ...(view.helpKey != null
+                                    ? {
+                                          helpKey: view.helpKey as
+                                              | string
+                                              | number,
+                                      }
+                                    : {}),
                             },
-                        } : {}),
-                        ...(view.isCommonWidget != null ? { isCommonWidget: view.isCommonWidget } : {}),
-                        ...(view.useDefaultPrefix != null ? { useDefaultPrefix: view.useDefaultPrefix } : {}),
+                            required: true,
+                            options: [{ line: el }],
+                        },
+                        hooks: {
+                            onInit: (field) => {
+                                field.form?.valueChanges.subscribe((value) => {
+                                    field.hide = el.hide?.(value) ?? false;
+                                    if (
+                                        el.nameCallback != null &&
+                                        typeof el.nameCallback === "function" &&
+                                        "name" in el
+                                    ) {
+                                        el.name = el.nameCallback(value);
+                                    }
+                                });
+                            },
+                        },
+                    };
+                }),
+                className: "ion-full-height",
+                wrappers: [this.formlyWrapper],
+                props: {
+                    attributes: {
+                        title: view.title,
+                        ...(view.icon != null && view.icon.name != null
+                            ? { icon: view.icon.name as string }
+                            : {}),
+                        ...(view.helpKey != null
+                            ? { helpKey: view.helpKey as string | number }
+                            : {}),
                     },
-                ],
-                onSubmit: (fg: FormGroup) => {
-                    this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
+                    required: true,
+                    options: [
+                        {
+                            lines: view.lines,
+                            component: view.component,
+                            ...(view.icon != null
+                                ? {
+                                      icon: {
+                                          size: view.icon.size,
+                                          color: view.icon.color,
+                                      },
+                                  }
+                                : {}),
+                            ...(view.isCommonWidget != null
+                                ? { isCommonWidget: view.isCommonWidget }
+                                : {}),
+                            ...(view.useDefaultPrefix != null
+                                ? { useDefaultPrefix: view.useDefaultPrefix }
+                                : {}),
+                        },
+                    ],
+                    onSubmit: (fg: FormGroup) => {
+                        this.applyChanges(
+                            fg,
+                            this.service,
+                            websocket,
+                            view.component ?? null,
+                            view.edge ?? null,
+                        );
+                    },
                 },
             },
-        }];
+        ];
     }
 
     /**
-      * Generate the View.
-      *
-      * @param config the Edge-Config
-      * @param role  the Role of the User for this Edge
-      * @param translate the Translate-Service
-      */
-    protected abstract generateView(viewContext: ViewContext): Promise<OeFormlyView<T>> | OeFormlyView<T>;
+     * Generate the View.
+     *
+     * @param config The Edge-Config
+     * @param role The Role of the User for this Edge
+     * @param translate The Translate-Service
+     */
+    protected abstract generateView(
+        viewContext: ViewContext,
+    ): Promise<OeFormlyView<T>> | OeFormlyView<T>;
 }
 
 export type ViewContext = Readonly<{
-    edge: Edge,
-    config: EdgeConfig,
-    translate: TranslateService,
+    edge: Edge;
+    config: EdgeConfig;
+    translate: TranslateService;
 }>;
 
 export type OeFormlyView<T = unknown> = {
-    title: string,
+    title: string;
     lines: OeFormlyField<T>[];
-    isCommonWidget?: boolean,
-    helpKey?: string | null,
-    icon?: Icon,
-    useDefaultPrefix?: boolean | null,
-    component?: EdgeConfig.Component | null,
-    edge?: Edge,
+    isCommonWidget?: boolean;
+    helpKey?: string | null;
+    icon?: Icon;
+    useDefaultPrefix?: boolean | null;
+    component?: EdgeConfig.Component | null;
+    edge?: Edge;
 };
 
-export type OeFormlyField<T = any> =
-    (| OeFormlyField.ImageLine
-        | OeFormlyField.InfoLine
-        | OeFormlyField.Item
-        | OeFormlyField.InputLine
-        | OeFormlyField.SelectLine
-        | OeFormlyField.ToggleLine
-        | OeFormlyField.ChildrenLine
-        | OeFormlyField.NameLine
-        | OeFormlyField.ChannelLine
-        | OeFormlyField.TimeLine
-        | OeFormlyField.DateTimeLine
-        | OeFormlyField.HorizontalLine
-        | OeFormlyField.ComponentLine
-        | OeFormlyField.ValueFromChannelsLine
-        | OeFormlyField.ValueFromFormControlLine
-        | OeFormlyField.ButtonFromFormControlLine
-        | OeFormlyField.ButtonsFromFormControlLine
-        | OeFormlyField.RangeButtonFromFormControlLine
-        | OeFormlyField.RadioButtonsFromFormControlLine
-        | OeFormlyField.PercentageBarFromFormControlLine
-        | OeFormlyField.ToggleLine
-        | OeFormlyField.ToggleLineWithValue<T>
-        | OeFormlyField.InputLine
-        | OeFormlyField.SelectLine
-        | OeFormlyField.PercentageBarFromFormControlLine
-        | OeFormlyField.Advanced.ElectricityMeter
-        | OeFormlyField.Advanced.EssChargerLine
-        | OeFormlyField.Advanced.AdvancedStatsLine)
-    & {
-        hide?: (field: T) => boolean;
-        /** Executes a  applyable if according name field exists for this line type */
-        nameCallback?: (field: T) => string;
-        style?: AbstractModalLine["lineStyle"];
-        cssClass?: "ion-padding-top" | "ion-padding-bottom" | "ion-padding-left" | "ion-padding-right";
-        leftColumnWidth?: TIntRange<0, 101>;
-    };
+export type OeFormlyField<T = any> = (
+    | OeFormlyField.ImageLine
+    | OeFormlyField.InfoLine
+    | OeFormlyField.Item
+    | OeFormlyField.InputLine
+    | OeFormlyField.SelectLine
+    | OeFormlyField.ToggleLine
+    | OeFormlyField.ChildrenLine
+    | OeFormlyField.NameLine
+    | OeFormlyField.ChannelLine
+    | OeFormlyField.TimeLine
+    | OeFormlyField.DateTimeLine
+    | OeFormlyField.HorizontalLine
+    | OeFormlyField.ComponentLine
+    | OeFormlyField.WeekdayCheckboxLine
+    | OeFormlyField.ValueFromChannelsLine
+    | OeFormlyField.ValueFromFormControlLine
+    | OeFormlyField.ButtonFromFormControlLine
+    | OeFormlyField.ButtonsFromFormControlLine
+    | OeFormlyField.RangeButtonFromFormControlLine
+    | OeFormlyField.RadioButtonsFromFormControlLine
+    | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.ToggleLine
+    | OeFormlyField.ToggleLineWithValue<T>
+    | OeFormlyField.InputLine
+    | OeFormlyField.SelectLine
+    | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.Advanced.ElectricityMeter
+    | OeFormlyField.Advanced.EssChargerLine
+    | OeFormlyField.Advanced.AdvancedStatsLine
+) & {
+    hide?: (field: T) => boolean;
+    /**
+     * Executes a applyable if according name field exists for this line
+     * type
+     */
+    nameCallback?: (field: T) => string;
+    style?: AbstractModalLine["lineStyle"];
+    cssClass?:
+        | "ion-padding-top"
+        | "ion-padding-bottom"
+        | "ion-padding-left"
+        | "ion-padding-right";
+    leftColumnWidth?: TIntRange<0, 101>;
+};
 
 export namespace OeFormlyField {
-
     export namespace Advanced {
         export type ElectricityMeter = {
-            type: "advanced-electricity-meter-line",
-            component: EdgeConfig.Component,
+            type: "advanced-electricity-meter-line";
+            component: EdgeConfig.Component;
         };
         export type EssChargerLine = {
-            type: "advanced-ess-charger-line",
-            component: EdgeConfig.Component,
+            type: "advanced-ess-charger-line";
+            component: EdgeConfig.Component;
         };
 
         export type AdvancedStatsLine = {
-            type: "stats-line",
+            type: "stats-line";
             stats: MultiLengthArray<Stat, 1 | 2 | 3 | 4 | 6>;
         };
     }
 
     export type InfoLine = {
-        type: "info-line",
-        name?: string | { text: string, lineStyle?: string }[],
-        html?: string,
-        icon?: Icon,
+        type: "info-line";
+        name?: string | { text: string; lineStyle?: string }[];
+        html?: string;
+        icon?: Icon;
     };
 
     export type ImageLine = {
-        type: "image-line",
-        img: OeImageComponent["img"],
+        type: "image-line";
+        img: OeImageComponent["img"];
     };
 
     export type ComponentLine<T = unknown> = {
@@ -421,59 +528,65 @@ export namespace OeFormlyField {
     };
 
     export type Item = {
-        type: "item",
-        channel: string,
-        filter?: (value: number | null) => boolean,
-        converter?: (value: number | null) => string
+        type: "item";
+        channel: string;
+        filter?: (value: number | null) => boolean;
+        converter?: (value: number | null) => string;
     };
 
     export type ChildrenLine = {
-        type: "children-line",
-        name: /* actual name string */ string | /* name string derived from channel value */ { channel: ChannelAddress, converter: Converter },
-        indentation?: TextIndentation,
-        children: Item[]
-    }
-        & (
-            | { filter: (value: number | null) => boolean, channel: ChannelAddress }
-        );
+        type: "children-line";
+        name: /* actual name string */
+            | string
+            | /* name string derived from channel value */ {
+                  channel: ChannelAddress;
+                  converter: Converter;
+              };
+        indentation?: TextIndentation;
+        children: Item[];
+    } & { filter: (value: number | null) => boolean; channel: ChannelAddress };
 
     export type ChannelLine = {
-        type: "channel-line",
-        name: /* actual name string */ string | /* name string derived from channel value */ Converter,
-        channel: string,
-        filter?: (value: number | null) => boolean,
-        converter?: (value: number | null) => string,
-        indentation?: TextIndentation,
+        type: "channel-line";
+        name: /* actual name string */
+            | string
+            | /* name string derived from channel value */ Converter;
+        channel: string;
+        filter?: (value: number | null) => boolean;
+        converter?: (value: number | null) => string;
+        indentation?: TextIndentation;
     };
 
     export type NameLine = {
-        type: "name-line",
-        name: /* actual name string */ string | /* name string derived from channel value */ Converter,
-        filter?: (value: number | null) => boolean,
+        type: "name-line";
+        name: /* actual name string */
+            | string
+            | /* name string derived from channel value */ Converter;
+        filter?: (value: number | null) => boolean;
     };
 
     export type ValueFromChannelsLine = {
-        type: "value-from-channels-line",
-        name?: string,
-        value: (data: CurrentData) => string | null,
-        channelsToSubscribe: ChannelAddress[],
-        indentation?: TextIndentation,
-        filter?: (currentData: CurrentData) => boolean,
+        type: "value-from-channels-line";
+        name?: string;
+        value: (data: CurrentData) => string | null;
+        channelsToSubscribe: ChannelAddress[];
+        indentation?: TextIndentation;
+        filter?: (currentData: CurrentData) => boolean;
 
-        /** displays the value without a given name in one line */
-        singleLine?: boolean,
+        /** Displays the value without a given name in one line */
+        singleLine?: boolean;
     };
 
     export type ButtonsFromFormControlLine = {
-        type: "buttons-from-form-control-line",
-        controlName: string,
-        buttons: ButtonLabel[],
-        name?: string,
+        type: "buttons-from-form-control-line";
+        controlName: string;
+        buttons: ButtonLabel[];
+        name?: string;
     };
 
     export type ButtonFromFormControlLine = {
-        type: "button-from-form-control-line",
-        name: string,
+        type: "button-from-form-control-line";
+        name: string;
         button: ButtonLabel;
     };
 
@@ -485,65 +598,75 @@ export namespace OeFormlyField {
     };
 
     export type RangeButtonFromFormControlLine = {
-        type: "range-button-from-form-control-line",
-        controlName: string,
-        properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
+        type: "range-button-from-form-control-line";
+        controlName: string;
+        properties: Partial<
+            Extract<
+                ModalLineComponent["control"],
+                { type: "RANGE" }
+            >["properties"]
+        >;
     };
 
     export type ValueFromFormControlLine = {
-        type: "value-from-form-control-line",
-        controlName: string,
-        name: string,
-        converter?: Converter,
+        type: "value-from-form-control-line";
+        controlName: string;
+        name: string;
+        converter?: Converter;
     };
 
     export type HorizontalLine = {
-        type: "horizontal-line",
+        type: "horizontal-line";
     };
 
     export type PercentageBarFromFormControlLine = {
-        type: "percentage-bar-line",
-        controlName: string,
+        type: "percentage-bar-line";
+        controlName: string;
     };
 
     export type ToggleLine = {
-        type: "toggle-line",
-        name: string,
-        controlName: string
+        type: "toggle-line";
+        name: string;
+        controlName: string;
     };
     export type ToggleLineWithValue<T> = {
-        type: "toggle-line-with-formcontrol-value",
-        name: string,
-        controlName: string
+        type: "toggle-line-with-formcontrol-value";
+        name: string;
+        controlName: string;
         togglePrefix: (value: T) => string;
     };
 
     export type InputLine = {
-        type: "input-line",
-        name: string,
-        controlName: string,
+        type: "input-line";
+        name: string;
+        controlName: string;
         properties: {
             unit: string;
-        }
+            type?: IonInput["type"];
+        };
     };
 
     export type SelectLine = {
-        type: "select-line",
-        name: string,
-        controlName: string,
-        options: { value: string, name: string }[],
+        type: "select-line";
+        name: string;
+        controlName: string;
+        options: { value: string; name: string }[];
+    };
+
+    export type WeekdayCheckboxLine = {
+        type: "weekday-checkbox-line";
     };
 
     export type TimeLine = {
-        type: "time-line",
-        name: string,
-        controlName: string,
+        type: "time-line";
+        name: string;
+        controlName: string;
     };
 
     export type DateTimeLine = {
-        type: "date-time-line",
-        controlName: string,
-        label: (controlValue: number | string | null) => string,
-        defaultLabel?: string,
+        type: "date-time-line";
+        controlName: string;
+        label: (controlValue: number | string | null) => string;
+        defaultLabel?: string;
     };
 }

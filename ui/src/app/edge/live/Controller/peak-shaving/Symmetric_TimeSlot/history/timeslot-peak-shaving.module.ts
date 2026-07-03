@@ -24,15 +24,8 @@ const routes: Routes = [
         HistoryDataErrorModule,
         NgxSpinnerModule,
     ],
-    declarations: [
-    ],
-    exports: [
-        RouterModule,
-    ],
-    schemas: [
-        CUSTOM_ELEMENTS_SCHEMA,
-    ],
+    declarations: [],
+    exports: [RouterModule],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class TimeslotPeakShavingModule {
-}
-
+export class TimeslotPeakShavingModule {}

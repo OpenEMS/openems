@@ -53,6 +53,9 @@ import { ControllerPeakShavingAsymmetricSettingsComponent } from "src/app/edge/l
 import { ControllerPeakShavingSymmetricHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/history/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricHomeComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/symmetric/settings/settings";
+import { ControllerPeakShavingSymmetricTimeSlotHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/history/new-navigation/new-navigation";
+import { ControllerPeakShavingSymmetricTimeSlotHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/new-navigation/new-navigation";
+import { ControllerPeakShavingSymmetricTimeSlotSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/settings/settings";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -278,6 +281,18 @@ export const newNavigationRoutes: Routes = [
     {
         path: "controller/peak-shaving-symmetric/:componentId/history",
         component: ControllerPeakShavingSymmetricHistoryComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric-time-slot/:componentId",
+        component: ControllerPeakShavingSymmetricTimeSlotHomeComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric-time-slot/:componentId/settings",
+        component: ControllerPeakShavingSymmetricTimeSlotSettingsComponent,
+    },
+    {
+        path: "controller/peak-shaving-symmetric-time-slot/:componentId/history",
+        component: ControllerPeakShavingSymmetricTimeSlotHistoryComponent,
     },
     {
         path: "controller/peak-shaving-asymmetric/:componentId",

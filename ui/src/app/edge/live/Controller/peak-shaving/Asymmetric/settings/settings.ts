@@ -81,17 +81,11 @@ export class ControllerPeakShavingAsymmetricSettingsComponent extends AbstractFo
         if (this.component == null) {
             return;
         }
-        this.setFormControlSafelyWithChannel(
+        SharedControllerPeakShaving.setSettingsCurrentData(
             this.form,
-            "peakShavingPower",
             currentData,
-            new ChannelAddress(this.component.id, "_PropertyPeakShavingPower"),
-        );
-        this.setFormControlSafelyWithChannel(
-            this.form,
-            "rechargePower",
-            currentData,
-            new ChannelAddress(this.component.id, "_PropertyRechargePower"),
+            this.component.id,
+            this.setFormControlSafelyWithChannel.bind(this),
         );
     }
 

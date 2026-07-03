@@ -118,7 +118,7 @@
 
                     <!-- OeFormlyField.ToggleLine -->
                     @case ("toggle-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"> </oe-modal-line>
+                      <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"> </oe-modal-line>
                     }
 
                     @case ("toggle-line-with-formcontrol-value") {
@@ -133,6 +133,13 @@
                       <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'SELECT', options: line.options }" [formGroup]="form" leftColumnWidth="50"> </oe-modal-line>
                     }
 
+                    @case ("weekday-checkbox-line") {
+                      <oe-weekday-checkbox [formGroup]="form"> </oe-weekday-checkbox>
+                    }
+
+                    @case ("name-line") {
+                      <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
+                    }
                     @case ("time-line") {
                       <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form"> </oe-time-line>
                     }

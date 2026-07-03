@@ -12,7 +12,7 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 @Component({
     selector: "oe-controller-peakshaving-timeslot-chart",
     templateUrl:
-        "../../../../../../shared/components/chart/abstracthistorychart.html",
+        "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
         BaseChartDirective,
