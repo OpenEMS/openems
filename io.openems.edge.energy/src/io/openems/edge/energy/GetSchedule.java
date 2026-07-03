@@ -193,7 +193,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 
 		private static record Sum(Double gridBuyPrice, Double gridSellPrice, Integer productionActivePower,
 				Integer consumptionActivePower, Integer unmanagedConsumptionActivePower, Integer essDischargePower,
-				Integer gridActivePower) {
+				Integer essSoc, Integer gridActivePower) {
 			private JsonObject toJson() {
 				return buildJsonObject() //
 						.addPropertyIfNotNull("GridBuyPrice", this.gridBuyPrice) //
@@ -202,6 +202,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 						.addPropertyIfNotNull("ConsumptionActivePower", this.consumptionActivePower) //
 						.addPropertyIfNotNull("UnmanagedConsumptionActivePower", this.unmanagedConsumptionActivePower) //
 						.addPropertyIfNotNull("EssDischargePower", this.essDischargePower) //
+						.addPropertyIfNotNull("EssSoc", this.essSoc) //
 						.addPropertyIfNotNull("GridActivePower", this.gridActivePower) //
 						.build();
 			}
@@ -247,6 +248,8 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 			Sum.ChannelId.UNMANAGED_CONSUMPTION_ACTIVE_POWER.id());
 	protected static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.ESS_DISCHARGE_POWER.id());
+	protected static final ChannelAddress SUM_ESS_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
+			Sum.ChannelId.ESS_SOC.id());
 	protected static final ChannelAddress SUM_GRID_BUY_PRICE = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
 			Sum.ChannelId.GRID_BUY_PRICE.id());
 	protected static final ChannelAddress SUM_GRID_SELL_PRICE = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
@@ -261,7 +264,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 			final var channels = Streams //
 					.concat(//
 							Stream.of(SUM_GRID_BUY_PRICE, SUM_GRID_SELL_PRICE, SUM_GRID, SUM_PRODUCTION,
-									SUM_CONSUMPTION, SUM_UNMANAGED_CONSUMPTION, SUM_ESS_DISCHARGE_POWER), //
+									SUM_CONSUMPTION, SUM_UNMANAGED_CONSUMPTION, SUM_ESS_DISCHARGE_POWER, SUM_ESS_SOC), //
 							eshwdms.stream() //
 									// TODO "StateMachine" is not a defined standard
 									.map(esh -> new ChannelAddress(esh.getParentId(), "StateMachine"))) //
@@ -291,6 +294,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								getInteger.apply(SUM_CONSUMPTION), //
 								getInteger.apply(SUM_UNMANAGED_CONSUMPTION), //
 								getInteger.apply(SUM_ESS_DISCHARGE_POWER), //
+								getInteger.apply(SUM_ESS_SOC), //
 								getInteger.apply(SUM_GRID));
 
 						// ESHs
@@ -362,16 +366,19 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 								.map(EnergyFlow::getConsumption) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
 								.orElse(unmanagedConsumption);
-						final var ess = ef //
+						final var essPower = ef //
 								.map(EnergyFlow::getEss) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
+								.orElse(null);
+						final var essSoc = d //
+								.map(p -> Math.round(p.essInitialEnergy() * 100f / sr.ess().totalEnergy())) //
 								.orElse(null);
 						final var grid = ef //
 								.map(EnergyFlow::getGrid) //
 								.map(e -> convertEnergyToPower.applyAsInt(e)) //
 								.orElse(null);
 						final var sum = new Entry.Sum(gridBuyPrice, gridSellPrice, production, consumption,
-								unmanagedConsumption, ess, grid);
+								unmanagedConsumption, essPower, essSoc, grid);
 
 						// ESHs
 						final var managedConsumptions = ef.map(EnergyFlow::getManagedConsumptions)

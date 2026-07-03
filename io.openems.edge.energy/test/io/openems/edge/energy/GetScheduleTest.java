@@ -5,6 +5,7 @@ import static io.openems.common.utils.JsonUtils.getAsJsonObject;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.edge.energy.GetSchedule.SUM_CONSUMPTION;
 import static io.openems.edge.energy.GetSchedule.SUM_ESS_DISCHARGE_POWER;
+import static io.openems.edge.energy.GetSchedule.SUM_ESS_SOC;
 import static io.openems.edge.energy.GetSchedule.SUM_GRID;
 import static io.openems.edge.energy.GetSchedule.SUM_GRID_BUY_PRICE;
 import static io.openems.edge.energy.GetSchedule.SUM_GRID_SELL_PRICE;
@@ -45,6 +46,7 @@ class GetScheduleTest {
 			timedata.add(t, SUM_GRID_SELL_PRICE, value++);
 			timedata.add(t, SUM_GRID, value++);
 			timedata.add(t, SUM_ESS_DISCHARGE_POWER, value++);
+			timedata.add(t, SUM_ESS_SOC, Math.round(value++ / 100f));
 			timedata.add(t, SUM_PRODUCTION, value++);
 			timedata.add(t, SUM_CONSUMPTION, value++);
 			timedata.add(t, SUM_UNMANAGED_CONSUMPTION, value++);
@@ -75,16 +77,17 @@ class GetScheduleTest {
 				  "_sum": {
 				    "GridBuyPrice": 1200.0,
 				    "GridSellPrice": 1201.0,
-				    "ProductionActivePower": 1204,
-				    "ConsumptionActivePower": 1205,
-				    "UnmanagedConsumptionActivePower": 1206,
+				    "ProductionActivePower": 1205,
+				    "ConsumptionActivePower": 1206,
+				    "UnmanagedConsumptionActivePower": 1207,
 				    "EssDischargePower": 1203,
+				    "EssSoc": 12,
 				    "GridActivePower": 1202
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "DELAY_DISCHARGE"
+				      "mode": "CHARGE_GRID"
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(0)));
@@ -97,16 +100,17 @@ class GetScheduleTest {
 				  "_sum": {
 				    "GridBuyPrice": 1205.0,
 				    "GridSellPrice": 1206.0,
-				    "ProductionActivePower": 1209,
-				    "ConsumptionActivePower": 1210,
-				    "UnmanagedConsumptionActivePower": 1211,
+				    "ProductionActivePower": 1210,
+				    "ConsumptionActivePower": 1211,
+				    "UnmanagedConsumptionActivePower": 1212,
 				    "EssDischargePower": 1208,
+				    "EssSoc": 12,
 				    "GridActivePower": 1207
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "BALANCING"
+				      "mode": "DELAY_DISCHARGE"
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(1)));
@@ -119,16 +123,17 @@ class GetScheduleTest {
 				  "_sum": {
 				    "GridBuyPrice": 1435.0,
 				    "GridSellPrice": 1436.0,
-				    "ProductionActivePower": 1439,
-				    "ConsumptionActivePower": 1440,
-				    "UnmanagedConsumptionActivePower": 1441,
+				    "ProductionActivePower": 1440,
+				    "ConsumptionActivePower": 1441,
+				    "UnmanagedConsumptionActivePower": 1442,
 				    "EssDischargePower": 1438,
+				    "EssSoc": 14,
 				    "GridActivePower": 1437
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "CHARGE_GRID"
+				      "mode": "BALANCING"
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(47)));
@@ -144,6 +149,7 @@ class GetScheduleTest {
 				    "ConsumptionActivePower": 424,
 				    "UnmanagedConsumptionActivePower": 424,
 				    "EssDischargePower": 0,
+				    "EssSoc": 23,
 				    "GridActivePower": 424
 				  },
 				  "eshs": [
@@ -169,6 +175,7 @@ class GetScheduleTest {
 				    "ConsumptionActivePower": 236,
 				    "UnmanagedConsumptionActivePower": 236,
 				    "EssDischargePower": 0,
+				    "EssSoc": 100,
 				    "GridActivePower": -11944
 				  },
 				  "eshs": [
