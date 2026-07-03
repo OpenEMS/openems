@@ -1,4 +1,4 @@
-package io.openems.edge.ess.generic.symmetric;
+package io.openems.edge.ess.generic.common.essprotection;
 
 import static io.openems.common.channel.PersistencePriority.MEDIUM;
 import static io.openems.common.channel.Unit.AMPERE;
@@ -12,6 +12,12 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public interface EssProtection extends OpenemsComponent {
+
+	public enum EssProtectionConfig {
+		NONE, //
+		RAMP, //
+		VOLTAGE_REGULATION, //
+	}
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		EP_CHARGE_MAX_CURRENT(Doc.of(INTEGER)//
