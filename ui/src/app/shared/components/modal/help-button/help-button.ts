@@ -9,12 +9,9 @@ import { Environment, environment } from "src/environments";
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
     standalone: true,
-    imports: [
-        IonicModule,
-    ],
+    imports: [IonicModule],
 })
 export class HelpButtonComponent implements OnChanges {
-
     /** Overwrites default docs link */
     @Input() public useDefaultPrefix: boolean = true;
     @Input() public key: TFlattenKeys<typeof environment.links> | null = null;
@@ -22,17 +19,23 @@ export class HelpButtonComponent implements OnChanges {
 
     protected link: string | null = null;
 
-    constructor(private service: Service) { }
+    constructor(private service: Service) {}
 
     /**
      * Sets the link to navigate to.
      *
-     * @param key the key
-     * @param useDefaultPrefix if default docs prefix should be used
-     * @returns a link, or if key not found in environment.links null
+     * @param key The key
+     * @param useDefaultPrefix If default docs prefix should be used
+     * @returns A link, or if key not found in environment.links null
      */
-    public static getLink(key: HelpButtonComponent["key"], service: Service, useDefaultPrefix?: HelpButtonComponent["useDefaultPrefix"]) {
-        const flattenedKeys = ObjectUtils.flattenObjectWithValues<Environment["links"]>(environment.links);
+    public static getLink(
+        key: HelpButtonComponent["key"],
+        service: Service,
+        useDefaultPrefix?: HelpButtonComponent["useDefaultPrefix"],
+    ) {
+        const flattenedKeys = ObjectUtils.flattenObjectWithValues<
+            Environment["links"]
+        >(environment.links);
 
         if (key == null || !(key in flattenedKeys)) {
             console.error("Key [" + key + "] not found in Environment Links");
@@ -45,16 +48,27 @@ export class HelpButtonComponent implements OnChanges {
         }
 
         if (useDefaultPrefix === true) {
-            return environment.docsUrlPrefix.replace("{language}", service.getDocsLang()) + link;
+            return (
+                environment.docsUrlPrefix.replace(
+                    "{language}",
+                    service.getDocsLang(),
+                ) + link
+            );
         }
 
         return link;
     }
 
-    ngOnChanges(changes: { key: SimpleChange, useDefaultPrefix: SimpleChange }) {
+    ngOnChanges(changes: {
+        key: SimpleChange;
+        useDefaultPrefix: SimpleChange;
+    }) {
         if (changes["key"] || changes["useDefaultPrefix"]) {
-            this.link = HelpButtonComponent.getLink(changes.key?.currentValue ?? null, changes.useDefaultPrefix?.currentValue ?? true);
+            this.link = HelpButtonComponent.getLink(
+                changes.key?.currentValue ?? null,
+                this.service,
+                changes.useDefaultPrefix?.currentValue ?? true,
+            );
         }
     }
-
 }

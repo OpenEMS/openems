@@ -1,8 +1,8 @@
 @if (isHeaderAllowed) {
   <ion-header #appHeader>
     <ion-toolbar style="--background: var(--ion-color-toolbar-primary);" mode="md">
-      @if (backUrl) {
-        <ion-buttons slot="start">
+        @if (backUrl) {
+            <ion-buttons slot="start">
           @if (showBackButton) {
             <oe-flat-button [link]="{ text: backUrl}" color="light">
               <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="arrow-back-outline"></ion-icon>

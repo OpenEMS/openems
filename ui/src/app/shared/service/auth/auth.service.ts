@@ -83,7 +83,7 @@ export class AuthService {
                                 States.WEBSOCKET_CONNECTED,
                             ) &&
                             this.oAuthService.getCurrentState() !=
-                                AUTHENTICATION_STATE.AUTHENTICATING &&
+                            AUTHENTICATION_STATE.AUTHENTICATING &&
                             !States.isAtLeast(state, States.AUTHENTICATED) &&
                             OAuthService.isOAuth(this.cookieService)
                         ) {
@@ -131,7 +131,7 @@ export class AuthService {
     /** Acts on logout */
     public logout() {
         this.cookieService.delete(AuthService.TOKEN, "/");
-        this.cookieService.delete(OAuthService.REFRESH_TOKEN);
+        this.cookieService.delete(OAuthService.REFRESH_TOKEN, "/");
         this.cookieService.delete("oauthredirectstate");
     }
 

@@ -20,7 +20,7 @@ export class SvgSquarePosition {
     constructor(
         public x: number,
         public y: number,
-    ) { }
+    ) {}
 }
 
 export class SvgSquare {
@@ -28,7 +28,7 @@ export class SvgSquare {
         public length: number,
         public valueText: SvgTextPosition,
         public image: SvgImagePosition,
-    ) { }
+    ) {}
 }
 
 export class SvgTextPosition {
@@ -36,7 +36,7 @@ export class SvgTextPosition {
         public x: number,
         public y: number,
         public fontsize: number,
-    ) { }
+    ) {}
 }
 
 export class SvgImagePosition {
@@ -45,24 +45,24 @@ export class SvgImagePosition {
         public x: number,
         public y: number,
         public length: number,
-    ) { }
+    ) {}
 }
 
 export interface SvgEnergyFlow {
-    topLeft: { x: number, y: number },
-    middleLeft?: { x: number, y: number },
-    bottomLeft: { x: number, y: number },
-    middleBottom?: { x: number, y: number },
-    bottomRight: { x: number, y: number },
-    middleRight?: { x: number, y: number },
-    topRight: { x: number, y: number },
-    middleTop?: { x: number, y: number }
+    topLeft: { x: number; y: number };
+    middleLeft?: { x: number; y: number };
+    bottomLeft: { x: number; y: number };
+    middleBottom?: { x: number; y: number };
+    bottomRight: { x: number; y: number };
+    middleRight?: { x: number; y: number };
+    topRight: { x: number; y: number };
+    middleTop?: { x: number; y: number };
 }
 
 export interface SubValueProperties {
-    value: number | string,
-    fontsize: number,
-    yPosition: number,
+    value: number | string;
+    fontsize: number;
+    yPosition: number;
 }
 
 export class EnergyFlow {
@@ -73,39 +73,78 @@ export class EnergyFlow {
     constructor(
         public radius: number,
         public gradient: {
-            x1: string,
-            y1: string,
-            x2: string,
-            y2: string
+            x1: string;
+            y1: string;
+            x2: string;
+            y2: string;
         },
-    ) { }
+    ) {}
 
-    public update(energyFlow: SvgEnergyFlow, animationEnergyFlow: SvgEnergyFlow) {
+    public update(
+        energyFlow: SvgEnergyFlow,
+        animationEnergyFlow: SvgEnergyFlow,
+    ) {
         if (energyFlow == null) {
             this.points = "0,0 0,0";
         } else {
             const p = energyFlow;
-            this.points = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+            this.points =
+                p.topLeft.x +
+                "," +
+                p.topLeft.y +
+                (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "") +
+                " " +
+                p.topRight.x +
+                "," +
+                p.topRight.y +
+                (p.middleRight
+                    ? " " + p.middleRight.x + "," + p.middleRight.y
+                    : "") +
+                " " +
+                p.bottomRight.x +
+                "," +
+                p.bottomRight.y +
+                (p.middleBottom
+                    ? " " + p.middleBottom.x + "," + p.middleBottom.y
+                    : "") +
+                " " +
+                p.bottomLeft.x +
+                "," +
+                p.bottomLeft.y +
+                (p.middleLeft
+                    ? " " + p.middleLeft.x + "," + p.middleLeft.y
+                    : "");
         }
         if (animationEnergyFlow == null) {
             this.animationPoints = "0,0 0,0";
         } else {
             const p = animationEnergyFlow;
-            this.animationPoints = p.topLeft.x + "," + p.topLeft.y
-                + (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "")
-                + " " + p.topRight.x + "," + p.topRight.y
-                + (p.middleRight ? " " + p.middleRight.x + "," + p.middleRight.y : "")
-                + " " + p.bottomRight.x + "," + p.bottomRight.y
-                + (p.middleBottom ? " " + p.middleBottom.x + "," + p.middleBottom.y : "")
-                + " " + p.bottomLeft.x + "," + p.bottomLeft.y
-                + (p.middleLeft ? " " + p.middleLeft.x + "," + p.middleLeft.y : "");
+            this.animationPoints =
+                p.topLeft.x +
+                "," +
+                p.topLeft.y +
+                (p.middleTop ? " " + p.middleTop.x + "," + p.middleTop.y : "") +
+                " " +
+                p.topRight.x +
+                "," +
+                p.topRight.y +
+                (p.middleRight
+                    ? " " + p.middleRight.x + "," + p.middleRight.y
+                    : "") +
+                " " +
+                p.bottomRight.x +
+                "," +
+                p.bottomRight.y +
+                (p.middleBottom
+                    ? " " + p.middleBottom.x + "," + p.middleBottom.y
+                    : "") +
+                " " +
+                p.bottomLeft.x +
+                "," +
+                p.bottomLeft.y +
+                (p.middleLeft
+                    ? " " + p.middleLeft.x + "," + p.middleLeft.y
+                    : "");
         }
     }
 
@@ -195,19 +234,25 @@ export abstract class AbstractSection {
     }
 
     /**
-    * Updates the Values for this Section.
+     * Updates the Values for this Section.
      *
-     * @param sum the CurrentData.Summary
-    */
+     * @param sum The CurrentData.Summary
+     */
     public updateCurrentData(sum: DefaultTypes.Summary): void {
         this.lastCurrentData = sum;
         this._updateCurrentData(sum);
     }
 
     /**
-    * This method is called on every change of resolution of the browser window.
+     * This method is called on every change of resolution of the browser
+     * window.
      */
-    public updateOnWindowResize(outerRadius: number, innerRadius: number, height: number, width: number) {
+    public updateOnWindowResize(
+        outerRadius: number,
+        innerRadius: number,
+        height: number,
+        width: number,
+    ) {
         this.outerRadius = outerRadius;
         this.innerRadius = innerRadius;
         this.height = height;
@@ -217,15 +262,12 @@ export abstract class AbstractSection {
             .endAngle(this.deg2rad(this.getEndAngle()));
         this.outlinePath = outlineArc();
 
-        /**
-         * imaginary positioning "square"
-         */
+        /** Imaginary positioning "square" */
         this.square = this.getSquare(innerRadius);
         this.squarePosition = this.getSquarePosition(this.square, innerRadius);
-        /**
-         * energy flow rectangle
-         */
-        const availableInnerRadius = innerRadius - this.square.image.y - this.square.image.length - 10;
+        /** Energy flow rectangle */
+        const availableInnerRadius =
+            innerRadius - this.square.image.y - this.square.image.length - 10;
         this.energyFlow = this.initEnergyFlow(availableInnerRadius);
 
         // now update also the value specific elements
@@ -243,14 +285,21 @@ export abstract class AbstractSection {
      */
     protected adjustFillRefbyBrowser(): void {
         if (navigator.vendor.match(/apple/i)) {
-            this.fillRef = "url(" + window.location.origin + window.location.pathname + "#" + this.sectionId + ")";
+            this.fillRef =
+                "url(" +
+                window.location.origin +
+                window.location.pathname +
+                "#" +
+                this.sectionId +
+                ")";
         } else {
             this.fillRef = "url(#" + this.sectionId + ")";
         }
     }
 
     protected getArc(): any {
-        return d3.arc()
+        return d3
+            .arc()
             .innerRadius(this.innerRadius)
             .outerRadius(this.outerRadius);
     }
@@ -260,13 +309,18 @@ export abstract class AbstractSection {
     }
 
     /**
-    * This method is called on every change of values.
-    *
-    * @param valueAbsolute the absolute value of the Section
-    * @param valueRatio    the relative value of the Section in [-1,1]
-    * @param sumRatio      the relative value of the Section compared to the total System.InPower/OutPower [0,1]
-    */
-    protected updateSectionData(valueAbsolute: number, valueRatio: number, sumRatio: number) {
+     * This method is called on every change of values.
+     *
+     * @param valueAbsolute The absolute value of the Section
+     * @param valueRatio The relative value of the Section in [-1,1]
+     * @param sumRatio The relative value of the Section compared to the total
+     *   System.InPower/OutPower [0,1]
+     */
+    protected updateSectionData(
+        valueAbsolute: number,
+        valueRatio: number,
+        sumRatio: number,
+    ) {
         if (!this.isEnabled) {
             return;
         }
@@ -288,7 +342,8 @@ export abstract class AbstractSection {
                 valueRatio = Math.min(1, Math.max(-1, valueRatio));
                 break;
         }
-        const valueEndAngle = (this.getEndAngle() - startAngle) * valueRatio + startAngle;
+        const valueEndAngle =
+            (this.getEndAngle() - startAngle) * valueRatio + startAngle;
         const valueArc = this.getArc()
             .startAngle(this.deg2rad(startAngle))
             .endAngle(this.deg2rad(valueEndAngle));
@@ -307,39 +362,41 @@ export abstract class AbstractSection {
         sumRatio *= 10;
 
         //radius * 1.2 for longer arrows
-        const svgEnergyFlow = this.getSvgEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
-        const svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(sumRatio, this.energyFlow.radius * 1.2);
+        const svgEnergyFlow = this.getSvgEnergyFlow(
+            sumRatio,
+            this.energyFlow.radius * 1.2,
+        );
+        const svgAnimationEnergyFlow = this.getSvgAnimationEnergyFlow(
+            sumRatio,
+            this.energyFlow.radius * 1.2,
+        );
         this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
-    /**
-     * Calculates sub-value properties - for storage SoC and grid buy price.
-     */
-    protected calculateSubValueProperties(value: number | string | null): SubValueProperties | null {
+    /** Calculates sub-value properties - for storage SoC and grid buy price. */
+    protected calculateSubValueProperties(
+        value: number | string | null,
+    ): SubValueProperties | null {
         if (!this.square || value === null) {
             return null;
         }
-        const maxFontsize = 14;
-        const minFontsize = 6;
-        const lineDistance = Math.min(this.square.valueText.fontsize, maxFontsize + 5);
+        const fontsize = Math.max(11, this.square.valueText.fontsize * 0.7);
         return {
             value: value,
-            fontsize: Math.min(maxFontsize, Math.max(minFontsize, this.square.valueText.fontsize)),
-            yPosition: this.square.valueText.y + lineDistance,
+            fontsize: fontsize,
+            yPosition: this.square.valueText.y + 3 + fontsize * 1.1,
         };
     }
 
     /**
-     * calculate...
-     * ...length of square and image;
-     * ...x and y of text and image;
+     * Calculate... ...length of square and image; ...x and y of text and image;
      * ...fontsize of text;
      */
     private getSquare(innerRadius: number): SvgSquare {
         const imageSize = Math.max(0, innerRadius / 2.5);
         const yText = imageSize / 4;
 
-        const fontsize = Math.max(0, yText - 3);
+        const fontsize = Math.max(14, yText - 3);
         const yNumber = yText + 5 + fontsize;
 
         const yImage = yNumber + 5;
@@ -350,49 +407,58 @@ export abstract class AbstractSection {
         return new SvgSquare(
             length,
             new SvgTextPosition(xText, yNumber, fontsize),
-            new SvgImagePosition(this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
+            new SvgImagePosition(
+                this.getImagePath(),
+                length / 2 - imageSize / 2,
+                yImage,
+                imageSize,
+            ),
         );
     }
 
-    /**
-     * Gets the Start-Angle in Degree
-     */
+    /** Gets the Start-Angle in Degree */
     protected abstract getStartAngle(): number;
 
-    /**
-     * Gets the End-Angle in Degree
-     */
+    /** Gets the End-Angle in Degree */
     protected abstract getEndAngle(): number;
 
-    /**
-     * Gets the Ratio-Type of this Section
-     */
+    /** Gets the Ratio-Type of this Section */
     protected abstract getRatioType(): Ratio;
 
     /**
      * Gets the SVG for EnergyFlow
      *
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
+     * @param ratio The ratio of the value [-1,1] * scale factor
+     * @param radius The available radius
      */
-    protected abstract getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+    protected abstract getSvgEnergyFlow(
+        ratio: number,
+        radius: number,
+    ): SvgEnergyFlow;
 
     /**
      * Gets the SVG for EnergyFlowAnimation
      *
-     * @param ratio  the ratio of the value [-1,1] * scale factor
-     * @param radius the available radius
+     * @param ratio The ratio of the value [-1,1] * scale factor
+     * @param radius The available radius
      */
-    protected abstract getSvgAnimationEnergyFlow(ratio: number, radius: number): SvgEnergyFlow;
+    protected abstract getSvgAnimationEnergyFlow(
+        ratio: number,
+        radius: number,
+    ): SvgEnergyFlow;
 
     /**
-     * Updates the Values for this Section. Should internally call updateSectionData().
+     * Updates the Values for this Section. Should internally call
+     * updateSectionData().
      *
-     * @param sum the CurrentData.Summary
+     * @param sum The CurrentData.Summary
      */
     protected abstract _updateCurrentData(sum: DefaultTypes.Summary): void;
     protected abstract getImagePath(): string;
-    protected abstract getSquarePosition(rect: SvgSquare, innerRadius: number): SvgSquarePosition;
+    protected abstract getSquarePosition(
+        rect: SvgSquare,
+        innerRadius: number,
+    ): SvgSquarePosition;
     protected abstract getValueText(value: number): string;
     protected abstract initEnergyFlow(radius: number): EnergyFlow;
     protected abstract setElementHeight();

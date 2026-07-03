@@ -31,7 +31,7 @@ export class EnergySchedulerV2 extends EdgeConfig.Component {
     }
 
     private static hasRequiredEdgeVersion(edge: Edge) {
-        return edge.isVersionAtLeast("2026.5.1");
+        return edge.isVersionAtLeast("2026.6.2");
     }
 
     public async updateSchedule(edge: Edge, websocket: Websocket) {

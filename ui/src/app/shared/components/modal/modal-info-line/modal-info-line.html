@@ -1,5 +1,5 @@
 @if (info || html) {
-  <ion-row size="12" [style]="rowStyle" class="full_width" style="display: flex; align-items: center; line-height: 1.4; margin-top: 2%">
+  <ion-row size="12" [style]="rowStyle" class="full_width ion-align-items-center">
     @if (icon) {
       <ion-col [size]="icon ? 1 : 0">
         <ion-icon [color]="icon?.color ?? 'primary'" [name]="icon?.name ?? 'information-outline'" [size]="icon?.size ?? 'small'"> </ion-icon>
