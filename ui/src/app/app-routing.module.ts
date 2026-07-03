@@ -184,7 +184,7 @@ export const history: (
 export const routes: Routes = [
     // TODO should be removed in the future
     { path: "", redirectTo: oauthRedirectFunction("login"), pathMatch: "full" },
-    { path: "oauthcallback", component: OAuthCallBackComponent },
+    { path: OAuthCallBackComponent.ID, component: OAuthCallBackComponent },
     {
         path: "login",
         component: LoginComponent,

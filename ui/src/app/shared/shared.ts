@@ -20,6 +20,7 @@ import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
 import { StringUtils } from "./utils/string/string.utils";
+import { isBefore, subDays } from "date-fns";
 
 addIcons({
     "oe-consumption": environment.icons.COMMON.CONSUMPTION,
@@ -83,13 +84,13 @@ export class EdgePermission {
     }
 
     /**
-   * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
-   * and if histroyPeriods exist, it gets the correspondent periods accordingly
-   *
-   * @param edge the edge
-   * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
-   * @returns the list of allowed periods for this edge
-   */
+     * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
+     * and if histroyPeriods exist, it gets the correspondent periods accordingly
+     *
+     * @param edge the edge
+     * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
+     * @returns the list of allowed periods for this edge
+     */
     public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
 
         if (historyPeriods?.length > 0) {

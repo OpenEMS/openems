@@ -100,7 +100,6 @@ const allTsFiles = {
         "@stylistic/quote-props": ["warn", "consistent"],
         "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
-        "@stylistic/indent": ["error", 4],
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
