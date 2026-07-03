@@ -11,6 +11,7 @@ import java.util.OptionalInt;
 import java.util.UUID;
 import java.util.function.Function;
 
+import io.openems.edge.energy.api.Version;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -176,7 +177,9 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 		READ_ONLY(EvcsProps.readOnly().wrapField((app, property, l, parameter, field) -> {
 			field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 					.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
-		}));
+		})), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(EvseProps.acknowledgeNavigationMigration(EVCS_ID, ARCHITECTURE_TYPE)),//
+		;
 
 		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
@@ -450,6 +453,7 @@ public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, 
 						.addTask(Tasks.component(components)); //
 			}
 			case EVSE -> {
+				appConfigBuilder.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var vehicleId = UUID.fromString(this.getString(p, SubPropertyFirstChargepoint.ELECTRIC_VEHICLE_ID));
 				final var components = Lists.newArrayList(//
 						new EdgeConfig.Component(evcsId, alias, "Evse.ChargePoint.HardyBarth",

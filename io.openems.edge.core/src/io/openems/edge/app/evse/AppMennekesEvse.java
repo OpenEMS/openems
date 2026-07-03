@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+import io.openems.edge.app.common.props.CommonProps;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -59,6 +60,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Con
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
+import io.openems.edge.energy.api.Version;
 
 @Component(name = AppMennekesEvse.APP_EVSE_MENNEKES)
 public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse, Property, Parameter.BundleParameter>
@@ -85,6 +87,7 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 		CONFIGURE_VEHICLE(EvseProps.configureVehicle()), //
 		WIRING(AppDef.copyOfGeneric(EvseProps.wiring())), //
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(CommonProps.acknowledgeNavigationMigration(EVCS_ID)), //
 		;
 
 		private final AppDef<? super AppMennekesEvse, ? super Property, ? super BundleParameter> def;
@@ -206,6 +209,7 @@ public class AppMennekesEvse extends AbstractOpenemsAppWithProps<AppMennekesEvse
 			var appConfig = AppConfiguration.create();
 			dependencies.addAll(AppEvseCluster.dependency());
 			appConfig.addTask(Tasks.cluster(ctrlSingleId));
+			appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 			appConfig.addDependencies(dependencies);
 			appConfig.addTask(Tasks.componentFromComponentConfig(components));
 

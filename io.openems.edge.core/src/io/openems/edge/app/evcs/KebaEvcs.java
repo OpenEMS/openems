@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
+import io.openems.edge.energy.api.Version;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -174,6 +175,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 		PHASE_ROTATION(AppDef.copyOfGeneric(EvcsProps.phaseRotation())), //
 		// Properties for P40 app
 		MODBUS_ID(AppDef.componentId("modbus0")), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(EvseProps.acknowledgeNavigationMigration(EVCS_ID, ARCHITECTURE_TYPE)), //
 		;
 
 		private final AppDef<? super KebaEvcs, ? super Property, ? super BundleParameter> def;
@@ -292,6 +294,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 				}
 			}
 			case EVSE -> {
+				appConfig.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var wiring = this.getEnum(p, SingleOrThreePhase.class, Property.WIRING);
 				switch (hardwareType) {
 				case P30 -> {
