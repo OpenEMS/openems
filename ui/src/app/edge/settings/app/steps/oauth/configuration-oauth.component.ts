@@ -55,7 +55,7 @@ export class ConfigurationOAuthComponent {
 
     constructor() {
         effect(async onCleanup => {
-            this.isApp = this.platformService.getIsApp();
+            this.isApp = this.platformService.getDevice().isApp();
 
             const currentEdge = this.service.currentEdge();
 

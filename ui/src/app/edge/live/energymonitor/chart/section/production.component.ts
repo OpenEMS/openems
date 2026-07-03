@@ -17,19 +17,18 @@ import { AnimationService } from "./animation.service";
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
-    private unitpipe: UnitvaluePipe;
+    protected productionAnimationClass: string = "production-hide";
+
     private subShow?: Subscription;
-    private productionAnimationClass: string = "production-hide";
     private animationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
         super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
-        this.unitpipe = unitpipe;
     }
 
     ngOnInit() {

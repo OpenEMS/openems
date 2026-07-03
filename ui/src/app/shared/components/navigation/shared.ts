@@ -8,27 +8,67 @@ import { Edge } from "../edge/edge";
 export enum NavigationId {
     LIVE = "live",
     HISTORY = "history",
+    FORECAST = "forecast",
+    ROOT = "root",
 }
+
+export enum AvailableScope {
+    GLOBAL = "GLOBAL",
+    LOCAL = "LOCAL",
+    LIVE_AND_OVERVIEW = "LIVE_AND_OVERVIEW",
+}
+
+export enum PageFilterMode {
+    HIDE = "HIDE",
+    SHOW = "SHOW",
+}
+
+export type PageFilterRule = {
+    navigationId: NavigationTree["id"];
+    mode: PageFilterMode;
+};
+
+export enum PageFilterCombineMode {
+    ALL = "ALL",
+    ANY = "ANY",
+};
+
+export type PageFilterSet = {
+    combine: PageFilterCombineMode,
+    rules: PageFilterRule[],
+};
 
 type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning" | "normal" | "production";
 export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
 
+export type NavigationTreeOptions = {
+    showOrder?: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
+    availableScope?: AvailableScope.GLOBAL | AvailableScope.LOCAL | AvailableScope.LIVE_AND_OVERVIEW;
+    pageFilter?: PageFilterSet | null;
+    customLink?: string | null;
+};
+
 export class NavigationTree {
+    public showOrder: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
+    public availableScope: AvailableScope.GLOBAL | AvailableScope.LOCAL | AvailableScope.LIVE_AND_OVERVIEW;
+    public pageFilter: PageFilterSet | null;
+    public customLink: string | null;
+
     constructor(
         public id: NavigationId | string,
         public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
         public icon: PartialedIcon,
         public label: string,
-
-        // Display mode of chip
-        public mode: "icon" | "label",
+        public mode: "icon" | "label" | "hidden",
         public children: NavigationTree[],
-
-        /** Use null for nested node */
         public parent: NavigationTree | null,
-        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
-        public showOrder: "HIGH" | "LOW" | "HIDE" = "HIGH",
-    ) { }
+        options: NavigationTreeOptions = {},
+    ) {
+        this.showOrder = options.showOrder ?? "HIGH";
+        this.availableScope = options.availableScope ?? AvailableScope.LOCAL;
+        this.pageFilter = options.pageFilter ?? null;
+        this.customLink = options.customLink ?? null;
+    }
 
     /**
      * Creates new navigation tree instance from existing navigation tree object.
@@ -37,10 +77,23 @@ export class NavigationTree {
     * @returns the new navigationTree
     */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
-        if (!navigationTree) {
+        if (navigationTree == null) {
             return null;
         }
-        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
+        return new NavigationTree(
+            navigationTree.id,
+            navigationTree.routerLink,
+            navigationTree.icon,
+            navigationTree.label,
+            navigationTree.mode,
+            navigationTree.children,
+            navigationTree.parent,
+            {
+                showOrder: navigationTree.showOrder,
+                availableScope: navigationTree.availableScope,
+                pageFilter: navigationTree.pageFilter,
+            },
+        );
     }
 
     public static dummy() {
@@ -62,11 +115,18 @@ export class NavigationTree {
         node.children.forEach(child => this.reorderByShowOrder(child));
 
         // Explicit grouping (safer than comparator)
+        const veryHigh = node.children.filter(c => c.showOrder === "VERY_HIGH");
         const high = node.children.filter(c => c.showOrder === "HIGH");
         const low = node.children.filter(c => c.showOrder === "LOW");
         const hide = node.children.filter(c => c.showOrder === "HIDE");
 
-        node.children = [...high, ...low, ...hide];
+        node.children = [...veryHigh, ...high, ...low, ...hide];
+    }
+
+    public getBreadCrumbs(): NavigationTree[] {
+        const parents: NavigationTree[] = this.getParents() ?? [];
+        parents.push(this);
+        return parents;
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
@@ -88,6 +148,11 @@ export class NavigationTree {
             function buildAbsoluteLink(node: NavigationTree): NavigationTree {
                 const segments: (string | null)[] = [];
                 const current: NavigationTree | null = node;
+
+                if (node.customLink != null) {
+                    node.routerLink.baseString = node.customLink;
+                    return node;
+                }
 
                 segments.unshift(current.routerLink.baseString);
                 segments.unshift(current?.parent?.routerLink.baseString ?? null);
@@ -257,12 +322,16 @@ export class NavigationTree {
         return [
             this.id, this.routerLink, this.icon,
             this.label, this.mode, this.children, this.parent,
-            this.showOrder,
+            {
+                showOrder: this.showOrder,
+                availableScope: this.availableScope,
+                pageFilter: this.pageFilter,
+            },
         ];
     }
 
-    public getChildren(): NavigationTree[] | null {
-        return this.children?.filter(el => el != null) ?? null;
+    public getChildren(): NavigationTree[] {
+        return this.children?.filter(el => el != null) ?? [];
     }
 
     public getAllNavigationNodes(tree: NavigationTree[]): NavigationTree[] {
@@ -432,13 +501,16 @@ export namespace NavigationConstants {
     ];
 
     export namespace CommonNodes {
-        export function SETTINGS(translate: TranslateService, showOrder: NavigationTree["showOrder"] = "LOW") { return new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null, showOrder); };
+        export function SETTINGS(translate: TranslateService, showOrder: NavigationTree["showOrder"] = "LOW") { return new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null, { showOrder }); };
         export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
         export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
             return edge.roleIsAtLeast(Role.INSTALLER)
                 ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
                 : [];
         }
+        export function INFO(translate: TranslateService, queryParams: { source: string } | {} = {}) {
+            return new NavigationTree("info", { baseString: "navigation-info", queryParams: queryParams }, { name: "information-outline" }, translate.instant("GENERAL.INFO"), "label", [], null, { showOrder: "LOW" });
+        };
         export function HISTORY(translate: TranslateService, children: NavigationTree[] = []) { return new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", children, null); };
 
 

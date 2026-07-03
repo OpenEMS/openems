@@ -3,7 +3,7 @@ import { FormGroup } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
-import { filter, take, takeUntil } from "rxjs/operators";
+import { filter, finalize, take, takeUntil } from "rxjs/operators";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { Icon } from "../../type/widget";
@@ -35,6 +35,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     protected skipCurrentData: boolean = false;
     private injector: Injector = inject(Injector);
     private subscription: EffectRef | null = null;
+    private view: OeFormlyView<T> | null = null;
 
     constructor() {
         this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
@@ -50,13 +51,35 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
                 .subscribe(() => this.subscribeChannels(this.service));
 
             edge.getConfig(this.service.websocket)
-                .pipe(filter(config => !!config), takeUntil(this.stopOnDestroy))
+                .pipe(
+                    filter(config => !!config),
+                    takeUntil(this.stopOnDestroy),
+                    finalize(() => {
+                        this.navigationService.headerTitle.set(null);
+                    }))
                 .subscribe(async (config) => {
                     const view = await this.generateView({ edge: edge, config: config, translate: this.translate });
+                    this.view = view;
                     this.form = this.getFormGroup();
                     this.setFields(view, this.form, websocket);
                 });
         });
+
+        effect(() => {
+            const isNavigationInitialized = this.navigationService.getIsInitialized();
+            if (!isNavigationInitialized) {
+                return;
+            }
+            this.ionViewWillEnter();
+        });
+    }
+
+    ionViewWillEnter() {
+        this.navigationService.headerTitle.set(this.view?.isCommonWidget ? this.view.title : null);
+    }
+
+    ionViewWillLeave() {
+        this.ngOnDestroy();
     }
 
     public async ngOnDestroy() {
@@ -104,7 +127,6 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
 
         }, { injector: this.injector });
     }
-
 
     /**
      * Called on every new data - executed on every currentData notification.
@@ -230,6 +252,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     private setFields(view: OeFormlyView<T>, fg: FormGroup, websocket: Websocket) {
+        this.ionViewWillEnter();
         this.fields = [{
             fieldGroup: view.lines.map((el, index) => {
                 return {

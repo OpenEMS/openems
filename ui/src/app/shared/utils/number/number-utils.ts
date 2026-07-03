@@ -100,6 +100,32 @@ export namespace NumberUtils {
     }
 
     /**
+     * Ceils a value safely.
+     *
+     * @param value the value
+     * @returns the smallest integer greater than or equal to its numeric argument, if valid, else null
+     */
+    export function ceilSafely(value: number | null): number | null {
+        if (value === null) {
+            return null;
+        }
+        return Math.ceil(value);
+    }
+
+    /**
+     * Floors a value safely.
+     *
+     * @param value the value
+     * @returns the greatest integer less than or equal to its numeric argument, if valid, else null
+     */
+    export function floorSafely(value: number | null): number | null {
+        if (value === null) {
+            return null;
+        }
+        return Math.floor(value);
+    }
+
+    /**
  * Converts the number to have a max value
  *
  * @param value the value

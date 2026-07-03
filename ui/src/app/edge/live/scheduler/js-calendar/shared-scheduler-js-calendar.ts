@@ -1,6 +1,6 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ValidationResult } from "json-schema";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { JsCalendar } from "src/app/shared/components/schedule/js-calendar-task";
 import { OneTask } from "src/app/shared/jsonrpc/response/getOneTasksResponse";
 import { EdgeConfig, Service } from "src/app/shared/shared";
@@ -13,10 +13,11 @@ export namespace SharedSchedulerJsCalendar {
     export function getNavigationTree(translate: TranslateService, componentId: EdgeConfig.Component["id"]): ConstructorParameters<typeof NavigationTree> | null {
         return new NavigationTree(componentId + "/scheduler-js-calendar", { baseString: componentId + "/scheduler-js-calendar" }, { name: "battery-full-outline", color: "medium" }, "Serieller Multi Use", "label", [
             new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), "label", [
-                new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
-                new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
+                new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, { showOrder: "HIDE" }),
+                new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, { showOrder: "HIDE" }),
 
             ], null),
+            NavigationConstants.CommonNodes.INFO(translate, { source: componentId }),
         ], null).toConstructorParams();
     }
 

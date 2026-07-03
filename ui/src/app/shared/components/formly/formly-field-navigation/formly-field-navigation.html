@@ -1,8 +1,8 @@
 <formly-form [form]="form" [fields]="field.fieldGroup" [model]="model"></formly-form>
 
 @if (field && field.props && field.props.options[0].component) {
-<oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm(form)">
-    @if (props.attributes.title || props.attributes.helpKey) {
+<oe-navigation-view [formGroup]="form" [component]="props.options[0].component" (emitForm)="setForm($event)">
+    @if ((props.attributes.title || props.attributes.helpKey) && !(props.options[0].isCommonWidget)) {
     <ion-toolbar color="transparent">
         <ion-grid class="ion-no-padding">
             <ion-row class="ion-justify-content-center ion-align-items-center">
@@ -147,6 +147,12 @@
 
                 <!-- OeFormlyField.ToggleLine -->
                 @case ('toggle-line') {
+                <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{type: 'TOGGLE'}"
+                    [formGroup]="form" leftColumnWidth="100">
+                </oe-modal-line>
+                }
+
+                @case ('input-line') {
                 <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName"
                     [control]="{type: 'TOGGLE'}" [formGroup]="form" leftColumnWidth="100">
                 </oe-modal-line>

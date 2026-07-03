@@ -38,7 +38,7 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     public async ngOnChanges() {

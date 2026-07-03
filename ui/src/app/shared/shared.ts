@@ -41,6 +41,9 @@ addIcons({
     "oe-time-of-use": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE,
     "oe-time-of-use-thin": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
     "oe-generator": environment.icons.COMMON.GENERATOR,
+    "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
+    "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
+    "oe-wrap-up": environment.icons.WRAP_UP,
 });
 
 export class Permission {
@@ -222,7 +225,7 @@ export namespace Currency {
 
     export enum Label {
         OERE_PER_KWH = "Öre/kWh",
-        CENT_PER_KWH = "Cent/kWh",
+        CENT_PER_KWH = "ct/kWh",
         RAPPEN_PER_KWH = "Rp./kWh",
     }
 

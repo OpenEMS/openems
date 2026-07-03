@@ -27,10 +27,10 @@ export namespace ControllerEvseSingleShared {
 
                 new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
                 new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null, getPhaseSwitchingShowOrder(componentId, edge, config)),
+                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null, { showOrder: getPhaseSwitchingShowOrder(componentId, edge, config) }),
                 new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
-                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
+                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, { showOrder: "HIDE" }),
+                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, { showOrder: "HIDE" }),
                 ], null),
                 new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
                 ...(edge.roleIsAtLeast(Role.OWNER)
@@ -79,10 +79,10 @@ export namespace ControllerEvseSingleShared {
                 switch (value) {
                     case Mode.ZERO:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
-                    case Mode.MINIMUM:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case Mode.SURPLUS:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                    case Mode.MINIMUM:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case Mode.FORCE:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:

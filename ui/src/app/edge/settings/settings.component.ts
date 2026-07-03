@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
@@ -16,6 +17,7 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
         CommonUiModule,
         RouterModule,
         FlatWidgetButtonComponent,
+        ComponentsBaseModule,
     ],
 })
 export class SettingsComponent implements OnInit {

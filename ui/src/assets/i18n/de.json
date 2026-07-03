@@ -363,7 +363,7 @@
                     "UNKNOWN": "Unbekannt",
                     "UNPLUGGED": "Ausgesteckt",
                     "ZERO": "Keine Beladung",
-                    "MINIMUM": "Minimal Beladung mit PV-Überschuss",
+                    "MINIMUM": "PV-Überschuss mit garantierter Beladung",
                     "SURPLUS": "PV-Überschuss",
                     "FORCE_CHARGE": "Schnellladen",
                     "TASKS": "Tasks"
@@ -454,7 +454,7 @@
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
-                    "ACTIVE_LEVEL": "Aktives Level",                    
+                    "ACTIVE_LEVEL": "Aktives Level",
                     "LEVEL_ONE": "Level 1",
                     "LEVEL_TWO": "Level 2",
                     "LEVEL_THREE": "Level 3",
@@ -554,7 +554,7 @@
                         "SCHEDULE": "Zeitplan",
                         "ADD_TASK": "Aufgabe hinzufügen"
                     },
-                    "CHARGE_MODE": "Lademodus",
+                    "CHARGE_MODE": "Grundmodus",
                     "VEHICLE_ID_ERROR": "Die Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfen Sie die Konfiguration. Alle registrierten Fahrzeuge werden angezeigt."
                 }
             }
@@ -644,6 +644,7 @@
         "ENERGY_LIMIT": "Energielimit",
         "FAULT": "Fehler",
         "FOR": "für",
+        "FORECAST": "Prognose",
         "FORMLY": {
             "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente",
             "LINK_TO_DOCS": "Link zu Docs",
@@ -818,9 +819,16 @@
     "MENU": {
         "ACCESS_LEVEL": "Zugriffslevel",
         "CHANGELOG": "Changelog",
-        "DEFAULT_EDGE_LONG_NAME": "Open Energy Management System",
+        "COCKPIT": "Cockpit",
+        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Einstellungen",
+        "EDGE_SYSTEM_SETTINGS": "Systemeinstellungen",
+        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
+        "GROUPS": {
+            "HEATING_ROOM": "Heizung"
+        },
+        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
         "INDEX": "Übersicht",
         "LOGOUT": "Abmelden",
         "MENU": "Menü",
@@ -829,7 +837,8 @@
         "OTHER_USER": "Weitere Benutzer",
         "OVERVIEW": "Alle Systeme",
         "SETTINGS": "Einstellungen",
-        "USER": "Benutzer"
+        "USER": "Benutzer",
+        "PROFILE": "Profil"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
@@ -934,6 +943,10 @@
                 "STORAGE_SYSTEMS": "Speichersysteme",
                 "TEMPERATURE_SENSORS": "Temperatursensoren"
             }
+        },
+        "ENERGY_JOURNEY": {
+            "TO_THE_ANALYSIS": "Zur Analyse",
+            "YOUR_ENERYJOURNEY": "Deine Energy Journey"
         },
         "POWER_ASSISTANT": {
             "INFO": "Der 'Power Assistant' zeigt für alle Speichersysteme (ess0, ess1,...) die jeweiligen Controller und jeweils einige relevante Datenpunkte. Die Reihenfolge entspricht der Reihenfolge im Scheduler."

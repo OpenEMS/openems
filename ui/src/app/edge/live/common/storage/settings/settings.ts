@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
-import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
@@ -27,7 +26,6 @@ import { SharedStorage } from "../shared/shared";
 
     imports: [
         CommonUiModule,
-        HelpButtonComponent,
         ReactiveFormsModule,
         FormsModule,
         FormlyModule,
@@ -375,8 +373,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 type: "info-line",
                 icon: { color: "medium", name: "information-outline", size: "large" },
                 name: [{ text: this.translate.instant("EDGE.INDEX.EMERGENCY_RESERVE.INFO_FOR_EMERGENCY_RESERVE_SLIDER"), lineStyle: "font-size: smaller" }],
-            },
-            {
+            }, {
                 type: "range-button-from-form-control-line",
                 controlName: CommonStorageSettingsComponent.FORMCONTROL_EMERGENCY_RESERVE_SOC(essComponent),
                 properties: {

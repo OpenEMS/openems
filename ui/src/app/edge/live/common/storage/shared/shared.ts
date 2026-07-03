@@ -52,7 +52,7 @@ export namespace SharedStorage {
         const prepareBatteryExtensionCtrl = config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         const hasAtLeastOneController = emergencyReserveCtrl.length > 0 || prepareBatteryExtensionCtrl.length > 0;
 
-        return new NavigationTree("storage", { baseString: "common/storage" }, { name: "oe-storage", color: "success" }, translate.instant("GENERAL.STORAGE_SYSTEM"), "label", [
+        return new NavigationTree("storage", { baseString: "common/storage" }, { name: "oe-storage", color: "success" }, translate.instant("GENERAL.STORAGE_SYSTEM"), "icon", [
             ...essController,
             NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
             NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),

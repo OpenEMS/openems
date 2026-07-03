@@ -1,6 +1,7 @@
 import { Directive, OnDestroy, OnInit, inject } from "@angular/core";
 import { isAfter, isSameDay, startOfDay } from "date-fns";
 import { Subscription, interval, startWith } from "rxjs";
+import { PlatFormService } from "src/app/platform.service";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
@@ -27,6 +28,8 @@ export abstract class WeatherBaseComponent extends AbstractModal implements OnIn
     protected resolutionService = inject(Service);
     protected weatherForecastSubscription?: Subscription;
 
+    private readonly platformService = inject(PlatFormService);
+
     public override ngOnDestroy(): void {
         this.weatherForecastSubscription?.unsubscribe();
         super.ngOnDestroy();
@@ -41,7 +44,7 @@ export abstract class WeatherBaseComponent extends AbstractModal implements OnIn
         const meta = new MetaComponent(config);
         this.placeName = meta.getPropertyFromComponent("placeName") ?? "";
 
-        this.isSmartphone = this.resolutionService.isSmartphoneResolution;
+        this.isSmartphone = this.platformService.getDevice()?.isSmartphone() ?? false;
 
         this.weatherForecastSubscription = interval(WeatherBaseComponent.FETCH_INTERVAL_MS)
             .pipe(startWith(0))

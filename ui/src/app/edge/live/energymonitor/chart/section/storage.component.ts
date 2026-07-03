@@ -7,7 +7,7 @@ import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AbstractSection, EnergyFlow, Ratio, SubValueProperties, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
 
 @Component({
@@ -21,18 +21,17 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
     public svgStyle: string;
-    protected socPercentageFontSize: number | null = null;
-    protected socPercentageYPosition: number | null = null;
-    private socValue: number;
-    private unitpipe: UnitvaluePipe;
+
+    protected chargeAnimationClass: string = "storage-charge-hide";
+    protected dischargeAnimationClass: string = "storage-discharge-hide";
+    protected socPercentage: SubValueProperties | null = null;
+
     private subShow?: Subscription;
-    private chargeAnimationClass: string = "storage-charge-hide";
-    private dischargeAnimationClass: string = "storage-discharge-hide";
 
     constructor(
         translate: TranslateService,
         protected override service: Service,
-        unitpipe: UnitvaluePipe,
+        private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
         super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "var(--ion-color-success)", translate, service, "Storage");
@@ -62,14 +61,6 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        if (this.square !== undefined && this.square.valueText !== undefined && this.square.valueText !== null) {
-            const maxFontSize = 14;
-            const minFontSize = 12;
-            const idealFontDistance = this.square.valueText.fontsize * 1.8;
-            this.socPercentageFontSize = Math.min(maxFontSize, Math.max(minFontSize, this.square.valueText.fontsize));
-            this.socPercentageYPosition = this.square.valueText.y + (idealFontDistance >= maxFontSize ? maxFontSize : idealFontDistance);
-        }
-
         this.service.getCurrentEdge()
             .then(async edge => {
                 edge.currentData.subscribe(curr => {
@@ -120,10 +111,11 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
                         super.updateSectionData(null, null, null);
                     }
 
-                    this.socValue = sum.storage.soc;
+                    this.socPercentage = this.calculateSubValueProperties(sum.storage.soc);
+
                     if (this.square) {
                         this.square.image.image = this.getImagePath();
-                        this.svgStyle = "storage-" + Utils.getStorageSocSegment(this.socValue);
+                        this.svgStyle = "storage-" + Utils.getStorageSocSegment(sum.storage.soc);
                     }
                 });
             });

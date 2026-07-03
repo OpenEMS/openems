@@ -9,6 +9,8 @@ import { CommonProductionDetailsComponent } from "src/app/edge/live/common/produ
 import { CommonProductionHistoryComponent } from "src/app/edge/live/common/production/history/new-navigation/new-navigation";
 import { CommonProductionSingleHistoryOverviewComponent } from "src/app/edge/live/common/production/history/phase-accurate/new-navigation/phase-accurate";
 import { CommonProductionHomeComponent } from "src/app/edge/live/common/production/new-navigation/new-navigation";
+import { CommonSelfConsumptionHistoryComponent } from "src/app/edge/live/common/selfconsumption/history/new-navigation/new-navigation";
+import { CommonSelfConsumptionHomeComponent } from "src/app/edge/live/common/selfconsumption/new-navigation/new-navigation";
 import { CommonStorageOwnerGuestInstallerDetailsComponent } from "src/app/edge/live/common/storage/details/details";
 import { CommonStorageDetailsComponent } from "src/app/edge/live/common/storage/history/details/new-navigation/new-navigation";
 import { CommonStorageHistoryComponent } from "src/app/edge/live/common/storage/history/new-navigation/new-navigation";
@@ -57,14 +59,14 @@ import { CommonGridExternalLimitationOverviewComponent } from "../../../edge/liv
 import { CommonGridPhaseAccurateOverviewComponent } from "../../../edge/live/common/grid/history/details/phase-accurate/new-navigation/new-navigation";
 import { CommonGridHistoryComponent } from "../../../edge/live/common/grid/history/new-navigation/new-navigation";
 import { CommonGridHomeComponent } from "../../../edge/live/common/grid/new-navigation/new-navigation";
-import { CommonSelfConsumptionHistoryComponent } from "../../../edge/live/common/selfconsumption/history/new-navigation/new-navigation";
-import { CommonSelfConsumptionHomeComponent } from "../../../edge/live/common/selfconsumption/new-navigation/new-navigation";
 import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Controller/Evse/pages/forecast/forecast";
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
 import { ModalComponent as IoHeatingRoomComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
+import { HeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
+import { suffixMatcher } from "../../guards/url-matcher";
 
 export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
@@ -77,12 +79,14 @@ export const newNavigationRoutes: Routes = [
     { path: "evse/:componentId/schedule/edit-task", component: EvseEditTaskComponent },
     { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
     { path: "evse/:componentId/schedule/add-task", component: EvseAddTaskComponent },
-    { path: "navigation-info", component: NavigationInfoComponent },
+    { matcher: suffixMatcher("navigation-info"), component: NavigationInfoComponent },
     {
         path: "evse/:componentId/car/update/:appId",
         component: UpdateAppConfigComponent,
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
+
+    { path: "io-heating-room", component: HeatingRoomGroupComponent },
     { path: "io-heating-room/:componentId", component: IoHeatingRoomComponent },
 
     // Common navigation
@@ -105,6 +109,9 @@ export const newNavigationRoutes: Routes = [
     { path: "common/production/history/phase-accurate", component: CommonProductionDetailsComponent },
     { path: "common/production/history/:componentId/phase-accurate", component: CommonProductionSingleHistoryOverviewComponent },
     { path: "common/production/history/:componentId/phase-accurate/current-voltage", component: CurrentVoltageOverviewComponent },
+
+    { path: "settings", loadChildren: () => import("src/app/edge/settings/settings-routing.module").then(m => m.SettingsRoutingModule) },
+
     { path: "common/selfconsumption", component: CommonSelfConsumptionHomeComponent },
     { path: "common/selfconsumption/history", component: CommonSelfConsumptionHistoryComponent },
     { path: "common/storage", component: CommonStorageHomeComponent },

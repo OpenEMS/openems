@@ -136,7 +136,7 @@ export class ChangelogComponent {
     }
 
     private getChangeLogUrl() {
-        if (this.platFormService.getIsApp() || environment.backend == "OpenEMS Edge") {
+        if (this.platFormService.getDevice().isApp() || environment.backend == "OpenEMS Edge") {
             return environment.api.CHANGELOG.REMOTE;
         }
 

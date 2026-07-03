@@ -3,7 +3,6 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@ang
 import { Subject, fromEvent } from "rxjs";
 import { debounceTime, delay, takeUntil } from "rxjs/operators";
 import { Service } from "src/app/shared/shared";
-import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { CurrentData } from "../../../../shared/components/edge/currentdata";
 import { ConsumptionSectionComponent } from "./section/consumption.component";
 import { GridSectionComponent } from "./section/grid.component";
@@ -53,7 +52,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.service.startSpinner(this.spinnerId);
         // make sure chart is redrawn in the beginning and on window resize
-        setTimeout(() => this.updateOnWindowResize(), 500);
+        setTimeout(() => this.updateOnWindowResize(), 100);
         const source = fromEvent(window, "resize", null, null);
         source.pipe(takeUntil(this.ngUnsubscribe), debounceTime(200), delay(100)).subscribe(e => {
             this.updateOnWindowResize();
@@ -86,7 +85,7 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
     private updateOnWindowResize(): void {
         let size = 300;
         if (this.chartDiv.nativeElement.offsetParent) {
-            size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30 - /**TODO: find reactive way to read style */NumberUtils.parseNumberSafelyOrElse(getComputedStyle(document.documentElement).getPropertyValue("--ion-padding"), 0) * 2;
+            size = this.chartDiv.nativeElement.offsetParent.offsetWidth - 30;
         }
         if (size > window.innerHeight) {
             size = window.innerHeight;
@@ -101,9 +100,5 @@ export class EnergymonitorChartComponent implements OnInit, OnDestroy {
             .forEach(section => {
                 section.updateOnWindowResize(outerRadius, innerRadius, this.height, this.width);
             });
-    }
-
-    private deg2rad(value: number): number {
-        return value * (Math.PI / 180);
     }
 }

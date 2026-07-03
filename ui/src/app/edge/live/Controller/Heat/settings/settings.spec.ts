@@ -5,6 +5,8 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import globalEn from "src/assets/i18n/en.json";
 import { environment } from "src/environments";
 import heatEn from "../i18n/en.json";
+import { PropertyMode } from "../shared/shared";
+
 import { ControllerHeatSettingsComponent, Mode } from "./settings";
 
 function createComponent(component: EdgeConfig.Component): any {

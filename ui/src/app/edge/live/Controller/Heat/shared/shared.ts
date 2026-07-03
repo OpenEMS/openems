@@ -8,7 +8,7 @@ import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-compone
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import {environment} from "../../../../../../environments";
+import { environment } from "../../../../../../environments";
 
 export namespace SharedControllerHeat {
 
@@ -153,7 +153,7 @@ export namespace SharedControllerHeat {
         const isWritable = component.properties?.readOnly !== true;
 
         const children = [
-            new NavigationTree("history", {baseString: "history"}, {
+            new NavigationTree("history", { baseString: "history" }, {
                 name: "stats-chart-outline",
                 color: "warning",
             }, translate.instant("GENERAL.HISTORY"), "label", [], null),
@@ -161,18 +161,18 @@ export namespace SharedControllerHeat {
 
         if (isWritable) {
             children.push(
-                new NavigationTree("schedule", {baseString: "schedule"}, {
+                new NavigationTree("schedule", { baseString: "schedule" }, {
                     name: "calendar-outline",
                     color: "warning",
                 }, translate.instant("HEAT.SCHEDULE.SCHEDULE"), "label", [
-                    new NavigationTree("edit-task", {baseString: "edit-task"}, {name: "create-outline"}, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
-                    new NavigationTree("add-task", {baseString: "add-task"}, {name: "add-outline"}, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
+                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, { showOrder: "HIDE" }),
+                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, { showOrder: "HIDE" }),
                 ], null),
-                new NavigationTree("settings", {baseString: "settings"}, {name: "cog-outline"}, translate.instant("MENU.SETTINGS"), "label", [], null),
+                new NavigationTree("settings", { baseString: "settings" }, { name: "cog-outline" }, translate.instant("MENU.SETTINGS"), "label", [], null),
             );
         }
 
-        return new NavigationTree(component.id, {baseString: "controller/heat/" + component.id}, {
+        return new NavigationTree(component.id, { baseString: "controller/heat/" + component.id }, {
             name: "flame",
             color: "normal",
         }, Name.METER_ALIAS_OR_ID(component), "label", children, null).toConstructorParams();
@@ -194,8 +194,17 @@ export const CONVERT_TO_MODE_LABEL = (translate: TranslateService) => {
     };
 };
 
-function convertAskomaMode(translate: TranslateService, value: number | null): string {
-    return CONVERT_TO_MODE_LABEL(translate)(value as unknown as string | null);
+export enum ChannelMode {
+    UNDEFINED = -1, //
+    OFF = 1, //
+    FAST_HEAT = 2, //
+    SURPLUS = 3, //
+}
+
+export enum PropertyMode {
+    OFF = "OFF", //
+    FAST_HEAT = "FAST_HEAT", //
+    SURPLUS = "SURPLUS", //
 }
 
 export enum Mode {

@@ -1,7 +1,8 @@
-import { Component, effect, ElementRef, OnDestroy, ViewChild } from "@angular/core";
+import { Component, effect, ElementRef, inject, OnDestroy, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
+import { PlatFormService } from "src/app/platform.service";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
@@ -26,9 +27,11 @@ export class LiveComponent implements OnDestroy {
     protected isModbusTcpWidgetAllowed: boolean = false;
     protected showRefreshDragDown: boolean = false;
     protected showNewFooter: boolean = false;
+    protected isTablet: boolean = false;
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private interval: ReturnType<typeof setInterval> | undefined;
+    private platformService = inject(PlatFormService);
 
     constructor(
         private route: ActivatedRoute,
@@ -41,6 +44,8 @@ export class LiveComponent implements OnDestroy {
         private userService: UserService,
         private layoutRefresh: LayoutRefreshService,
     ) {
+
+        this.isTablet = this.platformService.getDevice().isTablet();
 
         effect(() => {
             const edge = this.service.currentEdge();

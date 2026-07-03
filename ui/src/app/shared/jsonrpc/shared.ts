@@ -57,7 +57,6 @@ export class User {
      * @returns the theme if existing, else null
      */
     public getThemeFromSettings(): Theme | null {
-
         if (environment.backend === "OpenEMS Edge") {
             return localStorage.getItem("THEME") as Theme ?? null;
         }

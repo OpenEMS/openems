@@ -29,17 +29,14 @@
               <oe-img [img]="line.img"></oe-img>
             }
 
-          <!-- OeFormlyField.InfoLine -->
+            <!-- OeFormlyField.InfoLine -->
             @case ('info-line') {
               @if (line.html !== null && line.html !== undefined) {
                 <ng-container style="font-size: smaller">
-                <span
-                [innerHtml]="line.html"></span>
+                  <span [innerHtml]="line.html"></span>
                 </ng-container>
               } @else {
-                <oe-modal-info-line
-                  [info]="line.name"
-                  [icon]="line.icon">
+                <oe-modal-info-line [info]="line.name" [icon]="line.icon">
                 </oe-modal-info-line>
               }
             }
@@ -118,7 +115,7 @@
     }
 
     <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed"
-      [horizontal]="this.service.isSmartphoneResolution ? 'end' : 'center'">
+      [horizontal]="this.service.getIsSmartphoneResolution() ? 'end' : 'center'">
       <ion-fab-button (click)="onSubmit()">
         <ion-icon size="large" name="oe-checkmark"></ion-icon>
       </ion-fab-button>

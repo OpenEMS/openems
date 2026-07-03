@@ -26,11 +26,12 @@ import { OverViewComponent } from "./overview.component";
 describe("OverviewComponent", () => {
     let component: OverViewComponent;
     let fixture: ComponentFixture<OverViewComponent>;
-    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges"], {
+    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges", "getIsSmartphoneResolution"], {
         metadata: new BehaviorSubject({
             edges: null,
             user: null,
         }),
+        getIsSmartphoneResolution: () => false,
         getEdges(): Promise<Edge[]> {
             return Promise.resolve([]);
         },
@@ -50,6 +51,11 @@ describe("OverviewComponent", () => {
             ],
             declarations: [OverViewComponent],
             providers: [
+                {
+                    provide: PlatFormService, useValue: {
+                        isSmartphone: () => false,
+                    },
+                },
                 { provide: Service, useValue: serviceSpyObject },
                 { provide: UserService, useValue: userServiceSpyObj },
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },

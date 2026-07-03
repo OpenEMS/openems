@@ -144,14 +144,14 @@ export class ProfileComponent implements OnInit {
         if (!(this.latestSetupProtocolData?.setupProtocolId)) {
             throw Error("Download not possible: setupProtocolId is missing");
         }
-
-        const canExecuteDownload = this.platFormService.deviceHasFilePermissions();
+        const device = this.platFormService.getDevice();
+        const canExecuteDownload = device.hasFileWritePermissions();
         if (!canExecuteDownload) {
             return;
         }
 
         this.isLoading.set(true);
-        const setupProtocol: Base64PayloadResponse | null = await this.platFormService.sendRequest(new GetSetupProtocolRequest({ setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString() }), this.websocket);
+        const setupProtocol: Base64PayloadResponse | null = await device.sendRequest(new GetSetupProtocolRequest({ setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString() }), this.websocket);
         if (!setupProtocol) {
             this.isLoading.set(false);
             return;
@@ -165,7 +165,7 @@ export class ProfileComponent implements OnInit {
         }
 
         const fileName = getFileName(this.latestSetupProtocolData.setupProtocolType, this.latestSetupProtocolData.createDate, this.edge);
-        this.platFormService.downloadAsPdf(blob, fileName);
+        device.downloadAsPdf(blob, fileName);
         this.isLoading.set(false);
     }
 

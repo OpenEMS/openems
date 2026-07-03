@@ -1,0 +1,33 @@
+<ion-grid class="ion-no-padding">
+  @if (message !== null){
+    <ion-row class="ion-padding-half" style="width: 100vw">
+      <ion-col size-sm="12" size-md="6" class="ion-align-content-center">
+        <ion-img [src]="image.url" [style]="'height: 2.5vh; justify-self: start'"></ion-img>
+      </ion-col>
+    </ion-row>
+  }
+  <ion-row [style]="navigationService.position() === 'left' ? 'width: 80vw; margin-left: 20vw;' : 'width: 100vw;'" class="ion-no-margin-left">
+    <ion-col size-md="12" size-sm="6" class="ion-align-content-center">
+      <ion-grid class="ion-no-padding-left-right">
+        <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message !== null">
+          @if (message !== null) {
+            <ion-col class="ion-no-padding-top ion-padding-left" [class.ion-text-align-right]="!isSmartphone" [class.ion-text-align-left]="isSmartphone">
+              <ion-label style="line-height: 1.2;" class="oe-ci-font-family ion-font-size-xx-large ion-text-wrap ion-no-padding-top">
+                <span [innerHTML]="message"></span>
+              </ion-label>
+            </ion-col>
+          } @else {
+            <ion-col style="width: 80%;" class="ion-no-padding-top ion-text-align-center">
+              <ion-label style="line-height: 1.2;" class="ion-font-size-x-large ion-text-wrap ion-no-padding-top oe-ci-font-family-bold">
+                {{navigationService.headerTitle()}}
+              </ion-label>
+            </ion-col>
+          }
+          <ion-col size="auto" class="ion-padding-left ion-no-padding-top ion-text-end" style="align-self: start;">
+            <oe-system-status></oe-system-status>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-col>
+  </ion-row>
+</ion-grid>

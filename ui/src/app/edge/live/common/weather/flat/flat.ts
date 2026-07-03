@@ -45,7 +45,7 @@ export class WeatherComponent extends AbstractFlatWidget implements OnInit, OnDe
         const meta = this.edge.getConfig(this.websocket).value.getComponentsByFactory("Core.Meta")[0];
         this.placeName = meta.getPropertyFromComponent("placeName") ?? "";
 
-        this.isSmartphone = this.resolutionService.isSmartphoneResolution;
+        this.isSmartphone = this.resolutionService.getIsSmartphoneResolution();
     }
 
     protected override getChannelAddresses() {

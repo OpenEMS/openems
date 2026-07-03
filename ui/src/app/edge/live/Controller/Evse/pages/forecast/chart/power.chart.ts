@@ -46,7 +46,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected setLabel() {

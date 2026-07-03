@@ -257,7 +257,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                         break;
                     }
                     case DefaultTypes.PeriodString.MONTH: {
-                        if (service.isSmartphoneResolution == true) {
+                        if (service.getIsSmartphoneResolution() == true) {
                             barPercentage = 1;
                         } else {
                             barPercentage = 0.9;
@@ -265,7 +265,7 @@ export abstract class AbstractHistoryChart implements OnInit, OnDestroy, AfterVi
                         break;
                     }
                     case DefaultTypes.PeriodString.YEAR: {
-                        if (service.isSmartphoneResolution == true) {
+                        if (service.getIsSmartphoneResolution() == true) {
                             barPercentage = 1;
                         } else {
                             barPercentage = 0.8;

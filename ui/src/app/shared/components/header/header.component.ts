@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,6 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
+import { UserService } from "../../service/user.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -28,11 +29,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     protected isHeaderAllowed: boolean = true;
     protected showBackButton: boolean = false;
+    protected isNewNavigation: boolean = false;
     protected edge = this.service.currentEdge;
-
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
+    private userService: UserService = inject(UserService);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -46,9 +48,10 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         protected navCtrl: NavController,
         private menuCtrl: MenuController,
     ) {
-
         effect(() => {
             this.showBackButton = this.navigationService.headerOptions().showBackButton;
+
+            this.isNewNavigation = NavigationService.isNewNavigation(this.userService.currentUser(), this.service.currentEdge()?.getConfigSignal()());
         });
     }
 

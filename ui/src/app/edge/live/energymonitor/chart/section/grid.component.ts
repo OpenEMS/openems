@@ -6,8 +6,8 @@ import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { Icon } from "src/app/shared/type/widget";
 import { environment } from "src/environments";
-import { CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { Currency, CurrentData, EdgeConfig, GridMode, Service, Utils } from "../../../../../shared/shared";
+import { AbstractSection, EnergyFlow, Ratio, SubValueProperties, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
 
 @Component({
@@ -21,19 +21,19 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
     public buyAnimationTrigger: boolean = false;
     public sellAnimationTrigger: boolean = false;
 
-    private unitpipe: UnitvaluePipe;
+    protected sellAnimationClass: string = "grid-sell-hide";
+    protected buyAnimationClass: string = "grid-buy-hide";
+    protected gridBuyPrice: SubValueProperties | null = null;
+
     private subShow?: Subscription;
-    private sellAnimationClass: string = "grid-sell-hide";
-    private buyAnimationClass: string = "grid-buy-hide";
 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
         super("GENERAL.GRID", "left", "var(--ion-color-dark)", translate, service, "Grid");
-        this.unitpipe = unitpipe;
     }
 
     public static getCurrentGridIcon(currentData: CurrentData): Icon {
@@ -86,7 +86,7 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
         this.sellAnimationTrigger = true;
     }
 
-    public _updateCurrentData(sum: DefaultTypes.Summary): void {
+    public async _updateCurrentData(sum: DefaultTypes.Summary) {
         // only reacts to kW values (50 W => 0.1 kW rounded)
         if (sum.grid.buyActivePower && sum.grid.buyActivePower > 49) {
             if (!this.buyAnimationTrigger) {
@@ -125,9 +125,20 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
             super.updateSectionData(0, null, null);
         }
 
-        // set grid mode
         this.gridMode = sum.grid.gridMode;
+
+        // Grid-Buy Price with local Currency
+        const config = await this.service.getConfig();
+        const meta: EdgeConfig.Component = config?.getComponent("_meta");
+        const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+        const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
+        const value = sum.grid.gridBuyPrice !== null
+            ? Utils.CONVERT_PRICE_TO_CENT_PER_KWH(0, currencyLabel)(sum.grid.gridBuyPrice)
+            : null;
+        this.gridBuyPrice = this.calculateSubValueProperties(value);
+
         if (this.square) {
+            // Set Grid-Mode
             this.square.image.image = this.getImagePath();
         }
     }
@@ -146,7 +157,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
         const x = (innerRadius - 5) * (-1);
-        const y = (square.length / 2) * (-1);
+        const y = (square.length / 2) * (-1)
+            // Move up for grid-buy-price
+            - (this.gridBuyPrice !== null ? 6 : 0);
         return new SvgSquarePosition(x, y);
     }
 
@@ -179,7 +192,9 @@ export class GridSectionComponent extends AbstractSection implements OnInit, OnD
 
     protected setElementHeight() {
         this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.3);
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3);
+        this.square.image.y = this.square.image.y - (this.square.image.y * 0.3)
+            // Move down for grid-buy-price
+            + (this.gridBuyPrice !== null ? 12 : 0);
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {

@@ -239,7 +239,7 @@ export namespace SharedGrid {
         }
         const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge);
 
-        return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("GENERAL.GRID"), "label", [
+        return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("GENERAL.GRID"), "icon", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [
                 ...gridMeters
                     .map(el => gridMeters.length === 1
@@ -252,6 +252,7 @@ export namespace SharedGrid {
                     "external-limitation", { baseString: "external-limitation" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"), "label", [],
                     null),
             ], null),
+            NavigationConstants.CommonNodes.INFO(translate, { source: "grid" }),
         ], null).toConstructorParams();
     }
 }

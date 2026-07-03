@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,6 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
+import { UserService } from "../../service/user.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -16,6 +17,15 @@ import { StatusSingleComponent } from "../status/single/status.component";
     selector: "app-header",
     templateUrl: "./header.component.html",
     standalone: false,
+    styles: [
+        `
+        ion-title::part(native) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+        `,
+    ],
 })
 export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
@@ -29,10 +39,12 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     protected isHeaderAllowed: boolean = false;
     protected showBackButton: boolean = false;
+    protected isNewNavigation: boolean = false;
     protected edge = this.service.currentEdge;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
+    private readonly userService: UserService = inject(UserService);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -56,6 +68,8 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             }
 
             this.updateUrl(this.router.routerState.snapshot.url);
+
+            this.isNewNavigation = NavigationService.isNewNavigation(this.userService.currentUser(), this.service.currentEdge()?.getConfigSignal()());
         });
     }
 

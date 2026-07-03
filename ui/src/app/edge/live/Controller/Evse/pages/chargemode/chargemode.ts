@@ -54,12 +54,12 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
                         value: Mode.ZERO,
                     },
                     {
-                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM"),
-                        value: Mode.MINIMUM,
-                    },
-                    {
                         name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.SURPLUS"),
                         value: Mode.SURPLUS,
+                    },
+                    {
+                        name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.MINIMUM"),
+                        value: Mode.MINIMUM,
                     },
                     {
                         name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_CHARGE"),

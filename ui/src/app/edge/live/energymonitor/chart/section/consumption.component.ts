@@ -17,18 +17,17 @@ import { AnimationService } from "./animation.service";
 })
 export class ConsumptionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
-    private unitpipe: UnitvaluePipe;
-    private consumptionAnimationClass: string = "consumption-hide";
+    protected consumptionAnimationClass: string = "consumption-hide";
+
     private subShow?: Subscription;
 
     constructor(
-        unitpipe: UnitvaluePipe,
+        private unitpipe: UnitvaluePipe,
         translate: TranslateService,
         service: Service,
         private animationService: AnimationService,
     ) {
         super("GENERAL.CONSUMPTION", "right", "var(--ion-color-warning)", translate, service, "Consumption");
-        this.unitpipe = unitpipe;
     }
 
     ngOnInit() {

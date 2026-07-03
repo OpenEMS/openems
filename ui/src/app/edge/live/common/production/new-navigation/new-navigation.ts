@@ -23,11 +23,11 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
     protected productionMeterComponents: EdgeConfig.Component[] = [];
     protected chargerComponents: EdgeConfig.Component[] = [];
 
-    public static getFormlyGeneralView(translate: TranslateService, productionMeterComponents: EdgeConfig.Component[], chargerComponents: EdgeConfig.Component[], edge: Edge, timeOfUseComponent: EdgeConfig.Component | null): OeFormlyView {
+    public static getFormlyGeneralView(translate: TranslateService, productionMeterComponents: EdgeConfig.Component[], chargerComponents: EdgeConfig.Component[], edge: Edge, hasSchedule: boolean): OeFormlyView {
 
         const lines: OeFormlyField[] = [];
 
-        if (timeOfUseComponent != null) {
+        if (hasSchedule) {
             lines.push(
                 {
                     type: "horizontal-line",
@@ -36,7 +36,6 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
                     type: "component-line",
                     component: ProductionChartComponent,
                     inputs: {
-                        component: timeOfUseComponent,
                         edge: edge,
                         refresh: false,
                     },
@@ -78,11 +77,10 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
-        const componentIds = config.getComponentIdsByFactory("Controller.Ess.Time-Of-Use-Tariff");
-        const firstId = componentIds?.[0];
-        const timeOfUseComponent = firstId != null
-            ? config.getComponentSafely(firstId)
-            : null;
+
+        const hasSchedule = edge.isVersionAtLeast("2026.5.1")
+            && config.getComponentSafely("_energy")?.getPropertyFromComponent("version") === "V2_ENERGY_SCHEDULABLE";
+
         // Get Chargers
         this.chargerComponents =
             config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
@@ -93,6 +91,6 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
             config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
                 .filter(component => component.isEnabled && config.isProducer(component));
 
-        return CommonProductionHomeComponent.getFormlyGeneralView(this.translate, this.productionMeterComponents, this.chargerComponents, edge, timeOfUseComponent);
+        return CommonProductionHomeComponent.getFormlyGeneralView(this.translate, this.productionMeterComponents, this.chargerComponents, edge, hasSchedule);
     }
 }

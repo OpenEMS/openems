@@ -371,23 +371,24 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    */
 export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" } {
     const days = Math.abs(differenceInDays(toDate, fromDate));
+    const isSmartphoneResolution = service.getIsSmartphoneResolution();
     let result: { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" };
 
     if (days <= 1) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Day
         } else {
             result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 5 Minutes
         }
     } else if (days == 2) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "hour" }; // 1 Day
         } else {
             result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 4) {
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
         } else {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "hour" }; // 1 Hour
@@ -396,7 +397,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
     } else if (days <= 6) {
 
 
-        if (service.isSmartphoneResolution) {
+        if (isSmartphoneResolution) {
             result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         } else {
             // >> show Hours
@@ -404,7 +405,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
         }
 
 
-    } else if (days <= 31 && service.isSmartphoneResolution) {
+    } else if (days <= 31 && isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
         result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
 
@@ -413,7 +414,7 @@ export function calculateResolution(service: Service, fromDate: Date, toDate: Da
 
     } else if (days <= 144) {
         // >> show Days
-        if (service.isSmartphoneResolution == true) {
+        if (isSmartphoneResolution == true) {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Month
         } else {
             result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day

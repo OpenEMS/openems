@@ -35,7 +35,8 @@ export class OAuthService {
 
     constructor() {
         App.addListener("appUrlOpen", (data: URLOpenListenerEvent) => {
-            const isApp = this.platformService.getIsApp();
+            const device = this.platformService.getDevice();
+            const isApp = device.isApp();
             const code = OAuthService.getCode(data);
             if (isApp) {
                 this.router.navigate(["/oauthcallback"], { queryParams: { code: code ?? null } });
@@ -48,7 +49,8 @@ export class OAuthService {
     }
 
     public static getRedirectUri(plaformService: PlatFormService) {
-        if (plaformService.getIsApp()) {
+        const device = plaformService.getDevice();
+        if (device.isApp()) {
             return {};
         }
 

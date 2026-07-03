@@ -38,7 +38,7 @@
           }
           <!-- 'TOGGLE' Line, provides toggle option -->
           @if (control.type === 'TOGGLE') {
-            <td [formGroup]="formGroup" [style]="this.service.isSmartphoneResolution ? 'transform: scale(0.7)': ''"
+            <td [formGroup]="formGroup" [style]="this.service.getIsSmartphoneResolution() ? 'transform: scale(0.7)': ''"
               class="align_right">
               <ion-toggle (keydown.enter)="toggleOnEnter($event, controlName)" button tabindex="0" mode="md"
                 [formControlName]="controlName">

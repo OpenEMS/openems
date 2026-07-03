@@ -2,6 +2,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import * as d3 from "d3";
 import { v4 as uuidv4 } from "uuid";
+
 import { GridMode, Service } from "src/app/shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
 
@@ -22,7 +23,6 @@ export class SvgSquarePosition {
 export class SvgSquare {
     constructor(
         public length: number,
-        public valueRatio: SvgTextPosition,
         public valueText: SvgTextPosition,
         public image: SvgImagePosition,
     ) { }
@@ -32,7 +32,6 @@ export class SvgTextPosition {
     constructor(
         public x: number,
         public y: number,
-        public anchor: "start" | "middle" | "end",
         public fontsize: number,
     ) { }
 }
@@ -55,6 +54,12 @@ export interface SvgEnergyFlow {
     middleRight?: { x: number, y: number },
     topRight: { x: number, y: number },
     middleTop?: { x: number, y: number }
+}
+
+export interface SubValueProperties {
+    value: number | string,
+    fontsize: number,
+    yPosition: number,
 }
 
 export class EnergyFlow {
@@ -122,11 +127,16 @@ export abstract class AbstractSection {
     public valuePath: string = "";
     public outlinePath: string = "";
     public energyFlow: EnergyFlow | null = null;
-    public square: SvgSquare;
-    public squarePosition: SvgSquarePosition;
+
     public name: string = "";
     public sectionId: string = "";
     public isEnabled: boolean = false;
+
+    // square describes positions for text, number and image of one section
+    protected square: SvgSquare;
+
+    // squarePosition describes the position of the square
+    protected squarePosition: SvgSquarePosition;
 
     protected valueText: string = "";
     protected innerRadius: number = 0;
@@ -277,6 +287,24 @@ export abstract class AbstractSection {
         this.energyFlow.update(svgEnergyFlow, svgAnimationEnergyFlow);
     }
 
+
+    /**
+     * Calculates sub-value properties - for storage SoC and grid buy price.
+     */
+    protected calculateSubValueProperties(value: number | string | null): SubValueProperties | null {
+        if (!this.square || value === null) {
+            return null;
+        }
+        const maxFontsize = 14;
+        const minFontsize = 6;
+        const lineDistance = Math.min(this.square.valueText.fontsize, maxFontsize + 5);
+        return {
+            value: value,
+            fontsize: Math.min(maxFontsize, Math.max(minFontsize, this.square.valueText.fontsize)),
+            yPosition: this.square.valueText.y + lineDistance,
+        };
+    }
+
     /**
      * calculate...
      * ...length of square and image;
@@ -284,25 +312,20 @@ export abstract class AbstractSection {
      * ...fontsize of text;
      */
     private getSquare(innerRadius: number): SvgSquare {
-        const width = innerRadius / 2.5;
+        const imageSize = innerRadius / 2.5;
+        const yText = imageSize / 4;
 
-        const textSize = width / 4;
-        const yText = textSize;
+        const fontsize = yText - 3;
+        const yNumber = yText + 5 + fontsize;
 
-        const numberSize = textSize - 3;
-        const yNumber = yText + 5 + numberSize;
-
-        const imageSize = width;
         const yImage = yNumber + 5;
-
         const length = yImage + imageSize;
 
         const xText = length / 2;
 
         return new SvgSquare(
             length,
-            new SvgTextPosition(xText, yText, "middle", textSize),
-            new SvgTextPosition(xText, yNumber, "middle", numberSize),
+            new SvgTextPosition(xText, yNumber, fontsize),
             new SvgImagePosition(this.getImagePath(), (length / 2) - (imageSize / 2), yImage, imageSize),
         );
     }

@@ -9,6 +9,7 @@ import { environment, Theme as SystemTheme } from "../../environments";
 import { Changelog } from "../changelog/view/component/changelog.constants";
 import { Theme as UserTheme } from "../edge/history/shared";
 import { NavigationService } from "../shared/components/navigation/service/navigation.service";
+import { NavigationTree } from "../shared/components/navigation/shared";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
@@ -106,10 +107,17 @@ export class UserComponent implements OnInit {
                 this.showInformation = this.form != null;
                 this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
                 this.useNewUi = user.getUseNewUIFromSettings();
-                const config = await untracked(() => this.service.currentEdge().getFirstValidConfig(service.websocket));
-                this.newNavigationForced = NavigationService.forceNewNavigation(config);
+
+                if (this.service.currentEdge() != null) {
+                    const config = await untracked(() => this.service.currentEdge().getFirstValidConfig(service.websocket));
+                    this.newNavigationForced = NavigationService.forceNewNavigation(config);
+                }
             }
         });
+    }
+
+    public static getNavigationTree(service: Service, translate: TranslateService, customLink?: NavigationTree["customLink"]): NavigationTree {
+        return new NavigationTree("user", { baseString: "user" }, { name: "person-outline" }, service.metadata.value.user.name, "label", [], null, { showOrder: "LOW" });
     }
 
     ngOnInit() {

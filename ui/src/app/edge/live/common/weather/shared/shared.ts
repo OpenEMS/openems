@@ -29,6 +29,6 @@ export namespace SharedWeather {
     }
 
     export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree(component.id, { baseString: "common/weather/" + component.id }, { name: "oe-partly-cloudy-day", color: "normal" }, translate.instant("TITLE"), "label", [], null, "HIGH").toConstructorParams();
+        return new NavigationTree(component.id, { baseString: "common/weather/" + component.id }, { name: "oe-partly-cloudy-day", color: "normal" }, translate.instant("TITLE"), "icon", [], null, { showOrder: "VERY_HIGH" }).toConstructorParams();
     }
 }

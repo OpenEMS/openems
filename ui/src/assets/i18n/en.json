@@ -363,7 +363,7 @@
                     "UNKNOWN": "Unknown",
                     "UNPLUGGED": "Unplugged",
                     "ZERO": "No Charge",
-                    "MINIMUM": "Minimum Charge with PV Surplus",
+                    "MINIMUM": "PV Surplus with guaranteed charge",
                     "SURPLUS": "PV Surplus",
                     "FORCE_CHARGE": "Fast Charging",
                     "TASKS": "Tasks"
@@ -565,7 +565,7 @@
                         "SCHEDULE": "Schedule",
                         "ADD_TASK": "Add task"
                     },
-                    "CHARGE_MODE": "Charging mode",
+                    "CHARGE_MODE": "Base mode",
                     "VEHICLE_ID_ERROR": "The vehicle ID could not be found. Please check the configuration. All registered vehicles are displayed."
                 }
             }
@@ -656,6 +656,7 @@
         "FAILED": "failed",
         "FAULT": "Fault",
         "FOR": "for",
+        "FORECAST": "Forecast",
         "FORMLY": {
             "INITIALIZING_ERROR": "Error initializing component",
             "LINK_TO_DOCS": "link to docs",
@@ -1244,10 +1245,15 @@
     "MENU": {
         "ACCESS_LEVEL": "Access Level",
         "CHANGELOG": "Changelog",
+        "COCKPIT": "Cockpit",
         "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Settings",
+        "EDGE_SYSTEM_SETTINGS": "System Settings",
         "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energy Management System",
         "GENERAL_SETTINGS": "General Settings",
+        "GROUPS": {
+            "HEATING_ROOM": "Heating"
+        },
         "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energy Management System",
         "INDEX": "Index",
         "LOGOUT": "Sign Out",
@@ -1257,7 +1263,8 @@
         "OTHER_USER": "Other users",
         "OVERVIEW": "All Systems",
         "SETTINGS": "Settings",
-        "USER": "User"
+        "USER": "User",
+        "PROFILE": "Profile"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Active power limitations",
@@ -1425,7 +1432,8 @@
             }
         },
         "ENERGY_JOURNEY": {
-            "TO_THE_ANALYSIS": "View analysis"
+            "TO_THE_ANALYSIS": "View analysis",
+            "YOUR_ENERYJOURNEY": "Your Energy Journey"
         },
         "POWER_ASSISTANT": {
             "INFO": "The 'Power Assistant' shows the respective controllers for all storage systems (ess0, ess1,...) and some relevant data points for each. The order corresponds to the order in the scheduler."
