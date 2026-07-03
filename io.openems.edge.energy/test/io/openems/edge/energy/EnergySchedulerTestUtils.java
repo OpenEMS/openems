@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -17,6 +18,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.evse.cluster.DistributionStrategy;
+import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.ess.power.api.Relationship;
@@ -54,8 +57,8 @@ public class EnergySchedulerTestUtils {
 						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK))),
 		HEAT_ASKOMA(HeatAskomaImpl.FACTORY_ID,
 				new Factory<io.openems.edge.heat.askoma.EnergyScheduler.Config>(
-						(comp, conf) -> io.openems.edge.heat.askoma.EnergyScheduler
-								.buildEnergyScheduleHandler(comp, () -> CLOCK, conf),
+						(comp, conf) -> io.openems.edge.heat.askoma.EnergyScheduler.buildEnergyScheduleHandler(comp,
+								() -> CLOCK, conf),
 						io.openems.edge.heat.askoma.EnergyScheduler.Config.serializer(CLOCK)));
 
 		public final String factoryPid;
@@ -209,5 +212,21 @@ public class EnergySchedulerTestUtils {
 				cmp -> io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.timeofusetariff. //
 								EnergyScheduler.Config(activeModes, targetSocBuffer, manualTargetTime)));
+	}
+
+	/**
+	 * Builds a {@link DummyEnergySchedulable} of Evse.Controller.Cluster.
+	 *
+	 * @param componentId          the Component-ID
+	 * @param distributionStrategy the {@link DistributionStrategy}
+	 * @param singleParams         the {@link Params} of Evse.Controller.Single
+	 * @return the {@link DummyEnergySchedulable}
+	 */
+	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEvseCluster(String componentId,
+			DistributionStrategy distributionStrategy, ImmutableMap<String, Params> singleParams) {
+		return create(Controller.EVSE_CLUSTER, componentId,
+				cmp -> io.openems.edge.controller.evse.cluster.EnergyScheduler //
+						.buildEnergyScheduleHandler(cmp, () -> CLOCK, () -> new io.openems.edge.controller.evse.cluster. //
+								EnergyScheduler.ClusterEshConfig(distributionStrategy, singleParams)));
 	}
 }

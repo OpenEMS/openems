@@ -74,7 +74,7 @@ export abstract class ScheduleChartComponent
             return;
         }
 
-        this.labels = this.data.getLabels();
+        this.labels = this.data.getLabels24h();
         this.errorResponse = null;
         this.loading = true;
         this.chartType = "line";

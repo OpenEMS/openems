@@ -30,21 +30,17 @@ export namespace ControllerEvseSingleShared {
             Name.METER_ALIAS_OR_ID(component),
             baseMode,
             [
-                ...(edge.roleIsAtLeast(Role.ADMIN)
-                    ? [
-                          new NavigationTree(
-                              "forecast",
-                              { baseString: "forecast" },
-                              { name: "stats-chart-outline", color: "success" },
-                              translate.instant(
-                                  "INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS",
-                              ),
-                              baseMode,
-                              [],
-                              null,
-                          ),
-                      ]
-                    : []),
+                new NavigationTree(
+                    "forecast",
+                    { baseString: "forecast" },
+                    { name: "stats-chart-outline", color: "success" },
+                    translate.instant(
+                        "INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS",
+                    ),
+                    baseMode,
+                    [],
+                    null,
+                ),
                 new NavigationTree(
                     "history",
                     { baseString: "history" },

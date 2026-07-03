@@ -23,14 +23,14 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
@@ -67,15 +67,15 @@ public class RunUtils {
 
 			protected int setPointInWatt;
 
-			public Entry(SingleModes eshMode, ControllerEvseSingle ctrl, Params params) {
+			public Entry(JointMode<Mode> mode, ControllerEvseSingle ctrl, Params params) {
 				this.ctrl = ctrl;
 				this.params = params;
 
 				this.activePower = params.activePower();
 				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
 
-				this.mode = Optional.ofNullable(eshMode) //
-						.map(sm -> sm.getMode(params.componentId())) // Mode from EnergyScheduler
+				this.mode = Optional.ofNullable(mode) //
+						.map(sm -> sm.getMode(params.ctrlSingleId())) // Mode from EnergyScheduler
 						.orElse(params.mode()); // Fallback to fixed Mode
 			}
 
@@ -149,7 +149,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} mode.
+		 * charging and in {@link Mode#SURPLUS} mode.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -163,8 +163,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} or {@link Mode.Actual#MINIMUM}
-		 * mode.
+		 * charging and in {@link Mode#SURPLUS} or {@link Mode#MINIMUM} mode.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -178,8 +177,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} mode and have a temporary
-		 * Set-Point > 0.
+		 * charging and in {@link Mode#SURPLUS} mode and have a temporary Set-Point > 0.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -208,14 +206,15 @@ public class RunUtils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
-	 * @param eshMode              the {@link SingleModes} from
+	 * @param mode                 the {@link JointMode} from
 	 *                             {@link EnergyScheduleHandler}
 	 * @param logVerbosity         the configured {@link LogVerbosity}
 	 * @param logger               a log message consumer
 	 * @return the {@link PowerDistribution}
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, SingleModes eshMode, LogVerbosity logVerbosity, Consumer<String> logger) {
+			List<ControllerEvseSingle> ctrls, JointMode<Mode> mode, LogVerbosity logVerbosity,
+			Consumer<String> logger) {
 		// Build PowerDistribution
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
@@ -223,7 +222,7 @@ public class RunUtils {
 					if (params == null) {
 						return null;
 					}
-					return new PowerDistribution.Entry(eshMode, ctrl, params);
+					return new PowerDistribution.Entry(mode, ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
 				.collect(toImmutableList()));
@@ -243,8 +242,8 @@ public class RunUtils {
 	}
 
 	/**
-	 * Initialize the Set-Points for {@link Mode.Actual#FORCE},
-	 * {@link Mode.Actual#MINIMUM} and {@link Mode.Actual#ZERO}.
+	 * Initialize the Set-Points for {@link Mode#FORCE}, {@link Mode#MINIMUM} and
+	 * {@link Mode#ZERO}.
 	 * 
 	 * @param powerDistribution the {@link PowerDistribution}
 	 */
@@ -260,7 +259,7 @@ public class RunUtils {
 	}
 
 	/**
-	 * Distribute excess power to Controllers in {@link Mode.Actual#SURPLUS} mode.
+	 * Distribute excess power to Controllers in {@link Mode#SURPLUS} mode.
 	 * 
 	 * <p>
 	 * First distributes minimum required power to each Controller (e.g. 6 A on

@@ -3,7 +3,6 @@ package io.openems.edge.controller.evse.single;
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

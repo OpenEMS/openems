@@ -8,6 +8,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { ScheduleChartComponent } from "src/app/shared/components/chart/schedule-chart/schedule-chart";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { TimeOfUseTariffUtils } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-common-storage-mode-chart",
@@ -26,20 +27,27 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 export class ModeChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.result.data.map((e, index) => {
-            const isHistory = index <= this.data.lastHistoryIndex;
-            const isPrediction = index >= this.data.lastHistoryIndex;
+            const isHistory = index <= this.data.data24hLastHistoryIndex;
+            const isPrediction = index >= this.data.data24hLastHistoryIndex;
 
             const value =
                 e.eshs.find((esh) => esh.id === "ctrlEssTimeOfUseTariff0")
                     ?.mode ?? null;
-            const isDelayDischarge = value === "DELAY_DISCHARGE";
-            const isBalancing = value === "BALANCING";
-            const isChargeGrid = value === "CHARGE_GRID";
-            const isDelayCharge = value === "DELAY_CHARGE";
-            const isLimitCharge = value === "LIMIT_CHARGE";
-            const isAvoidGridSellLimit = value === "AVOID_GRID_SELL_LIMIT";
-            const isDischargeConsumption = value === "DISCHARGE_CONSUMPTION";
-            const isDischargeGrid = value === "DISCHARGE_GRID";
+            const isDelayDischarge =
+                value === TimeOfUseTariffUtils.State.DelayCharge;
+            const isBalancing = value === TimeOfUseTariffUtils.State.Balancing;
+            const isChargeGrid =
+                value === TimeOfUseTariffUtils.State.ChargeGrid;
+            const isDelayCharge =
+                value === TimeOfUseTariffUtils.State.DelayCharge;
+            const isLimitCharge =
+                value === TimeOfUseTariffUtils.State.LimitCharge;
+            const isAvoidGridSellLimit =
+                value === TimeOfUseTariffUtils.State.AvoidGridSellLimit;
+            const isDischargeConsumption =
+                value === TimeOfUseTariffUtils.State.DischargeConsumption;
+            const isDischargeGrid =
+                value === TimeOfUseTariffUtils.State.DischargeGrid;
 
             return {
                 history: {

@@ -1012,6 +1012,7 @@ export namespace TimeOfUseTariffUtils {
         DelayDischarge = 0,
         Balancing = 1,
         ChargeGrid = 3,
+        DischargeGrid = 4,
         PeakShaving = 5,
         DelayCharge = 6,
         LimitCharge = 7,

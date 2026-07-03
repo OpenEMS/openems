@@ -16,7 +16,7 @@ public class UtilsTest {
 	@Test
 	public void testChargePointThreeVehicleSingle() {
 		var ctrl = createSingleCtrl() //
-				.setId(CTRL) //
+				.setCtrlSingleId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.THREE_PHASE, 6, 16)) //
 						.setPhaseSwitchManual(null) //
@@ -36,7 +36,7 @@ public class UtilsTest {
 	@Test
 	public void testChargePointSingleVehicleSingle() {
 		var ctrl = createSingleCtrl() //
-				.setId(CTRL) //
+				.setCtrlSingleId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.SINGLE_PHASE, 6, 16)) //
 						.setPhaseSwitchManual(null) //
@@ -55,7 +55,7 @@ public class UtilsTest {
 	@Test
 	public void testChargePointThreeVehicleThree() {
 		var ctrl = createSingleCtrl() //
-				.setId(CTRL) //
+				.setCtrlSingleId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.THREE_PHASE, 6, 32)) //
 						.setPhaseSwitchManual(null) //
@@ -75,7 +75,7 @@ public class UtilsTest {
 	@Test
 	public void testChargePointSingleVehicleThree() {
 		var ctrl = createSingleCtrl() //
-				.setId(CTRL) //
+				.setCtrlSingleId(CTRL) //
 				.setChargePointAbilities(b -> b//
 						.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SingleOrThreePhase.SINGLE_PHASE, 6, 32)) //
 						.setPhaseSwitchManual(null) //

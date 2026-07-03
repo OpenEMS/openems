@@ -225,7 +225,7 @@ public class HeatAskomaImpl extends AbstractOpenemsModbusComponent
 	}
 
 	private void updateModeChannel(Mode mode) {
-		setValue(this, HeatAskoma.ChannelId.MODE, ChannelMode.fromMode(mode));
+		setValue(this, HeatAskoma.ChannelId.MODE, mode);
 	}
 
 	private void runStateMachine(Mode mode) throws OpenemsNamedException {

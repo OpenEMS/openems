@@ -26,7 +26,7 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class SocChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeDataForChannel("EssSoc");
+        const data = this.data.summarizeData24hForChannel("EssSoc");
 
         return [
             {

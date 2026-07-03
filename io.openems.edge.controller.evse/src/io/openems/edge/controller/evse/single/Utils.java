@@ -7,7 +7,6 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;

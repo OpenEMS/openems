@@ -1,4 +1,4 @@
-package io.openems.edge.evse.api.chargepoint;
+package io.openems.edge.controller.evse.single;
 
 import io.openems.common.types.OptionsEnum;
 

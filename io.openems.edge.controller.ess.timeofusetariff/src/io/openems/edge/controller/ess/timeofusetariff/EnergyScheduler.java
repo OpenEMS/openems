@@ -45,10 +45,12 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes;
-import io.openems.edge.energy.api.handler.DifferentModes.Modes.Mode;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.SingleModes;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.SingleModes.SingleMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.energy.api.handler.Fitness;
@@ -125,12 +127,17 @@ public class EnergyScheduler {
 
 				.setModes(() -> {
 					var config = configSupplier.get();
-					return Modes.of(Arrays.stream(StateMachine.values()) //
-							.map(m -> new Mode<>(//
-									m, //
-									config != null && config.activeModes().contains(m), //
-									preferenceRankFor(m)))//
-							.collect(toImmutableList()));
+					return new SingleModes<>(//
+							new Modes.Channels(//
+									new ChannelAddress(
+											parent.id(), TimeOfUseTariffController.ChannelId.STATE_MACHINE.id()),
+									null /* no ManagedConsumptionPower channel */), //
+							Arrays.stream(StateMachine.values()) //
+									.map(m -> new SingleMode<>(//
+											m, //
+											config != null && config.activeModes().contains(m), //
+											preferenceRankFor(m)))//
+									.collect(toImmutableList()));
 				})
 
 				.setInitialPopulationsProvider((goc, coc, modes) -> {

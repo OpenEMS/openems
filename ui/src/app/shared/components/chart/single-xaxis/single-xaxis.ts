@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { UserService } from "src/app/shared/service/user.service";
 import { Language } from "src/app/shared/type/language";
-import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { DateTimeFormats, DateTimeUtils, } from "src/app/shared/utils/datetime/datetime-utils";
 import { GetSchedule } from "../../edge/config-components/energy/getSchedule";
 import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
 import { ChartConstants } from "../chart.constants";
@@ -33,7 +33,6 @@ import { ChartComponentsModule } from "../chart.module";
     ],
 })
 export class SingleXAxisComponent {
-
     protected readonly userService: UserService = inject(UserService);
 
     protected _data: GetSchedule.Response | null = null;
@@ -46,7 +45,7 @@ export class SingleXAxisComponent {
 
     @Input() public set data(value: GetSchedule.Response) {
         this._data = value;
-        this.labels = this._data.getLabels();
+        this.labels = this._data.getLabels24h();
         this.options = ONLY_X_AXIS();
 
         Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
@@ -80,7 +79,6 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
                 ticks: {
                     display: false,
                 },
-
             },
             x: {
                 stacked: true,
@@ -101,8 +99,12 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
                     for (let i = 1; i < scale.ticks.length; i++) {
                         const tick = scale.ticks[i];
                         const timestamp = new Date(tick.value);
-                        if (isEqual(startOfDay(timestamp), timestamp)) { // midnight
-                            tick.label = DateTimeUtils.formatWithLocale(timestamp, DateTimeFormats.WEEKDAY);
+                        if (isEqual(startOfDay(timestamp), timestamp)) {
+                            // midnight
+                            tick.label = DateTimeUtils.formatWithLocale(
+                                timestamp,
+                                DateTimeFormats.WEEKDAY,
+                            );
                         }
                     }
                 },

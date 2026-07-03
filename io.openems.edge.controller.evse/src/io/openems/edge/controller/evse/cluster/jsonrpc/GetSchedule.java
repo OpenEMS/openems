@@ -16,9 +16,10 @@ import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Request;
 import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule.Response;
+import io.openems.edge.controller.evse.single.Mode;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 
@@ -141,7 +142,7 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 		 * @return the created {@link GetSchedule.Response}
 		 */
 		public static Response create(Request request,
-				EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> esh) {
+				EshWithDifferentModes<JointMode<Mode>, OptimizationContext, ClusterScheduleContext> esh) {
 			return new Response(esh.getSchedule().entrySet().stream() //
 					.map(e -> {
 						final var componentId = request.componentId;

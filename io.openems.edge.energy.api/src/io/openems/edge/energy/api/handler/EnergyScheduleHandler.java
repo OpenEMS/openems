@@ -94,7 +94,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * 
 		 * @return the {@link Modes}
 		 */
-		public Modes<?> modes();
+		public Modes<?, ?> modes();
 
 		/**
 		 * Generates {@link InitialPopulation} for this

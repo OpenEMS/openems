@@ -31,6 +31,10 @@ class GetScheduleTest {
 
 	private static final ChannelAddress TIME_OF_USE_MODE = new ChannelAddress("ctrlEssTimeOfUseTariff0",
 			"StateMachine");
+	private static final ChannelAddress EVSE_0_MODE = new ChannelAddress("ctrlEvseSingle0", "ActualMode");
+	private static final ChannelAddress EVSE_0_POWER = new ChannelAddress("evseChargePoint0", "ActivePower");
+	private static final ChannelAddress EVSE_1_MODE = new ChannelAddress("ctrlEvseSingle1", "ActualMode");
+	private static final ChannelAddress EVSE_1_POWER = new ChannelAddress("evseChargePoint1", "ActivePower");
 
 	@Test
 	void test() throws Exception {
@@ -50,7 +54,11 @@ class GetScheduleTest {
 			timedata.add(t, SUM_PRODUCTION, value++);
 			timedata.add(t, SUM_CONSUMPTION, value++);
 			timedata.add(t, SUM_UNMANAGED_CONSUMPTION, value++);
-			timedata.add(t, TIME_OF_USE_MODE, value % 3);
+			timedata.add(t, TIME_OF_USE_MODE, value++ % 4);
+			timedata.add(t, EVSE_0_MODE, value++ % 4);
+			timedata.add(t, EVSE_1_MODE, value++ % 4);
+			timedata.add(t, EVSE_0_POWER, value++);
+			timedata.add(t, EVSE_1_POWER, value++);
 		}
 
 		final var routes = new JsonApiBuilder();
@@ -72,22 +80,32 @@ class GetScheduleTest {
 		// First Entry
 		assertEquals("""
 				{
-				  "timestamp": "2019-12-31T20:00:00Z",
+				  "timestamp": "2019-12-31T00:00:00Z",
 				  "type": "HISTORY",
 				  "_sum": {
-				    "GridBuyPrice": 1200.0,
-				    "GridSellPrice": 1201.0,
-				    "ProductionActivePower": 1205,
-				    "ConsumptionActivePower": 1206,
-				    "UnmanagedConsumptionActivePower": 1207,
-				    "EssDischargePower": 1203,
-				    "EssSoc": 12,
-				    "GridActivePower": 1202
+				    "GridBuyPrice": 0.0,
+				    "GridSellPrice": 1.0,
+				    "ProductionActivePower": 5,
+				    "ConsumptionActivePower": 6,
+				    "UnmanagedConsumptionActivePower": 7,
+				    "EssDischargePower": 3,
+				    "EssSoc": 0,
+				    "GridActivePower": 2
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "CHARGE_GRID"
+				      "mode": 0
+				    },
+				    {
+				      "id": "ctrlEvseSingle0",
+				      "mode": 1,
+				      "managedConsumption": 11
+				    },
+				    {
+				      "id": "ctrlEvseSingle1",
+				      "mode": 2,
+				      "managedConsumption": 12
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(0)));
@@ -95,22 +113,32 @@ class GetScheduleTest {
 		// Second Entry
 		assertEquals("""
 				{
-				  "timestamp": "2019-12-31T20:05:00Z",
+				  "timestamp": "2019-12-31T00:05:00Z",
 				  "type": "HISTORY",
 				  "_sum": {
-				    "GridBuyPrice": 1205.0,
-				    "GridSellPrice": 1206.0,
-				    "ProductionActivePower": 1210,
-				    "ConsumptionActivePower": 1211,
-				    "UnmanagedConsumptionActivePower": 1212,
-				    "EssDischargePower": 1208,
-				    "EssSoc": 12,
-				    "GridActivePower": 1207
+				    "GridBuyPrice": 5.0,
+				    "GridSellPrice": 6.0,
+				    "ProductionActivePower": 10,
+				    "ConsumptionActivePower": 11,
+				    "UnmanagedConsumptionActivePower": 12,
+				    "EssDischargePower": 8,
+				    "EssSoc": 0,
+				    "GridActivePower": 7
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "DELAY_DISCHARGE"
+				      "mode": 1
+				    },
+				    {
+				      "id": "ctrlEvseSingle0",
+				      "mode": 2,
+				      "managedConsumption": 16
+				    },
+				    {
+				      "id": "ctrlEvseSingle1",
+				      "mode": 3,
+				      "managedConsumption": 17
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(1)));
@@ -118,22 +146,32 @@ class GetScheduleTest {
 		// Last History Entry
 		assertEquals("""
 				{
-				  "timestamp": "2019-12-31T23:55:00Z",
+				  "timestamp": "2019-12-31T03:55:00Z",
 				  "type": "HISTORY",
 				  "_sum": {
-				    "GridBuyPrice": 1435.0,
-				    "GridSellPrice": 1436.0,
-				    "ProductionActivePower": 1440,
-				    "ConsumptionActivePower": 1441,
-				    "UnmanagedConsumptionActivePower": 1442,
-				    "EssDischargePower": 1438,
-				    "EssSoc": 14,
-				    "GridActivePower": 1437
+				    "GridBuyPrice": 235.0,
+				    "GridSellPrice": 236.0,
+				    "ProductionActivePower": 240,
+				    "ConsumptionActivePower": 241,
+				    "UnmanagedConsumptionActivePower": 242,
+				    "EssDischargePower": 238,
+				    "EssSoc": 2,
+				    "GridActivePower": 237
 				  },
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "BALANCING"
+				      "mode": 3
+				    },
+				    {
+				      "id": "ctrlEvseSingle0",
+				      "mode": 0,
+				      "managedConsumption": 246
+				    },
+				    {
+				      "id": "ctrlEvseSingle1",
+				      "mode": 1,
+				      "managedConsumption": 247
 				    }
 				  ]
 				}""", JsonUtils.prettyToString(data.get(47)));
@@ -155,16 +193,24 @@ class GetScheduleTest {
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "DELAY_DISCHARGE"
+				      "mode": 0
+				    },
+				    {
+				      "id": "ctrlEvseSingle0",
+				      "mode": 3
+				    },
+				    {
+				      "id": "ctrlEvseSingle1",
+				      "mode": 2
 				    },
 				    {
 				      "id": "esh2",
-				      "mode": "BAR"
+				      "mode": 2
 				    }
 				  ]
-				}""", JsonUtils.prettyToString(data.get(48)));
+				}""", JsonUtils.prettyToString(data.get(288)));
 
-		// Last Entry in SimulationResult
+		// Last Prediction Entry
 		assertEquals("""
 				{
 				  "timestamp": "2020-01-01T12:45:00Z",
@@ -181,25 +227,33 @@ class GetScheduleTest {
 				  "eshs": [
 				    {
 				      "id": "ctrlEssTimeOfUseTariff0",
-				      "mode": "BALANCING"
+				      "mode": 1
+				    },
+				    {
+				      "id": "ctrlEvseSingle0",
+				      "mode": 3
+				    },
+				    {
+				      "id": "ctrlEvseSingle1",
+				      "mode": 2
 				    },
 				    {
 				      "id": "esh2",
-				      "mode": "FOO"
+				      "mode": 1
 				    }
 				  ]
-				}""", JsonUtils.prettyToString(data.get(99)));
+				}""", JsonUtils.prettyToString(data.get(339)));
 
 		// Last Entry in SimulationResult
 		assertEquals("""
 				{
-				  "timestamp": "2020-01-01T19:45:00Z",
+				  "timestamp": "2020-01-01T23:45:00Z",
 				  "type": "PREDICTION",
 				  "_sum": {
-				    "GridBuyPrice": 140.01,
+				    "GridBuyPrice": 120.14,
 				    "ProductionActivePower": 0,
-				    "ConsumptionActivePower": 417,
-				    "UnmanagedConsumptionActivePower": 417
+				    "ConsumptionActivePower": 660,
+				    "UnmanagedConsumptionActivePower": 660
 				  },
 				  "eshs": []
 				}""", JsonUtils.prettyToString(data.get(data.size() - 1)));

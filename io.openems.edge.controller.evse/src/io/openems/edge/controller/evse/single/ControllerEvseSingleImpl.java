@@ -40,7 +40,6 @@ import io.openems.edge.controller.evse.single.statemachine.Context;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
@@ -157,7 +156,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 				.setIsReadyForCharging(!isSessionLimitReached) //
 				.build();
 
-		return new Params(this.id(), this.config.mode(), activePower, //
+		return new Params(this.id(), this.config.chargePoint_id(), this.config.mode(), activePower, //
 				sessionEnergy, sessionEnergyLimit, //
 				this.history, this.config.phaseSwitching(), combinedAbilities, this.tasks);
 	}

@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class Types {
 

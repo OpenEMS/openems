@@ -42,5 +42,4 @@ public enum StateMachine implements OptionsEnum {
 	public OptionsEnum getUndefined() {
 		return BALANCING;
 	}
-
 }

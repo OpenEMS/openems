@@ -26,7 +26,7 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class ConsumptionChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeDataForChannel(
+        const data = this.data.summarizeData24hForChannel(
             "ConsumptionActivePower",
         );
 

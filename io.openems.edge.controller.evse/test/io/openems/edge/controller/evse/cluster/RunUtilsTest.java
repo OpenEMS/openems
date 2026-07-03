@@ -6,11 +6,11 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static io.openems.edge.controller.evse.cluster.RunUtils.findFirstEntryWithSameSetPoint;
+import static io.openems.edge.controller.evse.single.Mode.FORCE;
+import static io.openems.edge.controller.evse.single.Mode.MINIMUM;
+import static io.openems.edge.controller.evse.single.Mode.SURPLUS;
+import static io.openems.edge.controller.evse.single.Mode.ZERO;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
-import static io.openems.edge.evse.api.chargepoint.Mode.FORCE;
-import static io.openems.edge.evse.api.chargepoint.Mode.MINIMUM;
-import static io.openems.edge.evse.api.chargepoint.Mode.SURPLUS;
-import static io.openems.edge.evse.api.chargepoint.Mode.ZERO;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,11 +31,12 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.evse.TestUtils;
 import io.openems.edge.controller.evse.TestUtils.CtrlBuilder;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.cluster.RunUtils.PowerDistribution;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.PhaseSwitching;
 import io.openems.edge.controller.evse.single.Types.History;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes;
 import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
@@ -53,7 +54,8 @@ class RunUtilsTest {
 
 			return new CalculateTester(clock, IntStream.range(0, count) //
 					.<CtrlBuilder>mapToObj(i -> TestUtils.createSingleCtrl() //
-							.setId("evse" + i) //
+							.setCtrlSingleId("ctrlEvseSingle" + i) //
+							.setChargePointId("evseChargePoint" + i) //
 							.setMode(ZERO) //
 							.setActivePower(0) //
 							.setHistory(history) //
@@ -118,7 +120,7 @@ class RunUtilsTest {
 					this.ctrls.stream() //
 							.<ControllerEvseSingle>map(CtrlBuilder::build) //
 							.toList(), //
-					new SingleModes(ImmutableMap.of()), //
+					new JointModes.JointMode<Mode>(ImmutableMap.of(), true, null), //
 					LogVerbosity.NONE, log -> doNothing()));
 		}
 
@@ -401,7 +403,6 @@ class RunUtilsTest {
 		clock.leap(1, ChronoUnit.SECONDS);
 
 		final var ctrl = TestUtils.createSingleCtrl() //
-				.setId("evse0") //
 				.setMode(SURPLUS) //
 				.setHistory(history) //
 				.setChargePointAbilities(cp -> cp //
@@ -423,7 +424,6 @@ class RunUtilsTest {
 		clock.leap(1, ChronoUnit.SECONDS);
 		var minSetPoint = 6 * SINGLE_PHASE.count * 230; // 6A * 1 Phase * 230 V = 1380W
 		final var ctrl = TestUtils.createSingleCtrl() //
-				.setId("evse0") //
 				.setMode(SURPLUS) //
 				.setHistory(noHistory) //
 				.setChargePointAbilities(cp -> cp //
