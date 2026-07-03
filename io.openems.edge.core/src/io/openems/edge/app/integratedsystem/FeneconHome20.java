@@ -2,7 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.chargerOld;
@@ -16,7 +16,6 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
@@ -324,11 +323,9 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var components = Lists.<EdgeConfig.Component>newArrayList(//
-					battery(bundle, batteryId, modbusIdInternal), //
 					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
 							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
-					io(bundle, modbusIdInternal), //
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
 					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
@@ -336,6 +333,8 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal));
 
 			if (hasEmergencyReserve) {
 				components.add(emergencyMeter(bundle, modbusIdExternal));

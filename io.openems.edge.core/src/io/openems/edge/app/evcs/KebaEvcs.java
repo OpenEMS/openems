@@ -137,7 +137,7 @@ public class KebaEvcs extends AbstractOpenemsAppWithProps<KebaEvcs, Property, Pa
 					field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
 				})), //
-		CONFIGURE_VEHICLE(EvseProps.configureVehicle()
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle() //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
 							.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));

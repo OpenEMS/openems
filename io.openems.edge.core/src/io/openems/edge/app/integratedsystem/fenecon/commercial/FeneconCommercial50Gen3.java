@@ -2,7 +2,7 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
@@ -15,7 +15,6 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -305,10 +304,8 @@ public class FeneconCommercial50Gen3 extends
 			final var gensetSocEnd = this.getInt(p, Property.GENSET_CHARGE_SOC_END);
 
 			final var components = Lists.newArrayList(//
-					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
 					ComponentDef.from(batteryInverter), //
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
-					ComponentDef.from(io(bundle, modbusIdInternal)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
 					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
@@ -320,6 +317,12 @@ public class FeneconCommercial50Gen3 extends
 									.withValue(false) //
 									.withPriority(5))),
 							ComponentDef.Configuration.defaultConfig()) //
+			);
+
+			components.addAll(//
+					batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal).stream() //
+							.map(ComponentDef::from) //
+							.toList() //
 			);
 
 			if (hasEmergencyReserve) {

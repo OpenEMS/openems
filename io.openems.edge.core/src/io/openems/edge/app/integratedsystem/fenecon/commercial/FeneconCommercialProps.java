@@ -204,10 +204,10 @@ public final class FeneconCommercialProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <A extends OpenemsApp, M extends BundleProvider, P extends Nameable & Type<P, A, M>> //
-	AppDef<A, P, M> gensetChargeSocGroup(//
-			final Nameable visibilityCondition, //
-			final P startSoc, //
-			final P endSoc //
+			AppDef<A, P, M> gensetChargeSocGroup(//
+					final Nameable visibilityCondition, //
+					final P startSoc, //
+					final P endSoc //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
@@ -219,7 +219,8 @@ public final class FeneconCommercialProps {
 					field.hideKey() //
 							.setCustomValidation("gensetChargeSocValidation",
 									Exp.currentModelValue(visibilityCondition).isNull()
-											.or(Exp.currentModelValue(endSoc).greaterThanEqual(Exp.currentModelValue(startSoc))),
+											.or(Exp.currentModelValue(endSoc)
+													.greaterThanEqual(Exp.currentModelValue(startSoc))),
 									StringExpression.of(validationText), endSoc) //
 							.setFieldGroup(JsonUtils.buildJsonArray() //
 									.add(startSoc.def().getField().get(app, startSoc, l, parameter).build()) //

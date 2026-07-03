@@ -2,6 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
@@ -183,14 +184,15 @@ public class FeneconHome10Gen2 extends AbstractOpenemsAppWithProps<FeneconHome10
 					FeneconHomeComponents.ess(bundle, essId, "battery0", "batteryInverter0"),
 					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), //
 					// battery
-					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
 							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),
 					// other
-					FeneconHomeComponents.power(), FeneconHomeComponents.io(bundle, modbusIdInternal));
+					FeneconHomeComponents.power());
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
 
 			for (int i = 0; i < 3; i++) {
 				final var oneBase = i + 1;

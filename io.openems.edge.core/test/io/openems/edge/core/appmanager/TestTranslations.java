@@ -135,6 +135,7 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4Max(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4s(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
+			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen3(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
 					.addProperty("URL", "url")//
 					.build()));
@@ -172,6 +173,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.kmtronic8Channel(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.ioGpio(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+					.build()));
+			this.apps.add(new TestTranslation(Apps.masterBox2v0(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M4S_GEN3) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.heatPump(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("OUTPUT_CHANNEL_1", "io0/Relay1") //
