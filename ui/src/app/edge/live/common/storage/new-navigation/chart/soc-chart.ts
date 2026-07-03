@@ -41,4 +41,14 @@ export class SocChartComponent extends ScheduleChartComponent {
             },
         ];
     }
+
+    protected override getLeftAxisBounds(): Partial<{
+        min: number;
+        max: number;
+    }> {
+        return {
+            min: 0,
+            max: 100,
+        };
+    }
 }

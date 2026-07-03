@@ -47,7 +47,7 @@
     }
     <ion-item button (click)="navigateToRoot()" (keydown.enter)="navigateToRoot()" [detail]="false">
       <ion-icon class="ion-padding-right" name="home-outline" size="small"></ion-icon>
-      <ion-label>{{ "MENU.COCKPIT" | translate }}</ion-label>
+      <ion-label [style.font-weight]="isLive() ? 'bolder' : 'inherit'">{{ "MENU.COCKPIT" | translate }}</ion-label>
     </ion-item>
   }
   <ng-template *ngTemplateOutlet="accordionGroup; context: { items: absoluteChildren }"></ng-template>

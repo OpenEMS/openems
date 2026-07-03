@@ -69,9 +69,6 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                     },
                 },
                 {
-                    type: "horizontal-line",
-                },
-                {
                     type: "channel-line",
                     name: translate.instant("GENERAL.GRID_BUY_PRICE"),
                     channel: new ChannelAddress(

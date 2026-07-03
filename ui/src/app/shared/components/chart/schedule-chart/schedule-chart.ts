@@ -106,7 +106,13 @@ export abstract class ScheduleChartComponent
         this.options.plugins.legend.labels.generateLabels = (chart: Chart) =>
             Chart.defaults.plugins.legend.labels
                 .generateLabels(chart)
-                .filter((item) => item.text !== null);
+                .filter((item) => item.text !== null) //
+                .map((item) => {
+                    return {
+                        ...item,
+                        fillStyle: item.strokeStyle,
+                    };
+                });
 
         Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
         this.options.plugins["syncChart"] = {
@@ -125,6 +131,14 @@ export abstract class ScheduleChartComponent
                     ...this.options.scales[ChartAxis.LEFT]["ticks"],
                     display: false,
                 },
+            };
+        }
+
+        const leftAxisBounds = this.getLeftAxisBounds();
+        if (Object.keys(leftAxisBounds).length > 0) {
+            this.options.scales[ChartAxis.LEFT] = {
+                ...this.options.scales[ChartAxis.LEFT],
+                ...leftAxisBounds,
             };
         }
 
@@ -169,6 +183,10 @@ export abstract class ScheduleChartComponent
         return [];
     }
 
+    protected getLeftAxisBounds(): Partial<{ min: number; max: number }> {
+        return {};
+    }
+
     protected override getChartHeight(): number | null {
         const device = this.platFormService.getDevice();
         const isSmartPhone = device.isSmartphone();
@@ -181,7 +199,7 @@ export abstract class ScheduleChartComponent
         if (isSmartPhone) {
             return NumberUtils.divideSafely(width, 2);
         }
-        return NumberUtils.divideSafely(width, 4);
+        return NumberUtils.divideSafely(width, 5);
     }
 }
 

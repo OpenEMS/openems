@@ -104,7 +104,6 @@ export class ModeChartComponent extends ScheduleChartComponent {
                 {
                     color,
                     data: predictionData,
-                    borderDash: [5, 5],
                     transparentBackground: true,
                     stepped: true,
                 },

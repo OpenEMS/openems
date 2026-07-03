@@ -11,7 +11,7 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedStorage } from "../shared/shared";
@@ -179,9 +179,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                     },
                 },
                 {
-                    type: "horizontal-line",
-                },
-                {
                     type: "channel-line",
                     name: "Ladezustand",
                     channel: new ChannelAddress("_sum", "EssSoc").toString(),
@@ -201,38 +198,49 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                         data: energyScheduler.schedule,
                     },
                 },
-                {
-                    type: "horizontal-line",
-                },
-                {
-                    type: "name-line",
-                    name: translate.instant("GENERAL.MODE"),
-                    style: {
-                        name: { fontSize: "large" },
-                    },
-                    cssClass: "ion-padding-top",
-                },
-                {
-                    type: "component-line",
-                    component: ModeChartComponent,
-                    inputs: {
-                        edge: edge,
-                        refresh: false,
-                        data: energyScheduler.schedule,
-                    },
-                },
-                {
-                    type: "horizontal-line",
-                },
-                {
-                    type: "name-line",
-                    name: translate.instant("GENERAL.DETAILS"),
-                    style: {
-                        name: { fontSize: "large" },
-                    },
-                    cssClass: "ion-padding-top",
-                },
             );
+
+            if (config.getComponentSafely("ctrlEssTimeOfUseTariff0") !== null) {
+                lines.push(
+                    {
+                        type: "channel-line",
+                        name: translate.instant("GENERAL.MODE"),
+                        channel: new ChannelAddress(
+                            "ctrlEssTimeOfUseTariff0",
+                            "StateMachine",
+                        ).toString(),
+                        converter:
+                            Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(translate),
+                        style: {
+                            name: { fontSize: "large" },
+                            value: { fontSize: "large" },
+                        },
+                        cssClass: "ion-padding-top",
+                    },
+                    {
+                        type: "component-line",
+                        component: ModeChartComponent,
+                        inputs: {
+                            edge: edge,
+                            refresh: false,
+                            data: energyScheduler.schedule,
+                        },
+                    },
+                );
+
+                lines.push({
+                    type: "horizontal-line",
+                });
+            }
+
+            lines.push({
+                type: "name-line",
+                name: translate.instant("GENERAL.DETAILS"),
+                style: {
+                    name: { fontSize: "large" },
+                },
+                cssClass: "ion-padding-top",
+            });
         }
 
         lines.push(...controllerLines);

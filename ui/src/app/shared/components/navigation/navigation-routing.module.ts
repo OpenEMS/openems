@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { history } from "src/app/app-routing.module";
+import { HistoryChartComponent } from "src/app/edge/history/common/energy/new-navigation/new-navigation";
 import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
 import { CommonConsumptionSingleHistoryOverviewComponent } from "src/app/edge/live/common/consumption/history/phase-accurate/new-navigation/phase-accurate";
@@ -412,7 +412,10 @@ export const newNavigationRoutes: Routes = [
         path: "common/storage/:componentId/scheduler-js-calendar/schedule/edit-task",
         component: SchedulerJsCalendarEditTaskComponent,
     },
-    ...history(true),
+    {
+        path: "history",
+        component: HistoryChartComponent,
+    },
 ];
 
 @NgModule({

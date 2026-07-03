@@ -11,14 +11,9 @@ import { FlatComponent } from "./flat/flat";
         BrowserModule,
         SharedModule,
         FlatWidgetButtonComponent,
-    ],
-    declarations: [
-        FlatComponent,
         ChartComponent,
     ],
-    exports: [
-        ChartComponent,
-        FlatComponent,
-    ],
+    declarations: [FlatComponent],
+    exports: [ChartComponent, FlatComponent],
 })
-export class CommonEnergyMonitor { }
+export class CommonEnergyMonitor {}
