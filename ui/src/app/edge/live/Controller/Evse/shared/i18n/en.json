@@ -41,6 +41,9 @@
             "MODE": "Charging mode",
             "FREQUENCY": "Repeat",
             "ADD": "Add",
+            "MANUAL_EVENTS": "Manual Events",
+            "SMART_EVENTS": "Smart Events",
+            "SMART_EVENT_TITLE": "Smart charging of {{kwh}} kWh",
             "DAY": {
                 "MONDAY": "Monday",
                 "TUESDAY": "Tuesday",

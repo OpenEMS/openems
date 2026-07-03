@@ -1,6 +1,9 @@
 @if (isInitialized) {
   <oe-navigation-view [title]="Schedule" [component]="component" [formGroup]="formGroup">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    @if (sectionTitle() !== null) {
+      <h2 class="ion-margin-start ion-margin-bottom">{{ sectionTitle() }}</h2>
+    }
     <ion-grid>
       <ion-row>
         @for (task of schedule(); track task.uid; let last = $last) {
@@ -81,5 +84,6 @@
         }
       </ion-row>
     </ion-grid>
+    <ng-content select="[afterSchedule]"></ng-content>
   </oe-navigation-view>
 }

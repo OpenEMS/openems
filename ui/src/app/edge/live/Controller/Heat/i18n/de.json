@@ -12,7 +12,12 @@
         "SCHEDULE": {
             "SCHEDULE": "Zeitplan",
             "MODE": "Heizmodus",
-            "MODE_SELECTION_PLACEHOLDER": "Auswählen"
+            "MODE_SELECTION_PLACEHOLDER": "Auswählen",
+            "MANUAL_EVENTS": "Manuelle Events",
+            "SMART_EVENTS": "Smart Events",
+            "SMART_EVENT": "Smart Event",
+            "SMART_EVENT_END": "Morgen 7:00",
+            "END_TEMPERATURE": "Endtemperatur"
         },
         "SETTINGS": {
             "NO_SETTINGS_AVAILABLE": "Keine Einstellungen verfügbar.",
