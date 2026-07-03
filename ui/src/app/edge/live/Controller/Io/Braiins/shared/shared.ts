@@ -150,7 +150,7 @@ export namespace SharedControllerBraiins {
             "braiins",
             { name: "logo-bitcoin", color: "normal" },
             "MENU.GROUPS.BRAIINS",
-            "braiins",
+            "controller/braiins",
             translate,
             componentIds,
             config,

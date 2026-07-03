@@ -281,11 +281,11 @@ export const newNavigationRoutes: Routes = [
         component: FixDigitalDetailsComponent,
     },
     {
-        path: "braiins",
+        path: "controller/braiins",
         component: ControllerBraiinsGroupComponent,
     },
     {
-        path: "braiins/:componentId",
+        path: "controller/braiins/:componentId",
         component: ControllerBraiinsHomeComponent,
     },
     {
