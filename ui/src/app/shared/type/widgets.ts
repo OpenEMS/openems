@@ -10,6 +10,7 @@ import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/s
 import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
+import { SharedControllerModbusTcpApiReadWrite } from "src/app/edge/live/Controller/ModbusTcpApi/shared/shared";
 import { SharedControllerPeakShavingAsymmetric } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/shared/shared";
 import { SharedControllerPeakShavingSymmetric } from "src/app/edge/live/Controller/peak-shaving/symmetric/shared/shared";
 import { SharedControllerTimeslotPeakshaving } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/shared/shared";
@@ -113,6 +114,11 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.Api.ModbusTcp.ReadWrite":
+                return SharedControllerModbusTcpApiReadWrite.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.TimeslotPeakshaving":

@@ -47,6 +47,9 @@ import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/C
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
+import { ControllerModbusTcpApiDetailsComponent } from "src/app/edge/live/Controller/ModbusTcpApi/details/details";
+import { ControllerModbusTcpApiHistoryComponent } from "src/app/edge/live/Controller/ModbusTcpApi/history/new-navigation/new-navigation";
+import { ControllerModbusTcpApiHomeComponent } from "src/app/edge/live/Controller/ModbusTcpApi/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/history/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/new-navigation/new-navigation";
 import { ControllerPeakShavingAsymmetricSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Asymmetric/settings/settings";
@@ -244,7 +247,22 @@ export const newNavigationRoutes: Routes = [
         path: "common/storage/controller/ess-fix-active-power/:componentId/settings",
         component: ControllerEssFixActivePowerSettingsComponent,
     },
-    { path: "common/weather/:componentId", component: WeatherHomeComponent },
+    {
+        path: "common/weather/:componentId",
+        component: WeatherHomeComponent,
+    },
+    {
+        path: "controller/modbus-tcp-api/:componentId",
+        component: ControllerModbusTcpApiHomeComponent,
+    },
+    {
+        path: "controller/modbus-tcp-api/:componentId/settings",
+        component: ControllerModbusTcpApiDetailsComponent,
+    },
+    {
+        path: "controller/modbus-tcp-api/:componentId/history",
+        component: ControllerModbusTcpApiHistoryComponent,
+    },
 
     {
         path: "controller/io-fix-digital-output",

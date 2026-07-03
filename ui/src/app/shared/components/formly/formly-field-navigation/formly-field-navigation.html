@@ -70,6 +70,10 @@
                       <oe-img [img]="line.img"> </oe-img>
                     }
 
+                    @case ("button-line") {
+                      <oe-modal-line [name]="line.name" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"> </oe-modal-line>
+                    }
+
                     <!-- OeFormlyField.InfoLine -->
                     @case ("info-line") {
                       @if (line.html !== undefined) {

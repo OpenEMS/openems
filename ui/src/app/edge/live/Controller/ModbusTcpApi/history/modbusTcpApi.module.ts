@@ -1,24 +1,22 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
-import { ChartComponent } from "./chart/chart";
-import { FlatComponent } from "./flat/flat";
+import { ControllerModbusTcpApiChartComponent } from "./chart/chart";
+import { ModbusTcpApiHistoryFlatComponent } from "./flat/flat";
 import { ControllerModbusTcpApiOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
         BrowserModule,
         SharedModule,
-    ],
-    declarations: [
-        FlatComponent,
+        ControllerModbusTcpApiChartComponent,
+        ModbusTcpApiHistoryFlatComponent,
         ControllerModbusTcpApiOverviewComponent,
-        ChartComponent,
     ],
     exports: [
-        FlatComponent,
         ControllerModbusTcpApiOverviewComponent,
-        ChartComponent,
+        ControllerModbusTcpApiChartComponent,
+        ModbusTcpApiHistoryFlatComponent,
     ],
 })
-export class ModbusTcpApi { }
+export class ControllerModbusTcpApi {}

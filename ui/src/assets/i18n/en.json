@@ -1295,7 +1295,8 @@
         "REGISTER": "Register",
         "SET_ACTIVE_POWER_EQUALS": "Limitation charing/discharging power",
         "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimum charging power",
-        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power"
+        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power",
+        "ERROR": "Fehler"
     },
     "NOTIFICATIONS": {
         "AUTHENTICATION_FAILED": "No Connection: Authentication failed.",

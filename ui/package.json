@@ -82,6 +82,7 @@
         "@ionic/cli": "^7.2.1",
         "@schematics/angular": "^20.3.25",
         "@stylistic/eslint-plugin": "^5.10.0",
+        "@types/file-saver-es": "^2.0.3",
         "@types/jasmine": "~6.0.0",
         "@types/jasminewd2": "~2.0.13",
         "@types/json-schema": "^7.0.15",

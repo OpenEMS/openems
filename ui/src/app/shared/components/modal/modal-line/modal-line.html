@@ -67,6 +67,17 @@
               }
             </td>
           }
+        } @else if (control) {
+          @if (control.type === "BUTTON") {
+            <td [style.width]="100 - (leftColumnWidth ?? 50) + '%'" class="align_right">
+              @if (control.button?.icon) {
+                <ion-button slot="end" button (click)="control.button.callback()">
+                  {{ control.button.name }}
+                  <ion-icon slot="start" [name]="control.button.icon.name"></ion-icon>
+                </ion-button>
+              }
+            </td>
+          }
         }
         <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
         <ng-template #contentTpl>

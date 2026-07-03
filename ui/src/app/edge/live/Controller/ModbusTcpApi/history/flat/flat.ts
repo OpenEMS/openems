@@ -1,4 +1,6 @@
 import { Component } from "@angular/core";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress } from "src/app/shared/shared";
@@ -6,10 +8,10 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
     selector: "modbusTcpApiWidget",
     templateUrl: "./flat.html",
-    standalone: false,
+    standalone: true,
+    imports: [CommonUiModule, ComponentsBaseModule],
 })
-export class FlatComponent extends AbstractFlatWidget {
-
+export class ModbusTcpApiHistoryFlatComponent extends AbstractFlatWidget {
     protected TIME_CONVERTER = this.Converter.FORMAT_SECONDS_TO_DURATION("de");
 
     protected override getChannelAddresses(): ChannelAddress[] {

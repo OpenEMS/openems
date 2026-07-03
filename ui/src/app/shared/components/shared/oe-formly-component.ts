@@ -19,6 +19,7 @@ import { OeImageComponent } from "../oe-img/oe-img";
 import { Stat } from "../stats/stats";
 import { Converter } from "./converter";
 import { DataService } from "./dataservice";
+import { Filter } from "./filter";
 
 @Directive()
 export abstract class AbstractFormlyComponent<
@@ -468,6 +469,8 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.RangeButtonFromFormControlLine
     | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.PercentageBarFromFormControlLine
+    | OeFormlyField.ValueLine
+    | OeFormlyField.ButtonLine
     | OeFormlyField.ToggleLine
     | OeFormlyField.ToggleLineWithValue<T>
     | OeFormlyField.InputLine
@@ -478,10 +481,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.Advanced.AdvancedStatsLine
 ) & {
     hide?: (field: T) => boolean;
-    /**
-     * Executes a applyable if according name field exists for this line
-     * type
-     */
+    /** Executes a applyable if according name field exists for this line type */
     nameCallback?: (field: T) => string;
     style?: AbstractModalLine["lineStyle"];
     cssClass?:
@@ -493,6 +493,11 @@ export type OeFormlyField<T = any> = (
 };
 
 export namespace OeFormlyField {
+    export type ButtonLine = {
+        type: "button-line";
+        name?: string;
+        button: Pick<ButtonLabel, "callback" | "icon" | "name" | "disabled">;
+    };
     export namespace Advanced {
         export type ElectricityMeter = {
             type: "advanced-electricity-meter-line";
@@ -549,20 +554,11 @@ export namespace OeFormlyField {
     export type ChannelLine = {
         type: "channel-line";
         name: /* actual name string */
-            | string
-            | /* name string derived from channel value */ Converter;
+            string | /* name string derived from channel value */ Converter;
         channel: string;
         filter?: (value: number | null) => boolean;
         converter?: (value: number | null) => string;
         indentation?: TextIndentation;
-    };
-
-    export type NameLine = {
-        type: "name-line";
-        name: /* actual name string */
-            | string
-            | /* name string derived from channel value */ Converter;
-        filter?: (value: number | null) => boolean;
     };
 
     export type ValueFromChannelsLine = {
@@ -615,8 +611,22 @@ export namespace OeFormlyField {
         converter?: Converter;
     };
 
+    export type ValueLine = {
+        type: "value-line";
+        name: string;
+        value: string;
+        converter: Converter;
+    };
+
     export type HorizontalLine = {
         type: "horizontal-line";
+    };
+    export type NameLine = {
+        type: "name-line";
+        name:
+            | string
+            | { channel: ChannelAddress; converter: (value: any) => string };
+        filter?: Filter;
     };
 
     export type PercentageBarFromFormControlLine = {
