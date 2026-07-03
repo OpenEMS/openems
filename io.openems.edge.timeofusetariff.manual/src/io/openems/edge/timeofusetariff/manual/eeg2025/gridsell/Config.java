@@ -26,8 +26,5 @@ import io.openems.common.types.EntsoeBiddingZone;
 	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD, required = false)
 	String securityToken() default "";
 
-	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the location")
-	EntsoeBiddingZone biddingZone();
-
 	String webconsole_configurationFactory_nameHint() default "Tariff Manual EEG 2025 Grid-Sell [{id}]";
 }
