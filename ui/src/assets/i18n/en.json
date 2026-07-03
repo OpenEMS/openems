@@ -423,7 +423,12 @@
                         "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Limited or delayed charging is not possible because no grid feed-in or only a small amount of grid feed-in is allowed."
                     },
                     "LIMITED_FUNCTIONALITY": "Limited functionality",
-                    "STORAGE_CAPACITY": "Storage capacity (only visible for admin)"
+                    "STORAGE_CAPACITY": "Storage capacity (only visible for admin)",
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Note: Grid-optimized charging is now integrated into the “Time-of-Use Tariff” app. The settings configured here will continue to remain effective.",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Is your system affected by the EEG 2025 regulation?<br/><br/>With the EEG 2025 app, feed-in during negative electricity market prices is automatically reduced as much as possible. If excess energy is still available, it will continue to be fed into the grid and will not be lost.",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "The EEG 2025 app is active.<br/><br/>During negative electricity market prices, feed-in is automatically reduced as much as possible. If excess energy is still available, it will continue to be fed into the grid and will not be lost.",
+                    "EEG_2025_APP_LINK": "To the app"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
@@ -554,9 +559,13 @@
                     "PRICE": "Current price",
                     "STATE": {
                         "BALANCING": "Self-consumption optimization",
-                        "CHARGE_GRID": "Charge from grid allowed",
-                        "DELAY_DISCHARGE": "Delayed discharge",
-                        "PEAK_SHAVING": "Peak shaving"
+                        "CHARGE_GRID": "Charge from grid",
+                        "DELAY_DISCHARGE": "Delay discharge",
+                        "PEAK_SHAVING": "Peak shaving",
+                        "DELAY_CHARGE": "Delay charge",
+                        "LIMIT_CHARGE": "Limit charge",
+                        "AVOID_GRID_SELL_LIMIT": "Avoid feed-in limit",
+                        "DISCHARGE_CONSUMPTION": "Discharge to consumption"
                     }
                 },
                 "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",

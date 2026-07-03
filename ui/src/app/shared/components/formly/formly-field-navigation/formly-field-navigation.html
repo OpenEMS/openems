@@ -76,13 +76,7 @@
 
                     <!-- OeFormlyField.InfoLine -->
                     @case ("info-line") {
-                      @if (line.html !== undefined) {
-                        <ng-container style="font-size: smaller">
-                          <span [innerHtml]="line.html"></span>
-                        </ng-container>
-                      } @else {
-                        <oe-modal-info-line [info]="line.name" [icon]="line.icon"> </oe-modal-info-line>
-                      }
+                      <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html"> </oe-modal-info-line>
                     }
 
                     <!-- OeFormlyField.HorizontalLine -->

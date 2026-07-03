@@ -462,6 +462,22 @@ export class Utils {
                     return translate.instant(
                         "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING",
                     );
+                case 6:
+                    return translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE",
+                    );
+                case 7:
+                    return translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE",
+                    );
+                case 8:
+                    return translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT",
+                    );
+                case 9:
+                    return translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION",
+                    );
                 default: // Usually "1"
                     return translate.instant(
                         "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING",
@@ -996,6 +1012,10 @@ export namespace TimeOfUseTariffUtils {
         Balancing = 1,
         ChargeGrid = 3,
         PeakShaving = 5,
+        DelayCharge = 6,
+        LimitCharge = 7,
+        AvoidGridSellLimit = 8,
+        DischargeConsumption = 9,
     }
 
     /**

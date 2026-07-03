@@ -423,7 +423,12 @@
                         "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist."
                     },
                     "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
-                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)"
+                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)",
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Hinweis: Die netzdienliche Beladung ist nun in die App „Dynamischer Stromtarif“ integriert. Die hier gesetzten Einstellungen bleiben weiterhin wirksam.",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Ist deine Anlage von der EEG-2025-Regelung betroffen?<br/><br/>Mit der EEG-2025-App wird die Einspeisung bei negativen Börsenpreisen automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "Die EEG-2025-App ist aktiv.<br/><br/>Bei negativen Börsenpreisen wird die Einspeisung automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
+                    "EEG_2025_APP_LINK": "Zur App"
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen deines AC-Thor Heizstabes kannst du in der MyPV-App vornehmen.",
@@ -543,9 +548,13 @@
                     "PRICE": "Aktueller Bezugsstrompreis",
                     "STATE": {
                         "BALANCING": "Eigenverbrauchsoptimierung",
-                        "CHARGE_GRID": "Beladung aus dem Netz freigegeben",
-                        "DELAY_DISCHARGE": "Entladung verzögert",
-                        "PEAK_SHAVING": "Lastspitzenkappung"
+                        "CHARGE_GRID": "Beladung aus dem Netz",
+                        "DELAY_DISCHARGE": "Entladung verzögern",
+                        "PEAK_SHAVING": "Lastspitzenkappung",
+                        "DELAY_CHARGE": "Beladung verzögern",
+                        "LIMIT_CHARGE": "Beladung limitieren",
+                        "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
+                        "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch"
                     }
                 },
                 "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
