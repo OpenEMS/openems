@@ -30,11 +30,13 @@ export class ControllerEnerixOverviewComponent extends AbstractHistoryChartOverv
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
     }
 
     protected setChartConfig(event: ChartTypes.ChartConfig) {

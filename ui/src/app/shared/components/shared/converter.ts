@@ -608,41 +608,6 @@ export namespace Converter {
         };
     };
 
-    /**
-     * Converts Power2Heat-State
-     *
-     * @param translate The current language to be translated to
-     * @returns Converted value
-     */
-    export const CONVERT_ENERIX_CONTROL_STATE = (
-        translate: TranslateService,
-    ) => {
-        return (value: any): string => {
-            switch (value) {
-                case State.ON:
-                    return translate.instant("GENERAL.ON");
-                case State.NO_DISCHARGE:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE",
-                    );
-                case State.CHARGE_FROM_GRID:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID",
-                    );
-                case State.DISCONNECTED:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCONNECTED",
-                    );
-                case State.CONNECTED:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CONNECTED",
-                    );
-                default:
-                    return translate.instant("GENERAL.OFF");
-            }
-        };
-    };
-
     export const CONVERT_TO_BAR: Converter = (raw) => {
         return IF_NUMBER(raw, (value) => Formatter.FORMAT_BAR(value));
     };

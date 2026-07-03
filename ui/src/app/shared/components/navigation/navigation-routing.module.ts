@@ -19,6 +19,9 @@ import { CommonStorageSettingsComponent } from "src/app/edge/live/common/storage
 import { WeatherHomeComponent } from "src/app/edge/live/common/weather/new-navigation/new-navigation";
 import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
+import { ControllerEnerixControlHistoryComponent } from "src/app/edge/live/Controller/EnerixControl/history/new-navigation/new-navigation";
+import { ControllerEnerixControlHomeComponent } from "src/app/edge/live/Controller/EnerixControl/new-navigation/new-navigation";
+import { ControllerEnerixControlSettingsComponent } from "src/app/edge/live/Controller/EnerixControl/settings/settings";
 import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHomeComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/new-navigation/new-navigation";
@@ -32,6 +35,7 @@ import { EvsePhaseSwitchingComponent } from "src/app/edge/live/Controller/Evse/p
 import { EvseScheduleComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/schedule.component";
 import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/add/add";
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
+import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
 import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
@@ -78,7 +82,6 @@ import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Cont
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
-import { HeatForecastComponent } from "../../../edge/live/Controller/Heat/forecast/forecast";
 import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
 import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
@@ -201,7 +204,10 @@ export const newNavigationRoutes: Routes = [
         path: "common/selfconsumption/history",
         component: CommonSelfConsumptionHistoryComponent,
     },
-    { path: "common/storage", component: CommonStorageHomeComponent },
+    {
+        path: "common/storage",
+        component: CommonStorageHomeComponent,
+    },
     {
         path: "common/storage/details",
         component: CommonStorageOwnerGuestInstallerDetailsComponent,
@@ -262,7 +268,6 @@ export const newNavigationRoutes: Routes = [
         path: "common/storage/controller/modbus-tcp-api/:componentId/history",
         component: ControllerModbusTcpApiHistoryComponent,
     },
-
     {
         path: "controller/io-fix-digital-output",
         component: ControllerFixDigitalOutputGroupComponent,
@@ -330,6 +335,18 @@ export const newNavigationRoutes: Routes = [
     {
         path: "common/storage/controller/peak-shaving-asymmetric/:componentId/history",
         component: ControllerPeakShavingAsymmetricHistoryComponent,
+    },
+    {
+        path: "controller/enerix-control/:componentId",
+        component: ControllerEnerixControlHomeComponent,
+    },
+    {
+        path: "controller/enerix-control/:componentId/settings",
+        component: ControllerEnerixControlSettingsComponent,
+    },
+    {
+        path: "controller/enerix-control/:componentId/history",
+        component: ControllerEnerixControlHistoryComponent,
     },
     {
         path: "controller/heat/:componentId",

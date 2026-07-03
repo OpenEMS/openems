@@ -5,6 +5,7 @@ import { SharedProduction } from "src/app/edge/live/common/production/shared/sha
 import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
+import { SharedControllerEnerixControl } from "src/app/edge/live/Controller/EnerixControl/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { SharedControllerBraiins } from "src/app/edge/live/Controller/Io/Braiins/shared/shared";
@@ -113,6 +114,11 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.Clever-PV":
+                return SharedControllerEnerixControl.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Weather.OpenMeteo":
                 return SharedWeather.getNavigationTree(translate, component);
             case "Controller.IO.HeatingElement":

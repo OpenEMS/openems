@@ -1,24 +1,24 @@
 import { NgModule } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { SharedModule } from "src/app/shared/shared.module";
-import { ChartComponent } from "./chart/chart";
+import { EnerixControlChartComponent } from "./chart/chart";
 import { FlatComponent } from "./flat/flat";
+import { ControllerEnerixControlHistoryComponent } from "./new-navigation/new-navigation";
 import { ControllerEnerixOverviewComponent as ControllerEnerixControlOverviewComponent } from "./overview/overview";
 
 @NgModule({
     imports: [
         BrowserModule,
         SharedModule,
+        EnerixControlChartComponent,
+        ControllerEnerixControlHistoryComponent,
     ],
-    declarations: [
-        FlatComponent,
-        ControllerEnerixControlOverviewComponent,
-        ChartComponent,
-    ],
+    declarations: [FlatComponent, ControllerEnerixControlOverviewComponent],
     exports: [
         FlatComponent,
         ControllerEnerixControlOverviewComponent,
-        ChartComponent,
+        EnerixControlChartComponent,
+        ControllerEnerixControlHistoryComponent,
     ],
 })
-export class EnerixControl { }
+export class ControllerEnerixControlControlHistory {}

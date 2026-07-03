@@ -13,6 +13,10 @@ export enum Mode {
     CHARGE_ONCE = "CHARGE_ONCE",
     DISCHARGE_ONCE = "DISCHARGE_ONCE",
 }
+export enum EnerixControlMode {
+    OFF = "OFF",
+    REMOTE_CONTROL = "REMOTE_CONTROL",
+}
 export const ChartAnnotationState = {
     ON: 1,
     OFF: 0,
