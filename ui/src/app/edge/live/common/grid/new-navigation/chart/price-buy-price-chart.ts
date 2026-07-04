@@ -38,7 +38,7 @@ export class GridBuyPriceChartComponent extends ScheduleChartComponent {
                 color: ChartConstants.Colors.BLACK,
                 data: data.prediction,
                 stepped: true,
-                transparentBackground: true,
+                opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];
     }

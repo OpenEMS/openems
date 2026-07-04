@@ -37,6 +37,10 @@ export abstract class ScheduleChartComponent
     extends AbstractHistoryChart
     implements OnChanges
 {
+    public static readonly OPACITY_DEFAULT = 0.2;
+    public static readonly OPACITY_TRANSPARENT = 0.05;
+    public static readonly OPACITY_NONE = 1;
+
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public data!: GetSchedule.Response;
     @Input({ required: true }) public override edge!: Edge;
@@ -168,7 +172,7 @@ export abstract class ScheduleChartComponent
             yAxisID: ChartAxis.LEFT,
             backgroundColor: ColorUtils.rgbStringToRgba(
                 d.color,
-                d.transparentBackground ? 0.05 : 0.2,
+                d.opacity ?? ScheduleChartComponent.OPACITY_DEFAULT,
             ),
             borderColor: d.color,
             borderWidth: 2,
@@ -210,7 +214,7 @@ export namespace ScheduleChartComponent {
         data: (number | boolean | null)[];
         borderDash?: [number, number] | [];
         stepped?: LineControllerDatasetOptions["stepped"] | false;
-        transparentBackground?: boolean;
+        opacity?: number;
     };
 
     /**
