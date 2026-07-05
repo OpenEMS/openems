@@ -498,8 +498,6 @@
 	org.jsr-305;version='[3.0.2,3.0.3)',\
 	org.openmuc.jmbus;version='[3.3.0,3.3.1)',\
 	org.openmuc.jrxtx;version='[1.0.1,1.0.2)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.4,2.3.5)';startlevel=14,\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.4,2.3.5)';startlevel=15,\
 	org.ops4j.pax.logging.pax-logging-api;version='[2.3.4,2.3.5)';startlevel=15,\
 	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.4,2.3.5)';startlevel=16,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
