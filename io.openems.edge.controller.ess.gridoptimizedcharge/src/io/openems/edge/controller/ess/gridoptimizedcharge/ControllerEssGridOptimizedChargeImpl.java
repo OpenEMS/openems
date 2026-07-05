@@ -175,9 +175,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Override
 	public void run() throws OpenemsNamedException {
 		setValue(this, RUN_ENABLED, this.isRunEnabled);
-		if (!this.isRunEnabled) {
-			return;
-		}
 
 		this.updateMaximumSellToGridPower();
 		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
@@ -191,6 +188,10 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			return;
 		}
 		this._setNoValidProductionPredictionChannel(false);
+
+		if (!this.isRunEnabled) {
+			return;
+		}
 
 		// Updates the time channels.
 		this.calculateTime();
