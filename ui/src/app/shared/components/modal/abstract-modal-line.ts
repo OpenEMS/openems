@@ -190,9 +190,8 @@ export abstract class AbstractModalLine
         }
 
         if (this.converter) {
-            this.displayValue = this.sanitizer.bypassSecurityTrustHtml(
-                this.converter(value),
-            );
+            const converted = this.converter(value);
+            this.displayValue = converted ? this.sanitizer.bypassSecurityTrustHtml(converted) : null;
         }
     }
 
