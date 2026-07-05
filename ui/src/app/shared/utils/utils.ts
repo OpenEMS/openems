@@ -843,6 +843,8 @@ export namespace HistoryUtils {
         hideLabelInLegend?: boolean;
         /** Borderstyle of label in legend */
         borderDash?: [number, number];
+        /** Draw dataset as step line (line charts only) */
+        stepped?: boolean;
         /** Hides shadow of chart lines, default false */
         hideShadow?: boolean;
         /** AxisId from yAxes, default {@link ChartAxis.LEFT} */

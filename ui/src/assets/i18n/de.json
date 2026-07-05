@@ -559,7 +559,9 @@
                         "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
                         "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch",
                         "DISCHARGE_GRID": "Entladung ins Netz"
-                    }
+                    },
+                    "EEG_2025_HEADER": "EEG 2025 Prognose",
+                    "EEG_2025_DESCRIPTION": "Die Grafik zeigt die zukünftig erwartete Netzeinspeisung sowie die voraussichtliche Einspeisevergütung gemäß EEG 2025. Diese wird bei der Berechnung der optimalen Betriebsweise berücksichtigt. Es wird versucht, die Netzeinspeisung zu Zeiten ohne Vergütung möglichst gering zu halten. Bitte beachte, dass die Prognose kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann."
                 },
                 "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 "EVSE": {

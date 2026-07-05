@@ -569,7 +569,9 @@
                         "AVOID_GRID_SELL_LIMIT": "Avoid feed-in limit",
                         "DISCHARGE_CONSUMPTION": "Discharge to consumption",
                         "DISCHARGE_GRID": "Discharge to grid"
-                    }
+                    },
+                    "EEG_2025_HEADER": "EEG 2025 Forecast",
+                    "EEG_2025_DESCRIPTION": "The graph shows the expected future grid feed-in and the projected feed-in tariff under the EEG 2025. This is taken into account when calculating the optimal operating mode. The system attempts to keep grid feed-in as low as possible during periods when no tariff is paid. Please note that the forecast is continuously recalculated and may therefore change throughout the day."
                 },
                 "TWO_WAY_INFO_GRID": "Negative values correspond to grid feed-in, Positive values correspond to mains supply",
                 "EVSE": {

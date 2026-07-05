@@ -9,9 +9,12 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, Currency, CurrentData, Edge, EdgeConfig, Utils, } from "src/app/shared/shared";
+import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../../livedataservice";
+import { SharedGridOptimizedCharge } from "../../GridOptimizedCharge/shared/shared";
 import { SharedControllerEssTimeOfUseTariff } from "../shared/shared";
+import { ScheduleGridSellChartComponent } from "./grid-sell-chart";
 import { SchedulePowerAndSocChartComponent } from "./power-soc-chart";
 import { ScheduleStateAndPriceChartComponent } from "./state-price-chart";
 
@@ -49,7 +52,9 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
         component: EdgeConfig.Component,
         edge: Edge,
         powerAndSocChartComponent: Type<SchedulePowerAndSocChartComponent>,
+        gridSellChartComponent: Type<ScheduleGridSellChartComponent>,
         stateAndPriceChartComponent: Type<ScheduleStateAndPriceChartComponent>,
+        displayEeg2025: boolean,
     ): OeFormlyView {
         const lines: OeFormlyField[] = [];
 
@@ -98,6 +103,9 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
                 channel: component.id + "/StateMachine",
                 converter: Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(translate),
             },
+        );
+
+        lines.push(
             {
                 type: "horizontal-line",
             },
@@ -122,6 +130,38 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
                     "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.CHART_WARNING_NOTE",
                 ),
             },
+        );
+
+        if (displayEeg2025 == true) {
+            lines.push(
+                {
+                    type: "horizontal-line",
+                },
+                {
+                    type: "info-line",
+                    name: translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.EEG_2025_HEADER",
+                    ),
+                },
+                {
+                    type: "component-line",
+                    component: gridSellChartComponent,
+                    inputs: {
+                        component: component,
+                        edge: edge,
+                        refresh: false,
+                    },
+                },
+                {
+                    type: "info-line",
+                    name: translate.instant(
+                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.EEG_2025_DESCRIPTION",
+                    ),
+                },
+            );
+        }
+
+        lines.push(
             {
                 type: "horizontal-line",
             },
@@ -172,13 +212,16 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
         AssertionUtils.assertIsDefined(this.component);
 
         const powerAndSocChartComponent = SchedulePowerAndSocChartComponent;
+        const gridSellChartComponent = ScheduleGridSellChartComponent;
         const stateAndPriceChartComponent = ScheduleStateAndPriceChartComponent;
         return ControllerEssTimeOfUseTariffHomeComponent.generateView(
             this.translate,
             this.component,
             this.edge,
             powerAndSocChartComponent,
+            gridSellChartComponent,
             stateAndPriceChartComponent,
+            this.displayEeg2025(),
         );
     }
 
@@ -188,5 +231,37 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
             this.routeService,
             this.component,
         );
+    }
+
+    private displayEeg2025(): boolean {
+        const config = this.edge?.getCurrentConfig();
+
+        if (config == null || this.component == null) {
+            return false;
+        }
+
+        if (
+            SharedGridOptimizedCharge.isEnergySchedulerV2Enabled(config) ==
+                false ||
+            SharedGridOptimizedCharge.isEeg2025Installed(config) == false
+        ) {
+            return false;
+        }
+
+        const essId = this.component.getPropertyFromComponent<string>("ess.id");
+
+        return config
+            .getComponentIdsByFactory("Controller.Ess.GridOptimizedCharge")
+            .some((controllerId) => {
+                const controller = config.getComponentSafely(controllerId);
+
+                return (
+                    controller != null &&
+                    controller.getPropertyFromComponent<string>("ess.id") ===
+                        essId &&
+                    controller.getPropertyFromComponent<string>("mode") !==
+                        Mode.OFF
+                );
+            });
     }
 }

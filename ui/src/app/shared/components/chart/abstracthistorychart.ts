@@ -469,6 +469,11 @@ export abstract class AbstractHistoryChart
             ...colors,
             ...ChartConstants.Plugins.Datasets.HOVER_ENHANCE(colors),
         };
+
+        if (chartType === "line" && element.stepped != null) {
+            (dataset as Chart.ChartDataset<"line", (number | null)[]>).stepped = element.stepped;
+        }
+
         return dataset;
     }
 
