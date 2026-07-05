@@ -416,11 +416,16 @@ public class GetSchedule implements EndpointRequestType<Request, Response> {
 												case SingleModes<?> sm -> Stream.of(//
 														new Entry.Esh(esh.getParentId(),
 																sm.get(p.modeIndex()).getValue(),
-																managedConsumptions.get(esh.getParentId())));
+																Optional.ofNullable(
+																		managedConsumptions.get(esh.getParentId()))
+																		.map(convertEnergyToPower::applyAsInt)
+																		.orElse(null)));
 												case JointModes<?> jms -> Stream.ofNullable(jms.get(p.modeIndex())) //
 														.flatMap(jm -> jm.submodes().entrySet().stream()) //
 														.map(e -> new Entry.Esh(e.getKey(), e.getValue().getValue(),
-																managedConsumptions.get(e.getKey())));
+																Optional.ofNullable(managedConsumptions.get(e.getKey()))
+																		.map(convertEnergyToPower::applyAsInt)
+																		.orElse(null)));
 												};
 											}); //
 								}) //

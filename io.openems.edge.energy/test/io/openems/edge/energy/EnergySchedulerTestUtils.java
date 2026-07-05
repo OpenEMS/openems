@@ -59,7 +59,12 @@ public class EnergySchedulerTestUtils {
 				new Factory<io.openems.edge.heat.askoma.EnergyScheduler.Config>(
 						(comp, conf) -> io.openems.edge.heat.askoma.EnergyScheduler.buildEnergyScheduleHandler(comp,
 								() -> CLOCK, conf),
-						io.openems.edge.heat.askoma.EnergyScheduler.Config.serializer(CLOCK)));
+						io.openems.edge.heat.askoma.EnergyScheduler.Config.serializer(CLOCK))),
+		BRAIINS_SINGLE("Controller.BraiinsOS.Single",
+				new Factory<io.openems.edge.braiinsos.EnergyScheduler.Config>(
+						(comp, conf) -> io.openems.edge.braiinsos.EnergyScheduler.buildEnergyScheduleHandler(comp,
+								() -> CLOCK, conf),
+						io.openems.edge.braiinsos.EnergyScheduler.Config.serializer(CLOCK)));
 
 		public final String factoryPid;
 		public final Factory<?> factory;

@@ -20,8 +20,14 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Mode", description = "Set the mode")
-	Mode mode() default Mode.READ_ONLY;
+	@AttributeDefinition(name = "Read Only", description = "Defines if the Braiins miner is read-only.")
+	boolean readOnly() default false;
+
+	@AttributeDefinition(name = "Mode", description = "Set the mode.")
+	Mode mode() default Mode.OFF;
+
+	@AttributeDefinition(name = "Default Consumption", description = "Fallback consumption in Watt.")
+	int defaultConsumptionW() default 3000;
 
 	@AttributeDefinition(name = "IP-Address", description = "The IP address of the device.")
 	String ip();
@@ -37,6 +43,9 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
+
+	@AttributeDefinition(name = "JSCalendar Schedule", description = "Takes a JSON-Array in JSCalendar format")
+	String jsCalendar() default "[]";
 
 	String webconsole_configurationFactory_nameHint() default "Braiins OS Controller Single [{id}]";
 }

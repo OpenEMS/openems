@@ -11,6 +11,7 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -25,14 +26,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.types.MeterType;
 import io.openems.edge.braiinsos.api.BraiinsApi;
 import io.openems.edge.braiinsos.api.MinerStats;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.JSCalendarApi;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
+import io.openems.edge.energy.api.handler.RescheduleMode;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.meter.api.SinglePhaseMeter;
 import io.openems.edge.timedata.api.Timedata;
@@ -47,8 +56,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implements Controller, SinglePhaseMeter,
-		ElectricityMeter, ControllerBraiinsSingle, OpenemsComponent, EventHandler, TimedataProvider {
+public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
+		implements Controller, SinglePhaseMeter, ElectricityMeter, ControllerBraiinsSingle, OpenemsComponent,
+		EventHandler, TimedataProvider, ComponentJsonApi, EnergySchedulable {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerBraiinsSingleImpl.class);
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
@@ -60,8 +70,18 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implem
 	@Reference(cardinality = MANDATORY)
 	private BridgeHttpFactory httpBridgeFactory;
 
-	private BraiinsApi braiinApi;
+	@Reference
+	private ComponentManager componentManager;
+
+	@Reference
+	private ConfigurationAdmin configurationAdmin;
+
+	private BraiinsApi braiinsApi;
 	private Config config;
+	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
+	private Mode lastSentMode = null;
+	private CompletableFuture<Void> runFuture = null;
+	private volatile JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
 
 	public ControllerBraiinsSingleImpl() {
 		super(//
@@ -78,57 +98,75 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implem
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
+
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(//
+				this, //
+				this.componentManager, //
+				this::buildEnergySchedulerConfig);
 	}
 
 	@Modified
 	protected void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.applyConfig(config);
-	}
-
-	private void applyConfig(Config config) {
-		this.config = config;
-
-		// Cleanup
-		if (this.braiinApi != null) {
-			this.braiinApi.deactivate();
-			this.braiinApi = null;
-		}
-
-		if (!config.enabled()) {
-			return;
-		}
-
-		// Restart
-		this.braiinApi = new BraiinsApi(this.httpBridgeFactory, //
-				config.ip(), config.username(), config.password(), this::applyMinerStats);
-		this.braiinApi.activate();
+		this.energyScheduleHandler.triggerReschedule("ControllerBraiinsSingleImpl:modified()",
+				RescheduleMode.OPTIMIZE_CURRENT_PERIOD);
 	}
 
 	@Override
 	@Deactivate
 	protected void deactivate() {
-		if (this.braiinApi != null) {
-			this.braiinApi.deactivate();
-			this.braiinApi = null;
-		}
 		super.deactivate();
+		this.cleanupApi();
 	}
 
-	private Mode.Actual lastSentMode = null;
-	private CompletableFuture<Void> runFuture = null;
+	private EnergyScheduler.Config buildEnergySchedulerConfig() {
+		if (this.config == null || !this.config.enabled()) {
+			return null;
+		}
+
+		return new EnergyScheduler.Config(this.config.mode(), this.config.defaultConsumptionW(), this.tasks);
+	}
+
+	private void applyConfig(Config config) {
+		this.config = config;
+
+		this.tasks = JSCalendar.Tasks.fromStringOrEmpty(//
+				this.componentManager.getClock(), config.jsCalendar(), Payload.serializer());
+
+		this.cleanupApi();
+		if (!config.enabled()) {
+			return;
+		}
+		this.startApi();
+	}
+
+	private void cleanupApi() {
+		if (this.braiinsApi == null) {
+			return;
+		}
+		this.braiinsApi.deactivate();
+		this.braiinsApi = null;
+	}
+
+	private void startApi() {
+		this.braiinsApi = new BraiinsApi(this.httpBridgeFactory, //
+				this.config.ip(), this.config.username(), this.config.password(), this::applyMinerStats);
+		this.braiinsApi.activate();
+	}
 
 	@Override
-	public void run() throws OpenemsNamedException {
-		var targetMode = this.config.mode().actual;
+	public void run() {
+		final var targetMode = this.resolveTargetMode();
+		setValue(this, ControllerBraiinsSingle.ChannelId.EFFECTIVE_MODE, targetMode);
 		if (targetMode == null || targetMode == this.lastSentMode) {
 			return; // no changes -> stop
 		}
 
 		if (this.runFuture == null) {
 			this.runFuture = switch (targetMode) {
-			case ON -> this.braiinApi.callActionResume();
-			case OFF -> this.braiinApi.callActionPause();
+			case ON -> this.braiinsApi.callActionResume();
+			case OFF -> this.braiinsApi.callActionPause();
 			};
 			this.lastSentMode = targetMode;
 		}
@@ -136,7 +174,6 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implem
 		if (this.runFuture.isDone()) {
 			try {
 				this.runFuture.get();
-
 			} catch (InterruptedException | ExecutionException e) {
 				// Mode change did not work -> retry
 				this.logError(this.log, "Unable to set mode [" + targetMode + "]: " + e.getMessage());
@@ -147,9 +184,23 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implem
 		}
 	}
 
+	private Mode resolveTargetMode() {
+		final var activeTask = this.tasks.getActiveOneTask();
+		if (activeTask != null && activeTask.payload() instanceof Payload.Manual(Mode mode)) {
+			return mode;
+		}
+
+		final var currentPeriod = this.energyScheduleHandler.getCurrentPeriod();
+		if (currentPeriod != null) {
+			return currentPeriod.mode();
+		}
+
+		return this.config.mode();
+	}
+
 	/**
 	 * Regularly called by {@link BraiinsApi}.
-	 * 
+	 *
 	 * @param ms the {@link MinerStats}
 	 */
 	private void applyMinerStats(MinerStats ms) {
@@ -208,5 +259,18 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implem
 	@Override
 	public SinglePhase getPhase() {
 		return this.config.phase();
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		JSCalendarApi.buildJsonApiRoutes(builder, Payload.serializer(), //
+				() -> this.tasks, //
+				() -> new JSCalendarApi.UpdateJsCalendarRecord(this.configurationAdmin, this.componentManager,
+						this.servicePid(), "jsCalendar"));
 	}
 }

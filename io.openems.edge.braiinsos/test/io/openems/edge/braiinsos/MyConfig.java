@@ -8,14 +8,17 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
-		private String id;
-		private boolean enabled;
-		private Mode mode;
+		private String id = "ctrlBraiinsSingle0";
+		private boolean enabled = true;
+		private boolean readOnly = false;
+		private Mode mode = Mode.OFF;
+		private int defaultConsumptionW = 3000;
 		private String ip;
-		private String username;
-		private String password;
-		private MeterType type;
-		private SinglePhase phase;
+		private String username = "root";
+		private String password = "";
+		private SinglePhase phase = SinglePhase.L1;
+		private MeterType type = MeterType.CONSUMPTION_METERED;
+		private String jsCalendar = "[]";
 
 		private Builder() {
 		}
@@ -30,8 +33,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setReadOnly(boolean readOnly) {
+			this.readOnly = readOnly;
+			return this;
+		}
+
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
+			return this;
+		}
+
+		public Builder setDefaultConsumptionW(int defaultConsumptionW) {
+			this.defaultConsumptionW = defaultConsumptionW;
 			return this;
 		}
 
@@ -50,13 +63,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setPhase(SinglePhase phase) {
+			this.phase = phase;
+			return this;
+		}
+
 		public Builder setType(MeterType type) {
 			this.type = type;
 			return this;
 		}
 
-		public Builder setPhase(SinglePhase phase) {
-			this.phase = phase;
+		public Builder setJsCalendar(String jsCalendar) {
+			this.jsCalendar = jsCalendar;
 			return this;
 		}
 
@@ -92,8 +110,18 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public boolean readOnly() {
+		return this.builder.readOnly;
+	}
+
+	@Override
 	public Mode mode() {
 		return this.builder.mode;
+	}
+
+	@Override
+	public int defaultConsumptionW() {
+		return this.builder.defaultConsumptionW;
 	}
 
 	@Override
@@ -107,12 +135,17 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public SinglePhase phase() {
+		return this.builder.phase;
+	}
+
+	@Override
 	public MeterType type() {
 		return this.builder.type;
 	}
 
 	@Override
-	public SinglePhase phase() {
-		return this.builder.phase;
+	public String jsCalendar() {
+		return this.builder.jsCalendar;
 	}
 }

@@ -254,6 +254,31 @@ public class TestConfig {
 								.build()) //
 						.build()) //
 				.build();
+
+		protected static final JsonObject BRAIINS_SINGLE = buildJsonObject() //
+				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.BRAIINS_SINGLE.factoryPid) //
+				.addProperty("id", "ctrlBraiinsSingle0") //
+				.add("source", buildJsonObject() //
+						.addProperty("defaultMode", "OFF") //
+						.addProperty("consumptionW", 3000) //
+						.add("tasks", buildJsonArray() //
+								.add(buildJsonObject() //
+										.addProperty("@type", "Task") //
+										.addProperty("start", "13:00:00") //
+										.addProperty("duration", "PT2H") //
+										.add("recurrenceRules", buildJsonArray() //
+												.add(buildJsonObject() //
+														.addProperty("frequency", "daily") //
+														.build()) //
+												.build()) //
+										.add("openems.io:payload", buildJsonObject() //
+												.addProperty("class", "Manual") //
+												.addProperty("mode", "ON") //
+												.build()) //
+										.build()) //
+								.build()) //
+						.build()) //
+				.build();
 	}
 
 	private static JsonObject createTask(String start, String duration, String mode) {

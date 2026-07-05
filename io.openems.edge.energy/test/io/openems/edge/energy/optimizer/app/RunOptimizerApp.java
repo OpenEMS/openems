@@ -40,7 +40,14 @@ public class RunOptimizerApp {
 					// .add(TestConfig.Controller.ESS_GRID_OPTIMIZED_CHARGE_MANUAL)
 					// .add(TestConfig.Controller.ESS_GRID_OPTIMIZED_CHARGE_AUTOMATIC)
 					.add(TestConfig.Controller.ESS_TIME_OF_USE_TARIFF)
+
+					// Heat
+
 					// .add(TestConfig.Controller.HEAT_ASKOMA)
+
+					// Bitcoin Miner
+
+					// .add(TestConfig.Controller.BRAIINS_SINGLE)
 
 					.build()) //
 
