@@ -51,7 +51,9 @@ public interface Mennekes extends OpenemsComponent {
 		PHASE_SWITCH_PAUSE(Doc.of(INTEGER)//
 				.unit(Unit.SECONDS)),
 
-		PHASE_SWITCH_RUNNING(Doc.of(BOOLEAN)),
+		PHASE_SWITCH_RUNNING(Doc.of(BOOLEAN)), //
+
+		DEVICE_ID(Doc.of(DeviceID.values())), //
 
 		;
 
@@ -102,6 +104,24 @@ public interface Mennekes extends OpenemsComponent {
 	 */
 	default PhaseSwitchMode getPhaseSwitchMode() {
 		return this.getPhaseSwitchModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEVICE_ID}.
+	 *
+	 * @return the Channel
+	 */
+	default EnumReadChannel getMennekesDeviceIdChannel() {
+		return this.channel(ChannelId.DEVICE_ID);
+	}
+
+	/**
+	 * Gets the {@link DeviceID}.
+	 *
+	 * @return the {@link DeviceID}
+	 */
+	default DeviceID getMennekesDeviceId() {
+		return this.getMennekesDeviceIdChannel().value().asEnum();
 	}
 
 }

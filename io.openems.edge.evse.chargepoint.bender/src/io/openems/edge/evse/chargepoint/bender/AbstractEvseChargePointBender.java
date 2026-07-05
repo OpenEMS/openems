@@ -17,6 +17,7 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.BitsWordElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
+import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
@@ -27,8 +28,6 @@ import io.openems.edge.meter.api.ElectricityMeter;
 
 public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbusComponent
 		implements ElectricityMeter, EvseChargePointBender {
-
-	private static final SemanticVersion OUTDATED_VERSION = new SemanticVersion(1, 5, 0);
 
 	protected AbstractEvseChargePointBender(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[][] furtherInitialChannelIds) {
@@ -68,6 +67,9 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 								.bit(15, EvseChargePointBender.ChannelId.ERR_TYPE2_OVERLOAD_THR_2)),
 				new FC3ReadRegistersTask(122, Priority.HIGH,
 						m(EvseChargePointBender.ChannelId.VEHICLE_STATE, new UnsignedWordElement(122))),
+				new FC3ReadRegistersTask(141, Priority.LOW,
+						m(EvseChargePointBender.ChannelId.RAW_DEVICE_ID, new UnsignedWordElement(141)),
+						m(EvseChargePointBender.ChannelId.CHARGE_POINT_MODEL, new StringWordElement(142, 10))),
 				new FC3ReadRegistersTask(153, Priority.LOW,
 						m(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_MAJOR, new UnsignedWordElement(153)),
 						m(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_MINOR, new UnsignedWordElement(154)),
@@ -125,8 +127,21 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 	}
 
 	/**
+	 * Handles updates of standard register 141 (device id/model id).
+	 *
+	 * <p>
+	 * Default implementation is a no-op; concrete charge points can override this
+	 * and map the raw integer to their own channels.
+	 *
+	 * @param deviceId raw value from register 141
+	 */
+	protected void onDeviceIdUpdate(Value<Integer> deviceId) {
+		// Intentionally left blank.
+	}
+
+	/**
 	 * Helper Method that handles a Softwareversion check. Sets
-	 * {@link EvseChargePointBender.ChannelId.FIRMWARE_OUTDATED}
+	 * {@link EvseChargePointBender.ChannelId#FIRMWARE_OUTDATED}
 	 *
 	 */
 	public void updateSoftwareVersionOutdated() {
@@ -151,7 +166,7 @@ public abstract class AbstractEvseChargePointBender extends AbstractOpenemsModbu
 		return SemanticVersion.fromNullable(valMajor.get().get(), valMinor.get().get(), valPatch.get().get())
 				.map(version -> {
 					setValue(cp, EvseChargePointBender.ChannelId.FIRMWARE_VERSION, version.toString());
-					return !version.isAtLeast(OUTDATED_VERSION);
+					return !version.isAtLeast(cp.getOutdatedVersion());
 				}) //
 				.orElse(false);
 	}

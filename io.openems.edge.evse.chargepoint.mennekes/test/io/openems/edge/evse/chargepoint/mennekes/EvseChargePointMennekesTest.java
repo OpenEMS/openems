@@ -19,6 +19,7 @@ import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.bender.EvseChargePointBender;
 import io.openems.edge.evse.chargepoint.bender.OcppState;
 import io.openems.edge.evse.chargepoint.bender.VehicleState;
+import io.openems.edge.evse.chargepoint.mennekes.common.DeviceID;
 import io.openems.edge.evse.chargepoint.mennekes.common.LogVerbosity;
 import io.openems.edge.evse.chargepoint.mennekes.common.Mennekes;
 import io.openems.edge.evse.chargepoint.mennekes.common.MennekesTestFixtures;
@@ -45,6 +46,8 @@ class EvseChargePointMennekesTest {
 						.setWiring(SingleOrThreePhase.THREE_PHASE) //
 						.setLogVerbosity(LogVerbosity.NONE) //
 						.build())
+				.next(new TestCase()) //
+				.next(new TestCase()) //
 				.next(new TestCase()) //
 				.next(new TestCase());
 	}
@@ -101,6 +104,9 @@ class EvseChargePointMennekesTest {
 				.output(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_MINOR, 5) //
 				.output(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_PATCH, 22) //
 				.output(EvseChargePointBender.ChannelId.SOFTWARE_VERSION_BUILD, null) //
+				.output(EvseChargePointBender.ChannelId.RAW_DEVICE_ID, 16717) //
+				.output(EvseChargePointBender.ChannelId.CHARGE_POINT_MODEL, "ABCD1234EFGH5678IJKL") //
+				.output(Mennekes.ChannelId.DEVICE_ID, DeviceID.FOUR_YOU) //
 
 				.output(ElectricityMeter.ChannelId.CURRENT, 18_000) //
 				.output(ElectricityMeter.ChannelId.CURRENT_L1, 6_000) //
@@ -119,7 +125,7 @@ class EvseChargePointMennekesTest {
 				.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 230_000) //
 				.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 230_000) //
 				.output(ElectricityMeter.ChannelId.FREQUENCY, null) //
-				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, null) //
+				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 0L) //
 				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, null) //
 				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, null) //
 				.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, null) //

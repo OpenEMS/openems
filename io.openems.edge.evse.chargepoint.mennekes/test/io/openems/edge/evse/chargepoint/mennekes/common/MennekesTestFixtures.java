@@ -7,9 +7,9 @@ public class MennekesTestFixtures {
 	private static final int[] REG_131_TO_153 = { //
 			6, // 131
 			0, 0, 0, 0, 0, 0, // 132-137
-			0, 0, 0, 0, 0, // 138-142
-			0, 0, 0, 0, 0, 0, // 143-148
-			0, 0, 0, 0, // 149-152
+			0, 0, 0, 16717, 16706, // 138-142
+			17220, 12594, 13108, 17734, 18248, 13622, // 143-148
+			14136, 18762, 19276, 0, // 149-152
 			1, 5, 22 // 153-155
 	};
 
@@ -47,7 +47,7 @@ public class MennekesTestFixtures {
 				.withRegisters(111, 1, 0) //
 				.withRegisters(122, 3) //
 				.withRegisters(131, REG_131_TO_153) //
-				.withRegisters(200, 0) //
+				.withRegisters(200, 0, 0) //
 				.withRegisters(206, REG_206_TO_227) //
 				.withRegisters(712, 6, 0, 0, 16) //
 				.withRegisters(1000, 16) //
