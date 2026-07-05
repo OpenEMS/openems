@@ -7,21 +7,17 @@ import { OeFormlyField } from "../shared/oe-formly-component";
     selector: "oe-stats-line",
     templateUrl: "./stats.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        ComponentsBaseModule,
-    ],
+    imports: [CommonUiModule, ComponentsBaseModule],
 })
 export class StatsComponent {
-
     @Input({ required: true }) public stats: Stat[] = [];
 }
 
 export type Stat =
-    | {
-        name: string;
-        value: string;
-        description?: string;
-    }
     | Omit<OeFormlyField.ValueFromChannelsLine, "type">
-    | { name: string, historyValue: string | number | null, unit: string, futureValue: string | number | null };
+    | {
+          name: string;
+          value: number;
+          unit: string;
+          predictionValue?: number;
+      };

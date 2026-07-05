@@ -68,8 +68,8 @@ export class ChargeDischargeChartComponent extends ScheduleChartComponent {
             Converter.IF_NUMBER(item.dataset.data[item.dataIndex], (value) => {
                 const text =
                     item.datasetIndex == 0 || item.datasetIndex == 2
-                        ? this.translate.instant("GENERAL.DISCHARGE")
-                        : this.translate.instant("GENERAL.CHARGE");
+                        ? this.translate.instant("GENERAL.CHARGE")
+                        : this.translate.instant("GENERAL.DISCHARGE");
                 return Converter.POWER_IN_KILO_WATT_AS_KW(value) + " " + text;
             });
     }

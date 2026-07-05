@@ -7,11 +7,13 @@ import { TranslateModule } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
+import { UserService } from "src/app/shared/service/user.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ControllerBraiinsShared } from "../shared/shared";
@@ -39,6 +41,7 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
     private component: EdgeConfig.Component | null = null;
 
     private readonly routeService: RouteService = inject(RouteService);
+    private readonly userService = inject(UserService);
 
     protected override async generateView(): Promise<OeFormlyView> {
         const edge = this.service.currentEdge();
@@ -113,72 +116,113 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
         edge: Edge,
         energyScheduler: EnergySchedulerV2,
     ): Promise<OeFormlyField[]> {
-        await energyScheduler.updateSchedule(edge, this.service.websocket);
+        await energyScheduler?.updateSchedule(edge, this.service.websocket);
+        const user = this.userService.currentUser();
+        const lines: OeFormlyField[] = [];
 
-        return [
-            {
-                type: "component-line",
-                component: SingleXAxisComponent,
-                inputs: {
-                    data: energyScheduler.schedule,
+        if (energyScheduler.schedule !== GetSchedule.Response.empty) {
+            // TODO INTERSOLAR
+            if (
+                user?.id == "intersolar@fenecon.de" ||
+                edge.id == "fems888" ||
+                edge.id == "fems4"
+            ) {
+                const energyToday =
+                    energyScheduler.schedule.calculateEnergyFromPower("today", {
+                        eshsId: component.id,
+                    });
+                const energyTomorrow =
+                    energyScheduler.schedule.calculateEnergyFromPower(
+                        "tomorrow",
+                        { eshsId: component.id },
+                    );
+                lines.push({
+                    type: "stats-line",
+                    stats: [
+                        {
+                            name: this.translate.instant("EDGE.HISTORY.TODAY"),
+                            value: energyToday.history,
+                            unit: "kWh",
+                            predictionValue: energyToday.prediction,
+                        },
+                        {
+                            name: this.translate.instant(
+                                "EDGE.HISTORY.TOMORROW",
+                            ),
+                            value: energyTomorrow.prediction,
+                            unit: "kWh",
+                        },
+                    ],
+                });
+            }
+
+            lines.push(
+                {
+                    type: "component-line",
+                    component: SingleXAxisComponent,
+                    inputs: {
+                        data: energyScheduler.schedule,
+                    },
                 },
-            },
-            {
-                type: "horizontal-line",
-            },
-            {
-                type: "channel-line",
-                name: this.translate.instant("GENERAL.POWER"),
-                channel: new ChannelAddress(
-                    component.id,
-                    ControllerBraiinsShared.ACTIVE_POWER,
-                ).toString(),
-                converter: Converter.POWER_IN_KILO_WATT,
-                style: {
-                    name: { fontSize: "large" },
-                    value: { fontSize: "large" },
+                {
+                    type: "horizontal-line",
                 },
-                cssClass: "ion-padding-top",
-            },
-            {
-                type: "component-line",
-                component: ControllerBraiinsManagedConsumptionChartComponent,
-                inputs: {
-                    edge,
-                    refresh: false,
-                    data: energyScheduler.schedule,
-                    componentId: component.id,
+                {
+                    type: "channel-line",
+                    name: this.translate.instant("GENERAL.POWER"),
+                    channel: new ChannelAddress(
+                        component.id,
+                        ControllerBraiinsShared.ACTIVE_POWER,
+                    ).toString(),
+                    converter: Converter.POWER_IN_KILO_WATT,
+                    style: {
+                        name: { fontSize: "large" },
+                        value: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
                 },
-            },
-            {
-                type: "horizontal-line",
-            },
-            {
-                type: "channel-line",
-                name: this.translate.instant("BRAIINS_SINGLE.MODE.ACTIVE_MODE"),
-                channel: new ChannelAddress(
-                    component.id,
-                    ControllerBraiinsShared.EFFECTIVE_MODE,
-                ).toString(),
-                converter: ControllerBraiinsShared.CONVERT_TO_MODE_LABEL(
-                    this.translate,
-                ),
-                style: {
-                    name: { fontSize: "large" },
-                    value: { fontSize: "large" },
+                {
+                    type: "component-line",
+                    component:
+                        ControllerBraiinsManagedConsumptionChartComponent,
+                    inputs: {
+                        edge,
+                        refresh: false,
+                        data: energyScheduler.schedule,
+                        componentId: component.id,
+                    },
                 },
-                cssClass: "ion-padding-top",
-            },
-            {
-                type: "component-line",
-                component: ControllerBraiinsModeChartComponent,
-                inputs: {
-                    edge,
-                    refresh: false,
-                    data: energyScheduler.schedule,
-                    componentId: component.id,
+                {
+                    type: "channel-line",
+                    name: this.translate.instant(
+                        "BRAIINS_SINGLE.MODE.ACTIVE_MODE",
+                    ),
+                    channel: new ChannelAddress(
+                        component.id,
+                        ControllerBraiinsShared.EFFECTIVE_MODE,
+                    ).toString(),
+                    converter: ControllerBraiinsShared.CONVERT_TO_MODE_LABEL(
+                        this.translate,
+                    ),
+                    style: {
+                        name: { fontSize: "large" },
+                        value: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
                 },
-            },
-        ];
+                {
+                    type: "component-line",
+                    component: ControllerBraiinsModeChartComponent,
+                    inputs: {
+                        edge,
+                        refresh: false,
+                        data: energyScheduler.schedule,
+                        componentId: component.id,
+                    },
+                },
+            );
+        }
+
+        return lines;
     }
 }

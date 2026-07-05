@@ -1,4 +1,4 @@
-import { addHours, subHours } from "date-fns";
+import { addDays, addHours, endOfToday, startOfToday, subHours, } from "date-fns";
 import { JsonrpcRequest, JsonrpcResponseSuccess, } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Edge, Websocket } from "src/app/shared/shared";
@@ -26,6 +26,26 @@ import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 export namespace GetSchedule {
     export const METHOD: string = "getSchedule";
 
+    export type Data = {
+        timestamp: Date;
+        type: string;
+        _sum: {
+            GridBuyPrice?: number;
+            GridSellPrice?: number;
+            ProductionActivePower?: number;
+            ConsumptionActivePower?: number;
+            UnmanagedConsumptionActivePower?: number;
+            EssDischargePower?: number;
+            GridActivePower?: number;
+            EssSoc?: number;
+        };
+        eshs: {
+            id: string;
+            mode?: number;
+            managedConsumption?: number;
+        }[];
+    };
+
     export class Request extends JsonrpcRequest {
         public constructor(
             public override readonly params: {
@@ -41,7 +61,8 @@ export namespace GetSchedule {
 
         public readonly lastHistoryIndex: number;
 
-        public readonly data24h: Response["result"]["data"];
+        public readonly data: Data[];
+        public readonly data24h: Data[];
         public readonly data24hLastHistoryIndex: number;
 
         public constructor(
@@ -70,18 +91,23 @@ export namespace GetSchedule {
         ) {
             super(id, result);
 
+            // Convert timestamp to Date
+            this.data = this.result.data.map((e) => ({
+                ...e,
+                timestamp: new Date(e.timestamp),
+            }));
+
             // Filter data within [-4 ; now ; +20] hours
             const now = new Date();
             const from = subHours(now, 4);
             const to = addHours(now, 20);
 
-            this.data24h = this.result.data.filter((entry) => {
-                const timestamp = new Date(entry.timestamp);
-                return timestamp >= from && timestamp < to;
+            this.data24h = this.data.filter((e) => {
+                return e.timestamp >= from && e.timestamp < to;
             });
 
             // Provide index of last HISTORY data
-            this.lastHistoryIndex = this.getLastHistoryIndex(this.result.data);
+            this.lastHistoryIndex = this.getLastHistoryIndex(this.data);
             this.data24hLastHistoryIndex = this.getLastHistoryIndex(
                 this.data24h,
             );
@@ -91,18 +117,14 @@ export namespace GetSchedule {
             return this.data24h.map((entry) => new Date(entry.timestamp));
         }
 
-        public hasDataForChannel(
-            channel: keyof Response["result"]["data"][number]["_sum"] | null,
-        ): boolean {
+        public hasDataForChannel(channel: keyof Data["_sum"] | null): boolean {
             if (channel == null) {
                 return false;
             }
             return this.data24h.some((e) => e._sum[channel] != null);
         }
 
-        public summarizeData24hForChannel(
-            channel: keyof Response["result"]["data"][number]["_sum"] | null,
-        ) {
+        public summarizeData24hForChannel(channel: keyof Data["_sum"] | null) {
             if (channel == null) {
                 throw new Error("Key must not be null");
             }
@@ -132,8 +154,93 @@ export namespace GetSchedule {
             };
         }
 
+        /**
+         * Calculates energy from power values over time intervals for today or
+         * tomorrow. Energy (kWh) = Power (kW) × Time (hours)
+         *
+         * @param day Calculate for Today or Tomorrow
+         * @param channel The power channel to convert to energy, or an ESH id
+         * @returns Object with history energy (before now), prediction energy
+         *   (after now), and total energy for the day (midnight to midnight)
+         */
+        public calculateEnergyFromPower(
+            day: "today" | "tomorrow",
+            channel: keyof Data["_sum"] | { eshsId: string },
+        ): {
+            history: number;
+            prediction: number;
+            total: number;
+        } {
+            const result = { history: 0, prediction: 0, total: 0 };
+            const now = new Date();
+
+            const startOfDayDate =
+                day === "today" ? startOfToday() : addDays(startOfToday(), 1);
+            const endOfDayDate =
+                day === "today" ? endOfToday() : addDays(endOfToday(), 1);
+
+            // Determine if this is an ESH id or a _sum channel
+            const isEshsChannel = typeof channel === "object";
+            const eshsId = isEshsChannel ? channel.eshsId : null;
+
+            this.data.forEach((entry, index) => {
+                // Only process entries within the requested day
+                if (
+                    entry.timestamp < startOfDayDate ||
+                    entry.timestamp > endOfDayDate
+                ) {
+                    return;
+                }
+
+                if (index === 0) {
+                    return; // Skip first entry (no previous interval)
+                }
+
+                const previousEntry = this.data[index - 1];
+
+                // Skip if previous entry is before the requested day
+                if (previousEntry.timestamp < startOfDayDate) {
+                    return;
+                }
+
+                const timeDeltaMs =
+                    entry.timestamp.getTime() -
+                    previousEntry.timestamp.getTime();
+                const timeDeltaHours = timeDeltaMs / (1000 * 60 * 60);
+
+                // Get the current power value
+                let currentPowerKw: number | null;
+                if (isEshsChannel) {
+                    // Extract managedConsumption from the matching ESHS
+                    const eshs = entry.eshs.find((e) => e.id === eshsId);
+                    currentPowerKw = this.convertByDataPoint(
+                        null,
+                        eshs?.managedConsumption ?? null,
+                    );
+                } else {
+                    // Use _sum channel
+                    currentPowerKw = this.convertByDataPoint(
+                        channel,
+                        entry._sum[channel as keyof Data["_sum"]] ?? null,
+                    );
+                }
+
+                const energy = (currentPowerKw ?? 0) * timeDeltaHours;
+
+                // Categorize as history (before now) or prediction (after now)
+                if (entry.timestamp <= now) {
+                    result.history += energy;
+                } else {
+                    result.prediction += energy;
+                }
+                result.total += energy;
+            });
+
+            return result;
+        }
+
         private convertByDataPoint(
-            key: keyof Response["result"]["data"][number]["_sum"] | null,
+            key: keyof Data["_sum"] | null,
             value: number | null,
         ): number | null {
             switch (key) {
@@ -147,7 +254,7 @@ export namespace GetSchedule {
             }
         }
 
-        private getLastHistoryIndex(data: Response["result"]["data"]): number {
+        private getLastHistoryIndex(data: Data[]): number {
             const reversedIndex = [...data]
                 .reverse()
                 .findIndex((e) => e.type === "HISTORY");

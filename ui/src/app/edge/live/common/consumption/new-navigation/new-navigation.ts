@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
@@ -8,6 +8,8 @@ import { EvcsComponent } from "src/app/shared/components/edge/config-components/
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { User } from "src/app/shared/jsonrpc/shared";
+import { UserService } from "src/app/shared/service/user.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
@@ -25,22 +27,54 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         | "formly-field-modal"
         | "formly-field-navigation" = "formly-field-navigation";
 
+    private readonly userService = inject(UserService);
+
     private evcss: EvcsComponent[] = [];
     private consumptionMeters: EdgeConfig.Component[] = [];
 
     public static async getFormlyGeneralView(
         translate: TranslateService,
         service: Service,
+        user: User | null,
         edge: Edge,
         energyScheduler: EnergySchedulerV2,
         evcss: EvcsComponent[],
         consumptionMeters: EdgeConfig.Component[],
     ): Promise<OeFormlyView> {
         await energyScheduler?.updateSchedule(edge, service.websocket);
-
         const lines: OeFormlyField[] = [];
 
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
+            // TODO INTERSOLAR
+            if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
+                const energyToday =
+                    energyScheduler.schedule.calculateEnergyFromPower(
+                        "today",
+                        "ConsumptionActivePower",
+                    );
+                const energyTomorrow =
+                    energyScheduler.schedule.calculateEnergyFromPower(
+                        "tomorrow",
+                        "ConsumptionActivePower",
+                    );
+                lines.push({
+                    type: "stats-line",
+                    stats: [
+                        {
+                            name: translate.instant("EDGE.HISTORY.TODAY"),
+                            value: energyToday.history,
+                            unit: "kWh",
+                            predictionValue: energyToday.prediction,
+                        },
+                        {
+                            name: translate.instant("EDGE.HISTORY.TOMORROW"),
+                            value: energyTomorrow.prediction,
+                            unit: "kWh",
+                        },
+                    ],
+                });
+            }
+
             lines.push(
                 {
                     type: "component-line",
@@ -150,6 +184,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
+        const user = this.userService.currentUser();
         const energy = new EnergySchedulerV2(config);
 
         this.evcss = EvcsComponent.getComponents(config, edge);
@@ -167,6 +202,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         return CommonConsumptionHomeComponent.getFormlyGeneralView(
             this.translate,
             this.service,
+            user,
             edge,
             energy,
             this.evcss,
