@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.openems.edge.app.meter.SiemensMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -1120,6 +1121,16 @@ public final class Apps {
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
 		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+	}
+
+	/**
+	 * Test method for creating a {@link SiemensMeter}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SiemensMeter siemensMeter(AppManagerTestBundle t) {
+		return app(t, SiemensMeter::new, "App.Meter.Siemens");
 	}
 
 	/**
