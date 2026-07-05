@@ -21,6 +21,7 @@ import io.openems.common.session.Role;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType;
 import io.openems.edge.battery.fenecon.home.TwoPartVersion;
 import io.openems.edge.battery.fenecon.home.update.j2mod.BatteryUpdateModbusRtuTransport;
+import io.openems.edge.bridge.modbus.test.ModbusSlaveMock;
 import io.openems.edge.bridge.modbus.test.SerialConnectionMock;
 import io.openems.edge.common.update.ProgressPublisher;
 import io.openems.edge.common.update.Updateable;
@@ -36,6 +37,10 @@ public class UpdateHandlerTests {
 		serialParams.setBaudRate(Integer.MAX_VALUE);
 
 		var ports = SerialConnectionMock.create(serialParams);
+		var transport = new BatteryUpdateModbusRtuTransport();
+		var clientConn = ports.createClientConnection();
+		var batterySlave = ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
+				() -> new BatterySerialListenerMock(clientConn), transport);
 
 		try {
 			var serialPortHandler = new SerialPortHandlerMock(ports.getServer());
