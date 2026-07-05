@@ -42,6 +42,8 @@ export abstract class ScheduleChartComponent
     public static readonly OPACITY_TRANSPARENT = 0.05;
     public static readonly OPACITY_NONE = 1;
 
+    public static readonly BORDER_DASHED: [number, number] = [5, 2];
+
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public data!: GetSchedule.Response;
     @Input({ required: true }) public override edge!: Edge;
@@ -179,7 +181,7 @@ export abstract class ScheduleChartComponent
                       )
                     : [draw(d.pattern, d.color, "white", 5)],
             borderColor: d.color,
-            borderWidth: d.borderWidth,
+            borderWidth: d.borderWidth ?? 2,
             borderDash: d.borderDash,
             stepped: d.stepped,
         });
@@ -231,10 +233,10 @@ export namespace ScheduleChartComponent {
         positive: (number | null)[];
         negative: (number | null)[];
     } {
-        const positive = data.map((el) =>
+        const positive = data.map((el) => (el != null && el >= 0 ? el : null));
+        const negative = data.map((el) =>
             el != null && el <= 0 ? Math.abs(el) : null,
         );
-        const negative = data.map((el) => (el != null && el >= 0 ? el : null));
 
         for (let i = 0; i < positive.length; i++) {
             /**

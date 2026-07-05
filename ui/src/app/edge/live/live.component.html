@@ -46,7 +46,7 @@
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    @for (widget of widgets.list; track widget.name) {
+                    @for (widget of widgets.list; track i; let i = $index) {
                       @switch (widget.name) {
                         <!-- Systemcomponent -->
                         @case ("System.Fenecon.Industrial.S") {

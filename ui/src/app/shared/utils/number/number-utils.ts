@@ -6,11 +6,13 @@ export namespace NumberUtils {
      * @param value The value
      * @returns The casted value if parsable, else null
      */
-    export function parseNumberSafely(value: string | null): number | null {
-        if (value == null || value == "") {
+    export function parseNumberSafely(
+        value: number | string | null,
+    ): number | null {
+        if (value == null || value === "") {
             return null;
         }
-        const castedValue = Number.parseInt(value);
+        const castedValue = Number.parseInt(value.toString());
         if (castedValue == null || Number.isFinite(castedValue) == false) {
             return null;
         }
@@ -26,7 +28,7 @@ export namespace NumberUtils {
      * @returns The casted value if parsable, else null
      */
     export function parseNumberSafelyOrElse(
-        value: string | null,
+        value: number | string | null,
         orElse: number,
     ): number {
         if (value == null) {

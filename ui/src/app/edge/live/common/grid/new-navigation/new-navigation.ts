@@ -6,7 +6,7 @@ import { GetSchedule } from "src/app/shared/components/edge/config-components/en
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, Currency, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, Currency, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedGrid } from "../shared/shared";
@@ -159,14 +159,31 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
     }
 }
 
-export const GRID_BUY_OR_SELL = (translate: TranslateService): Converter =>
-    (raw): string =>
-        Converter.IF_NUMBER(raw, (value) => {
+export const GRID_BUY_OR_SELL =
+    (translate: TranslateService): Converter =>
+    (raw): string => {
+        const displayText = (
+            power: string,
+            color: string,
+            text: string,
+        ): string =>
+            `<span>${power}&nbsp;<ion-label style="color:${color}">${text}</ion-label></span>`;
+
+        return Converter.IF_NUMBER(raw, (value) => {
             if (value > 0) {
-                return Converter.POWER_IN_KILO_WATT(value) + " " + translate.instant("GENERAL.GRID_BUY_ADVANCED");
+                return displayText(
+                    Converter.POWER_IN_KILO_WATT(value),
+                    ChartConstants.Colors.BLUE_GREY,
+                    translate.instant("GENERAL.GRID_BUY_ADVANCED"),
+                );
             } else if (value < 0) {
-                return Converter.POWER_IN_KILO_WATT(Math.abs(value)) + " " + translate.instant("GENERAL.GRID_SELL_ADVANCED");
+                return displayText(
+                    Converter.POWER_IN_KILO_WATT(Math.abs(value)),
+                    ChartConstants.Colors.PURPLE,
+                    translate.instant("GENERAL.GRID_SELL_ADVANCED"),
+                );
             } else {
                 return Converter.POWER_IN_KILO_WATT(value);
             }
         });
+    };

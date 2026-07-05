@@ -10,9 +10,8 @@
         </td>
         <!-- Value of Parameter on the right side -->
         @if (displayValue && !hideValue) {
-          <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_right" [style]="lineStyle?.value ?? {}">
+          <td [style.width]="(leftColumnWidth ?? 50) + '%'" class="align_right" [style]="lineStyle?.value ?? {}" [innerHTML]="displayValue">
             <!-- 'Normal' line, name and value  -->
-            <ng-container>{{ displayValue }}</ng-container>
           </td>
         }
         @if (button) {

@@ -229,36 +229,6 @@
                         },
                         "openems-gitpod": {
                             "buildTarget": "app:build:openems,openems-gitpod"
-                        },
-                        "fenecon-backend-dev": {
-                            "buildTarget": "app:build:fenecon,fenecon-backend-dev"
-                        },
-                        "feneconbeta-backend-prod": {
-                            "buildTarget": "app:build:fenecon,feneconbeta,feneconbeta-backend-prod"
-                        },
-                        "feneconbeta-backend-dev": {
-                            "buildTarget": "app:build:fenecon,feneconbeta,fenecon-backend-dev"
-                        },
-                        "fenecon-edge-dev": {
-                            "buildTarget": "app:build:fenecon,fenecon-edge-dev"
-                        },
-                        "fenecon-backend-prod": {
-                            "buildTarget": "app:build:fenecon,fenecon-backend-prod,prod"
-                        },
-                        "fenecon-edge-prod": {
-                            "buildTarget": "app:build:fenecon,fenecon-edge-prod,prod"
-                        },
-                        "heckert-backend-dev": {
-                            "buildTarget": "app:build:heckert,heckert-backend-dev"
-                        },
-                        "heckert-edge-dev": {
-                            "buildTarget": "app:build:heckert,heckert-edge-dev"
-                        },
-                        "heckert-backend-prod": {
-                            "buildTarget": "app:build:heckert,heckert-backend-prod,prod"
-                        },
-                        "heckert-edge-prod": {
-                            "buildTarget": "app:build:heckert,heckert-edge-prod,prod"
                         }
                     }
                 },

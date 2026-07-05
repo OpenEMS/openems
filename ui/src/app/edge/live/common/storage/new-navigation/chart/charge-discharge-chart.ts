@@ -47,13 +47,13 @@ export class ChargeDischargeChartComponent extends ScheduleChartComponent {
             {
                 color: ChartConstants.Colors.RED,
                 data: prediction.negative,
-                borderDash: [5, 5],
+                borderDash: ScheduleChartComponent.BORDER_DASHED,
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
             {
                 color: ChartConstants.Colors.GREEN,
                 data: prediction.positive,
-                borderDash: [5, 5],
+                borderDash: ScheduleChartComponent.BORDER_DASHED,
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];

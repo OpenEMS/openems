@@ -36,7 +36,7 @@ export class SocChartComponent extends ScheduleChartComponent {
             {
                 color: ChartConstants.Colors.GREY,
                 data: data.prediction,
-                borderDash: [5, 5],
+                borderDash: ScheduleChartComponent.BORDER_DASHED,
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];

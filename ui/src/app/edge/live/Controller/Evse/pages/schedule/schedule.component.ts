@@ -35,7 +35,6 @@ interface SmartEventViewModel {
         ScheduleComponent,
         ComponentsBaseModule,
         CommonUiModule,
-        FlatWidgetButtonComponent,
     ],
 })
 export class EvseScheduleComponent extends AbstractModal {
