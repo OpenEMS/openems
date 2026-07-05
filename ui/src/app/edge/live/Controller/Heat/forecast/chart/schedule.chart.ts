@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -14,8 +13,8 @@ import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket, } from 
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType, } from "src/app/shared/utils/utils";
 import { HistoryDataErrorModule } from "../../../../../../shared/components/history-data-error/history-data-error.module";
-import { GetScheduleRequest } from "../../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
+import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
 import { SharedControllerHeat } from "../../shared/shared";
 
 @Component({
@@ -32,8 +31,8 @@ export class ScheduleChartComponent
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
 
-    private currencyLabel: Currency.Label; // Default
-    private currencyUnit: Currency.Unit; // Default
+    private currencyLabel!: Currency.Label; // Default
+    private currencyUnit!: Currency.Unit; // Default
 
     constructor(
         protected override service: Service,
@@ -49,7 +48,7 @@ export class ScheduleChartComponent
         );
     }
 
-    public async ngOnChanges() {
+    public ngOnChanges(): void {
         this.edge
             .getConfig(this.websocket)
             .pipe(
@@ -59,12 +58,13 @@ export class ScheduleChartComponent
             .subscribe((config) => {
                 const meta: EdgeConfig.Component =
                     config?.getComponent("_meta");
-                const currency: string =
+                const currency: string | null =
                     config?.getPropertyFromComponent<string>(meta, "currency");
                 this.currencyLabel =
                     Currency.getCurrencyLabelByCurrency(currency);
-                this.currencyUnit =
-                    Currency.getChartCurrencyUnitLabel(currency);
+                this.currencyUnit = Currency.getChartCurrencyUnitLabel(
+                    currency ?? "",
+                );
             });
         this.updateChart();
     }
@@ -95,6 +95,10 @@ export class ScheduleChartComponent
             .then((response) => {
                 const result = (response as GetScheduleResponse).result;
                 const schedule = result.schedule;
+                const colors = scheduleChartColors(
+                    schedule.length,
+                    this.colors,
+                );
 
                 // Extracting prices, states, timestamps from the schedule array
                 const { priceArray, modeArray, timestampArray } = {
@@ -113,10 +117,11 @@ export class ScheduleChartComponent
                         timestampArray,
                         this.translate,
                     );
-                this.colors = scheduleChartData.colors;
+                colors.splice(0, colors.length, ...scheduleChartData.colors);
                 this.labels = scheduleChartData.labels;
 
-                this.datasets = scheduleChartData.datasets;
+                this.datasets =
+                    scheduleChartData.datasets as Chart.ChartDataset[];
                 this.loading = false;
                 this.setLabel();
                 this.stopSpinner();
@@ -128,8 +133,12 @@ export class ScheduleChartComponent
             })
             .finally(async () => {
                 this.unit = YAxisType.CURRENCY;
-                await this.setOptions(this.options);
-                this.applyControllerSpecificOptions();
+                const options = this.options;
+
+                if (options != null) {
+                    await this.setOptions(options);
+                    this.applyControllerSpecificOptions();
+                }
             });
     }
 
@@ -144,63 +153,98 @@ export class ScheduleChartComponent
     }
 
     private applyControllerSpecificOptions() {
-        this.options.scales.x["time"].unit = calculateResolution(
-            this.service,
-            this.service.historyPeriod.value.from,
-            this.service.historyPeriod.value.to,
-        ).timeFormat;
-        this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
-        this.options.scales.x.ticks.maxTicksLimit = 30;
-        this.options.scales.x["offset"] = false;
-        this.options.scales.x.ticks.callback = function (value) {
-            const date = new Date(value);
+        const options = this.options;
 
-            // Display the label only if the minutes are zero (full hour)
-            return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
+        if (options == null) {
+            return;
+        }
+
+        const xScale = options.scales?.x as TimeScaleOptions | undefined;
+        const scales = options.scales;
+        const tooltipCallbacks = options.plugins?.tooltip?.callbacks;
+        const tooltip = options.plugins?.tooltip;
+
+        if (xScale == null || scales == null) {
+            return;
+        }
+
+        xScale.time = {
+            ...xScale.time,
+            unit: calculateResolution(
+                this.service,
+                this.service.historyPeriod.value.from,
+                this.service.historyPeriod.value.to,
+            ).timeFormat,
         };
+        xScale.ticks = {
+            ...xScale.ticks,
+            source: "auto",
+            autoSkip: false,
+            maxTicksLimit: 30,
+            callback: (value) => {
+                const date = new Date(value as string | number);
 
-        // options.plugins.
-        this.options.plugins.tooltip.mode = "index";
-        this.options.plugins.tooltip.callbacks.labelColor = (
-            item: Chart.TooltipItem<any>,
-        ) => {
-            if (!item) {
-                return;
-            }
-            return {
-                borderColor: ColorUtils.changeOpacityFromRGBA(
-                    item.dataset.borderColor,
-                    1,
-                ),
-                backgroundColor: item.dataset.backgroundColor,
+                return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
+            },
+        };
+        xScale.offset = false;
+
+        if (tooltip != null) {
+            tooltip.mode = "index";
+        }
+
+        if (tooltipCallbacks != null) {
+            tooltipCallbacks.labelColor = (
+                item: Chart.TooltipItem<any>,
+            ): Chart.TooltipLabelStyle => {
+                const backgroundColor: string = asColorString(
+                    item.dataset.backgroundColor,
+                    asColorString(
+                        item.dataset.borderColor,
+                        "rgba(0, 0, 0, 0.5)",
+                    ),
+                );
+                const borderColor: string = withOpacity(backgroundColor, 1);
+
+                return {
+                    borderColor,
+                    backgroundColor: backgroundColor,
+                };
             };
-        };
 
-        this.options.plugins.tooltip.callbacks.label = (
-            item: Chart.TooltipItem<any>,
-        ) => {
-            const label = item.dataset.label;
-            const value = item.dataset.data[item.dataIndex];
+            tooltipCallbacks.label = (item: Chart.TooltipItem<any>) => {
+                const label = item.dataset.label;
+                const value = item.dataset.data[item.dataIndex];
 
-            return (
-                label +
-                ": " +
-                Formatter.FORMAT_CURRENCY_PER_KWH(value, this.currencyLabel)
-            );
-        };
+                return (
+                    label +
+                    ": " +
+                    Formatter.FORMAT_CURRENCY_PER_KWH(value, this.currencyLabel)
+                );
+            };
+        }
 
         this.datasets = this.datasets.map((el) => {
             const opacity = el.type === "line" ? 0.2 : 0.5;
+            const backgroundColor =
+                typeof el.backgroundColor === "string"
+                    ? el.backgroundColor
+                    : undefined;
+            const borderColor =
+                typeof el.borderColor === "string" ? el.borderColor : undefined;
 
-            if (el.backgroundColor && el.borderColor) {
-                el.backgroundColor = ColorUtils.changeOpacityFromRGBA(
-                    el.backgroundColor.toString(),
-                    opacity,
-                );
-                el.borderColor = ColorUtils.changeOpacityFromRGBA(
-                    el.borderColor.toString(),
-                    1,
-                );
+            if (backgroundColor != null) {
+                el.backgroundColor =
+                    ColorUtils.changeOpacityFromRGBA(
+                        backgroundColor,
+                        opacity,
+                    ) ?? backgroundColor;
+            }
+
+            if (borderColor != null) {
+                el.borderColor =
+                    ColorUtils.changeOpacityFromRGBA(borderColor, 1) ??
+                    borderColor;
             }
             return el;
         });
@@ -213,15 +257,45 @@ export class ScheduleChartComponent
             scale: { dynamicScale: true },
         };
 
-        this.options.scales[ChartAxis.LEFT] = {
-            ...this.options.scales[ChartAxis.LEFT],
+        scales[ChartAxis.LEFT] = {
+            ...scales[ChartAxis.LEFT],
             ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(
                 leftYAxis,
                 this.translate,
                 "bar",
-                this.datasets.filter((el) => el["yAxisID"] === ChartAxis.LEFT),
+                this.datasets.filter(
+                    (el) =>
+                        (el as ScheduleChartDataset).yAxisID === ChartAxis.LEFT,
+                ),
                 true,
             ),
         };
     }
 }
+
+function scheduleChartColors(_length: number, colors: unknown[]): ChartColor[] {
+    return colors as ChartColor[];
+}
+
+function asColorString(color: unknown, fallback: string): string {
+    if (Array.isArray(color)) {
+        return asColorString(color[0], fallback);
+    }
+
+    return typeof color === "string" ? color : fallback;
+}
+
+function withOpacity(color: string, opacity: number): string {
+    return ColorUtils.changeOpacityFromRGBA(color, opacity) || color;
+}
+
+type ChartColor = {
+    backgroundColor: string;
+    borderColor: string;
+};
+
+type ScheduleChartDataset =
+    | (Chart.ChartDataset<"line", (number | null)[]> & { yAxisID?: string })
+    | (Chart.ChartDataset<"bar", (number | null)[]> & { yAxisID?: string });
+
+type TimeScaleOptions = Chart.TimeScaleOptions;

@@ -141,9 +141,7 @@ public class GetSchedule implements EndpointRequestType<GetSchedule.Request, Get
 						final var p = e.getValue();
 						final IntUnaryOperator convertEnergyToPower = i -> p.duration().convertEnergyToPower(i);
 						final var mode = Optional.ofNullable(//
-								// Mode from Schedule
 								p.mode())
-								// Mode configured in Evse.Controller.Single
 								.orElse(p.coc().defaultMode());
 
 						return new Period(e.getKey(), //

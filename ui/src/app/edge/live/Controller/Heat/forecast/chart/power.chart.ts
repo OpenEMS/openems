@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -13,8 +12,8 @@ import { ChannelAddress, Edge, EdgeConfig, Service, Websocket, } from "src/app/s
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType, } from "src/app/shared/utils/utils";
 import { HistoryDataErrorModule } from "../../../../../../shared/components/history-data-error/history-data-error.module";
-import { GetScheduleRequest } from "../../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../../../../shared/jsonrpc/request/getScheduleRequest";
+import { GetScheduleResponse } from "../../../../../../shared/jsonrpc/response/getScheduleResponse";
 
 @Component({
     selector: "powerChart",
@@ -100,7 +99,8 @@ export class SchedulePowerChartComponent
             .then((response) => {
                 const result = (response as GetScheduleResponse).result;
                 const schedule = result.schedule;
-                const datasets = [];
+                const datasets: PowerChartDataset[] = [];
+                const colors = this.colors as unknown as ChartColor[];
 
                 // Extracting prices and states from the schedule array
                 const {
@@ -138,7 +138,7 @@ export class SchedulePowerChartComponent
                     hidden: true,
                     order: 1,
                 });
-                this.colors.push({
+                colors.push({
                     backgroundColor: ColorUtils.rgbStringToRgba(
                         ChartConstants.Colors.BLUE_GREY,
                         0.2,
@@ -153,7 +153,7 @@ export class SchedulePowerChartComponent
                     hidden: true,
                     order: 1,
                 });
-                this.colors.push({
+                colors.push({
                     backgroundColor: ColorUtils.rgbStringToRgba(
                         ChartConstants.Colors.PURPLE,
                         0.2,
@@ -170,7 +170,7 @@ export class SchedulePowerChartComponent
                     hidden: false,
                     order: 1,
                 });
-                this.colors.push({
+                colors.push({
                     backgroundColor: ColorUtils.rgbStringToRgba(
                         ChartConstants.Colors.BLUE,
                         0.2,
@@ -187,7 +187,7 @@ export class SchedulePowerChartComponent
                     hidden: true,
                     order: 1,
                 });
-                this.colors.push({
+                colors.push({
                     backgroundColor: ColorUtils.rgbStringToRgba(
                         ChartConstants.Colors.YELLOW,
                         0.2,
@@ -205,7 +205,7 @@ export class SchedulePowerChartComponent
                     hidden: false,
                     order: 1,
                 });
-                this.colors.push({
+                colors.push({
                     backgroundColor: ColorUtils.rgbStringToRgba(
                         ChartConstants.Colors.YELLOW,
                         0.2,
@@ -213,7 +213,7 @@ export class SchedulePowerChartComponent
                     borderColor: ChartConstants.Colors.ORANGE,
                 });
 
-                this.datasets = datasets;
+                this.datasets = datasets as Chart.ChartDataset[];
                 this.loading = false;
                 this.labels = labels;
                 this.setLabel();
@@ -225,19 +225,29 @@ export class SchedulePowerChartComponent
                 return;
             })
             .finally(async () => {
-                await this.setOptions(this.options);
-                this.applyControllerSpecificOptions();
+                const options = this.options;
+
+                if (options != null) {
+                    await this.setOptions(options);
+                    this.applyControllerSpecificOptions();
+                }
             });
     }
 
     private applyControllerSpecificOptions() {
+        const options = this.options;
+
+        if (options == null) {
+            return;
+        }
+
         const leftYAxis: HistoryUtils.yAxes = {
             position: "left",
             unit: YAxisType.POWER,
             yAxisId: ChartAxis.LEFT,
         };
         this.options = NewAbstractHistoryChart.getYAxisOptions(
-            this.options,
+            options,
             leftYAxis,
             this.translate,
             "line",
@@ -245,18 +255,38 @@ export class SchedulePowerChartComponent
             true,
         );
 
-        this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
-        this.options.scales.x.ticks.color = getComputedStyle(
-            document.documentElement,
-        ).getPropertyValue("--ion-color-chart-xAxis-ticks");
-        this.options.scales.x.ticks.callback = function (value, index, values) {
-            const date = new Date(value);
+        const chartOptions = this.options;
+        const xScale = chartOptions?.scales?.x;
+        const leftScale = chartOptions?.scales?.[ChartAxis.LEFT];
 
-            // Display the label only if the minutes are zero (full hour)
-            return date.getMinutes() === 0 ? date.getHours() + ":00" : "";
-        };
+        if (xScale != null) {
+            xScale.ticks = {
+                ...xScale.ticks,
+                source: "auto",
+                autoSkip: false,
+                color: getComputedStyle(
+                    document.documentElement,
+                ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
+                callback: (value) => {
+                    const date = new Date(value as string | number);
 
-        this.options.scales[ChartAxis.LEFT].suggestedMin = 0;
-        this.options.scales[ChartAxis.LEFT].suggestedMax = 1;
+                    return date.getMinutes() === 0
+                        ? date.getHours() + ":00"
+                        : "";
+                },
+            };
+        }
+
+        if (leftScale != null) {
+            leftScale.suggestedMin = 0;
+            leftScale.suggestedMax = 1;
+        }
     }
 }
+
+type ChartColor = {
+    backgroundColor: string;
+    borderColor: string;
+};
+
+type PowerChartDataset = Chart.ChartDataset<"line", (number | null)[]>;
