@@ -8,7 +8,7 @@ import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/C
 import { SharedControllerEnerixControl } from "src/app/edge/live/Controller/EnerixControl/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
-import { SharedControllerBraiins } from "src/app/edge/live/Controller/Io/Braiins/shared/shared";
+import { ControllerBraiinsShared } from "src/app/edge/live/Controller/Io/Braiins/shared/shared";
 import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
@@ -48,8 +48,8 @@ export class Widgets {
             single: SharedControllerIoFixDigitalOutput.getNavigationTree,
         },
         "Controller.BraiinsOS.Single": {
-            grouped: SharedControllerBraiins.getGroupedNavigationTree,
-            single: SharedControllerBraiins.getNavigationTree,
+            grouped: ControllerBraiinsShared.getGroupedNavigationTree,
+            single: ControllerBraiinsShared.getNavigationTree,
         },
     };
 

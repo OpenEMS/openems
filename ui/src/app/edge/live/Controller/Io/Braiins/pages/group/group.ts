@@ -8,7 +8,7 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { EdgeConfig, Service } from "src/app/shared/shared";
 
 @Component({
-    selector: "oe-braiins-group",
+    selector: "oe-controller-braiins-group",
     standalone: true,
     imports: [CommonModule, IonicModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
@@ -23,24 +23,32 @@ export class ControllerBraiinsGroupComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         const edge = await this.service.getCurrentEdge();
         const config = edge.getCurrentConfig();
-        this.components =
-            config
-                ?.getComponentIdsByFactory("Controller.BraiinsOS.Single")
-                ?.map((id) => config.getComponentSafely(id))
-                .filter((c): c is EdgeConfig.Component => !!c && c.isEnabled) ??
+
+        if (config == null) {
+            this.components = [];
+            return;
+        }
+
+        const componentIds =
+            config.getComponentIdsByFactory("Controller.BraiinsOS.Single") ??
             [];
+        this.components = componentIds
+            .map((id) => config.getComponentSafely(id))
+            .filter(
+                (component): component is EdgeConfig.Component =>
+                    component != null && component.isEnabled,
+            );
     }
 
-    public navigateTo(componentId: string): void {
-        this.service.getCurrentEdge().then(async (edge) => {
-            this.router.navigate([
-                "/device",
-                edge.id,
-                "live",
-                "controller",
-                "braiins",
-                componentId,
-            ]);
-        });
+    public async navigateTo(componentId: string): Promise<void> {
+        const edge = await this.service.getCurrentEdge();
+        await this.router.navigate([
+            "/device",
+            edge.id,
+            "live",
+            "controller",
+            "braiins",
+            componentId,
+        ]);
     }
 }

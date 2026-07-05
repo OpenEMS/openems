@@ -1,19 +1,25 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject } from "@angular/core";
-import { FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
+import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
+import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { Name } from "src/app/shared/components/shared/name";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { SharedControllerBraiins } from "../shared/shared";
+import { ControllerBraiinsShared } from "../shared/shared";
+import { ControllerBraiinsModeChartComponent } from "./chart/mode-chart";
+import { ControllerBraiinsManagedConsumptionChartComponent } from "./chart/power-chart";
 
 @Component({
-    selector: "oe-braiins",
+    selector: "oe-controller-braiins-home",
     templateUrl:
         "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
@@ -34,7 +40,7 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
 
     private readonly routeService: RouteService = inject(RouteService);
 
-    protected override generateView(): OeFormlyView {
+    protected override async generateView(): Promise<OeFormlyView> {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
 
@@ -45,19 +51,40 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(component);
         this.component = component;
 
-        return SharedControllerBraiins.getFormlyView(
-            this.translate,
+        const energyScheduler = new EnergySchedulerV2(config);
+        const lines = await this.getLines(component, edge, energyScheduler);
+
+        return {
+            title: Name.METER_ALIAS_OR_ID(component),
+            icon: {
+                name: "logo-bitcoin",
+                color: "rgb(247, 148, 29)",
+                size: "large",
+            },
+            lines,
             component,
             edge,
-        );
+        };
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-        return SharedControllerBraiins.getChannelAddresses(
-            this.service,
-            this.routeService,
-            this.component,
-        );
+        const edge = this.service.currentEdge();
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        const component =
+            this.component ??
+            config.getComponentSafely(
+                this.routeService.getRouteParam("componentId"),
+            );
+        AssertionUtils.assertIsDefined(component);
+
+        return [
+            new ChannelAddress(
+                component.id,
+                ControllerBraiinsShared.PROPERTY_MODE,
+            ),
+        ];
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
@@ -68,11 +95,90 @@ export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
             this.form,
             "mode",
             currentData,
-            new ChannelAddress(braiinsComponent.id, "_PropertyMode"),
+            new ChannelAddress(
+                braiinsComponent.id,
+                ControllerBraiinsShared.PROPERTY_MODE,
+            ),
         );
     }
 
     protected override getFormGroup(): FormGroup {
-        return SharedControllerBraiins.getFormGroup();
+        return new FormGroup({
+            mode: new FormControl(null),
+        });
+    }
+
+    private async getLines(
+        component: EdgeConfig.Component,
+        edge: Edge,
+        energyScheduler: EnergySchedulerV2,
+    ): Promise<OeFormlyField[]> {
+        await energyScheduler.updateSchedule(edge, this.service.websocket);
+
+        return [
+            {
+                type: "component-line",
+                component: SingleXAxisComponent,
+                inputs: {
+                    data: energyScheduler.schedule,
+                },
+            },
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "channel-line",
+                name: this.translate.instant("GENERAL.POWER"),
+                channel: new ChannelAddress(
+                    component.id,
+                    ControllerBraiinsShared.ACTIVE_POWER,
+                ).toString(),
+                converter: Converter.POWER_IN_KILO_WATT,
+                style: {
+                    name: { fontSize: "large" },
+                    value: { fontSize: "large" },
+                },
+                cssClass: "ion-padding-top",
+            },
+            {
+                type: "component-line",
+                component: ControllerBraiinsManagedConsumptionChartComponent,
+                inputs: {
+                    edge,
+                    refresh: false,
+                    data: energyScheduler.schedule,
+                    componentId: component.id,
+                },
+            },
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "channel-line",
+                name: this.translate.instant("BRAIINS_SINGLE.MODE.ACTIVE_MODE"),
+                channel: new ChannelAddress(
+                    component.id,
+                    ControllerBraiinsShared.EFFECTIVE_MODE,
+                ).toString(),
+                converter: ControllerBraiinsShared.CONVERT_TO_MODE_LABEL(
+                    this.translate,
+                ),
+                style: {
+                    name: { fontSize: "large" },
+                    value: { fontSize: "large" },
+                },
+                cssClass: "ion-padding-top",
+            },
+            {
+                type: "component-line",
+                component: ControllerBraiinsModeChartComponent,
+                inputs: {
+                    edge,
+                    refresh: false,
+                    data: energyScheduler.schedule,
+                    componentId: component.id,
+                },
+            },
+        ];
     }
 }

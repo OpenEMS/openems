@@ -1,107 +1,19 @@
-import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { GroupedNavigationTreeUtility, NavigationTree, } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
-import { Name } from "src/app/shared/components/shared/name";
-import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
-import { Mode } from "src/app/shared/type/general";
-import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { EdgeConfig } from "src/app/shared/shared";
 
-export namespace SharedControllerBraiins {
+export namespace ControllerBraiinsShared {
     export const PROPERTY_MODE = "_PropertyMode";
     export const ACTIVE_POWER = "ActivePower";
+    export const EFFECTIVE_MODE = "EffectiveMode";
+    const NAVIGATION_BASE = "controller/braiins";
 
-    export function getFormlyView(
-        translate: TranslateService,
-        component: EdgeConfig.Component,
-        edge: Edge,
-    ): OeFormlyView {
-        return {
-            title: Name.METER_ALIAS_OR_ID(component),
-            icon: {
-                name: "logo-bitcoin",
-                color: "normal",
-                size: "large",
-            },
-            lines: [
-                {
-                    type: "channel-line",
-                    name: translate.instant("GENERAL.STATE"),
-                    channel: new ChannelAddress(
-                        component.id,
-                        PROPERTY_MODE,
-                    ).toString(),
-                    converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
-                },
-                {
-                    type: "channel-line",
-                    name: translate.instant("GENERAL.POWER"),
-                    channel: new ChannelAddress(
-                        component.id,
-                        ACTIVE_POWER,
-                    ).toString(),
-                    converter: Converter.POWER_IN_KILO_WATT,
-                },
-                {
-                    type: "horizontal-line",
-                },
-                {
-                    type: "buttons-from-form-control-line",
-                    name: translate.instant("GENERAL.MODE"),
-                    controlName: "mode",
-                    buttons: [
-                        {
-                            name: translate.instant("GENERAL.ON"),
-                            value: Mode.MANUAL_ON,
-                            icon: {
-                                color: "success",
-                                name: "play-outline",
-                                size: "medium",
-                            },
-                        },
-                        {
-                            name: translate.instant("GENERAL.OFF"),
-                            value: Mode.MANUAL_OFF,
-                            icon: {
-                                color: "danger",
-                                name: "stop-circle-outline",
-                                size: "medium",
-                            },
-                        },
-                    ],
-                },
-            ],
-            component: component,
-            edge: edge,
-        };
-    }
-
-    export async function getChannelAddresses(
-        service: Service,
-        routeService: RouteService,
-        component: EdgeConfig.Component | null = null,
-    ): Promise<ChannelAddress[]> {
-        const edge = service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
-        const braiinsComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
-
-        AssertionUtils.assertIsDefined(braiinsComponent);
-
-        return [new ChannelAddress(braiinsComponent.id, PROPERTY_MODE)];
-    }
-
-    export function getFormGroup(): FormGroup {
-        return new FormGroup({
-            mode: new FormControl(null),
-        });
+    function getComponentSafely(
+        config: EdgeConfig,
+        componentId: EdgeConfig.Component["id"],
+    ): EdgeConfig.Component | null {
+        return config.getComponentSafely(componentId);
     }
 
     export function getNavigationTree(
@@ -109,7 +21,7 @@ export namespace SharedControllerBraiins {
         componentId: EdgeConfig.Component["id"],
         config: EdgeConfig,
     ): ConstructorParameters<typeof NavigationTree> | null {
-        const component = config.getComponentSafely(componentId);
+        const component = getComponentSafely(config, componentId);
         if (component == null) {
             return null;
         }
@@ -117,7 +29,7 @@ export namespace SharedControllerBraiins {
         return createComponentNavigationTree(
             componentId,
             translate.instant("MENU.GROUPS.BRAIINS"),
-            "controller/braiins/" + componentId,
+            `${NAVIGATION_BASE}/${componentId}`,
             translate,
         ).toConstructorParams();
     }
@@ -127,7 +39,7 @@ export namespace SharedControllerBraiins {
         componentId: EdgeConfig.Component["id"],
         config: EdgeConfig,
     ): NavigationTree | null {
-        const component = config.getComponentSafely(componentId);
+        const component = getComponentSafely(config, componentId);
         if (component == null) {
             return null;
         }
@@ -147,10 +59,10 @@ export namespace SharedControllerBraiins {
         config: EdgeConfig,
     ): ConstructorParameters<typeof NavigationTree> | null {
         return GroupedNavigationTreeUtility.createGroupedNavigationTree(
-            "braiins",
+            NAVIGATION_BASE,
             { name: "logo-bitcoin", color: "normal" },
             "MENU.GROUPS.BRAIINS",
-            "controller/braiins",
+            NAVIGATION_BASE,
             translate,
             componentIds,
             config,
@@ -165,14 +77,88 @@ export namespace SharedControllerBraiins {
         baseString: string,
         translate: TranslateService,
     ): NavigationTree {
+        const scheduleChildren: NavigationTree[] = [
+            new NavigationTree(
+                "edit-task",
+                { baseString: "edit-task" },
+                { name: "create-outline" },
+                translate.instant("JS_SCHEDULE.EDIT_TASK"),
+                "label",
+                [],
+                null,
+                { showOrder: "HIDE" },
+            ),
+            new NavigationTree(
+                "add-task",
+                { baseString: "add-task" },
+                { name: "add-outline" },
+                translate.instant("JS_SCHEDULE.ADD_TASK"),
+                "label",
+                [],
+                null,
+                { showOrder: "HIDE" },
+            ),
+        ];
+
+        const children: NavigationTree[] = [
+            new NavigationTree(
+                "mode",
+                { baseString: "mode" },
+                { name: "checkmark-done-outline", color: "medium" },
+                translate.instant("BRAIINS_SINGLE.MODE.LABEL"),
+                "label",
+                [],
+                null,
+            ),
+            new NavigationTree(
+                "schedule",
+                { baseString: "schedule" },
+                { name: "calendar-outline", color: "warning" },
+                translate.instant("HEAT.SCHEDULE.SCHEDULE"),
+                "label",
+                scheduleChildren,
+                null,
+            ),
+        ];
+
         return new NavigationTree(
             id,
             { baseString },
             { name: "logo-bitcoin", color: "normal" },
             label,
             "label",
-            [],
+            children,
             null,
         );
+    }
+
+    /**
+     * Converts a string or numeric mode to a presentable label
+     *
+     * @param raw The raw value
+     * @returns The value for chosen mode
+     */
+    export const CONVERT_TO_MODE_LABEL = (
+        translate: TranslateService,
+    ): Converter => {
+        return (raw): string => {
+            return Converter.IF_NUMBER_OR_STRING(raw, (value) => {
+                switch (value) {
+                    case 1:
+                    case Mode.ON:
+                        return translate.instant("BRAIINS_SINGLE.MODE.ON");
+                    case 0:
+                    case Mode.OFF:
+                        return translate.instant("BRAIINS_SINGLE.MODE.OFF");
+                    default:
+                        return Converter.HIDE_VALUE(value);
+                }
+            });
+        };
+    };
+
+    export enum Mode {
+        ON = "ON",
+        OFF = "OFF",
     }
 }

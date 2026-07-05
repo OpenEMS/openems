@@ -25,6 +25,7 @@ import { AdministrationComponent } from "./Controller/Evcs/administration/admini
 import { Controller_Evcs } from "./Controller/Evcs/Evcs";
 import { ControllerEvseSingle } from "./Controller/Evse/EvseSingle.module";
 import { ControllerHeatModule } from "./Controller/Heat/Heat";
+import { ControllerBraiinsModule } from "./Controller/Io/Braiins/braiins.module";
 import { Controller_Io_ChannelSingleThresholdComponent } from "./Controller/Io/ChannelSingleThreshold/flat/flat";
 import { Controller_Io_ChannelSingleThresholdModalComponent } from "./Controller/Io/ChannelSingleThreshold/modal/modal.component";
 import { ControllerIoFixDigitalOutput } from "./Controller/Io/FixDigitalOutput/fix-digital-output.module";
@@ -49,7 +50,6 @@ import { FlatComponent as EvcsClusterApiFlatComponent } from "./Multiple/evcs-ap
 import { ChartComponent as EvcsClusterApiChartComponent } from "./Multiple/evcs-api-cluster/modal/chart/chart";
 import { ModalComponent as EvcsClusterApiModalComponent } from "./Multiple/evcs-api-cluster/modal/modal";
 import { NavigationInfoComponent } from "./navigation-info/navigation-info";
-
 import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage-info";
 
 @NgModule({
@@ -84,6 +84,7 @@ import { SystemOutageInfoComponent } from "./system-outage-info/oe-system-outage
         PullToRefreshComponent,
         HelpButtonComponent,
         EvcsClusterApiChartComponent,
+        ControllerBraiinsModule,
     ],
     declarations: [
         AdministrationComponent,

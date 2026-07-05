@@ -44,6 +44,10 @@ import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedul
 import { ControllerHeatSettingsComponent } from "src/app/edge/live/Controller/Heat/settings/settings";
 import { ControllerBraiinsHomeComponent } from "src/app/edge/live/Controller/Io/Braiins/new-navigation/new-navigation";
 import { ControllerBraiinsGroupComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/group/group";
+import { ControllerBraiinsModeComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/mode/mode";
+import { ControllerBraiinsScheduleComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/schedule.component";
+import { ControllerBraiinsAddTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/add/add";
+import { ControllerBraiinsEditTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/edit/edit";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
@@ -287,6 +291,22 @@ export const newNavigationRoutes: Routes = [
     {
         path: "controller/braiins/:componentId",
         component: ControllerBraiinsHomeComponent,
+    },
+    {
+        path: "controller/braiins/:componentId/mode",
+        component: ControllerBraiinsModeComponent,
+    },
+    {
+        path: "controller/braiins/:componentId/schedule",
+        component: ControllerBraiinsScheduleComponent,
+    },
+    {
+        path: "controller/braiins/:componentId/schedule/add-task",
+        component: ControllerBraiinsAddTaskComponent,
+    },
+    {
+        path: "controller/braiins/:componentId/schedule/edit-task",
+        component: ControllerBraiinsEditTaskComponent,
     },
     {
         path: "controller/heatpump/:componentId",

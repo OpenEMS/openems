@@ -8,10 +8,52 @@ import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
-import { ChartAxis, HistoryUtils, Utils } from "../../utils/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
-import { AbstractHistoryChart } from "./abstracthistorychart";
 import { ChartTypes } from "./chart.types";
+
+function getYAxisTitle(
+    title: YAxisType,
+    translate: TranslateService,
+    chartType: "bar" | "line",
+    customTitle?: string,
+): string {
+    switch (title) {
+        case YAxisType.RELAY:
+            if (chartType === "line") {
+                return "";
+            }
+            return translate.instant(
+                "EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD",
+            );
+        case YAxisType.TIME:
+            return translate.instant(
+                "EDGE.INDEX.WIDGETS.CHANNELTRESHOLD.ACTIVE_TIME_OVER_PERIOD",
+            );
+        case YAxisType.RESTRICTION:
+        case YAxisType.PERCENTAGE:
+            return "%";
+        case YAxisType.REACTIVE:
+            return "var";
+        case YAxisType.ENERGY:
+            return chartType === "bar" ? "kWh" : "kW";
+        case YAxisType.POWER:
+            return "kW";
+        case YAxisType.HEAT_PUMP:
+        case YAxisType.ENERIX_CONTROL:
+            return translate.instant("GENERAL.STATE");
+        case YAxisType.VOLTAGE:
+            return "V";
+        case YAxisType.CURRENT:
+            return "A";
+        case YAxisType.TEMPERATURE:
+            return "°C";
+        case YAxisType.NONE:
+            return "";
+        default:
+            return "";
+    }
+}
 
 export namespace ChartConstants {
     export const NUMBER_OF_Y_AXIS_TICKS: number = 7;
@@ -651,12 +693,7 @@ export namespace ChartConstants {
             getScaleOptions(datasets, yAxis, chartType);
         const yScaleTitle =
             yAxis.customTitle ??
-            AbstractHistoryChart.getYAxisTitle(
-                yAxis.unit,
-                translate,
-                chartType,
-                yAxis.customTitle,
-            );
+            getYAxisTitle(yAxis.unit, translate, chartType, yAxis.customTitle);
         if (showYAxisTitle) {
             Chart.register(
                 ChartConstants.Plugins.YAXIS_TITLE_POSITION(yAxis.yAxisId),
