@@ -1244,8 +1244,13 @@
         "VALUE_WITH_LABEL": "Value {{ label }}{{ number }} {{ symbol }}"
     },
     "JS_SCHEDULE": {
+        "ADD_EVENT": "Add Event",
+        "ADD_TASK": "Add Task",
+        "EDIT_EVENT": "Edit Event",
         "EDIT_TASK": "Edit task",
-        "ADD_TASK": "Add Task"
+        "NEXT_EVENTS": "Next Events",
+        "MANUAL_EVENTS": "Manual Events",
+        "SMART_EVENTS": "Smart Events"
     },
     "LIVE": {
         "PULL_TO_REFRESH": "Pull this banner to refresh"

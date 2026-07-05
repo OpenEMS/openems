@@ -30,20 +30,16 @@
             }
         },
         "SCHEDULE": {
-            "NEXT_TASKS": "Nächste Aufgaben",
             "EDIT": "Bearbeiten",
             "ACCEPT": "Übernehmen",
             "DELETE": "Löschen",
-            "EDIT_TASK": "Aufgabe bearbeiten",
             "START": "Start",
             "END": "Ende",
             "DURATION": "Dauer",
             "MODE": "Lademodus",
             "FREQUENCY": "Wiederholung",
             "ADD": "Hinzufügen",
-            "MANUAL_EVENTS": "Manuelle Events",
-            "SMART_EVENTS": "Smart Events",
-            "SMART_EVENT_TITLE": "Smarte Ladung von {{kwh}} kWh",
+            "SMART_EVENT_TITLE": "Smarte Beladung von {{kwh}} kWh",
             "DAY": {
                 "MONDAY": "Montag",
                 "TUESDAY": "Dienstag",
