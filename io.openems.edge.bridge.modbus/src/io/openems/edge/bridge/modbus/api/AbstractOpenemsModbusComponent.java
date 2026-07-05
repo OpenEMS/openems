@@ -115,8 +115,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId)
-			throws OpenemsException {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId) {
 		super.activate(context, id, alias, enabled);
 		this.activateOrModified(unitId);
 	}
@@ -127,7 +126,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Call this method from Component implementations activate().
+	 * Call this method from Component implementations modified().
 	 *
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
@@ -152,6 +151,23 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.modified(context, id, alias, enabled);
 		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
+	}
+
+	/**
+	 * Call this method from Component implementations modified().
+	 *
+	 * @param context ComponentContext of this component. Receive it from parameter
+	 *                for @Activate
+	 * @param id      ID of this component. Typically 'config.id()'
+	 * @param alias   Human-readable name of this Component. Typically
+	 *                'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled Whether the component should be enabled. Typically
+	 *                'config.enabled()'
+	 * @param unitId  Unit-ID of the Modbus target
+	 */
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled, int unitId) {
+		super.modified(context, id, alias, enabled);
+		this.activateOrModified(unitId);
 	}
 
 	@Override

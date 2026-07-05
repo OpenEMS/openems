@@ -21,7 +21,6 @@ import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.ComponentProps;
-import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.ess.FixReactivePower.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;

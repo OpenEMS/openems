@@ -83,7 +83,7 @@ class TaskHookTest {
 		this.sendTestRequest(component, FunctionUtils::doNothing);
 	}
 
-	private void sendTestRequest(DummyModbusComponent component, Consumer<AbstractTask> extraSteps) {
+	private void sendTestRequest(DummyModbusComponent component, Consumer<AbstractTask<?, ?>> extraSteps) {
 		var task = new FC3ReadRegistersTask(500, Priority.HIGH, new SignedWordElement(500), new SignedWordElement(501));
 
 		task.setParent(component);
