@@ -97,7 +97,22 @@ public class TechbaseCm4sGen3
 												.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
 														GpioHardwareType.MODBERRY_X500_M4S_GEN3) //
 												.build()))
-								.build()))
+								.build()), //
+						new DependencyDeclaration("IO_GPIO", //
+								DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+								DependencyDeclaration.UpdatePolicy.NEVER, //
+								DependencyDeclaration.DeletePolicy.ALWAYS, //
+								DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+								DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+								DependencyDeclaration.AppDependencyConfig.create() //
+										.setAppId("App.Hardware.IoGpio") //
+										.setInitialProperties(DependencyProperties.fromJson(//
+												JsonUtils.buildJsonObject() //
+														.addProperty(IoGpio.Property.HARDWARE_TYPE.name(),
+																GpioHardwareType.MODBERRY_X500_M4S_GEN3) //
+														.build(),
+												IoGpio.Property.HARDWARE_TYPE.name()))
+										.build()))
 				.build();
 
 	}
