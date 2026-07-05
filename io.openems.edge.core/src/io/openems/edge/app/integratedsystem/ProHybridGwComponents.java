@@ -8,7 +8,6 @@ import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
-import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.predictor.api.prediction.LogVerbosity;
 
 public class ProHybridGwComponents {
