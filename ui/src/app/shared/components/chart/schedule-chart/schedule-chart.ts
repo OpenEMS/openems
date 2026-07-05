@@ -326,7 +326,7 @@ export namespace ScheduleChartComponent {
             Currency.getCurrencyLabelByCurrency(currency);
 
         return (item: TooltipItem<any>) =>
-            Converter.CURRENCY_PER_KWH(currencyLabel)(
+            Converter.CURRENCY_PER_KWH_TO_KWH(currencyLabel)(
                 item.dataset.data[item.dataIndex],
             );
     }

@@ -81,7 +81,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                             "_sum",
                             "GridBuyPrice",
                         ).toString(),
-                        converter: Converter.CURRENCY_PER_KWH(currencyLabel),
+                        converter:
+                            Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
                         style: {
                             name: { fontSize: "large" },
                             value: { fontSize: "large" },
@@ -109,7 +110,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                             "_sum",
                             "GridSellPrice",
                         ).toString(),
-                        converter: Converter.CURRENCY_PER_KWH(currencyLabel),
+                        converter:
+                            Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
                         style: {
                             name: { fontSize: "large" },
                             value: { fontSize: "large" },
