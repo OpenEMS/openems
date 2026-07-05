@@ -994,6 +994,7 @@
     "REGISTER": {
         "BUTTON": "Create",
         "CREATE_USER": "Create account",
+        "CREATING_USER": "Creating account...",
         "ERRORS": {
             "EMAIL_NOT_EQUAL": "E-Mails are not equal",
             "PASSWORD_NOT_EQUAL": "Passwords are not equal",

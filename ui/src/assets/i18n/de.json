@@ -916,6 +916,7 @@
     "REGISTER": {
         "BUTTON": "Anlegen",
         "CREATE_USER": "Account anlegen",
+        "CREATING_USER": "Account wird angelegt...",
         "ERRORS": {
             "EMAIL_NOT_EQUAL": "E-Mails stimmen nicht überein",
             "PASSWORD_NOT_EQUAL": "Passwörter sind nicht gleich",
