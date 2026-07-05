@@ -10,6 +10,7 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -24,6 +25,8 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
 
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.jscalendar.JSCalendar;
@@ -77,6 +80,7 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
 	private ConfigurationAdmin configurationAdmin;
 
 	private BraiinsApi braiinsApi;
+	private final Supplier<BraiinsApi> braiinsApiSupplier;
 	private Config config;
 	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
 	private Mode lastSentMode = null;
@@ -84,12 +88,22 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
 	private volatile JSCalendar.Tasks<Payload> tasks = JSCalendar.Tasks.empty();
 
 	public ControllerBraiinsSingleImpl() {
+		this(null);
+	}
+
+	@VisibleForTesting
+	ControllerBraiinsSingleImpl(Supplier<BraiinsApi> braiinsApiSupplier) {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
 				ElectricityMeter.ChannelId.values(), //
 				Controller.ChannelId.values(), //
 				ControllerBraiinsSingle.ChannelId.values() //
 		);
+
+		this.braiinsApiSupplier = braiinsApiSupplier != null //
+				? braiinsApiSupplier //
+				: () -> new BraiinsApi(this.httpBridgeFactory, this.config.ip(), this.config.username(),
+						this.config.password(), this::applyMinerStats);
 
 		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
 	}
@@ -150,8 +164,7 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
 	}
 
 	private void startApi() {
-		this.braiinsApi = new BraiinsApi(this.httpBridgeFactory, //
-				this.config.ip(), this.config.username(), this.config.password(), this::applyMinerStats);
+		this.braiinsApi = this.braiinsApiSupplier.get();
 		this.braiinsApi.activate();
 	}
 
