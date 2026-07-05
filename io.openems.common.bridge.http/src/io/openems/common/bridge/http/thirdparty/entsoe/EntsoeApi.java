@@ -237,12 +237,12 @@ public class EntsoeApi {
 		}
 
 		if (biddingZone == EntsoeBiddingZone.GERMANY || biddingZone == EntsoeBiddingZone.AUSTRIA) {
-			// Get prices from position 1 first. If it doesn't have a time slot, try
-			// position 2
+			// Get prices only from position 1, the main standard coupling auction (EPEX
+			// SPOT / EXAA 12:00 CET). Position 2 holds the for us irrelevant decoupled EXAA
+			// 10:15 CET morning auction.
 			return ArrayUtils.concatLists(//
 					XmlObject[]::new, //
-					xmlTimeSeriesByClassificationSequence.get(1), //
-					xmlTimeSeriesByClassificationSequence.get(2) //
+					xmlTimeSeriesByClassificationSequence.get(1) //
 			);
 		} else {
 			// Get prices from position 2 first. If it doesn't have a time slot, try
