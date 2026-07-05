@@ -15,8 +15,10 @@ import java.util.function.Function;
 import com.google.gson.JsonPrimitive;
 
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.utils.ArrayUtils;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
@@ -33,6 +35,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
 import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
@@ -442,7 +445,7 @@ public final class IntegratedSystemProps {
 	 * @return the created {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier> //
-			AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
+	AppDef<APP, Nameable, BundleProvider> hasEssLimiter14a() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasEssLimiter14a.label") //
 				.setDefaultValue(false) //
@@ -468,6 +471,49 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
 					field.setLink(new LinkBuilder.AppUpdateLink("App.Core.Meta"));
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the capacity of the ESS only visible for admins.
+	 * 
+	 * @param defaultValue the default value
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> capacityEss(//
+			int defaultValue //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.ess.capacity.label") //
+				.setTranslatedDescription("App.IntegratedSystem.ess.capacity.description") //
+				.setDefaultValue(defaultValue) //
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER) //
+								.onlyPositiveNumbers() //
+				) //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the max battery power of the ESS only visible
+	 * for admins.
+	 * 
+	 * @param defaultValue the default value
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> maxBatteryPower(//
+			int defaultValue //
+	) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.IntegratedSystem.ess.maxBatteryPower.label") //
+				.setTranslatedDescription("App.IntegratedSystem.ess.maxBatteryPower.description") //
+				.setRequired(true) //
+				.setDefaultValue(defaultValue) //
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, prop, l, params, field) -> field.setInputType(InputType.NUMBER) //
+				) //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+		);
 	}
 
 	private IntegratedSystemProps() {
