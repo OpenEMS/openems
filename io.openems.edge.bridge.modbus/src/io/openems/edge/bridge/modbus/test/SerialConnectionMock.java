@@ -1,42 +1,40 @@
-package io.openems.edge.battery.fenecon.home.update.mock;
+package io.openems.edge.bridge.modbus.test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.ghgande.j2mod.modbus.Modbus;
 import com.ghgande.j2mod.modbus.io.AbstractModbusTransport;
 import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
+import io.openems.common.function.Disposable;
 
 public class SerialConnectionMock extends AbstractSerialConnection {
 	/**
 	 * Creates a serial connection for slave and master.
-	 * 
+	 *
 	 * @param parameters Parameters for the serial connection
 	 * @return The two serial connection instances.
 	 * @throws IOException Never thrown
 	 */
-	public static SerialConnectionCreatedMock create(SerialParameters parameters) throws IOException {
-		var serverOutput = new PipedOutputStream();
-		var clientInput = new PipedInputStream(serverOutput);
-
-		var clientOutput = new PipedOutputStream();
-		var serverInput = new PipedInputStream(clientOutput);
-
-		return new SerialConnectionCreatedMock(new SerialConnectionMock(parameters, serverOutput, serverInput),
-				new SerialConnectionMock(parameters, clientOutput, clientInput));
+	public static SerialConnectionMockManager create(SerialParameters parameters) throws IOException {
+		return new SerialConnectionMockManager(parameters);
 	}
 
 	private final SerialParameters parameters;
 
 	private boolean isOpen;
-	private PipedOutputStream output;
-	private PipedInputStream input;
+	private final OutputStream output;
+	private final InputStream input;
 	private AbstractModbusTransport transport;
 
-	public SerialConnectionMock(SerialParameters parameters, PipedOutputStream output, PipedInputStream input) {
+	protected SerialConnectionMock(SerialParameters parameters, OutputStream output, InputStream input) {
 		this.parameters = parameters;
 		this.output = output;
 		this.input = input;
@@ -165,6 +163,79 @@ public class SerialConnectionMock extends AbstractSerialConnection {
 		}
 	}
 
-	public static record SerialConnectionCreatedMock(SerialConnectionMock client, SerialConnectionMock server) {
+	public static class SerialConnectionMockManager implements Disposable {
+		private final SerialParameters parameters;
+		private final SerialConnectionMock server;
+		private final ForwardingOutputStream dataFromServer;
+		private final PipedOutputStream dataToServer;
+
+		private SerialConnectionMockManager(SerialParameters parameters) throws IOException {
+			this.parameters = parameters;
+			this.dataFromServer = new ForwardingOutputStream();
+			this.dataToServer = new PipedOutputStream();
+
+			this.server = new SerialConnectionMock(parameters, this.dataFromServer, new PipedInputStream(this.dataToServer));
+		}
+
+		public SerialConnectionMock getServer() {
+			return this.server;
+		}
+
+		/**
+		 * Creates a new serial connection for a client.
+		 *
+		 * @return {@link SerialConnectionMock} instance.
+		 * @throws IOException Never thrown
+		 */
+		public SerialConnectionMock createClientConnection() throws IOException {
+			var dataToClient = new PipedOutputStream();
+			this.dataFromServer.addTargetStream(dataToClient);
+
+			var dataFromClient = new ForwardingOutputStream();
+			dataFromClient.addTargetStream(this.dataToServer);
+
+			return new SerialConnectionMock(this.parameters, dataFromClient, new PipedInputStream(dataToClient));
+		}
+
+		@Override
+		public void dispose() {
+			this.server.close();
+		}
+	}
+
+	private static class ForwardingOutputStream extends OutputStream {
+		private final List<OutputStream> targetStreams = new ArrayList<>();
+
+		public void addTargetStream(OutputStream stream) {
+			this.targetStreams.add(stream);
+		}
+
+		@Override
+		public void write(int b) throws IOException {
+			for (OutputStream targetStream : this.targetStreams) {
+				targetStream.write(b);
+			}
+		}
+
+		@Override
+		public void write(byte[] b) throws IOException {
+			for (OutputStream targetStream : this.targetStreams) {
+				targetStream.write(b);
+			}
+		}
+
+		@Override
+		public void write(byte[] b, int off, int len) throws IOException {
+			for (OutputStream targetStream : this.targetStreams) {
+				targetStream.write(b, off, len);
+			}
+		}
+
+		@Override
+		public void flush() throws IOException {
+			for (OutputStream targetStream : this.targetStreams) {
+				targetStream.flush();
+			}
+		}
 	}
 }

@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -21,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
@@ -259,6 +261,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 		this.protocol = this.defineModbusProtocol();
 		return this.protocol;
+	}
+
+	public List<TaskHook> getModbusTaskHooks() {
+		return List.of();
 	}
 
 	@Override

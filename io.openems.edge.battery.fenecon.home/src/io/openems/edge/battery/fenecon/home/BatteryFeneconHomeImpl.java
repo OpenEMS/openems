@@ -11,8 +11,10 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -67,6 +69,8 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
+import io.openems.edge.bridge.modbus.api.task.hooks.WaitBetweenUnitIdHook;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
@@ -101,6 +105,12 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
 
+	/**
+	 * Home Battery BMS is getting stuck if it sees a request/response with another
+	 * unit id on the bus for around 30 - 45ms. (Task #64166)
+	 */
+	protected static final Duration DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID = Duration.ofMillis(50L);
+
 	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
 	private static final int FORCE_CHARGE_CURRENT_PER_TOWER = 2;
 	private static final String TOWER = "TOWER_";
@@ -129,6 +139,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	private Instant timeCriticalMinVoltage;
 	private Integer lastKnownMinVoltage;
 	private BatteryFeneconHomeHardwareType hardwareType;
+	private List<TaskHook> modbusTaskHooks = List.of();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -192,6 +203,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			return;
 		}
 
+		this.modbusTaskHooks = List.of(new WaitBetweenUnitIdHook(DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID));
 		this.detectHardwareType();
 	}
 
@@ -461,6 +473,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new ElementToChannelConverter(BatteryFeneconHomeImpl::parseEmsOffGrid)) //
 								.build() //
 				));
+	}
+
+	@Override
+	public List<TaskHook> getModbusTaskHooks() {
+		return this.modbusTaskHooks;
 	}
 
 	/**

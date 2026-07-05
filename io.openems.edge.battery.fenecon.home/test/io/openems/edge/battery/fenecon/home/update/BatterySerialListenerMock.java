@@ -1,18 +1,14 @@
-package io.openems.edge.battery.fenecon.home.update.mock.slave;
+package io.openems.edge.battery.fenecon.home.update;
 
 import java.time.Duration;
 
 import org.junit.Assert;
 
-import com.ghgande.j2mod.modbus.ModbusIOException;
-import com.ghgande.j2mod.modbus.io.AbstractModbusTransport;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
-import com.ghgande.j2mod.modbus.net.AbstractModbusListener;
 import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
-import com.ghgande.j2mod.modbus.net.ModbusSerialListener;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import com.google.common.base.Stopwatch;
@@ -30,8 +26,9 @@ import io.openems.edge.battery.fenecon.home.update.j2mod.FC43Response;
 import io.openems.edge.battery.fenecon.home.update.j2mod.FC44Request;
 import io.openems.edge.battery.fenecon.home.update.j2mod.FC44Response;
 import io.openems.edge.battery.fenecon.home.update.j2mod.ResponseStatusCode;
+import io.openems.edge.bridge.modbus.test.ModbusSerialListenerMock;
 
-public class ModbusSerialListenerMock extends ModbusSerialListener {
+public class BatterySerialListenerMock extends ModbusSerialListenerMock {
 	private static final Duration SLAVE_UPDATE_DURATION = Duration.ofSeconds(5);
 	public static final TwoPartVersion INITIAL_FIRMWARE_VERSION = TwoPartVersion.fromString("1.0");
 	public static final TwoPartVersion AFTER_UPDATE_FIRMWARE_VERSION = TwoPartVersion.fromString("1.1");
@@ -40,39 +37,12 @@ public class ModbusSerialListenerMock extends ModbusSerialListener {
 	private TwoPartVersion firmwareVersion = INITIAL_FIRMWARE_VERSION;
 	private BatteryUpdateState updateState = new BatteryUpdateState.NormalOperation();
 
-	public ModbusSerialListenerMock(AbstractSerialConnection serialCon) {
+	public BatterySerialListenerMock(AbstractSerialConnection serialCon) {
 		super(serialCon);
 	}
 
 	@Override
-	protected void handleRequest(AbstractModbusTransport transport, AbstractModbusListener listener)
-			throws ModbusIOException {
-		if (transport == null) {
-			throw new ModbusIOException("No transport specified");
-		}
-
-		final ModbusRequest request = transport.readRequest(listener);
-		if (request == null) {
-			throw new ModbusIOException("Request for transport %s is invalid (null)",
-					transport.getClass().getSimpleName());
-		}
-
-		ModbusResponse response;
-		try {
-			response = this.handle(request);
-		} catch (Exception ex) {
-			throw new RuntimeException(
-					"Exception while handling packet %s".formatted(request.getClass().getSimpleName()), ex);
-		}
-
-		if (response != null) {
-			response.setTransactionID(request.getTransactionID());
-			response.setUnitID(request.getUnitID());
-			transport.writeResponse(response);
-		}
-	}
-
-	private ModbusResponse handle(ModbusRequest request) throws Exception {
+	protected ModbusResponse handle(ModbusRequest request) throws Exception {
 		return switch (request) {
 		case FC40Request req -> this.handle(req);
 		case FC41Request req -> this.handle(req);

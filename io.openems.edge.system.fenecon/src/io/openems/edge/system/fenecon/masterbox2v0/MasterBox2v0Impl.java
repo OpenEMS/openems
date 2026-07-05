@@ -1,5 +1,8 @@
 package io.openems.edge.system.fenecon.masterbox2v0;
 
+import java.time.Duration;
+import java.util.List;
+
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -26,6 +29,8 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
+import io.openems.edge.bridge.modbus.api.task.hooks.WaitBetweenUnitIdHook;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
@@ -42,6 +47,16 @@ import io.openems.edge.common.taskmanager.Priority;
 @GenerateTargetsFromReferences("Modbus")
 public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 		implements MasterBox2v0, ModbusComponent, OpenemsComponent, ModbusSlave {
+
+	/**
+	 * Master Box does normally not require this, but the request is not always
+	 * going through when it's directly sent after another request to a different
+	 * device was sent. To make sure that it works in 100% of cases and not only in
+	 * 95%, we are adding a delay here.
+	 */
+	protected static final Duration DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID = Duration.ofMillis(6L);
+
+	private List<TaskHook> modbusTaskHooks = List.of();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -65,6 +80,7 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		this.modbusTaskHooks = List.of(new WaitBetweenUnitIdHook(DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID));
 	}
 
 	@Override
@@ -162,5 +178,10 @@ public class MasterBox2v0Impl extends AbstractOpenemsModbusComponent
 						.channel(1, MasterBox2v0.ChannelId.HUMIDITY, ModbusType.UINT16) //
 						.build() //
 		);
+	}
+
+	@Override
+	public List<TaskHook> getModbusTaskHooks() {
+		return this.modbusTaskHooks;
 	}
 }

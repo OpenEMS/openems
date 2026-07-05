@@ -1,6 +1,7 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -121,14 +122,17 @@ public class TasksSupplierImpl implements TasksSupplier {
 				componentTasks.clear();
 			}
 		});
+
 		var result = new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						// Sort HIGH priority to the end
-						.sorted((a, b) -> b.getPriority().compareTo(a.getPriority())) //
+						// Sort HIGH priority to the end. Make sure to send requests to same unit in order.
+						.sorted(Comparator.comparing(Task::getPriority).reversed() //
+								.thenComparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)),
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast) //
+						.sorted(Comparator.comparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)));
 
 		this.traceLog(() -> "Getting " //
@@ -143,25 +147,20 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 * @return the next task; null if there is no available task
 	 */
 	private synchronized Tuple2<String, ReadTask> getOneLowPriorityReadTask() {
-		var refilledBefore = false;
-		while (true) {
-			var task = this.nextLowPriorityTasks.poll();
-			if (task != null) {
-				return task;
-			}
-			if (refilledBefore) {
-				// queue had been refilled before, but still cannot find a matching task -> quit
-				return null;
-			}
-			// refill the queue
-			this.taskManagers.forEach((id, taskManager) -> {
-				taskManager.getTasks(Priority.LOW).stream() //
-						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						.map(t -> new Tuple2<String, ReadTask>(id, t)) //
-						.forEach(this.nextLowPriorityTasks::add);
-			});
-			refilledBefore = true;
+		var task = this.nextLowPriorityTasks.poll();
+		if (task != null) {
+			return task;
 		}
+
+		// refill the queue
+		this.taskManagers.forEach((id, taskManager) -> {
+			taskManager.getTasks(Priority.LOW).stream() //
+					.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+					.map(t -> new Tuple2<String, ReadTask>(id, t)) //
+					.forEach(this.nextLowPriorityTasks::add);
+		});
+
+		return this.nextLowPriorityTasks.poll();
 	}
 
 	@Override
