@@ -6,6 +6,11 @@ import static io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.cl
 import static io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.SystemLimits.fromMeta;
 import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -20,9 +25,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +37,6 @@ import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.type.Phase;
 import io.openems.edge.controller.api.Controller;
-import io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext;
 import io.openems.edge.controller.ess.fixactivepower.SystemLimitHelper.SystemLimits;
 import io.openems.edge.controller.ess.fixactivepower.enums.HybridEssMode;
 import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
@@ -76,13 +77,13 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private ManagedSymmetricEss ess;
 
 	@Reference
 	private Meta meta;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
@@ -103,26 +104,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.fallbackHandler.clear();
-		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
-				() -> {
-					if (this.config.enabled()) {
-						return null;
-					}
-					return switch (config.mode()) {
-					case MANUAL_OFF -> null;
-					case MANUAL_ON -> new OptimizationContext(//
-							switch (this.config.phase()) {
-							case ALL -> this.config.power();
-							case L1, L2, L3 -> this.config.power() * 3;
-							}, //
-							this.config.relationship());
-					case CHARGE_ONCE -> new OptimizationContext(this.config.chargeOncePower(), EQUALS);
-					case DISCHARGE_ONCE -> new OptimizationContext(-this.config.dischargeOncePower(), EQUALS);
-					};
-				});
-		if (this.applyConfig(config)) {
-			return;
-		}
+		this.applyConfig(config);
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, this::buildEnergySchedulerConfig);
 	}
 
 	@Modified
@@ -137,6 +120,35 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 				OPTIMIZE_CURRENT_PERIOD);
 
 		this.resetIgnoreSystemLimitsPermissionsIfRequired(config);
+	}
+
+	private EnergyScheduler.Config buildEnergySchedulerConfig() {
+		if (!this.config.enabled()) {
+			return null;
+		}
+
+		return switch (this.config.mode()) {
+		case MANUAL_OFF -> null;
+		case MANUAL_ON -> new EnergyScheduler.Config(//
+				Mode.MANUAL_ON, //
+				switch (this.config.phase()) {
+				case ALL -> this.config.power();
+				case L1, L2, L3 -> this.config.power() * 3;
+				}, //
+				null);
+		case CHARGE_ONCE -> this.meta.getIsEssChargeFromGridAllowed() //
+				? new EnergyScheduler.Config(//
+						Mode.CHARGE_ONCE, //
+						this.config.chargeOncePower(), //
+						this.config.chargeOnceTargetSocEnable() ? this.config.chargeOnceTargetSoc() : null) //
+				: null;
+		case DISCHARGE_ONCE -> this.meta.getIsEssDischargeToGridAllowed() //
+				? new EnergyScheduler.Config(//
+						Mode.DISCHARGE_ONCE, //
+						this.config.dischargeOncePower(), //
+						this.config.dischargeOnceTargetSocEnable() ? this.config.dischargeOnceTargetSoc() : null) //
+				: null;
+		};
 	}
 
 	private boolean applyConfig(Config config) {

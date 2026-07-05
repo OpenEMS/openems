@@ -17,7 +17,6 @@ import static io.openems.edge.energy.api.Version.V2_ENERGY_SCHEDULABLE;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
 import static io.openems.edge.energy.optimizer.TestData.PRODUCTION_PREDICTION_QUARTERLY;
-import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import java.time.Clock;
@@ -36,6 +35,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyMeta;
+import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
 import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
 import io.openems.edge.controller.evse.cluster.DistributionStrategy;
 import io.openems.edge.controller.evse.single.CombinedAbilities;
@@ -105,7 +105,8 @@ public class EnergySchedulerImplTest {
 				.addReference("scheduler", new DummyScheduler("scheduler0")) //
 				.addReference("addSchedulable", dummyEssEmergencyCapacityReserve("ctrlEmergencyCapacityReserve0", 20)) //
 				.addReference("addSchedulable", dummyEssLimitTotalDischarge("ctrlLimitTotalDischarge0", 0)) //
-				.addReference("addSchedulable", dummyEssFixActivePower("ctrlFixActivePower0", -1000, GREATER_OR_EQUALS)) //
+				.addReference("addSchedulable",
+						dummyEssFixActivePower("ctrlFixActivePower0", Mode.MANUAL_ON, -1000, null)) //
 				.addReference("addSchedulable",
 						dummyEssTimeOfUseTariff("ctrlEssTimeOfUseTariff0", ControlMode.CHARGE_CONSUMPTION.modes, null,
 								null)) //

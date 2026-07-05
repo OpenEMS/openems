@@ -76,8 +76,9 @@ public class TestConfig {
 				.addProperty("factoryPid", EnergySchedulerTestUtils.Controller.ESS_FIX_ACTIVE_POWER.factoryPid) //
 				.addProperty("id", "ctrlFixActivePower0") //
 				.add("source", buildJsonObject() //
+						.addProperty("mode", "DISCHARGE_ONCE") //
 						.addProperty("power", 1000) //
-						.addProperty("relationship", "EQUALS") //
+						.addProperty("targetSoc", 5) //
 						.build()) //
 				.build();
 
