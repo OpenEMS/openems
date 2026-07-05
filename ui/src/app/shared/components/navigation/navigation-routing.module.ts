@@ -74,7 +74,7 @@ import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-cale
 import { SchedulerJsCalendarAddTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/add/add";
 import { SchedulerJsCalendarEditTaskComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/task/edit/edit";
 import { CurrentVoltageOverviewComponent } from "src/app/shared/components/edge/meter/currentVoltage/new-navigation/new-navigation";
-import { hasEdgeRole, hasUserSettings, } from "src/app/shared/guards/functional-guards";
+import { hasEdgeRole } from "src/app/shared/guards/functional-guards";
 import { Role } from "src/app/shared/type/role";
 import { CommonAutarchyHistoryComponent } from "../../../edge/live/common/autarchy/history/new-navigation/new-navigation";
 import { CommonAutarchyHomeComponent } from "../../../edge/live/common/autarchy/new-navigation/new-navigation";
@@ -91,7 +91,6 @@ import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/liv
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
 import { suffixMatcher } from "../../guards/url-matcher";
-import { UserSettings } from "../../jsonrpc/shared";
 
 export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
@@ -195,9 +194,7 @@ export const newNavigationRoutes: Routes = [
     {
         path: "settings",
         loadChildren: () =>
-            import("src/app/edge/settings/settings-routing.module").then(
-                (m) => m.SettingsRoutingModule,
-            ),
+            import("src/app/edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
     },
 
     {

@@ -50,15 +50,7 @@ export class HeatForecastComponent extends AbstractModal {
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
     ) {
-        super(
-            websocket,
-            route,
-            service,
-            modalController,
-            translate,
-            formBuilder,
-            ref,
-        );
+        super(websocket, route, service, modalController, translate, formBuilder, ref);
     }
 
     override async updateComponent(config: EdgeConfig) {
@@ -69,9 +61,7 @@ export class HeatForecastComponent extends AbstractModal {
                     take(1),
                 )
                 .subscribe((params) => {
-                    this.component = config.getComponentSafely(
-                        params.componentId,
-                    );
+                    this.component = config.getComponentSafely(params.componentId);
                     res();
                 });
         });

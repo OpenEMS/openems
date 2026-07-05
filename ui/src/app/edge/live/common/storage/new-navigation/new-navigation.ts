@@ -11,7 +11,7 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedStorage } from "../shared/shared";
@@ -23,18 +23,11 @@ import { CommonStoragePercentagebarComponent } from "./percentagebar/percentageb
 @Component({
     selector: "oe-common-storage",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class CommonStorageHomeComponent extends AbstractFormlyComponent {
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     public static async getFormlyGeneralView(
         translate: TranslateService,
@@ -46,13 +39,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         return {
             title: translate.instant("GENERAL.STORAGE_SYSTEM"),
             helpKey: "REDIRECT.COMMON_STORAGE",
-            lines: await CommonStorageHomeComponent.getLines(
-                translate,
-                service,
-                edge,
-                config,
-                energyScheduler,
-            ),
+            lines: await CommonStorageHomeComponent.getLines(translate, service, edge, config, energyScheduler),
             component: new EdgeConfig.Component(),
             useDefaultPrefix: false,
             isCommonWidget: true,
@@ -67,8 +54,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
         energyScheduler: EnergySchedulerV2,
     ): Promise<OeFormlyField[]> {
         await energyScheduler?.updateSchedule(edge, service.websocket);
-        const essComponents: EdgeConfig.Component[] =
-            SharedStorage.getEssComponents(config);
+        const essComponents: EdgeConfig.Component[] = SharedStorage.getEssComponents(config);
         const emergencyReserveComponents: {
             [essId: string]: EdgeConfig.Component;
         } = config
@@ -107,10 +93,11 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                         emergencyReserveController: emergencyReserveCtrl,
                     },
                 },
-                ...SharedStorage.getChargeDischargeLinesInKw(ess, config, translate)
+                ...SharedStorage.getChargeDischargeLinesInKw(ess, config, translate),
             );
 
-            const prepareBatteryExtensionCtrlForEss = ess.id in prepareBatteryExtensionCtrl ? prepareBatteryExtensionCtrl[ess.id] : null;
+            const prepareBatteryExtensionCtrlForEss =
+                ess.id in prepareBatteryExtensionCtrl ? prepareBatteryExtensionCtrl[ess.id] : null;
 
             if (prepareBatteryExtensionCtrlForEss !== null) {
                 arr.push(
@@ -123,16 +110,29 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                             ChannelAddress.fromString(prepareBatteryExtensionCtrlForEss.id + "/CtrlIsChargingEss"),
                             ChannelAddress.fromString(prepareBatteryExtensionCtrlForEss.id + "/CtrlIsDischargingEss"),
                             ChannelAddress.fromString(prepareBatteryExtensionCtrlForEss.id + "/CtrlIsInReferenceCycle"),
-                            ChannelAddress.fromString(prepareBatteryExtensionCtrlForEss.id + "/_PropertyTargetTimeSpecified"),
+                            ChannelAddress.fromString(
+                                prepareBatteryExtensionCtrlForEss.id + "/_PropertyTargetTimeSpecified",
+                            ),
                             ChannelAddress.fromString(prepareBatteryExtensionCtrlForEss.id + "/_PropertyTargetTime"),
                         ],
                         singleLine: true,
-                        value: (currentData: CurrentData) => SharedStorage.getBatteryCapacityExtensionStatus(translate, currentData, prepareBatteryExtensionCtrlForEss.id)?.text ?? null,
-                        filter: (currentData: CurrentData) => SharedStorage.getBatteryCapacityExtensionStatus(translate, currentData, prepareBatteryExtensionCtrlForEss.id)?.text != null,
-                    });
+                        value: (currentData: CurrentData) =>
+                            SharedStorage.getBatteryCapacityExtensionStatus(
+                                translate,
+                                currentData,
+                                prepareBatteryExtensionCtrlForEss.id,
+                            )?.text ?? null,
+                        filter: (currentData: CurrentData) =>
+                            SharedStorage.getBatteryCapacityExtensionStatus(
+                                translate,
+                                currentData,
+                                prepareBatteryExtensionCtrlForEss.id,
+                            )?.text != null,
+                    },
+                );
             }
 
-            if (i < (essComponents.length - 1)) {
+            if (i < essComponents.length - 1) {
                 arr.push({
                     type: "horizontal-line",
                 });
@@ -158,10 +158,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                 {
                     type: "channel-line",
                     name: translate.instant("GENERAL.POWER"),
-                    channel: new ChannelAddress(
-                        "_sum",
-                        "EssDischargePower",
-                    ).toString(),
+                    channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
                     style: {
                         name: { fontSize: "large" },
                         value: { fontSize: "large" },
@@ -205,12 +202,8 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
                     {
                         type: "channel-line",
                         name: translate.instant("GENERAL.MODE"),
-                        channel: new ChannelAddress(
-                            "ctrlEssTimeOfUseTariff0",
-                            "StateMachine",
-                        ).toString(),
-                        converter:
-                            Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(translate),
+                        channel: new ChannelAddress("ctrlEssTimeOfUseTariff0", "StateMachine").toString(),
+                        converter: Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(translate),
                         style: {
                             name: { fontSize: "large" },
                             value: { fontSize: "large" },
@@ -285,11 +278,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
 export const ESS_CHARGE_OR_DISCHARGE =
     (translate: TranslateService): Converter =>
     (raw): string => {
-        const displayText = (
-            power: string,
-            color: "danger" | "success" | "inherit",
-            text: string,
-        ): string => {
+        const displayText = (power: string, color: "danger" | "success" | "inherit", text: string): string => {
             return `<span>${power}&nbsp;<ion-label color="${color}">${text}</ion-label></span>`;
         };
 

@@ -1,10 +1,10 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, } from "@angular/core";
+import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { Chart, ChartDataset, LegendItem, LineControllerDatasetOptions, TooltipItem, } from "chart.js";
+import { Chart, ChartDataset, LegendItem, LineControllerDatasetOptions, TooltipItem } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { draw } from "patternomaly";
@@ -39,10 +39,7 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
         CommonModule,
     ],
 })
-export abstract class ScheduleChartComponent
-    extends AbstractHistoryChart
-    implements OnChanges
-{
+export abstract class ScheduleChartComponent extends AbstractHistoryChart implements OnChanges {
     public static readonly OPACITY_DEFAULT = 0.2;
     public static readonly OPACITY_TRANSPARENT = 0.05;
     public static readonly OPACITY_NONE = 1;
@@ -53,8 +50,7 @@ export abstract class ScheduleChartComponent
     @Input({ required: true }) public data!: GetSchedule.Response;
     @Input({ required: true }) public override edge!: Edge;
 
-    protected numberFormat: ChartData["tooltip"]["formatNumber"] =
-        ChartConstants.NumberFormat.NO_DECIMALS;
+    protected numberFormat: ChartData["tooltip"]["formatNumber"] = ChartConstants.NumberFormat.NO_DECIMALS;
     private hasBooleanValues = false;
 
     private readonly platFormService = inject(PlatFormService);
@@ -110,11 +106,10 @@ export abstract class ScheduleChartComponent
 
         // Show Legend if any label is set
         this.options.plugins.legend.display = true;
-        this.options.plugins.legend.labels.color = getComputedStyle(
-            document.documentElement,
-        ).getPropertyValue("--ion-color-text");
-        this.options.plugins.legend.labels.generateLabels =
-            this.generateLegendLabels.bind(this);
+        this.options.plugins.legend.labels.color = getComputedStyle(document.documentElement).getPropertyValue(
+            "--ion-color-text",
+        );
+        this.options.plugins.legend.labels.generateLabels = this.generateLegendLabels.bind(this);
 
         this.options.plugins["syncChart"] = {
             group: 1,
@@ -150,8 +145,7 @@ export abstract class ScheduleChartComponent
         if (tooltipLabelCallback != null) {
             this.options.plugins.tooltip.callbacks.label = tooltipLabelCallback;
         }
-        this.options.plugins.tooltip.filter = (item, _index, items) =>
-            item.datasetIndex === items.at(-1)?.datasetIndex;
+        this.options.plugins.tooltip.filter = (item, _index, items) => item.datasetIndex === items.at(-1)?.datasetIndex;
 
         this.stopSpinner();
         this.loading = false;
@@ -159,13 +153,9 @@ export abstract class ScheduleChartComponent
 
     protected fillDatasets(): ChartDataset[] {
         const buildConf = this.buildDatasets();
-        this.hasBooleanValues = buildConf.some((dataset) =>
-            dataset.data.some((value) => typeof value === "boolean"),
-        );
+        this.hasBooleanValues = buildConf.some((dataset) => dataset.data.some((value) => typeof value === "boolean"));
 
-        const baseDataset = (
-            d: ScheduleChartComponent.Dataset,
-        ): ChartDataset => ({
+        const baseDataset = (d: ScheduleChartComponent.Dataset): ChartDataset => ({
             type: "line",
             label: d.label ?? null,
             data: d.data.map((value) => {
@@ -179,10 +169,7 @@ export abstract class ScheduleChartComponent
             yAxisID: ChartAxis.LEFT,
             backgroundColor:
                 d.pattern == null
-                    ? ColorUtils.rgbStringToRgba(
-                          d.color,
-                          d.opacity ?? ScheduleChartComponent.OPACITY_DEFAULT,
-                      )
+                    ? ColorUtils.rgbStringToRgba(d.color, d.opacity ?? ScheduleChartComponent.OPACITY_DEFAULT)
                     : [draw(d.pattern, d.color, "white", 5)],
             borderColor: d.color,
             borderWidth: d.borderWidth ?? 2,
@@ -209,9 +196,7 @@ export abstract class ScheduleChartComponent
             .map((item) => ({ ...item, fillStyle: item.strokeStyle }));
     }
 
-    protected getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string | string[] | void {
+    protected getTooltipLabelCallback(): (item: TooltipItem<any>) => string | string[] | void {
         return () => null;
     }
 
@@ -222,11 +207,8 @@ export abstract class ScheduleChartComponent
     protected override getChartHeight(): number | null {
         const device = this.platFormService.getDevice();
         const isSmartPhone = device.isSmartphone();
-        const container = this.hostEl.nativeElement.closest(
-            "#formlyContainerWidth",
-        ) as HTMLElement | null;
-        const width =
-            container?.getBoundingClientRect().width ?? window.innerWidth;
+        const container = this.hostEl.nativeElement.closest("#formlyContainerWidth") as HTMLElement | null;
+        const width = container?.getBoundingClientRect().width ?? window.innerWidth;
 
         if (isSmartPhone) {
             return NumberUtils.divideSafely(width, 2);
@@ -248,23 +230,18 @@ export namespace ScheduleChartComponent {
     };
 
     /**
-     * Use this function to split data in positive and abs(negative) values,
-     * ready for visualization in a schedule-chart.
+     * Use this function to split data in positive and abs(negative) values, ready for visualization in a
+     * schedule-chart.
      */
     export function normalizePositiveNegativeLines(data: (number | null)[]): {
         positive: (number | null)[];
         negative: (number | null)[];
     } {
         const positive = data.map((el) => (el != null && el >= 0 ? el : null));
-        const negative = data.map((el) =>
-            el != null && el <= 0 ? Math.abs(el) : null,
-        );
+        const negative = data.map((el) => (el != null && el <= 0 ? Math.abs(el) : null));
 
         for (let i = 0; i < positive.length; i++) {
-            /**
-             * When power is 'zero', decide which chart line (charge or
-             * discharge) should be visible
-             */
+            /** When power is 'zero', decide which chart line (charge or discharge) should be visible */
             if (positive[i] == 0 && negative[i] == 0) {
                 // Find 'zero' power values
                 if (
@@ -290,20 +267,11 @@ export namespace ScheduleChartComponent {
         return { positive: positive, negative: negative };
     }
 
-    /**
-     * Use this function to fill gaps for boolean values, ready for
-     * visualization in a schedule-chart.
-     */
-    export function normalizeBooleanLines(
-        data: Record<string, boolean | null>[],
-    ): void {
+    /** Use this function to fill gaps for boolean values, ready for visualization in a schedule-chart. */
+    export function normalizeBooleanLines(data: Record<string, boolean | null>[]): void {
         for (let i = data.length - 1; i >= 0; i--) {
             for (const key of Object.keys(data[i])) {
-                if (
-                    i > 0 &&
-                    (data[i][key] === null || data[i][key] === false) &&
-                    data[i - 1][key] === true
-                ) {
+                if (i > 0 && (data[i][key] === null || data[i][key] === false) && data[i - 1][key] === true) {
                     // Keep boolean state charts continuous at state transitions.
                     data[i][key] = true;
                 }
@@ -313,27 +281,16 @@ export namespace ScheduleChartComponent {
 
     /** Tooltip for values in [kW]. */
     export function tooltipkW(): (item: TooltipItem<any>) => string {
-        return (item: TooltipItem<any>) =>
-            Converter.POWER_IN_KILO_WATT_AS_KW(
-                item.dataset.data[item.dataIndex],
-            );
+        return (item: TooltipItem<any>) => Converter.POWER_IN_KILO_WATT_AS_KW(item.dataset.data[item.dataIndex]);
     }
 
     /** Tooltip for values in currency per kWh. */
-    export function tooltipCurrency(
-        config: EdgeConfig,
-    ): (item: TooltipItem<any>) => string {
+    export function tooltipCurrency(config: EdgeConfig): (item: TooltipItem<any>) => string {
         const meta = config.getComponentSafely("_meta");
-        const currency = config.getPropertyFromComponent<string>(
-            meta,
-            "currency",
-        );
-        const currencyLabel: Currency.Label =
-            Currency.getCurrencyLabelByCurrency(currency);
+        const currency = config.getPropertyFromComponent<string>(meta, "currency");
+        const currencyLabel: Currency.Label = Currency.getCurrencyLabelByCurrency(currency);
 
         return (item: TooltipItem<any>) =>
-            Converter.CURRENCY_PER_KWH_TO_KWH(currencyLabel)(
-                item.dataset.data[item.dataIndex],
-            );
+            Converter.CURRENCY_PER_KWH_TO_KWH(currencyLabel)(item.dataset.data[item.dataIndex]);
     }
 }

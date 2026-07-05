@@ -180,6 +180,14 @@ export class ProfileComponent implements OnInit {
         });
     }
 
+    protected getModbusProtocol = (componentId: string, type: string) =>
+        ProfileComponent.getModbusProtocol(
+            this.service,
+            this.translate,
+            componentId,
+            type,
+        );
+
     protected onLocationUpdated() {
         this.service.toast(
             this.translate.instant(

@@ -1,4 +1,4 @@
-import { DestroyRef, inject, Injectable, signal, WritableSignal, } from "@angular/core";
+import { DestroyRef, inject, Injectable, signal, WritableSignal } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { ObjectUtils } from "../utils/object/object-utils";
@@ -28,13 +28,7 @@ export class RouteService {
                 this.currentUrl.set(event.urlAfterRedirects);
             }
 
-            if (
-                event instanceof
-                (NavigationStart ||
-                    NavigationError ||
-                    NavigationCancel ||
-                    ResolveEnd)
-            ) {
+            if (event instanceof (NavigationStart || NavigationError || NavigationCancel || ResolveEnd)) {
                 if (this.previousUrl === event.url) {
                     return;
                 }
@@ -90,22 +84,14 @@ export class RouteService {
      * @returns The value for this key if found, else null
      */
     public getRouteParams(): Record<string, string> {
-        const route = this.getDeepestRoute(
-            this.router.routerState.snapshot.root,
-        );
-        const routeParams = Object.entries(route.params).reduce(
-            (obj: { [k: string]: any }, [k, v]) => {
-                const routeParamValue = typeof v === "string" ? v : null;
-                const cleanedRouteParam =
-                    StringUtils.splitBy(
-                        StringUtils.splitBy(routeParamValue, "%")?.[0] ?? "",
-                        "?",
-                    )?.[0] ?? "";
-                obj[k] = cleanedRouteParam;
-                return obj;
-            },
-            {},
-        );
+        const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
+        const routeParams = Object.entries(route.params).reduce((obj: { [k: string]: any }, [k, v]) => {
+            const routeParamValue = typeof v === "string" ? v : null;
+            const cleanedRouteParam =
+                StringUtils.splitBy(StringUtils.splitBy(routeParamValue, "%")?.[0] ?? "", "?")?.[0] ?? "";
+            obj[k] = cleanedRouteParam;
+            return obj;
+        }, {});
 
         return routeParams;
     }
@@ -127,21 +113,14 @@ export class RouteService {
 
     public navigateAfterAuthentication() {
         const oauthredirectstate = this.cookieService.get("oauthredirectstate");
-        const oauthRedirectStateHref =
-            ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)
-                ?.href ?? null;
-        if (
-            oauthRedirectStateHref != null &&
-            oauthRedirectStateHref != OAuthCallBackComponent.ID
-        ) {
+        const oauthRedirectStateHref = ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
+        if (oauthRedirectStateHref != null && oauthRedirectStateHref != OAuthCallBackComponent.ID) {
             this.router.navigate([oauthRedirectStateHref]);
             return;
         }
 
-        const initialUrl =
-            this.router.lastSuccessfulNavigation?.initialUrl ?? null;
-        const isAuthenticatedNavi =
-            (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
+        const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl ?? null;
+        const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
         if (isAuthenticatedNavi && initialUrl != null) {
             this.router.navigate([initialUrl.toString()]);
             return;
@@ -151,9 +130,7 @@ export class RouteService {
         this.router.navigate(["/overview"]);
     }
 
-    private getDeepestRoute(
-        routeSnapshot: ActivatedRouteSnapshot,
-    ): ActivatedRouteSnapshot {
+    private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {
             routeSnapshot = routeSnapshot.firstChild;
         }

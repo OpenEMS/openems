@@ -6,7 +6,7 @@ import { GetSchedule } from "src/app/shared/components/edge/config-components/en
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, ChartConstants, Currency, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, Currency, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedGrid } from "../shared/shared";
@@ -23,7 +23,6 @@ import { GridSellPriceChartComponent } from "./chart/price-sell-price-chart";
     ],
 })
 export class CommonGridHomeComponent extends AbstractFormlyComponent {
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     public static async getFormlyGeneralView(translate: TranslateService, service: Service, edge: Edge, config: EdgeConfig, energyScheduler: EnergySchedulerV2): Promise<OeFormlyView> {
@@ -50,10 +49,7 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                 {
                     type: "channel-line",
                     name: translate.instant("GENERAL.POWER"),
-                    channel: new ChannelAddress(
-                        "_sum",
-                        "GridActivePower",
-                    ).toString(),
+                    channel: new ChannelAddress("_sum", "GridActivePower").toString(),
                     converter: GRID_BUY_OR_SELL(translate),
                     style: {
                         name: { fontSize: "large" },
@@ -77,12 +73,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                     {
                         type: "channel-line",
                         name: translate.instant("GENERAL.GRID_BUY_PRICE"),
-                        channel: new ChannelAddress(
-                            "_sum",
-                            "GridBuyPrice",
-                        ).toString(),
-                        converter:
-                            Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
+                        channel: new ChannelAddress("_sum", "GridBuyPrice").toString(),
+                        converter: Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
                         style: {
                             name: { fontSize: "large" },
                             value: { fontSize: "large" },
@@ -106,12 +98,8 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
                     {
                         type: "channel-line",
                         name: translate.instant("GENERAL.GRID_SELL_PRICE"),
-                        channel: new ChannelAddress(
-                            "_sum",
-                            "GridSellPrice",
-                        ).toString(),
-                        converter:
-                            Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
+                        channel: new ChannelAddress("_sum", "GridSellPrice").toString(),
+                        converter: Converter.CURRENCY_PER_MWH_TO_KWH(currencyLabel),
                         style: {
                             name: { fontSize: "large" },
                             value: { fontSize: "large" },
@@ -164,11 +152,7 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
 export const GRID_BUY_OR_SELL =
     (translate: TranslateService): Converter =>
     (raw): string => {
-        const displayText = (
-            power: string,
-            color: string,
-            text: string,
-        ): string =>
+        const displayText = (power: string, color: string, text: string): string =>
             `<span>${power}&nbsp;<ion-label style="color:${color}">${text}</ion-label></span>`;
 
         return Converter.IF_NUMBER(raw, (value) => {
