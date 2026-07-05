@@ -34,6 +34,7 @@ import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
 import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.FixActivePower;
+import io.openems.edge.app.ess.FixReactivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
 import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PowerPlantController;
@@ -1317,6 +1318,16 @@ public final class Apps {
 	 */
 	public static final FixActivePower fixActivePower(AppManagerTestBundle t) {
 		return app(t, FixActivePower::new, "App.Ess.FixActivePower");
+	}
+
+	/**
+	 * Test method for creating a {@link FixReactivePower}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixReactivePower fixReactivePower(AppManagerTestBundle t) {
+		return app(t, FixReactivePower::new, "App.Ess.FixReactivePower");
 	}
 
 	/**

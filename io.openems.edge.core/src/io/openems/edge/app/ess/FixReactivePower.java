@@ -22,7 +22,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.ComponentProps;
 import io.openems.edge.app.enums.Phase;
-import io.openems.edge.app.ess.FixActivePower.Property;
+import io.openems.edge.app.ess.FixReactivePower.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
@@ -42,11 +42,11 @@ import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
 /**
- * Describes a fix active power app.
+ * Describes a fix reactive power app.
  *
  * <pre>
   {
-    "appId":"App.Ess.FixActivePower",
+    "appId":"App.Ess.FixReactivePower",
     "alias":"Leistungsvorgabe",
     "instanceId": UUID,
     "image": base64,
@@ -59,22 +59,22 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
   }
  * </pre>
  */
-@Component(name = "App.Ess.FixActivePower")
-public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, BundleParameter>
+@Component(name = "App.Ess.FixReactivePower")
+public class FixReactivePower extends AbstractOpenemsAppWithProps<FixReactivePower, Property, BundleParameter>
 		implements OpenemsApp {
 
-	public enum Property implements Type<Property, FixActivePower, BundleParameter>, Nameable {
+	public enum Property implements Type<Property, FixReactivePower, BundleParameter>, Nameable {
 		// Components
-		CTRL_FIX_ACTIVE_POWER_ID(AppDef.componentId("ctrlFixActivePower0")), //
+		CTRL_FIX_REACTIVE_POWER_ID(AppDef.componentId("ctrlFixReactivePower0")), //
 
 		// Properties
 		ALIAS(alias()), //
 		ESS_ID(ComponentProps.pickManagedSymmetricEssId()), //
 		;
 
-		private final AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def;
+		private final AppDef<? super FixReactivePower, ? super Property, ? super BundleParameter> def;
 
-		private Property(AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def) {
+		private Property(AppDef<? super FixReactivePower, ? super Property, ? super BundleParameter> def) {
 			this.def = def;
 		}
 
@@ -84,18 +84,18 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 		}
 
 		@Override
-		public AppDef<? super FixActivePower, ? super Property, ? super BundleParameter> def() {
+		public AppDef<? super FixReactivePower, ? super Property, ? super BundleParameter> def() {
 			return this.def;
 		}
 
 		@Override
-		public Function<GetParameterValues<FixActivePower>, BundleParameter> getParamter() {
+		public Function<GetParameterValues<FixReactivePower>, BundleParameter> getParamter() {
 			return Parameter.functionOf(AbstractOpenemsApp::getTranslationBundle);
 		}
 	}
 
 	@Activate
-	public FixActivePower(//
+	public FixReactivePower(//
 			@Reference final ComponentManager componentManager, //
 			final ComponentContext componentContext, //
 			@Reference final ConfigurationAdmin cm, //
@@ -117,29 +117,26 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
-			final var ctrlFixActivePowerId = this.getId(t, p, Property.CTRL_FIX_ACTIVE_POWER_ID);
+			final var ctrlFixReactivePowerId = this.getId(t, p, Property.CTRL_FIX_REACTIVE_POWER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var essId = this.getString(p, Property.ESS_ID);
 
 			final var components = Lists.newArrayList(//
-					new EdgeConfig.Component(ctrlFixActivePowerId, alias, "Controller.Ess.FixActivePower", //
+					new EdgeConfig.Component(ctrlFixReactivePowerId, alias, "Controller.Symmetric.FixReactivePower", //
 							JsonUtils.buildJsonObject() //
 									.addProperty("enabled", true) //
 									.addProperty("ess.id", essId) //
 									.onlyIf(t == ConfigurationTarget.ADD, //
 											b -> b.addProperty("mode", "MANUAL_OFF") //
-													.addProperty("hybridEssMode", "TARGET_DC") //
-													.addProperty("power", 0) //
-													.addProperty("relationship", "EQUALS") //
-													.addProperty("phase", Phase.ALL)) //
+													.addProperty("power", 0)) //
 									.build()) //
 			);
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //
 					.addTask(Tasks.schedulerByCentralOrder(//
-							new SchedulerComponent(ctrlFixActivePowerId, "Controller.Ess.FixActivePower",
+							new SchedulerComponent(ctrlFixReactivePowerId, "Controller.Symmetric.FixReactivePower",
 									this.getAppId()))) //
 					.build();
 		};
@@ -159,7 +156,7 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 	}
 
 	@Override
-	protected FixActivePower getApp() {
+	protected FixReactivePower getApp() {
 		return this;
 	}
 }

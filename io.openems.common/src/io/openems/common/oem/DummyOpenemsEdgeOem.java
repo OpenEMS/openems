@@ -514,6 +514,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+            .put("App.Ess.FixReactivePower", AppLink.create() //
+                    .emptyLink(Language.DE) //
+                    .emptyLink(Language.EN) //
+            ) //
 			.put("App.Ess.FixStateOfCharge", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
