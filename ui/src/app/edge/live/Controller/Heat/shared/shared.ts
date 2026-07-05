@@ -7,7 +7,7 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { environment } from "../../../../../../environments";
 import { TimeOfUseTariffUtils } from "../../../../../shared/utils/utils";
@@ -22,9 +22,7 @@ export namespace SharedControllerHeat {
         AssertionUtils.assertIsDefined(edge);
 
         const isAskoma = component.factoryId === "Heat.Askoma";
-        const isMyPv =
-            component.factoryId === "Heat.MyPv.AcThor9s" ||
-            component.factoryId === "Heat.MyPv";
+        const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
 
         return {
             title: Name.METER_ALIAS_OR_ID(component),
@@ -68,20 +66,15 @@ export namespace SharedControllerHeat {
             type: "channel-line" as const,
             name: translate.instant("HEAT.HOME.CHOSEN_MODE"),
             channel: component.id + "/Mode",
-            converter: (value: number | null) =>
-                CONVERT_CHANNEL_MODE_TO_LABEL(translate)(value),
+            converter: (value: number | null) => CONVERT_CHANNEL_MODE_TO_LABEL(translate)(value),
             filter: (value: number | null) => value != null,
         },
     ];
 
-    export const getMyPVInfoLine = (
-        translate: TranslateService,
-    ): OeFormlyView["lines"] => [
+    export const getMyPVInfoLine = (translate: TranslateService): OeFormlyView["lines"] => [
         {
             type: "info-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.HEAT.CHANGES_MY_PV_INFO",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.CHANGES_MY_PV_INFO"),
             icon: {
                 name: "information-outline",
                 color: "primary",
@@ -120,9 +113,7 @@ export namespace SharedControllerHeat {
         },
     ];
 
-    export const getFormlySettingsLines = (
-        translate: TranslateService,
-    ): OeFormlyView["lines"] => [
+    export const getFormlySettingsLines = (translate: TranslateService): OeFormlyView["lines"] => [
         {
             type: "radio-buttons-from-form-control-line",
             name: "select-mode",
@@ -131,23 +122,17 @@ export namespace SharedControllerHeat {
         },
     ];
 
-    export const getHeatModeButtons = (
-        translate: TranslateService,
-    ): ButtonLabel[] => [
+    export const getHeatModeButtons = (translate: TranslateService): ButtonLabel[] => [
         {
             value: Mode.FAST_HEAT,
             name: translate.instant("HEAT.SETTINGS.MODE.FAST_HEAT.TITLE"),
-            description: translate.instant(
-                "HEAT.SETTINGS.MODE.FAST_HEAT.DESCRIPTION",
-            ),
+            description: translate.instant("HEAT.SETTINGS.MODE.FAST_HEAT.DESCRIPTION"),
             icon: { color: "success", name: "oe-consumption", size: "medium" },
         },
         {
             value: Mode.SURPLUS,
             name: translate.instant("HEAT.SETTINGS.MODE.SURPLUS.TITLE"),
-            description: translate.instant(
-                "HEAT.SETTINGS.MODE.SURPLUS.DESCRIPTION",
-            ),
+            description: translate.instant("HEAT.SETTINGS.MODE.SURPLUS.DESCRIPTION"),
             icon: { color: "primary", name: "oe-production", size: "medium" },
         },
         {
@@ -162,9 +147,7 @@ export namespace SharedControllerHeat {
         });
     }
 
-    export function getChannelAddressesForComponent(
-        component: EdgeConfig.Component,
-    ): ChannelAddress[] {
+    export function getChannelAddressesForComponent(component: EdgeConfig.Component): ChannelAddress[] {
         return [
             new ChannelAddress(component.id, "Status"),
             new ChannelAddress(component.id, "ActivePower"),
@@ -183,14 +166,9 @@ export namespace SharedControllerHeat {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const heatComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+        const heatComponent = component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(heatComponent);
-        const channelAddresses: ChannelAddress[] =
-            getChannelAddressesForComponent(heatComponent);
+        const channelAddresses: ChannelAddress[] = getChannelAddressesForComponent(heatComponent);
 
         return Promise.resolve(channelAddresses);
     }
@@ -316,9 +294,7 @@ export namespace SharedControllerHeat {
         const barFastHeat = new Array(length).fill(null);
 
         for (let index = 0; index < length; index++) {
-            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(
-                prices[index],
-            );
+            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
             const mode = modes[index];
             labels.push(new Date(timestamps[index]));
 

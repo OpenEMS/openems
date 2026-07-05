@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from "@angular/core";
+import { Component, OnInit, signal } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -8,19 +8,14 @@ import { NavigationService } from "src/app/shared/components/navigation/service/
 import { UserService } from "src/app/shared/service/user.service";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
-import { Edge, EdgePermission, Service, UserPermission, Utils, } from "../../shared/shared";
+import { Edge, Service, Utils } from "../../shared/shared";
 import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
 
 @Component({
     selector: "settings",
     templateUrl: "./settings.component.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        RouterModule,
-        FlatWidgetButtonComponent,
-        ComponentsBaseModule,
-    ],
+    imports: [CommonUiModule, RouterModule, FlatWidgetButtonComponent, ComponentsBaseModule],
 })
 export class SettingsComponent implements OnInit {
     public edge: Edge | null = null;
