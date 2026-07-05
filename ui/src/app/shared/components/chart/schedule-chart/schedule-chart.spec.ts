@@ -7,17 +7,6 @@ describe("ScheduleChartComponent.normalizeLines", () => {
         ]);
 
         expect(result.positive).toEqual([
-            10,
-            11,
-            12,
-            null,
-            null,
-            0,
-            30,
-            31,
-            32,
-        ]);
-        expect(result.negative).toEqual([
             null,
             null,
             0,
@@ -27,6 +16,17 @@ describe("ScheduleChartComponent.normalizeLines", () => {
             null,
             null,
             null,
+        ]);
+        expect(result.negative).toEqual([
+            10,
+            11,
+            12,
+            null,
+            null,
+            0,
+            30,
+            31,
+            32,
         ]);
 
         // TODO Even better would be this, but it leads to overlapping chart lines

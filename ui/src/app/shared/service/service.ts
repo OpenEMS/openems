@@ -585,6 +585,8 @@ export class Service extends AbstractService {
                 return "H 10 - FP + 60 % Abregelung";
             case "fems17289":
                 return "H 10 - Schweden + LSK";
+            case "fems65456":
+                return "H 30 - Direktvermarktung";
             case "fems33006":
                 return "XL - Vermarktungsspeicher";
             case "fems31113":
@@ -593,8 +595,6 @@ export class Service extends AbstractService {
                 return "S - Fahrplan - dyn. Tarif";
             case "fems3625":
                 return "M  - Multiuse";
-            case "fems65456":
-                return "H 30 Direktvermarktung";
             default:
                 return comment;
         }

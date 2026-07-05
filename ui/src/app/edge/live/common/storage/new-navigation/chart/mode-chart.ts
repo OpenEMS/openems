@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { Chart, ChartDataset, LegendItem, TooltipItem } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
@@ -105,6 +106,7 @@ export class ModeChartComponent extends ScheduleChartComponent {
                 },
                 {
                     color,
+                    label: label,
                     data: predictionData,
                     stepped: true,
                     opacity: ScheduleChartComponent.OPACITY_NONE,
@@ -188,5 +190,46 @@ export class ModeChartComponent extends ScheduleChartComponent {
         );
 
         return datasets;
+    }
+
+    protected override generateLegendLabels(chart: Chart): LegendItem[] {
+        const chartLegendLabelItems: LegendItem[] = [];
+        chart.data.datasets.forEach((dataset: ChartDataset, index) => {
+            // Remove duplicates like from legend
+            if (
+                chartLegendLabelItems.some(
+                    (element) => element["text"] === (dataset.label ?? ""),
+                )
+            ) {
+                return;
+            }
+
+            const backgroundColor = Array.isArray(dataset.backgroundColor)
+                ? dataset.backgroundColor[0]
+                : dataset.backgroundColor;
+
+            chartLegendLabelItems.push({
+                text: dataset.label ?? "",
+                datasetIndex: index,
+                fillStyle: backgroundColor?.toString() ?? "transparent",
+                strokeStyle: backgroundColor?.toString() ?? "transparent",
+                lineWidth: 0,
+            });
+        });
+
+        setTimeout(() => {
+            if (!(chart as any)._updated) {
+                (chart as any)._updated = true;
+                chart.update();
+            }
+        }, 0);
+
+        return chartLegendLabelItems;
+    }
+
+    protected override getTooltipLabelCallback(): (
+        item: TooltipItem<any>,
+    ) => string {
+        return (item: TooltipItem<any>) => item.dataset.label ?? "";
     }
 }

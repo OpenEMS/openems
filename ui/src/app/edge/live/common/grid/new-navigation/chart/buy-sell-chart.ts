@@ -3,11 +3,13 @@ import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { TooltipItem } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { ScheduleChartComponent } from "src/app/shared/components/chart/schedule-chart/schedule-chart";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { ChartConstants } from "src/app/shared/shared";
 
 @Component({
@@ -57,5 +59,18 @@ export class GridBuySellChartComponent extends ScheduleChartComponent {
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];
+    }
+
+    protected override getTooltipLabelCallback(): (
+        item: TooltipItem<any>,
+    ) => string {
+        return (item) =>
+            Converter.IF_NUMBER(item.dataset.data[item.dataIndex], (value) => {
+                const text =
+                    item.datasetIndex == 0 || item.datasetIndex == 2
+                        ? this.translate.instant("GENERAL.GRID_SELL_ADVANCED")
+                        : this.translate.instant("GENERAL.GRID_BUY_ADVANCED");
+                return Converter.POWER_IN_KILO_WATT_AS_KW(value) + " " + text;
+            });
     }
 }

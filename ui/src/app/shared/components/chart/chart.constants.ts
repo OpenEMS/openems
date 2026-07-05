@@ -8,7 +8,6 @@ import { RGBColor } from "../../type/defaulttypes";
 import { Language } from "../../type/language";
 import { EmptyObj, TPartialBy } from "../../type/utility";
 import { ArrayUtils } from "../../utils/array/array.utils";
-import { ObjectUtils } from "../../utils/object/object-utils";
 import { ChartAxis, HistoryUtils, Utils } from "../../utils/utils";
 import { Formatter } from "../shared/formatter";
 import { AbstractHistoryChart } from "./abstracthistorychart";
@@ -151,11 +150,9 @@ export namespace ChartConstants {
                 if (group == null) {
                     return;
                 }
-
                 if (!this.groups[group]) {
                     this.groups[group] = [];
                 }
-
                 if (!this.groups[group].includes(chart)) {
                     this.groups[group].push(chart);
                 }
@@ -163,10 +160,7 @@ export namespace ChartConstants {
 
             unregisterChart(chart) {
                 const group = chart.options.plugins?.syncChart?.group ?? null;
-                if (
-                    group == null ||
-                    ObjectUtils.hasKeys(this.groups, [group])
-                ) {
+                if (group == null || !this.groups[group]) {
                     return;
                 }
                 this.groups[group] = this.groups[group].filter(
@@ -176,14 +170,9 @@ export namespace ChartConstants {
 
             getOtherCharts(chart): Chart[] {
                 const group = chart.options.plugins?.syncChart?.group ?? null;
-                if (
-                    group == null ||
-                    ObjectUtils.hasKeys(this.groups, [group])
-                ) {
+                if (group == null || !this.groups[group]) {
                     return [];
                 }
-
-                // Return all charts in the group except the one triggering the event
                 return this.groups[group].filter(
                     (groupedChart) => groupedChart !== chart,
                 );
@@ -197,53 +186,88 @@ export namespace ChartConstants {
 
                 this.registerChart(chart);
 
-                const otherCharts = this.getOtherCharts(chart);
-                const onMouseOver = (event) => {
-                    if (otherCharts?.length == 0) {
-                        return;
-                    }
+                // Defer getOtherCharts until mouse event — siblings may not be registered yet at afterInit time
+                const getOthers = () => this.getOtherCharts(chart);
 
+                const syncPosition = (
+                    clientX: number,
+                    otherCharts: Chart[],
+                ) => {
                     otherCharts.forEach((sibling) => {
-                        if (!event.isTrusted || sibling.canvas === null) {
+                        if (sibling.canvas === null) {
                             return;
                         }
                         const rect = sibling.canvas.getBoundingClientRect();
-
-                        // Map the x position from source chart to sibling chart
                         const sourceRect = chart.canvas.getBoundingClientRect();
                         const xPercent =
-                            (event.clientX - sourceRect.left) /
-                            sourceRect.width;
+                            (clientX - sourceRect.left) / sourceRect.width;
                         const mappedX = rect.left + xPercent * rect.width;
-
                         const syntheticEvent = new MouseEvent("mousemove", {
                             clientX: mappedX,
-                            clientY: rect.top + rect.height / 2, // center Y
+                            clientY: rect.top + rect.height / 2,
                         });
-
                         sibling.canvas.dispatchEvent(syntheticEvent);
                     });
                 };
-                const onMouseOut = () => {
-                    const siblings = this.getOtherCharts(chart);
-                    if (siblings?.length == 0) {
-                        return;
-                    }
 
+                const clearTooltips = () => {
+                    const siblings = getOthers();
                     siblings.forEach((sibling) => {
                         sibling.tooltip.setActiveElements([], { x: 0, y: 0 });
-                        sibling.update("none"); // 'none' = no animation, just re-render
+                        sibling.update("none");
                     });
                     chart.tooltip.setActiveElements([], { x: 0, y: 0 });
-                    // TODO This throws "TypeError: Cannot read properties of null (reading 'save')" on empty charts
                     chart.update("none");
                 };
+
+                const onMouseOver = (event: MouseEvent) => {
+                    const otherCharts = getOthers();
+                    if (otherCharts.length === 0) {
+                        return;
+                    }
+                    if (!event.isTrusted) {
+                        return;
+                    }
+                    syncPosition(event.clientX, otherCharts);
+                };
+
+                const onMouseOut = () => clearTooltips();
+
+                const onTouchMove = (event: TouchEvent) => {
+                    const otherCharts = getOthers();
+                    if (
+                        otherCharts.length === 0 ||
+                        event.touches.length === 0
+                    ) {
+                        return;
+                    }
+                    syncPosition(event.touches[0].clientX, otherCharts);
+                };
+
+                const onTouchEnd = () => clearTooltips();
 
                 chart.canvas.addEventListener("mousemove", onMouseOver);
                 chart.canvas.addEventListener("mouseenter", onMouseOver);
                 chart.canvas.addEventListener("mouseleave", onMouseOut);
                 chart.canvas.addEventListener("mouseout", onMouseOut);
-                this.syncDrawingAreas([...otherCharts, chart]);
+                chart.canvas.addEventListener("touchmove", onTouchMove);
+                chart.canvas.addEventListener("touchstart", onTouchMove);
+                chart.canvas.addEventListener("touchend", onTouchEnd);
+                chart.canvas.addEventListener("touchcancel", onTouchEnd);
+
+                // Keep listener references for proper cleanup on destroy.
+                (chart as any)._syncChartListeners = {
+                    onMouseOver,
+                    onMouseOut,
+                    onTouchMove,
+                    onTouchEnd,
+                };
+
+                // Defer syncDrawingAreas until all charts in group are registered
+                setTimeout(
+                    () => this.syncDrawingAreas([...getOthers(), chart]),
+                    0,
+                );
             },
             syncDrawingAreas(charts) {
                 // largest left offset among charts
@@ -264,6 +288,43 @@ export namespace ChartConstants {
             },
 
             beforeDestroy(chart) {
+                const listeners = (chart as any)._syncChartListeners;
+                if (listeners != null && chart.canvas != null) {
+                    chart.canvas.removeEventListener(
+                        "mousemove",
+                        listeners.onMouseOver,
+                    );
+                    chart.canvas.removeEventListener(
+                        "mouseenter",
+                        listeners.onMouseOver,
+                    );
+                    chart.canvas.removeEventListener(
+                        "mouseleave",
+                        listeners.onMouseOut,
+                    );
+                    chart.canvas.removeEventListener(
+                        "mouseout",
+                        listeners.onMouseOut,
+                    );
+                    chart.canvas.removeEventListener(
+                        "touchmove",
+                        listeners.onTouchMove,
+                    );
+                    chart.canvas.removeEventListener(
+                        "touchstart",
+                        listeners.onTouchMove,
+                    );
+                    chart.canvas.removeEventListener(
+                        "touchend",
+                        listeners.onTouchEnd,
+                    );
+                    chart.canvas.removeEventListener(
+                        "touchcancel",
+                        listeners.onTouchEnd,
+                    );
+                    delete (chart as any)._syncChartListeners;
+                }
+
                 this.unregisterChart(chart);
             },
         });

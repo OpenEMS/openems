@@ -2,6 +2,7 @@ import { DestroyRef, inject, Injectable, signal, WritableSignal, } from "@angula
 import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
 import { ObjectUtils } from "../utils/object/object-utils";
+import { StringUtils } from "../utils/string/string.utils";
 import { OAuthCallBackComponent } from "./auth/oauthcallback.component";
 
 @Injectable()
@@ -94,7 +95,13 @@ export class RouteService {
         );
         const routeParams = Object.entries(route.params).reduce(
             (obj: { [k: string]: any }, [k, v]) => {
-                obj[k] = v;
+                const routeParamValue = typeof v === "string" ? v : null;
+                const cleanedRouteParam =
+                    StringUtils.splitBy(
+                        StringUtils.splitBy(routeParamValue, "%")?.[0] ?? "",
+                        "?",
+                    )?.[0] ?? "";
+                obj[k] = cleanedRouteParam;
                 return obj;
             },
             {},

@@ -9,7 +9,7 @@ export namespace NumberUtils {
     export function parseNumberSafely(
         value: number | string | null,
     ): number | null {
-        if (value == null || value === "") {
+        if (value == null || value == "") {
             return null;
         }
         const castedValue = Number.parseInt(value.toString());

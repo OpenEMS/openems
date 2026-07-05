@@ -17,6 +17,8 @@ import { HistoryDataErrorModule } from "../../history-data-error/history-data-er
 import { ChartConstants } from "../chart.constants";
 import { ChartComponentsModule } from "../chart.module";
 
+Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
+
 @Component({
     selector: "oe-components-chart-single-xaxis",
     templateUrl: "./single-xaxis.html",
@@ -47,8 +49,34 @@ export class SingleXAxisComponent {
         this._data = value;
         this.labels = this._data.getLabels24h();
         this.options = ONLY_X_AXIS();
+        this.datasets = [
+            {
+                data: this.labels.map((el) => el.getTime()),
+                borderWidth: 0,
+                pointRadius: 0,
+                backgroundColor: "transparent",
+                borderColor: "transparent",
+                showLine: false,
+                fill: false,
+            },
+        ];
 
-        Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
+        /** Tooltips */
+        const tooltipCallbacks = this.options.plugins?.tooltip?.callbacks;
+        if (tooltipCallbacks != null) {
+            tooltipCallbacks.title = (tooltipItems) => {
+                const label = this.labels[tooltipItems[0]?.dataIndex];
+                return (
+                    DateTimeUtils.format(label, DateTimeFormats.HOUR_MINUTE) ??
+                    ""
+                );
+            };
+            tooltipCallbacks.label = () => "";
+        }
+
+        if (this.options.plugins?.tooltip != null) {
+            this.options.plugins.tooltip.position = "bottom";
+        }
     }
 }
 
@@ -56,13 +84,20 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
     return {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+            mode: "index",
+            intersect: false,
+        },
 
         plugins: {
             legend: {
                 display: false,
             },
+            datalabels: {
+                display: false,
+            },
             tooltip: {
-                enabled: false,
+                callbacks: {},
             },
             ["syncChart"]: {
                 group: 1,

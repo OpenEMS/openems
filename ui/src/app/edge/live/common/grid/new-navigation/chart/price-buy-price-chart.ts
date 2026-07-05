@@ -3,6 +3,7 @@ import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { TooltipItem } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
@@ -41,5 +42,12 @@ export class GridBuyPriceChartComponent extends ScheduleChartComponent {
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];
+    }
+
+    protected override getTooltipLabelCallback(): (
+        item: TooltipItem<any>,
+    ) => string {
+        return (item) =>
+            ScheduleChartComponent.tooltipCurrency(this.config)(item);
     }
 }

@@ -166,6 +166,18 @@ export namespace Converter {
     };
 
     /**
+     * Formats a Power value as Kilowatt [kW].
+     *
+     * Value 1 -> "1 kW". Value null -> "-".
+     *
+     * @param value The power value
+     * @returns Formatted value; '-' for null
+     */
+    export const POWER_IN_KILO_WATT_AS_KW: Converter = (raw) => {
+        return IF_NUMBER(raw, (value) => Formatter.FORMAT_KILO_WATT(value));
+    };
+
+    /**
      * Formats a Energy value as Kilo watt hours [kWh].
      *
      * Value 1000 -> "1,00 kWh". Value null -> "-".

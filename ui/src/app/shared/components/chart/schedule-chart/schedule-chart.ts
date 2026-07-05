@@ -4,21 +4,26 @@ import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, } from 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { Chart, ChartDataset, LineControllerDatasetOptions } from "chart.js";
+import { Chart, ChartDataset, LegendItem, LineControllerDatasetOptions, TooltipItem, } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { draw } from "patternomaly";
 import { ChartData } from "src/app/edge/history/shared";
 import { PlatFormService } from "src/app/platform.service";
+import { Currency } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ChartAxis, HistoryUtils } from "src/app/shared/utils/utils";
 import { GetSchedule } from "../../edge/config-components/energy/getSchedule";
 import { Edge } from "../../edge/edge";
+import { EdgeConfig } from "../../edge/edgeconfig";
 import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
+import { Converter } from "../../shared/converter";
 import { AbstractHistoryChart } from "../abstracthistorychart";
 import { ChartConstants } from "../chart.constants";
 import { ChartComponentsModule } from "../chart.module";
+
+Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
 
 @Component({
     selector: "oe-schedule-chart",
@@ -86,8 +91,6 @@ export abstract class ScheduleChartComponent
         this.loading = true;
         this.chartType = "line";
 
-        this.options.plugins.tooltip.enabled = false;
-
         this.options.scales.x = {
             type: "time",
             ticks: {
@@ -110,18 +113,9 @@ export abstract class ScheduleChartComponent
         this.options.plugins.legend.labels.color = getComputedStyle(
             document.documentElement,
         ).getPropertyValue("--ion-color-text");
-        this.options.plugins.legend.labels.generateLabels = (chart: Chart) =>
-            Chart.defaults.plugins.legend.labels
-                .generateLabels(chart)
-                .filter((item) => item.text !== null) //
-                .map((item) => {
-                    return {
-                        ...item,
-                        fillStyle: item.strokeStyle,
-                    };
-                });
+        this.options.plugins.legend.labels.generateLabels =
+            this.generateLegendLabels.bind(this);
 
-        Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
         this.options.plugins["syncChart"] = {
             group: 1,
         };
@@ -148,6 +142,16 @@ export abstract class ScheduleChartComponent
                 ...leftAxisBounds,
             };
         }
+
+        /** Tooltips */
+        this.options.plugins.tooltip.position = "bottom";
+        this.options.plugins.tooltip.callbacks.title = () => null;
+        const tooltipLabelCallback = this.getTooltipLabelCallback();
+        if (tooltipLabelCallback != null) {
+            this.options.plugins.tooltip.callbacks.label = tooltipLabelCallback;
+        }
+        this.options.plugins.tooltip.filter = (item, _index, items) =>
+            item.datasetIndex === items.at(-1)?.datasetIndex;
 
         this.stopSpinner();
         this.loading = false;
@@ -192,6 +196,18 @@ export abstract class ScheduleChartComponent
     protected buildDatasets(): ScheduleChartComponent.Dataset[] {
         return [];
     }
+    protected generateLegendLabels(chart: Chart): LegendItem[] {
+        return Chart.defaults.plugins.legend.labels
+            .generateLabels(chart)
+            .filter((item) => item.text !== null)
+            .map((item) => ({ ...item, fillStyle: item.strokeStyle }));
+    }
+
+    protected getTooltipLabelCallback(): (
+        item: TooltipItem<any>,
+    ) => string | string[] | void {
+        return () => null;
+    }
 
     protected getLeftAxisBounds(): Partial<{ min: number; max: number }> {
         return {};
@@ -209,7 +225,7 @@ export abstract class ScheduleChartComponent
         if (isSmartPhone) {
             return NumberUtils.divideSafely(width, 2);
         }
-        return NumberUtils.divideSafely(width, 5);
+        return NumberUtils.divideSafely(width, 6);
     }
 }
 
@@ -287,5 +303,31 @@ export namespace ScheduleChartComponent {
                 }
             }
         }
+    }
+
+    /** Tooltip for values in [kW]. */
+    export function tooltipkW(): (item: TooltipItem<any>) => string {
+        return (item: TooltipItem<any>) =>
+            Converter.POWER_IN_KILO_WATT_AS_KW(
+                item.dataset.data[item.dataIndex],
+            );
+    }
+
+    /** Tooltip for values in currency per kWh. */
+    export function tooltipCurrency(
+        config: EdgeConfig,
+    ): (item: TooltipItem<any>) => string {
+        const meta = config.getComponentSafely("_meta");
+        const currency = config.getPropertyFromComponent<string>(
+            meta,
+            "currency",
+        );
+        const currencyLabel: Currency.Label =
+            Currency.getCurrencyLabelByCurrency(currency);
+
+        return (item: TooltipItem<any>) =>
+            Converter.CURRENCY_PER_KWH(currencyLabel)(
+                item.dataset.data[item.dataIndex],
+            );
     }
 }

@@ -3,11 +3,13 @@ import { Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { TooltipItem } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { ScheduleChartComponent } from "src/app/shared/components/chart/schedule-chart/schedule-chart";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { ChartConstants } from "src/app/shared/shared";
 
 @Component({
@@ -40,6 +42,13 @@ export class SocChartComponent extends ScheduleChartComponent {
                 opacity: ScheduleChartComponent.OPACITY_TRANSPARENT,
             },
         ];
+    }
+
+    protected override getTooltipLabelCallback(): (
+        item: TooltipItem<any>,
+    ) => string {
+        return (item: TooltipItem<any>) =>
+            Converter.STATE_IN_PERCENT(item.dataset.data[item.dataIndex]);
     }
 
     protected override getLeftAxisBounds(): Partial<{
