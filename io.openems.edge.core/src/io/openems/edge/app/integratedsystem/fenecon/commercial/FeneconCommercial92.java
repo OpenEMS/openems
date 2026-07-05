@@ -152,14 +152,18 @@ public class FeneconCommercial92
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+			final var dcMinVoltage = GridCode.VDE_4110.name().equals(gridCode) ? 653 : 650;
+			final var essProtection = GridCode.VDE_4110.name().equals(gridCode) //
+					? "RAMP"
+					: "VOLTAGE_REGULATION";
 
 			final var components = Lists.newArrayList(//
 					ComponentDef.from(FeneconHomeComponents.battery(deviceHardware, bundle, batteryId,
 							modbusToBatteryId, batteryTarget)), //
 					FeneconCommercialComponents.batteryInverterWithForceErrorBehaviour(bundle, batteryInverterId,
-							modbusToBatteryInverterId, gridCode), //
+							modbusToBatteryInverterId, dcMinVoltage, gridCode), //
 					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
-							batteryInverterId), //
+							batteryInverterId, essProtection), //
 					ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)), //
 					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
 					ComponentDef.from(

@@ -66,6 +66,7 @@ public final class FeneconCommercialComponents {
 	 * @param bundle            the translation bundle
 	 * @param batteryInverterId the id of the battery inverter
 	 * @param modbusId          the id of the modbus bridge
+	 * @param dcMinVoltage      the minimum DC voltage
 	 * @param gridCode          the gridCode
 	 * @return the {@link Component}
 	 */
@@ -73,13 +74,17 @@ public final class FeneconCommercialComponents {
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
 			final String modbusId, //
+			final int dcMinVoltage, //
 			final String gridCode //
 	) {
 		return ComponentDef
 				.from(FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusId, gridCode))
-				.withAdditionalProperties(
-						new ComponentProperties(List.of(ComponentProperties.Property.of("errorBehaviour") //
+				.withAdditionalProperties(new ComponentProperties(List.of(
+						ComponentProperties.Property.of("errorBehaviour") //
 								.withValue("ALWAYS_RESTART") //
+								.withForceUpdate(true),
+						ComponentProperties.Property.of("dcMinVoltage") //
+								.withValue(dcMinVoltage) //
 								.withForceUpdate(true))));
 	}
 
@@ -307,18 +312,23 @@ public final class FeneconCommercialComponents {
 	 * @param essId             the id of the ess
 	 * @param batteryId         the id of the battery
 	 * @param batteryInverterId the id of the battery inverter
+	 * @param essProtection     the ESS protection mode
 	 * @return the {@link Component}
 	 */
 	public static ComponentDef essWithForceEssFaultBehaviour(//
 			final ResourceBundle bundle, //
 			final String essId, //
 			final String batteryId, //
-			final String batteryInverterId //
+			final String batteryInverterId, //
+			final String essProtection //
 	) {
 		return ComponentDef.from(FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId))
-				.withAdditionalProperties(
-						new ComponentProperties(List.of(ComponentProperties.Property.of("essFaultBehaviour") //
+				.withAdditionalProperties(new ComponentProperties(List.of(//
+						ComponentProperties.Property.of("essFaultBehaviour") //
 								.withValue("IGNORE_BATTERY_INVERTER_ERRORS") //
+								.withForceUpdate(true), //
+						ComponentProperties.Property.of("essProtection") //
+								.withValue(essProtection) //
 								.withForceUpdate(true))));
 	}
 
