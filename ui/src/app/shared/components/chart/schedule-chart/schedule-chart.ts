@@ -188,6 +188,12 @@ export abstract class ScheduleChartComponent
             borderWidth: d.borderWidth ?? 2,
             borderDash: d.borderDash,
             stepped: d.stepped,
+
+            /** Tooltip marker */
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: d.color,
+            pointHoverBorderColor: d.color,
+            pointHoverBorderWidth: 1,
         });
 
         return buildConf.map((el) => baseDataset(el));
