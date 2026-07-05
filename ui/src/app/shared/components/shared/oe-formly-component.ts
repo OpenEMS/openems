@@ -27,13 +27,16 @@ export abstract class AbstractFormlyComponent<
 > implements OnDestroy {
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
-    protected readonly navigationService: NavigationService;
+    protected readonly navigationService: NavigationService =
+        inject(NavigationService);
     protected SKIP_COUNT: number = 2;
     protected dataService: DataService;
     protected fields: FormlyFieldConfig[] = [];
     protected form: FormGroup = new FormGroup({});
-    protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" =
-        "formly-field-modal";
+    protected formlyWrapper:
+        | "formly-field-modal"
+        | "formly-field-navigation"
+        | "formly-field-waiting-spinner" = "formly-field-modal";
 
     protected stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -44,6 +47,8 @@ export abstract class AbstractFormlyComponent<
     private view: OeFormlyView<T> | null = null;
 
     constructor() {
+        this.initializeView();
+
         this.translate =
             SharedModule.injector.get<TranslateService>(TranslateService);
         this.navigationService =
@@ -331,10 +336,31 @@ export abstract class AbstractFormlyComponent<
         }
     }
 
+    /** Initializes the view with empty lines and shows progress spinner. */
+    private initializeView() {
+        this.form = new FormGroup({});
+        this.fields = [];
+        this.view = {
+            component: new EdgeConfig.Component(),
+            lines: [],
+            title: "",
+        };
+        this.setFields(
+            this.view,
+            this.form,
+            this.service.websocket,
+            "formly-field-waiting-spinner",
+        );
+    }
+
     private setFields(
         view: OeFormlyView<T>,
         fg: FormGroup,
         websocket: Websocket,
+        formlyWrapper:
+            | "formly-field-modal"
+            | "formly-field-navigation"
+            | "formly-field-waiting-spinner" = this.formlyWrapper,
     ) {
         this.ionViewWillEnter();
         this.fields = [
@@ -376,7 +402,7 @@ export abstract class AbstractFormlyComponent<
                     };
                 }),
                 className: "ion-full-height",
-                wrappers: [this.formlyWrapper],
+                wrappers: [formlyWrapper],
                 props: {
                     attributes: {
                         title: view.title,

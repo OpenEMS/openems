@@ -25,6 +25,7 @@ import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/forml
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
+import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
@@ -226,6 +227,10 @@ export function PersonNameProhibitedCharactersValidator(
                 {
                     name: "formly-field-navigation",
                     component: FormlyFieldNavigationComponent,
+                },
+                {
+                    name: "formly-field-waiting-spinner",
+                    component: FormlyFieldWaitingSpinnerComponent,
                 },
                 {
                     name: "formly-field-checkbox-with-image",
