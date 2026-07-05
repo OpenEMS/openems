@@ -101,13 +101,15 @@ export class ModeChartComponent extends ScheduleChartComponent {
                     label: label,
                     stepped: true,
                     opacity: ScheduleChartComponent.OPACITY_NONE,
+                    borderWidth: 0,
                 },
                 {
                     color,
                     data: predictionData,
-                    borderDash: [5, 5],
                     stepped: true,
                     opacity: ScheduleChartComponent.OPACITY_NONE,
+                    pattern: "plus",
+                    borderWidth: 0,
                 },
             );
         };

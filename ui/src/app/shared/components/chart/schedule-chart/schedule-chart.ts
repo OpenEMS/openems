@@ -7,6 +7,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { Chart, ChartDataset, LineControllerDatasetOptions } from "chart.js";
 import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
+import { draw } from "patternomaly";
 import { ChartData } from "src/app/edge/history/shared";
 import { PlatFormService } from "src/app/platform.service";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
@@ -170,12 +171,15 @@ export abstract class ScheduleChartComponent
             hidden: false,
             order: 1,
             yAxisID: ChartAxis.LEFT,
-            backgroundColor: ColorUtils.rgbStringToRgba(
-                d.color,
-                d.opacity ?? ScheduleChartComponent.OPACITY_DEFAULT,
-            ),
+            backgroundColor:
+                d.pattern == null
+                    ? ColorUtils.rgbStringToRgba(
+                          d.color,
+                          d.opacity ?? ScheduleChartComponent.OPACITY_DEFAULT,
+                      )
+                    : [draw(d.pattern, d.color, "white", 5)],
             borderColor: d.color,
-            borderWidth: 2,
+            borderWidth: d.borderWidth,
             borderDash: d.borderDash,
             stepped: d.stepped,
         });
@@ -211,8 +215,10 @@ export namespace ScheduleChartComponent {
     export type Dataset = {
         label?: string;
         color: string;
+        pattern?: Parameters<typeof draw>[0];
         data: (number | boolean | null)[];
         borderDash?: [number, number] | [];
+        borderWidth?: number;
         stepped?: LineControllerDatasetOptions["stepped"] | false;
         opacity?: number;
     };
