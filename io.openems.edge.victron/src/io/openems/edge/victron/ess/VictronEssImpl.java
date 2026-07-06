@@ -772,11 +772,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		// consumers such as the Time-of-Use optimizer's usable-energy calculation.
 		if (this.battery != null) {
 			final var batteryCapacity = this.battery.getCapacity().get();
-			if (batteryCapacity != null && batteryCapacity > 0) {
-				this._setCapacity(batteryCapacity);
-			} else {
-				this._setCapacity(this.config.capacity());
-			}
+			setValue(this, SymmetricEss.ChannelId.CAPACITY, batteryCapacity != null && batteryCapacity > 0 //
+					? batteryCapacity //
+					: this.config.capacity());
 		}
 
 		if (this.batteryInverter != null) {
