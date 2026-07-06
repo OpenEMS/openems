@@ -1,43 +1,4 @@
 {
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "editor.formatOnSave": true,
-    "cSpell.enabled": false,
-    "i18n-ally.localesPaths": [
-        "src/**/i18n"
-    ],
-    "i18n-ally.keystyle": "nested",
-    "files.watcherExclude": {
-        "**/.git/objects/**": true,
-        "**/node_modules/**": true
-    },
-    "files.eol": "\n",
-    "files.insertFinalNewline": true,
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "eslint.format.enable": true,
-    "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features",
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit",
-            "source.removeUnusedImports": "explicit"
-        },
-        "typescript.preferences.quoteStyle": "double",
-    },
-    "[jsonc]": {
-        "editor.defaultFormatter": "vscode.json-language-features"
-    },
-    "[json]": {
-        "editor.defaultFormatter": "vscode.json-language-features",
-        "editor.tabSize": 2
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
-    },
-    "[html]": {
-        "editor.tabSize": 2,
-    },
-    "[scss]": {
-        "editor.defaultFormatter": "vscode.css-language-features"
-    },
     "Workspace_Formatter.excludePattern": [
         "**/build",
         "**/.*",
@@ -50,9 +11,28 @@
         "*.svg",
         "*.scss"
     ],
-    "html.format.templating": [
-        "angular"
-    ],
-    "editor.tabSize": 4,
+    "[typescript]": {
+        "editor.tabSize": 4,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.removeUnusedImports": "explicit"
+        },
+        "js/ts.inlayHints.parameterNames.enabled": "all"
+    },
+    "cSpell.enabled": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "eslint.format.enable": true,
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true
+    },
+    "i18n-ally-next.keystyle": "nested",
+    "i18n-ally-next.localesPaths": [
+        "src/**/i18n"
+    ]
 }

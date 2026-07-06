@@ -1,15 +1,23 @@
 package io.openems.common.jsonrpc.serialization;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.enumSerializerFromObjectNullable;
 import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 
 import io.openems.common.utils.JsonUtils;
 
-public class JsonSerializerTest {
+class JsonSerializerTest {
+
+	enum SampleEnum {
+		FIRST, SECOND
+	}
 
 	record SampleRecord(String sampleString) {
 
@@ -31,10 +39,10 @@ public class JsonSerializerTest {
 		}
 	}
 
-	public final JsonSerializer<SampleRecord> serializer = SampleRecord.serializer();
+	private final JsonSerializer<SampleRecord> serializer = SampleRecord.serializer();
 
 	@Test
-	public void testSimpleObjectSerialize() {
+	void testSimpleObjectSerialize() {
 		final var expectedString = "expectedString";
 		final var serializedObj = this.serializer.serialize(new SampleRecord(expectedString));
 		assertEquals(JsonUtils.buildJsonObject() //
@@ -43,7 +51,7 @@ public class JsonSerializerTest {
 	}
 
 	@Test
-	public void testSimpleObjectDeserialize() {
+	void testSimpleObjectDeserialize() {
 		final var expectedString = "expectedString";
 		final var parsedObj = this.serializer.deserialize(JsonUtils.buildJsonObject() //
 				.addProperty("sampleString", expectedString) //
@@ -51,13 +59,13 @@ public class JsonSerializerTest {
 		assertEquals(expectedString, parsedObj.sampleString());
 	}
 
-	@Test(expected = RuntimeException.class)
-	public void testObjectDeserializeOfDifferentType() {
-		this.serializer.deserialize(new JsonArray());
+	@Test
+	void testObjectDeserializeOfDifferentType() {
+		assertThrows(RuntimeException.class, () -> this.serializer.deserialize(new JsonArray()));
 	}
 
 	@Test
-	public void testDescriptor() {
+	void testDescriptor() {
 		final var objectDescriptor = this.serializer.descriptor();
 		final var jsonDescription = objectDescriptor.toJson();
 
@@ -71,6 +79,50 @@ public class JsonSerializerTest {
 								.build())
 						.build()) //
 				.build(), jsonDescription);
+	}
+
+	@Test
+	void testEnumSerializerFromObjectSerialize() {
+		final var enumSerializer = enumSerializerFromObjectNullable("sampleEnum", SampleEnum.class);
+
+		assertEquals(JsonUtils.buildJsonObject() //
+				.addProperty("sampleEnum", SampleEnum.FIRST.name()) //
+				.build(), enumSerializer.serialize(SampleEnum.FIRST));
+	}
+
+	@Test
+	void testEnumSerializerFromObjectDeserializeNullableWithoutMember() {
+		final var enumSerializer = enumSerializerFromObjectNullable("sampleEnum", SampleEnum.class);
+
+		assertNull(enumSerializer.deserializeNullable(JsonUtils.buildJsonObject() //
+				.addProperty("otherProperty", "value") //
+				.build()));
+	}
+
+	@Test
+	void testEnumSerializerFromObjectDeserializeNullableWithNullObject() {
+		final var enumSerializer = enumSerializerFromObjectNullable("sampleEnum", SampleEnum.class);
+
+		assertNull(enumSerializer.deserializeNullable(null));
+	}
+
+	@Test
+	void testEnumSerializerFromObjectDeserializeNullableWithNullValue() {
+		final var enumSerializer = enumSerializerFromObjectNullable("sampleEnum", SampleEnum.class);
+
+		assertNull(enumSerializer.deserializeNullable(JsonUtils.buildJsonObject() //
+				.add("sampleEnum", JsonNull.INSTANCE) //
+				.build()));
+	}
+
+	@Test
+	void testEnumSerializerFromObjectDeserializeWithInvalidValue() {
+		final var enumSerializer = enumSerializerFromObjectNullable("sampleEnum", SampleEnum.class);
+
+		assertThrows(JsonParseException.class, () -> enumSerializer //
+				.deserialize(JsonUtils.buildJsonObject() //
+						.addProperty("sampleEnum", "INVALID") //
+						.build()));
 	}
 
 }

@@ -2,8 +2,8 @@
   @switch(control.type){
     @case("SELECT"){
       <ion-segment [formControlName]="controlName">
-        @for (button of buttons; track button) {
-          <ion-segment-button [value]="button.value" (click)="button.callback?.($event)" [ngStyle]="button.style">
+        @for (button of _buttons; track button) {
+          <ion-segment-button [value]="button.value" (click)="button.callback($event)" [ngStyle]="button.style" (keydown.enter)="(button.callback ?? defaultCallback)($event)">
             <ion-label>
               <ng-template *ngTemplateOutlet="contentLabel; context: {$implicit: button}"></ng-template>
             </ion-label>
@@ -14,7 +14,7 @@
     }
     @case("RADIO"){
       <ion-radio-group [formControlName]="controlName">
-        @for (button of buttons; track button) {
+        @for (button of _buttons; track button) {
           <ion-item>
             <ion-radio style="width: min-content" labelPlacement="end" justify="start" [value]="button.value" alignment="center">
               <ion-grid>

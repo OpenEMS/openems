@@ -46,9 +46,9 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome10.FeneconHomeParameter;
 import io.openems.edge.app.integratedsystem.FeneconHome10.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -289,7 +289,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			// for older versions this property is undefined
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
@@ -478,7 +478,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 	}
 
 	private record FeneconHomeDefaultValues(//
-			SafetyCountry safetyCountry, //
+			AppSafetyCountry safetyCountry, //
 			boolean rippleControlReceiverActiv, //
 			int maxFeedInPower, //
 			String feedInSetting, //
@@ -503,7 +503,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 
 		final var safetyCountry = batteryInverter.flatMap(t -> t.getProperty("safetyCountry")) //
 				.flatMap(JsonUtils::getAsOptionalString) //
-				.map(SafetyCountry::valueOf) //
+				.map(AppSafetyCountry::valueOf) //
 				.orElse(null);
 
 		final var rippleControlReceiverActiv = batteryInverter.flatMap(t -> t.getProperty("rcrEnable")) //

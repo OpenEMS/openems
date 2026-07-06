@@ -175,7 +175,8 @@ public class StringUtils {
 	}
 
 	/**
-	 * Parses the number of an Edge from its name string.
+	 * Parses the number of an Edge from its name string or the number of a
+	 * component id.
 	 *
 	 * <p>
 	 * e.g. translates "edge0" to "0".

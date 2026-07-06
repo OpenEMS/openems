@@ -1,72 +1,55 @@
 @if (isHeaderAllowed) {
   <ion-header #appHeader>
-    <ion-toolbar style="--background: var(--ion-color-toolbar-primary);" mode="md">
+    <ion-toolbar style="--background: var(--ion-color-toolbar-primary)" mode="md">
       @if (backUrl) {
         <ion-buttons slot="start">
           @if (showBackButton) {
-            <oe-flat-button [link]="{ text: backUrl}" color="light">
-              <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="arrow-back-outline"></ion-icon>
+            <oe-flat-button [link]="{ text: backUrl }" color="light">
+              <ion-icon [ngStyle]="{ color: 'var(--ion-menu-color)' }" name="arrow-back-outline"></ion-icon>
             </oe-flat-button>
           }
         </ion-buttons>
       }
-      @if (enableSideMenu && navigationService.position() !== 'left') {
+      @if (enableSideMenu && navigationService.position() === "disabled") {
         <ion-buttons slot="start">
           <ion-button (keydown.enter)="toggleMenu()" (click)="toggleMenu()" class="custom-menu-button">
             <ion-icon slot="icon-only" name="menu"></ion-icon>
           </ion-button>
-          <!-- <ion-menu-button class="cu stom-menu-button"></ion-menu-button> -->
         </ion-buttons>
       }
-      <!-- page title is shown if the current page isn't Live nor History -->
-      @if ((currentPage !== 'IndexLive' && currentPage !== 'IndexHistory')) {
-        <ion-title style="color: var(--ion-title-color);" class="ion-hide-md-up" slot="start">
-          {{ service.currentPageTitle }}
-        </ion-title>
+
+      @if (navigationService.position() === "left" || navigationService.position() === "bottom") {
+        <oe-header-message slot="start"></oe-header-message>
       }
-      <!-- page title is hidden when 'smartphone resolution' is reached -->
-      <ion-title class="ion-hide-md-down" slot="start" style="color: var(--ion-title-color);">
-        {{ service.currentPageTitle }}
-      </ion-title>
+
       @if (service.currentEdge(); as edge) {
-        @if ((currentPage === 'IndexLive' || currentPage === 'IndexHistory') && navigationService.position() !== null &&
-        navigationService.position() === 'disabled') {
-          <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage"
-            class="ion-justify-content-center">
-            <ion-segment-button tabindex="0" class="focus-visible"
-              style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content"
-              value="IndexLive">
-              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
-                {{"GENERAL.LIVE" | translate}}
-              </ion-label>
-            </ion-segment-button>
-            <ion-segment-button
-              style="--indicator-color: var(--ion-segment-button-color);--color: var(--ion-color-primary); color: var(--ion-text-color);min-width: fit-content"
-              value="IndexHistory">
-              <ion-label style="color: var(--ion-color-header-contrast);" class="oe-ci-font-family-bold">
-                {{"GENERAL.HISTORY" | translate}}
-              </ion-label>
-            </ion-segment-button>
-          </ion-segment>
+        @if ((currentPage === "IndexLive" || currentPage === "IndexHistory") && navigationService.position() !== null && navigationService.position() === "disabled" && !isNewNavigation) {
+          <ion-title>
+            <ion-segment mode="md" (ionChange)="segmentChanged($event)" [(ngModel)]="currentPage" class="ion-justify-content-center">
+              <ion-segment-button tabindex="0" class="focus-visible" style="--indicator-color: var(--ion-segment-button-color); --color: var(--ion-color-primary); color: var(--ion-color-primary); min-width: fit-content" value="IndexLive">
+                <ion-label style="color: var(--ion-color-header-contrast)" class="oe-ci-font-family-bold">
+                  {{ "GENERAL.LIVE" | translate }}
+                </ion-label>
+              </ion-segment-button>
+              <ion-segment-button style="--indicator-color: var(--ion-segment-button-color); --color: var(--ion-color-primary); color: var(--ion-text-color); min-width: fit-content" value="IndexHistory">
+                <ion-label style="color: var(--ion-color-header-contrast)" class="oe-ci-font-family-bold">
+                  {{ "GENERAL.HISTORY" | translate }}
+                </ion-label>
+              </ion-segment-button>
+            </ion-segment>
+          </ion-title>
         }
       }
-      <!-- this title tag is for spacing purpose only -->
-      <ion-title class="ion-hide-md-down" slot="end">
-      </ion-title>
-      <ion-buttons slot="end" class="ion-padding-end">
-        @if(edge() !== null){
-          <oe-system-status></oe-system-status>
-        }
-        @if (service.currentEdge(); as edge) {
-          @if (environment.debugMode && edge.roleIsAtLeast('owner')) {
-            <ion-button (click)="isSystemLogEnabled = !isSystemLogEnabled">
-              <ion-icon [ngStyle]="{'color': 'var(--ion-menu-color)'}" name="bug-outline"></ion-icon>
-            </ion-button>
+
+      @if (navigationService.position() === "disabled" || navigationService.position() === null) {
+        <ion-buttons slot="end" class="ion-no-padding-end ion-no-margin-right">
+          @if (edge() !== null) {
+            <oe-system-status></oe-system-status>
           }
-        }
-      </ion-buttons>
+        </ion-buttons>
+      }
     </ion-toolbar>
-    @if (currentPage === 'IndexHistory' && navigationService.position() !== 'left') {
+    @if (currentPage === "IndexHistory" && navigationService.position() !== "left") {
       <ion-toolbar color="secondary">
         <ion-buttons class="ion-justify-content-center">
           <pickdate></pickdate>

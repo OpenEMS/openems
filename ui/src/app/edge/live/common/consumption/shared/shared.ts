@@ -25,9 +25,10 @@ export namespace SharedConsumption {
         const sum: EdgeConfig.Component = config.getComponent("_sum");
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
-        return new NavigationTree("consumption", { baseString: "common/consumption" }, { name: "oe-consumption", color: "warning" }, translate.instant("GENERAL.CONSUMPTION"), "label", [
+        return new NavigationTree("consumption", { baseString: "common/consumption" }, { name: "oe-consumption", color: "warning" }, translate.instant("GENERAL.CONSUMPTION"), "icon", [
             NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning"),
             getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
+            NavigationConstants.CommonNodes.INFO(translate, { source: "consumption" }),
         ], null).toConstructorParams();
     }
 
@@ -37,12 +38,29 @@ export namespace SharedConsumption {
         ], null);
     }
 
+    function isHeatComponent(
+        component: EdgeConfig.Component,
+        heatComponents: EdgeConfig.Component[],
+    ): boolean {
+        return heatComponents.includes(component);
+    }
+
     function getHistorySingleComponentNavigationTree(edge: Edge, sum: EdgeConfig.Component, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[], translate: TranslateService): NavigationTree[] {
+        const uniqueComponents = [
+            ...new Map(
+                [
+                    ...evcsComponents,
+                    ...heatComponents,
+                    ...consumptionMeterComponents,
+                ].map((component) => [component.id, component]),
+            ).values(),
+        ];
+
         return [
             NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/details", "warning"),
-            ...[...evcsComponents, ...heatComponents, ...consumptionMeterComponents].map(el => (
+            ...uniqueComponents.map(el => (
                 new NavigationTree(el.id + "/details", { baseString: el.id + "/details" }, { name: "stats-chart-outline", color: "warning" }, el.alias, "label", [
-                    ...(edge.roleIsAtLeast(Role.INSTALLER) ?
+                    ...(edge.roleIsAtLeast(Role.INSTALLER) && !isHeatComponent(el, heatComponents) ?
                         [new NavigationTree(el.id + "/current-voltage", { baseString: "current-voltage" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", [], null)]
                         : []
                     ),

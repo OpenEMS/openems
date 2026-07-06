@@ -34,6 +34,7 @@ import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.common.test.DummyCycle;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
@@ -54,6 +55,7 @@ public class EssGenericManagedSymmetricImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //
@@ -87,6 +89,7 @@ public class EssGenericManagedSymmetricImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //
@@ -125,6 +128,7 @@ public class EssGenericManagedSymmetricImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //
@@ -145,6 +149,7 @@ public class EssGenericManagedSymmetricImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //
@@ -184,6 +189,7 @@ public class EssGenericManagedSymmetricImplTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //

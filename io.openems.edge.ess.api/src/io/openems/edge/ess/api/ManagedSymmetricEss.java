@@ -4,6 +4,7 @@ import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.PersistencePriority.HIGH;
 import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
 import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
@@ -204,7 +205,8 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 		 */
 		APPLY_POWER_FAILED(Doc.of(Level.WARNING)//
 				.persistencePriority(HIGH)//
-				.text("Applying the Active/Reactive Power failed"));
+				.text("Applying the Active/Reactive Power failed")), //
+		;
 
 		private final Doc doc;
 
@@ -237,6 +239,10 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 				.channel(10, ChannelId.SET_REACTIVE_POWER_LESS_OR_EQUALS, ModbusType.FLOAT32) //
 				.channel(12, ChannelId.SET_ACTIVE_POWER_GREATER_OR_EQUALS, ModbusType.FLOAT32) //
 				.channel(14, ChannelId.SET_REACTIVE_POWER_GREATER_OR_EQUALS, ModbusType.FLOAT32) //
+				.<ManagedSymmetricEss>cycleValue(16, "Available Charge Energy", WATT_HOURS, "", ModbusType.FLOAT32,
+						c -> c.getAvailableChargeEnergy(c)) //
+				.<ManagedSymmetricEss>cycleValue(18, "Available Discharge Energy", WATT_HOURS, "", ModbusType.FLOAT32,
+						c -> c.getAvailableDischargeEnergy(c)) //
 				.build();
 	}
 
@@ -325,6 +331,28 @@ public interface ManagedSymmetricEss extends SymmetricEss {
 	 */
 	public default IntegerWriteChannel getSetActivePowerEqualsChannel() {
 		return this.channel(ChannelId.SET_ACTIVE_POWER_EQUALS);
+	}
+
+	private long getAvailableChargeEnergy(ManagedSymmetricEss ess) {
+		final var capacity = ess.getCapacity().orElse(0);
+		final var soc = ess.getSoc().orElse(0);
+		final var calculatedEnergy = capacity - soc * capacity / 100;
+		final var minPowerSetPoint = ess.getPower().getMinPower(ess, ALL, ACTIVE);
+		if (minPowerSetPoint < 0) {
+			return calculatedEnergy;
+		}
+		return 0;
+	}
+
+	private long getAvailableDischargeEnergy(ManagedSymmetricEss ess) {
+		final var capacity = ess.getCapacity().orElse(0);
+		final var soc = ess.getSoc().orElse(0);
+		var calculatedEnergy = soc * capacity / 100;
+		final var maxPowerSetPoint = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
+		if (maxPowerSetPoint > 0) {
+			return calculatedEnergy;
+		}
+		return 0;
 	}
 
 	private static void setActivePower(ManagedSymmetricEss ess, Integer value, boolean applyFilter)

@@ -1,0 +1,8 @@
+  @if(gotData){
+    <oe-weather-content [currentHourlyForecast]="currentHourlyForecast" [currentDailyForecast]="currentDailyForecast"
+      [upcomingHourlyForecasts]="upcomingHourlyForecasts" [upcomingDailyForecasts]="upcomingDailyForecasts">
+    </oe-weather-content>
+  } @else {
+    <oe-modal-line style="font-style: italic;" leftColumnWidth="100" [name]="'NO_DATA_INFO' | translate">
+    </oe-modal-line>
+  }

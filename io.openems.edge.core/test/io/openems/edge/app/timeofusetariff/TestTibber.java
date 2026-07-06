@@ -30,8 +30,10 @@ import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManag
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
+import io.openems.edge.core.appmanager.validator.CheckCommercial100;
 import io.openems.edge.core.appmanager.validator.CheckCommercial50Gen3;
 import io.openems.edge.core.appmanager.validator.CheckCommercial92;
+import io.openems.edge.core.appmanager.validator.CheckCommercial92Master;
 import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.CheckIndustrial;
 
@@ -102,11 +104,17 @@ public class TestTibber {
 		this.appManagerTestBundle.addCheckable(CheckCommercial92.COMPONENT_NAME,
 				t -> new CheckCommercial92(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+		this.appManagerTestBundle.addCheckable(CheckCommercial92Master.COMPONENT_NAME,
+				t -> new CheckCommercial92Master(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 		this.appManagerTestBundle.addCheckable(CheckIndustrial.COMPONENT_NAME,
 				t -> new CheckIndustrial(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 		this.appManagerTestBundle.addCheckable(CheckCommercial50Gen3.COMPONENT_NAME,
 				t -> new CheckCommercial50Gen3(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+		this.appManagerTestBundle.addCheckable(CheckCommercial100.COMPONENT_NAME,
+				t -> new CheckCommercial100(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 
 		final var properties = JsonUtils.buildJsonObject() //
