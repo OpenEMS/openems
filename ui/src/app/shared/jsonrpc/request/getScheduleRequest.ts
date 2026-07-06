@@ -3,25 +3,20 @@ import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 /**
  * Wraps a JSON-RPC Request for an OpenEMS Component that implements JsonApi
  *
- * <pre>
- * {
- *   "jsonrpc": "2.0",
- *   "id": "UUID",
- *   "method": "getSchedule",
- *   "params": {
- *     "componentId": string,
- *     "payload": JsonrpcRequest
- *   }
- * }
- * </pre>
+ * @typedef {"jsonrpc": "2.0",
+ * "id": "UUID",
+ * "method": "getSchedule",
+ * "params": {
+ *   "componentId": string,
+ *   "payload": JsonrpcRequest
+ * }}
  */
 export class GetScheduleRequest extends JsonrpcRequest {
+    private static readonly METHOD: string = "getSchedule";
 
-    private static METHOD: string = "getSchedule";
-
-    public constructor(
-    ) {
-        super(GetScheduleRequest.METHOD, {});
+    public constructor();
+    public constructor(params: { componentId: string });
+    public constructor(params?: { componentId: string }) {
+        super(GetScheduleRequest.METHOD, params ?? {});
     }
-
 }

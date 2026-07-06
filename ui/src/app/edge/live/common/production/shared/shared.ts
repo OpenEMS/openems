@@ -18,10 +18,11 @@ export namespace SharedProduction {
         const sum: EdgeConfig.Component = config.getComponent("_sum");
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
-        return new NavigationTree("production", { baseString: "common/production" }, { name: "oe-production", color: "production" }, translate.instant("GENERAL.PRODUCTION"), "label", [
+        return new NavigationTree("production", { baseString: "common/production" }, { name: "oe-production", color: "production" }, translate.instant("GENERAL.PRODUCTION"), "icon", [
             NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "production"),
             getHistoryNavigationTree(edge, translate, sum, ...chargerComponents, ...productionMeterComponents),
-        ], null).toConstructorParams();
+            NavigationConstants.CommonNodes.INFO(translate, { source: "production" }),
+        ], null, { showOrder: "HIGH" }).toConstructorParams();
     }
 
     function getHistoryNavigationTree(edge: Edge, translate: TranslateService, sum: EdgeConfig.Component, ...components: EdgeConfig.Component[]): NavigationTree {

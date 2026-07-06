@@ -126,4 +126,10 @@ public interface BridgeModbus extends OpenemsComponent {
 	 * @param sourceId the unique source identifier
 	 */
 	public void retryModbusCommunication(String sourceId);
+
+	/**
+	 * Returns informations about the last transfer that happend on this bus.
+	 * @return {@link ModbusTransferInfo} instance or null
+	 */
+	public ModbusTransferInfo getLastTransferInfo();
 }

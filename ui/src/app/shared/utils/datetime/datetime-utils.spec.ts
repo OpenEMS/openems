@@ -21,8 +21,12 @@ describe("DateTimeUtils", () => {
         expect(DateTimeUtils.isDifferenceInSecondsGreaterThan(10, currDate, lastUpdate)).toEqual(false);
     });
     it("+toISO8601WithOffsetFormat - invalid Datetime string", () => {
-        const inValidDateTime: string | null = null;
+        const inValidDateTime: string | null = "Invalid Date";
         expect(() => DateTimeUtils.formatToISOZonedDateTime(inValidDateTime, timeZone)).toThrow(new Error(DateTimeUtils.INVALID_DATE_TIME_STRING));
+    });
+    it("+toISO8601WithOffsetFormat - Datetime is null", () => {
+        const inValidDateTime: string | null = null;
+        expect(DateTimeUtils.formatToISOZonedDateTime(inValidDateTime, timeZone)).toEqual(null);
     });
     it("+toISO8601WithOffsetFormat - valid Datetime string", () => {
         const validDateTime: string | null = "2023-11-16T08:07:00";

@@ -10,7 +10,6 @@ import org.junit.Test;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class ControllerEvseSingleImplTest {
 
@@ -46,7 +45,7 @@ public class ControllerEvseSingleImplTest {
 		assertEquals("Mode:Zero|Undefined", ctrl.debugLog());
 
 		var params = sut.ctrlSingle().getParams();
-		assertEquals("ctrlEvseSingle0", params.componentId());
+		assertEquals("ctrlEvseSingle0", params.ctrlSingleId());
 		assertEquals(Mode.MINIMUM, params.mode());
 		assertNull(params.activePower());
 		assertEquals(0, params.sessionEnergy());

@@ -80,6 +80,17 @@ public interface Meta extends ModbusSlave {
 				.persistencePriority(HIGH)), //
 
 		/**
+		 * Is it allowed to discharge the ESS to Grid?.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		IS_ESS_DISCHARGE_TO_GRID_ALLOWED(Doc.of(BOOLEAN)//
+				.persistencePriority(HIGH)), //
+
+		/**
 		 * Grid feed limitation type.
 		 *
 		 * <ul>
@@ -167,6 +178,15 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getIsEssDischargeToGridAllowedChannel() {
+		return this.channel(ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED);
+	}
+
+	/**
 	 * Gets whether charging the ESS from grid is allowed. See
 	 * {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
 	 *
@@ -193,6 +213,16 @@ public interface Meta extends ModbusSlave {
 	 */
 	public default boolean getIsEssChargeFromGridAllowed() {
 		return this.getIsEssChargeFromGridAllowedChannel().value().orElse(false);
+	}
+
+	/**
+	 * Gets whether discharging the ESS to grid is allowed. See
+	 * {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default boolean getIsEssDischargeToGridAllowed() {
+		return this.getIsEssDischargeToGridAllowedChannel().value().orElse(false);
 	}
 
 	/**
@@ -273,6 +303,17 @@ public interface Meta extends ModbusSlave {
 	public int getGridSellHardLimit();
 
 	/**
+	 * Returns the continuous hard limit for Grid-Sell Power in [W] minus a safety
+	 * buffer to reduce the risk of PV curtailment.
+	 *
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit.
+	 *
+	 * @return the value
+	 */
+	public int getGridSellHardLimitWithBuffer();
+
+	/**
 	 * Returns the continuous hard limit for Grid-Buy Power in [W].
 	 * 
 	 * <p>
@@ -282,6 +323,17 @@ public interface Meta extends ModbusSlave {
 	 * @return the value
 	 */
 	public int getGridBuyHardLimit();
+
+	/**
+	 * Returns the continuous limit for ESS Discharge-to-Grid Power in [W].
+	 *
+	 * <p>
+	 * This value is derived from {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}
+	 * and gridSellHardLimit()
+	 *
+	 * @return the value
+	 */
+	public int getEssDischargeToGridLimit();
 
 	/**
 	 * Returns the {@link GridBuySoftLimit} {@link JSCalendar.Tasks}.

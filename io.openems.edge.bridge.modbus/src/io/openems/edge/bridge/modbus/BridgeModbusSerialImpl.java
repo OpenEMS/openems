@@ -1,11 +1,14 @@
 package io.openems.edge.bridge.modbus;
 
+import java.time.Clock;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
@@ -29,6 +32,7 @@ import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.startstop.StartStoppable;
@@ -51,6 +55,9 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
+
+	@Reference
+	private ComponentManager componentManager;
 
 	/** The configured Port-Name (e.g. '/dev/ttyUSB0' or 'COM3'). */
 	private String portName = "";
@@ -77,7 +84,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 	}
 
 	@Activate
-	private void activate(ComponentContext context, ConfigSerial config) {
+	protected void activate(ComponentContext context, ConfigSerial config) {
 		super.activate(context, new Config(config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
@@ -89,6 +96,11 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 				config.invalidateElementsAfterReadErrors()));
 		this.applyConfig(config);
 		this.closeModbusConnection();
+	}
+
+	@Override
+	public Clock getClock() {
+		return this.componentManager.getClock();
 	}
 
 	private void applyConfig(ConfigSerial config) {
@@ -128,7 +140,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 
 	private SerialConnection _connection = null;
 
-	private synchronized SerialConnection getModbusConnection() throws OpenemsException {
+	protected synchronized AbstractSerialConnection getModbusConnection() throws OpenemsException {
 		if (this._connection == null) {
 			/*
 			 * create new connection
@@ -142,6 +154,7 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			params.setEncoding(Modbus.SERIAL_ENCODING_RTU);
 			params.setEcho(false);
 			params.disableRs485Control();
+
 			var connection = new SerialConnection(params);
 			this._connection = connection;
 		}
@@ -157,9 +170,40 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 			var transport = (ModbusSerialTransport) this._connection.getModbusTransport();
 			transport.setTimeout(AbstractModbusBridge.DEFAULT_TIMEOUT);
 
-			// Sometimes read after write happens too quickly and causes read errors.
-			// Add 1ms additional waiting time between write request and read response
 			transport.addListener(new AbstractSerialTransportListener() {
+				/**
+				 * Modbus requires to wait 3.5 characters between requests and a few
+				 * microcontroller library's are requiring 5ms. j2mod is ensuring that by a
+				 * check in ModbusSerialTransaction, but we are creating a new transaction every
+				 * time, so this check does not work. Someday this should be replaced by a fix
+				 * in j2mod.
+				 *
+				 * @param port port
+				 * @param msg  msg
+				 */
+				@Override
+				public void beforeMessageWrite(AbstractSerialConnection port, ModbusMessage msg) {
+					try {
+						Thread.sleep(6L);
+					} catch (InterruptedException e) {
+						// Empty
+					}
+				}
+
+				/**
+				 * Sometimes read after write happens too quickly and causes read errors. Add
+				 * 1ms additional waiting time between write request and read response.
+				 *
+				 * <p>
+				 * Notice 2026-07-01: I'm not sure if we should do that. j2mod needs exact
+				 * timings on the receive side to identify the "idle time" between transfers,
+				 * especially if we are slave. j2mod is already waiting in writeMessage(). Is
+				 * the wait time wrongly calculated there?
+				 *
+				 * @param port port
+				 * @param msg  msg
+				 */
+				@Override
 				public void afterMessageWrite(AbstractSerialConnection port, ModbusMessage msg) {
 					try {
 						Thread.sleep(1);

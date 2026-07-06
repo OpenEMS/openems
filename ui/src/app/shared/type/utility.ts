@@ -60,3 +60,22 @@ export type TArrayElement<ArrayType extends readonly unknown[]> =
 export type TMutable<T> = {
     -readonly [P in keyof T]: T[P];
 };
+
+/** Flattens the keys of an object into a dot-separated string */
+export type TFlattenKeys<T, Prefix extends string = ""> = {
+    [K in keyof T & string]: T[K] extends object
+        ? TFlattenKeys<T[K], `${Prefix}${K}.`>
+        : `${Prefix}${K}`;
+}[keyof T & string];
+
+
+type FixedLengthArray<
+    T,
+    Length extends number,
+    Acc extends T[] = [],
+> = Acc["length"] extends Length
+    ? Acc
+    : FixedLengthArray<T, Length, [...Acc, T]>;
+
+export type MultiLengthArray<T, L extends number> =
+    L extends any ? FixedLengthArray<T, L> : never;
