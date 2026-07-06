@@ -19,7 +19,6 @@ import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -97,15 +97,13 @@ import io.openems.edge.victron.enums.EnableDisable;
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		TOPIC_CYCLE_BEFORE_CONTROLLERS //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class VictronEssImpl extends AbstractOpenemsModbusComponent
 		implements VictronEss, ManagedSinglePhaseEss, SinglePhaseEss, ManagedSymmetricEss, SymmetricEss, AsymmetricEss,
 		ManagedAsymmetricEss, ModbusComponent, ModbusSlave, EventHandler, OpenemsComponent, TimedataProvider {
 
 	@Reference
 	private Power power;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	private volatile Timedata timedata = null;
@@ -114,7 +112,9 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	protected ComponentManager componentManager;
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -202,11 +202,7 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
-
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 
 		// Set initial values from config
 		this._setMaxApparentPower(config.maxApparentPower());
@@ -746,7 +742,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	 * Negative values for Charge; positive for Discharge.
 	 */
 	private void calculateEnergy() {
-
 		var activeAcPower = this.getActivePower().get();
 		if (activeAcPower == null) {
 			// Not available
@@ -775,15 +770,14 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			setValue(this, SymmetricEss.ChannelId.CAPACITY, batteryCapacity != null && batteryCapacity > 0 //
 					? batteryCapacity //
 					: this.config.capacity());
+
+			this._setDcDischargeEnergy(this.battery.getDcDischargeEnergy().get());
+			this._setDcChargeEnergy(this.battery.getDcChargeEnergy().get());
 		}
 
 		if (this.batteryInverter != null) {
 			this._setDcDischargePower(this.batteryInverter.getActivePower().get());
 		}
-
-		this._setDcDischargeEnergy(this.battery.getDcDischargeEnergy().get());
-		this._setDcChargeEnergy(this.battery.getDcChargeEnergy().get());
-
 	}
 
 	@Override
