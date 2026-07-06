@@ -75,6 +75,9 @@ export interface Environment {
             readonly "WARNING": string,
             readonly "INFO": string,
         },
+        readonly "ENERGY_JOURNEY": string | null,
+        readonly "BATTERY_EXTENSION": string | null,
+        readonly "WRAP_UP": string | null,
     },
     readonly images: {
         readonly EVSE: {
@@ -84,10 +87,17 @@ export interface Environment {
             readonly ALPITRONIC: string | null,
             readonly MENNEKES: string | null,
         },
+        readonly LOGO: {
+            readonly DARK: string | null,
+            readonly LIGHT: string | null,
+        },
         readonly HEAT: {
             readonly "ASKOMA": {
                 readonly HEATING_ELEMENT: string | null,
-            }
+            },
+            readonly "MYPV": {
+                readonly HEATING_ELEMENT: string | null,
+            },
         }
     },
     readonly links: {

@@ -5,6 +5,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { StorageEssChartComponent } from "../chart/esschart";
 
 @Component({
+    selector: "oe-common-storage-details",
     templateUrl: "./new-navigation.html",
     standalone: true,
     imports: [

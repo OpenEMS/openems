@@ -4,8 +4,8 @@ import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static io.openems.edge.controller.evse.cluster.LogVerbosity.TRACE;
-import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_SINGLE_PHASE;
-import static io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch.TO_THREE_PHASE;
+import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_SINGLE_PHASE;
+import static io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection.TO_THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.roundDownToPowerStep;
 import static java.lang.Math.max;
 import static java.util.stream.Collectors.joining;
@@ -23,17 +23,18 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableList;
 
 import io.openems.edge.common.sum.Sum;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointMode;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public class RunUtils {
@@ -66,15 +67,15 @@ public class RunUtils {
 
 			protected int setPointInWatt;
 
-			public Entry(SingleModes eshMode, ControllerEvseSingle ctrl, Params params) {
+			public Entry(JointMode<Mode> mode, ControllerEvseSingle ctrl, Params params) {
 				this.ctrl = ctrl;
 				this.params = params;
 
 				this.activePower = params.activePower();
 				this.actions = ChargePointActions.from(params.combinedAbilities().chargePointAbilities());
 
-				this.mode = Optional.ofNullable(eshMode) //
-						.map(sm -> sm.getMode(params.componentId())) // Mode from EnergyScheduler
+				this.mode = Optional.ofNullable(mode) //
+						.map(sm -> sm.getMode(params.ctrlSingleId())) // Mode from EnergyScheduler
 						.orElse(params.mode()); // Fallback to fixed Mode
 			}
 
@@ -148,7 +149,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} mode.
+		 * charging and in {@link Mode#SURPLUS} mode.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -162,8 +163,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} or {@link Mode.Actual#MINIMUM}
-		 * mode.
+		 * charging and in {@link Mode#SURPLUS} or {@link Mode#MINIMUM} mode.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -177,8 +177,7 @@ public class RunUtils {
 
 		/**
 		 * Stream all {@link Entry}s with non-null {@link Params} which are ready for
-		 * charging and in {@link Mode.Actual#SURPLUS} mode and have a temporary
-		 * Set-Point > 0.
+		 * charging and in {@link Mode#SURPLUS} mode and have a temporary Set-Point > 0.
 		 * 
 		 * @return {@link Stream}
 		 */
@@ -207,14 +206,15 @@ public class RunUtils {
 	 * @param distributionStrategy the {@link DistributionStrategy}
 	 * @param sum                  the {@link Sum} component
 	 * @param ctrls                the list of {@link ControllerEvseSingle}
-	 * @param eshMode              the {@link SingleModes} from
+	 * @param mode                 the {@link JointMode} from
 	 *                             {@link EnergyScheduleHandler}
 	 * @param logVerbosity         the configured {@link LogVerbosity}
 	 * @param logger               a log message consumer
 	 * @return the {@link PowerDistribution}
 	 */
 	protected static PowerDistribution calculate(Clock clock, DistributionStrategy distributionStrategy, Sum sum,
-			List<ControllerEvseSingle> ctrls, SingleModes eshMode, LogVerbosity logVerbosity, Consumer<String> logger) {
+			List<ControllerEvseSingle> ctrls, JointMode<Mode> mode, LogVerbosity logVerbosity,
+			Consumer<String> logger) {
 		// Build PowerDistribution
 		var powerDistribution = new PowerDistribution(ctrls.stream() //
 				.map(ctrl -> {
@@ -222,7 +222,7 @@ public class RunUtils {
 					if (params == null) {
 						return null;
 					}
-					return new PowerDistribution.Entry(eshMode, ctrl, params);
+					return new PowerDistribution.Entry(mode, ctrl, params);
 				}) //
 				.filter(Objects::nonNull) //
 				.collect(toImmutableList()));
@@ -242,8 +242,8 @@ public class RunUtils {
 	}
 
 	/**
-	 * Initialize the Set-Points for {@link Mode.Actual#FORCE},
-	 * {@link Mode.Actual#MINIMUM} and {@link Mode.Actual#ZERO}.
+	 * Initialize the Set-Points for {@link Mode#FORCE}, {@link Mode#MINIMUM} and
+	 * {@link Mode#ZERO}.
 	 * 
 	 * @param powerDistribution the {@link PowerDistribution}
 	 */
@@ -259,7 +259,7 @@ public class RunUtils {
 	}
 
 	/**
-	 * Distribute excess power to Controllers in {@link Mode.Actual#SURPLUS} mode.
+	 * Distribute excess power to Controllers in {@link Mode#SURPLUS} mode.
 	 * 
 	 * <p>
 	 * First distributes minimum required power to each Controller (e.g. 6 A on
@@ -358,13 +358,15 @@ public class RunUtils {
 	 *
 	 * <p>
 	 * This method is used in {@link #applyChangeLimit(Clock, PowerDistribution)} to
-	 * correctly apply the {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} ramp constraint.
+	 * correctly apply the {@link #MAX_PERCENTAGE_CHANGE_PER_SECOND} ramp
+	 * constraint.
 	 *
 	 * <p>
-	 * <b>Problem solved:</b> When a setpoint remained constant over multiple cycles,
-	 * using the last entry as reference caused rounding issues that prevented proper
-	 * power ramping. For example, starting from 6 A and trying to ramp to 16 A would
-	 * fail due to accumulated rounding errors and fall back to the minimum (6 A).
+	 * <b>Problem solved:</b> When a setpoint remained constant over multiple
+	 * cycles, using the last entry as reference caused rounding issues that
+	 * prevented proper power ramping. For example, starting from 6 A and trying to
+	 * ramp to 16 A would fail due to accumulated rounding errors and fall back to
+	 * the minimum (6 A).
 	 *
 	 * <p>
 	 * <b>Solution:</b> By finding the first entry with the same setpoint value, the
@@ -378,8 +380,8 @@ public class RunUtils {
 	 * <li>isReadyForCharging is true</li>
 	 * </ul>
 	 * For example, if the last entry with setpoint 7 A has invalid activePower or
-	 * isReadyForCharging false, the method searches backwards to find the first valid
-	 * entry with 7 A.
+	 * isReadyForCharging false, the method searches backwards to find the first
+	 * valid entry with 7 A.
 	 *
 	 * @param history the {@link Types.History} to search
 	 * @return a {@link Map.Entry} containing the timestamp and history entry of the
@@ -480,7 +482,7 @@ public class RunUtils {
 				// Only entries that do not already apply max set-point
 				.filter(e -> e.setPointInWatt < e.params.combinedAbilities().applySetPoint().max()) //
 				.toList();
-		if (entries.size() == 0) {
+		if (entries.isEmpty()) {
 			return; // avoid divide by zero
 		}
 
@@ -590,7 +592,8 @@ public class RunUtils {
 	}
 
 	/**
-	 * Handles a {@link PhaseSwitch} Action for one {@link ControllerEvseSingle}.
+	 * Handles a {@link PhaseSwitchDirection} Action for one
+	 * {@link ControllerEvseSingle}.
 	 * 
 	 * @param e            the PowerDistribution Entry
 	 * @param logVerbosity the configured {@link LogVerbosity}
@@ -607,31 +610,32 @@ public class RunUtils {
 		}
 
 		final var actions = e.actions;
-		switch (params.phaseSwitching()) { // Evse.Controller.Single wants...
-		case DISABLE -> {
-			// ...no phase switching -> do not set any PhaseSwitch action
-			doNothing();
+		switch (params.phaseSwitching()) {
+		// Evse.Controller.Single wants...
+		case DISABLE -> doNothing(); //
+		case FORCE_SINGLE_PHASE -> //
+			applyPhaseSwitchIfDirectionMatches(ctrl, actions, phaseSwitchAbility, //
+					TO_SINGLE_PHASE, "SINGLE", logVerbosity, logger);
+		case FORCE_THREE_PHASE -> //
+			applyPhaseSwitchIfDirectionMatches(ctrl, actions, phaseSwitchAbility, //
+					TO_THREE_PHASE, "THREE", logVerbosity, logger);
 		}
-		case FORCE_SINGLE_PHASE -> {
-			// ...force switch to Single-Phase...
-			if (phaseSwitchAbility == TO_SINGLE_PHASE) {
-				// ...and ChargePoint and ElectricVehicle support switch to Single-Phase
-				if (logVerbosity == TRACE) {
-					logger.accept(ctrl.id() + ": Force switch to SINGLE phase");
-				}
-				actions.setPhaseSwitch(TO_SINGLE_PHASE);
-			}
+	}
+
+	private static void applyPhaseSwitchIfDirectionMatches(//
+			ControllerEvseSingle ctrl, //
+			ChargePointActions.Builder actions, //
+			ApplyPhaseSwitch phaseSwitchAbility, //
+			PhaseSwitchDirection targetDirection, //
+			String targetPhaseName, //
+			LogVerbosity logVerbosity, //
+			Consumer<String> logger) {
+		if (phaseSwitchAbility.direction() != targetDirection) {
+			return;
 		}
-		case FORCE_THREE_PHASE -> {
-			// ... force switch to Three-Phase
-			if (phaseSwitchAbility == TO_THREE_PHASE) {
-				// ...and ChargePoint and ElectricVehicle support switch to Three-Phase
-				if (logVerbosity == TRACE) {
-					logger.accept(ctrl.id() + ": Force switch to THREE phase");
-				}
-				actions.setPhaseSwitch(TO_THREE_PHASE);
-			}
+		if (logVerbosity == TRACE) {
+			logger.accept(ctrl.id() + ": Force switch to " + targetPhaseName + " phase");
 		}
-		}
+		actions.setPhaseSwitch(phaseSwitchAbility);
 	}
 }

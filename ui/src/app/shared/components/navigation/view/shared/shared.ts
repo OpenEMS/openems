@@ -4,7 +4,6 @@ import { NavigationComponent } from "../../action-sheet-modal";
 import { NavigationService } from "../../service/navigation.service";
 
 export namespace ViewUtils {
-
     export function getTotalHeaderFooterHeight(): { header: number; footer: number } {
         const bars = getVisibleBars();
 
@@ -17,20 +16,15 @@ export namespace ViewUtils {
         return { header: headerHeight, footer: footerHeight };
     }
 
-
     // Ionic cached pages remain in the DOM even after navigating back.
     // This becomes a problem when reloading on routes like history/autarchy or history/production:
     // After a reload, the previous route's <ion-footer> or <oe-footer-subnavigation>
     // stays in the DOM (but is visually hidden). When returning to the Energy Monitor page,
     // these cached elements would still be detected and included in the height calculation.
     function getVisibleBars(): { headers: HTMLElement[]; footers: HTMLElement[] } {
-        const allHeaders = Array.from(
-            document.querySelectorAll<HTMLElement>("ion-header")
-        );
+        const allHeaders = Array.from(document.querySelectorAll<HTMLElement>("ion-header"));
 
-        const allIonFooters = Array.from(
-            document.querySelectorAll<HTMLElement>("ion-footer")
-        );
+        const allIonFooters = Array.from(document.querySelectorAll<HTMLElement>("ion-footer"));
 
         const isVisible = (el: HTMLElement) => {
             const rect = el.getBoundingClientRect();
@@ -89,13 +83,16 @@ export namespace ViewUtils {
     }
 
     /**
-    * Gets the available chart content height in [vh].
-    *
-    * @param windowHeight the window height
-    * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
-    * @returns the available height
-    */
-    export function getChartContentHeightInVh(windowHeight: number, position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+     * Gets the available chart content height in [vh].
+     *
+     * @param windowHeight the window height
+     * @param customChartHeightPercentage optional chart height in percent (0–100) to scale the available height to.
+     * @returns the available height
+     */
+    export function getChartContentHeightInVh(position: TSignalValue<NavigationService["position"]> | null, customChartHeightPercentage?: number | null): number | null {
+        if (customChartHeightPercentage != null) {
+            return NumberUtils.multiplySafely(NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100), customChartHeightPercentage / 100);
+        }
         return NumberUtils.multiplySafely(NumberUtils.divideSafely(ViewUtils.getViewHeightInPx(position), getWindowVisualViewPort()), 100);
     }
 }

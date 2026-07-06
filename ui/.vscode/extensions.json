@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "dbaeumer.vscode-eslint",
-        "lokalise.i18n-ally"
+        "esbenp.prettier-vscode",
+        "lydanne.i18n-ally-next"
     ]
 }

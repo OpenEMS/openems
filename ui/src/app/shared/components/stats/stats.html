@@ -1,0 +1,30 @@
+<ion-grid class="ion-no-padding">
+  <ion-row class="ion-no-padding ion-justify-content-center">
+    @for (stat of stats; track $index) {
+      <ion-col size="6" size-lg="4">
+        <ion-card style="height: stretch">
+          <ion-card-header class="ion-padding-bottom">
+            <div class="ion-display-flex ion-justify-content-between ion-align-items-center" style="gap: 0.5rem">
+              <ion-card-subtitle style="font-size: large">{{ stat.name }}</ion-card-subtitle>
+              @if (stat.predictionValue !== null && stat.predictionValue !== undefined) {
+                <ion-badge color="success" style="flex-shrink: 0">+ {{ stat.predictionValue | number: "1.0-0" }} {{ stat.unit }}*</ion-badge>
+              }
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            @if (stat.channelsToSubscribe) {
+              <oe-modal-value-line [channelsToSubscribe]="stat.channelsToSubscribe" [valueCallback]="stat.value" leftColumnWidth="0" [lineStyle]="{ value: { textAlign: 'left', fontFamily: 'oe-ci-font-family' } }" singleLine="true"> </oe-modal-value-line>
+            } @else if (stat.value !== null) {
+              <ion-text class="ion-display-flex ion-align-items-baseline ion-justify-content-center ion-margin-bottom">
+                <span class="ion-text-bold oe-ci-font-family" style="font-size: 2em; line-height: 1">{{ stat.value | number: "1.0-0" }}</span>
+                <ion-note style="margin-inline-start: 0.25rem">{{ stat.unit }}*</ion-note>
+              </ion-text>
+            } @else {
+              {{ stat.value }}
+            }
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    }
+  </ion-row>
+</ion-grid>

@@ -6,9 +6,12 @@ import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
 import { TranslateLoader } from "@ngx-translate/core";
+import { Locale } from "date-fns";
+import { cs as dateFnsLocaleCs, de as dateFnsLocaleDe, enUS as dateFnsLocaleEn, es as dateFnsLocaleEs, fr as dateFnsLocaleFr, ja as dateFnsLocaleJa, nl as dateFnsLocaleNl } from "date-fns/locale";
 import { Observable, of } from "rxjs";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
+
 import en from "src/assets/i18n/en.json";
 import es from "src/assets/i18n/es.json";
 import fr from "src/assets/i18n/fr.json";
@@ -34,13 +37,13 @@ export type LanguageKeyUnion = (typeof Language.ALL)[number]["key"];
 
 export class Language {
 
-    public static readonly DE: Language = new Language("German", "de", "de", de, localDE);
-    public static readonly EN: Language = new Language("English", "en", "en", en, localEN);
-    public static readonly CS: Language = new Language("Czech", "cs", "de", cz, localCS /* NOTE: there is no locale in @angular/common for Czech */);
-    public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL);
-    public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES);
-    public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR);
-    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
+    public static readonly DE: Language = new Language("German", "de", "de", de, localDE, dateFnsLocaleDe);
+    public static readonly EN: Language = new Language("English", "en", "en", en, localEN, dateFnsLocaleEn);
+    public static readonly CS: Language = new Language("Czech", "cs", "de", cz, localCS /* NOTE: there is no locale in @angular/common for Czech */, dateFnsLocaleCs);
+    public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL, dateFnsLocaleNl);
+    public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES, dateFnsLocaleEs);
+    public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR, dateFnsLocaleFr);
+    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA, dateFnsLocaleJa);
 
     public static readonly ALL = [Language.DE, Language.EN, Language.CS, Language.NL, Language.ES, Language.FR, Language.JA];
     public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
@@ -54,6 +57,7 @@ export class Language {
         // https://github.com/angular/angular/issues/30506
 
         public readonly locale: any,
+        public readonly dateFnsLocale: Locale,
     ) {
     }
 
@@ -68,10 +72,11 @@ export class Language {
         return Language.getByKey(localStorage.LANGUAGE);
     }
 
-
-    public static getByKey(key: string): Language | null {
+    public static getByKey(key: string | null): Language | null {
+        if (key === null) {
+            return null;
+        }
         for (const language of Language.ALL) {
-
             if (language.key == key) {
                 return language;
             }
@@ -153,7 +158,7 @@ export class Language {
      *
      * @returns the i18n locale key
      */
-    public static getCurrentLanguage() {
+    public static getCurrentLanguage(): Language {
         return Language.LOCAL_STORAGE ?? Language.SYSTEM ?? Language.DEFAULT;
     }
 }

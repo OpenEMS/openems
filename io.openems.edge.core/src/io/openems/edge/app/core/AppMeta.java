@@ -58,6 +58,8 @@ import io.openems.edge.core.appmanager.formly.enums.InputType;
 public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Parameter.BundleParameter>
 		implements OpenemsApp {
 
+	private static final String COMPONENT_ID = "_meta";
+
 	public enum Property implements Type<Property, AppMeta, Parameter.BundleParameter> {
 		ALIAS(AppDef.copyOfGeneric(alias())), //
 
@@ -67,7 +69,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setOptions(Stream.of(CurrencyConfig.values()).map(Enum::name).toList());
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "currency", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "currency", ComponentManagerSupplier::getComponentManager))), //
 
 		IS_ESS_CHARGE_FROM_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridCharge.label") //
@@ -85,7 +87,29 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 							.build());
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
-				.bidirectional("_meta", "isEssChargeFromGridAllowed", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "isEssChargeFromGridAllowed",
+						ComponentManagerSupplier::getComponentManager))), //
+
+		IS_ESS_DISCHARGE_TO_GRID_ALLOWED(AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".gridDischarge.label") //
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+					var bundle = parameter.bundle();
+					field.setPopupInput(property, DisplayType.BOOLEAN);
+					field.setFieldGroup(JsonUtils.buildJsonArray()//
+							.add(JsonFormlyUtil.buildText()//
+									.setText(TranslationUtil.getTranslation(bundle,
+											"App.Core.Meta.gridDischarge.description"))
+									.build())
+							.add(JsonFormlyUtil.buildCheckboxFromNameable(property)//
+									.setLabel(
+											TranslationUtil.getTranslation(bundle, "App.Core.Meta.gridDischarge.label"))//
+									.build())
+							.build());
+				})//
+				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
+				.bidirectional(COMPONENT_ID, "isEssDischargeToGridAllowed",
+						ComponentManagerSupplier::getComponentManager))), //
+
 		GRID_CONNECTION_POINT_FUSE_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridConnectionPointFuseLimit.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
@@ -94,22 +118,24 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setUnit(Unit.AMPERE, l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
-				.bidirectional("_meta", "gridConnectionPointFuseLimit",
+				.bidirectional(COMPONENT_ID, "gridConnectionPointFuseLimit",
 						ComponentManagerSupplier::getComponentManager))), //
+
 		SUBDIVISION_CODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".subdivisionCode.label")
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Stream.of(SubdivisionCode.values()).map(Enum::name).toList());
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "subdivisionCode", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "subdivisionCode", ComponentManagerSupplier::getComponentManager))), //
+
 		PLACE_NAME(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".placeName.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "placeName", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "placeName", ComponentManagerSupplier::getComponentManager))), //
 
 		GRID_FEED_IN_LIMITATION_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridFeedInLimitationType.label") //
@@ -118,7 +144,8 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setOptions(OptionsFactory.of(GridFeedInLimitationType.class), l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
-				.bidirectional("_meta", "gridFeedInLimitationType", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "gridFeedInLimitationType",
+						ComponentManagerSupplier::getComponentManager))), //
 
 		MAXIMUM_GRID_FEED_IN_LIMIT(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".gridFeedInLimit.label")
@@ -130,14 +157,16 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setUnit(Unit.WATT, l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.INSTALLER))//
-				.bidirectional("_meta", "maximumGridFeedInLimit", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "maximumGridFeedInLimit", ComponentManagerSupplier::getComponentManager))), //
+
 		POSTCODE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".postcode.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "postcode", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "postcode", ComponentManagerSupplier::getComponentManager))), //
+
 		LATITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".latitude.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
@@ -146,7 +175,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "latitude", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "latitude", ComponentManagerSupplier::getComponentManager))), //
 
 		LONGITUDE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".longitude.label")
@@ -156,21 +185,23 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 					field.setUnit(Unit.DECIMAL_DEGREE, l);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "longitude", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "longitude", ComponentManagerSupplier::getComponentManager))), //
+
 		TIMEZONE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.setTranslatedLabelWithAppPrefix(".timezone.label")
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
 					field.setInputType(InputType.TEXT);
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "timezone", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "timezone", ComponentManagerSupplier::getComponentManager))), //
 
 		THIRD_PARTY_USAGE_ACCEPTANCE(AppDef.copyOfGeneric(defaultDef(), def -> def//
 				.appendIsAllowedToEdit((app, property, l, parameter, user) -> {
 					return user.getRole() == Role.OWNER;
 				})//
 				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN))//
-				.bidirectional("_meta", "thirdPartyUsageAcceptance", ComponentManagerSupplier::getComponentManager))), //
+				.bidirectional(COMPONENT_ID, "thirdPartyUsageAcceptance",
+						ComponentManagerSupplier::getComponentManager))), //
 		;
 
 		private final AppDef<? super AppMeta, ? super Property, ? super BundleParameter> def;
@@ -211,6 +242,7 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 			final var currency = this.getEnum(p, CurrencyConfig.class, Property.CURRENCY);
 			final var isEssChargeFromGridAllowed = this.getBoolean(p, Property.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
+			final var isEssDischargeToGridAllowed = this.getBoolean(p, Property.IS_ESS_DISCHARGE_TO_GRID_ALLOWED);
 			final var gridConnectionPointFuseLimit = this.getInt(p, Property.GRID_CONNECTION_POINT_FUSE_LIMIT);
 			final var subdivisionCode = this.getEnum(p, SubdivisionCode.class, Property.SUBDIVISION_CODE);
 			final var placeName = this.getString(p, Property.PLACE_NAME);
@@ -225,10 +257,11 @@ public class AppMeta extends AbstractOpenemsAppWithProps<AppMeta, Property, Para
 
 			final var components = new ArrayList<EdgeConfig.Component>();
 
-			components.add(new EdgeConfig.Component("_meta", "", "Core.Meta", //
+			components.add(new EdgeConfig.Component(COMPONENT_ID, "", "Core.Meta", //
 					JsonUtils.buildJsonObject()//
 							.addProperty("currency", currency)//
 							.addProperty("isEssChargeFromGridAllowed", isEssChargeFromGridAllowed)//
+							.addProperty("isEssDischargeToGridAllowed", isEssDischargeToGridAllowed)//
 							.addProperty("gridConnectionPointFuseLimit", gridConnectionPointFuseLimit)//
 							.addProperty("subdivisionCode", subdivisionCode)//
 							.addProperty("placeName", placeName)//

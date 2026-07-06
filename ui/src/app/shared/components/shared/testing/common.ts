@@ -88,6 +88,7 @@ export namespace OeTester {
                 },
             },
         });
+
         export const BAR_CHART_OPTIONS = (period: string, chartType: "line" | "bar", options: { [key: string]: { scale: Partial<CartesianScaleTypeRegistry["linear"]["options"]>, ticks?: { stepSize: number; }; }; }, title?: string): OeChartTester.Dataset.Option => ({
             type: "option",
             options: {

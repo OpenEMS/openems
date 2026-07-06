@@ -10,7 +10,7 @@
       </ion-buttons>
       @if (showPopover) {
         <ion-buttons style="color: var(--ion-color-pickdate-toolbar);" slot="start">
-          <ion-button (click)="presentPopover()">
+          <ion-button (click)="presentPopover($event)">
             <ion-icon name="options-outline" style="color: var(--ion-title-color);"></ion-icon>
           </ion-button>
         </ion-buttons>

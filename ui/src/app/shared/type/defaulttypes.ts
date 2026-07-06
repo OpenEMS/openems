@@ -76,7 +76,8 @@ export namespace DefaultTypes {
             sellActivePowerL3: number,
             maxSellActivePower: number,
             gridMode: number,
-            restrictionMode: number
+            restrictionMode: number,
+            gridBuyPrice: number,
         }, consumption: {
             powerRatio: number,
             activePower: number,

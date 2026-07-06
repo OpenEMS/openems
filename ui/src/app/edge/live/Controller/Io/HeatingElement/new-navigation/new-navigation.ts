@@ -15,6 +15,7 @@ import { LiveDataService } from "../../../../livedataservice";
 import { SharedControllerIoHeatingElement } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-io-heating-element-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [

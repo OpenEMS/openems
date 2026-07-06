@@ -1,9 +1,10 @@
 // @ts-strict-ignore
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Router, RoutesRecognized } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { filter, map } from "rxjs/operators";
 
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "src/environments";
 import { Service } from "./service";
 
@@ -11,6 +12,8 @@ import { Service } from "./service";
     providedIn: "root",
 })
 export class GlobalRouteChangeHandler {
+
+    private platformService = inject(PlatFormService);
 
     constructor(
 
@@ -50,7 +53,8 @@ export class GlobalRouteChangeHandler {
                 this.translate
             );
 
-            if (this.service.isSmartphoneResolution) {
+            const device = this.platformService.getDevice();
+            if (device?.isSmartphone()) {
                 this.service.currentPageTitle = environment.uiTitleShort;
             }
         });

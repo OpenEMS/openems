@@ -1,0 +1,18 @@
+.breadcrumb-button {
+    align-items: center;
+    background: transparent;
+    color: var(--ion-color-medium);
+    cursor: pointer;
+    font: inherit;
+}
+
+.breadcrumb-button.is-active {
+    color: var(--ion-color-primary);
+    cursor: default;
+}
+
+.breadcrumb-separator {
+    color: var(--ion-color-medium);
+    margin-left: calc(var(--ion-padding) / 4);
+    margin-right: calc(var(--ion-padding) / 4);
+}
