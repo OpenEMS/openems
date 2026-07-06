@@ -76,7 +76,7 @@
 	com.squareup.okhttp3;version='[5.4.0,5.4.1)',\
 	com.squareup.okhttp3.logging;version='[5.4.0,5.4.1)',\
 	com.squareup.okio;version='[3.17.0,3.17.1)',\
-	com.zaxxer.HikariCP;version='[7.0.2,7.0.3)',\
+	com.zaxxer.HikariCP;version='[7.1.0,7.1.1)',\
 	io.openems.backend.alerting;version=snapshot,\
 	io.openems.backend.application;version=snapshot;startlevel=17,\
 	io.openems.backend.authentication.api;version=snapshot,\

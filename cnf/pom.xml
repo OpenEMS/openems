@@ -208,8 +208,10 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<!-- HikariCP A solid, high-performance, JDBC connection pool at
-			last. -->
+			<!--
+			HikariCP A solid, high-performance, JDBC connection pool
+			Changelog: https://github.com/brettwooldridge/HikariCP/blob/dev/CHANGES
+			-->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<version>7.1.0</version>
