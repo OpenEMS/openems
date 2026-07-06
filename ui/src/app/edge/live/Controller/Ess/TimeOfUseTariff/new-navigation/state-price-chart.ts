@@ -84,7 +84,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     protected override getChartHeight(): number | null {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected override async loadChart(): Promise<void> {

@@ -1,7 +1,6 @@
 // @ts-strict-ignore
-import { AfterViewChecked, Component } from "@angular/core";
+import { Component } from "@angular/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, Utils } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
@@ -11,11 +10,7 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: false,
 })
-export class ChartComponent extends AbstractHistoryChart implements AfterViewChecked {
-
-    ngAfterViewChecked() {
-        this.viewHeight = ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
-    }
+export class ChartComponent extends AbstractHistoryChart {
 
     protected override getChartData(): HistoryUtils.ChartData {
         this.spinnerId = "autarchy-chart";

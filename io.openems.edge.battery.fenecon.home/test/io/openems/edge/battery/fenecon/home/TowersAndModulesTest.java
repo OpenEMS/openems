@@ -1,5 +1,6 @@
 package io.openems.edge.battery.fenecon.home;
 
+import static io.openems.common.utils.FunctionUtils.alwaysReturn;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.BATTERY_HARDWARE_TYPE;
 import static io.openems.edge.battery.fenecon.home.BatteryFeneconHome.ChannelId.NUMBER_OF_MODULES_PER_TOWER;
 import static org.junit.Assert.assertEquals;
@@ -60,18 +61,18 @@ public class TowersAndModulesTest {
 	@Test
 	public void testSerialNumberFormatterForBms() {
 		assertEquals("519100001009210104000035", //
-				BatteryFeneconHomeImpl.buildSerialNumber("519100001009", 707002403));
+				BatteryFeneconHomeImpl.buildSerialNumber(alwaysReturn("519100001009"), 707002403));
 	}
 
 	@Test
 	public void testSerialNumberFormatterForOldBms() {
-		assertNull(BatteryFeneconHomeImpl.buildSerialNumber("519100001009", 0));
+		assertNull(BatteryFeneconHomeImpl.buildSerialNumber(alwaysReturn("519100001009"), 0));
 	}
 
 	@Test
 	public void testSerialNumberFormatterForBattery() {
 		assertEquals("519110001210201219000039", //
-				BatteryFeneconHomeImpl.buildSerialNumber("519110001210", 697499687));
+				BatteryFeneconHomeImpl.buildSerialNumber(alwaysReturn("519110001210"), 697499687));
 	}
 
 	/**

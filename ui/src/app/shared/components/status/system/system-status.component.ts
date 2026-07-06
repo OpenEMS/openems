@@ -24,8 +24,10 @@ type Colors = `--ion-color-${"warning" | "success" | "danger"}`;
     ],
 })
 export class SystemStatusComponent implements OnDestroy {
+
+    public static readonly SUM_STATE_CHANNEL = new ChannelAddress("_sum", "State");
+
     private static readonly SELECTOR = "oe-system-status";
-    private static readonly SUM_STATE_CHANNEL = new ChannelAddress("_sum", "State");
 
     public environment = environment;
     public edge: Edge | null = null;
@@ -34,6 +36,7 @@ export class SystemStatusComponent implements OnDestroy {
 
     private subscribed = false;
     private liveDataService = inject(DataService);
+
     constructor(
         public service: Service,
         public modalCtrl: ModalController,

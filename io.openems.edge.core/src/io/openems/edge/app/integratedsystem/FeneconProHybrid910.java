@@ -144,7 +144,7 @@ public class FeneconProHybrid910 extends
 					this.getStringOrNull(p, l, Property.DC_PV2_ALIAS));
 
 			final var components = Lists.newArrayList(//
-					ProHybrid910Components.modbus(modbusId), //
+					ProHybrid910Components.modbus(modbusId, t), //
 					ProHybrid910Components.ess(essId, modbusId), //
 					ProHybrid910Components.gridMeter(gridMeterId, modbusId), //
 					ProHybrid910Components.pvMeter(pvMeterId, modbusId) //

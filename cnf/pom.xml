@@ -99,7 +99,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.35.0</version>
+			<version>4.35.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -208,11 +208,13 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<!-- HikariCP A solid, high-performance, JDBC connection pool at
-			last. -->
+			<!--
+			HikariCP A solid, high-performance, JDBC connection pool
+			Changelog: https://github.com/brettwooldridge/HikariCP/blob/dev/CHANGES
+			-->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>7.0.2</version>
+			<version>7.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>

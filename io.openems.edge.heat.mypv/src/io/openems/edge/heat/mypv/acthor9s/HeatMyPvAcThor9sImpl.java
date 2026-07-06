@@ -49,7 +49,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 				"type=CONSUMPTION_METERED" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE  //
+		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class HeatMyPvAcThor9sImpl extends AbstractOpenemsModbusComponent implements HeatMyPvAcThor9s, ModbusComponent,
 		OpenemsComponent, Heat, ElectricityMeter, ManagedHeatElement, TimedataProvider, EventHandler {
@@ -138,7 +138,7 @@ public class HeatMyPvAcThor9sImpl extends AbstractOpenemsModbusComponent impleme
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, new SignedWordElement(1074)),
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, new SignedWordElement(1075)),
 				m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, new SignedWordElement(1076)),
-				m(Heat.ChannelId.STATUS, new SignedWordElement(1077))));
+				m(Heat.ChannelId.STATUS, new SignedWordElement(1077))));//
 	}
 
 	@Override

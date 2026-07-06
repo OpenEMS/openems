@@ -86,7 +86,6 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 
 	private static final int UNIT_ID = 1;
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
-	private static final int DC_MIN_VOLTAGE_LIMIT = 650;
 	private static final int DC_MAX_VOLTAGE_LIMIT = 1315;
 
 	private final StateMachine stateMachine = new StateMachine(State.UNDEFINED);
@@ -169,7 +168,6 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 				BatteryInverterKacoBlueplanetGridsave.ChannelId.values() //
 		);
 		this._setGridMode(ON_GRID);
-		this._setDcMinVoltage(DC_MIN_VOLTAGE_LIMIT);
 		this._setDcMaxVoltage(DC_MAX_VOLTAGE_LIMIT);
 	}
 
@@ -177,6 +175,7 @@ public class BatteryInverterKacoBlueplanetGridsaveImpl extends AbstractSunSpecBa
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled(), UNIT_ID, READ_FROM_MODBUS_BLOCK);
+		this._setDcMinVoltage(config.dcMinVoltage());
 	}
 
 	@Override

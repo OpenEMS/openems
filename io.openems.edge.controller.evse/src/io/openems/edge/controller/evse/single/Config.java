@@ -3,8 +3,6 @@ package io.openems.edge.controller.evse.single;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evse.api.chargepoint.Mode;
-
 @ObjectClassDefinition(//
 		name = "EVSE Controller Single Charge-Point", //
 		description = "Controls a single EVSE Charge-Point")

@@ -3,6 +3,8 @@ package io.openems.edge.controller.ess.fixactivepower;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.controller.ess.fixactivepower.enums.HybridEssMode;
+import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
 import io.openems.edge.ess.power.api.Relationship;
 
 @SuppressWarnings("all")
@@ -16,6 +18,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private HybridEssMode hybridEssMode;
 		private SingleOrAllPhase phase;
 		private Relationship relationship;
+		private int chargeOncePower;
+		private boolean chargeOnceTargetSocEnable;
+		private int chargeOnceTargetSoc;
+		private int dischargeOncePower;
+		private boolean dischargeOnceTargetSocEnable;
+		private int dischargeOnceTargetSoc;
+		private boolean ignoreSystemLimitsPermissionsOnce;
+		private boolean considerSystemLimits;
 
 		private Builder() {
 		}
@@ -52,6 +62,46 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setRelationship(Relationship relationship) {
 			this.relationship = relationship;
+			return this;
+		}
+
+		public Builder setChargeOncePower(int chargeOncePower) {
+			this.chargeOncePower = chargeOncePower;
+			return this;
+		}
+
+		public Builder setChargeOnceTargetSocEnable(boolean chargeOnceTargetSocEnable) {
+			this.chargeOnceTargetSocEnable = chargeOnceTargetSocEnable;
+			return this;
+		}
+
+		public Builder setChargeOnceTargetSoc(int chargeOnceTargetSoc) {
+			this.chargeOnceTargetSoc = chargeOnceTargetSoc;
+			return this;
+		}
+
+		public Builder setDischargeOncePower(int dischargeOncePower) {
+			this.dischargeOncePower = dischargeOncePower;
+			return this;
+		}
+
+		public Builder setDischargeOnceTargetSocEnable(boolean dischargeOnceTargetSocEnable) {
+			this.dischargeOnceTargetSocEnable = dischargeOnceTargetSocEnable;
+			return this;
+		}
+
+		public Builder setDischargeOnceTargetSoc(int dischargeOnceTargetSoc) {
+			this.dischargeOnceTargetSoc = dischargeOnceTargetSoc;
+			return this;
+		}
+
+		public Builder setIgnoreSystemLimitsPermissionsOnce(boolean ignoreSystemLimitsPermissionsOnce) {
+			this.ignoreSystemLimitsPermissionsOnce = ignoreSystemLimitsPermissionsOnce;
+			return this;
+		}
+
+		public Builder setConsiderSystemLimits(boolean considerSystemLimits) {
+			this.considerSystemLimits = considerSystemLimits;
 			return this;
 		}
 
@@ -111,4 +161,43 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.phase;
 	}
 
+	@Override
+	public int chargeOncePower() {
+		return this.builder.chargeOncePower;
+	}
+
+	@Override
+	public boolean chargeOnceTargetSocEnable() {
+		return this.builder.chargeOnceTargetSocEnable;
+	}
+
+	@Override
+	public int chargeOnceTargetSoc() {
+		return this.builder.chargeOnceTargetSoc;
+	}
+
+	@Override
+	public int dischargeOncePower() {
+		return this.builder.dischargeOncePower;
+	}
+
+	@Override
+	public boolean dischargeOnceTargetSocEnable() {
+		return this.builder.dischargeOnceTargetSocEnable;
+	}
+
+	@Override
+	public int dischargeOnceTargetSoc() {
+		return this.builder.dischargeOnceTargetSoc;
+	}
+
+	@Override
+	public boolean ignoreSystemLimitsPermissionsOnce() {
+		return this.builder.ignoreSystemLimitsPermissionsOnce;
+	}
+
+	@Override
+	public boolean considerSystemLimits() {
+		return this.builder.considerSystemLimits;
+	}
 }
