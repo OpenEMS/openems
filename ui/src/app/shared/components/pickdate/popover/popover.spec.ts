@@ -4,6 +4,7 @@ import { By } from "@angular/platform-browser";
 import { IonicModule } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
+import { PlatFormService } from "src/app/platform.service";
 import { RouteService } from "src/app/shared/service/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
@@ -26,6 +27,7 @@ describe("PickdatePopover", () => {
                 PickdateModule,
             ],
             providers: [
+                PlatFormService,
                 TranslateService,
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
                 { provide: LOCALE_ID, useValue: Language.DEFAULT.key },

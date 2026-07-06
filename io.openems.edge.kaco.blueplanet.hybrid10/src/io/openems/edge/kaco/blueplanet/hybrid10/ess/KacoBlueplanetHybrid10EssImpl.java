@@ -118,7 +118,12 @@ public class KacoBlueplanetHybrid10EssImpl extends AbstractOpenemsComponent impl
 
 		// Set Max-Apparent-Power
 		this.timedata.getLatestValue(new ChannelAddress(config.id(), SymmetricEss.ChannelId.MAX_APPARENT_POWER.id()))
-				.thenAccept(latestValue -> {
+				.whenComplete((latestValue, throwable) -> {
+					if (throwable != null) {
+						this._setMaxApparentPower(MAX_POWER_RAMP); // start low
+						return;
+					}
+
 					Integer lastMaxApparentPower = TypeUtils.getAsType(OpenemsType.INTEGER, latestValue);
 					if (lastMaxApparentPower != null
 							&& lastMaxApparentPower != 10_000 /* throw away value that was previously fixed */) {

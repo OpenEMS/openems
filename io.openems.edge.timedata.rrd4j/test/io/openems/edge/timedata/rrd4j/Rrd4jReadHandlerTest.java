@@ -28,11 +28,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.type.Tuple;
 import io.openems.edge.timedata.rrd4j.version.Version.CreateDatabaseConfig;
 import io.openems.edge.timedata.rrd4j.version.Version3Test;
 import io.openems.edge.timedata.rrd4j.version.VersionHandler;
@@ -101,65 +101,65 @@ public class Rrd4jReadHandlerTest {
 	@Test
 	public void testQueryHistoricDataWithResolution1minutes() throws Exception {
 		assertEquals(values(//
-				Tuple.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(1, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(2, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(3, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(4, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(5, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(6, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(7, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(8, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(9, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(11, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(12, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(13, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(14, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(16, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(17, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(18, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(19, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(21, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(22, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(23, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(24, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(25, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
-				Tuple.of(START.plus(26, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
-				Tuple.of(START.plus(27, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
-				Tuple.of(START.plus(28, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
-				Tuple.of(START.plus(29, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500) //
+				Tuple2.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(1, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(2, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(3, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(4, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(5, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(6, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(7, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(8, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(9, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(11, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(12, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(13, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(14, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(16, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(17, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(18, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(19, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(21, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(22, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(23, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(24, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(25, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
+				Tuple2.of(START.plus(26, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
+				Tuple2.of(START.plus(27, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
+				Tuple2.of(START.plus(28, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500), //
+				Tuple2.of(START.plus(29, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500) //
 		), this.query(new Resolution(1, ChronoUnit.MINUTES)));
 	}
 
 	@Test
 	public void testQueryHistoricDataWithResolution5minutes() throws Exception {
 		assertEquals(values(//
-				Tuple.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
-				Tuple.of(START.plus(5, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
-				Tuple.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
-				Tuple.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
-				Tuple.of(START.plus(25, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500) //
+				Tuple2.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 0), //
+				Tuple2.of(START.plus(5, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 200), //
+				Tuple2.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 300), //
+				Tuple2.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400), //
+				Tuple2.of(START.plus(25, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 500) //
 		), this.query(new Resolution(5, ChronoUnit.MINUTES)));
 	}
 
 	@Test
 	public void testQueryHistoricDataWithResolution10minutes() throws Exception {
 		assertEquals(values(//
-				Tuple.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 50), //
-				Tuple.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 250), //
-				Tuple.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 450) //
+				Tuple2.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 50), //
+				Tuple2.of(START.plus(10, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 250), //
+				Tuple2.of(START.plus(20, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 450) //
 		), this.query(new Resolution(10, ChronoUnit.MINUTES)));
 	}
 
 	@Test
 	public void testQueryHistoricDataWithResolution15minutes() throws Exception {
 		assertEquals(values(//
-				Tuple.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
-				Tuple.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400) //
+				Tuple2.of(START.plus(0, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 100), //
+				Tuple2.of(START.plus(15, ChronoUnit.MINUTES).atZone(ZoneId.of("UTC")), 400) //
 		), this.query(new Resolution(15, ChronoUnit.MINUTES)));
 	}
 
@@ -189,9 +189,9 @@ public class Rrd4jReadHandlerTest {
 
 	@SafeVarargs
 	private SortedMap<ZonedDateTime, SortedMap<ChannelAddress, JsonElement>> values(
-			Tuple<ZonedDateTime, Number>... values) {
+			Tuple2<ZonedDateTime, Number>... values) {
 		return Arrays.stream(values) //
-				.collect(toMap(Tuple::a, t -> {
+				.collect(toMap(Tuple2::a, t -> {
 					final var valueMap = new TreeMap<ChannelAddress, JsonElement>();
 					valueMap.put(this.dummyComponent.channel(DummyComponent.ChannelId.DUMMY_CHANNEL).address(),
 							new JsonPrimitive(t.b()));

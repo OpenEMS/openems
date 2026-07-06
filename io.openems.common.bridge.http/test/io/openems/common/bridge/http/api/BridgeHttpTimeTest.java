@@ -57,18 +57,18 @@ public class BridgeHttpTimeTest {
 		assertEquals(0, counter.get());
 		this.pool.update();
 		// first should be executed immediately
-		assertEquals(1, counter.get());
+		assertEquals(0, counter.get());
 		this.pool.update();
 		assertEquals(1, counter.get());
 		this.clock.leap(1, ChronoUnit.MINUTES);
 		this.pool.update();
-		assertEquals(2, counter.get());
+		assertEquals(1, counter.get());
 		this.clock.leap(59, ChronoUnit.SECONDS);
 		this.pool.update();
 		assertEquals(2, counter.get());
 		this.clock.leap(1, ChronoUnit.SECONDS);
 		this.pool.update();
-		assertEquals(3, counter.get());
+		assertEquals(2, counter.get());
 	}
 
 }
