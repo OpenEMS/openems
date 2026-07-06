@@ -238,8 +238,38 @@ public class VictronEssImplTest {
 		assertNoHardwareWrites(ess);
 	}
 
+	/**
+	 * Complements the Read-Only-Mode regression tests by pinning the guard's
+	 * disabled branch: with Read-Only-Mode <em>off</em>, the symmetric
+	 * {@code applyPower(int, int)} must fall through the Read-Only-Mode guard. Here
+	 * the readiness gate is left closed, so the method stops right after the guard
+	 * without needing a battery-inverter reference; the point is that the guard did
+	 * not short-circuit and no hardware write leaked from the readiness gate either.
+	 */
+	@Test
+	public void testApplyPowerSymmetricFallsThroughReadOnlyGuardWhenDisabled() throws Exception {
+		var ess = activatedEss(SingleOrAllPhase.ALL, false, false);
+
+		ess.applyPower(1000, 0);
+
+		assertNoHardwareWrites(ess);
+	}
+
+	/**
+	 * Same disabled-branch coverage on the asymmetric
+	 * {@code applyPower(p1, q1, p2, q2, p3, q3)} overload.
+	 */
+	@Test
+	public void testApplyPowerAsymmetricFallsThroughReadOnlyGuardWhenDisabled() throws Exception {
+		var ess = activatedEss(SingleOrAllPhase.ALL, false, false);
+
+		ess.applyPower(1000, 0, 1000, 0, 1000, 0);
+
+		assertNoHardwareWrites(ess);
+	}
+
 	private static VictronEssImpl activatedReadOnlyEss(SingleOrAllPhase phase) throws Exception {
-		return activatedEss(phase, true);
+		return activatedEss(phase, true, true);
 	}
 
 	/**
@@ -254,6 +284,25 @@ public class VictronEssImplTest {
 	 * @throws Exception on error
 	 */
 	private static VictronEssImpl activatedEss(SingleOrAllPhase phase, boolean readOnlyMode) throws Exception {
+		return activatedEss(phase, readOnlyMode, true);
+	}
+
+	/**
+	 * Activates a {@link VictronEssImpl}.
+	 *
+	 * @param phase          the configured phase
+	 * @param readOnlyMode   whether to activate in Read-Only-Mode
+	 * @param operationalOk  the value to force on {@code operationalValuesOk};
+	 *                       {@code true} lets {@code applyPower(...)} run past the
+	 *                       readiness gate, {@code false} leaves the gate closed so
+	 *                       the method returns right after the Read-Only-Mode guard
+	 *                       (used to exercise that guard's disabled branch without a
+	 *                       battery-inverter reference)
+	 * @return the activated component
+	 * @throws Exception on error
+	 */
+	private static VictronEssImpl activatedEss(SingleOrAllPhase phase, boolean readOnlyMode, boolean operationalOk)
+			throws Exception {
 		var ess = new VictronEssImpl();
 		new ComponentTest(ess) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
@@ -271,7 +320,7 @@ public class VictronEssImplTest {
 
 		var operationalValuesOk = VictronEssImpl.class.getDeclaredField("operationalValuesOk");
 		operationalValuesOk.setAccessible(true);
-		operationalValuesOk.setBoolean(ess, true);
+		operationalValuesOk.setBoolean(ess, operationalOk);
 
 		return ess;
 	}
