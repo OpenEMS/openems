@@ -2,10 +2,13 @@ package io.openems.edge.victron.ess;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
@@ -19,6 +22,18 @@ public class VictronEssImplTest {
 
 	private static final String ESS_ID = "ess0";
 	private static final String MODBUS_ID = "modbus0";
+
+	/**
+	 * Write-channels that are mapped to the Victron hardware; none may ever get a
+	 * next-write-value while the ESS is in Read-Only-Mode.
+	 */
+	private static final VictronEss.ChannelId[] HARDWARE_WRITE_CHANNELS = { //
+			VictronEss.ChannelId.SET_ACTIVE_POWER_L1, //
+			VictronEss.ChannelId.SET_ACTIVE_POWER_L2, //
+			VictronEss.ChannelId.SET_ACTIVE_POWER_L3, //
+			VictronEss.ChannelId.ESS_DISABLE_CHARGE_FLAG, //
+			VictronEss.ChannelId.ESS_DISABLE_FEEDBACK_FLAG, //
+	};
 
 	@Test
 	public void test() throws OpenemsException, Exception {
@@ -179,6 +194,94 @@ public class VictronEssImplTest {
 		// Zero power target, should remain zero
 		var result = VictronEssImpl.calculateAcInSetpoint(0, 5000, 3000, 3000);
 		assertEquals(0, result);
+	}
+
+	/**
+	 * Regression test for the Read-Only-Mode bug: the symmetric
+	 * {@code applyPower(int, int)} used to set the disable-charge/-discharge flags
+	 * before checking Read-Only-Mode, leaking those write-values to the hardware. It
+	 * must not enqueue any hardware write in Read-Only-Mode.
+	 */
+	@Test
+	public void testApplyPowerSymmetricDoesNotWriteInReadOnlyMode() throws Exception {
+		var ess = activatedReadOnlyEss(SingleOrAllPhase.ALL);
+
+		ess.applyPower(1000, 0);
+
+		assertNoHardwareWrites(ess);
+	}
+
+	/**
+	 * Same regression on the asymmetric
+	 * {@code applyPower(p1, q1, p2, q2, p3, q3)} overload.
+	 */
+	@Test
+	public void testApplyPowerAsymmetricDoesNotWriteInReadOnlyMode() throws Exception {
+		var ess = activatedReadOnlyEss(SingleOrAllPhase.ALL);
+
+		ess.applyPower(1000, 0, 1000, 0, 1000, 0);
+
+		assertNoHardwareWrites(ess);
+	}
+
+	/**
+	 * A zero power-target still disables charge/discharge via write-flags; this must
+	 * also be suppressed in Read-Only-Mode.
+	 */
+	@Test
+	public void testApplyPowerZeroDoesNotWriteInReadOnlyMode() throws Exception {
+		var ess = activatedReadOnlyEss(SingleOrAllPhase.ALL);
+
+		ess.applyPower(0, 0);
+		ess.applyPower(0, 0, 0, 0, 0, 0);
+
+		assertNoHardwareWrites(ess);
+	}
+
+	private static VictronEssImpl activatedReadOnlyEss(SingleOrAllPhase phase) throws Exception {
+		return activatedEss(phase, true);
+	}
+
+	/**
+	 * Activates a {@link VictronEssImpl} and forces {@code operationalValuesOk} to
+	 * {@code true}, so that {@code applyPower(...)} is stopped only by the
+	 * Read-Only-Mode guard and not by the readiness gate - this is what makes the
+	 * applyPower tests actually exercise the guard under test.
+	 *
+	 * @param phase        the configured phase
+	 * @param readOnlyMode whether to activate in Read-Only-Mode
+	 * @return the activated component
+	 * @throws Exception on error
+	 */
+	private static VictronEssImpl activatedEss(SingleOrAllPhase phase, boolean readOnlyMode) throws Exception {
+		var ess = new VictronEssImpl();
+		new ComponentTest(ess) //
+				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID)) //
+				.activate(MyConfig.create() //
+						.setId(ESS_ID) //
+						.setAlias("Victron ESS") //
+						.setEnabled(true) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(227) //
+						.setPhase(phase) //
+						.setReadOnlyMode(readOnlyMode) //
+						.setCapacity(10000) //
+						.setMaxApparentPower(5000) //
+						.build());
+
+		var operationalValuesOk = VictronEssImpl.class.getDeclaredField("operationalValuesOk");
+		operationalValuesOk.setAccessible(true);
+		operationalValuesOk.setBoolean(ess, true);
+
+		return ess;
+	}
+
+	private static void assertNoHardwareWrites(VictronEssImpl ess) {
+		for (var channelId : HARDWARE_WRITE_CHANNELS) {
+			WriteChannel<?> channel = ess.channel(channelId);
+			assertTrue(channel.getNextWriteValue().isEmpty(),
+					"Read-Only-Mode leaked a write to " + channelId.name());
+		}
 	}
 
 }
