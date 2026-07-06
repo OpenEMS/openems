@@ -16,15 +16,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-
-	@AttributeDefinition(name = "ZIP Code", description = "German ZIP Code of the customer location")
-	String zipcode();
-
-	@AttributeDefinition(name = "Client Id", description = "Client Id of the client registration at rabot.energy")
-	String clientId();
-
-	@AttributeDefinition(name = "Client Secret", description = "Client Secret of the client registration at rabot.energy")
-	String clientSecret();
+	
+	@AttributeDefinition(name = "Backend OAuth Client Identifier")
+	String backendOAuthClientIdentifier() default "rabot_prod";
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff rabot.energy [{id}]";
 }

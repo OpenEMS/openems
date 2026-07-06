@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -456,6 +457,17 @@ public class AppManagerTestBundle {
 		final var clusterTask = new EvseClusterTaskImpl(this.componentManger);
 		this.appHelper.addAggregateTask(clusterTask);
 		return clusterTask;
+	}
+
+	/**
+	 * Adds a {@link EnergySchedulerVersionAggregateTaskImpl} to the current active tasks.
+	 *
+	 * @return the created {@link EnergySchedulerVersionAggregateTaskImpl}
+	 */
+	public EnergySchedulerVersionAggregateTaskImpl addEnergySchedulerVersionAggregateTask() {
+		final var task = new EnergySchedulerVersionAggregateTaskImpl(this.componentManger);
+		this.appHelper.addAggregateTask(task);
+		return task;
 	}
 
 	/**

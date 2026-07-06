@@ -2,14 +2,13 @@ package io.openems.edge.system.fenecon.masterbox2v0.ao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.openems.edge.io.api.AnalogOutput;
 import org.junit.Test;
 
 import io.openems.common.channel.Level;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.io.api.AnalogOutput;
 import io.openems.edge.io.api.AnalogVoltageOutput;
 import io.openems.edge.system.fenecon.masterbox2v0.DummyMasterBox2v0;
 
@@ -23,7 +22,7 @@ public class MasterBox2v0MeterImplTest {
 
 		var ao = new IoMasterBox2v0AoImpl();
 
-		new ComponentTest(ao).addReference("cm", new DummyConfigurationAdmin()) //
+		new ComponentTest(ao) //
 				.addReference("ioc", ioc) //
 				.activate(MyConfig.create() //
 						.setId("ao0") //
@@ -41,7 +40,6 @@ public class MasterBox2v0MeterImplTest {
 		var ioc = new DummyMasterBox2v0("ioc0");
 
 		new ComponentTest(new IoMasterBox2v0AoImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ioc", ioc) //
 				.activate(MyConfig.create() //
 						.setId("ao0") //

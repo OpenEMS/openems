@@ -13,6 +13,7 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.symmetric.AllowedChargeDischargeHandler;
 import io.openems.edge.ess.generic.symmetric.EssGenericManagedSymmetricImpl;
 
@@ -26,7 +27,7 @@ public class AllowedChargeDischargeHandlerTest {
 		new ComponentTest(ess) //
 				.addReference("componentManager", clockProvider); //
 
-		var sut = new AllowedChargeDischargeHandler(ess);
+		var sut = new AllowedChargeDischargeHandler(ess, EssProtectionConfig.VOLTAGE_REGULATION);
 
 		sut.calculateAllowedChargeDischargePower(clockProvider, false, null, null, null);
 		assertEquals(0, sut.lastBatteryAllowedChargePower, 0.001);

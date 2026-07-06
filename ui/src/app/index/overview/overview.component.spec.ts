@@ -26,11 +26,12 @@ import { OverViewComponent } from "./overview.component";
 describe("OverviewComponent", () => {
     let component: OverViewComponent;
     let fixture: ComponentFixture<OverViewComponent>;
-    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges"], {
+    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges", "getIsSmartphoneResolution"], {
         metadata: new BehaviorSubject({
             edges: null,
             user: null,
         }),
+        getIsSmartphoneResolution: () => false,
         getEdges(): Promise<Edge[]> {
             return Promise.resolve([]);
         },
@@ -50,6 +51,11 @@ describe("OverviewComponent", () => {
             ],
             declarations: [OverViewComponent],
             providers: [
+                {
+                    provide: PlatFormService, useValue: {
+                        isSmartphone: () => false,
+                    },
+                },
                 { provide: Service, useValue: serviceSpyObject },
                 { provide: UserService, useValue: userServiceSpyObj },
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
@@ -91,23 +97,7 @@ describe("OverviewComponent", () => {
         userServiceSpyObj.currentUser.set(user);
         serviceSpyObject.metadata.next({
             edges: { ["edge0"]: DummyConfig.dummyEdge({ role: Role.INSTALLER }) },
-            user: {
-                globalRole: globalRole, hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {}, getThemeFromSettings() {
-                    return Theme.LIGHT;
-                },
-                isAtLeast(role) {
-                    return true;
-                },
-                getNavigationTree(navigation, translate) {
-                    return null;
-                },
-                getUseNewUIFromSettings: function (): boolean {
-                    throw new Error("Function not implemented.");
-                },
-                getAnnualReviewFromSettings() {
-                    return [];
-                },
-            },
+            user: new User("", "test.user", globalRole, Language.DE.key, true, {}),
         });
 
         component.ionViewWillEnter();

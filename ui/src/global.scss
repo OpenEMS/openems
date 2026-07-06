@@ -61,7 +61,6 @@ input:-webkit-autofill:focus {
 }
 
 .hide-empty-list-header {
-
     // Guarantees evenly space between list-items
     ion-list {
         padding: 0;
@@ -70,7 +69,6 @@ input:-webkit-autofill:focus {
     ion-list-header {
         display: none;
     }
-
 }
 
 .paragraph-space {
@@ -180,7 +178,6 @@ ion-select::part(icon) {
 }
 
 .custom-ion-popover {
-
     --background: var(--ion-background-color);
 
     // Floating label
@@ -214,9 +211,8 @@ ion-select::part(icon) {
 }
 
 .line-break {
-
-    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
-    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
+    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
+    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
@@ -324,10 +320,6 @@ table.full_width {
     width: 100%;
 }
 
-.full_height {
-    height: 100%;
-}
-
 .bold {
     font-weight: 600;
 }
@@ -353,7 +345,7 @@ button.activated {
     background-color: var(--ion-color-success);
 }
 
-svg::part('container') {
+svg::part("container") {
     --border-color: white;
     --checkmark-color: red;
 }
@@ -423,7 +415,6 @@ formly-input-section {
 }
 
 :root {
-
     ion-text {
         small {
             color: var(--ion-card-content-color);
@@ -431,7 +422,6 @@ formly-input-section {
     }
 
     ion-card {
-
         ion-card-title,
         ion-card-subtitle {
             color: var(--ion-text-color);

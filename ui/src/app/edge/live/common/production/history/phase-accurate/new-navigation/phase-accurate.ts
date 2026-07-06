@@ -6,6 +6,7 @@ import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/ab
 import { Service } from "src/app/shared/shared";
 
 @Component({
+    selector: "oe-common-production-single-history-overview",
     templateUrl: "./phase-accurate.html",
     standalone: false,
 })

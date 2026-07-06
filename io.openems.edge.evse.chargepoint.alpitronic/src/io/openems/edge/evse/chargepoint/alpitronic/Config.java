@@ -27,7 +27,7 @@ import io.openems.edge.evse.chargepoint.alpitronic.enums.Connector;
 
 	@AttributeDefinition(name = "Modbus Unit-ID", description = "The Unit-ID of the Modbus device.")
 	int modbusUnitId() default 1;
-	
+
 	@AttributeDefinition(name = "Minimum hardware power", description = "Minimum charging power of the Charger in W.", required = true)
 	int minHwPower() default 5000;
 

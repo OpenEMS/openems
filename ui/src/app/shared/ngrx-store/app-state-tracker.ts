@@ -13,7 +13,9 @@ export class AppStateTracker {
     private static readonly LOG_PREFIX: string = "AppState";
     private static readonly TIME_TILL_TIMEOUT: number = 10;
     private static readonly ENABLE_ROUTING: boolean = true;
-    public loadingState: WritableSignal<"failed" | "loading" | "authenticated" | "not_authenticated"> = signal("loading");
+    public loadingState: WritableSignal<
+        "failed" | "loading" | "authenticated" | "not_authenticated"
+    > = signal("loading");
     private lastTimeStamp: Date | null = null;
 
     constructor(
@@ -34,9 +36,7 @@ export class AppStateTracker {
         });
     }
 
-    /**
-     * Handles navigation after authentication
-     */
+    /** Handles navigation after authentication */
     public navigateAfterAuthentication() {
         // this.router.navigate(["overview"]);
         return;
@@ -52,9 +52,10 @@ export class AppStateTracker {
     }
 
     private startStateHandler(state: States): void {
-
         if (environment.debugMode && localStorage.getItem("AppState")) {
-            console.log(`${AppStateTracker.LOG_PREFIX} [${States[this.websocket.state()]}]`);
+            console.log(
+                `${AppStateTracker.LOG_PREFIX} [${States[this.websocket.state()]}]`,
+            );
         }
 
         if (!AppStateTracker.ENABLE_ROUTING) {
@@ -66,14 +67,15 @@ export class AppStateTracker {
                 this.loadingState.set("failed");
                 break;
             case States.WEBSOCKET_CONNECTING:
-                this.lastTimeStamp = this.handleWebSocketConnecting(this.lastTimeStamp);
+                this.lastTimeStamp = this.handleWebSocketConnecting(
+                    this.lastTimeStamp,
+                );
                 break;
             case States.WEBSOCKET_CONNECTED:
                 this.loadingState.set("not_authenticated");
                 break;
             case States.AUTHENTICATED:
                 this.loadingState.set("authenticated");
-                this.navigateAfterAuthentication();
                 break;
             default:
                 this.lastTimeStamp = null;
@@ -87,8 +89,13 @@ export class AppStateTracker {
             return now;
         }
 
-        if (differenceInSeconds(now, lastTimeStamp) > AppStateTracker.TIME_TILL_TIMEOUT) {
-            console.warn(`Websocket connection couldnt be established in ${AppStateTracker.TIME_TILL_TIMEOUT}s`);
+        if (
+            differenceInSeconds(now, lastTimeStamp) >
+            AppStateTracker.TIME_TILL_TIMEOUT
+        ) {
+            console.warn(
+                `Websocket connection couldnt be established in ${AppStateTracker.TIME_TILL_TIMEOUT}s`,
+            );
             this.loadingState.set("failed");
             return null;
         }

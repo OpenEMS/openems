@@ -2,6 +2,7 @@ package io.openems.edge.bridge.modbus.api;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
+import java.time.Clock;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -30,7 +31,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
-	protected static final int DEFAULT_TIMEOUT = 1000;
+	protected static final int DEFAULT_TIMEOUT = 500;
 
 	/**
 	 * Default Modbus retries.
@@ -38,9 +39,11 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 	 * <p>
 	 * Modbus library default is 5
 	 */
-	protected static final int DEFAULT_RETRIES = 1;
+	protected static final int DEFAULT_RETRIES = 2;
 
 	private Config config = null;
+
+	private ModbusTransferInfo lastTransferInfo = null;
 
 	protected final ModbusWorker worker = new ModbusWorker(
 			// Execute Task
@@ -96,6 +99,13 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 			this.worker.deactivate();
 		}
 	}
+
+	/**
+	 * Returns clock used by the modbus bridge.
+	 *
+	 * @return Clock instance
+	 */
+	public abstract Clock getClock();
 
 	private void applyConfig(Config config) {
 		this.config = config;
@@ -204,5 +214,22 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 
 		// Set BRIDGE_IS_STOPPED Channel
 		setValue(this, BridgeModbus.ChannelId.BRIDGE_IS_STOPPED, value == StartStop.STOP);
+	}
+
+	@Override
+	public ModbusTransferInfo getLastTransferInfo() {
+		return this.lastTransferInfo;
+	}
+
+	/**
+	 * Sets information about the last transfer that happend on this bus. Can be a
+	 * request from OpenEMS or a response from another device that we received.
+	 * 
+	 * @param communicationType Request or response
+	 * @param unitId            Modbus Unit id of the last transferred/received
+	 *                          frame
+	 */
+	public void setLastTransferInfo(ModbusTransferInfo.ModbusCommunicationType communicationType, int unitId) {
+		this.lastTransferInfo = new ModbusTransferInfo(this.getClock().instant(), communicationType, unitId);
 	}
 }

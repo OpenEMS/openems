@@ -11,6 +11,7 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
+    selector: "oe-evse-energy-limit",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [
