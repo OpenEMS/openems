@@ -791,7 +791,10 @@
 			<version>1.4.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by io.openems.backend.metadata.odoo -->
+			<!--
+			PostgreSQL JDBC Driver
+			Changelog: https://github.com/pgjdbc/pgjdbc/releases
+			-->
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.7.12</version>
