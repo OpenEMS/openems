@@ -94,8 +94,8 @@ public class EvseAlpitronicImpl extends EvseAlpitronic implements EvseChargePoin
 	@Activate
 	private void activate(ComponentContext context, Config config) throws UnknownHostException, OpenemsException {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 	}
@@ -103,8 +103,8 @@ public class EvseAlpitronicImpl extends EvseAlpitronic implements EvseChargePoin
 	@Modified
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus",
-				config.modbus_id())) {
+		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+				"Modbus", config.modbus_id())) {
 			return;
 		}
 	}
@@ -163,7 +163,7 @@ public class EvseAlpitronicImpl extends EvseAlpitronic implements EvseChargePoin
 		);
 
 		this.addCalculatePowerListeners();
-		
+
 		return modbusProtocol;
 	}
 
@@ -183,7 +183,7 @@ public class EvseAlpitronicImpl extends EvseAlpitronic implements EvseChargePoin
 		this.getVoltageChannel().onSetNextValue(calculatePower);
 		this.getCurrentChannel().onSetNextValue(calculatePower);
 	}
-	
+
 	@Override
 	public ChargePointAbilities getChargePointAbilities() {
 		return this.utils.getChargePointAbilities(this.config);

@@ -9,12 +9,19 @@ import { AbstractModalLine } from "../abstract-modal-line";
 })
 export class ModalButtonsComponent extends AbstractModalLine {
 
-    @Input({ required: true }) public buttons!: ButtonLabel[];
-
     /** ControlName for interactive Button */
     @Input({ required: true }) protected control:
         { type: "RADIO" } |
         { type: "SELECT" } = { type: "SELECT" };
+
+    public _buttons!: ButtonLabel[];
+
+    @Input({ required: true }) set buttons(value: ButtonLabel[]) {
+        this._buttons = value.map(button => ({
+            ...button,
+            callback: button.callback ?? (() => { }),
+        }));
+    }
 }
 
 export type ButtonLabel = {

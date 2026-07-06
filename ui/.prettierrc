@@ -3,8 +3,41 @@
         {
             "files": "*.html",
             "options": {
-                "parser": "angular"
+                "parser": "angular",
+                "singleAttributePerLine": false,
+                "printWidth": 9999
+            }
+        },
+        {
+            "files": [
+                "*.json",
+                "*.jsonc",
+                ".prettierrc"
+            ],
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 20
+            }
+        },
+        {
+            "files": [
+                "*.ts",
+                "*.mjs",
+                "*.scss"
+            ],
+            "options": {
+                "tabWidth": 4,
+                "printWidth": 120
             }
         }
-    ]
+    ],
+    "plugins": [
+        "prettier-plugin-packagejson",
+        "prettier-plugin-sort-json",
+        "prettier-plugin-one-line-imports",
+        "prettier-plugin-multiline-arrays",
+        "prettier-plugin-organize-imports",
+        "prettier-plugin-jsdoc"
+    ],
+    "singleQuote": false
 }

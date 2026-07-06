@@ -46,7 +46,7 @@ import io.openems.common.jsonrpc.notification.TimestampedDataNotification;
 import io.openems.common.timedata.DbDataUtils;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 import io.openems.common.utils.ComparatorUtils;
 
 @Designate(ocd = Config.class, factory = false)
@@ -333,9 +333,9 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 		}
 	}
 
-	private <T> Iterable<Tuple<T, OpenemsNamedException>> iterateTimedataResults(
+	private <T> Iterable<Tuple2<T, OpenemsNamedException>> iterateTimedataResults(
 			ThrowingFunction<Timedata, T, OpenemsNamedException> mapper) {
-		return () -> new Iterator<Tuple<T, OpenemsNamedException>>() {
+		return () -> new Iterator<Tuple2<T, OpenemsNamedException>>() {
 
 			private final Iterator<Timedata> timedataIterator = TimedataManagerImpl.this.timedatas.get().iterator();
 
@@ -345,19 +345,19 @@ public class TimedataManagerImpl extends AbstractOpenemsBackendComponent impleme
 			}
 
 			@Override
-			public Tuple<T, OpenemsNamedException> next() {
+			public Tuple2<T, OpenemsNamedException> next() {
 				final var timedata = this.timedataIterator.next();
 				try {
-					return new Tuple<>(mapper.apply(timedata), null);
+					return new Tuple2<>(mapper.apply(timedata), null);
 				} catch (InternalTimedataException e) {
 					TimedataManagerImpl.this.log.info(timedata.id() + ": " + e.getMessage());
 				} catch (OpenemsNamedException e) {
 					TimedataManagerImpl.this.log.info(timedata.id() + ": " + e.getMessage());
-					return new Tuple<>(null, e);
+					return new Tuple2<>(null, e);
 				} catch (RuntimeException e) {
 					TimedataManagerImpl.this.log.info(timedata.id() + ": " + e.getMessage(), e);
 				}
-				return new Tuple<>(null, null);
+				return new Tuple2<>(null, null);
 			}
 
 		};

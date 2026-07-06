@@ -3,6 +3,7 @@ package io.openems.edge.common.modbusslave;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	private final ChannelId channelId;
 	private final AccessMode accessMode;
+	private final UnaryOperator<Number> mapValue;
 
 	protected Consumer<Object> onWriteValueCallback = null;
 
@@ -29,10 +31,12 @@ public class ModbusRecordChannel extends ModbusRecord {
 	 */
 	private final Byte[] writeValueBuffer;
 
-	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId, AccessMode modbusApiAccessMode) {
+	public ModbusRecordChannel(int offset, ModbusType type, ChannelId channelId, AccessMode modbusApiAccessMode,
+			UnaryOperator<Number> mapValue) {
 		super(offset, type);
 		this.channelId = channelId;
 		this.accessMode = evaluateActualAccessMode(channelId, modbusApiAccessMode);
+		this.mapValue = mapValue;
 
 		// initialize buffer
 		var byteLength = switch (this.getType()) {
@@ -40,6 +44,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case FLOAT64 -> ModbusRecordFloat64.BYTE_LENGTH;
 		case STRING16 -> ModbusRecordString16.BYTE_LENGTH;
 		case ENUM16, UINT16 -> ModbusRecordUint16.BYTE_LENGTH;
+		case INT16 -> ModbusRecordInt16.BYTE_LENGTH;
 		case UINT32 -> ModbusRecordUint32.BYTE_LENGTH;
 		case UINT64 -> ModbusRecordUint64.BYTE_LENGTH;
 		};
@@ -98,7 +103,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 				case READ_ONLY, READ_WRITE -> {
 					try {
-						yield channel.value().get();
+						yield this.getMappedValueOrChannelValue(channel);
 					} catch (IllegalArgumentException e) {
 						this.log.warn("Channel [" + channel.address() + "] is not available: " + e.getMessage());
 						yield null;
@@ -136,6 +141,11 @@ public class ModbusRecordChannel extends ModbusRecord {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint16.toByteArray(value);
 			case WRITE_ONLY -> ModbusRecordUint16.UNDEFINED_BYTE_ARRAY;
 			};
+		case INT16 -> //
+			switch (this.accessMode) {
+			case READ_ONLY, READ_WRITE -> ModbusRecordInt16.toByteArray(value);
+			case WRITE_ONLY -> ModbusRecordInt16.UNDEFINED_BYTE_ARRAY;
+			};
 		case UINT32 -> //
 			switch (this.accessMode) {
 			case READ_ONLY, READ_WRITE -> ModbusRecordUint32.toByteArray(value);
@@ -151,7 +161,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 
 	/**
 	 * Add a onWriteValue callback.
-	 * 
+	 *
 	 * @param onWriteValueCallback the callback
 	 */
 	public void onWriteValue(Consumer<Object> onWriteValueCallback) {
@@ -194,7 +204,7 @@ public class ModbusRecordChannel extends ModbusRecord {
 		case FLOAT64 -> buff.getDouble();
 		case FLOAT32 -> buff.getFloat();
 		case STRING16 -> ""; // TODO implement String conversion
-		case ENUM16, UINT16 -> buff.getShort();
+		case ENUM16, UINT16, INT16 -> buff.getShort();
 		case UINT32 -> buff.getInt();
 		case UINT64 -> buff.getLong();
 		};
@@ -227,4 +237,19 @@ public class ModbusRecordChannel extends ModbusRecord {
 		return this.accessMode;
 	}
 
+	private Object getMappedValueOrChannelValue(final Channel<?> channel) {
+		final var channelValue = channel.value().get();
+		if (channelValue == null || this.mapValue == null) {
+			return channelValue;
+		}
+		return this.applyValueMapper(channelValue);
+	}
+
+	private Object applyValueMapper(Object value) {
+		if (value instanceof Number number) {
+			return this.mapValue.apply(number);
+		}
+		throw new IllegalArgumentException(
+				"Mapper can only be applied to Number values, but got [" + value.getClass().getName() + "]");
+	}
 }

@@ -6,8 +6,8 @@ import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MAX_CURREN
 import static io.openems.edge.battery.api.Battery.ChannelId.DISCHARGE_MIN_VOLTAGE;
 import static io.openems.edge.battery.api.Battery.ChannelId.SOC;
 import static io.openems.edge.battery.api.Battery.ChannelId.VOLTAGE;
-import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_CHARGE_MAX_CURRENT;
-import static io.openems.edge.ess.generic.symmetric.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
+import static io.openems.edge.ess.generic.common.essprotection.EssProtection.ChannelId.EP_CHARGE_MAX_CURRENT;
+import static io.openems.edge.ess.generic.common.essprotection.EssProtection.ChannelId.EP_DISCHARGE_MAX_CURRENT;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
@@ -27,6 +27,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 
@@ -62,6 +63,7 @@ public class EssProtectionTest {
 				.activate(MyConfig.create() //
 						.setId("ess0") //
 						.setStartStopConfig(StartStopConfig.START) //
+						.setEssProtection(EssProtectionConfig.VOLTAGE_REGULATION) //
 						.setBatteryInverterId("batteryInverter0") //
 						.setBatteryId("battery0") //
 						.build()) //

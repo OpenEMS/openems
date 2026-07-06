@@ -1,14 +1,14 @@
 package io.openems.edge.app.integratedsystem;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -25,7 +25,7 @@ import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
-public class TestFeneconCommercial92 {
+class TestFeneconCommercial92 {
 
 	private AppManagerTestBundle appManagerTestBundle;
 
@@ -85,7 +85,7 @@ public class TestFeneconCommercial92 {
 	}
 
 	@Test
-	public void testInitialDependencies() throws Exception {
+	void testInitialDependencies() throws Exception {
 		this.before(null);
 		this.createFullCommercial92();
 
@@ -101,7 +101,7 @@ public class TestFeneconCommercial92 {
 	}
 
 	@Test
-	public void testGetMeterDefaultModbusIdValue() throws Exception {
+	void testGetMeterDefaultModbusIdValue() throws Exception {
 		this.before(null);
 		this.createFullCommercial92();
 
@@ -115,7 +115,7 @@ public class TestFeneconCommercial92 {
 	}
 
 	@Test
-	public void testGetGridMeterModbusId() throws Exception {
+	void testGetGridMeterModbusId() throws Exception {
 		this.before(null);
 		this.createFullCommercial92();
 
@@ -127,7 +127,30 @@ public class TestFeneconCommercial92 {
 	}
 
 	@Test
-	public void testOldGridMeterDependency() throws Exception {
+	void testEssProtectionDefaultGridCode() throws Exception {
+		this.before(null);
+		this.createFullCommercial92();
+
+		final var essProps = this.appManagerTestBundle.componentManger.getComponent("ess0").getComponentContext()
+				.getProperties();
+		assertEquals("VOLTAGE_REGULATION", essProps.get("essProtection"));
+	}
+
+	@Test
+	void testEssProtectionForVde4110() throws Exception {
+		this.before(null);
+		final var properties = fullSettings();
+		properties.addProperty("GRID_CODE", "VDE_4110");
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DummyUser.DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Commercial.92", "key", "alias", properties));
+
+		final var essProps = this.appManagerTestBundle.componentManger.getComponent("ess0").getComponentContext()
+				.getProperties();
+		assertEquals("RAMP", essProps.get("essProtection"));
+	}
+
+	@Test
+	void testOldGridMeterDependency() throws Exception {
 		this.beforeWithExistingGridMeter();
 
 		final var commercialInstance = this.appManagerTestBundle.sut.getInstantiatedApps().stream() //

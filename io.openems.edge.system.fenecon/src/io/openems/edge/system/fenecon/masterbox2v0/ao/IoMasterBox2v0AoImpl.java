@@ -2,10 +2,12 @@ package io.openems.edge.system.fenecon.masterbox2v0.ao;
 
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
 import static java.util.Collections.emptyList;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -13,9 +15,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,6 +23,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -43,6 +43,7 @@ import io.openems.edge.system.fenecon.masterbox2v0.utils.MasterBoxReadWriteModbu
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
+@GenerateTargetsFromReferences("ioc")
 public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements IoMasterBox2v0Ao, OpenemsComponent,
 		EventHandler, AnalogVoltageOutput, AnalogOutput, MasterBoxReadWriteModbusComponent {
 
@@ -50,13 +51,10 @@ public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements Io
 	private static final int PRECISION = 100;
 	private static final int MAXIMUM = 10000;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ioc_id})(enabled=true))")
 	private MasterBox2v0 ioc;
-
-	private Config config;
 
 	private List<IocWriteValueMapping<?>> writeValueMappings = emptyList();
 
@@ -71,7 +69,6 @@ public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements Io
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.applyConfig(config);
 		if (this.ioc != null) {
 			this.addListenerToChannels();
 		}
@@ -80,7 +77,6 @@ public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements Io
 	@Modified
 	protected void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
-		this.applyConfig(config);
 	}
 
 	@Override
@@ -136,12 +132,5 @@ public class IoMasterBox2v0AoImpl extends AbstractOpenemsComponent implements Io
 			);
 		}
 		return this.writeValueMappings;
-	}
-
-	private void applyConfig(Config config) {
-		this.config = config;
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ioc", this.config.ioc_id())) {
-			return;
-		}
 	}
 }

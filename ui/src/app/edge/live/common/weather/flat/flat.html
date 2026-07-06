@@ -47,7 +47,7 @@
           </ion-row>
           <div class="thin-divider"></div>
           <ion-row class="ion-justify-content-between">
-            @for (forecast of upcomingHourlyForecasts; track forecast) {
+            @for (forecast of upcomingHourlyForecasts; track forecast.datetime) {
               <ion-col size="auto" class="ion-display-flex ion-flex-column ion-align-items-center ion-text-center">
                 <ion-text color="normal" style="font-size: 0.7rem; margin-bottom:0.15rem;">
                   {{ forecast.datetime | hourFormat }}
