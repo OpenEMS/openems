@@ -1,0 +1,19 @@
+@if (gotData) {
+  <ng-container>
+    <div class="weather-widget">
+      <div class="weather-main ion-padding-top">
+        <ion-icon [name]="currentHourlyForecast.weatherCode | weatherCodeIcon: currentHourlyForecast.isDay" class="weather-icon"></ion-icon>
+        <div class="weather-text">
+          <ion-text class="temperature">{{ currentHourlyForecast.temperature | number: "1.0-0" }}°</ion-text>
+          <ion-text [translate]="currentHourlyForecast.weatherCode | weatherCodeDescription: currentHourlyForecast.isDay"></ion-text>
+        </div>
+      </div>
+
+      <div class="sunshine-row">
+        <ion-icon name="oe-sunshine-duration" color="primary" class="sunshine-duration-icon"></ion-icon>
+        <ion-text [translate]="'SUNSHINE_DURATION_HOURS'" [translateParams]="{ duration: currentDailyForecast.sunshineDuration | numberFormat: '1.0-0' }"></ion-text>
+        <ion-text [translate]="'SUNSHINE_DURATION_LABEL'"></ion-text>
+      </div>
+    </div>
+  </ng-container>
+}

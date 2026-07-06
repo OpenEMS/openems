@@ -49,6 +49,6 @@ export namespace SharedAutarchy {
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree("autarchy", { baseString: "common/autarchy" }, { name: "oe-grid", color: "normal" }, translate.instant("GENERAL.AUTARCHY"), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-        ], null, "LOW").toConstructorParams();
+        ], null).toConstructorParams();
     }
 }

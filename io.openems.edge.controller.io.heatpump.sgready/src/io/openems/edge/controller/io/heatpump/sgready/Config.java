@@ -26,6 +26,9 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Output Channel 2", description = "Channel address of the Digital Output for input 2.")
 	String outputChannel2() default "io0/Relay3";
 
+	@AttributeDefinition(name = "Consumption-Meter-ID", description = "ID of the Consumption-Meter.")
+	String meter_id() default "";
+
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 

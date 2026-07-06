@@ -6,7 +6,7 @@
     </tr>
 </table>
 }
-<div [style.height]="(viewHeight !== null ? viewHeight : getChartHeight()) + 'dvh'" id="chart-area"
+<div [style.height]="(viewHeight !== null ? viewHeight : getChartHeight())" id="chart-area"
     class="semi-transparent-background">
     <ngx-spinner [name]="spinnerId"></ngx-spinner>
     @if (!loading) {

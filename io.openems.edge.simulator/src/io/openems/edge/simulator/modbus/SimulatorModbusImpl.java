@@ -15,6 +15,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.ModbusTransferInfo;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
@@ -70,6 +71,11 @@ public class SimulatorModbusImpl extends AbstractOpenemsComponent
 	@Override
 	public void retryModbusCommunication(String sourceId) {
 		// ignore
+	}
+
+	@Override
+	public ModbusTransferInfo getLastTransferInfo() {
+		return null;
 	}
 
 }
