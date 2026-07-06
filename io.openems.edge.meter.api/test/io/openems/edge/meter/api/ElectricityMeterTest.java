@@ -2,9 +2,9 @@ package io.openems.edge.meter.api;
 
 import static io.openems.edge.common.test.TestUtils.activateNextProcessImage;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateCurrentsFromActivePowerAndVoltage;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
