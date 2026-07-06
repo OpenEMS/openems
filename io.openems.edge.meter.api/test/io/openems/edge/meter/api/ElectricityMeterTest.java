@@ -203,6 +203,16 @@ public class ElectricityMeterTest {
 		assertEquals(null, sut.getCurrentL3().get());
 	}
 
+	@Test
+	public void testCalculateCurrentsFromActivePowerVoltageZero() {
+		var sut = prepareTestCalculateCurrentsStep1(0);
+		prepareTestCalculateCurrentsStep2(sut, 0);
+
+		assertEquals(4329, sut.getCurrentL1().get().intValue());
+		assertEquals(8620, sut.getCurrentL2().get().intValue());
+		assertEquals(null, sut.getCurrentL3().get());
+	}
+
 	private static DummyElectricityMeter prepareTestCalculateCurrentsStep1(Integer voltageL3) {
 		var sut = new DummyElectricityMeter("meter0") //
 				.withActivePowerL1(1000) //
