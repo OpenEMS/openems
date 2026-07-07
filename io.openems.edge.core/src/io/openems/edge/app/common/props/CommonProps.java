@@ -1,5 +1,8 @@
 package io.openems.edge.app.common.props;
 
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
+
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 import io.openems.common.utils.JsonUtils;
@@ -11,8 +14,12 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
+import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.builder.CheckboxBuilder;
 import io.openems.edge.core.appmanager.formly.enums.DisplayType;
+import io.openems.edge.core.appmanager.formly.enums.HintIcon;
+import io.openems.edge.meter.api.PhaseRotation;
 
 public final class CommonProps {
 
@@ -31,7 +38,7 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a alias.
+	 * Creates a {@link AppDef} for an alias.
 	 * 
 	 * @return the {@link AppDef}
 	 */
@@ -44,7 +51,7 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a {@link AppDef} for a installation hint. Only displays the text of
+	 * Creates a {@link AppDef} for an installation hint. Only displays the text of
 	 * the supplier with a checkbox to accept these conditions. Also does not safe
 	 * the value.
 	 * 
@@ -89,9 +96,9 @@ public final class CommonProps {
 	}
 
 	/**
-	 * Creates a installation hint to warn the user that the current app is not an
+	 * Creates an installation hint to warn the user that the current app is not an
 	 * official app from the company of this edge. This can be used for apps which
-	 * are in a early beta testing stage.
+	 * are in an early beta testing stage.
 	 * 
 	 * @param <APP>   the type of the {@link OpenemsApp}
 	 * @param <PROP>  the type of the {@link Nameable}
@@ -109,4 +116,37 @@ public final class CommonProps {
 						"unofficialAppWarning.text2")));
 	}
 
+	/**
+	 * Creates a mandatory acknowledgement checkbox for the monitoring migration
+	 * notice.
+	 *
+	 * @param componentId the {@link Nameable} of the component to only show it for
+	 *                    installation
+	 * @return the {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> acknowledgeNavigationMigration(Nameable componentId) {
+		return AppDef.copyOfGeneric(defaultDef())//
+				.setField(CheckboxBuilder::new, (app, property, l, parameter, field) -> {
+					field.setHint(translate(parameter.bundle(), "App.Energy.navigationMigration.hint"), HintIcon.INFO);
+					field.requireTrue(l);
+					field.setLabel(translate(parameter.bundle(), "acceptHint.label"));
+					field.onlyShowIf(Exp.currentModelValue(componentId).isNull());
+				});
+	}
+
+	/**
+	 * Creates a {@link AppDef} for a {@link PhaseRotation}.
+	 * 
+	 * @return the {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> phaseRotation() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("phaseRotation.label") //
+				.setDefaultValue(PhaseRotation.L1_L2_L3) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(Arrays.stream(PhaseRotation.values()) //
+							.map(PhaseRotation::name) //
+							.toList());
+				}));
+	}
 }

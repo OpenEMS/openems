@@ -8,6 +8,7 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
@@ -636,12 +637,16 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	}
 
 	/**
-	 * Is this Evcs installed according to standard or rotated wiring?. See
-	 * {@link PhaseRotation} for details.
-	 *
-	 * @return the {@link PhaseRotation}.
+	 * Gets the {@link MeterType} of an {@link Evcs} {@link ElectricityMeter}.
+	 * 
+	 * @return the {@link MeterType}
 	 */
-	public PhaseRotation getPhaseRotation();
+	@Override
+	public default MeterType getMeterType() {
+		return this.isReadOnly() //
+				? MeterType.CONSUMPTION_METERED //
+				: MeterType.MANAGED_CONSUMPTION_METERED;
+	}
 
 	/**
 	 * Adds onSetNextValue listeners for minimum and maximum hardware power.
@@ -718,7 +723,6 @@ public interface Evcs extends ElectricityMeter, OpenemsComponent {
 	 * @return integer value indicating the number of phases; null if undefined
 	 */
 	public static Integer evaluatePhaseCountFromCurrent(Integer currentL1, Integer currentL2, Integer currentL3) {
-
 		var phases = 0;
 		if (currentL1 != null && currentL1 > MIN_EVCS_ACTIVITY_CURRENT) {
 			phases++;

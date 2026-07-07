@@ -16,17 +16,16 @@ import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public interface EssGenericManagedSymmetric extends GenericManagedEss, ManagedSymmetricEss, HybridEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.FAULT)//
 				.text("Running the Logic failed")), //
 		;
 

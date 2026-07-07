@@ -1,8 +1,5 @@
 package io.openems.edge.evse.electricvehicle.generic;
 
-import static io.openems.edge.evse.api.common.ApplySetPoint.MIN_POWER_SINGLE_PHASE;
-import static io.openems.edge.evse.api.common.ApplySetPoint.MIN_POWER_THREE_PHASE;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,15 +35,19 @@ public class EvseElectricVehicleGenericImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		final var abilities = ElectricVehicleAbilities.create();
+		final var abilities = ElectricVehicleAbilities.create() //
+				.setCapacity(config.capacity()) //
+				.setCanInterrupt(config.canInterrupt());
 
-		if (config.maxPowerSinglePhase() >= MIN_POWER_SINGLE_PHASE) {
-			abilities.setSinglePhaseLimitInWatt(MIN_POWER_SINGLE_PHASE, config.maxPowerSinglePhase());
+		if (config.maxPowerSinglePhase() > 0 && config.minPowerSinglePhase() > 0
+				&& config.maxPowerSinglePhase() >= config.minPowerSinglePhase()) {
+			abilities.setSinglePhaseLimitInWatt(config.minPowerSinglePhase(), config.maxPowerSinglePhase());
 		}
-		if (config.maxPowerThreePhase() >= MIN_POWER_THREE_PHASE) {
-			abilities.setThreePhaseLimitInWatt(MIN_POWER_THREE_PHASE, config.maxPowerThreePhase());
+		if (config.maxPowerThreePhase() > 0 && config.minPowerThreePhase() > 0
+				&& config.maxPowerThreePhase() >= config.minPowerThreePhase()) {
+			abilities.setThreePhaseLimitInWatt(config.minPowerThreePhase(), config.maxPowerThreePhase());
 		}
-		abilities.setCanInterrupt(config.canInterrupt());
+
 		this.electricVehicleAbilities = abilities.build();
 	}
 

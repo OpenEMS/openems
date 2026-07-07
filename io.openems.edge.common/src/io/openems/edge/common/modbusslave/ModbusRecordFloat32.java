@@ -7,8 +7,8 @@ import io.openems.edge.common.type.TypeUtils;
 
 public class ModbusRecordFloat32 extends ModbusRecordConstant {
 
-	public static final byte[] UNDEFINED_VALUE = { (byte) 0x7F, (byte) 0xC0, (byte) 0x00, (byte) 0x00 };
-
+	public static final float UNDEFINED_VALUE = Float.NaN;
+	public static final byte[] UNDEFINED_BYTE_ARRAY = toByteArray(UNDEFINED_VALUE);
 	public static final int BYTE_LENGTH = 4;
 
 	private final Float value;
@@ -41,7 +41,7 @@ public class ModbusRecordFloat32 extends ModbusRecordConstant {
 	 */
 	public static byte[] toByteArray(Object value) {
 		if (value == null) {
-			return UNDEFINED_VALUE;
+			return UNDEFINED_BYTE_ARRAY;
 		}
 		return toByteArray((float) TypeUtils.getAsType(OpenemsType.FLOAT, value));
 	}

@@ -1,6 +1,7 @@
 // @ts-strict-ignore
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { WorkMode } from "src/app/shared/type/general";
 import { ModalComponent } from "../modal/modal";
@@ -8,7 +9,7 @@ import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../
 
 
 @Component({
-    selector: "Controller_Io_HeatingElement",
+    selector: "oe-controller-io-heating-element",
     templateUrl: "./flat.html",
     standalone: false,
 })
@@ -27,16 +28,20 @@ export class FlatComponent extends AbstractFlatWidget {
     protected readonly CONVERT_SECONDS_TO_DATE_FORMAT = Utils.CONVERT_SECONDS_TO_DATE_FORMAT;
     protected outputChannelArray: ChannelAddress[] = [];
     protected consumptionMeter: EdgeConfig.Component = null;
+    protected modalComponent: Modal | null = null;
 
-    async presentModal() {
-        const modal = await this.modalController.create({
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
+    }
+
+    protected getModalComponent(): Modal {
+        return {
             component: ModalComponent,
             componentProps: {
                 component: this.component,
             },
-        });
-        return await modal.present();
-    }
+        };
+    };
 
     protected override getChannelAddresses() {
 
@@ -70,15 +75,15 @@ export class FlatComponent extends AbstractFlatWidget {
         // get current mode
         switch (currentData.allComponents[this.component.id + "/" + FlatComponent.PROPERTY_MODE]) {
             case "MANUAL_ON": {
-                this.mode = "General.on";
+                this.mode = "GENERAL.ON";
                 break;
             }
             case "MANUAL_OFF": {
-                this.mode = "General.off";
+                this.mode = "GENERAL.OFF";
                 break;
             }
             case "AUTOMATIC": {
-                this.mode = "General.automatic";
+                this.mode = "GENERAL.AUTOMATIC";
                 break;
             }
         }

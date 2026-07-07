@@ -61,6 +61,27 @@ public final class ComparatorUtils {
 		};
 	}
 
+	/**
+	 * Creates an empty {@link Comparator}, which always returns a <code>0</code>.
+	 *
+	 * <p>
+	 * May be used to better chain multiple {@link Comparator Comparators}:
+	 * 
+	 * <pre>
+	 * var comparator = ComparatorUtils.empty();
+	 * for (var i in list) {
+	 *     comparator = comparator.thenComparing(...);
+	 * }
+	 * </pre>
+	 * </p>
+	 *
+	 * @param <T> the type of objects that may be compared by this comparator
+	 * @return the {@link Comparator}
+	 */
+	public static <T> Comparator<T> empty() {
+		return (o1, o2) -> 0;
+	}
+
 	private ComparatorUtils() {
 	}
 

@@ -42,7 +42,7 @@ public class MessageScheduler<T extends Message> {
 			return;
 		}
 		synchronized (this) {
-			this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
+			this.messageForId.computeIfAbsent(msg.getId(), key -> {
 				this.queue.add(msg);
 				return msg;
 			});
@@ -107,12 +107,14 @@ public class MessageScheduler<T extends Message> {
 	 * @param now TimeStamp on call
 	 */
 	public void handle(ZonedDateTime now) {
-		var msgs = new ArrayList<T>();
-		while (this.hasTimeElapsed(now, this.peek())) {
-			msgs.add(this.poll());
+		final var messages = new ArrayList<T>();
+		synchronized (this) {
+			while (this.hasTimeElapsed(now, this.peek())) {
+				messages.add(this.poll());
+			}
 		}
-		if (!msgs.isEmpty()) {
-			this.handler.send(now, msgs);
+		if (!messages.isEmpty()) {
+			this.handler.send(now, messages);
 		}
 	}
 

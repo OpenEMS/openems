@@ -2,11 +2,13 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -17,8 +19,11 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen3;
+import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
 import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManagerFactory;
 import io.openems.edge.core.appmanager.Apps;
@@ -28,6 +33,7 @@ import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class TestFeneconHome20 {
 
+	private static final int EXPECTED_INSTANTIATED_APPS = 8;
 	private AppManagerTestBundle appManagerTestBundle;
 
 	private SocomecMeter meterApp;
@@ -41,12 +47,19 @@ public class TestFeneconHome20 {
 					Apps.selfConsumptionOptimization(t), //
 					Apps.socomecMeter(t), //
 					Apps.prepareBatteryExtension(t), //
-					this.meterApp = Apps.socomecMeter(t) //
+					Apps.sohCycle(t), //
+					Apps.predictionDefault(t), //
+					Apps.predictionUnmanagedConsumption(t), //
+					Apps.techbaseCm4sGen3(t), //
+					Apps.techbaseCm3(t), //
+					Apps.masterBox2v0(t), //
+					this.meterApp = Apps.socomecMeter(t)//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
 		final var componentTask = this.appManagerTestBundle.addComponentAggregateTask();
 		this.appManagerTestBundle.addSchedulerByCentralOrderAggregateTask(componentTask);
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 	}
 
 	@Test
@@ -62,16 +75,19 @@ public class TestFeneconHome20 {
 				new UpdateAppInstance.Request(homeInstance.instanceId, "aliasrename", fullSettings()));
 		// expect the same as before
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(EXPECTED_INSTANTIATED_APPS, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -114,7 +130,7 @@ public class TestFeneconHome20 {
 		final var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -130,7 +146,7 @@ public class TestFeneconHome20 {
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
 				new UpdateAppInstance.Request(response.instance().instanceId, "alias", JsonUtils.buildJsonObject() //
 						.addProperty("SAFETY_COUNTRY", "GERMANY") //
-						.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+						.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 						.addProperty("MAX_FEED_IN_POWER", 1000) //
 						.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 						.addProperty("HAS_EMERGENCY_RESERVE", true) //
@@ -154,23 +170,58 @@ public class TestFeneconHome20 {
 		assertEquals("modbus2", modbusIdProperty.getDefaultValue(Language.DEFAULT).map(JsonElement::getAsString).get());
 	}
 
-	private final OpenemsAppInstance createFullHome() throws Exception {
+	@Test
+	public void testWithTechbaseCm3() throws Exception {
+		this.createDeviceHardware("App.OpenemsHardware.CM3");
+
+		var fullConfig = fullSettings();
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
+
+		var battery = this.appManagerTestBundle.componentManger.getComponent("battery0");
+		assertNotNull(battery);
+		assertEquals("io0/Relay4", battery.getComponentContext().getProperties().get("batteryStartUpRelay"));
+		var io = this.appManagerTestBundle.componentManger.getAllComponents().stream()
+				.filter(c -> c.serviceFactoryPid().equals("IO.KMtronic")) //
+				.findAny();
+		assertTrue(io.isPresent());
+	}
+
+	@Test
+	public void testWithTechbase4sGen3() throws Exception {
+		this.createDeviceHardware(TechbaseCm4sGen3.APPID);
+
+		var fullConfig = fullSettings();
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
+
+		var battery = this.appManagerTestBundle.componentManger.getComponent("battery0");
+		assertNotNull(battery);
+		assertEquals("io0/Relay6", battery.getComponentContext().getProperties().get("batteryStartUpRelay"));
+		var io = this.getPotentialKmTronicRelay();
+		assertFalse(io.isPresent());
+	}
+
+	private OpenemsAppInstance createFullHome() throws Exception {
 		var fullConfig = fullSettings();
 
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request("App.FENECON.Home.20", "key", "alias", fullConfig));
 
 		// make sure every dependency got installed
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(EXPECTED_INSTANTIATED_APPS, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		// check properties of created apps
 		for (var instance : this.appManagerTestBundle.sut.getInstantiatedApps()) {
 			var expectedDependencies = switch (instance.appId) {
-			case "App.FENECON.Home.20" -> 4;
+			case "App.FENECON.Home.20" -> 7;
 			case "App.PvSelfConsumption.GridOptimizedCharge" -> 0;
 			case "App.PvSelfConsumption.SelfConsumptionOptimization" -> 0;
 			case "App.Meter.Socomec" -> 0;
 			case "App.Ess.PrepareBatteryExtension" -> 0;
+			case AppSohCycle.APP_ESS_SOH_CYCLE -> 0;
+			case "App.Prediction.Default" -> 0;
+			case "App.Prediction.UnmanagedConsumption" -> 0;
 			default -> throw new Exception("App with ID[" + instance.appId + "] should not have been created!");
 			};
 			if (expectedDependencies == 0 && instance.dependencies == null) {
@@ -180,11 +231,26 @@ public class TestFeneconHome20 {
 		}
 
 		var homeInstance = this.appManagerTestBundle.sut.getInstantiatedApps().stream()
-				.filter(t -> t.appId.equals("App.FENECON.Home.20")).findAny().orElse(null);
+				.filter(t -> t.appId.equals("App.FENECON.Home.20")) //
+				.findAny().orElse(null);
 
 		assertNotNull(homeInstance);
 		this.appManagerTestBundle.assertNoValidationErrors();
 		return homeInstance;
+	}
+
+	private Optional<OpenemsComponent> getPotentialKmTronicRelay() {
+		return this.appManagerTestBundle.componentManger.getAllComponents().stream()
+				.filter(c -> c.serviceFactoryPid().equals("IO.KMtronic")) //
+				.findAny();
+	}
+
+	private void createDeviceHardware(String devideAppId) throws Exception {
+		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN, //
+				new AddAppInstance.Request(devideAppId, "key", "alias", //
+						JsonUtils.buildJsonObject() //
+								.build() //
+				));
 	}
 
 	/**
@@ -192,10 +258,10 @@ public class TestFeneconHome20 {
 	 * 
 	 * @return the settings object
 	 */
-	public static final JsonObject fullSettings() {
+	public static JsonObject fullSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", true) //
@@ -212,14 +278,14 @@ public class TestFeneconHome20 {
 
 	/**
 	 * Gets a {@link JsonObject} with the minimum settings for a
-	 * {@link FeneconHome}.
+	 * {@link FeneconHome20}.
 	 * 
 	 * @return the settings object
 	 */
-	public static final JsonObject minSettings() {
+	public static JsonObject minSettings() {
 		return JsonUtils.buildJsonObject() //
 				.addProperty("SAFETY_COUNTRY", "GERMANY") //
-				.addProperty("FEED_IN_TYPE", FeedInType.DYNAMIC_LIMITATION) //
+				.addProperty("FEED_IN_TYPE", ExternalLimitationType.DYNAMIC_LIMITATION) //
 				.addProperty("MAX_FEED_IN_POWER", 1000) //
 				.addProperty("FEED_IN_SETTING", "LAGGING_0_95") //
 				.addProperty("HAS_AC_METER", false) //

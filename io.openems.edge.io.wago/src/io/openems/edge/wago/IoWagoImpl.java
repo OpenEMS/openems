@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -177,6 +178,7 @@ public class IoWagoImpl extends AbstractOpenemsModbusComponent
 	protected static Document parseXmlToDocument(InputStream is)
 			throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
+		dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var doc = dBuilder.parse(is);
 		doc.getDocumentElement().normalize();

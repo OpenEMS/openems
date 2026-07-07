@@ -8,9 +8,9 @@ import io.openems.edge.controller.api.Controller;
 
 public interface ControllerApiMqtt extends Controller, OpenemsComponent, EventHandler {
 
-	public static final String TOPIC_CHANNEL_PREFIX = "channel/";
+	public static final String TOPIC_CHANNEL_PREFIX = "channel";
 	public static final String TOPIC_CHANNEL_LAST_UPDATE = "lastUpdate";
-	public static final String TOPIC_EDGE_CONFIG = "edgeConfig/";
+	public static final String TOPIC_EDGE_CONFIG = "edgeConfig";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

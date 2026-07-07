@@ -81,14 +81,14 @@ public class ControllerEssLimiter14aImpl extends AbstractOpenemsComponent implem
 	@Override
 	public void run() throws OpenemsNamedException {
 		BooleanReadChannel inputChannel = this.componentManager.getChannel(this.inputChannelAddress);
-		var onGrid = this.sum.channel(Sum.ChannelId.GRID_MODE).value().asEnum() != GridMode.OFF_GRID;
+		var onGrid = this.sum.getGridMode() != GridMode.OFF_GRID;
 		// 0/1 is reversed on relays board
 		var isActive = onGrid && !inputChannel.value().orElse(true);
 		if (isActive) {
 			this.ess.setActivePowerGreaterOrEquals(ESS_LIMIT_14A_ENWG);
 		}
 
-		this.channel(ControllerEssLimiter14a.ChannelId.RESTRICTION_MODE).setNextValue(isActive);
+		this._setRestrictionMode(isActive);
 		this.cumulatedRestrictionTime.update(isActive);
 	}
 

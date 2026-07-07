@@ -1,0 +1,57 @@
+Bundle-Name: tribuo
+Bundle-DocURL: https://tribuo.org/learn/4.0/docs/
+Bundle-License: https://opensource.org/licenses/Apache-2.0
+Bundle-Version: 4.3.2
+
+Include-Resource: \
+	@tribuo-common-tree-4.3.2.jar,\
+	@tribuo-core-4.3.2.jar,\
+	@tribuo-data-4.3.2.jar,\
+	@tribuo-math-4.3.2.jar,\
+	@tribuo-regression-core-4.3.2.jar,\
+	@tribuo-regression-tree-4.3.2.jar,\
+	@tribuo-util-onnx-4.3.2.jar,\
+	@tribuo-util-tokenization-4.3.2.jar,\
+
+Export-Package: \
+	ai.onnx.proto,\
+	org.tribuo,\
+	org.tribuo.common.tree,\
+	org.tribuo.common.tree.protos,\
+	org.tribuo.common.tree.impl,\
+	org.tribuo.data,\
+	org.tribuo.data.columnar,\
+	org.tribuo.dataset,\
+	org.tribuo.datasource,\
+	org.tribuo.ensemble,\
+	org.tribuo.evaluation,\
+	org.tribuo.evaluation.metrics,\
+	org.tribuo.impl,\
+	org.tribuo.hash,\
+	org.tribuo.math.la,\
+	org.tribuo.math.protos,\
+	org.tribuo.math.util,\
+	org.tribuo.provenance,\
+	org.tribuo.regression,\
+	org.tribuo.regression.ensemble,\
+	org.tribuo.regression.evaluation,\
+	org.tribuo.regression.rtree,\
+	org.tribuo.regression.rtree.impurity,\
+	org.tribuo.protos,\
+	org.tribuo.protos.core,\
+	org.tribuo.sequence,\
+	org.tribuo.transform,\
+	org.tribuo.util,\
+	org.tribuo.util.onnx,\
+	org.tribuo.util.tokens,\
+	org.tribuo.util.tokens.impl,\
+
+Import-Package: \
+	org.jline;resolution:=optional,\
+	org.jline.*;resolution:=optional,\
+	com.oracle.labs.mlrg.olcut.config,\
+	*
+
+-dsannotations: *
+
+-metatypeannotations: *

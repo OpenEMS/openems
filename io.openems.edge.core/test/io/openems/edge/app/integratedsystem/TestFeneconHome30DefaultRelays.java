@@ -33,16 +33,20 @@ public class TestFeneconHome30DefaultRelays {
 					Apps::selfConsumptionOptimization, //
 					Apps::socomecMeter, //
 					Apps::prepareBatteryExtension, //
+					Apps::sohCycle, //
 					Apps::heatPump, //
 					Apps::heatingElement, //
 					Apps::combinedHeatAndPower, //
 					Apps::manualRelayControl, //
-					Apps::thresholdControl //
+					Apps::thresholdControl, //
+					Apps::predictionDefault, //
+					Apps::predictionUnmanagedConsumption//
 			);
 		}, null, new PseudoComponentManagerFactory());
 
 		this.appManagerTestBundle
 				.addSchedulerByCentralOrderAggregateTask(this.appManagerTestBundle.addComponentAggregateTask());
+		this.appManagerTestBundle.addPredictorManagerByCentralOrderAggregateTask();
 
 		this.createFullHomeWithDummyIo();
 	}

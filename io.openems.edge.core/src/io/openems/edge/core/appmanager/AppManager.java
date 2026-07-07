@@ -12,14 +12,13 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface AppManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //
+		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING)//
 				.translationKey(AppManager.class, "AppManager.WrongAppConfiguration")), //
-		DEFECTIVE_APP(Doc.of(Level.INFO) //
-				// TODO should be a WARNING eventually
+		DEFECTIVE_APP(Doc.of(Level.INFO)// TODO should be a WARNING eventually
 				.translationKey(AppManager.class, "AppManager.DefectiveApp")), //
-		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO) //
+		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO)//
 				.translationKey(AppManager.class, "AppManager.AppsNotSynced")), //
-		HARDWARE_MISSMATCH(Doc.of(Level.INFO) //
+		HARDWARE_MISMATCH(Doc.of(Level.INFO)//
 				.text("The current installed hardware app is not the same as defined in 'hardware.conf'")), //
 		;
 
@@ -70,13 +69,13 @@ public interface AppManager extends OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on
-	 * {@link ChannelId#HARDWARE_MISSMATCH} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#HARDWARE_MISMATCH}
+	 * Channel.
 	 * 
 	 * @param value the next value
 	 */
-	public default void _setHardwareMissmatch(boolean value) {
-		this.getHardwareMissmatchChannel().setNextValue(value);
+	public default void _setHardwareMismatch(boolean value) {
+		this.getHardwareMismatchChannel().setNextValue(value);
 	}
 
 	/**
@@ -136,22 +135,22 @@ public interface AppManager extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Hardware-Missmatch info State. See
-	 * {@link ChannelId#HARDWARE_MISSMATCH}.
+	 * Gets the Hardware-Mismatch info State. See
+	 * {@link ChannelId#HARDWARE_MISMATCH}.
 	 * 
 	 * @return the Channel {@link Value}
 	 */
-	public default Value<Boolean> getHardwareMissmatch() {
+	public default Value<Boolean> getHardwareMismatch() {
 		return this.getAppsNotSyncedWithBackendChannel().value();
 	}
 
 	/**
-	 * Gets the channel for {@link ChannelId#HARDWARE_MISSMATCH}.
+	 * Gets the channel for {@link ChannelId#HARDWARE_MISMATCH}.
 	 * 
 	 * @return the Channel
 	 */
-	public default StateChannel getHardwareMissmatchChannel() {
-		return this.channel(ChannelId.HARDWARE_MISSMATCH);
+	public default StateChannel getHardwareMismatchChannel() {
+		return this.channel(ChannelId.HARDWARE_MISMATCH);
 	}
 
 }

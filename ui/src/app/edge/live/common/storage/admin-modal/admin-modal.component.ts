@@ -1,0 +1,415 @@
+// @ts-strict-ignore
+import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { AlertController, ModalController } from "@ionic/angular";
+import { FormlyModule } from "@ngx-formly/core";
+import { TranslateService } from "@ngx-translate/core";
+import { isBefore } from "date-fns";
+import { v4 as uuidv4 } from "uuid";
+import { SohDeterminationService } from "src/app/edge/live/common/soh/service/soh-determination.service";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
+import { Converter } from "src/app/shared/components/shared/converter";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
+import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { environment, Environment } from "src/environments";
+import { SohCycleSectionComponent } from "../../soh/components/soh-cycle-section/soh-cycle-section";
+import { StorageSystemComponent } from "./storage-system/storage-system";
+
+@Component({
+    selector: "storage-modal",
+    templateUrl: "./admin-modal.component.html",
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        StorageSystemComponent,
+        SohCycleSectionComponent,
+        HelpButtonComponent,
+        ReactiveFormsModule,
+        FormsModule,
+        FormlyModule,
+        PipeComponentsModule,
+        ComponentsBaseModule,
+        ModalComponentsModule,
+        LocaleProvider,
+        LiveDataServiceProvider,
+    ],
+    styles: [`
+            .ess-accordion-group {
+                padding: 0 0.625rem;
+            }
+            .ess-accordion {
+                margin: 1rem 0;
+                border-radius: 0.625rem;
+                overflow: hidden;
+                width: 100%;
+            }
+            .ess-accordion-header {
+                --background: var(--ion-color-light);
+                --color: var(--ion-color-title);
+                --padding-start: 0.75rem;
+                --inner-padding-end: 0.75rem;
+                --min-height: 2.75rem;
+                --border-color: transparent;
+                box-shadow: 0 0.125rem 0.375rem var(--ion-card-header-shadow);
+            }
+            .ess-accordion-content {
+                background: var(--ion-color-light);
+            }`,
+    ],
+})
+export class AdminStorageModalComponent implements OnInit, OnDestroy {
+
+    // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
+
+    @Input({ required: true }) protected edge!: Edge;
+    @Input() protected component: EdgeConfig.Component | null = null;
+
+    // reference to the Utils method to access via html
+    public isLastElement = Utils.isLastElement;
+
+    public formGroup: FormGroup = new FormGroup({});
+    protected readonly Converter = Converter;
+    protected isAtLeastInstaller: boolean;
+    protected isTargetTimeInValid: Map<string, boolean> = new Map();
+    protected controllerIsRequiredEdgeVersion: boolean = false;
+    protected hasRequiredEdgeVersion: boolean = false;
+    protected config: EdgeConfig;
+    protected essComponents: EdgeConfig.Component[] | null = null;
+    protected chargerComponents!: EdgeConfig.Component[];
+    protected batteryInverters: EdgeConfig.Component[] = [];
+    protected batteryInverterIdsByEssId: { [essId: string]: string[] } = {};
+    protected spinnerId: string = uuidv4();
+
+    protected readonly environment: Environment = environment;
+
+    constructor(
+        public service: Service,
+        public translate: TranslateService,
+        public modalCtrl: ModalController,
+        public alertCtrl: AlertController,
+        public websocket: Websocket,
+        public formBuilder: FormBuilder,
+        protected sohDeterminationService: SohDeterminationService,
+    ) { }
+
+    ngOnInit() {
+        this.edge.getFirstValidConfig(this.websocket).then(config => {
+            this.config = config;
+
+            // Initialize SoH cycle state tracking
+            this.sohDeterminationService.initializeSohTracking(config, this.edge);
+
+            this.essComponents = this.config
+                .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+                .filter(component => component.isEnabled && !this.config
+                    .getNatureIdsByFactoryId(component.factoryId)
+                    .includes("io.openems.edge.ess.api.MetaEss"));
+
+            this.chargerComponents = this.config
+                .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+                .filter(component => component.isEnabled);
+
+            const BatteryInverterNature = "io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter";
+            this.batteryInverters = this.config
+                .getComponentsImplementingNature(BatteryInverterNature)
+                ?.filter(c => c.isEnabled) || [];
+
+            this.batteryInverterIdsByEssId = {};
+            for (const bi of this.batteryInverters) {
+                const essLink = bi.properties?.["ess.id"];
+                if (essLink) {
+                    (this.batteryInverterIdsByEssId[essLink] ||= []).push(bi.id);
+                }
+            }
+
+            // Future Work: Remove when all ems are at least at this version
+            this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast("2023.2.5");
+
+            this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
+            const emergencyReserveCtrl = this.config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
+            const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
+            const essSohCycleCtrl = this.config.getComponentsByFactory("Controller.Ess.SoH.Cycle");
+            this.hasRequiredEdgeVersion = this.edge.isVersionAtLeast("2024.12.3");
+            const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl, ...essSohCycleCtrl].filter(component => component.isEnabled).reduce((result, component) => {
+                const essId = component.properties["ess.id"];
+                if (result[essId] == null) {
+                    result[essId] = [];
+                }
+                result[essId].push(component);
+                return result;
+            }, {});
+
+            const channelAddresses: ChannelAddress[] = [];
+            channelAddresses.push(...this.chargerComponents.map(comp => new ChannelAddress(comp.id, "ActualPower")));
+
+            if (this.hasRequiredEdgeVersion) {
+                channelAddresses.push(new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"));
+            }
+            for (const essId in prepareBatteryExtensionCtrl) {
+                const controller = prepareBatteryExtensionCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                    new ChannelAddress(controller.id, "_PropertyTargetTime"),
+                    new ChannelAddress(controller.id, "_PropertyTargetTimeSpecified"),
+                    new ChannelAddress(controller.id, "_PropertyTargetSoc"),
+                    new ChannelAddress(controller.id, "_PropertyTargetTimeBuffer"),
+                    new ChannelAddress(controller.id, "ExpectedStartEpochSeconds"),
+                    new ChannelAddress(controller.id, "CtrlIsInReferenceCycle"),
+                );
+            }
+
+            for (const essId in emergencyReserveCtrl) {
+                const controller = emergencyReserveCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyIsReserveSocEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyReserveSoc"),
+                );
+            }
+
+            for (const essId in essSohCycleCtrl) {
+                const controller = essSohCycleCtrl[essId];
+                channelAddresses.push(
+                    new ChannelAddress(controller.id, "_PropertyEnabled"),
+                    new ChannelAddress(controller.id, "_PropertyIsRunning"),
+                    new ChannelAddress(controller.id, "_PropertyLogVerbosity"),
+                    new ChannelAddress(controller.id, "StateMachine"),
+                    new ChannelAddress(controller.id, "SohPercent"),
+                    new ChannelAddress(controller.id, "MeasuredCapacity"),
+                    new ChannelAddress(controller.id, "IsBatteryBalanced"),
+                    new ChannelAddress(controller.id, "IsMeasured"),
+                );
+            }
+
+            for (const batteryInverter of this.batteryInverters) {
+                channelAddresses.push(new ChannelAddress(batteryInverter.id, "ActivePower"));
+                channelAddresses.push(new ChannelAddress(batteryInverter.id, "AirTemperature"));
+            }
+
+            this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
+
+            this.edge.currentData
+                .subscribe(currentData => {
+
+                    const controls: FormGroup = new FormGroup({});
+                    if (this.hasRequiredEdgeVersion) {
+                        controls.addControl("_meta", this.formBuilder.group({
+                            isEssChargeFromGridAllowed: new FormControl(currentData.channel["_meta/IsEssChargeFromGridAllowed"]),
+                        }));
+                    }
+                    for (const essId of Object.keys(components)) {
+                        const controllers = components[essId];
+
+                        const controllerFrmGrp: FormGroup = new FormGroup({});
+                        for (const controller of (controllers as EdgeConfig.Component[])) {
+
+                            if (controller.factoryId == "Controller.Ess.EmergencyCapacityReserve") {
+                                const reserveSoc = currentData.channel[controller.id + "/_PropertyReserveSoc"] ?? 20 /* default Reserve-Soc */;
+                                const isReserveSocEnabled = currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1;
+
+                                controllerFrmGrp.addControl("emergencyReserveController",
+                                    this.formBuilder.group({
+                                        controllerId: new FormControl(controller["id"]),
+                                        isReserveSocEnabled: new FormControl(isReserveSocEnabled),
+                                        reserveSoc: new FormControl(reserveSoc),
+                                    }),
+                                );
+
+                            } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
+
+                                const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
+                                const isInReferenceCycle = currentData.channel[controller.id + "/CtrlIsInReferenceCycle"] == 1;
+
+                                // Because of ionic segment buttons only accepting a string value, i needed to convert it
+                                const targetTimeSpecified = (currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1).toString();
+                                let targetTime = currentData.channel[controller.id + "/_PropertyTargetTime"];
+                                const targetSoc = currentData.channel[controller.id + "/_PropertyTargetSoc"];
+                                const targetTimeBuffer = currentData.channel[controller.id + "/_PropertyTargetTimeBuffer"];
+                                const epochSeconds = currentData.channel[controller.id + "/ExpectedStartEpochSeconds"];
+
+                                const expectedStartOfPreparation = new Date(0);
+                                expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
+
+                                // If targetTime not set, not equals 0 or targetTime is no valid time,
+                                // then set targetTime to null
+                                if (!targetTime || targetTime == 0 || isNaN(Date.parse(targetTime))) {
+                                    targetTime = null;
+                                }
+
+                                // Channel "ExpectedStartEpochSeconds" is not set
+                                if ((epochSeconds == null
+                                    || epochSeconds == 0)) {
+                                    this.isTargetTimeInValid.set(essId, true);
+                                } else if (isBefore(new Date(targetTime), expectedStartOfPreparation)
+                                    || isBefore(new Date(targetTime), new Date())) {
+
+                                    // If expected expectedStartOfpreparation is after targetTime
+                                    //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
+                                    this.isTargetTimeInValid.set(essId, true);
+                                } else {
+                                    this.isTargetTimeInValid.set(essId, false);
+                                }
+
+                                controllerFrmGrp.addControl("prepareBatteryExtensionController",
+                                    this.formBuilder.group({
+                                        controllerId: new FormControl(controller.id),
+                                        isRunning: new FormControl(isRunning),
+                                        isInReferenceCycle: new FormControl(isInReferenceCycle),
+                                        targetTime: new FormControl(targetTime),
+                                        targetTimeSpecified: new FormControl(targetTimeSpecified),
+                                        targetSoc: new FormControl(targetSoc),
+                                        targetTimeBuffer: new FormControl(targetTimeBuffer),
+                                        expectedStartOfPreparation: new FormControl(expectedStartOfPreparation),
+                                    }),
+                                );
+                            } else if (controller.factoryId == "Controller.Ess.SoH.Cycle") {
+                                this.addSohCycleFormGroup(currentData, controller, controllerFrmGrp);
+                            }
+                        }
+                        controls.addControl(essId, controllerFrmGrp);
+                    }
+
+                    if (!this.formGroup.dirty) {
+                        this.formGroup = controls;
+                    }
+                });
+        },
+        );
+
+    }
+
+    async applyChanges() {
+        if (this.edge == null) {
+            return;
+        }
+
+        const updateArray: Map<string, Array<Map<string, any>>> = new Map();
+        if (this.hasRequiredEdgeVersion) {
+            const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];
+            for (const prop of Object.keys(metaFormGroup)) {
+                if (metaFormGroup[prop].dirty) {
+                    if (updateArray.get("_meta")) {
+                        updateArray.get("_meta").push(new Map().set(prop, metaFormGroup[prop].value));
+                    } else {
+                        updateArray.set("_meta", [new Map().set(prop, metaFormGroup[prop].value)]);
+                    }
+                }
+            }
+        }
+
+        for (const essId in this.formGroup.controls) {
+            const essGroups = this.formGroup.controls[essId];
+
+            const emergencyReserveController = (essGroups.get("emergencyReserveController") as FormGroup)?.controls ?? {};
+            for (const essGroup of Object.keys(emergencyReserveController)) {
+                if (emergencyReserveController[essGroup].dirty) {
+                    if (updateArray.get(emergencyReserveController["controllerId"].value)) {
+                        updateArray.get(emergencyReserveController["controllerId"].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
+                    } else {
+                        updateArray.set(emergencyReserveController["controllerId"].value, [new Map().set(essGroup, emergencyReserveController[essGroup].value)]);
+                    }
+                }
+
+            }
+            const prepareBatteryExtensionController = (essGroups.get("prepareBatteryExtensionController") as FormGroup)?.controls ?? {};
+            for (const essGroup of Object.keys(prepareBatteryExtensionController)) {
+                if (prepareBatteryExtensionController[essGroup].dirty) {
+
+                    // For simplicity, split targetTimeSpecified in 2 for template formControlName
+                    if (updateArray.get(prepareBatteryExtensionController["controllerId"].value)) {
+                        updateArray.get(prepareBatteryExtensionController["controllerId"].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
+                    } else {
+                        updateArray.set(prepareBatteryExtensionController["controllerId"].value, [new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value)]);
+                    }
+                }
+            }
+            const essSohCycleController = (essGroups.get("essSohCycleController") as FormGroup)?.controls ?? {};
+            for (const essGroup of Object.keys(essSohCycleController)) {
+                if (essSohCycleController[essGroup].dirty) {
+                    if (updateArray.get(essSohCycleController["controllerId"].value)) {
+                        updateArray.get(essSohCycleController["controllerId"].value).push(new Map().set(essGroup, essSohCycleController[essGroup].value));
+                    } else {
+                        updateArray.set(essSohCycleController["controllerId"].value, [new Map().set(essGroup, essSohCycleController[essGroup].value)]);
+                    }
+                }
+            }
+        }
+
+        for (const controllerId of updateArray.keys()) {
+            const controllers = updateArray.get(controllerId);
+            const properties: { name: string, value: any }[] = [];
+            controllers.forEach((element) => {
+                const name = element.keys().next().value;
+                const rawValue = element.values().next().value;
+                let value = rawValue;
+
+                // Needs to be done to get Datetime string in this format: YYYY-MM-DDTHH:mm:ssTZD
+                if (name === "targetTime") {
+                    value = DateTimeUtils.formatToISOZonedDateTime(rawValue);
+                }
+
+                properties.push({
+                    name: name,
+                    value: value,
+                });
+            });
+
+            try {
+                // todo: updateAppConfig for once fixed
+                await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                this.formGroup.markAsPristine();
+
+            } catch (reason) {
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
+            }
+
+        }
+    }
+
+    ngOnDestroy() {
+        this.edge.unsubscribeChannels(this.websocket, "storage");
+    }
+
+    /**
+     * Add SoH cycle controller form group with channel data
+     */
+    private addSohCycleFormGroup(
+        currentData: any,
+        controller: EdgeConfig.Component,
+        controllerFrmGrp: FormGroup,
+    ): void {
+        this.service.startSpinnerTransparentBackground(this.spinnerId);
+        const enabled = currentData.channel[controller.id + "/_PropertyEnabled"] == 1;
+        const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"];
+        const stateMachine = currentData.channel[controller.id + "/StateMachine"];
+        const stateMachineDisplay = this.sohDeterminationService.getStateMachineName(stateMachine);
+        const sohPercent = currentData.channel[controller.id + "/SohPercent"];
+        const logVerbosity = currentData.channel[controller.id + "/_PropertyLogVerbosity"];
+        const measuredCapacity = currentData.channel[controller.id + "/MeasuredCapacity"];
+        const isBatteryBalanced = currentData.channel[controller.id + "/IsBatteryBalanced"] == 1;
+        const isMeasured = currentData.channel[controller.id + "/IsMeasured"] == 1;
+
+        controllerFrmGrp.addControl("essSohCycleController",
+            this.formBuilder.group({
+                controllerId: new FormControl(controller.id),
+                enabled: new FormControl(enabled),
+                isRunning: new FormControl(isRunning),
+                stateMachine: new FormControl(stateMachine),
+                stateMachineDisplay: new FormControl(stateMachineDisplay),
+                sohPercent: new FormControl(sohPercent),
+                logVerbosity: new FormControl(logVerbosity),
+                measuredCapacity: new FormControl(measuredCapacity),
+                isBatteryBalanced: new FormControl(isBatteryBalanced),
+                isMeasured: new FormControl(isMeasured),
+            }),
+        );
+    }
+
+}

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.type.Phase;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 public class Coefficients {

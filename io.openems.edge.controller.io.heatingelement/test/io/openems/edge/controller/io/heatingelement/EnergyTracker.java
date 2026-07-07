@@ -13,8 +13,8 @@ public class EnergyTracker {
 	 * @return the current energy in Wh.
 	 */
 	public long add(int powerW, int durationSeconds) {
-		this.currentWh += (powerW * durationSeconds) / 3600.0;
-		return (long)this.currentWh;
+		this.currentWh += (powerW * durationSeconds) / 3600F;
+		return (long) this.currentWh;
 	}
 	
 	/**
@@ -22,7 +22,7 @@ public class EnergyTracker {
 	 * @return the current energy.
 	 */
 	public long getCurrentWh() {
-		return (long)this.currentWh;
+		return (long) this.currentWh;
 	}
 	
 	/**
@@ -31,6 +31,6 @@ public class EnergyTracker {
 	 */
 	public long reset() {
 		this.currentWh = 0;
-		return (long)this.currentWh;
+		return 0;
 	}
 }

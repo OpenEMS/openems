@@ -1,0 +1,32 @@
+@if(isInitialized){
+  <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup">
+    @if(readOnly){
+      <ng-container>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="state | translate"
+          [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-modal-line>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      </ng-container>
+    } @else {
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_MODE'| translate" [value]="state"
+        [converter]="CONVERT_ENERIX_CONTROL_STATE"></oe-modal-line>
+      <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="overwriteLabel">
+      </oe-modal-line>
+
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      <oe-modal-buttons [formGroup]="formGroup" controlName="controlMode" [component]="component" [buttons]="[
+        { name: ('GENERAL.ON' | translate), value: 'REMOTE_CONTROL', icon: {color:'primary', name: 'play-outline'}},
+        { name: ('GENERAL.OFF' | translate), value: 'OFF', icon: {color:'danger', name: 'stop-circle-outline'}}]">
+      </oe-modal-buttons>
+
+      @if (formGroup.value.controlMode === 'REMOTE_CONTROL') {
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+        <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NOTE' | translate" style="font-weight: bold;">
+        </oe-modal-line>
+        <oe-modal-info-line [info]="'EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_INFO' | translate">
+        </oe-modal-info-line>
+        <oe-modal-horizontal-line></oe-modal-horizontal-line>
+      }
+    }
+  </oe-modal>
+}

@@ -1,7 +1,6 @@
 package io.openems.edge.app.timeofusetariff.manual;
 
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.app.timeofusetariff.AncillaryCostsProps.createAncillaryCosts;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -17,11 +16,12 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.timeofusetariff.AncillaryCostsProps;
+import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
 import io.openems.edge.app.timeofusetariff.TimeOfUseProps;
 import io.openems.edge.app.timeofusetariff.manual.OctopusHeat.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -79,7 +79,13 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 
 		STANDARD_PRICE(TimeOfUseProps.price(".standardPrice")), //
 
-		LOW_PRICE(TimeOfUseProps.price(".lowPrice")); //
+		LOW_PRICE(TimeOfUseProps.price(".lowPrice")), //
+
+		PARAGRAPH_14A_CHECK(TimeOfUseProps.paragraph14aCheck()), //
+
+		GERMAN_DSO(AncillaryCostsProps.germanDso(PARAGRAPH_14A_CHECK)), //
+
+		TARIFF_TABLE(AncillaryCostsProps.tariffTable(GERMAN_DSO, TIME_OF_USE_TARIFF_PROVIDER_ID)); //
 
 		private final AppDef<? super OctopusHeat, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -121,6 +127,15 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 			final var standardPrice = this.getDouble(p, Property.STANDARD_PRICE);
 			final var lowPrice = this.getDouble(p, Property.LOW_PRICE);
 
+			final var paragraph14aCheck = this.getBoolean(p, Property.PARAGRAPH_14A_CHECK);
+			final var germanDso = paragraph14aCheck ? this.getEnum(p, GermanDSO.class, Property.GERMAN_DSO) : null;
+
+			final var tariffTable = paragraph14aCheck && germanDso == GermanDSO.OTHER
+					? this.getJsonArray(p, Property.TARIFF_TABLE)
+					: null;
+
+			final var ancillaryCosts = createAncillaryCosts(paragraph14aCheck, germanDso, tariffTable, t);
+
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
@@ -131,6 +146,7 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 									.addProperty("highPrice", highPrice) //
 									.addProperty("standardPrice", standardPrice) //
 									.addProperty("lowPrice", lowPrice) //
+									.addProperty("ancillaryCosts", ancillaryCosts) //
 									.build())//
 			);
 
@@ -141,13 +157,6 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override
@@ -168,7 +177,7 @@ public class OctopusHeat extends AbstractOpenemsAppWithProps<OctopusHeat, Proper
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

@@ -1,11 +1,21 @@
 package io.openems.edge.batteryinverter.api;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.CUMULATED_WATT_HOURS;
+import static io.openems.common.channel.Unit.DEGREE_CELSIUS;
+import static io.openems.common.channel.Unit.VOLT;
+import static io.openems.common.channel.Unit.VOLT_AMPERE;
+import static io.openems.common.channel.Unit.VOLT_AMPERE_REACTIVE;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
+import java.util.function.Consumer;
+
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
@@ -15,14 +25,13 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.common.type.TypeUtils;
 
 /**
  * Represents a Symmetric Battery-Inverter.
  */
 @ProviderType
 public interface SymmetricBatteryInverter extends OpenemsComponent {
-
-	public static final String POWER_DOC_TEXT = "Negative values for Charge; positive for Discharge";
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		/**
@@ -34,9 +43,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Range: 0=Undefined, 1=On-Grid, 2=Off-Grid
 		 * </ul>
 		 */
-		GRID_MODE(Doc.of(GridMode.values()) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		GRID_MODE(Doc.of(GridMode.values())//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * Active Power.
 		 *
@@ -47,11 +56,11 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		ACTIVE_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.translationKey(SymmetricBatteryInverter.class, "activePower")//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * Reactive Power.
 		 *
@@ -59,14 +68,25 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Interface: SymmetricBatteryInverter
 		 * <li>Type: Integer
 		 * <li>Unit: var
-		 * <li>Range: negative values for Charge; positive for Discharge
 		 * </ul>
 		 */
-		REACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.text(POWER_DOC_TEXT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		REACTIVE_POWER(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE_REACTIVE)//
+				.persistencePriority(HIGH)),
+
+		/**
+		 * Apparent Power.
+		 *
+		 * <ul>
+		 * <li>Interface: SymmetricBatteryInverter
+		 * <li>Type: Integer
+		 * <li>Unit: VA
+		 * </ul>
+		 */
+		APPARENT_POWER(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE)//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * Holds the currently maximum possible apparent power. This value is commonly
 		 * defined by the inverter limitations.
@@ -78,10 +98,10 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Range: zero or positive value
 		 * </ul>
 		 */
-		MAX_APPARENT_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		MAX_APPARENT_POWER(Doc.of(INTEGER)//
+				.unit(VOLT_AMPERE)//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * Active Charge Energy.
 		 *
@@ -91,10 +111,10 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		ACTIVE_CHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * Active Discharge Energy.
 		 *
@@ -104,10 +124,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ACTIVE_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH)//
-		), //
+		ACTIVE_DISCHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH)),
 
 		/**
 		 * Inverter DC Minimum Voltage.
@@ -118,10 +137,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		DC_MIN_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.persistencePriority(PersistencePriority.HIGH)//
-		), //
+		DC_MIN_VOLTAGE(Doc.of(INTEGER)//
+				.unit(VOLT)//
+				.persistencePriority(HIGH)),
 
 		/**
 		 * Inverter DC Max Voltage.
@@ -132,10 +150,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: V
 		 * </ul>
 		 */
-		DC_MAX_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		), //
+		DC_MAX_VOLTAGE(Doc.of(INTEGER)//
+				.unit(VOLT)//
+				.persistencePriority(HIGH)),
 
 		/**
 		 * Inverter Cabinet Temperature.
@@ -146,10 +163,9 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 		 * <li>Unit: C
 		 * </ul>
 		 */
-		TEMPERATURE_CABINET(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		);
+		TEMPERATURE_CABINET(Doc.of(INTEGER)//
+				.unit(DEGREE_CELSIUS)//
+				.persistencePriority(HIGH));
 
 		private final Doc doc;
 
@@ -495,5 +511,47 @@ public interface SymmetricBatteryInverter extends OpenemsComponent {
 	 */
 	public default Value<Integer> getTemperatureCabinet() {
 		return this.getTemperatureCabinetChannel().value();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#APPARENT_POWER}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getApparentPowerChannel() {
+		return this.channel(ChannelId.APPARENT_POWER);
+	}
+
+	/**
+	 * Gets the Apparent Power in [VA]. See {@link ChannelId#APPARENT_POWER}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Integer> getApparentPower() {
+		return this.getApparentPowerChannel().value();
+	}
+
+	/**
+	 * Adds listeners on {@link ChannelId#ACTIVE_POWER} and
+	 * {@link ChannelId#REACTIVE_POWER} to calculate the
+	 * {@link ChannelId#APPARENT_POWER}.
+	 *
+	 * @param batteryInverter the {@link SymmetricBatteryInverter}
+	 */
+	public static void calculateApparentPowerFromActiveAndReactivePower(SymmetricBatteryInverter batteryInverter) {
+		final Consumer<Value<Integer>> calculateApparentPower = ignore -> {
+			var activePower = batteryInverter.getActivePowerChannel().getNextValue().get();
+			var reactivePower = batteryInverter.getReactivePowerChannel().getNextValue().get();
+			final Integer apparentPower;
+			if (activePower == null || reactivePower == null) {
+				apparentPower = null;
+			} else {
+				apparentPower = TypeUtils.getAsType(INTEGER,
+						Math.sqrt(Math.pow(reactivePower, 2) + Math.pow(activePower, 2)));
+			}
+			setValue(batteryInverter, SymmetricBatteryInverter.ChannelId.APPARENT_POWER, apparentPower);
+		};
+		batteryInverter.getActivePowerChannel().onSetNextValue(calculateApparentPower);
+		batteryInverter.getReactivePowerChannel().onSetNextValue(calculateApparentPower);
 	}
 }

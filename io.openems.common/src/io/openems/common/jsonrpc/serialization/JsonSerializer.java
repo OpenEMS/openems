@@ -65,7 +65,29 @@ public interface JsonSerializer<T> {
 	 * @return the deserialized object from the {@link JsonElement}
 	 */
 	public default T deserialize(JsonElement json) {
-		return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
+		try {
+			return this.deserializePath(new JsonElementPathActual.JsonElementPathActualNonNull(json));
+		} catch (RuntimeException e) {
+			throw new JsonParseException(e);
+		}
+	}
+
+	/**
+	 * Deserializes from a nullable {@link JsonElement} to the object.
+	 *
+	 * <p>
+	 * Returns {@code null} if the input is {@code null} or JSON {@code null}.
+	 *
+	 * @param json the nullable {@link JsonElement}
+	 * @return the deserialized object or {@code null}
+	 */
+	default T deserializeNullable(JsonElement json) {
+		try {
+			return new JsonElementPathActual.JsonElementPathActualNullable(json) //
+					.mapIfPresent(this::deserializePath);
+		} catch (RuntimeException e) {
+			throw new JsonParseException(e);
+		}
 	}
 
 	/**

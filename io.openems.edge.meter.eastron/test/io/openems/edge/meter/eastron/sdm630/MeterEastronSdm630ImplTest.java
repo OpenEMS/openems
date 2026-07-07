@@ -16,7 +16,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.meter.test.InvertTest;
 import io.openems.edge.timedata.test.DummyTimedata;
 
@@ -33,7 +33,6 @@ public class MeterEastronSdm630ImplTest {
 				ZoneOffset.UTC);
 		this.cma = new DummyComponentManager(this.clock);
 		this.testBasis = new ComponentTest(new MeterEastronSdm630Impl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("cma", this.cma)//
 				.addReference("timedata", new DummyTimedata("timedata0"))
 				.addReference("setModbus", new DummyModbusBridge("modbus0")//
@@ -100,28 +99,35 @@ public class MeterEastronSdm630ImplTest {
 
 	@Test
 	public void testNonInvert() throws Exception {
-		var test = this.testBasis.activate(MyConfig.create() //
-				.setId("meter0") //
-				.setModbusId("modbus0") //
-				.setInvert(false)//
-				.setType(GRID) //
-				.build());
-		test.next(InvertTest.testInvert(false));
-		test.next(new TestCase().timeleap(this.clock, 60, ChronoUnit.MINUTES));
-		test.next(InvertTest.testEnergyInvert(false));
+		this.testBasis //
+				.activate(MyConfig.create() //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setInvert(false)//
+						.setType(GRID) //
+						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
+						.build()) //
+				.next(InvertTest.testInvert(false)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 60, ChronoUnit.MINUTES)) //
+				.next(InvertTest.testEnergyInvert(false)) //
+				.deactivate();
 	}
 
 	@Test
 	public void testInvert() throws Exception {
-		var test = this.testBasis.activate(MyConfig.create() //
-				.setId("meter0") //
-				.setModbusId("modbus0") //
-				.setInvert(true)//
-				.setType(GRID) //
-				.build());
-		test.next(InvertTest.testInvert(true));
-		test.next(new TestCase().timeleap(this.clock, 60, ChronoUnit.MINUTES));
-		test.next(InvertTest.testEnergyInvert(true));
+		this.testBasis //
+				.activate(MyConfig.create() //
+						.setId("meter0") //
+						.setModbusId("modbus0") //
+						.setInvert(true)//
+						.setType(GRID) //
+						.setPhaseRotation(PhaseRotation.L1_L2_L3) //
+						.build()) //
+				.next(InvertTest.testInvert(true)) //
+				.next(new TestCase() //
+						.timeleap(this.clock, 60, ChronoUnit.MINUTES)) //
+				.next(InvertTest.testEnergyInvert(true));
 	}
 
 }

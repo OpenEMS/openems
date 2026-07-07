@@ -6,17 +6,17 @@ import { HistoryDataErrorComponent } from "./history-data-error.component";
 
 
 @NgModule({
-  imports: [
-    CommonModule,
-    IonicModule,
-    TranslateModule,
-  ],
-  declarations: [
-    HistoryDataErrorComponent,
-  ],
-  exports: [
-    HistoryDataErrorComponent,
-  ],
+    imports: [
+        CommonModule,
+        IonicModule,
+        TranslateModule,
+    ],
+    declarations: [
+        HistoryDataErrorComponent,
+    ],
+    exports: [
+        HistoryDataErrorComponent,
+    ],
 })
 
 export class HistoryDataErrorModule { }

@@ -5,16 +5,16 @@ import { ChangelogComponent } from "./view/component/changelog.component";
 import { ChangelogViewComponent } from "./view/view";
 
 @NgModule({
-  imports: [
-    CommonModule,
-    ChangelogComponent,
-    ChangelogViewComponent,
-    ChangelogRoutingModule,
-  ],
-  declarations: [
-  ],
-  exports: [
-    ChangelogComponent,
-  ],
+    imports: [
+        CommonModule,
+        ChangelogComponent,
+        ChangelogViewComponent,
+        ChangelogRoutingModule,
+    ],
+    declarations: [
+    ],
+    exports: [
+        ChangelogComponent,
+    ],
 })
 export class ChangelogModule { }

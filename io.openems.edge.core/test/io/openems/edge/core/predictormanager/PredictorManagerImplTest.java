@@ -4,15 +4,15 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.test.DummyPredictor;
 
@@ -29,8 +29,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -66,8 +65,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -103,8 +101,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //
@@ -140,8 +137,7 @@ public class PredictorManagerImplTest {
 		final var clock = createDummyClock();
 		final var componentManager = new DummyComponentManager(clock);
 		final var sum = new DummySum();
-
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 
 		var predictorWithId0 = new DummyPredictor(//
 				PREDICTOR_ID0, //

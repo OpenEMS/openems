@@ -40,9 +40,9 @@ public interface IoShellyPlug
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Slave Communication Failed Fault.

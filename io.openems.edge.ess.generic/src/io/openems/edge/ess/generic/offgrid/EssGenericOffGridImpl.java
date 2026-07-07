@@ -1,6 +1,5 @@
 package io.openems.edge.ess.generic.offgrid;
 
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
 import static io.openems.edge.common.sum.GridMode.OFF_GRID;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.GRID_SWITCH;
 import static io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState.STOP_BATTERY_INVERTER;
@@ -43,8 +42,8 @@ import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.offgrid.statemachine.Context;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
@@ -65,14 +64,15 @@ import io.openems.edge.ess.power.api.Power;
 public class EssGenericOffGridImpl
 		extends AbstractGenericManagedEss<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter>
 		implements EssGenericManagedSymmetric, OffGridEss, GenericManagedEss, ManagedSymmetricEss, SymmetricEss,
-		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave, CycleProvider {
+		OpenemsComponent, EventHandler, StartStoppable, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericOffGridImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
-	private final ChannelManager channelManager = new ChannelManager(this);
 	private final AtomicBoolean fromOffToOnGrid = new AtomicBoolean(false);
 	private final AtomicReference<TargetGridMode> targetGridMode = new AtomicReference<>(TargetGridMode.GO_ON_GRID);
 	private final AtomicBoolean targetDeepDischarge = new AtomicBoolean();
+
+	private ChannelManager channelManager;
 
 	@Reference
 	private Cycle cycle;
@@ -109,6 +109,7 @@ public class EssGenericOffGridImpl
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.channelManager = new ChannelManager(this, EssProtectionConfig.NONE);
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
 
@@ -233,7 +234,7 @@ public class EssGenericOffGridImpl
 			}
 			var targetGridMode = switch ((GridMode) t.asEnum()) {
 			case ON_GRID -> TargetGridMode.GO_ON_GRID;
-			case OFF_GRID -> TargetGridMode.GO_OFF_GRID;
+			case OFF_GRID, OFF_GRID_GENSET -> TargetGridMode.GO_OFF_GRID;
 			case UNDEFINED -> null;
 			};
 			if (targetGridMode != null) {
@@ -263,12 +264,6 @@ public class EssGenericOffGridImpl
 	}
 
 	@Override
-	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
-	}
-
-	@Override
-	public void clearEssTimeoutFailure() {
-
+	public void executeErrorAcknowledge() {
 	}
 }

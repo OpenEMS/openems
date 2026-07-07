@@ -4,12 +4,13 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { RouterModule, Routes } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-import { AlertingComponent } from "./alerting.component";
+import { AlertingComponent } from "./component/alerting.component";
+import { AlertingViewComponent } from "./view/view";
 
 const routes: Routes = [
     {
         path: "",
-        component: AlertingComponent,
+        component: AlertingViewComponent,
     },
 ];
 

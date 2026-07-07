@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -16,6 +17,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -264,6 +266,16 @@ public class XmlUtils {
 	}
 
 	/**
+	 * Iterates over {@link NodeList} through {@link Stream}.
+	 *
+	 * @param nodeList the {@link NodeList}
+	 * @return the {@link Stream}
+	 */
+	public static Stream<Node> stream(final NodeList nodeList) {
+		return IntStream.range(0, nodeList.getLength()).boxed().map(nodeList::item);
+	}
+
+	/**
 	 * Parses the provided XML string and returns the root {@link Element} of the
 	 * XML document.
 	 * 
@@ -279,6 +291,7 @@ public class XmlUtils {
 	public static Element getXmlRootDocument(String xml)
 			throws ParserConfigurationException, SAXException, IOException {
 		var dbFactory = DocumentBuilderFactory.newInstance();
+		dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 		var dBuilder = dbFactory.newDocumentBuilder();
 		var is = new InputSource(new StringReader(xml));
 		var doc = dBuilder.parse(is);

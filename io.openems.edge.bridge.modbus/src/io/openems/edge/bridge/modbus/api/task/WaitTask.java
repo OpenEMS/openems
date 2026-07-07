@@ -38,6 +38,11 @@ public abstract non-sealed class WaitTask implements Task {
 	}
 
 	@Override
+	public final int getUnitId() {
+		return 0;
+	}
+
+	@Override
 	public final int getStartAddress() {
 		return 0;
 	}

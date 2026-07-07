@@ -1,5 +1,12 @@
 package io.openems.edge.simulator.ess.symmetric.reacting;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -8,12 +15,8 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,7 +27,6 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -41,11 +43,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Simulator.EssSymmetric.Reacting", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
-)
+		configurationPolicy = REQUIRE)
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
-})
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE })
 public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 		implements SimulatorEssSymmetricReacting, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider,
 		EventHandler, StartStoppable, ModbusSlave {
@@ -64,7 +64,7 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	/** Current Energy in the battery [Wms], based on SoC. */
@@ -90,9 +90,11 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 				/ 100 * this.config.initialSoc() /* [current SoC] */);
 		this._setSoc(config.initialSoc());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.capacity() * -1);
-		this._setAllowedDischargePower(config.capacity());
-		this._setGridMode(config.gridMode());
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(config.initialSoc(), config.maxChargePower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(config.initialSoc(), config.maxDischargePower()));
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, config.gridMode());
 		this._setCapacity(config.capacity());
 	}
 
@@ -108,9 +110,8 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
-			this.calculateEnergy();
-			break;
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+			-> this.calculateEnergy();
 		}
 	}
 
@@ -184,18 +185,14 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 		}
 		this._setReactivePower(reactivePower);
 		/*
-		 * Set AllowedCharge / Discharge based on SoC
+		 * Set AllowedCharge / Discharge based on SoC with derating zone: - Charge: full
+		 * below 95%, linear derating 95–100%, hard 0 at 100% - Discharge: full above
+		 * 5%, linear derating 0–5%, hard 0 at 0%
 		 */
-		if (soc == 100) {
-			this._setAllowedChargePower(0);
-		} else {
-			this._setAllowedChargePower(this.config.capacity() * -1);
-		}
-		if (soc == 0) {
-			this._setAllowedDischargePower(0);
-		} else {
-			this._setAllowedDischargePower(this.config.capacity());
-		}
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(soc, this.config.maxChargePower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(soc, this.config.maxDischargePower()));
 	}
 
 	@Override
@@ -243,5 +240,39 @@ public class SimulatorEssSymmetricReactingImpl extends AbstractOpenemsComponent
 	@Override
 	public void setStartStop(StartStop value) {
 		this._setStartStop(value);
+	}
+
+	/**
+	 * Calculates allowed charge power with a linear derating from 95% to 100% SoC.
+	 *
+	 * @param soc            the current SoC [%]
+	 * @param maxChargePower the maximum charge power [W], positive value
+	 * @return allowed charge power as a positive value [W]
+	 */
+	private static int calculateAllowedChargePower(float soc, int maxChargePower) {
+		if (soc >= 100) {
+			return 0;
+		}
+		if (soc > 95) {
+			return Math.round(maxChargePower * (100 - soc) / 5f);
+		}
+		return maxChargePower;
+	}
+
+	/**
+	 * Calculates allowed discharge power with a linear derating from 5% to 0% SoC.
+	 *
+	 * @param soc               the current SoC [%]
+	 * @param maxDischargePower the maximum discharge power [W], positive value
+	 * @return allowed discharge power as a positive value [W]
+	 */
+	private static int calculateAllowedDischargePower(float soc, int maxDischargePower) {
+		if (soc <= 0) {
+			return 0;
+		}
+		if (soc < 5) {
+			return Math.round(maxDischargePower * soc / 5f);
+		}
+		return maxDischargePower;
 	}
 }

@@ -36,6 +36,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * @throws OpenemsNamedException    on error
 	 * @throws IllegalArgumentException on error
 	 */
+	@SuppressWarnings("deprecation")
 	public default void setNextWriteValueFromObject(Object value)
 			throws OpenemsNamedException, IllegalArgumentException {
 		T typedValue = TypeUtils.<T>getAsType(this.getType(), value);
@@ -67,6 +68,7 @@ public interface WriteChannel<T> extends Channel<T> {
 	 *
 	 * @return the next write value
 	 */
+	@SuppressWarnings("deprecation")
 	public default Optional<T> getNextWriteValueAndReset() {
 		var valueOpt = this.getNextWriteValue();
 		if (valueOpt.isPresent()) {
@@ -92,6 +94,18 @@ public interface WriteChannel<T> extends Channel<T> {
 	 * @param callback the callback
 	 */
 	public void onSetNextWrite(ThrowingConsumer<T, OpenemsNamedException> callback);
+
+	/**
+	 * Removes an onSetNextWrite callback.
+	 *
+	 * <p>
+	 * The callback can throw an {@link OpenemsNamedException}.
+	 *
+	 * @param callback the callback
+	 */
+	public default void removeOnSetNextWriteCallback(ThrowingConsumer<T, OpenemsNamedException> callback) {
+		this.getOnSetNextWrites().remove(callback);
+	}
 
 	/**
 	 * Gets the onSetNextWrite callbacks.

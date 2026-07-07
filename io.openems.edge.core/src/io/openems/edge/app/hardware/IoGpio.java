@@ -54,14 +54,14 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 
 		ALIAS(alias()), //
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".hardwareType.label") //
+				.setTranslatedLabel("App.Hardware.hardwareType.label") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(Arrays.stream(GpioHardwareType.values()) //
-							.map(Enum::name) //
+					field.setOptions(Arrays.stream(GpioHardwareType.values())//
+							.map(Enum::name)//
 							.toList());
-				}) //
-				.setRequired(true) //
-				.setDefaultValue(GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				})//
+				.setRequired(true)//
+				.setDefaultValue(GpioHardwareType.MODBERRY_X500_M40804_WB)//
 				.bidirectional(IO_ID, "hardwareType", ComponentManagerSupplier::getComponentManager))), //
 		;
 
@@ -99,7 +99,7 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
 		return AppDescriptor.create() //
 				.build();
 	}

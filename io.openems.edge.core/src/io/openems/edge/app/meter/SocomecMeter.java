@@ -14,7 +14,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -72,12 +71,12 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 		// Properties
 		ALIAS(AppDef.copyOfGeneric(CommonProps.alias())), //
 		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID))), //
-		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def //
-				.setRequired(true) //
+		MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickModbusId(), def -> def//
+				.setRequired(true)//
 				.setAutoGenerateField(false))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def //
-				.setRequired(true) //
-				.setAutoGenerateField(false) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(MeterProps.modbusUnitId(), def -> def//
+				.setRequired(true)//
+				.setAutoGenerateField(false)//
 				.setDefaultValue(6))), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(AppDef.copyOfGeneric(CommunicationProps.modbusGroup(//
@@ -144,13 +143,6 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

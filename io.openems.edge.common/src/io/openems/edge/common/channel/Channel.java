@@ -105,6 +105,7 @@ public interface Channel<T> {
 	 *              ProcessImage gets activated.
 	 * @throws IllegalArgumentException on error
 	 */
+	@SuppressWarnings("deprecation")
 	public default void setNextValue(Object value) throws IllegalArgumentException {
 		try {
 			this._setNextValue(TypeUtils.<T>getAsType(this.getType(), value));
@@ -208,6 +209,13 @@ public interface Channel<T> {
 	 * @param callback the callback {@link BiConsumer}
 	 */
 	public void removeOnChangeCallback(BiConsumer<?, ?> callback);
+
+	/**
+	 * Adds a cleanup callback.
+	 *
+	 * @param callback the callback {@link Runnable}
+	 */
+	public void addOnDeactivateCallback(Runnable callback);
 
 	/**
 	 * Deactivates the Channel and makes sure all callbacks are released for garbe

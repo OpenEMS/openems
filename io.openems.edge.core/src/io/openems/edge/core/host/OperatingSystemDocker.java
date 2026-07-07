@@ -11,8 +11,11 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.Bash.Command;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
 import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
 import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
@@ -40,7 +43,17 @@ public class OperatingSystemDocker implements OperatingSystem {
 	@Override
 	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
 			ExecuteSystemCommandRequest request) throws NotImplementedException {
-		throw new NotImplementedException("ExecuteSystemCommandRequest is not implemented for Docker");
+		return execute(request.systemCommand).thenApply(cmd -> { //
+			final var scr = new SystemCommandResponse(cmd.stdout(), cmd.stderr(), cmd.exitCode());
+			return new ExecuteSystemCommandResponse(request.id, scr);
+		});
+	}
+
+	private static CompletableFuture<Command> execute(SystemCommand sc) {
+		return new Bash(sc.command()) //
+				.withTimeout(sc.timeoutSeconds()) //
+				.runInBackground(sc.runInBackground()) //
+				.execute();
 	}
 
 	@Override
@@ -74,4 +87,10 @@ public class OperatingSystemDocker implements OperatingSystem {
 	public Updateable getSystemUpdateable() {
 		return null;
 	}
+
+	@Override
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		throw new NotImplementedException("deleteNetworkInterfaces is not implemented for Docker");
+	}
+
 }

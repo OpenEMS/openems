@@ -1,0 +1,8 @@
+<oe-navigation-view *ngIf="edge">
+    <ion-buttons header class="ion-justify-content-center">
+        <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+        <pickdate *ngIf="!ref.children.length"></pickdate>
+    </ion-buttons>
+    <selfconsumptionChart [isOnlyChart]="true">
+    </selfconsumptionChart>
+</oe-navigation-view>

@@ -50,7 +50,7 @@ public class TestHeatingElement {
 				new AddAppInstance.Request(this.heatingElement.getAppId(), "key", "alias",
 						this.getHeatingWithInternMeterJson()));
 
-		assertEquals(5, this.appManagerTestBundle.sut.getInstantiatedApps().size());
+		assertEquals(6, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN, new UpdateAppInstance.Request(
 				result.instance().instanceId, "alias", this.getHeatingWithoutMeterJson()));

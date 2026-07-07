@@ -273,6 +273,8 @@ public class BatteryProtection {
 									.setSocToPercent(def.getChargeSocToPercent()) //
 									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
 									.setForceDischarge(def.getForceDischargeParams()) //
+									.setForceChargeDischargeCurrent(def.getForceChargeDischargeCurrent()) //
+									.setCurrentFlowAllowed(def::isChargeAllowed) //
 									.build()) //
 					.setDischargeMaxCurrentHandler(
 							DischargeMaxCurrentHandler.create(clockProvider, def.getInitialBmsMaxEverDischargeCurrent()) //
@@ -281,6 +283,8 @@ public class BatteryProtection {
 									.setSocToPercent(def.getDischargeSocToPercent()) //
 									.setMaxIncreasePerSecond(def.getMaxIncreaseAmperePerSecond()) //
 									.setForceCharge(def.getForceChargeParams()) //
+									.setForceChargeDischargeCurrent(def.getForceChargeDischargeCurrent()) //
+									.setCurrentFlowAllowed(def::isDischargeAllowed) //
 									.build()) //
 			;
 		}

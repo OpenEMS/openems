@@ -17,7 +17,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -42,20 +41,19 @@ import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 
 /**
- * Describes a App for Heat Element.
+ * Describes a App for a readonly ASKOMA heating element.
  *
  * <pre>
   {
     "appId":"App.Heat.Askoma.ReadOnly",
-    "alias":"Askoma Lesend",
+    "alias":"ASKOMA lesend",
     "instanceId": UUID,
     "image": base64,
     "properties":{
-    	"ASKOMA_ELEMENT_ID": "heat0",
+    	"HEAT_ID": "heat0",
+    	"MODBUS_ID": "modbus0",
+    	"IP": "192.168.2.118",
     },
-    "dependencies": [
-    	
-    ],
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
     }
@@ -144,13 +142,6 @@ public class HeatAskomaReadOnly
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

@@ -16,6 +16,13 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	public ModbusElement[] getElements();
 
 	/**
+	 * Gets the unit id of the modbus device.
+	 *
+	 * @return the unit id
+	 */
+	public int getUnitId();
+
+	/**
 	 * Gets the start Modbus register address.
 	 *
 	 * @return the address

@@ -1,3 +1,4 @@
+import { States } from "../../ngrx-store/states";
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -18,6 +19,7 @@ import { JsonrpcRequest } from "../base";
 export class EdgeRpcRequest extends JsonrpcRequest {
 
     private static METHOD: string = "edgeRpc";
+    protected override requiredState: States = States.EDGE_SELECTED;
 
     public constructor(
         public override readonly params: {

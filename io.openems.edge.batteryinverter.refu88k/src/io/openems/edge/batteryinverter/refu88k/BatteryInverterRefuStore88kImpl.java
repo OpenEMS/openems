@@ -175,7 +175,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public BatteryInverterConstraint[] getStaticConstraints() throws OpenemsException {
-		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", ALL, REACTIVE, EQUALS, 0d);
+		var noReactivePower = new BatteryInverterConstraint("Reactive power is not allowed", ALL, REACTIVE, EQUALS, 0);
 
 		if (this.stateMachine.getCurrentState() == State.RUNNING) {
 			return new BatteryInverterConstraint[] { noReactivePower };
@@ -184,7 +184,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 		// Block any power as long as we are not RUNNING
 		return new BatteryInverterConstraint[] { //
 				noReactivePower, //
-				new BatteryInverterConstraint("Refu inverter not ready", ALL, ACTIVE, EQUALS, 0d) //
+				new BatteryInverterConstraint("Refu inverter not ready", ALL, ACTIVE, EQUALS, 0) //
 		};
 	}
 
@@ -264,7 +264,7 @@ public class BatteryInverterRefuStore88kImpl extends AbstractOpenemsModbusCompon
 						m(BatteryInverterRefuStore88k.ChannelId.HZ, new SignedWordElement(SUNSPEC_103 + 16), // 40086
 								SCALE_FACTOR_MINUS_2),
 						m(BatteryInverterRefuStore88k.ChannelId.HZ_SF, new SignedWordElement(SUNSPEC_103 + 17)), // 40087
-						m(BatteryInverterRefuStore88k.ChannelId.VA, new SignedWordElement(SUNSPEC_103 + 18), // 40088
+						m(SymmetricBatteryInverter.ChannelId.APPARENT_POWER, new SignedWordElement(SUNSPEC_103 + 18), // 40088
 								SCALE_FACTOR_1),
 						m(BatteryInverterRefuStore88k.ChannelId.VA_SF, new SignedWordElement(SUNSPEC_103 + 19)), // 40089
 						m(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER, new SignedWordElement(SUNSPEC_103 + 20), // 40090

@@ -4,7 +4,7 @@ public class ModbusRecordUint16BlockLength extends ModbusRecordUint16 {
 
 	private final String blockName;
 
-	public ModbusRecordUint16BlockLength(int offset, String blockName, short length) {
+	public ModbusRecordUint16BlockLength(int offset, String blockName, int length) {
 		super(offset, "Length of block \"" + blockName + "\"", length);
 		this.blockName = blockName;
 	}

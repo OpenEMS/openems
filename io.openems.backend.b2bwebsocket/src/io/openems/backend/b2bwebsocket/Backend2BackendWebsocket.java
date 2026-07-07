@@ -23,6 +23,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.backend.authentication.api.AuthUserPasswordAuthenticationService;
 import io.openems.backend.common.component.AbstractOpenemsBackendComponent;
 import io.openems.backend.common.debugcycle.DebugLoggable;
 import io.openems.backend.common.edge.EdgeManager;
@@ -54,6 +55,9 @@ public class Backend2BackendWebsocket extends AbstractOpenemsBackendComponent im
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile Metadata metadata;
+
+	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
+	protected volatile AuthUserPasswordAuthenticationService userAuthService;
 
 	@Reference(cardinality = ReferenceCardinality.MANDATORY, policy = ReferencePolicy.DYNAMIC)
 	protected volatile TimedataManager timedataManager;

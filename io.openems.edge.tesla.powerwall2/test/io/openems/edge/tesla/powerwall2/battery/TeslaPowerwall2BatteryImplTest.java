@@ -4,9 +4,9 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.tesla.powerwall2.core.TeslaPowerwall2CoreImpl;
 
 public class TeslaPowerwall2BatteryImplTest {

@@ -1,0 +1,83 @@
+= Eclipse
+:imagesdir: ../assets/images
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
+
+This guide will show you how to setup https://www.eclipse.org/downloads/[Eclipse IDE] for OpenEMS development.
+
+NOTE: Make sure you have the correct version of the Java Development Kit (JDK) installed on your system.
+
+== Setup Eclipse IDE for OpenEMS Edge and Backend
+
+. Prepare Eclipse IDE
+.. Download https://www.eclipse.org/downloads/[Eclipse for Java icon:external-link[]], install and start it
+.. On first start you will get asked to create a workspace.
+Select your source code directory (`C:\Users\your.user\git\openems` in our example) and press btn:[Launch].
++
+.Creating a workspace in Eclipse IDE
+image::eclipse-workspace.png[Creating a workspace in Eclipse IDE]
+
+.. Install http://bndtools.org[BndTools icon:external-link[]] in Eclipse:
++
+Menu: btn:[Help] → btn:[Eclipse Marketplace...] → btn:[Find:] → enter btn:[Bndtools] → press btn:[Install]
+
+.. Configure Eclipse IDE to use JDK 21.
++
+- In the Menu select btn:[Windows] → btn:[Preferences]
+- Select btn:[Java] - btn:[Installed JREs] in the navigation tree
+- Press the btn:[Add...] button
+- Keep btn:[Standard VM] selected and press btn:[Next >]
+- Press the btn:[Directory...] button and select the folder of the installed JDK (e.g. `C:\Program Files\Eclipse Adoptium\jdk-21.0.3.9-hotspot`)
+- Press the btn:[Finish] button
+- Back in the Preferences window, tick the newly added JDK 21 and press btn:[Apply and Close]
++
+.Creating a workspace in Eclipse IDE
+image::eclipse-select-jdk.png[Set the Java Development Kit in Eclipse IDE]
+
+. Import OpenEMS component projects (OSGi bundles):
++
+Menu: btn:[File] →  btn:[Import...] → btn:[Bndtools] → btn:[Existing Bnd Workspace] → your source code directory should have been selected as *Root Directory* automatically → btn:[Finish] → "Switch to Bndtools perspective?" btn:[Yes]
+
+. Eclipse will now spend some time importing and building OpenEMS Edge and Backend. Close the *Welcome* window to follow the progress till you eventually see the full tree of OpenEMS projects (or bundles) in the *Bndtools Explorer* and all errors and warnings in the *Problems* tab disappear.
+
+// TODO add Setup of Checkstyle
+
+== Run OpenEMS Edge
+
+. Open the project btn:[io.openems.edge.application] and double click on btn:[EdgeApp.bndrun].
++
+.io.openems.edge.application project in Eclipse IDE
+image::eclipse-io.openems.edge.application.png[io.openems.edge.application project in Eclipse IDE]
++
+NOTE: Instead of navigating through the projects tree, you can simply use the keyboard shortcut btn:[Ctrl] + btn:[Shift] + btn:[R] to start the "Open Resource" dialog. Enter "EdgeApp.bndrun" there and press btn:[Enter] to open the file.
++
+The `EdgeApp.bndrun` file declares all the bundles and runtime properties. For now it should not be necessary to edit it, but it hides some useful settings under the btn:[Source] tab:
++
+- `org.osgi.service.http.port=8080`: start the Apache Felix Web Console on port `8080`
+- `felix.cm.dir=c:/openems/config`: persist configurations in the folder `c:/openems/config`. Adjust this if you are working on Linux to keep your configurations after restart
+- `openems.data.dir=c:/openems/data`: this is where bundles are allowed to persist data. It is used e.g. by the RRD4j timedata storage
+
+. Click on btn:[Run OSGi] to run OpenEMS Edge. You should see log outputs in the **Console** tab inside Eclipse IDE.
++
+.OpenEMS Edge initial log output
+image::eclipse-edge-initial-log-output.png[OpenEMS Edge initial log output]
+
+== Run OpenEMS Backend
+
+. Open the project btn:[io.openems.backend.application] and double click on btn:[BackendApp.bndrun].
++
+.io.openems.backend.application project in Eclipse IDE
+image::eclipse-io.openems.backend.application.png[io.openems.backend.application project in Eclipse IDE]
+
+. Click on btn:[Run OSGi] to run OpenEMS Backend. You should see log outputs on the console inside Eclipse IDE.
++
+.OpenEMS Backend initial log output
+image::eclipse-backend-initial-log-output.png[OpenEMS Backend initial log output]
++
+NOTE: Disable the two icon buttons "Show Console When Standard Out changes" and "Show Console When Standard Error changes" next to the _Console_ tab to avoid constant switching between the output of OpenEMS Edge and OpenEMS Backend.
+

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.channel.PersistencePriority;
 import io.openems.edge.common.channel.BooleanDoc;
 import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.BooleanWriteChannel;
@@ -58,6 +59,7 @@ public class SimulatorIoDigitalInputOutputImpl extends AbstractOpenemsComponent
 		for (var i = 0; i < config.numberOfOutputs(); i++) {
 			var channelName = String.format(CHANNEL_NAME, i);
 			var doc = new BooleanDoc() //
+					.persistencePriority(PersistencePriority.VERY_HIGH) //
 					.accessMode(AccessMode.READ_WRITE);
 			var channel = (BooleanWriteChannel) this.addChannel(new MyChannelId(channelName, doc));
 

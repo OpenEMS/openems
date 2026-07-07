@@ -143,26 +143,27 @@ public abstract class AbstractManagedOcppEvcsComponent extends AbstractManagedEv
 		var componentId = this.id();
 		if (timedata == null || componentId == null) {
 			return;
-		} else {
-			timedata.getLatestValue(
-					new ChannelAddress(componentId, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY.id()))
-					.thenAccept(totalEnergyOpt -> {
-						if (this.getActiveProductionEnergy().isDefined()) {
-							// Value has been read from device in the meantime
-							return;
-						}
-
-						if (totalEnergyOpt.isPresent()) {
-							try {
-								this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
-							} catch (IllegalArgumentException e) {
-								this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, 0L));
-							}
-						} else {
-							this._setActiveConsumptionEnergy(getAsType(OpenemsType.LONG, 0L));
-						}
-					});
 		}
+
+		timedata.getLatestValue(
+				new ChannelAddress(componentId, ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY.id()))
+				.whenComplete((totalEnergyOpt, throwable) -> {
+					if (this.getActiveProductionEnergy().isDefined()) {
+						// Value has been read from device in the meantime
+						return;
+					}
+
+					if (throwable != null || totalEnergyOpt.isEmpty()) {
+						this._setActiveConsumptionEnergy(getAsType(OpenemsType.LONG, 0L));
+						return;
+					}
+
+					try {
+						this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, totalEnergyOpt.get()));
+					} catch (IllegalArgumentException e) {
+						this._setActiveProductionEnergy(getAsType(OpenemsType.LONG, 0L));
+					}
+				});
 	}
 
 	@Override

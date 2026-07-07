@@ -17,17 +17,20 @@ public class OpenemsAppPropertyDefinition {
 	public final boolean isAllowedToSave;
 
 	public final Function<JsonObject, JsonElement> bidirectionalValue;
+	public final Function<JsonObject, JsonElement> valueMapper;
 
 	public OpenemsAppPropertyDefinition(//
 			final String name, //
 			final Function<Language, JsonElement> defaultValue, //
 			final boolean isAllowedToSave, //
-			final Function<JsonObject, JsonElement> bidirectionalValue //
+			final Function<JsonObject, JsonElement> bidirectionalValue, //
+			final Function<JsonObject, JsonElement> valueMapper //
 	) {
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.isAllowedToSave = isAllowedToSave;
 		this.bidirectionalValue = bidirectionalValue;
+		this.valueMapper = valueMapper;
 	}
 
 	/**

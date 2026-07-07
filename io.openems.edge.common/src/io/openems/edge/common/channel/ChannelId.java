@@ -3,7 +3,7 @@ package io.openems.edge.common.channel;
 import com.google.common.base.CaseFormat;
 
 /**
- * A {@link ChannelId} defines a Channel. It provides a unique Name and and a
+ * A {@link ChannelId} defines a Channel. It provides a unique Name and a
  * {@link Doc}.
  *
  * <p>
@@ -14,7 +14,7 @@ public interface ChannelId {
 
 	/**
 	 * The preferred way to define {@link ChannelId}s in OpenEMS Edge is via an
-	 * {@code enum} that inherits {@code ChannelId}:
+	 * {@code enum} that inherits {@code ChannelId}:.
 	 * 
 	 * <pre>{@code
 	 * public enum ChannelId implements io.openems.edge.common.channel.ChannelId {

@@ -1,146 +1,280 @@
-import { Component, effect, OnInit, signal, WritableSignal } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
-import { PopoverController } from "@ionic/angular";
+import { Component, effect, inject, OnInit, signal, WritableSignal, } from "@angular/core";
+import { ActivatedRoute, RouterModule } from "@angular/router";
+import { NavController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { format } from "date-fns";
+import { NgxSpinnerComponent } from "ngx-spinner";
 import { PlatFormService } from "src/app/platform.service";
 import { CategorizedComponents } from "src/app/shared/components/edge/edgeconfig";
+import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
+import { LocationModel } from "src/app/shared/components/system-location-validator/system-location-validator.component";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { GetLatestSetupProtocolCoreInfoRequest } from "src/app/shared/jsonrpc/request/getLatestSetupProtocolCoreInfoRequest";
-import { GetSetupProtocolRequest } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
+import { GetSetupProtocolCoreInfoRequest, GetSetupProtocolRequest, } from "src/app/shared/jsonrpc/request/getSetupProtocolRequest";
 import { Base64PayloadResponse } from "src/app/shared/jsonrpc/response/base64PayloadResponse";
-import { GetLatestSetupProtocolCoreInfoResponse } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
+import { getFileName, GetLatestSetupProtocolCoreInfoResponse, GetSetupProtocolCoreInfoResponse, Type, } from "src/app/shared/jsonrpc/response/getLatestSetupProtocolCoreInfoResponse";
+import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
+import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
+import { LocaleProvider } from "src/app/shared/provider/locale-provider";
+import { RouteService } from "src/app/shared/service/route.service";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
-import { ObjectUtils } from "src/app/shared/utils/object/object.utils";
+import { FileUtils } from "src/app/shared/utils/file/file-utils";
 import { environment } from "../../../../environments";
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../shared/shared";
+import { CommonUiModule } from "../../../shared/common-ui.module";
+import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket, } from "../../../shared/shared";
 import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxRequest";
+import { LocationComponent } from "./location/location";
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
 
 @Component({
-  selector: ProfileComponent.SELECTOR,
-  templateUrl: "./profile.component.html",
-  standalone: false,
+    selector: ProfileComponent.SELECTOR,
+    templateUrl: "./profile.component.html",
+    standalone: true,
+    imports: [
+        CommonUiModule,
+        PipeComponentsModule,
+        NgxSpinnerComponent,
+        RouterModule,
+        LiveDataServiceProvider,
+        LocaleProvider,
+        HelpButtonComponent,
+        LocationComponent,
+    ],
 })
 export class ProfileComponent implements OnInit {
+    private static readonly SELECTOR = "profile";
 
-  private static readonly SELECTOR = "profile";
+    public environment = environment;
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public subscribedChannels: ChannelAddress[] = [];
+    public components: CategorizedComponents[] | null = null;
 
-  public environment = environment;
+    protected latestSetupProtocolData:
+        | GetLatestSetupProtocolCoreInfoResponse["result"]
+        | null = null;
+    protected spinnerId: string = ProfileComponent.SELECTOR;
+    protected isLoading: WritableSignal<boolean> = signal(true);
+    protected isAtLeastOwner: boolean = false;
+    protected locationModel: LocationModel | null = null;
 
-  public edge: Edge | null = null;
-  public config: EdgeConfig | null = null;
-  public subscribedChannels: ChannelAddress[] = [];
+    private routeService: RouteService = inject(RouteService);
+    private navCtrl: NavController = inject(NavController);
 
-  public components: CategorizedComponents[] | null = null;
-
-  protected latestSetupProtocolData: Pick<GetLatestSetupProtocolCoreInfoResponse["result"], "setupProtocolId"> & { createDate: Date | null } | null = null;
-  protected spinnerId: string = ProfileComponent.SELECTOR;
-  protected isLoading: WritableSignal<boolean> = signal(true);
-  protected isAtLeastOwner: boolean = false;
-
-  constructor(
-    private service: Service,
-    private route: ActivatedRoute,
-    public popoverController: PopoverController,
-    private translate: TranslateService,
-    private websocket: Websocket,
-    private platFormService: PlatFormService,
-  ) {
-    effect(() => {
-      const isLoading = this.isLoading();
-
-      if (isLoading === true) {
-        this.service.startSpinnerTransparentBackground(this.spinnerId);
-      } else {
-        this.service.stopSpinner(this.spinnerId);
-      }
-    });
-  }
-
-  public ngOnInit() {
-    this.service.getCurrentEdge().then(edge => {
-      this.edge = edge;
-      this.service.getConfig().then(async config => {
-        this.isAtLeastOwner = EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
-        this.config = config;
-        const categorizedComponentIds: string[] = ["_appManager", "_componentManager", "_cycle", "_meta", "_power", "_sum", "_predictorManager", "_host", "_evcsSlowPowerIncreaseFilter", "_serialNumber"];
-        this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
-        await this.setLatestSetupProtocolData();
-      });
-    });
-  }
-
-  public getModbusProtocol(componentId: string, type: string) {
-    this.service.getCurrentEdge().then(edge => {
-      const request = new ComponentJsonApiRequest({ componentId: componentId, payload: new GetModbusProtocolExportXlsxRequest() });
-      edge.sendRequest(this.service.websocket, request).then(response => {
-        Utils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
-      }).catch(reason => {
-        this.service.toast(this.translate.instant("Edge.Config.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") + ": " + (reason as JsonrpcResponseError).error.message, "danger");
-      });
-    });
-  }
-
-  public getChannelExport(componentId: string) {
-    this.service.getCurrentEdge().then(edge => {
-      const request = new ComponentJsonApiRequest({ componentId: "_componentManager", payload: new ChannelExportXlsxRequest({ componentId: componentId }) });
-      edge.sendRequest(this.service.websocket, request).then(response => {
-        Utils.downloadXlsx(response as Base64PayloadResponse, "ChannelExport-" + edge.id + "-" + componentId);
-      }).catch(reason => {
-        console.warn(reason);
-      });
-    });
-  }
-
-  /**
-   * Downloads the lates setup protocol
-   */
-  protected async downloadLatestSetupProtocol(): Promise<void> {
-
-    if (!(this.latestSetupProtocolData?.setupProtocolId)) {
-      throw Error("Download not possible: setupProtocolId is missing");
+    constructor(
+        private service: Service,
+        private route: ActivatedRoute,
+        public popoverController: PopoverController,
+        private translate: TranslateService,
+        protected websocket: Websocket,
+        private platFormService: PlatFormService,
+    ) {
+        effect(() => {
+            const isLoading = this.isLoading();
+            if (isLoading === true) {
+                this.service.startSpinnerTransparentBackground(this.spinnerId);
+            } else {
+                this.service.stopSpinner(this.spinnerId);
+            }
+        });
     }
 
-    const canExecuteDownload = this.platFormService.deviceHasFilePermissions();
-    if (!canExecuteDownload) {
-      return;
+    public static getModbusProtocol(
+        service: Service,
+        translate: TranslateService,
+        componentId: string,
+        type: string,
+    ) {
+        service.getCurrentEdge().then((edge) => {
+            const request = new ComponentJsonApiRequest({
+                componentId: componentId,
+                payload: new GetModbusProtocolExportXlsxRequest(),
+            });
+            edge.sendRequest(service.websocket, request)
+                .then((response) => {
+                    FileUtils.downloadXlsx(
+                        response as Base64PayloadResponse,
+                        "Modbus-" + type + "-" + edge.id,
+                    );
+                })
+                .catch((reason) => {
+                    service.toast(
+                        translate.instant(
+                            "EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL",
+                        ) +
+                            ": " +
+                            (reason as JsonrpcResponseError).error.message,
+                        "danger",
+                    );
+                });
+        });
     }
 
-    this.isLoading.set(true);
-    const setupProtocol: Base64PayloadResponse | null = await this.platFormService.sendRequest(new GetSetupProtocolRequest({ setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString() }), this.websocket);
-    if (!setupProtocol) {
-      this.isLoading.set(false);
-      return;
+    public navigateToChangelog(event: Event) {
+        event.preventDefault();
+        const prev = this.routeService.getCurrentUrl();
+
+        if (prev === null) {
+            return;
+        }
+        const base = prev.replace(/^\//, "");
+        const userUrl = base + "/changelog";
+        this.navCtrl.navigateRoot(userUrl);
     }
 
-    const edge = await this.service.getCurrentEdge();
-    const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
+    public ngOnInit() {
+        this.service.getCurrentEdge().then((edge) => {
+            this.edge = edge;
+            this.service.getConfig().then(async (config) => {
+                this.isAtLeastOwner =
+                    EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
+                this.config = config;
+                const categorizedComponentIds: string[] = [
+                    "_appManager",
+                    "_componentManager",
+                    "_cycle",
+                    "_meta",
+                    "_power",
+                    "_sum",
+                    "_predictorManager",
+                    "_host",
+                    "_evcsSlowPowerIncreaseFilter",
+                    "_serialNumber",
+                ];
+                this.components = config.listActiveComponents(
+                    categorizedComponentIds,
+                    this.translate,
+                );
+                await this.setLatestSetupProtocolData();
 
-    if (!blob) {
-      this.isLoading.set(false);
-      return;
+                const metaProperties =
+                    this.config.getComponentProperties("_meta");
+
+                this.locationModel = {
+                    street: "",
+                    zip: metaProperties["postcode"] ?? "",
+                    city: metaProperties["placeName"] ?? "",
+                    country: "",
+                };
+            });
+        });
     }
 
-    const fileName = `IBN-${edge.id}-${format(edge.firstSetupProtocol, "dd.MM.yyyy")}.pdf`;
-    this.platFormService.downloadAsPdf(blob, fileName);
-    this.isLoading.set(false);
-  }
-
-  private async setLatestSetupProtocolData() {
-    this.isLoading.set(true);
-
-    const edge = await this.service.getCurrentEdge();
-    const request = new GetLatestSetupProtocolCoreInfoRequest({ edgeId: edge.id });
-    const setupProtocolData: GetLatestSetupProtocolCoreInfoResponse = await this.websocket.sendRequest(request) as GetLatestSetupProtocolCoreInfoResponse;
-
-    if (!(ObjectUtils.hasKeys(setupProtocolData.result, ["setupProtocolId", "createDate"]))) {
-      this.isLoading.set(false);
-      return;
+    public getChannelExport(componentId: string) {
+        this.service.getCurrentEdge().then((edge) => {
+            const request = new ComponentJsonApiRequest({
+                componentId: "_componentManager",
+                payload: new ChannelExportXlsxRequest({
+                    componentId: componentId,
+                }),
+            });
+            edge.sendRequest(this.service.websocket, request)
+                .then((response) => {
+                    FileUtils.downloadXlsx(
+                        response as Base64PayloadResponse,
+                        "ChannelExport-" + edge.id + "-" + componentId,
+                    );
+                })
+                .catch((reason) => {
+                    console.warn(reason);
+                });
+        });
     }
 
-    this.latestSetupProtocolData = { setupProtocolId: setupProtocolData.result.setupProtocolId, createDate: DateUtils.stringToDate(setupProtocolData.result.createDate.toString()) };
-    this.isLoading.set(false);
-  }
+    protected getModbusProtocol = (componentId: string, type: string) =>
+        ProfileComponent.getModbusProtocol(
+            this.service,
+            this.translate,
+            componentId,
+            type,
+        );
+
+    protected onLocationUpdated() {
+        this.service.toast(
+            this.translate.instant(
+                "PROFILE.SYSTEM_LOCATION_VALIDATOR.SUCCESS_MESSAGE",
+            ),
+            "success",
+        );
+    }
+
+    /** Downloads the lates setup protocol */
+    protected async downloadLatestSetupProtocol(): Promise<void> {
+        if (!this.latestSetupProtocolData?.setupProtocolId) {
+            throw Error("Download not possible: setupProtocolId is missing");
+        }
+        const device = this.platFormService.getDevice();
+        const canExecuteDownload = device.hasFileWritePermissions();
+        if (!canExecuteDownload) {
+            return;
+        }
+
+        this.isLoading.set(true);
+        const setupProtocol: Base64PayloadResponse | null =
+            await device.sendRequest(
+                new GetSetupProtocolRequest({
+                    setupProtocolId:
+                        this.latestSetupProtocolData.setupProtocolId.toString(),
+                }),
+                this.websocket,
+            );
+        if (!setupProtocol) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        const blob: Blob | null =
+            this.platFormService.convertBase64ToBlob(setupProtocol);
+
+        if (!blob) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        const fileName = getFileName(
+            this.latestSetupProtocolData.setupProtocolType,
+            this.latestSetupProtocolData.createDate,
+            this.edge,
+        );
+        device.downloadAsPdf(blob, fileName);
+        this.isLoading.set(false);
+    }
+
+    private async setLatestSetupProtocolData() {
+        this.isLoading.set(true);
+
+        const edge = await this.service.getCurrentEdge();
+        const request = new GetSetupProtocolCoreInfoRequest({
+            edgeId: edge.id,
+        });
+        const setupProtocolsData: GetSetupProtocolCoreInfoResponse =
+            (await this.websocket.sendRequest(
+                request,
+            )) as GetSetupProtocolCoreInfoResponse;
+        const ibnProtocols:
+            | GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"]
+            | null =
+            setupProtocolsData?.result?.setupProtocols?.filter(
+                (el) => el.setupProtocolType === Type.SETUP_PROTOCOL,
+            ) ?? null;
+        const latestIbnProtocol:
+            | GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0]
+            | null =
+            ibnProtocols?.length > 0
+                ? ibnProtocols.reduce((a, b) =>
+                      DateUtils.maxDate(a.createDate, b.createDate) ? a : b,
+                  )
+                : null;
+
+        if (latestIbnProtocol === null) {
+            this.isLoading.set(false);
+            return;
+        }
+
+        this.latestSetupProtocolData = {
+            setupProtocolType: latestIbnProtocol.setupProtocolType,
+            setupProtocolId: latestIbnProtocol.setupProtocolId,
+            createDate: latestIbnProtocol.createDate,
+        };
+        this.isLoading.set(false);
+    }
 }

@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_DC_ACTUAL_POWER;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_STATE;
+import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.NO_VALID_PRODUCTION_PREDICTION;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.PREDICTED_TARGET_MINUTE;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.PREDICTED_TARGET_MINUTE_ADJUSTED;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT;
@@ -17,8 +18,8 @@ import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.Color;
 import java.io.File;
@@ -34,20 +35,23 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
+import io.openems.edge.common.meta.GridFeedInLimitationType;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
+import io.openems.edge.common.test.DummyMeta;
 import io.openems.edge.common.test.Plot;
 import io.openems.edge.common.test.Plot.AxisFormat;
 import io.openems.edge.common.test.Plot.Data;
+import io.openems.edge.controller.ess.ripplecontrolreceiver.test.DummyRippleControlReceiver;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.test.DummyHybridEss;
@@ -61,6 +65,8 @@ import io.openems.edge.predictor.api.test.DummyPredictorManager;
 public class ControllerEssGridOptimizedChargeImplTest {
 
 	// Components
+	private static final DummyMeta META = new DummyMeta().withGridSellHardLimit(7000);
+	private static final DummyRippleControlReceiver RCR = new DummyRippleControlReceiver("rcr0");
 	private static final DummyManagedSymmetricEss ESS = new DummyManagedSymmetricEss("ess0");
 	private static final DummyElectricityMeter METER = new DummyElectricityMeter("meter0");
 	private static final DummyHybridEss HYBRID_ESS = new DummyHybridEss("ess0");
@@ -71,6 +77,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			"ProductionActivePower");
 	private static final ChannelAddress SUM_CONSUMPTION_ACTIVE_POWER = new ChannelAddress("_sum",
 			"ConsumptionActivePower");
+	private static final ChannelAddress GRID_FEED_IN_LIMITATION_TYPE = new ChannelAddress("_meta",
+			"GridFeedInLimitationType");
 
 	/*
 	 * Default Prediction values
@@ -132,7 +140,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -146,16 +154,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -183,7 +194,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void automatic_default_predictions_at_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -197,16 +208,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -241,7 +255,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -255,16 +269,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -312,13 +329,12 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2673) //
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 				.deactivate();
-		;
 	}
 
 	@Test
 	public void automatic_default_predictions_at_evening_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T20:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -332,16 +348,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -397,16 +416,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -437,16 +459,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -535,17 +560,23 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_PRODUCTION_ACTIVE_POWER), //
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
+		// Set the grid sell hard limit on META before test starts
+		META.withGridSellHardLimit(7000);
+
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -554,6 +585,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.setManualTargetTime("") //
 						.build()) //
 				.next(new TestCase() //
+						.input(GRID_FEED_IN_LIMITATION_TYPE, GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.input("meter0", ElectricityMeter.ChannelId.ACTIVE_POWER, -7500) //
 						.input(SUM_PRODUCTION_ACTIVE_POWER, 0) //
 						.input("ess0", CAPACITY, 10_000) //
@@ -637,16 +669,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 				new DummyPredictor("predictor0", cm, EMPTY_PREDICTION, SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -730,7 +765,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midnight_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -744,16 +779,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -782,7 +820,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -796,16 +834,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -832,7 +873,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void hybridEss_manual_midday_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -846,16 +887,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", HYBRID_ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -885,7 +929,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void mode_off_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -899,16 +943,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.OFF) //
@@ -934,7 +981,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void no_capacity_left_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T12:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -948,16 +995,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS_WITH_NONE_APPARENT_POWER) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.AUTOMATIC) //
@@ -990,7 +1040,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(10);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneOffset.UTC);
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1004,16 +1054,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.OFF) //
@@ -1053,7 +1106,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		final ThrowingRunnable<Exception> sleep = () -> Thread.sleep(50);
 
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T00:00:00.00Z"), ZoneId.of("Europe/Berlin"));
-		final var now = ZonedDateTime.now(clock);
+		final var now = Instant.now(clock);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1067,16 +1120,19 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						SUM_CONSUMPTION_ACTIVE_POWER));
 
 		new ControllerTest(new ControllerEssGridOptimizedChargeImpl()) //
+				.addReference("meta", META) //
 				.addReference("predictorManager", predictorManager) //
 				.addReference("componentManager", cm) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ess", ESS) //
 				.addReference("meter", METER) //
 				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
 				.activate(MyConfig.create() //
 						.setEssId("ess0") //
 						.setId("ctrlGridOptimizedCharge0") //
-						.setMaximumSellToGridPower(7_000) //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
 						.setMeterId("meter0") //
 						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
 						.setMode(Mode.MANUAL) //
@@ -1200,7 +1256,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
-	public void getCalculatedPowerLimit_middayTest() throws Exception {
+	public void getCalculatedPowerLimit_middayTest() {
 		/*
 		 * Initial values
 		 */
@@ -1234,7 +1290,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 
 		// If Energy calculation would be applied on medium risk level - Predicted
 		// available Energy is not enough to reach 100%
-		assertEquals(1620, (int) maximumChargePower); //
+		assertEquals(1620, maximumChargePower); //
 	}
 
 	private static final Integer[] PRODUCTION_PREDICTION_LOW = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1308,8 +1364,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			3226, 2358, 1778, 1002, 455, 654, 534, 1587, 1638, 459, 330, 258, 368, 728, 1096, 878 };
 
 	@Test
-	@Ignore // Avoid creating files in every automatic build
-	public void getCalculatedPowerLimit_wholeDayTest() throws Exception {
+	@Disabled // Avoid creating files in every automatic build
+	public void getCalculatedPowerLimit_wholeDayTest() {
 
 		/*
 		 * Initial values
@@ -1661,7 +1717,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	@Test
 	public void calculateAvailEnergy_test() throws Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
-		final var midnight = ZonedDateTime.now(clock).truncatedTo(DAYS);
+		final var midnight = Instant.now(clock).truncatedTo(DAYS);
 		final var cm = new DummyComponentManager(clock);
 		final var sum = new DummySum();
 		final var predictorManager = new DummyPredictorManager(
@@ -1703,6 +1759,29 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		int result2v2 = DelayCharge.calculateAvailEnergy(production, consumption, clockInQuarterHour, 495 /* 08:15 */);
 
 		assertEquals(-29, result2v2);
+	}
+
+	@Test
+	public void calculateAvailEnergy_emptyPrediction_test() {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
+
+		// Empty arrays should return 0 instead of throwing IndexOutOfBoundsException
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[0], new Integer[0], clock, 720));
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[0], new Integer[] { 1000 }, clock, 720));
+		assertEquals(0, DelayCharge.calculateAvailEnergy(new Integer[] { 1000 }, new Integer[0], clock, 720));
+	}
+
+	@Test
+	public void calculateAvailEnergy_shortPrediction_test() {
+		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
+
+		// Only 2 prediction entries but targetMinute at 12:00 requires endIndex=16.
+		// Should not throw IndexOutOfBoundsException.
+		var production = new Integer[] { 5000, 6000 };
+		var consumption = new Integer[] { 3000, 4000 };
+
+		// Must not throw; endIndex is clamped to available data
+		DelayCharge.calculateAvailEnergy(production, consumption, clock, 720 /* 12:00 */);
 	}
 
 	@Test
@@ -1752,7 +1831,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
-	public void getCalculatedPowerLimit_morningTest_HighCap() throws Exception {
+	public void getCalculatedPowerLimit_morningTest_HighCap() {
 
 		/*
 		 * Initial values
@@ -1802,5 +1881,40 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		}
 
 		return targetTime.get(ChronoField.MINUTE_OF_DAY);
+	}
+
+	@Test
+	public void testPvWarning() throws Exception {
+
+		var sut = new ControllerEssGridOptimizedChargeImpl();
+		new ControllerTest(sut) //
+				.addReference("meta", META) //
+				.addReference("predictorManager", new DummyPredictorManager()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
+				.activate(MyConfig.create() //
+						.setEssId("ess0") //
+						.setId("ctrlGridOptimizedCharge0") //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMeterId("meter0") //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManualTargetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, null) //
+						.output(NO_VALID_PRODUCTION_PREDICTION, true)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sut::disableRun) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 5000) //
+						.output(NO_VALID_PRODUCTION_PREDICTION, false)) //
+				.deactivate();
 	}
 }

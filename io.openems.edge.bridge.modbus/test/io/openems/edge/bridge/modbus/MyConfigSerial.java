@@ -8,7 +8,7 @@ import io.openems.edge.bridge.modbus.api.Stopbit;
 @SuppressWarnings("all")
 public class MyConfigSerial extends AbstractComponentConfig implements ConfigSerial {
 
-	protected static class Builder {
+	public static class Builder {
 		private String id;
 		private String portName;
 		private int baudRate;
@@ -123,21 +123,6 @@ public class MyConfigSerial extends AbstractComponentConfig implements ConfigSer
 	@Override
 	public Parity parity() {
 		return this.builder.parity;
-	}
-
-	@Override
-	public boolean enableTermination() {
-		return this.builder.enableTermination;
-	}
-
-	@Override
-	public int delayBeforeTx() {
-		return this.builder.delayBeforeTx;
-	}
-
-	@Override
-	public int delayAfterTx() {
-		return this.builder.delayAfterTx;
 	}
 
 	@Override

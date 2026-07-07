@@ -25,6 +25,11 @@ public enum OpenemsAppCategory {
 	TIME_OF_USE_TARIFF("timeOfUseTariff"),
 
 	/**
+	 * Grid-sell tariffs.
+	 */
+	TARIFF_GRID_SELL("tariffGridSell"),
+
+	/**
 	 * Electric vehicle charging station.
 	 */
 	EVCS("evcs"),
@@ -33,6 +38,11 @@ public enum OpenemsAppCategory {
 	 * Read only Electric vehicle charging station.
 	 */
 	EVCS_READ_ONLY("evcsReadOnly"),
+
+	/**
+	 * Electric vehicle.
+	 */
+	ELECTRIC_VEHCILE("electricVehicle"),
 
 	/**
 	 * Heat.
@@ -53,6 +63,11 @@ public enum OpenemsAppCategory {
 	 * Hardware.
 	 */
 	HARDWARE("hardware"),
+
+	/**
+	 * The base network configuration used by the OpenEMS service.
+	 */
+	SYSTEM_BASE("systemBase"),
 
 	/**
 	 * The hardware on which the OpenEMS software runs.
@@ -80,9 +95,19 @@ public enum OpenemsAppCategory {
 	METER("meter"),
 
 	/**
+	 * Grid meter.
+	 */
+	GRID_METER("gridMeter"),
+
+	/**
 	 * Apis.
 	 */
 	API("api"),
+
+	/**
+	 * Prediction.
+	 */
+	PREDICTION("prediction"),
 
 	/**
 	 * Timedata..

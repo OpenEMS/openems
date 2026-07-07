@@ -23,11 +23,14 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Mode", description = "Set the type of mode.")
 	Mode mode() default Mode.AUTOMATIC;
 
+	@AttributeDefinition(name = "Manual Mode", description = "Select the manual mode to apply when Mode is set to MANUAL.")
+	StateMachine manualMode() default StateMachine.BALANCING;
+
 	@AttributeDefinition(name = "Control-Mode", description = "Set the control-mode.")
 	ControlMode controlMode() default ControlMode.DELAY_DISCHARGE;
 
-	// TODO This will eventually be moved globally/to a 'PowerOptimizer" Controller;
-	// should be per Phase (fuse)
+	// This will eventually be replaced by GridBuySoftLimit in Meta
+	@Deprecated()
 	@AttributeDefinition(name = "Max Charge Power from the grid [W]", description = "Maximum charge power from the grid")
 	int maxChargePowerFromGrid() default 20_000;
 

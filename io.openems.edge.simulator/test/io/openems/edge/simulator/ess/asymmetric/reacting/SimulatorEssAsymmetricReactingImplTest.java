@@ -3,9 +3,9 @@ package io.openems.edge.simulator.ess.asymmetric.reacting;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
 import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImplTest;

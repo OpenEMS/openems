@@ -5,18 +5,20 @@ import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.acMeterType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveEnabled;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.emergencyReserveSoc;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInSetting;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasAcMeter;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEmergencyReserve;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 import static io.openems.edge.core.appmanager.ConfigurationTarget.VALIDATE;
@@ -40,14 +42,13 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.edge.app.enums.AppSafetyCountry;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome10.FeneconHomeParameter;
 import io.openems.edge.app.integratedsystem.FeneconHome10.Property;
 import io.openems.edge.common.component.ComponentManager;
@@ -144,25 +145,22 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 					return new JsonPrimitive(safetyCountry.name());
 				}))), //
 
+		LINK_FEED_IN(feedInLink()), //
 		// (ger. Rundsteuerempfänger)
 		RIPPLE_CONTROL_RECEIVER_ACTIV(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".rippleControlReceiver.label") //
 				.setTranslatedDescriptionWithAppPrefix(".rippleControlReceiver.description") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().rippleControlReceiverActiv());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
-		FEED_IN_TYPE(AppDef.copyOfGeneric(
-				feedInType(FeedInType.EXTERNAL_LIMITATION, FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION), def -> def //
-						.wrapField((app, property, l, parameter, field) -> {
-							field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
-						}))), //
-		MAX_FEED_IN_POWER(AppDef.copyOfGeneric(
-				maxFeedInPower(FEED_IN_TYPE, t -> t.and(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull())),
-				def -> def //
-						.setDefaultValue((app, property, l, parameter) -> {
-							return new JsonPrimitive(parameter.defaultValues().maxFeedInPower());
-						}))), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
+		// hidden until external limitation is implemented
+		FEED_IN_TYPE(AppDef.copyOfGeneric(externalLimitationType(ExternalLimitationType.EXTERNAL_LIMITATION), def -> def //
+				.wrapField((app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(RIPPLE_CONTROL_RECEIVER_ACTIV).isNull());
+				})).appendIsAllowedToSee(AppDef.FieldValuesBiPredicate.FALSE)), //
 		FEED_IN_SETTING(AppDef.copyOfGeneric(feedInSetting(), def -> def //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().feedInSetting());
@@ -183,7 +181,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV1.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger1());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV1_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 1 Alias") //
@@ -199,7 +197,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 				.setTranslatedLabelWithAppPrefix(".hasDcPV2.label") //
 				.setDefaultValue((app, property, l, parameter) -> {
 					return new JsonPrimitive(parameter.defaultValues().hasCharger2());
-				}) //
+				})//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		DC_PV2_ALIAS(AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setLabel("DC-PV 2 Alias") //
@@ -271,13 +269,6 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, //
 			AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
@@ -289,12 +280,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
 			final var rippleControlReceiverActive = this.getBoolean(p, Property.RIPPLE_CONTROL_RECEIVER_ACTIV);
-			final var feedInType = rippleControlReceiverActive ? FeedInType.EXTERNAL_LIMITATION
-					: this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
-			final var maxFeedInPower = feedInType == FeedInType.DYNAMIC_LIMITATION
-					? this.getInt(p, Property.MAX_FEED_IN_POWER)
-					: 0;
-
+			final var feedInType = rippleControlReceiverActive ? ExternalLimitationType.EXTERNAL_LIMITATION
+					: this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
 
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
@@ -302,7 +289,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			// for older versions this property is undefined
 			final var acType = this.getEnum(p, AcMeterType.class, Property.AC_METER_TYPE);
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
@@ -359,8 +346,8 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 									.addProperty("modbusUnitId", 1) //
 									.addProperty("batteryStartUpRelay", "io0/Relay4") //
 									.build()),
-					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
+					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					new EdgeConfig.Component(essId,
 							TranslationUtil.getTranslation(bundle, this.getAppId() + "." + essId + ".alias"),
 							"Ess.Generic.ManagedSymmetric", JsonUtils.buildJsonObject() //
@@ -369,7 +356,6 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 									.addProperty("batteryInverter.id", "batteryInverter0") //
 									.addProperty("battery.id", "battery0") //
 									.build()),
-					predictor(bundle, t), //
 					new EdgeConfig.Component("ctrlEssSurplusFeedToGrid0",
 							TranslationUtil.getTranslation(bundle,
 									this.getAppId() + ".ctrlEssSurplusFeedToGrid0.alias"),
@@ -430,9 +416,12 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 			}
 
 			var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
-					prepareBatteryExtension() //
+					prepareBatteryExtension(), //
+					sohCycle(), //
+					predictionDefault(), //
+					predictionUnmanagedConsumption()//
 			);
 
 			if (hasAcMeter) {
@@ -441,9 +430,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 
 			if (hasEssLimiter14a) {
 				final var dependency = essLimiter14aToHardware(this.appManagerUtil);
-				if (dependency != null) {
-					dependencies.add(dependency);
-				}
+				dependencies.add(dependency);
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
@@ -491,7 +478,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 	}
 
 	private record FeneconHomeDefaultValues(//
-			SafetyCountry safetyCountry, //
+			AppSafetyCountry safetyCountry, //
 			boolean rippleControlReceiverActiv, //
 			int maxFeedInPower, //
 			String feedInSetting, //
@@ -516,7 +503,7 @@ public class FeneconHome10 extends AbstractOpenemsAppWithProps<FeneconHome10, Pr
 
 		final var safetyCountry = batteryInverter.flatMap(t -> t.getProperty("safetyCountry")) //
 				.flatMap(JsonUtils::getAsOptionalString) //
-				.map(SafetyCountry::valueOf) //
+				.map(AppSafetyCountry::valueOf) //
 				.orElse(null);
 
 		final var rippleControlReceiverActiv = batteryInverter.flatMap(t -> t.getProperty("rcrEnable")) //

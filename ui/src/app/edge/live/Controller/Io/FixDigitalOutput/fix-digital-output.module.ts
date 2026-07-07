@@ -1,21 +1,28 @@
+import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
-import { BrowserModule } from "@angular/platform-browser";
+import { ComponentsBaseModule } from "src/app/shared/components/components.module";
+import { ModalModule } from "src/app/shared/components/modal/modal.module";
 import { SharedModule } from "src/app/shared/shared.module";
-import { FlatComponent } from "./flat/flat";
-import { ModalComponent } from "./modal/modal";
+import { ControllerFixDigitalOutputComponent } from "./flat/flat";
+import { FixDigitalOutputHistory } from "./history/fix-digital-output-history.module";
+import { ControllerFixDigitalOutputModalComponent } from "./modal/modal";
 
 @NgModule({
     imports: [
-        BrowserModule,
         SharedModule,
+        ModalModule,
+        CommonModule,
+        ComponentsBaseModule,
+        FixDigitalOutputHistory,
     ],
     declarations: [
-        FlatComponent,
-        ModalComponent,
+        ControllerFixDigitalOutputComponent,
+        ControllerFixDigitalOutputModalComponent,
     ],
     exports: [
-        FlatComponent,
-        ModalComponent,
+        ControllerFixDigitalOutputComponent,
+        ControllerFixDigitalOutputModalComponent,
+        FixDigitalOutputHistory,
     ],
 })
 export class ControllerIoFixDigitalOutput { }

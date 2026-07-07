@@ -1,6 +1,7 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.DebugMode;
 import io.openems.common.types.MeterType;
 
 @SuppressWarnings("all")
@@ -9,7 +10,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String ip;
+		private String mdnsName = "";
 		private MeterType type;
+		private boolean invert;
+		private boolean validateDevice = false;
+		private DebugMode debugMode = DebugMode.OFF;
 
 		private Builder() {
 		}
@@ -24,8 +29,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setMdnsName(String mdnsName) {
+			this.mdnsName = mdnsName;
+			return this;
+		}
+
 		public Builder setType(MeterType type) {
 			this.type = type;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
+			return this;
+		}
+
+		public Builder setValidateDevice(boolean validateDevice) {
+			this.validateDevice = validateDevice;
+			return this;
+		}
+
+		public Builder setDebugMode(DebugMode debugMode) {
+			this.debugMode = debugMode;
 			return this;
 		}
 
@@ -56,7 +81,27 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public String mdnsName() {
+		return this.builder.mdnsName;
+	}
+
+	@Override
 	public MeterType type() {
 		return this.builder.type;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
+	}
+
+	@Override
+	public DebugMode debugMode() {
+		return this.builder.debugMode;
+	}
+
+	@Override
+	public boolean validateDevice() {
+		return this.builder.validateDevice;
 	}
 }

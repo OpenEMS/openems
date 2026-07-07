@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,10 +7,10 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
-import { Edge, Service, Websocket } from "../../shared";
+import { UserService } from "../../service/user.service";
+import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
-import { StatusSingleComponent } from "../status/single/status.component";
 
 @Component({
     selector: "header",
@@ -29,9 +29,11 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     protected isHeaderAllowed: boolean = true;
     protected showBackButton: boolean = false;
+    protected edge = this.service.currentEdge;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
+    private userService: UserService = inject(UserService);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -43,8 +45,8 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         public websocket: Websocket,
         protected navigationService: NavigationService,
         protected navCtrl: NavController,
+        private menuCtrl: MenuController,
     ) {
-
         effect(() => {
             this.showBackButton = this.navigationService.headerOptions().showBackButton;
         });
@@ -106,26 +108,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // disable backUrl & Segment Navigation on initial 'login' page
         if (url === "/login" || url === "/overview" || url === "/index") {
             this.backUrl = false;
-            return;
-        }
-
-
-        // set backUrl for user when an Edge had been selected before
-        const currentEdge: Edge = this.service.currentEdge();
-        if (url === "/user" && currentEdge != null) {
-            this.backUrl = "/device/" + currentEdge.id + "/live";
-            return;
-        }
-
-        // set backUrl for user if no edge had been selected
-        if (url === "/user") {
-            this.backUrl = "/overview";
-            return;
-        }
-
-        if (url === "/changelog" && currentEdge != null) {
-            // TODO this does not work if Changelog was opened from /user
-            this.backUrl = "/device/" + currentEdge.id + "/settings/profile";
             return;
         }
 
@@ -200,15 +182,12 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
     }
 
-    async presentSingleStatusModal() {
-        const modal = await this.modalCtrl.create({
-            component: StatusSingleComponent,
-        });
-        return await modal.present();
-    }
-
     ngOnDestroy() {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
+    }
+
+    protected toggleMenu() {
+        this.menu.toggle();
     }
 }

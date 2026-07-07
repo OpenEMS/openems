@@ -14,11 +14,11 @@ If you plan to use OpenEMS for your own projects, please consider joining the [O
 
 ### OpenEMS in »Local Energy Management«
 
-![alt text](./doc/modules/ROOT/assets/images/local-energy-management.png "Local Energy Management")
+![Local Energy Management](./doc/modules/ROOT/assets/images/local-energy-management.png "Local Energy Management")
 
 ### OpenEMS in »Areal Energy Management«
 
-![alt text](./doc/modules/ROOT/assets/images/areal-energy-management.png "Areal Energy Management")
+![Areal Energy Management](./doc/modules/ROOT/assets/images/areal-energy-management.png "Areal Energy Management")
 
 ## OpenEMS IoT stack
 
@@ -39,20 +39,20 @@ The OpenEMS software architecture was designed to leverage some features that ar
 
 ## OpenEMS UI Screenshots
 
-![alt text](./doc/modules/ROOT/assets/images/ui-live.png "OpenEMS UI Live View")
-![alt text](./doc/modules/ROOT/assets/images/ui-history.png "OpenEMS UI History View")
+![OpenEMS UI Live View](./doc/modules/ROOT/assets/images/ui-live.png "OpenEMS UI Live View")
+![OpenEMS UI History View](./doc/modules/ROOT/assets/images/ui-history.png "OpenEMS UI History View")
 
 ## System architecture
 
 OpenEMS is generally used in combination with external hardware and software components
 (the exception is a simulated development environment - see [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html)). As a brief overview, this is how OpenEMS is used in production setups:
-![alt text](./doc/modules/ROOT/assets/images/system-architecture.png "OpenEMS System Architecture")
+![OpenEMS System Architecture](./doc/modules/ROOT/assets/images/system-architecture.png "OpenEMS System Architecture")
 
 ## Getting Started
 
 * Open up a [Live-Demo on Gitpod](https://gitpod.io/#https://github.com/OpenEMS/openems)
 * Follow the [Getting Started](https://openems.github.io/openems.io/openems/latest/gettingstarted.html) guide to setup OpenEMS on your own computer
-* Please checkout our [contribution guidelines](CONTRIBUTING.md) before submitting code
+* Please checkout our [contribution guidelines](/.github/CONTRIBUTING.md) before submitting code
 
 ## Documentation
 

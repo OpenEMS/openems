@@ -2,8 +2,8 @@ package io.openems.edge.energy.v1;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static io.openems.edge.energy.api.Environment.PRODUCTION;
 import static io.openems.edge.energy.api.LogVerbosity.DEBUG_LOG;
-import static io.openems.edge.energy.api.RiskLevel.MEDIUM;
 import static io.openems.edge.energy.api.Version.V1_ESS_ONLY;
 import static io.openems.edge.energy.optimizer.TestData.CONSUMPTION_PREDICTION_QUARTERLY;
 import static io.openems.edge.energy.optimizer.TestData.HOURLY_PRICES_SUMMER;
@@ -15,13 +15,13 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingSupplier;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.common.utils.ReflectionUtils.ReflectionException;
@@ -29,7 +29,6 @@ import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.ess.timeofusetariff.TimeOfUseTariffControllerImpl;
 import io.openems.edge.energy.EnergySchedulerImpl;
 import io.openems.edge.energy.MyConfig;
@@ -59,7 +58,7 @@ public class EnergySchedulerImplTest {
 	 * @throws Exception on error
 	 */
 	public static EnergySchedulerImpl create(Clock clock) throws Exception {
-		var now = roundDownToQuarter(ZonedDateTime.now(clock));
+		var now = roundDownToQuarter(Instant.now(clock));
 		final var midnight = now.truncatedTo(DAYS);
 		var componentManager = new DummyComponentManager(clock);
 		var sum = new DummySum();
@@ -85,7 +84,7 @@ public class EnergySchedulerImplTest {
 						.setEnabled(false) //
 						.setLogVerbosity(DEBUG_LOG) //
 						.setVersion(V1_ESS_ONLY) //
-						.setRiskLevel(MEDIUM) //
+						.setEnvironment(PRODUCTION) //
 						.build()) //
 				.next(new TestCase());
 		return sut;

@@ -1,6 +1,6 @@
 package io.openems.edge.core.sum;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,11 +26,23 @@ public class EnergyValuesHandler {
 
 	private static final Sum.ChannelId[] ENERGY_CHANNEL_IDS = { //
 			Sum.ChannelId.CONSUMPTION_ACTIVE_ENERGY, //
-			Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, //
-			Sum.ChannelId.ESS_DC_CHARGE_ENERGY, Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, //
-			Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY, //
+			Sum.ChannelId.ESS_ACTIVE_CHARGE_ENERGY, //
+			Sum.ChannelId.ESS_ACTIVE_DISCHARGE_ENERGY, //
+			Sum.ChannelId.ESS_DC_CHARGE_ENERGY, //
+			Sum.ChannelId.ESS_DC_DISCHARGE_ENERGY, //
+			Sum.ChannelId.GRID_BUY_ACTIVE_ENERGY, //
+			Sum.ChannelId.GRID_SELL_ACTIVE_ENERGY, //
 			Sum.ChannelId.PRODUCTION_ACTIVE_ENERGY, //
-			Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, Sum.ChannelId.PRODUCTION_DC_ACTIVE_ENERGY };
+			Sum.ChannelId.PRODUCTION_AC_ACTIVE_ENERGY, //
+			Sum.ChannelId.PRODUCTION_DC_ACTIVE_ENERGY, //
+			Sum.ChannelId.PRODUCTION_TO_CONSUMPTION_ENERGY, //
+			Sum.ChannelId.PRODUCTION_TO_GRID_ENERGY, //
+			Sum.ChannelId.PRODUCTION_TO_ESS_ENERGY, //
+			Sum.ChannelId.GRID_TO_CONSUMPTION_ENERGY, //
+			Sum.ChannelId.ESS_TO_CONSUMPTION_ENERGY, //
+			Sum.ChannelId.GRID_TO_ESS_ENERGY, //
+			Sum.ChannelId.ESS_TO_GRID_ENERGY //
+	};
 
 	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> scheduledFuture = null;
@@ -47,7 +59,7 @@ public class EnergyValuesHandler {
 	 * <li>value holds the last set value
 	 * </ul>
 	 */
-	private final Map<Sum.ChannelId, Long> lastEnergyValues = new HashMap<>();
+	private final Map<Sum.ChannelId, Long> lastEnergyValues = new EnumMap<>(Sum.ChannelId.class);
 
 	public EnergyValuesHandler(SumImpl parent) {
 		this.parent = parent;

@@ -1,0 +1,30 @@
+<ion-content>
+  <ion-grid>
+    <ion-row>
+      @for (item of metaInfos; track $index) {
+      <ion-col size="6" size-xs="6" size-sm="4" size-lg="3" size-xl="2">
+        <ion-card>
+          <ion-card-header>
+            {{item.title}}
+          </ion-card-header>
+          <ion-card-content>
+            {{item.description}}
+            <br>
+            State: <code>{{item.connectionState}}</code>
+          </ion-card-content>
+
+          <ion-button (click)="disconnectOAuthConnection(item.identifier)"
+            [disabled]="item.connectionState !== 'CONNECTED'">Disconnect</ion-button>
+          <ion-button (click)="initiateConnect(item.identifier)" [disabled]="item.connectionState === 'CONNECTED'">
+            @if (item.connectionState === 'EXPIRED') {
+            Refresh
+            } @else {
+            Connect
+            }
+          </ion-button>
+        </ion-card>
+      </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+</ion-content>

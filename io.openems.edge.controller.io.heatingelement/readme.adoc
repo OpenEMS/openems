@@ -74,4 +74,9 @@ Channel _TotalTime_:: `*28000 Wh* = 28 kWh`
 Channel _TotalPhaseTime_:: 
 `= Phase1Time + Phase2Time + Phase3Time = 16 + 9 + 3 = 28 h = *100800 sec*`
 
+=== Schedule Configuration
+This controller supports time-based scheduling via the schedule parameter. It uses the JSCalendar format to define recurring schedules. +
+Examples of usage and formatting can be found in the test classes ControllerHeatingElementImplTest9.java and ControllerHeatingElementImplTest10.java. +
+Note: The schedule only takes effect in the Mode Automatic with any WorkMode (None, Time, Energy)
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]

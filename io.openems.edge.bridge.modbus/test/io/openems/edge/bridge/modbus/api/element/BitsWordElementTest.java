@@ -4,14 +4,15 @@ import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.Function;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -141,28 +142,28 @@ public class BitsWordElementTest {
 		assertNull(channel5.getNextValue().get());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRegistersLengthDoesNotMatch() throws Exception {
 		var sut = generateSut();
-		sut.element.setInputValue(new Register[2]);
+		assertThrows(IllegalArgumentException.class, () -> sut.element.setInputValue(new Register[2]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testHighIndex() throws Exception {
 		var sut = generateSut();
-		addBit(sut, 16);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, 16));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testLowIndex() throws Exception {
 		var sut = generateSut();
-		addBit(sut, -1);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, -1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNotBoolean() throws Exception {
 		var sut = generateSut();
-		addBit(sut, 0, null, OpenemsType.INTEGER);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, 0, null, OpenemsType.INTEGER));
 	}
 
 	private static ModbusTest.FC3ReadRegisters<BitsWordElement, ?> generateSut() throws IllegalArgumentException,

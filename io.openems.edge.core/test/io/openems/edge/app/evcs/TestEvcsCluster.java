@@ -218,6 +218,7 @@ public class TestEvcsCluster {
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
+								.addProperty(KebaEvcs.Property.HARDWARE_TYPE.name(), "P30") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
 								.addProperty(KebaEvcs.Property.MAX_HARDWARE_POWER.name(), hardwarePower) //
 								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
@@ -285,6 +286,7 @@ public class TestEvcsCluster {
 		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
+								.addProperty(KebaEvcs.Property.HARDWARE_TYPE.name(), "P30") //
 								.addProperty(KebaEvcs.Property.IP.name(), ip) //
 								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()));

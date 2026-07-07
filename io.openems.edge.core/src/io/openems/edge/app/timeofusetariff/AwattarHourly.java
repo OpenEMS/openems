@@ -2,8 +2,6 @@ package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -19,7 +17,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -149,13 +146,6 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
@@ -173,7 +163,7 @@ public class AwattarHourly extends AbstractOpenemsAppWithProps<AwattarHourly, Pr
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

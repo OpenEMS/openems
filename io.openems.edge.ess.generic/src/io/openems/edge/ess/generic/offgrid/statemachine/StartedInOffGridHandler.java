@@ -1,9 +1,12 @@
 package io.openems.edge.ess.generic.offgrid.statemachine;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.common.sum.GridMode;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine.OffGridState;
 
 public class StartedInOffGridHandler extends StateHandler<OffGridState, Context> {
@@ -30,7 +33,7 @@ public class StartedInOffGridHandler extends StateHandler<OffGridState, Context>
 
 		inverter.setTargetOffGridFrequency(TARGET_GRID_FREQUENCY);
 		ess._setStartStop(StartStop.START);
-		ess._setGridMode(GridMode.OFF_GRID);
+		setValue(ess, SymmetricEss.ChannelId.GRID_MODE, GridMode.OFF_GRID);
 		return OffGridState.STARTED_IN_OFF_GRID;
 	}
 }

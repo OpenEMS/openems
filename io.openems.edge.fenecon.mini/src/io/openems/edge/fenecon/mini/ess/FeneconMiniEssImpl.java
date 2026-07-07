@@ -2,6 +2,7 @@ package io.openems.edge.fenecon.mini.ess;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
@@ -153,8 +154,8 @@ public class FeneconMiniEssImpl extends AbstractOpenemsModbusComponent
 				allowedCharge = null;
 				allowedDischarge = null;
 			}
-			this._setAllowedChargePower(allowedCharge);
-			this._setAllowedDischargePower(allowedDischarge);
+			setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, allowedCharge);
+			setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, allowedDischarge);
 		};
 		this.getBecu1TotalVoltageChannel().onSetNextValue(calculateAllowedChargeDischargePower);
 		this.getBecu1AllowedChargeCurrentChannel().onSetNextValue(calculateAllowedChargeDischargePower);

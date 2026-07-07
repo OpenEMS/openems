@@ -1,8 +1,8 @@
-<ng-container *ngIf="isInitialized">
+@if (isInitialized) {
   <ng-container *ngVar="(component.id === component.alias ? outputChannel.channelId : component.alias) as name">
     <oe-flat-widget [icon]="icon" [title]="name | translate">
       <oe-flat-widget-line [name]="name | translate" [value]="state">
       </oe-flat-widget-line>
     </oe-flat-widget>
   </ng-container>
-</ng-container>
+}

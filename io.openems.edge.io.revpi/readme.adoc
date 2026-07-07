@@ -1,16 +1,56 @@
-= RevolutionPi Digital IO Module
+= RevolutionPi DigitalIO Module
 
-This bundle implements the Kunbus RevolutionPI DigitalIO enhancement board. It can be used to turn ON/OFF a data output or to read in digital data input. It provides 14 digital input and 14 digital output channels.
+Integrates the Kunbus RevolutionPi DigitalIO enhancement board into OpenEMS for digital input and output control with 14 independent digital input and 14 independent digital output channels.
 
-Implemented Natures:
-- DigitalOutput
-- DigitalInput
+== Overview
 
-== Dependencies
+This bundle provides integration for the Kunbus RevolutionPi DigitalIO enhancement board, a hardware module that extends the RevolutionPi platform with additional digital I/O capabilities. The component provides 14 digital input channels for reading digital signals and 14 digital output channels for controlling digital devices.
 
-The RevolutionPi Digital IO OpenEms Bundle depends on the librevpi-dio-java git library project. A binary version of this library is already included in this OpenEMS Bundle. See https://github.com/clehne/librevpi-dio-java  for more information. 
+The DigitalIO board communicates directly with the RevolutionPi system using the native librevpi-dio library, providing efficient low-latency access to hardware channels. The integration enables real-time digital signal processing for industrial control and automation applications.
 
-== Notes
-*Prepare Kunbus RevPi:*
+All digital I/O channels are managed through standard OpenEMS channel interfaces, allowing integration with controllers, monitoring systems, and automation logic. The component supports initialization of output states from hardware during startup for safety and consistency.
 
-The Digital IO hardware enhancement module on your Kunbus RevolutionPi system needs to be enabled before starting OpenEMS (see Kunbus-Website for configuration settings).
+== Supported Devices
+
+* https://revolution.kunbus.de/[Kunbus RevolutionPi DigitalIO Board icon:external-link[]] - 14-channel digital input/output enhancement module
+
+== Components
+
+This bundle implements the following OpenEMS Component:
+
+=== RevolutionPi DigitalIO Board
+
+*Name*: IO RevolutionPi DigitalIO Board
+
+*Factory-PID*: `io.openems.edge.io.revpi`
+
+.Implemented Natures/Interfaces
+* DigitalInput (14 channels)
+* DigitalOutput (14 channels)
+* OpenemsComponent
+
+.Configuration Parameters
+* `id` (String): Component ID for unique identification (default: "io0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `initOutputFromHardware` (Boolean): Initialize output states from hardware on startup (default: true)
+
+== Channel Specifications
+
+The RevolutionPi DigitalIO board provides the following channel configuration:
+
+.Digital Input Channels (14 channels)
+* 14 independent digital input channels
+* Input voltage: 24V DC nominal
+* Input impedance: High (suitable for dry contacts and optoisolated inputs)
+* Response time: < 10ms (depends on polling cycle)
+* Addressed as: `\{id\}/DigitalInput\{1..14\}`
+
+.Digital Output Channels (14 channels)
+* 14 independent digital output channels
+* Output voltage: 24V DC nominal
+* Output current: Typically 500mA per channel
+* Total module current: Limited by RevolutionPi power supply
+* Addressed as: `\{id\}/DigitalOutput\{1..14\}`
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.io.revpi[Source Code icon:github[]]

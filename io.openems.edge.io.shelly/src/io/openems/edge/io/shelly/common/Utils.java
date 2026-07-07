@@ -1,5 +1,7 @@
 package io.openems.edge.io.shelly.common;
 
+import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.common.utils.JsonUtils.getAsOptionalJsonObject;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 
@@ -7,7 +9,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import io.openems.edge.bridge.http.api.BridgeHttp;
+import com.google.gson.JsonObject;
+
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -16,6 +21,21 @@ import io.openems.edge.common.component.OpenemsComponent;
 public class Utils {
 
 	private Utils() {
+	}
+
+	/**
+	 * Reads updates available status from shelly status response.
+	 * 
+	 * @param json Status response from shelly device
+	 * @return true if update is available
+	 * @throws OpenemsError.OpenemsNamedException thrown if json is invalid
+	 */
+	public static boolean readUpdatesAvailableStatusFromStatusResponse(JsonObject json)
+			throws OpenemsError.OpenemsNamedException {
+		var sysInfo = getAsJsonObject(json, "sys");
+		var update = getAsJsonObject(sysInfo, "available_updates");
+		var stable = getAsOptionalJsonObject(update, "stable");
+		return stable.isPresent();
 	}
 
 	/**
@@ -76,29 +96,25 @@ public class Utils {
 	 */
 	public static CompletableFuture<Void> executeWrite(WriteChannel<Boolean> relayChannel, String baseUrl,
 			BridgeHttp httpBridge, Integer index) {
-		CompletableFuture<Void> future = new CompletableFuture<>();
+		if (baseUrl == null) {
+			return CompletableFuture.completedFuture(null);
+		}
 		Boolean readValue = relayChannel.value().get();
 		Optional<Boolean> writeValue = relayChannel.getNextWriteValueAndReset();
 
 		if (writeValue.isEmpty()) {
-			future.complete(null); // No action needed
-			return future;
+			// No action needed
+			return CompletableFuture.completedFuture(null);
 		}
 		if (Objects.equals(readValue, writeValue.get())) {
-			future.complete(null); // No change in state
-			return future;
+			// No change in state
+			return CompletableFuture.completedFuture(null);
 		}
 
 		final String url = baseUrl + "/rpc/Switch.Set?id=" + index + "&on=" + (writeValue.get() ? "true" : "false");
-		httpBridge.get(url).whenComplete((response, exception) -> {
-			if (exception != null) {
-				future.completeExceptionally(exception);
-			} else {
-				future.complete(null);
-			}
+		return httpBridge.get(url).thenAccept(stringHttpResponse -> {
+			// map to void
 		});
-
-		return future;
 	}
 
 }

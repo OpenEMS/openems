@@ -2,12 +2,12 @@ package io.openems.edge.battery.soltaro.single.versionb;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.battery.soltaro.common.enums.ModuleType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatterySoltaroSingleRackVersionBImplTest {
 

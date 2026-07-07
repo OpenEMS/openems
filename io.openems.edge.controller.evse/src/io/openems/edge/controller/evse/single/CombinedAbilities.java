@@ -7,7 +7,7 @@ import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.JsonSerializerUtil;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
@@ -18,7 +18,7 @@ import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities
  */
 public record CombinedAbilities(//
 		ChargePointAbilities chargePointAbilities, ElectricVehicleAbilities electricVehicleAbilities, //
-		boolean isReadyForCharging, ApplySetPoint.Ability.Watt applySetPoint, PhaseSwitch phaseSwitch) {
+		boolean isReadyForCharging, ApplySetPoint.Ability.Watt applySetPoint, ApplyPhaseSwitch phaseSwitch) {
 
 	public static final class Builder {
 
@@ -44,8 +44,9 @@ public record CombinedAbilities(//
 					: this.isReadyForCharging == null //
 							? this.chargePointAbilities.isReadyForCharging() //
 							: this.isReadyForCharging && this.chargePointAbilities.isReadyForCharging(); //
-			final var phaseSwitch = this.electricVehicleAbilities != null
+			final var phaseSwitch = this.electricVehicleAbilities != null && this.chargePointAbilities != null
 					&& this.electricVehicleAbilities.canInterrupt() //
+					&& this.chargePointAbilities.phaseSwitch() != null //
 							? this.chargePointAbilities.phaseSwitch() //
 							: null;
 
@@ -77,7 +78,8 @@ public record CombinedAbilities(//
 					json.getObject("electricVehicleAbilities", ElectricVehicleAbilities.serializer()), //
 					json.getBoolean("isReadyForCharging"), //
 					json.getObject("applySetPoint", ApplySetPoint.Ability.Watt.serializer()), //
-					json.getOptionalEnum("phaseSwitch", PhaseSwitch.class).orElse(null));
+					json.getObject("phaseSwitch", ApplyPhaseSwitch.serializer()) //
+			);
 		}, obj -> {
 			return buildJsonObject() //
 					.add("chargePointAbilities", ChargePointAbilities.serializer().serialize(obj.chargePointAbilities)) //
@@ -85,7 +87,7 @@ public record CombinedAbilities(//
 							ElectricVehicleAbilities.serializer().serialize(obj.electricVehicleAbilities)) //
 					.addProperty("isReadyForCharging", obj.isReadyForCharging) //
 					.add("applySetPoint", ApplySetPoint.Ability.serializer().serialize(obj.applySetPoint)) //
-					.addProperty("phaseSwitch", obj.phaseSwitch) //
+					.add("phaseSwitch", ApplyPhaseSwitch.serializer().serialize(obj.phaseSwitch)) //
 					.build();
 		});
 	}

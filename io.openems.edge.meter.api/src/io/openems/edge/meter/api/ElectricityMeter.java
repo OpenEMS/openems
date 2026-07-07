@@ -1,5 +1,7 @@
 package io.openems.edge.meter.api;
 
+import static io.openems.common.utils.IntUtils.sumInteger;
+
 import java.util.function.Consumer;
 
 import org.osgi.annotation.versioning.ProviderType;
@@ -1477,7 +1479,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 */
 	public static void calculateSumActivePowerFromPhases(ElectricityMeter meter) {
 		final Consumer<Value<Integer>> calculate = ignore -> {
-			meter._setActivePower(TypeUtils.sum(//
+			meter._setActivePower(sumInteger(//
 					meter.getActivePowerL1Channel().getNextValue().get(), //
 					meter.getActivePowerL2Channel().getNextValue().get(), //
 					meter.getActivePowerL3Channel().getNextValue().get())); //
@@ -1497,7 +1499,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 */
 	public static void calculateSumReactivePowerFromPhases(ElectricityMeter meter) {
 		final Consumer<Value<Integer>> calculate = ignore -> {
-			meter._setReactivePower(TypeUtils.sum(//
+			meter._setReactivePower(sumInteger(//
 					meter.getReactivePowerL1Channel().getNextValue().get(), //
 					meter.getReactivePowerL2Channel().getNextValue().get(), //
 					meter.getReactivePowerL3Channel().getNextValue().get())); //
@@ -1517,7 +1519,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 */
 	public static void calculateSumCurrentFromPhases(ElectricityMeter meter) {
 		final Consumer<Value<Integer>> calculate = ignore -> {
-			meter._setCurrent(TypeUtils.sum(//
+			meter._setCurrent(sumInteger(//
 					meter.getCurrentL1Channel().getNextValue().get(), //
 					meter.getCurrentL2Channel().getNextValue().get(), //
 					meter.getCurrentL3Channel().getNextValue().get())); //
@@ -1643,7 +1645,7 @@ public interface ElectricityMeter extends OpenemsComponent {
 	 * @return the current or null if power or voltage or null
 	 */
 	private static Integer currentFromActivePowerAndVoltage(Integer power, Integer voltage) {
-		if (power == null || voltage == null) {
+		if (power == null || voltage == null || voltage == 0) {
 			return null;
 		}
 		// somewhat complicated computation, but prevents integer overflows
@@ -1668,6 +1670,16 @@ public interface ElectricityMeter extends OpenemsComponent {
 			meter.getReactivePowerL2Channel().setNextValue(phase);
 			meter.getReactivePowerL3Channel().setNextValue(phase);
 		});
+	}
+
+	/**
+	 * Is this Meter installed according to standard or rotated wiring?. See
+	 * {@link PhaseRotation} for details.
+	 *
+	 * @return the {@link PhaseRotation}.
+	 */
+	public default PhaseRotation getPhaseRotation() {
+		return PhaseRotation.L1_L2_L3;
 	}
 
 }

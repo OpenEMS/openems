@@ -1,12 +1,12 @@
 import { NgModule } from "@angular/core";
-import { TimeOfUseTariff } from "./TimeOfUseTariff/timeOfUseTariff.module";
+import { ControllerEssTimeOfUseTariffHistory } from "src/app/edge/live/Controller/Ess/TimeOfUseTariff/history/timeOfUseTariff.module";
 
 @NgModule({
     imports: [
-        TimeOfUseTariff,
+        ControllerEssTimeOfUseTariffHistory,
     ],
     exports: [
-        TimeOfUseTariff,
+        ControllerEssTimeOfUseTariffHistory,
     ],
 })
 export class ControllerEss { }

@@ -1,0 +1,17 @@
+{
+    "SETTINGS_PROFILE_LOCATION": {
+        "LOCATION": "Location",
+        "SYSTEM_LOCATION": "System location",
+        "VALIDATED": "validated",
+        "NOT_VALIDATED": "Please validate your system's location.",
+        "TO_VALIDATION": "Go to Validation",
+        "EDIT": "Edit",
+        "EDIT_CARD_TITLE": "Validation of your system's location",
+        "EDIT_CARD_SUBTITLE": "The location data is validated for service and warranty purposes.",
+        "EDIT_CARD_INFO": "Only the longitude and latitude are stored for the location validation of your system.",
+        "LONGITUDE": "Longitude",
+        "LATITUDE": "Latitude",
+        "ADRESS_IS_VALIDATED": "Location already validated",
+        "SUCCESSFULL_VALIDATION": "Validation successful!"
+    }
+}

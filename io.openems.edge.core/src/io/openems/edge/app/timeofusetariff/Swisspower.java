@@ -1,8 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkCommercial92;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -19,7 +17,6 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -91,13 +88,13 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 											return null;
 										}
 										return new JsonPrimitive("xxx");
-									}) //
+									})//
 									.orElse(null);
 						}))),
 		METERING_CODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".meteringCode.label") //
-				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description") //
-				.setRequired(true) //
+				.setTranslatedLabelWithAppPrefix(".meteringCode.label")//
+				.setTranslatedDescriptionWithAppPrefix(".meteringCode.description")//
+				.setRequired(true)//
 				.setField(JsonFormlyUtil::buildInput))), //
 		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
 		;
@@ -166,13 +163,6 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIME_OF_USE_TARIFF };
 	}
@@ -190,7 +180,7 @@ public class Swisspower extends AbstractOpenemsAppWithProps<Swisspower, Property
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome().or(checkCommercial92()));
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

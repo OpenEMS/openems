@@ -1,15 +1,25 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictor;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.selfConsumptionOptimization;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.sohCycle;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.stateLed;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
+import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
-import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
 import java.util.ArrayList;
@@ -27,18 +37,17 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
-import io.openems.edge.app.enums.FeedInType;
-import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
+import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.integratedsystem.FeneconHome15.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
@@ -59,12 +68,14 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 	public static enum Property implements Type<Property, FeneconHome15, BundleParameter> {
 		ALIAS(alias()), //
 		// Battery Inverter
-		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def //
+		SAFETY_COUNTRY(AppDef.copyOfGeneric(safetyCountry(), def -> def//
 				.setRequired(true))), //
 
-		FEED_IN_TYPE(IntegratedSystemProps.feedInType()), //
-		MAX_FEED_IN_POWER(maxFeedInPower(FEED_IN_TYPE)), //
+		LINK_FEED_IN(feedInLink()), //
+		FEED_IN_TYPE(externalLimitationType()), //
 		FEED_IN_SETTING(IntegratedSystemProps.feedInSetting()), //
+		@Deprecated
+		MAX_FEED_IN_POWER(defaultDef()), //
 
 		NA_PROTECTION_ENABLED(IntegratedSystemProps.naProtectionEnabled()), //
 
@@ -133,13 +144,6 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	protected ThrowingTriFunction<ConfigurationTarget, Map<Property, JsonElement>, Language, //
 			AppConfiguration, OpenemsNamedException> appPropertyConfigurationFactory() {
 		return (t, p, l) -> {
@@ -151,14 +155,9 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			final var hasEmergencyReserve = this.getBoolean(p, Property.HAS_EMERGENCY_RESERVE);
 			final var emergencyReserveEnabled = this.getBoolean(p, Property.EMERGENCY_RESERVE_ENABLED);
 
-			final var feedInType = this.getEnum(p, FeedInType.class, Property.FEED_IN_TYPE);
-			final var maxFeedInPower = (feedInType == FeedInType.DYNAMIC_LIMITATION
-					|| feedInType == FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION)
-							? this.getInt(p, Property.MAX_FEED_IN_POWER)
-							: 0;
+			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
-
 			final var gridMeterCategory = this.getEnum(p, GoodWeGridMeterCategory.class, Property.GRID_METER_CATEGORY);
 
 			final Integer ctRatioFirst;
@@ -169,7 +168,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			}
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
@@ -184,16 +183,17 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					// ess
 					FeneconHomeComponents.ess(bundle, essId, "battery0", "batteryInverter0"),
-					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), predictor(bundle, t), //
+					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), //
 					// battery
-					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
-					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, maxFeedInPower,
-							modbusIdExternal, shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
+					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
+							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),
 					// other
-					FeneconHomeComponents.power(), FeneconHomeComponents.io(bundle, modbusIdInternal));
+					FeneconHomeComponents.power());
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
 
 			for (int i = 0; i < 3; i++) {
 				final var oneBase = i + 1;
@@ -213,13 +213,22 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 						emergencyReserveEnabled, emergencyReserveSoc));
 			}
 			final var dependencies = Lists.newArrayList(//
-					gridOptimizedCharge(t, feedInType, maxFeedInPower), //
+					gridOptimizedCharge(t), //
 					selfConsumptionOptimization(t, essId, "meter0"), //
-					prepareBatteryExtension() //
+					sohCycle(), //
+					prepareBatteryExtension(), //
+					predictionDefault(), //
+					predictionUnmanagedConsumption()//
 			);
 
+			final var gpioId = FunctionUtils
+					.lazySingletonThrowing(() -> getGpioId(this.appManagerUtil, deviceHardware));
 			if (hasEssLimiter14a) {
-				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));
+				dependencies.add(essLimiter14a(deviceHardware, gpioId.get()));
+			}
+
+			if (isStateLedCompatible(deviceHardware)) {
+				dependencies.add(stateLed(gpioId.get()));
 			}
 
 			final var schedulerComponents = new ArrayList<SchedulerComponent>();
@@ -229,6 +238,11 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			}
 			schedulerComponents.add(new SchedulerComponent("ctrlEssSurplusFeedToGrid0",
 					"Controller.Ess.Hybrid.Surplus-Feed-To-Grid", this.getAppId()));
+
+			if (feedInType == ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION) {
+				components.add(dynamicRippleControlReceiverComponent(bundle, gpioId.get()));
+				schedulerComponents.add(dynamicRippleControlReceiverScheduler(this.getAppId()));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.component(components)) //

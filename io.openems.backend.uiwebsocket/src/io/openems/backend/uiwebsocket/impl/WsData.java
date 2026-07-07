@@ -5,7 +5,6 @@ import static java.util.UUID.randomUUID;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -29,9 +28,6 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 
 public class WsData extends io.openems.common.websocket.WsData {
-
-	// This list can be used to enable debug log messages for certain user ids
-	private static final List<String> DEBUG_USER_IDS = List.of();
 
 	private static class SubscribedChannels {
 
@@ -75,8 +71,8 @@ public class WsData extends io.openems.common.websocket.WsData {
 	private final UUID id = randomUUID();
 	private final SubscribedChannels subscribedChannels = new SubscribedChannels();
 
-	private Optional<String> userId = Optional.empty();
 	private Optional<String> token = Optional.empty();
+	private volatile User user;
 
 	private Set<String> subscribedEdges = new HashSet<>();
 
@@ -107,20 +103,13 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 */
 	public void logout() {
 		this.unsetToken();
-		this.unsetUserId();
+		this.setUser(null);
 		this.subscribedChannels.dispose();
 	}
 
-	public synchronized void setUserId(String userId) {
-		super.setDebug(DEBUG_USER_IDS.contains(userId));
-		this.userId = Optional.ofNullable(userId);
-	}
-
-	/**
-	 * Unsets the User-Token.
-	 */
-	public synchronized void unsetUserId() {
-		this.userId = Optional.empty();
+	public void setUser(User user) {
+		super.setDebug(user != null && user.isBackendDebugEnabled());
+		this.user = user;
 	}
 
 	/**
@@ -129,7 +118,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	 * @return the User-ID or Optional.Empty if the User was not authenticated.
 	 */
 	public synchronized Optional<String> getUserId() {
-		return this.userId;
+		return Optional.ofNullable(this.user).map(User::getUserId);
+	}
+
+	public User getUser() {
+		return this.user;
 	}
 
 	/**
@@ -184,7 +177,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	@Override
 	protected String toLogString() {
 		return new StringBuilder("UiWebsocket.WsData [userId=") //
-				.append(this.userId.orElse("UNKNOWN")) //
+				.append(this.getUserId().orElse("UNKNOWN")) //
 				.append(", token=") //
 				.append(this.token.isPresent() //
 						? this.token.get().toString() //
@@ -244,6 +237,12 @@ public class WsData extends io.openems.common.websocket.WsData {
 
 	public UUID getId() {
 		return this.id;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		this.subscribedChannels.dispose();
 	}
 
 }

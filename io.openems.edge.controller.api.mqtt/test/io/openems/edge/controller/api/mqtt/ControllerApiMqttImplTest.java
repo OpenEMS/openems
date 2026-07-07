@@ -35,6 +35,7 @@ public class ControllerApiMqttImplTest {
 						.setCertPem("") //
 						.setPrivateKeyPem("") //
 						.setTrustStorePath("") //
+						.setTopicFilters("") //
 						.build());
 	}
 

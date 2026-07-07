@@ -1,0 +1,13 @@
+[Unit]
+Description=Run WebSocket health check every 15 seconds
+PartOf=openems-backend.service
+Requires=openems-backend.service
+
+[Timer]
+OnBootSec=15
+OnUnitActiveSec=15s
+AccuracySec=1s
+Unit=websocket-health-check.service
+
+[Install]
+WantedBy=timers.target

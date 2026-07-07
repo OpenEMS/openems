@@ -11,6 +11,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.value.Value;
+import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public final class ChannelUtils {
@@ -114,6 +115,19 @@ public final class ChannelUtils {
 	}
 
 	/**
+	 * Gets the Class Name of the Nature for the given Channel.
+	 * 
+	 * @param channel the {@link Channel}
+	 * @return a name like "ElectricityMeter" or empty String if not found
+	 */
+	public static String getChannelNature(Channel<?> channel) {
+		return Optional.ofNullable(channel.channelId().getClass().getEnclosingClass()) //
+				.filter(c -> c != AbstractOpenemsComponent.class && c != ChannelId.class) //
+				.map(Class::getSimpleName) //
+				.orElse("");
+	}
+
+	/**
 	 * Set next read value of a {@link Channel}.
 	 * 
 	 * <p>
@@ -161,6 +175,21 @@ public final class ChannelUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	public static void setWriteValueIfNotRead(IntegerWriteChannel channel, Integer value) throws OpenemsNamedException {
+		setWriteValueIfNotReadHelper(channel, value);
+	}
+
+	/**
+	 * Set write value of a {@link LongWriteChannel} if the read value is not equal.
+	 *
+	 * <p>
+	 * Use this method if you do not want to write a Channel on every cycle, but
+	 * only if the Write-Values differs from the current Read-Value.
+	 *
+	 * @param channel the {@link LongWriteChannel}
+	 * @param value   value to be set
+	 * @throws OpenemsNamedException on error
+	 */
+	public static void setWriteValueIfNotRead(LongWriteChannel channel, Long value) throws OpenemsNamedException {
 		setWriteValueIfNotReadHelper(channel, value);
 	}
 

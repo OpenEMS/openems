@@ -5,11 +5,12 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsLong;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
@@ -129,7 +130,7 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -140,22 +141,20 @@ public class TimeOfUseTariffAwattarImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = ImmutableSortedMap.<ZonedDateTime, Double>naturalOrder();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 		for (var element : data) {
 			var marketPrice = getAsDouble(element, "marketprice");
 
-			// Converting Long time stamp to ZonedDateTime.
-			var startTimeStamp = ZonedDateTime //
-					.ofInstant(Instant.ofEpochMilli(getAsLong(element, "start_timestamp")), //
-							ZoneId.systemDefault())
-					.truncatedTo(ChronoUnit.HOURS);
+			// Converting Long time stamp to Instant.
+			var startTimeStamp = Instant.ofEpochMilli(getAsLong(element, "start_timestamp")) //
+					.truncatedTo(HOURS);
 
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
-			result.put(startTimeStamp.plusMinutes(15), marketPrice);
-			result.put(startTimeStamp.plusMinutes(30), marketPrice);
-			result.put(startTimeStamp.plusMinutes(45), marketPrice);
+			result.put(startTimeStamp.plus(15, MINUTES), marketPrice);
+			result.put(startTimeStamp.plus(30, MINUTES), marketPrice);
+			result.put(startTimeStamp.plus(45, MINUTES), marketPrice);
 		}
 		return TimeOfUsePrices.from(result.build());
 	}

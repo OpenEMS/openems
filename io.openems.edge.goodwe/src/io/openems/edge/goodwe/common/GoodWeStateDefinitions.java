@@ -188,7 +188,7 @@ public class GoodWeStateDefinitions {
 					new GwState(9, "GFCI Protection (60mA Internal)"), //
 					new GwState(10, "GFCI Protection (150mA Internal)"), //
 					new GwState(11, "GFCI Protection (300mA Internal)"), //
-					new GwState(12, "Parallell I/O Check Failure"), //
+					new GwState(12, "Parallel I/O Check Failure"), //
 					new GwState(13, "BUS (by BAT) Soft Start Failure"), //
 					new GwState(14, "BAT Voltage Low"), //
 					new GwState(15, "BUS Continuous Overvoltage"))),
@@ -218,7 +218,7 @@ public class GoodWeStateDefinitions {
 					new GwState(1, "BAT 1 Software Overcurrent"), //
 					new GwState(2, "BAT 1 Undervoltage Shutdown (Off-grid Mode)"), //
 					new GwState(3, "BAT 1 Abnormal Connection"), //
-					new GwState(4, "BAT 1 Abnormal Disonnection"), //
+					new GwState(4, "BAT 1 Abnormal Disconnection"), //
 					new GwState(5, "BAT 2 Hardware Overcurrent"), //
 					new GwState(6, "BAT 2 Software Overcurrent"), //
 					new GwState(7, "BAT 2 Undervoltage Shutdown (Off-grid Mode)"), //

@@ -3,10 +3,13 @@ package io.openems.edge.app.evcs;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
+import io.openems.edge.app.enums.EMobilityArchitectureType;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -73,7 +75,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Webasto.Next")
 public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, EMobilityApp {
 
 	public enum Property implements Type<Property, WebastoNextEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -82,11 +84,11 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		ALIAS(alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp(), def -> def //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp(), def -> def//
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(modbusUnitId(), def -> def//
 				.setDefaultValue(1))), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(EvcsProps.clusterMaxHardwarePowerSingleCp(MAX_HARDWARE_POWER_ACCEPT_PROPERTY, EVCS_ID)), //
 		UNOFFICIAL_APP_WARNING(CommonProps.installationHintOfUnofficialApp()), //
@@ -181,13 +183,6 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCardinality getCardinality() {
 		return OpenemsAppCardinality.MULTIPLE;
 	}
@@ -220,6 +215,11 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 	@Override
 	public Meta getMeta() {
 		return this.meta;
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 
 }

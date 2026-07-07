@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean enabled;
 		private String essId;
 		private Mode mode;
+		private StateMachine manualMode;
 		private ControlMode controlMode;
 		private int essMaxChargePower;
 		private int maxChargePowerFromGrid;
@@ -35,6 +36,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setMode(Mode mode) {
 			this.mode = mode;
+			return this;
+		}
+
+		public Builder setManualMode(StateMachine manualMode) {
+			this.manualMode = manualMode;
 			return this;
 		}
 
@@ -87,6 +93,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public Mode mode() {
 		return this.builder.mode;
+	}
+
+	@Override
+	public StateMachine manualMode() {
+		return this.builder.manualMode;
 	}
 
 	@Override

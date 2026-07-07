@@ -1,14 +1,17 @@
-<ng-container *ngIf="index && components?.length !== 1, else simpleLine">
-    <ng-container>
-        <div *ngIf="(index !== (components.length - 1))"
-            style="border-bottom: 1px solid lightgray; opacity: 0.2; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
-        </div>
-    </ng-container>
-</ng-container>
-
-<ng-template #simpleLine>
-    <!-- If only one component, dont display the line -->
-    <div *ngIf="components?.length !== 1"
+@if (index && components?.length !== 1) {
+  <ng-container>
+    @if ((index !== (components.length - 1))) {
+      <div
         style="border-bottom: 1px solid lightgray; opacity: 0.2; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
+      </div>
+    }
+  </ng-container>
+} @else {
+  <!-- If only one component, dont display the line -->
+  @if (components?.length !== 1) {
+    <div
+      style="border-bottom: 1px solid lightgray; opacity: 0.2; width: 110%; margin-top: 2%; margin-bottom: 2%; margin-left: -5%;">
     </div>
-</ng-template>
+  }
+}
+

@@ -17,7 +17,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -91,21 +90,21 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 				.setField(JsonFormlyUtil::buildSelect, (app, property, l, parameter, field) -> {
 					field.setOptions(OptionsFactory.of(JanitzaModel.class), l);
 				}))), //
-		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def //
+		TYPE(AppDef.copyOfGeneric(MeterProps.type(MeterType.GRID), def -> def//
 				.setRequired(true))), //
-		INTEGRATION_TYPE(CommunicationProps.modbusType() //
+		INTEGRATION_TYPE(CommunicationProps.modbusType()//
 				.setRequired(true)), //
 		IP(MeterProps.ip() //
 				.setDefaultValue("10.4.0.12") //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		PORT(MeterProps.port() //
 				.setRequired(true) //
 				.wrapField((app, property, l, parameter, field) -> {
-					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf((Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.TCP))));
 				})), //
 		SELECTED_MODBUS_ID(AppDef.copyOfGeneric(ComponentProps.pickSerialModbusId(), def -> def //
@@ -114,13 +113,13 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 					if (PropsUtil.isHomeInstalled(app.getAppManagerUtil())) {
 						field.readonly(true);
 					}
-					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE) //
+					field.onlyShowIf(Exp.currentModelValue(INTEGRATION_TYPE)//
 							.equal(Exp.staticValue(ModbusType.RTU)));
-				})) //
+				}))//
 				.setAutoGenerateField(false)), //
-		MODBUS_UNIT_ID(MeterProps.modbusUnitId() //
-				.setRequired(true) //
-				.setDefaultValue(6) //
+		MODBUS_UNIT_ID(MeterProps.modbusUnitId()//
+				.setRequired(true)//
+				.setDefaultValue(6)//
 				.setAutoGenerateField(false)), //
 		INVERT(MeterProps.invert(METER_ID)), //
 		MODBUS_GROUP(CommunicationProps.modbusGroup(//
@@ -209,13 +208,6 @@ public class JanitzaMeter extends AbstractOpenemsAppWithProps<JanitzaMeter, Prop
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

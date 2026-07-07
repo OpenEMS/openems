@@ -97,14 +97,14 @@ public class LstmTrain implements Runnable {
 		// We use the preprocessed validation data for adaptation.
 		ReadAndSaveModels.adapt(hyperParameters, constantScaling(removeNegatives(validationData), 1), validationDate);
 
-		// Perform training and validation in batch with early stopping to prevent overfitting
-		TrainAndValidateBatch trainer = new TrainAndValidateBatch(
-				constantScaling(removeNegatives(trainingData), 1), 
-				trainingDate,
-				constantScaling(removeNegatives(validationData), 1), 
-				validationDate, 
-				hyperParameters);
-		
+		// Perform training and validation in batch with early stopping to prevent
+		// overfitting
+		var trainer = new TrainAndValidateBatch(//
+				constantScaling(removeNegatives(trainingData), 1), //
+				trainingDate, //
+				constantScaling(removeNegatives(validationData), 1), //
+				validationDate, hyperParameters);
+
 		// Enable early stopping to prevent overfitting
 		trainer.setEarlyStoppingEnabled(true);
 		trainer.setEarlyStoppingPatience(5); // Stop if no improvement after 5 validation checks

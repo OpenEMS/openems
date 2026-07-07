@@ -1,46 +1,51 @@
 package io.openems.backend.alerting.scheduler;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.google.gson.JsonObject;
-
-import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
 import io.openems.backend.alerting.Handler;
 import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.Message;
+import io.openems.backend.common.mail.MailContext;
 import io.openems.common.event.EventReader;
 
-public class SchedulerTest {
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import io.openems.backend.alerting.Dummy.TimeLeapMinuteTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class SchedulerTest {
+
+	private static final Logger log = LoggerFactory.getLogger(SchedulerTest.class);
 
 	/**
 	 * Validate dummy methods.
 	 */
-	@BeforeClass
-	public static void dummyClass() {
+	@BeforeAll
+	static void dummyClass() {
 		var dummyMsg = new DummyMessage("", Instant.now(), 0);
 		var dummyHan = new DummyHandler();
-		Runnable[] methods = { () -> dummyHan.getEventHandler(null), () -> dummyHan.stop(), () -> dummyHan.getGeneric(),
-				() -> dummyMsg.getParams(), };
+		Runnable[] methods = { () -> dummyHan.getEventHandler(null), dummyHan::stop, dummyMsg::getContext };
 		assertNotNull(dummyMsg.getNotifyStamp());
 		for (var method : methods) {
-			assertThrows(UnsupportedOperationException.class, () -> method.run());
+			assertThrows(UnsupportedOperationException.class, method::run);
 		}
 	}
 
 	@Test
-	public void testSchedule() {
+	void testSchedule() {
 		/* Prepare */
 		final var now = Instant.now();
 		final var handler = new DummyHandler();
@@ -72,7 +77,7 @@ public class SchedulerTest {
 	}
 
 	@Test
-	public void testRemove() {
+	void testRemove() {
 		/* Prepare */
 		final var now = Instant.now();
 		final var handler = new DummyHandler();
@@ -111,7 +116,7 @@ public class SchedulerTest {
 	}
 
 	@Test
-	public void testUnRegister() {
+	void testUnRegister() {
 		/* Prepare */
 		final var now = Instant.now();
 		final var scheduler = new Scheduler(new TimeLeapMinuteTimer(now));
@@ -157,7 +162,7 @@ public class SchedulerTest {
 	}
 
 	@Test
-	public void testHandle() {
+	void testHandle() {
 		/* Prepare */
 		final var now = Instant.now();
 		final var timer = new TimeLeapMinuteTimer(now);
@@ -165,15 +170,21 @@ public class SchedulerTest {
 
 		final var handler = new DummyHandler() {
 			@Override
-			public void send(ZonedDateTime sentAt, java.util.List<DummyMessage> messages) {
-				for (var msg : messages) {
-					if (msg.getId().equals("0ERR")) {
-						throw new RuntimeException("Test Exception");
-					}
-				}
+			public void send(ZonedDateTime sentAt, List<DummyMessage> messages) {
+				log.info("Handler {} received {} messages at {}", this.id(), messages.size(), sentAt);
+				var validMessages = messages.stream() //
+						.filter(msg -> {
+							if ("0ERR".equals(msg.getId())) {
+								log.error("Message ID equals 0ERR: {}", msg);
+								return false;
+							}
+							return true;
+						}).toList();
+				super.send(sentAt, validMessages);
 			}
 		};
 		final var msgScheduler = scheduler.register(handler);
+		timer.subscribe(msgScheduler::handle);
 
 		final var msg1 = new DummyMessage("0ERR", now, -60 /*-1m*/);
 		final var msg2 = new DummyMessage("1", now, -1 /*-1s*/);
@@ -196,6 +207,9 @@ public class SchedulerTest {
 		assertTrue(scheduler.isScheduled(msg4));
 		assertTrue(scheduler.isScheduled(msg5));
 
+		assertEquals(0, handler.getMetrics().messagesSent());
+		assertEquals(5, scheduler.getScheduledMsgsCount());
+
 		timer.cycle();
 
 		assertFalse(scheduler.isScheduled(msg1));
@@ -204,13 +218,8 @@ public class SchedulerTest {
 		assertTrue(scheduler.isScheduled(msg4));
 		assertTrue(scheduler.isScheduled(msg5));
 
-		timer.leap(3);
-
-		assertFalse(scheduler.isScheduled(msg1));
-		assertFalse(scheduler.isScheduled(msg2));
-		assertFalse(scheduler.isScheduled(msg3));
-		assertTrue(scheduler.isScheduled(msg4));
-		assertTrue(scheduler.isScheduled(msg5));
+		assertEquals(1, handler.getMetrics().messagesSent());
+		assertEquals(3, scheduler.getScheduledMsgsCount());
 
 		timer.leap(3);
 
@@ -219,6 +228,20 @@ public class SchedulerTest {
 		assertFalse(scheduler.isScheduled(msg3));
 		assertTrue(scheduler.isScheduled(msg4));
 		assertTrue(scheduler.isScheduled(msg5));
+
+		assertEquals(2, handler.getMetrics().messagesSent());
+		assertEquals(2, scheduler.getScheduledMsgsCount());
+
+		timer.leap(3);
+
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+		assertTrue(scheduler.isScheduled(msg4));
+		assertTrue(scheduler.isScheduled(msg5));
+
+		assertEquals(2, handler.getMetrics().messagesSent());
+		assertEquals(2, scheduler.getScheduledMsgsCount());
 
 		timer.leap(3);
 
@@ -228,20 +251,31 @@ public class SchedulerTest {
 		assertFalse(scheduler.isScheduled(msg4));
 		assertTrue(scheduler.isScheduled(msg5));
 
+		assertEquals(3, handler.getMetrics().messagesSent());
+		assertEquals(1, scheduler.getScheduledMsgsCount());
+
+		timer.leap(20);
+
+		assertFalse(scheduler.isScheduled(msg1));
+		assertFalse(scheduler.isScheduled(msg2));
+		assertFalse(scheduler.isScheduled(msg3));
+		assertFalse(scheduler.isScheduled(msg4));
+		assertFalse(scheduler.isScheduled(msg5));
+
+		assertEquals(4, handler.getMetrics().messagesSent());
+		assertEquals(0, scheduler.getScheduledMsgsCount());
+
 		scheduler.stop();
 	}
 
 	/* *********************************************** */
 	private static class DummyMessage extends Message {
-		private ZonedDateTime timeStamp;
+		private final ZonedDateTime timeStamp;
 
 		public DummyMessage(String messageId, Instant now, int timeShift) {
 			super(messageId);
-			if (timeShift >= 0) {
-				this.timeStamp = ZonedDateTime.ofInstant(now, ZoneOffset.UTC).plusSeconds(timeShift);
-			} else {
-				this.timeStamp = ZonedDateTime.ofInstant(now, ZoneOffset.UTC).minusSeconds(Math.abs(timeShift));
-			}
+			this.timeStamp = ZonedDateTime.ofInstant(now, ZoneOffset.UTC).plusSeconds(timeShift);
+			log.info("Created DummyMessage with ID {} at {}", messageId, this.timeStamp);
 		}
 
 		@Override
@@ -250,12 +284,15 @@ public class SchedulerTest {
 		}
 
 		@Override
-		public JsonObject getParams() {
+		public MailContext getContext() {
 			throw new UnsupportedOperationException();
 		}
 	}
 
 	private static class DummyHandler implements Handler<DummyMessage> {
+		private final AtomicInteger messagesSent = new AtomicInteger(0);
+		private static final Logger log = LoggerFactory.getLogger(DummyHandler.class);
+
 		@Override
 		public String id() {
 			return "alerting_dummy";
@@ -273,16 +310,24 @@ public class SchedulerTest {
 
 		@Override
 		public void send(ZonedDateTime sentAt, List<DummyMessage> messages) {
+			log.info("Sending {} messages at {}", messages.size(), sentAt);
+			this.messagesSent.getAndAdd(messages.size());
 		}
 
 		@Override
 		public Class<DummyMessage> getGeneric() {
-			throw new UnsupportedOperationException();
+			return DummyMessage.class;
 		}
 
 		@Override
 		public HandlerMetrics getMetrics() {
-			return new HandlerMetrics(0, 0);
+			return new HandlerMetrics(this.messagesSent.get(), -1);
+		}
+
+		@Override
+		public String debugLog() {
+			return String.format("[DummyHandler] messagesSent=%d", this.messagesSent.get());
 		}
 	}
+
 }

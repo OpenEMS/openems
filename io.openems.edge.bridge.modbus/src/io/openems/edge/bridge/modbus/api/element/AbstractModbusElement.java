@@ -121,7 +121,12 @@ public abstract non-sealed class AbstractModbusElement<SELF extends AbstractModb
 		}
 		// Call Callbacks
 		for (Consumer<T> callback : this.onUpdateCallbacks) {
-			callback.accept(value);
+			try {
+				callback.accept(value);
+			} catch (RuntimeException ex) {
+				this.log.error("Failed to inform onUpdateCallback '{}' about new value '{}'", callback.toString(),
+						value, ex);
+			}
 		}
 	}
 

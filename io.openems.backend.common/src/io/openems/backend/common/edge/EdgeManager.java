@@ -15,6 +15,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.request.SubscribeSystemLogRequest;
+import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 
 @ProviderType
@@ -26,10 +27,11 @@ public interface EdgeManager {
 	 *
 	 * @param edgeId  the Edge-ID
 	 * @param user    the authenticated {@link User}
+	 * @param role    the role of the user on this edge
 	 * @param request the {@link JsonrpcRequest}
 	 * @return the JSON-RPC Success Response Future
 	 */
-	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, JsonrpcRequest request);
+	public CompletableFuture<JsonrpcResponseSuccess> send(String edgeId, User user, Role role, JsonrpcRequest request);
 
 	/**
 	 * Send a JSON-RPC Notification to an Edge.
@@ -45,12 +47,13 @@ public interface EdgeManager {
 	 *
 	 * @param edgeId      the Edge-ID
 	 * @param user        the {@link User}
+	 * @param role        the role of the user on this edge
 	 * @param websocketId the id of the UI websocket connection
 	 * @param request     the {@link SubscribeSystemLogRequest}
 	 * @return a reply
 	 */
 	public CompletableFuture<JsonrpcResponseSuccess> handleSubscribeSystemLogRequest(String edgeId, User user,
-			UUID websocketId, SubscribeSystemLogRequest request);
+			Role role, UUID websocketId, SubscribeSystemLogRequest request);
 
 	/**
 	 * Gets the latest values for the given ChannelAddresses.

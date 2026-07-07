@@ -1,56 +1,64 @@
+import { CommonModule } from "@angular/common";
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from "@angular/core";
+
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
-
-import { PipeModule } from "../pipe/pipe.module";
-import { ChartModule } from "./chart/chart.module";
+import { LabelToLinesPipe } from "src/app/shared/pipe/label-to-lines/label-to-lines.pipe";
+import { PipeComponentsModule, PipeModule } from "src/app/shared/pipe/pipe.module";
+import { CommonUiModule } from "../common-ui.module";
+import { DomChangeDirective } from "../directive/oe-dom-change";
+import { ChartComponentsModule, ChartModule } from "./chart/chart.module";
 import { FlatWidgetComponent } from "./flat/flat";
 import { FlatWidgetHorizontalLineComponent } from "./flat/flat-widget-horizontal-line/flat-widget-horizontal-line";
 import { FlatWidgetLineComponent } from "./flat/flat-widget-line/flat-widget-line";
 import { FlatWidgetLineItemComponent } from "./flat/flat-widget-line/flat-widget-line-item/flat-widget-line-item";
+
 import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/flat-widget-line-divider";
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
+import { FooterContentComponent } from "./footer/content/content";
 import { FooterComponent } from "./footer/footer";
-import { FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
+import { FooterNavigationComponentsModule, FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
-import { ModalModule } from "./modal/modal.module";
-import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
+import { HelpButtonComponent } from "./modal/help-button/help-button";
+import { ModalComponentsModule, ModalModule } from "./modal/modal.module";
+import { NavigationBreadCrumbsComponent } from "./navigation/breadcrumbs/breadcrumbs";
 import { NavigationChipsComponent } from "./navigation/chips/chips";
-import { NavigationPageComponent } from "./navigation/view/view";
-import { PickdateModule } from "./pickdate/pickdate.module";
+import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
+import { PickdateComponentModule, PickdateModule } from "./pickdate/pickdate.module";
 import { NotificationComponent } from "./shared/notification/notification";
 
 @NgModule({
     imports: [
-        BrowserModule,
+        CommonModule,
         IonicModule,
-        PipeModule,
-        TranslateModule,
-        HistoryDataErrorModule,
-        FooterNavigationModule,
-        ChartModule,
-        PickdateModule,
+        PipeComponentsModule,
         ReactiveFormsModule,
+        DomChangeDirective,
         RouterModule,
-        ModalModule,
+        ModalComponentsModule,
+        PickdateComponentModule,
+        ChartComponentsModule,
+        HelpButtonComponent,
+        FlatWidgetPercentagebarComponent,
+        TranslateModule,
+        FooterContentComponent,
+        LabelToLinesPipe,
     ],
     declarations: [
-
         // Flat
         FlatWidgetComponent,
         FlatWidgetHorizontalLineComponent,
         FlatWidgetLineComponent,
         FlatWidgetLineDividerComponent,
         FlatWidgetLineItemComponent,
-        FlatWidgetPercentagebarComponent,
 
         // Others
         NotificationComponent,
         FooterComponent,
-        NavigationPageComponent,
+        NavigationViewComponent,
         NavigationChipsComponent,
         NavigationBreadCrumbsComponent,
     ],
@@ -66,16 +74,36 @@ import { NotificationComponent } from "./shared/notification/notification";
         // Others
         NotificationComponent,
         FooterComponent,
-
-        FooterNavigationModule,
-        ChartModule,
-        PickdateModule,
-        ModalModule,
-        NavigationPageComponent,
+        NavigationViewComponent,
         NavigationChipsComponent,
         NavigationBreadCrumbsComponent,
+        ModalModule,
+        FooterNavigationComponentsModule,
+        PickdateComponentModule,
+        ChartComponentsModule,
+        PipeComponentsModule,
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
-
+})
+export class ComponentsBaseModule { }
+@NgModule({
+    imports: [
+        ComponentsBaseModule,
+        BrowserModule,
+        CommonUiModule,
+        PipeModule,
+        HistoryDataErrorModule,
+        FooterNavigationModule,
+        ChartModule,
+        DomChangeDirective,
+        PickdateModule,
+        ModalModule,
+        ReactiveFormsModule,
+        RouterModule,
+    ],
+    exports: [
+        ComponentsBaseModule,
+    ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ComponentsModule { }

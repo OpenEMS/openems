@@ -96,6 +96,17 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	}
 
 	/**
+	 * Directly set the component state.
+	 * 
+	 * @param level the Level to set
+	 * @return myself
+	 */
+	public final SELF withState(io.openems.common.channel.Level level) {
+		TestUtils.withValue(this, OpenemsComponent.ChannelId.STATE, level);
+		return this.self();
+	}
+
+	/**
 	 * Set callback for applyPower().
 	 *
 	 * @param callback the callback
@@ -103,6 +114,17 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 	 */
 	public final SELF withSymmetricApplyPowerCallback(Consumer<SymmetricApplyPowerRecord> callback) {
 		this.symmetricApplyPowerCallback = callback;
+		return this.self();
+	}
+
+	/**
+	 * Set {@link StartStoppable.ChannelId#START_STOP}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withStartStop(StartStop value) {
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, value);
 		return this.self();
 	}
 

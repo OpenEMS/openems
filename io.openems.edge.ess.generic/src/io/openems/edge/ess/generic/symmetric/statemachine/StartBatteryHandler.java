@@ -20,6 +20,10 @@ public class StartBatteryHandler extends StateHandler<State, Context> {
 		final var ess = context.getParent();
 		final var battery = context.battery;
 
+		if (battery.isFirmwareUpdateRunning()) {
+			return State.MAINTENANCE;
+		}
+
 		if (battery.isStarted()) {
 			return State.START_BATTERY_INVERTER;
 		}

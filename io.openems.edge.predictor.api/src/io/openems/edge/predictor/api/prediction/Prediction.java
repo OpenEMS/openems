@@ -2,7 +2,7 @@ package io.openems.edge.predictor.api.prediction;
 
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
-import java.time.ZonedDateTime;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.SortedMap;
 import java.util.stream.Stream;
@@ -44,7 +44,7 @@ public class Prediction extends QuarterlyValues<Integer> {
 				.map(p -> p.valuePerQuarter) //
 				.filter(m -> !m.isEmpty()) //
 				.map(m -> m.firstKey()) //
-				.max(ZonedDateTime::compareTo);
+				.max(Instant::compareTo);
 		if (minTime.isEmpty()) {
 			return EMPTY_PREDICTION;
 		}
@@ -53,24 +53,22 @@ public class Prediction extends QuarterlyValues<Integer> {
 		final var maxTime = Stream.of(predictions) //
 				.filter(m -> !m.isEmpty()) //
 				.map(p -> p.valuePerQuarter.lastKey()) //
-				.min(ZonedDateTime::compareTo);
+				.min(Instant::compareTo);
 		if (maxTime.isEmpty()) {
 			return EMPTY_PREDICTION;
 		}
 
-		final var result = ImmutableSortedMap.<ZonedDateTime, Integer>naturalOrder();
-		for (var time = minTime.get(); !time.isAfter(maxTime.get()); time.plusMinutes(15)) {
-			var values = Stream.of(predictions) //
-					.map(p -> p.valuePerQuarter.get(time)) //
-					.toList();
-			final Integer sum;
-			if (values.stream().anyMatch(Objects::isNull)) {
-				sum = null;
-			} else {
-				sum = values.stream().mapToInt(Integer::valueOf).sum();
-			}
-			result.put(time, sum);
-		}
+		final var result = ImmutableSortedMap.<Instant, Integer>naturalOrder();
+		streamQuartersInclusive(minTime.get(), maxTime.get()) //
+				.forEach(t -> {
+					var values = Stream.of(predictions) //
+							.map(p -> p.valuePerQuarter.get(t)) //
+							.toList();
+					if (values.stream().anyMatch(Objects::isNull)) {
+						return; // Cannot calculate -> ignore this timestamp
+					}
+					result.put(t, values.stream().mapToInt(Integer::valueOf).sum());
+				});
 		return Prediction.from(result.build());
 	}
 
@@ -121,7 +119,7 @@ public class Prediction extends QuarterlyValues<Integer> {
 	 * @param values the quarterly prediction values.
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(ZonedDateTime time, Integer... values) {
+	public static Prediction from(Instant time, Integer... values) {
 		return new Prediction(time, values);
 	}
 
@@ -139,7 +137,7 @@ public class Prediction extends QuarterlyValues<Integer> {
 	 * @param values         the quarterly prediction values.
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(Sum sum, ChannelAddress channelAddress, ZonedDateTime time, Integer... values) {
+	public static Prediction from(Sum sum, ChannelAddress channelAddress, Instant time, Integer... values) {
 		return from(getValueRange(sum, channelAddress), time, values);
 	}
 
@@ -152,7 +150,7 @@ public class Prediction extends QuarterlyValues<Integer> {
 	 * @param map a {@link SortedMap} of times and prices
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(ImmutableSortedMap<ZonedDateTime, Integer> map) {
+	public static Prediction from(ImmutableSortedMap<Instant, Integer> map) {
 		if (map.isEmpty()) {
 			return EMPTY_PREDICTION;
 		}
@@ -171,13 +169,13 @@ public class Prediction extends QuarterlyValues<Integer> {
 	 * @param prediction the source {@link Prediction} object
 	 * @return a {@link Prediction} object
 	 */
-	public static Prediction from(ZonedDateTime time, Prediction prediction) {
+	public static Prediction from(Instant time, Prediction prediction) {
 		if (time == null || prediction == null || prediction.isEmpty()) {
 			// prices is EMPTY
 			return EMPTY_PREDICTION;
 		}
 		time = roundDownToQuarter(time);
-		if (prediction.valuePerQuarter.firstKey().isEqual(time)) {
+		if (prediction.valuePerQuarter.firstKey().equals(time)) {
 			// prices is still valid
 			return prediction;
 		}
@@ -189,7 +187,7 @@ public class Prediction extends QuarterlyValues<Integer> {
 		return new Prediction(newMap);
 	}
 
-	private static Prediction from(ValueRange valueRange, ZonedDateTime time, Integer... values) {
+	private static Prediction from(ValueRange valueRange, Instant time, Integer... values) {
 		if (values.length == 0) {
 			return EMPTY_PREDICTION;
 		}
@@ -198,11 +196,11 @@ public class Prediction extends QuarterlyValues<Integer> {
 				.toArray(Integer[]::new));
 	}
 
-	private Prediction(ImmutableSortedMap<ZonedDateTime, Integer> valuePerQuarter) {
+	private Prediction(ImmutableSortedMap<Instant, Integer> valuePerQuarter) {
 		super(valuePerQuarter);
 	}
 
-	private Prediction(ZonedDateTime time, Integer... values) {
+	private Prediction(Instant time, Integer... values) {
 		super(time, values);
 	}
 

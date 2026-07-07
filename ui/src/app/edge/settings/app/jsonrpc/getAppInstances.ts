@@ -1,3 +1,4 @@
+import { States } from "src/app/shared/ngrx-store/states";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
@@ -37,6 +38,8 @@ export namespace GetAppInstances {
 
     export class Request extends JsonrpcRequest {
 
+        protected override requiredState: States = States.EDGE_SELECTED;
+
         public constructor(
             public override readonly params: {
                 appId: string
@@ -62,7 +65,7 @@ export namespace GetAppInstances {
         appId: string,
         alias: string,
         instanceId: string,
-        properties: {},
+        properties: Record<string, unknown>,
         dependencies: Dependency[]
     }
 

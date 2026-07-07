@@ -39,15 +39,15 @@ export class OfflineComponent implements OnInit {
     public static formatMilliSecondsToValidRange(ms: number, translate: TranslateService): string {
         const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
         const TWO_HOURS = 2 * 60 * 60 * 1000;
-        let translationKey: { singular: string, plural: string } = { singular: "General.TIME.MINUTE", plural: "General.TIME.MINUTES" };
+        let translationKey: { singular: string, plural: string } = { singular: "GENERAL.TIME.MINUTE", plural: "GENERAL.TIME.MINUTES" };
         let convertedSeconds: number = TimeUtils.getMinutesFromMilliSeconds(ms) ?? 0;
 
         if (ms > TWO_DAYS) {
             convertedSeconds = TimeUtils.getDaysFromMilliSeconds(ms) ?? 0;
-            translationKey = { singular: "General.TIME.DAY", plural: "General.TIME.DAYS" };
+            translationKey = { singular: "GENERAL.TIME.DAY", plural: "GENERAL.TIME.DAYS" };
         } else if (ms > TWO_HOURS) {
             convertedSeconds = TimeUtils.getHoursFromMilliSeconds(ms) ?? 0;
-            translationKey = { singular: "General.TIME.HOUR", plural: "General.TIME.HOURS" };
+            translationKey = { singular: "GENERAL.TIME.HOUR", plural: "GENERAL.TIME.HOURS" };
         }
 
         return TimeUtils.getDurationText(convertedSeconds, translate, translationKey.singular, translationKey.plural);

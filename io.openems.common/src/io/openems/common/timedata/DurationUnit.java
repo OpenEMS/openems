@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalUnit;
 
-public final class DurationUnit implements TemporalUnit {
+public final class DurationUnit implements TemporalUnit, Comparable<DurationUnit> {
 
 	private static final int SECONDS_PER_DAY = 86400;
 	private static final long NANOS_PER_SECOND = 1000_000_000L;
@@ -125,4 +125,13 @@ public final class DurationUnit implements TemporalUnit {
 		return this.duration.toString();
 	}
 
+	@Override
+	public int compareTo(DurationUnit o) {
+		return this.duration.compareTo(o.duration);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return (obj instanceof DurationUnit other) && this.duration.equals(other.duration);
+	}
 }

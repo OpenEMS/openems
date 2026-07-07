@@ -4,8 +4,8 @@ import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
-import io.openems.edge.evse.api.chargepoint.PhaseRotation;
 import io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity;
+import io.openems.edge.meter.api.PhaseRotation;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -16,8 +16,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String modbusId;
 		private PhaseRotation phaseRotation;
 		private SingleOrThreePhase wiring;
-		private boolean p30hasS10PhaseSwitching;
 		private LogVerbosity logVerbosity;
+		private int modbusUnitId = 1;
 
 		private Builder() {
 		}
@@ -44,11 +44,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setWiring(SingleOrThreePhase wiring) {
 			this.wiring = wiring;
-			return this;
-		}
-
-		public Builder setP30hasS10PhaseSwitching(boolean p30hasS10PhaseSwitching) {
-			this.p30hasS10PhaseSwitching = p30hasS10PhaseSwitching;
 			return this;
 		}
 
@@ -109,7 +104,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public boolean p30hasS10PhaseSwitching() {
-		return this.builder.p30hasS10PhaseSwitching;
+	public int modbusUnitId() {
+		return this.builder.modbusUnitId;
 	}
 }

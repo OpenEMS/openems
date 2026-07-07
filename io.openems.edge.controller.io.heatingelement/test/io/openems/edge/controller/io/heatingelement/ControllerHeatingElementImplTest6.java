@@ -9,11 +9,11 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.controller.io.heatingelement.enums.Level;
 import io.openems.edge.controller.io.heatingelement.enums.Mode;
 import io.openems.edge.controller.io.heatingelement.enums.WorkMode;
@@ -58,23 +58,21 @@ public class ControllerHeatingElementImplTest6 {
 
 	@Test
 	public void testWithFixedValues() throws Exception {
-		var test = prepareTest();
-
-		test.next(new TestCase() //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 5200) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1700) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1800) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1700) //
-				.output(LEVEL, Level.LEVEL_3), 5); //
-
-		test.next(new TestCase() //
-				.input(GRID_ACTIVE_POWER, -5300) //
-				.timeleap(CLOCK, 5, SECONDS) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
-				.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
-				.output(LEVEL, Level.LEVEL_3)) //
+		prepareTest() //
+				.next(new TestCase() //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 5200) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 1700) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 1800) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 1700) //
+						.output(LEVEL, Level.LEVEL_3), 5) //
+				.next(new TestCase() //
+						.input(GRID_ACTIVE_POWER, -5300) //
+						.timeleap(CLOCK, 5, SECONDS) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 0) //
+						.input("meter3", ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 0) //
+						.output(LEVEL, Level.LEVEL_3)) //
 				.next(new TestCase() //
 						.input(GRID_ACTIVE_POWER, -4000) //
 						.timeleap(CLOCK, 6 * 60, MINUTES) //

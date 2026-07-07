@@ -1,21 +1,22 @@
-import { Component, effect, HostBinding } from "@angular/core";
+import { Component, effect, HostBinding, inject } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "../../../../environments";
 import { User } from "../../jsonrpc/shared";
 import { Edge, Service } from "../../shared";
 import { Role } from "../../type/role";
 
 @Component({
-  selector: "oe-footer",
-  styles: [`
+    selector: "oe-footer",
+    styles: [`
 
-    :host[data-isSmartPhone=true] {
+    :host[data-isSmartphone=true] {
       position: relative;
     }
 
-    :host[data-isSmartPhone=false] {
+    :host[data-isSmartphone=false] {
       position: sticky;
       bottom: 0;
       width: 100%;
@@ -26,80 +27,82 @@ import { Role } from "../../type/role";
       }
 
       :is(ion-item) {
-
         font-size: inherit;
       }
     }
   `],
-  templateUrl: "footer.html",
-  standalone: false,
+    templateUrl: "footer.html",
+    standalone: false,
 })
 export class FooterComponent {
 
-  @HostBinding("attr.data-isSmartPhone")
-  public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+    @HostBinding("attr.data-isSmartphone")
+    public isSmartphone: boolean = false;
 
-  protected user: User | null = null;
-  protected edge: Edge | null = null;
-  protected displayValues: { comment: string, id: string, version: string } | null = null;
-  protected isAtLeastOwner: boolean | null = null;
+    protected user: User | null = null;
+    protected edge: Edge | null = null;
+    protected displayValues: { comment: string, id: string, version: string } | null = null;
+    protected isAtLeastOwner: boolean | null = null;
 
-  constructor(
-    protected service: Service,
-    private title: Title,
-  ) {
+    private platFormService = inject(PlatFormService);
 
-    effect(() => {
-      const edge = this.service.currentEdge();
+    constructor(
+        protected service: Service,
+        private title: Title,
+    ) {
+        this.isSmartphone = this.platFormService.getDevice().isSmartphone();
 
-      if (!edge) {
-        this.edge = null;
-        return;
-      }
-      this.edge = edge;
+        effect(() => {
+            const edge = this.service.currentEdge();
 
-      this.setDisplayValues(edge);
-    });
-  }
+            if (!edge) {
+                this.edge = null;
+                return;
+            }
+            this.edge = edge;
 
-  private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
-    const result = {
-      comment: "",
-      id: "",
-      version: edge.version,
-    };
-
-    switch (environment.backend) {
-      case "OpenEMS Backend":
-        if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
-          result.comment = edge?.comment;
-        }
-        result.id = edge.id;
-        break;
-
-      case "OpenEMS Edge":
-        result.id = environment.edgeShortName;
-        break;
+            this.setDisplayValues(edge);
+        });
     }
 
-    return result;
-  }
+    private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
+        const result = {
+            comment: "",
+            id: "",
+            version: edge.version,
+        };
 
-  private setDisplayValues(edge: Edge) {
+        switch (environment.backend) {
+            case "OpenEMS Backend":
+                if (Role.isAtLeast(user.globalRole, Role.OWNER) && user.hasMultipleEdges) {
+                    result.comment = edge?.comment;
+                }
+                result.id = edge.id;
+                break;
 
-    this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
-      this.user = metadata.user;
-
-      let title = environment.edgeShortName;
-      if (edge) {
-        this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
-
-        if (this.user.hasMultipleEdges) {
-          title += " | " + edge.id;
+            case "OpenEMS Edge":
+                result.id = environment.edgeShortName;
+                break;
         }
-      }
 
-      this.title.setTitle(title);
-    });
-  }
+        return result;
+    }
+
+    private setDisplayValues(edge: Edge) {
+
+        this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+            this.user = metadata.user;
+
+            let title = environment.edgeShortName;
+            if (edge) {
+                this.displayValues = FooterComponent.getDisplayValues(this.user, edge);
+
+                if (this.user.hasMultipleEdges) {
+                    title += " | " + edge.id;
+                }
+            }
+
+            this.title.setTitle(title);
+        });
+    }
 }

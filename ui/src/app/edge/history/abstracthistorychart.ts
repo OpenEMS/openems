@@ -12,6 +12,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { ChronoUnit, DEFAULT_TIME_CHART_OPTIONS, EMPTY_DATASET, Resolution, calculateResolution, setLabelVisible } from "./shared";
 
@@ -133,6 +134,7 @@ export abstract class AbstractHistoryChart {
             const formatNumber = this.formatNumber;
             const colors = this.colors;
             const translate = this.translate;
+            let lastLabel: string | null = null;
             this.service.getConfig().then((conf) => {
 
                 options = NewAbstractHistoryChart.getDefaultXAxisOptions(this.xAxisType, this.service, this.labels);
@@ -156,6 +158,10 @@ export abstract class AbstractHistoryChart {
                     const value = tooltipItem.dataset.data[tooltipItem.dataIndex];
 
                     const customUnit = tooltipItem.dataset.unit ?? null;
+                    if (lastLabel == label) {
+                        return null;
+                    }
+                    lastLabel = label;
                     return label.split(":")[0] + ": " + NewAbstractHistoryChart.getToolTipsSuffix("", value, formatNumber, customUnit ?? unit, "line", translate, conf);
                 };
 
@@ -182,23 +188,51 @@ export abstract class AbstractHistoryChart {
 
                         const color = colors[index];
 
-                        if (!color) {
-                            return;
-                        }
+                        const backgroundColor =
+                            color?.backgroundColor ??
+                            (typeof dataset.backgroundColor === "string" ? dataset.backgroundColor : undefined);
+
+                        const borderColor =
+                            color?.borderColor ??
+                            (typeof dataset.borderColor === "string" ? dataset.borderColor : undefined);
 
                         // Set colors manually
-                        dataset.backgroundColor = color.backgroundColor ?? dataset.backgroundColor;
-                        dataset.borderColor = color.borderColor ?? dataset.borderColor;
+                        dataset.backgroundColor = backgroundColor;
+                        dataset.borderColor = borderColor;
 
+                        const existingItem = chartLegendLabelItems.find(item => item.text === dataset.label);
+
+                        if (existingItem != null) {
+                            existingItem.datasetIndex = index;
+                            existingItem.hidden = !chart.isDatasetVisible(index);
+
+                            const color = colors[index];
+
+                            const borderColor =
+                                color?.borderColor ??
+                                (Array.isArray(dataset.borderColor)
+                                    ? dataset.borderColor[0]
+                                    : dataset.borderColor);
+
+                            existingItem.fillStyle = borderColor;
+                            existingItem.strokeStyle = borderColor;
+
+                            if (dataset["borderDash"] != null) {
+                                // Keep legend marker solid even if the dataset line is dashed.
+                                existingItem.lineDash = [];
+                            }
+
+                            return;
+                        }
                         chartLegendLabelItems.push({
                             text: dataset.label,
                             datasetIndex: index,
-                            fillStyle: color.backgroundColor,
+                            fillStyle: backgroundColor,
                             fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
                             hidden: !chart.isDatasetVisible(index),
                             lineWidth: 2,
                             ...(dataset["borderDash"] && { lineDash: dataset["borderDash"] }),
-                            strokeStyle: color.borderColor,
+                            strokeStyle: borderColor,
                             ...ChartConstants.Plugins.Legend.POINT_STYLE(dataset),
                         });
                     });
@@ -217,14 +251,19 @@ export abstract class AbstractHistoryChart {
                     }, []);
 
                     legendItems.forEach(item => {
-                        // original.call(this, event, legendItem1);
                         setLabelVisible(item.label, !chart.isDatasetVisible(legendItem.datasetIndex));
                         const meta = chart.getDatasetMeta(item.index);
-                        // See controller.isDatasetVisible comment
-                        meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : null;
+                        meta.hidden = chart.isDatasetVisible(legendItem.datasetIndex);
                     });
 
-                    // We hid a dataset ... rerender the chart
+                    // Show only Y axes that have at least one visible dataset
+                    for (const key of Object.keys(ObjectUtils.excludeProperties(options.scales, ["x"]))) {
+                        const axisDatasets = chart.data.datasets
+                            .map((d, i) => ({ dataset: d, index: i }))
+                            .filter(d => d.dataset["yAxisID"] === key);
+                        chart.scales[key].options.display = axisDatasets.some(d => chart.isDatasetVisible(d.index));
+                    }
+
                     chart.update();
                 };
 
@@ -412,7 +451,7 @@ export abstract class AbstractHistoryChart {
      * @param spinnerSelector to stop spinner
      */
     protected initializeChart() {
-        EMPTY_DATASET[0].label = this.translate.instant("Edge.History.noData");
+        EMPTY_DATASET[0].label = this.translate.instant("EDGE.HISTORY.NO_DATA");
         this.datasets = EMPTY_DATASET;
         this.labels = [];
         this.loading = false;

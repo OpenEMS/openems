@@ -1,5 +1,8 @@
 package io.openems.edge.bridge.modbus.api;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
+import java.time.Clock;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -12,11 +15,15 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.test.TestUtils;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device.
  */
-public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements BridgeModbus, EventHandler {
+public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
+		implements BridgeModbus, EventHandler, StartStoppable {
 
 	/**
 	 * Default Modbus timeout in [ms].
@@ -24,7 +31,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
-	protected static final int DEFAULT_TIMEOUT = 1000;
+	protected static final int DEFAULT_TIMEOUT = 500;
 
 	/**
 	 * Default Modbus retries.
@@ -32,9 +39,11 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * <p>
 	 * Modbus library default is 5
 	 */
-	protected static final int DEFAULT_RETRIES = 1;
+	protected static final int DEFAULT_RETRIES = 2;
 
 	private Config config = null;
+
+	private ModbusTransferInfo lastTransferInfo = null;
 
 	protected final ModbusWorker worker = new ModbusWorker(
 			// Execute Task
@@ -90,6 +99,13 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 			this.worker.deactivate();
 		}
 	}
+
+	/**
+	 * Returns clock used by the modbus bridge.
+	 *
+	 * @return Clock instance
+	 */
+	public abstract Clock getClock();
 
 	private void applyConfig(Config config) {
 		this.config = config;
@@ -148,7 +164,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
 	 *
-	 * @return the Modbus Transaction
+	 * @return the Modbus Transaction, null if Bridge is stopped
 	 * @throws OpenemsException on error
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
@@ -180,5 +196,40 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	@Override
 	public void retryModbusCommunication(String sourceId) {
 		this.worker.retryModbusCommunication(sourceId);
+	}
+
+	@Override
+	public final void setStartStop(StartStop value) {
+		// We are not using _setStartStop() by purpose to avoid race conditions with not
+		// setting the Channel immediately
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, switch (value) {
+		case START, UNDEFINED -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		});
+
+		// Close existing Modbus Connection on STOP
+		if (value == StartStop.STOP) {
+			this.closeModbusConnection();
+		}
+
+		// Set BRIDGE_IS_STOPPED Channel
+		setValue(this, BridgeModbus.ChannelId.BRIDGE_IS_STOPPED, value == StartStop.STOP);
+	}
+
+	@Override
+	public ModbusTransferInfo getLastTransferInfo() {
+		return this.lastTransferInfo;
+	}
+
+	/**
+	 * Sets information about the last transfer that happend on this bus. Can be a
+	 * request from OpenEMS or a response from another device that we received.
+	 * 
+	 * @param communicationType Request or response
+	 * @param unitId            Modbus Unit id of the last transferred/received
+	 *                          frame
+	 */
+	public void setLastTransferInfo(ModbusTransferInfo.ModbusCommunicationType communicationType, int unitId) {
+		this.lastTransferInfo = new ModbusTransferInfo(this.getClock().instant(), communicationType, unitId);
 	}
 }

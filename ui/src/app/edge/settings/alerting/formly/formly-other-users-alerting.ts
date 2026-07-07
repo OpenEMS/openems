@@ -6,7 +6,7 @@ import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { HelpPopoverButtonComponent } from "src/app/shared/components/shared/view-component/help-popover/help-popover";
 import { FormUtils } from "src/app/shared/utils/form/form.utils";
-import { AlertingComponent } from "../alerting.component";
+import { AlertingComponent } from "../component/alerting.component";
 
 @Component({
     selector: "formly-other-users-alerting",
@@ -47,14 +47,22 @@ export class FormlyOtherUsersAlertingComponent extends FieldWrapper implements O
      * @param user the selected user
      * @param controlName the control to update
      */
-    protected changeEditMode(user: string, controlName: string) {
+    protected changeEditMode(user: string, controlName: string, invert: boolean) {
+
+        /** If formControl provided, use it directly */
         const userForm = FormUtils.findFormControlSafely(this.form as FormGroup, user) as FormGroup;
         const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(userForm, controlName);
+        const toggleState = invert === true ? !isToggleOn : isToggleOn;
+        if (invert === true) {
+            userForm.get(controlName).setValue(toggleState);
+            userForm.get(controlName).markAsDirty();
+        }
+
         this.checkValidity(user);
         const userOptions = (this.props.options as any[]).find(el => el.key == user) as FormlyFieldConfig;
         const affectedControls: string[] = userOptions.fieldGroup.map(el => el.fieldGroup).flat(1).filter(el => el.props?.disabledOnFormControl == controlName)?.map(el => el.key as string) ?? [];
         for (const control of affectedControls) {
-            this.updateToggleDependentFields(user, control, isToggleOn);
+            this.updateToggleDependentFields(user, control, toggleState);
         }
     }
 

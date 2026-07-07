@@ -1,92 +1,97 @@
-<form [formGroup]="form" *ngIf="props.options">
-  <ion-accordion-group [multiple]="true">
-    @for (user of props.options; track $index; let trackEven = $even; let i = $index) {
-    <ion-row [formGroupName]="user.key" class="ion-justify-content-center">
-      <ion-accordion [value]="user.key"
-        [class]="mailCheckBoxChecked.get(user.key) === false ? 'ng-invalid': 'ng-valid'">
-        <ion-item slot="header" [color]="trackEven ? 'var(--ion-background-color-card-header)' : 'light'" lines="none">
-          <ion-label>{{ user.key }}</ion-label>
-        </ion-item>
-        <div class="ion-no-padding" slot="content">
-          @for (userCol of user.fieldGroup; track userCol.key; let oddInnerRow = $odd) {
+@if (props.options) {
+  <form [formGroup]="form">
+    <ion-accordion-group [multiple]="true">
+      @for (user of props.options; track $index; let trackEven = $even; let i = $index) {
+        <ion-row [formGroupName]="user.key" class="ion-justify-content-center">
+          <ion-accordion [value]="user.key"
+            [class]="mailCheckBoxChecked.get(user.key) === false ? 'ng-invalid': 'ng-valid'">
+            <ion-item slot="header" [color]="trackEven ? 'var(--ion-background-color-card-header)' : 'light'" lines="none">
+              <ion-label>{{ user.key }}</ion-label>
+            </ion-item>
+            <div class="ion-no-padding" slot="content">
+              @for (userCol of user.fieldGroup; track userCol.key; let oddInnerRow = $odd) {
           <ion-row class="ion-align-self-start ion-no-padding" [style.background]="
                           (trackEven && !oddInnerRow) || (!trackEven && oddInnerRow)
                             ? 'var(--ion-background-color-card-header)' : ''">
-            <ion-col size="auto" class="ion-padding ion-align-self-center" *ngIf="userCol.props.icon">
-              <ion-icon class="ion-margin-start" size="large" [name]="userCol.props?.icon.name"
-                [color]="userCol.props?.icon.color" [size]="userCol.props?.icon.size" item-left></ion-icon>
-            </ion-col>
-            <ion-col>
-              <ion-row class="ion-no-padding ion-align-items-center">
-                <ion-col>
-                  <ion-item lines="none" class="ion-full-width ion-background-transparent">
-                    {{userCol.name }}
-                  </ion-item>
-                </ion-col>
-                <ion-col>
-                  @switch (userCol.type) {
-                  @case ("toggle") {
-                  <ion-item lines="none" class="ion-background-transparent">
-                    <ion-toggle label-placement="start" slot="end" [formControlName]="userCol.key"
-                      (ionChange)="changeEditMode(user.key, userCol.key)"></ion-toggle>
-                  </ion-item>
+                  @if (userCol.props.icon) {
+                    <ion-col size="auto" class="ion-padding ion-align-self-center">
+                      <ion-icon class="ion-margin-start" size="large" [name]="userCol.props?.icon.name"
+                      [color]="userCol.props?.icon.color" [size]="userCol.props?.icon.size" item-left></ion-icon>
+                    </ion-col>
                   }
-                  }
-                </ion-col>
-              </ion-row>
-
-              <ion-row class="ion-no-padding ion-align-items-center">
-                @for (col of userCol.fieldGroup; track $index) {
-                @switch (col.type) {
-                @case ("radio-buttons") {
-                <ion-col>
-                  <ion-item lines="none" class="ion-background-transparent">
-                    <ion-select [formControlName]="col.key" interface="popover"
-                      class="custom-ion-popover ion-background-transparent" label-placement="floating"
-                      [label]="col.name" justify="start">
-                      @for (option of col.props.options; track option.value) {
-                      <ion-select-option class="ion-full-width" [value]="option.value" labelPlacement="end"
-                        justify="start">
-                        {{ option.label }}
-                      </ion-select-option>
-                      }
-                    </ion-select>
-                  </ion-item>
-                </ion-col>
-                }
-                @case ("checkbox") {
-                <!-- Checkbox -->
+                  <ion-col>
+                    <ion-row class="ion-no-padding ion-align-items-center">
+                      <ion-col>
+                        <ion-item lines="none" class="ion-full-width ion-background-transparent">
+                          {{userCol.name }}
+                        </ion-item>
+                      </ion-col>
+                      <ion-col>
+                        @switch (userCol.type) {
+                          @case ("toggle") {
+                            <ion-item lines="none" class="ion-background-transparent">
+                              <ion-toggle tabindex="0" label-placement="start" slot="end" [formControlName]="userCol.key"
+                                (keydown.enter)="changeEditMode(user.key, userCol.key, true)"
+                                (ionChange)="changeEditMode(user.key, userCol.key, null)">
+                              </ion-toggle>
+                            </ion-item>
+                          }
+                        }
+                      </ion-col>
+                    </ion-row>
+                    <ion-row class="ion-no-padding ion-align-items-center">
+                      @for (col of userCol.fieldGroup; track $index) {
+                        @switch (col.type) {
+                          @case ("radio-buttons") {
+                            <ion-col>
+                              <ion-item lines="none" class="ion-background-transparent">
+                                <ion-select [formControlName]="col.key" interface="popover"
+                                  class="custom-ion-popover ion-background-transparent" label-placement="floating"
+                                  [label]="col.name" justify="start">
+                                  @for (option of col.props.options; track option.value) {
+                                    <ion-select-option class="ion-full-width" [value]="option.value" labelPlacement="end"
+                                      justify="start">
+                                      {{ option.label }}
+                                    </ion-select-option>
+                                  }
+                                </ion-select>
+                              </ion-item>
+                            </ion-col>
+                          }
+                          @case ("checkbox") {
+                            <!-- Checkbox -->
                 <ion-col class="ion-align-self-center ion-no-padding ion-no-padding-top" [ngClass]="
                                                   nestedGroup?.controls[col.props.disabledOnFormControl]?.value === false
                                                     ? 'ion-disabled'
                                                     : ''
                                                 " size-md="5" size-lg="5" size-sm="5" size-xs="11">
-                  <ion-row>
-                    <ion-col>
-                      <ion-item class="ion-background-transparent" lines="none">
-                        <ion-checkbox class="ion-font-size-smaller" style="margin-right: 5%" slot="start"
-                          (ionChange)="checkValidity(user.key)" [formControlName]="col.key" justify="start"
+                              <ion-row>
+                                <ion-col>
+                                  <ion-item class="ion-background-transparent" lines="none">
+                                    <ion-checkbox class="ion-font-size-smaller" style="margin-right: 5%" slot="start"
+                                      (ionChange)="checkValidity(user.key)" [formControlName]="col.key" justify="start"
                           [style.pointer-events]="nestedGroup?.controls[col.props.disabledOnFormControl]?.value === false
                                                             ? 'none'
                                                             : 'inherit'
                                                         " labelPlacement="end">
-                          {{ col.name }}
-                        </ion-checkbox>
-                        <oe-help-popover-button [helpMsg]="col.props.help"></oe-help-popover-button>
-                      </ion-item>
-                    </ion-col>
-                  </ion-row>
-                </ion-col>
-                }
-                }
-                }
-              </ion-row>
-            </ion-col>
-          </ion-row>
-          }
-        </div>
-      </ion-accordion>
-    </ion-row>
-    }
-  </ion-accordion-group>
-</form>
+                                      {{ col.name }}
+                                    </ion-checkbox>
+                                    <oe-help-popover-button [helpMsg]="col.props.help"></oe-help-popover-button>
+                                  </ion-item>
+                                </ion-col>
+                              </ion-row>
+                            </ion-col>
+                          }
+                        }
+                      }
+                    </ion-row>
+                  </ion-col>
+                </ion-row>
+              }
+            </div>
+          </ion-accordion>
+        </ion-row>
+      }
+    </ion-accordion-group>
+  </form>
+}

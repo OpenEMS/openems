@@ -4,12 +4,10 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -17,7 +15,8 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
 import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulationsProvider;
-import io.openems.edge.energy.api.handler.DifferentModes.PostProcessor;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes;
+import io.openems.edge.energy.api.handler.DifferentModes.PreProcessor;
 import io.openems.edge.energy.api.handler.DifferentModes.Simulator;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -27,78 +26,67 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		extends AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 		implements EnergyScheduleHandler.WithDifferentModes {
 
-	private final MODE defaultMode;
-	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction;
+	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> modesFunction;
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
+	private final PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
-	private final PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor;
+	private final DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator;
 	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
-	private MODE[] availableModes;
+	private Modes<?, MODE> _modes = null;
 
 	protected EshWithDifferentModes(//
 			String parentFactoryPid, String parentId, //
 			Serializer<?> serializer, //
-			MODE defaultMode, //
-			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, MODE[]> availableModesFunction, //
+			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> modesFunction, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider, //
+			PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor, //
 			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
-			PostProcessor<MODE, OPTIMIZATION_CONTEXT> postProcessor) {
+			DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
-		this.defaultMode = defaultMode;
-		this.availableModesFunction = availableModesFunction;
+		this.modesFunction = modesFunction;
 		this.initialPopulationsProvider = initialPopulationsProvider;
+		this.preProcessor = preProcessor;
 		this.simulator = simulator;
-		this.postProcessor = postProcessor;
+		this.evaluator = evaluator;
 	}
 
 	@Override
 	public OPTIMIZATION_CONTEXT initialize(GlobalOptimizationContext goc) {
 		var context = super.initialize(goc);
-		this.availableModes = this.availableModesFunction.apply(goc, context);
+		this._modes = this.modesFunction.apply(goc, context);
 		return context;
 	}
 
-	/**
-	 * Generates {@link InitialPopulation} for this
-	 * {@link EnergyScheduleHandler.WithDifferentStates}.
-	 * 
-	 * @param goc the {@link GlobalOptimizationContext}
-	 * @return a List of {@link InitialPopulation}s
-	 */
+	@Override
 	public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc) {
-		return this.initialPopulationsProvider.get(goc, this.coc, this.availableModes).stream() //
-				.map(ip -> ip.toTansition(this::getModeIndex)) //
-				.collect(toImmutableList());
-	}
-
-	/**
-	 * Gets the default Mode.
-	 * 
-	 * @return the default Mode
-	 */
-	public MODE getDefaultMode() {
-		return this.defaultMode;
+		final var modes = this._modes;
+		return modes != null //
+				? this.initialPopulationsProvider.get(goc, this.coc, modes).stream() //
+						.map(ip -> ip.toTansition(modes::getIndex)) //
+						.collect(toImmutableList()) //
+				: ImmutableList.of();
 	}
 
 	@Override
-	public int getDefaultModeIndex() {
-		var modes = this.availableModes;
-		if (modes == null) {
-			throw new IllegalAccessError(
-					"EnergySchedulerHandler is uninitialized. `initialize()` must be called first.");
-		}
-		return IntStream.range(0, modes.length) //
-				.filter(i -> modes[i] == this.defaultMode) //
-				.findFirst() //
-				.orElse(0 /* fallback */);
+	public Modes<?, MODE> modes() {
+		return this._modes;
 	}
 
-	@Override
-	public int getNumberOfAvailableModes() {
-		return this.availableModes.length;
+	private MODE getMode(int index) {
+		final var modes = this._modes;
+		return modes != null //
+				? modes.get(index) //
+				: null;
+	}
+
+	private int getModeIndex(MODE mode) {
+		final var modes = this._modes;
+		return modes != null //
+				? modes.getIndex(mode) //
+				: 0;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -107,19 +95,28 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		return super.createScheduleContext();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
-			EnergyFlow.Model ef, int modeIndex, Fitness fitness) {
-		this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
-				this.availableModes[modeIndex], fitness);
+	public int preProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, int modeIndex) {
+		var oldMode = this.getMode(modeIndex);
+		var newMode = this.preProcessor.preProcess(period, this.coc, oldMode);
+		return this.getModeIndex(newMode);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public int postProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, EnergyFlow ef,
-			int modeIndex) {
-		return this.getModeIndex(this.postProcessor.postProcess(this.parentId, period, gsc, ef, this.coc,
-				this.availableModes[modeIndex]));
+	public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+			EnergyFlow.Model ef, int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
+		var postProcessedMode = this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc,
+				ef, this.getMode(modeIndex), fitness, isFinalRun);
+		return this.getModeIndex(postProcessedMode);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow ef,
+			int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
+		this.evaluator.evaluate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
+				this.getMode(modeIndex), fitness, isFinalRun);
 	}
 
 	@Override
@@ -127,6 +124,12 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		final var thisQuarter = roundDownToQuarter(this.getNow());
 		final var nextQuarter = thisQuarter.plusMinutes(15);
 		final var coc = this.coc;
+		final var modes = this._modes;
+		if (modes == null || modes.isEmpty()) {
+			System.err.println("Modes is empty!"); // TODO proper log
+			return;
+		}
+
 		synchronized (this.schedule) {
 			// Clear outdated entries
 			this.schedule.headMap(thisQuarter).clear();
@@ -135,13 +138,8 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			this.schedule.tailMap(nextQuarter).clear();
 
 			// Update entries from param
-			var modes = this.availableModes;
-			if (modes.length == 0) {
-				System.err.println("Modes is empty!"); // TODO proper log
-				return;
-			}
 			schedule.forEach((k, t) -> {
-				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, this::getMode, coc));
+				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, modes::get, coc));
 			});
 		}
 	}
@@ -167,44 +165,10 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	}
 
 	@Override
-	public String toModeString(int modeIndex) {
-		return this.getMode(modeIndex).toString();
-	}
-
-	/**
-	 * Gets the MODE for the given modeIndex.
-	 * 
-	 * @param modeIndex the modeIndex
-	 * @return the STATE
-	 */
-	private MODE getMode(int modeIndex) {
-		var modes = this.availableModes;
-		return modeIndex < modes.length //
-				? modes[modeIndex] //
-				: this.defaultMode;
-	}
-
-	/**
-	 * Gets the modeIndex for the given MODE.
-	 * 
-	 * @param mode the MODE
-	 * @return the modeIndex; or zero if not found
-	 */
-	private int getModeIndex(MODE mode) {
-		var modes = this.availableModes;
-		for (var i = 0; i < modes.length; i++) {
-			if (modes[i] == mode) {
-				return i;
-			}
-		}
-		return 0;
-	}
-
-	@Override
 	protected void buildToString(MoreObjects.ToStringHelper toStringHelper) {
-		var availableModes = this.availableModes;
-		if (availableModes != null) {
-			toStringHelper.add("availableModes", Arrays.toString(availableModes));
+		var modes = this._modes;
+		if (modes != null) {
+			toStringHelper.add("modes", modes.toString());
 		}
 	}
 }

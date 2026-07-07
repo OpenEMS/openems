@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -19,12 +20,11 @@ import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
 import io.openems.backend.common.alerting.OfflineEdgeAlertingSetting;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 
 public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 
@@ -75,25 +75,40 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 		this.mss = null;
 	}
 
+	private void reschedule(List<OfflineEdgeMessage> pack) {
+		if (this.log.isDebugEnabled()) {
+			final var logStr = new StringJoiner(", ", "Sent OfflineEdgeMsg: ", "");
+			pack.forEach(msg -> {
+				logStr.add(msg.toString());
+				this.tryReschedule(msg);
+			});
+			this.log.debug(logStr.toString());
+		} else {
+			pack.forEach(this::tryReschedule);
+		}
+	}
+
 	@Override
 	public void send(ZonedDateTime sentAt, List<OfflineEdgeMessage> pack) {
 		// Ensure Edge is still offline before sending mail.
-		pack.removeIf((msg) -> !this.isEdgeOffline(msg.getEdgeId()));
+		pack.removeIf(msg -> !this.isEdgeOffline(msg.getEdgeId()));
 		if (pack.isEmpty()) {
+			this.log.debug("No OfflineEdgeMessages to send after filtering for offline edges. Skip sending mail.");
 			return;
 		}
 
-		final var params = JsonUtils.generateJsonArray(pack, OfflineEdgeMessage::getParams);
-
-		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params);
-		this.messagesSent.getAndAdd(pack.size());
-
-		final var logStr = new StringBuilder(pack.size() * 64);
-		pack.forEach(msg -> {
-			logStr.append(msg).append(", ");
-			this.tryReschedule(msg);
-		});
-		this.log.info("Sent OfflineEdgeMsg: {}", logStr.substring(0, logStr.length() - 2));
+		final var params = pack.stream().map(OfflineEdgeMessage::getContext).toList();
+		
+		this.mailer.sendMail(sentAt, OfflineEdgeMessage.TEMPLATE, params) //
+				.whenComplete((sentMessages, error) -> {
+					if (error == null) {
+						this.messagesSent.getAndAdd(sentMessages);
+					} else {
+						this.log.error("Failed to send OfflineEdgeMessage: {}", error.getMessage());
+						this.log.debug("Failed to send OfflineEdgeMessage for: {}", params, error);
+					}
+				});
+		this.reschedule(pack);
 	}
 
 	private void tryReschedule(OfflineEdgeMessage msg) {
@@ -211,8 +226,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			return;
 		}
 		final var msg = this.getEdgeMessage(edge);
-		final var msgScheduler = this.msgScheduler;
-		if (msg != null && msgScheduler != null) {
+		if (msg != null && this.msgScheduler != null) {
 			this.msgScheduler.schedule(msg);
 		}
 	}
@@ -228,9 +242,7 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 			this.checkMetadata();
 		} else {
 			final var executeAt = this.timeService.now().plusMinutes(OfflineEdgeHandler.this.initialDelay);
-			this.initMetadata = this.timeService.schedule(executeAt, (now) -> {
-				this.checkMetadata();
-			});
+			this.initMetadata = this.timeService.schedule(executeAt, now -> this.checkMetadata());
 		}
 	}
 
@@ -280,5 +292,19 @@ public class OfflineEdgeHandler implements Handler<OfflineEdgeMessage> {
 	@Override
 	public HandlerMetrics getMetrics() {
 		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
+	}
+	
+	private boolean waitforInit() {
+		return this.initMetadata != null && !this.initMetadata.isDone();
+	}
+	
+	@Override
+	public String debugLog() {
+		if (this.waitforInit()) {
+			return "OfflineEdgeHandler{MessagesSent: %d, MessagesQueue: %d, !initial wait!}" //
+					.formatted(this.messagesSent.get(), this.msgScheduler.size());
+		}
+		return "OfflineEdgeHandler{MessagesSent: %d, MessagesQueue: %d}" //
+				.formatted(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

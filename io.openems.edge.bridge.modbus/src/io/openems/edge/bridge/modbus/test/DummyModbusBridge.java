@@ -5,6 +5,7 @@ import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Clock;
 import java.util.function.Consumer;
 
 import org.osgi.service.event.Event;
@@ -19,6 +20,7 @@ import com.ghgande.j2mod.modbus.procimg.SimpleProcessImage;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.TestUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusTcp;
@@ -27,6 +29,7 @@ import io.openems.edge.bridge.modbus.api.LogVerbosity;
 import io.openems.edge.bridge.modbus.api.worker.internal.DefectiveComponents;
 import io.openems.edge.bridge.modbus.api.worker.internal.TasksSupplier;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 
 public class DummyModbusBridge extends AbstractModbusBridge implements BridgeModbusTcp, BridgeModbus, OpenemsComponent {
 
@@ -56,6 +59,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	private SimpleProcessImage processImage = null;
 	private InetAddress ipAddress = null;
+	private Clock clock;
 
 	public DummyModbusBridge(String id) {
 		this(id, LogVerbosity.NONE);
@@ -73,6 +77,7 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 		super.activate(null, new Config(id, "", false, logVerbosity, 2));
 		this.tasksSupplier = getValueViaReflection(this.worker, "tasksSupplier");
 		this.defectiveComponents = getValueViaReflection(this.worker, "defectiveComponents");
+		this.clock = TestUtils.createDummyClock();
 	}
 
 	private synchronized DummyModbusBridge withProcessImage(Consumer<SimpleProcessImage> callback) {
@@ -172,6 +177,22 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 	}
 
 	/**
+	 * Sets the value of a FC3HoldingRegister in Float32 format.
+	 * 
+	 * @param startAddress the start Register address
+	 * @param values       float values
+	 * @return myself
+	 */
+	public DummyModbusBridge withRegistersFloat32(int startAddress, float... values) {
+		for (var value : values) {
+			var b = ModbusRecordFloat32.toByteArray(value);
+			this.withRegister(startAddress++, b[0], b[1]);
+			this.withRegister(startAddress++, b[2], b[3]);
+		}
+		return this;
+	}
+
+	/**
 	 * Sets the values of FC4InputRegisters.
 	 * 
 	 * @param startAddress the start Register address
@@ -198,6 +219,17 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 				this.withInputRegister(startAddress++, b);
 			}
 		}
+		return this;
+	}
+
+	/**
+	 * Sets the clock.
+	 *
+	 * @param clock clock to set
+	 * @return myself
+	 */
+	public DummyModbusBridge withClock(Clock clock) {
+		this.clock = clock;
 		return this;
 	}
 
@@ -241,6 +273,11 @@ public class DummyModbusBridge extends AbstractModbusBridge implements BridgeMod
 
 	@Override
 	public void closeModbusConnection() {
+	}
+
+	@Override
+	public Clock getClock() {
+		return this.clock;
 	}
 
 }

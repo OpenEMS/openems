@@ -1,0 +1,52 @@
+<ion-list class="ion-no-padding-top">
+    <ion-list-header>
+        <ion-text style="color: var(--ion-item-color)" class="ion-font-size-larger"
+            translate>JS_SCHEDULE.ROTATION</ion-text>
+    </ion-list-header>
+    @for (item of recurrenceRuleByDay()?.byDay; track item; let i = $index; let last = $last) {
+    <ion-item class="ion-padding-left">
+        <ion-select slot="end" [placeholder]="('JS_SCHEDULE.REPEAT_EACH'| translate)" interface="popover"
+            class="custom-ion-popover ion-background-transparent" justify="start" [value]="item.nthOfPeriod"
+            (ionChange)="setNthOfPeriod(item, $event)">
+            @for (option of nthOfPeriodSelection; track option) {
+            <ion-select-option class="ion-full-width" [value]="option" labelPlacement="end" justify="start">
+                {{ option }}.
+            </ion-select-option>
+            }
+        </ion-select>
+        <ion-select slot="end" class="ion-padding-left" [placeholder]="('JS_SCHEDULE.WEEK_DAY'| translate)"
+            interface="popover" class="custom-ion-popover ion-background-transparent" justify="start" [value]="item.day"
+            (ionChange)="setDay(item, $event)">
+            @for (option of daySelection; track option) {
+            <ion-select-option class="ion-full-width" [value]="option.key" labelPlacement="end" justify="start">
+                {{ option.label }}
+            </ion-select-option>
+            }
+        </ion-select>
+        <ion-button slot="end" (click)="remove(i)" color="danger" fill="outline">
+            <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+    </ion-item>
+    }
+    <ion-item>
+        <ion-select [disabled]="true" slot="end" interface="popover"
+            class="custom-ion-popover ion-background-transparent" justify="start" [value]="nthOfPeriodSelection[0]">
+            @for (option of nthOfPeriodSelection; track option) {
+            <ion-select-option class="ion-full-width" [value]="option" labelPlacement="end" justify="start">
+                {{ option }}.
+            </ion-select-option>
+            }
+        </ion-select>
+        <ion-select [disabled]="true" slot="end" class="ion-padding-left" interface="popover"
+            class="custom-ion-popover ion-background-transparent" justify="start" [value]="daySelection[0].key">
+            @for (option of daySelection; track option) {
+            <ion-select-option class="ion-full-width" [value]="option.key" labelPlacement="end" justify="start">
+                {{ option.label }}
+            </ion-select-option>
+            }
+        </ion-select>
+        <ion-button slot="end" (click)="add()" fill="outline">
+            <ion-icon name="add-outline"></ion-icon>
+        </ion-button>
+    </ion-item>
+</ion-list>

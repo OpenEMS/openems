@@ -1,11 +1,11 @@
 package io.openems.edge.batteryinverter.refu88k;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.startstop.StartStopConfig;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BatteryInverterRefuStore88kImplTest {
 

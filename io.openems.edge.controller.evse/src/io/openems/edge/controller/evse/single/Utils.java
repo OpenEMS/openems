@@ -7,12 +7,6 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-import com.google.common.collect.ImmutableList;
-
-import io.openems.common.jscalendar.JSCalendar;
-import io.openems.common.jscalendar.JSCalendar.Task;
-import io.openems.edge.controller.evse.single.EnergyScheduler.Payload;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.api.electricvehicle.Profile.ElectricVehicleAbilities;
@@ -35,38 +29,42 @@ public final class Utils {
 		final var cpMax = cp.toPower(cp.max());
 		return switch (cp.phase()) {
 		case SINGLE_PHASE -> {
-			if (electricVehicleAbilities.singlePhaseLimit() != null) {
+			if (!electricVehicleAbilities.singlePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint SINGLE_PHASE; Vehicle SINGLE_PHASE
 				var ev = electricVehicleAbilities.singlePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
 						max(cpMin, ev.min()), //
 						min(cpMax, ev.max()), //
 						step);
-			} else if (electricVehicleAbilities.threePhaseLimit() != null) {
+			} else if (!electricVehicleAbilities.threePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint SINGLE_PHASE; Vehicle THREE_PHASE
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						max(cpMin, ev.min()) / 3, //
-						min(cpMax, ev.max()) / 3, //
+						max(cpMin, ev.min() / 3), //
+						min(cpMax, ev.max() / 3), //
 						step);
 			} else {
 				yield EMPTY_APPLY_SET_POINT_ABILITY;
 			}
 		}
 		case THREE_PHASE -> {
-			if (electricVehicleAbilities.threePhaseLimit() != null) {
+			if (!electricVehicleAbilities.threePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint THREE_PHASE; Vehicle THREE_PHASE
 				var ev = electricVehicleAbilities.threePhaseLimit();
 				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(THREE_PHASE, //
 						max(cpMin, ev.min()), //
 						min(cpMax, ev.max()), //
 						step);
-			} else if (electricVehicleAbilities.singlePhaseLimit() != null) {
+			} else if (!electricVehicleAbilities.singlePhaseLimit().equals(EMPTY_APPLY_SET_POINT_ABILITY)) {
+				// ChargePoint THREE_PHASE; Vehicle SINGLE_PHASE
 				var ev = electricVehicleAbilities.singlePhaseLimit();
-				var step = max(calculatePowerStep(cp), calculatePowerStep(ev));
+				var step = max(calculatePowerStep(cp) / 3, calculatePowerStep(ev));
 				yield new ApplySetPoint.Ability.Watt(SINGLE_PHASE, //
-						max(cpMin, ev.min()), //
-						min(cpMax, ev.max()), //
+						max(cpMin / 3, ev.min()), //
+						min(cpMax / 3, ev.max()), //
 						step);
 			} else {
 				yield EMPTY_APPLY_SET_POINT_ABILITY;
@@ -75,24 +73,10 @@ public final class Utils {
 		};
 	}
 
-	protected static boolean getSessionLimitReached(Mode mode, Integer energy, int limit) {
-		if (mode == Mode.SMART) {
-			return false;
-		}
+	protected static boolean isSessionLimitReached(Mode mode, Integer energy, int limit) {
 		if (energy != null && limit > 0 && energy >= limit) {
 			return true;
 		}
 		return false;
-	}
-
-	protected static ImmutableList<Task<Payload>> parseSmartConfig(String smartConfig) {
-		try {
-			return JSCalendar.Tasks.serializer(Payload.serializer()) //
-					.deserialize(smartConfig);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ImmutableList.of();
-		}
 	}
 }

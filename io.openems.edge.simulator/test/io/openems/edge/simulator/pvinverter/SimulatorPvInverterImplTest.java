@@ -3,8 +3,8 @@ package io.openems.edge.simulator.pvinverter;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDirectImpl;
 
 public class SimulatorPvInverterImplTest {

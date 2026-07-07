@@ -3,14 +3,14 @@ package io.openems.edge.timeofusetariff.api;
 import static com.google.common.collect.ImmutableSortedMap.toImmutableSortedMap;
 import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 
-import java.time.ZonedDateTime;
-import java.util.Comparator;
-import java.util.Map.Entry;
+import java.time.Instant;
+import java.util.Map;
 import java.util.SortedMap;
 
 import com.google.common.collect.ImmutableSortedMap;
 
-import io.openems.edge.common.type.QuarterlyValues;
+import io.openems.common.timedata.DurationUnit;
+import io.openems.common.utils.TimeRangeValues;
 
 /**
  * Holds individual Time-of-Use prices - one value per 15 minutes.
@@ -18,13 +18,13 @@ import io.openems.edge.common.type.QuarterlyValues;
  * <p>
  * Values have unit '_meta/Currency'/MWh.
  */
-public class TimeOfUsePrices extends QuarterlyValues<Double> {
+public class TimeOfUsePrices extends TimeRangeValues<Double> {
+
+	private static final DurationUnit QUARTERLY_RESOLUTION = DurationUnit.ofMinutes(15);
 
 	/**
 	 * Holds an 'empty' {@link TimeOfUsePrices} object, i.e. `pricePerQuarter` map
 	 * is empty.
-	 * 
-	 * @return an 'empty' {@link TimeOfUsePrices} object
 	 */
 	public static final TimeOfUsePrices EMPTY_PRICES = new TimeOfUsePrices(ImmutableSortedMap.of());
 
@@ -38,11 +38,13 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param values the quarterly price values; no nulls
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ZonedDateTime time, Double... values) {
+	public static TimeOfUsePrices from(Instant time, Double... values) {
 		if (values.length == 0) {
 			return EMPTY_PRICES;
 		}
-		return new TimeOfUsePrices(time, values);
+
+		var data = convertArrayToDataMap(time, QUARTERLY_RESOLUTION, values);
+		return new TimeOfUsePrices(data);
 	}
 
 	/**
@@ -60,7 +62,7 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param map a {@link SortedMap} of times and prices
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ImmutableSortedMap<ZonedDateTime, Double> map) {
+	public static TimeOfUsePrices from(ImmutableSortedMap<Instant, Double> map) {
 		if (map.isEmpty()) {
 			return EMPTY_PRICES;
 		}
@@ -79,32 +81,29 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @param prices the source {@link TimeOfUsePrices} object
 	 * @return a {@link TimeOfUsePrices} object
 	 */
-	public static TimeOfUsePrices from(ZonedDateTime time, TimeOfUsePrices prices) {
-		if (time == null || prices == null || prices.valuePerQuarter.isEmpty()) {
+	public static TimeOfUsePrices from(Instant time, TimeRangeValues<Double> prices) {
+		if (time == null || prices == null || prices.isEmpty()) {
 			// prices is EMPTY
 			return EMPTY_PRICES;
 		}
 		final var baseTime = roundDownToQuarter(time);
-		if (prices.valuePerQuarter.firstKey().isEqual(baseTime)) {
+		if (prices instanceof TimeOfUsePrices && prices.getFirstTime().equals(baseTime)) {
 			// prices is still valid
-			return prices;
+			return (TimeOfUsePrices) prices;
 		}
-		final var newMap = prices.valuePerQuarter.entrySet().stream() //
+
+		final var newMap = prices.getRawValues().entrySet().stream() //
 				.filter(e -> !baseTime.isAfter(e.getKey())) //
-				.collect(toImmutableSortedMap(Comparator.naturalOrder(), Entry::getKey, Entry::getValue));
+				.collect(toImmutableSortedMap(Instant::compareTo, Map.Entry::getKey, Map.Entry::getValue));
+
 		if (newMap.isEmpty()) {
-			// new prices would be empty
 			return EMPTY_PRICES;
 		}
 		return new TimeOfUsePrices(newMap);
 	}
 
-	private TimeOfUsePrices(ImmutableSortedMap<ZonedDateTime, Double> pricePerQuarter) {
-		super(pricePerQuarter);
-	}
-
-	private TimeOfUsePrices(ZonedDateTime time, Double... values) {
-		super(time, values);
+	private TimeOfUsePrices(ImmutableSortedMap<Instant, Double> pricePerQuarter) {
+		super(QUARTERLY_RESOLUTION, pricePerQuarter);
 	}
 
 	/**
@@ -113,6 +112,6 @@ public class TimeOfUsePrices extends QuarterlyValues<Double> {
 	 * @return prices array
 	 */
 	public Double[] asArray() {
-		return super.asArray(Double[]::new);
+		return super.asList(false).toArray(Double[]::new);
 	}
 }

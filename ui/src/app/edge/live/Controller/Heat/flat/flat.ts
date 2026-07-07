@@ -1,93 +1,99 @@
 import { Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
+import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
-import { ModalComponent } from "../modal/modal";
+import { ControllerHeatModalComponent } from "../modal/modal";
+import { CONVERT_TO_MODE_LABEL } from "../shared/shared";
 
 @Component({
-  selector: "Controller_Heat",
-  templateUrl: "./flat.html",
-  standalone: false,
+    selector: "oe-controller-heat",
+    templateUrl: "./flat.html",
+    standalone: false,
 })
-export class FlatComponent extends AbstractFlatWidget {
-  protected readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
-  protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
+export class ControllerHeatComponent extends AbstractFlatWidget {
+    protected readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
+    protected readonly CONVERT_POWER_2_HEAT_STATE = Converter.CONVERT_POWER_2_HEAT_STATE(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL = CONVERT_TO_MODE_LABEL(this.translate);
 
-  protected statusNumber: number | null = null;
-  protected status: State | null = null;
+    protected statusNumber: number | null = null;
+    protected status: State | null = null;
 
-  protected async presentModal() {
-    if (!this.isInitialized) {
-      return;
+    protected modalComponent: Modal | null = null;
+    protected override afterIsInitialized(): void {
+        this.modalComponent = this.getModalComponent();
     }
-    const modal = await this.modalController.create({
-      component: ModalComponent,
-      componentProps: {
-        component: this.component,
-      },
-    });
-    return await modal.present();
-  }
 
-  protected override getChannelAddresses(): ChannelAddress[] {
-    if (this == null) { return []; }
+    protected getModalComponent(): Modal {
+        return {
+            component: ControllerHeatModalComponent,
+            componentProps: {
+                component: this.component,
+                edge: this.edge,
+            },
+        };
+    };
 
-    if (this.component == null) { return []; }
+    protected override getChannelAddresses(): ChannelAddress[] {
+        if (this == null) { return []; }
 
-    const channelAddresses: ChannelAddress[] = [
-      new ChannelAddress(this.component.id, "Status"),
-      new ChannelAddress(this.component.id, "ControlNotAllowed"),
-      new ChannelAddress(this.component.id, "ActivePower"),
-      new ChannelAddress(this.component.id, "Temperature"),
-    ];
+        if (this.component == null) { return []; }
 
-    return channelAddresses;
-  }
+        const channelAddresses: ChannelAddress[] = [
+            new ChannelAddress(this.component.id, "Status"),
+            new ChannelAddress(this.component.id, "ControlNotAllowed"),
+            new ChannelAddress(this.component.id, "ActivePower"),
+            new ChannelAddress(this.component.id, "Temperature"),
+            ...(this.component.factoryId === "Heat.Askoma" ? [new ChannelAddress(this.component.id, "_PropertyMode")] : []),
+        ];
 
-  protected override onCurrentData(currentData: CurrentData) {
-
-    if (this.component != null && this.component != undefined) {
-
-      this.statusNumber = currentData.allComponents[this.component.id + "/Status"] ?? Status.error;
-
-      switch (this.statusNumber) {
-        case Status.standby:
-        case Status.excess:
-        case Status.ControlNotAllowed:
-          this.status = State.heating;
-          break;
-        case Status.temperatureReached:
-          this.status = State.temperatureReached;
-          break;
-        case Status.noControlSignal:
-          if (currentData.allComponents[this.component.id + "/" + "ActivePower"] > 0) {
-            this.status = State.heating;
-          } else {
-            this.status = State.noHeating;
-          }
-          break;
-        case Status.error:
-          this.status = State.noHeating;
-          break;
-        default:
-          this.status = State.noHeating;
-          break;
-      }
+        return channelAddresses;
     }
-  }
+
+    protected override onCurrentData(currentData: CurrentData) {
+
+        if (this.component != null && this.component != undefined) {
+
+            this.statusNumber = currentData.allComponents[this.component.id + "/Status"] ?? Status.error;
+
+            switch (this.statusNumber) {
+                case Status.standby:
+                case Status.excess:
+                case Status.ControlNotAllowed:
+                    this.status = State.heating;
+                    break;
+                case Status.temperatureReached:
+                    this.status = State.temperatureReached;
+                    break;
+                case Status.noControlSignal:
+                    if (currentData.allComponents[this.component.id + "/" + "ActivePower"] > 0) {
+                        this.status = State.heating;
+                    } else {
+                        this.status = State.noHeating;
+                    }
+                    break;
+                case Status.error:
+                    this.status = State.noHeating;
+                    break;
+                default:
+                    this.status = State.noHeating;
+                    break;
+            }
+        }
+    }
 }
 
-enum Status {
-  standby,                    // Device is in standby mode
-  excess,                     // Device is running using excess energy
-  ControlNotAllowed,          // Control is overridden by another system
-  temperatureReached,         // Target temperature has been reached
-  noControlSignal,            // No control signal is available
-  error,                      // An error occurred on the device
+export enum Status {
+    standby,                    // Device is in standby mode
+    excess,                     // Device is running using excess energy
+    ControlNotAllowed,          // Control is overridden by another system
+    temperatureReached,         // Target temperature has been reached
+    noControlSignal,            // No control signal is available
+    error,                      // An error occurred on the device
 }
 
-enum State {
-  heating,                    // Device is heating
-  temperatureReached,         // Target temperature has been reached
-  noHeating,                  // Device is not heating
+export enum State {
+    heating,                    // Device is heating
+    temperatureReached,         // Target temperature has been reached
+    noHeating,                  // Device is not heating
 }

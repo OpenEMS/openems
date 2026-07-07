@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -86,8 +85,8 @@ public class ThresholdControl
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNELS(AppDef.copyOfGeneric(relayContactDef(true, 1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannels.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description") //
+				.setTranslatedLabelWithAppPrefix(".outputChannels.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description")//
 				.setRequired(true))), //
 		;
 
@@ -117,7 +116,7 @@ public class ThresholdControl
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
 								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter()), //
+										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -164,13 +163,6 @@ public class ThresholdControl
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

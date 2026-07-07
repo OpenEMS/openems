@@ -1,7 +1,5 @@
 package io.openems.backend.metadata.odoo;
 
-import java.util.NavigableMap;
-
 import com.google.gson.JsonObject;
 
 import io.openems.backend.common.metadata.User;
@@ -12,9 +10,9 @@ public class MyUser extends User {
 
 	private final int odooId;
 
-	public MyUser(int odooId, String login, String name, String token, Language language, Role globalRole,
-			NavigableMap<String, Role> roles, boolean hasMultipleEdges, JsonObject settings) {
-		super(login, name, token, language, globalRole, roles, hasMultipleEdges, settings);
+	public MyUser(int odooId, String userId, String email, String name, String token, Language language,
+			Role globalRole, boolean hasMultipleEdges, JsonObject settings) {
+		super(userId, email, name, token, language, globalRole, hasMultipleEdges, settings);
 		this.odooId = odooId;
 	}
 

@@ -1,5 +1,7 @@
 package io.openems.edge.ess.cluster;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.ess.api.CalculateGridMode.aggregateGridModes;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 
@@ -8,12 +10,12 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import io.openems.common.utils.IntUtils;
 import io.openems.edge.common.channel.AbstractChannelListenerManager;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.CalculateSoc;
@@ -73,29 +75,11 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	 */
 	private void calculateGridMode(List<SymmetricEss> esss) {
 		final BiConsumer<Value<Integer>, Value<Integer>> callback = (oldValue, newValue) -> {
-			var onGrids = 0;
-			var offGrids = 0;
-			for (SymmetricEss ess : esss) {
-				switch (ess.getGridMode()) {
-				case OFF_GRID:
-					offGrids++;
-					break;
-				case ON_GRID:
-					onGrids++;
-					break;
-				case UNDEFINED:
-					break;
-				}
-			}
-			final GridMode result;
-			if (esss.size() == onGrids) {
-				result = GridMode.ON_GRID;
-			} else if (esss.size() == offGrids) {
-				result = GridMode.OFF_GRID;
-			} else {
-				result = GridMode.UNDEFINED;
-			}
-			this.parent._setGridMode(result);
+			var gridModes = esss.stream() //
+					.map(SymmetricEss::getGridMode) //
+					.toList();
+			var result = aggregateGridModes(gridModes);
+			setValue(this.parent, SymmetricEss.ChannelId.GRID_MODE, result);
 		};
 		for (SymmetricEss ess : esss) {
 			this.addOnChangeListener(ess, SymmetricEss.ChannelId.GRID_MODE, callback);
@@ -151,9 +135,9 @@ public class ChannelManager extends AbstractChannelListenerManager {
 	}
 
 	private static final Function<Integer, Integer> DIVIDE_BY_THREE = value -> TypeUtils.divide(value, 3);
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = TypeUtils::min;
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = TypeUtils::max;
-	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = TypeUtils::sum;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MIN = IntUtils::minInteger;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_MAX = IntUtils::maxInteger;
+	private static final BiFunction<Integer, Integer, Integer> INTEGER_SUM = IntUtils::sumInteger;
 	private static final BiFunction<Long, Long, Long> LONG_SUM = TypeUtils::sum;
 
 	/**

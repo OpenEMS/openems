@@ -22,8 +22,8 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.sum.SumOptions;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.VirtualMeter;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -32,7 +32,7 @@ import io.openems.edge.meter.api.VirtualMeter;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 ) //
 public class MeterVirtualAddImpl extends AbstractOpenemsComponent
-		implements MeterVirtualAdd, VirtualMeter, ElectricityMeter, OpenemsComponent, ModbusSlave {
+		implements MeterVirtualAdd, ElectricityMeter, OpenemsComponent, ModbusSlave, SumOptions {
 
 	private final AddChannelManager channelManager = new AddChannelManager(this);
 	private final List<ElectricityMeter> meters = new ArrayList<>();

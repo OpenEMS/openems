@@ -7,14 +7,16 @@ import static io.openems.edge.energy.v1.optimizer.SimulatorV1.calculateCost;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1.getBestSchedule;
 import static io.openems.edge.energy.v1.optimizer.SimulatorV1Test.logSchedule;
 import static java.lang.Integer.parseInt;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
 
@@ -25,9 +27,18 @@ import io.openems.edge.energy.v1.optimizer.ScheduleDatas.ScheduleData;
 @SuppressWarnings("deprecation")
 public class IntegrationTestsV1 {
 
-	@Before
-	public void before() {
+	@BeforeAll
+	static void before() {
 		initializeRandomRegistryForUnitTest();
+	}
+
+	@Test
+	public void pattern() {
+		final String example = "Params [time=123, essTotalEnergy=123, essMinSocEnergy=123, essMaxSocEnergy=123, essInitialEnergy=123, states=[WARN, ERROR]]";
+		assertTrue(PARAMS_PATTERN.matcher(example).find());
+
+		final String noMatch = "No match string";
+		assertFalse(PARAMS_PATTERN.matcher(noMatch).find());
 	}
 
 	/**
@@ -35,7 +46,7 @@ public class IntegrationTestsV1 {
 	 * 
 	 * @throws Exception on error
 	 */
-	@Ignore
+	@Disabled
 	@Test
 	public void test1() throws Exception {
 		var log = """

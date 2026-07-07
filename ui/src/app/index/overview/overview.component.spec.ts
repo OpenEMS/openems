@@ -2,15 +2,20 @@
 import { LOCALE_ID, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject } from "rxjs";
+import { routes } from "src/app/app-routing.module";
 import { Theme } from "src/app/edge/history/shared";
+import { PlatFormService } from "src/app/platform.service";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
+import { FlatWidgetButtonComponent } from "src/app/shared/components/flat/flat-widget-button/flat-widget-button";
 import { User } from "src/app/shared/jsonrpc/shared";
+import { AuthService } from "src/app/shared/service/auth/auth.service";
 import { Pagination } from "src/app/shared/service/pagination";
+import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
@@ -21,11 +26,12 @@ import { OverViewComponent } from "./overview.component";
 describe("OverviewComponent", () => {
     let component: OverViewComponent;
     let fixture: ComponentFixture<OverViewComponent>;
-    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges"], {
+    const serviceSpyObject = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "getEdges", "getIsSmartphoneResolution"], {
         metadata: new BehaviorSubject({
             edges: null,
             user: null,
         }),
+        getIsSmartphoneResolution: () => false,
         getEdges(): Promise<Edge[]> {
             return Promise.resolve([]);
         },
@@ -37,20 +43,35 @@ describe("OverviewComponent", () => {
 
     beforeEach(async () => {
         await TestBed.configureTestingModule({
-            imports: [TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+            imports: [
+                TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
+                IonicModule.forRoot(),
+                RouterModule.forRoot(routes),
+                FlatWidgetButtonComponent,
             ],
             declarations: [OverViewComponent],
             providers: [
+                {
+                    provide: PlatFormService, useValue: {
+                        isSmartphone: () => false,
+                    },
+                },
                 { provide: Service, useValue: serviceSpyObject },
                 { provide: UserService, useValue: userServiceSpyObj },
-                Websocket,
-                TranslateService,
                 { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
                 { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
+                Websocket,
+                TranslateService,
                 Pagination,
                 Utils,
-                IonicModule,
                 Router,
+                {
+                    provide: ActivatedRoute,
+                    useValue: {},
+                },
+                AuthService,
+                PlatFormService,
+                RouteService,
             ],
         }).compileComponents().then(() => {
             fixture = TestBed.createComponent(OverViewComponent);
@@ -72,16 +93,11 @@ describe("OverviewComponent", () => {
     });
 
     async function getIbnButtonElement(component: OverViewComponent, fixture: ComponentFixture<OverViewComponent>, globalRole: "installer" | "owner") {
+        const user: User = new User("", "test.user", globalRole, Language.DE.key, true, {});
+        userServiceSpyObj.currentUser.set(user);
         serviceSpyObject.metadata.next({
             edges: { ["edge0"]: DummyConfig.dummyEdge({ role: Role.INSTALLER }) },
-            user: {
-                globalRole: globalRole, hasMultipleEdges: true, id: "", language: Language.DE.key, name: "test.user", settings: {}, getThemeFromSettings() {
-                    return Theme.LIGHT;
-                },
-                isAtLeast(role) {
-                    return true;
-                },
-            },
+            user: new User("", "test.user", globalRole, Language.DE.key, true, {}),
         });
 
         component.ionViewWillEnter();

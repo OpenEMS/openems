@@ -67,4 +67,14 @@ public class PylontechPowercubeM2BatteryProtectionDefinition implements BatteryP
 	public PolyLine getDischargeSocToPercent() {
 		return PolyLine.empty();
 	}
+
+	@Override
+	public boolean isChargeAllowed() {
+		return true;
+	}
+
+	@Override
+	public boolean isDischargeAllowed() {
+		return true;
+	}
 }

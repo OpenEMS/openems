@@ -81,12 +81,12 @@ public class AddAppInstance implements EndpointRequestType<Request, Response> {
 			return jsonObjectSerializer(Request.class, //
 					json -> new Request(//
 							json.getString("appId"), //
-							json.getString("key"), //
+							json.getStringOrNull("key"), //
 							json.getString("alias"), //
 							json.getJsonObject("properties")),
 					obj -> JsonUtils.buildJsonObject() //
 							.addProperty("appId", obj.appId()) //
-							.addProperty("key", obj.key()) //
+							.addPropertyIfNotNull("key", obj.key()) //
 							.addProperty("alias", obj.alias()) //
 							.add("properties", obj.properties()) //
 							.build());

@@ -1,11 +1,12 @@
 package io.openems.common.types;
 
-import java.util.Objects;
+import java.util.Optional;
 
-public class SemanticVersion {
+public record SemanticVersion(int major, int minor, int patch, String additional) {
 
 	/**
-	 * Creates an instance with all version numbers set to zero.
+	 * Creates an instance with major, minor and patch version set to zero and no
+	 * additional string.
 	 */
 	public static final SemanticVersion ZERO = new SemanticVersion(0, 0, 0);
 
@@ -50,6 +51,9 @@ public class SemanticVersion {
 	 * @return the SemanticVersion instance
 	 */
 	public static SemanticVersion fromStringOrZero(String versionString) {
+		if (versionString == null) {
+			return SemanticVersion.ZERO;
+		}
 		try {
 			return SemanticVersion.fromString(versionString);
 		} catch (Exception e) {
@@ -58,41 +62,9 @@ public class SemanticVersion {
 	}
 
 	/**
-	 * The major version.
-	 *
-	 * <p>
-	 * This is usually the year of the release
+	 * Creates an instance with major, minor and patch version and no additional
+	 * string.
 	 */
-	private final int major;
-
-	/**
-	 * The minor version.
-	 *
-	 * <p>
-	 * This is usually the number of the sprint within the year
-	 */
-	private final int minor;
-
-	/**
-	 * The patch version.
-	 *
-	 * <p>
-	 * This is the number of the bugfix release
-	 */
-	private final int patch;
-
-	/**
-	 * The additional version string.
-	 */
-	private final String additional;
-
-	public SemanticVersion(int major, int minor, int patch, String additional) {
-		this.major = major;
-		this.minor = minor;
-		this.patch = patch;
-		this.additional = additional;
-	}
-
 	public SemanticVersion(int major, int minor, int patch) {
 		this(major, minor, patch, "");
 	}
@@ -131,31 +103,32 @@ public class SemanticVersion {
 		return this.additional.compareTo(o.additional) >= 0;
 	}
 
+	/**
+	 * Creates a {@link SemanticVersion} from three Integer that can be null.
+	 *
+	 * @param major N.X.X
+	 * @param minor X.N.X
+	 * @param patch X.X.N
+	 * @return the version
+	 */
+	public static Optional<SemanticVersion> fromNullable(Integer major, Integer minor, Integer patch) {
+		if (major == null || minor == null || patch == null) {
+			return Optional.empty();
+		}
+		return Optional.of(new SemanticVersion(major, minor, patch));
+	}
+
 	@Override
 	public String toString() {
-		return this.major //
-				+ "." //
-				+ this.minor //
-				+ "." //
-				+ this.patch //
-				+ (this.additional.isEmpty() ? "" : "-" + this.additional);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.additional);
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
+		var b = new StringBuilder() //
+				.append(this.major) //
+				.append(".") //
+				.append(this.minor) //
+				.append(".") //
+				.append(this.patch);
+		if (!this.additional.isEmpty()) {
+			b.append("-").append(this.additional);
 		}
-		if ((o == null) || (this.getClass() != o.getClass())) {
-			return false;
-		}
-		var other = (SemanticVersion) o;
-		return Objects.equals(this.toString(), other.toString());
+		return b.toString();
 	}
-
 }

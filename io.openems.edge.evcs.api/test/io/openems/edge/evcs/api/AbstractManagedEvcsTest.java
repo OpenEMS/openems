@@ -6,8 +6,8 @@ import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.CHARGE_STATE;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_CHARGE_POWER_LIMIT_WITH_FILTER;
 import static io.openems.edge.evcs.api.ManagedEvcs.ChannelId.SET_ENERGY_LIMIT;
-import static io.openems.edge.evcs.api.PhaseRotation.L2_L3_L1;
 import static io.openems.edge.meter.api.ElectricityMeter.ChannelId.ACTIVE_POWER;
+import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -33,7 +33,7 @@ public class AbstractManagedEvcsTest {
 	 * therefore a ClockProvider function in every EVCS (.timeleap(clock, 31,
 	 * ChronoUnit.SECONDS))
 	 */
-	private static final ThrowingRunnable<Exception> SLEEP = () -> Thread.sleep(1510);
+	private static final ThrowingRunnable<Exception> SLEEP = () -> Thread.sleep(2000);
 
 	private static final DummyEvcsPower EVCS_POWER = new DummyEvcsPower(new DisabledRampFilter());
 	private static final DummyEvcsPower EVCS_POWER_WITH_FILTER = new DummyEvcsPower(new RampFilter());

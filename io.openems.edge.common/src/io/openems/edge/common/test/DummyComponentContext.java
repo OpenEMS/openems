@@ -83,7 +83,7 @@ public class DummyComponentContext implements ComponentContext {
 
 	@Override
 	public BundleContext getBundleContext() {
-		return null;
+		return new DummyBundleContext();
 	}
 
 	@Override

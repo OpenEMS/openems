@@ -60,12 +60,12 @@ export class ExecuteSystemUpdate {
                     componentId: "_host",
                     payload: new ExecuteSystemUpdateRequest({ isDebug: environment.debugMode }),
                 })).then(response => {
-                    // Finished System Update (without restart of OpenEMS Edge)
-                    const systemUpdateState = (response as GetSystemUpdateStateResponse).result;
-                    this.setSystemUpdateState(systemUpdateState);
-                }).catch(reason => {
-                    reject(reason);
-                });
+                // Finished System Update (without restart of OpenEMS Edge)
+                const systemUpdateState = (response as GetSystemUpdateStateResponse).result;
+                this.setSystemUpdateState(systemUpdateState);
+            }).catch(reason => {
+                reject(reason);
+            });
 
             this.update()
                 .then(updateState => {
@@ -94,21 +94,21 @@ export class ExecuteSystemUpdate {
                     componentId: "_host",
                     payload: new GetSystemUpdateStateRequest(),
                 })).then(response => {
-                    const result = (response as GetSystemUpdateStateResponse).result;
+                const result = (response as GetSystemUpdateStateResponse).result;
 
-                    this.setSystemUpdateState(result);
-                    // Stop regular check if there is no Update available
-                    if (result.updated) {
-                        this.stopRefreshSystemUpdateState();
-                    }
-                    resolve(this.systemUpdateState);
-                }).catch(error => {
-                    if (this.systemUpdateState.running) {
-                        this.isEdgeRestarting = true;
-                        return;
-                    }
-                    reject(error);
-                });
+                this.setSystemUpdateState(result);
+                // Stop regular check if there is no Update available
+                if (result.updated) {
+                    this.stopRefreshSystemUpdateState();
+                }
+                resolve(this.systemUpdateState);
+            }).catch(error => {
+                if (this.systemUpdateState.running) {
+                    this.isEdgeRestarting = true;
+                    return;
+                }
+                reject(error);
+            });
         });
     }
 

@@ -1,33 +1,47 @@
 package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.google.gson.JsonPrimitive;
 
-import io.openems.edge.app.enums.FeedInType;
+import io.openems.common.session.Language;
+import io.openems.common.session.Role;
+import io.openems.common.utils.ArrayUtils;
+import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.enums.AppSafetyCountry;
+import io.openems.edge.app.enums.ExternalLimitationType;
+import io.openems.edge.app.enums.GridCode;
 import io.openems.edge.app.enums.OptionsFactory;
-import io.openems.edge.app.enums.SafetyCountry;
+import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.builder.InputBuilder;
+import io.openems.edge.core.appmanager.formly.builder.LinkBuilder;
+import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
 
 public final class IntegratedSystemProps {
 
 	/**
-	 * Creates a {@link AppDef} for {@link SafetyCountry}.
+	 * Creates a {@link AppDef} for {@link AppSafetyCountry}.
 	 * 
 	 * @return the created {@link AppDef}
 	 */
@@ -35,23 +49,58 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.safetyCountry.label") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(SafetyCountry.optionsFactory(), l);
+					field.setOptions(AppSafetyCountry.optionsFactory(), l);
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for {@link GridCode}.
+	 * 
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> gridCode() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.gridCode.label") //
+				.setRequired(true) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(GridCode.class), l);
+				})); //
 	}
 
 	/**
 	 * Creates a {@link AppDef} for a feed in type.
 	 * 
-	 * @param exclude the {@link FeedInType FeedInTypes} to exclude
+	 * @param exclude the {@link ExternalLimitationType FeedInTypes} to exclude
 	 * 
 	 * @return the created {@link AppDef}
 	 */
-	public static final AppDef<OpenemsApp, Nameable, BundleProvider> feedInType(FeedInType... exclude) {
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> externalLimitationType(
+			ExternalLimitationType... exclude) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabel("App.IntegratedSystem.feedInType.label") //
-				.setDefaultValue(FeedInType.DYNAMIC_LIMITATION) //
+				.setTranslatedLabel("App.IntegratedSystem.externalLimitationType.label") //
+				.setDefaultValue(ExternalLimitationType.NO_LIMITATION) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(FeedInType.class, exclude), l);
+
+					final var excludeCombinedArray = ArrayUtils.concat(exclude,
+							new ExternalLimitationType[] { ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION,
+									ExternalLimitationType.DYNAMIC_LIMITATION });
+
+					field.setOptions(OptionsFactory.of(ExternalLimitationType.class, excludeCombinedArray), l);
+				}) //
+				.valueMapper((app, property, l, parameter, props) -> {
+					final var currentValue = props.get(property.name());
+					return JsonUtils.getAsOptionalEnum(ExternalLimitationType.class, currentValue) //
+							.map(externalLimitationType -> {
+								return switch (externalLimitationType) {
+								case NO_LIMITATION, DYNAMIC_LIMITATION -> ExternalLimitationType.NO_LIMITATION;
+								case EXTERNAL_LIMITATION, DYNAMIC_AND_EXTERNAL_LIMITATION ->
+									ExternalLimitationType.EXTERNAL_LIMITATION;
+								case DYNAMIC_EXTERNAL_LIMITATION -> ExternalLimitationType.DYNAMIC_EXTERNAL_LIMITATION;
+								};
+							}) //
+							.map(Enum::name) //
+							.map(JsonPrimitive::new) //
+							.orElse(null);
 				}));
 	}
 
@@ -90,8 +139,8 @@ public final class IntegratedSystemProps {
 							.setMin(0);
 					if (nameableToBeChecked != null) {
 						final var exp = Exp
-								.array(Exp.staticValue(FeedInType.DYNAMIC_LIMITATION),
-										Exp.staticValue(FeedInType.DYNAMIC_AND_EXTERNAL_LIMITATION))
+								.array(Exp.staticValue(ExternalLimitationType.DYNAMIC_LIMITATION),
+										Exp.staticValue(ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION))
 								.some(t -> t.equal(Exp.currentModelValue(nameableToBeChecked)));
 						field.onlyShowIf(additionalShowChecks.apply(exp));
 					}
@@ -123,7 +172,7 @@ public final class IntegratedSystemProps {
 				.setTranslatedLabel("App.IntegratedSystem.feedInSettings.label") //
 				.setDefaultValue("UNDEFINED") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(getFeedInSettingsOptions());
+					field.setOptionsFromEntries(getFeedInSettingsOptions(l));
 				}));
 	}
 
@@ -179,8 +228,10 @@ public final class IntegratedSystemProps {
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					field.onlyShowIf(Exp.currentModelValue(gridMeterType)
-							.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					if (gridMeterType != null) {
+						field.onlyShowIf(Exp.currentModelValue(gridMeterType)
+								.equal(Exp.staticValue(GoodWeGridMeterCategory.COMMERCIAL_METER)));
+					}
 					field.setInputType(NUMBER) //
 							.setMin(0) //
 							.onlyPositiveNumbers();
@@ -202,6 +253,15 @@ public final class IntegratedSystemProps {
 		}), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.ctRatioFirst.label") //
 				.setDefaultValue(200));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the first value of the CT-Ratio.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> ctRatioFirst() {
+		return ctRatioFirst(null);
 	}
 
 	/**
@@ -249,9 +309,53 @@ public final class IntegratedSystemProps {
 	public static final AppDef<OpenemsApp, Nameable, BundleProvider> emergencyReserveSoc(//
 			final Nameable nameableToBeChecked //
 	) {
+		return createEmergencyReserveSocBase(nameableToBeChecked);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for selecting the emergency reserve soc value.
+	 *
+	 * @param nameableToBeChecked the {@link Nameable} to check if the field should
+	 *                            be shown. Used in combination with
+	 *                            {@link IntegratedSystemProps#emergencyReserveEnabled()}.
+	 *                            Can be null.
+	 * @param genSetSocStart      the {@link Nameable} to validate the emergency
+	 *                            reserve to be greater than the genSet SoC start if
+	 *                            the genSet is installed and the option to charge
+	 *                            from it is enabled
+	 * @param isGenSetInstalled   the {@link Nameable} to check if the genSet is
+	 *                            installed for the validation
+	 * @param genSetEnableCharge  the {@link Nameable} to check if the genSet
+	 *                            enableCharge is activated for the validation
+	 * @return the created {@link AppDef}
+	 */
+	public static final AppDef<OpenemsApp, Nameable, BundleProvider> emergencyReserveSoc(//
+			final Nameable nameableToBeChecked, //
+			final Nameable genSetSocStart, //
+			final Nameable isGenSetInstalled, //
+			final Nameable genSetEnableCharge //
+	) {
+		return createEmergencyReserveSocBase(nameableToBeChecked).wrapField((app, property, l, parameter, field) -> {
+			if (genSetSocStart != null) {
+				final var validationText = TranslationUtil.getTranslation(parameter.bundle(),
+						"App.FENECON.Commercial.reserveEnergy.validation.error");
+
+				final var validationExpression = Exp.currentModelValue(genSetSocStart).isNull() //
+						.or(Exp.currentModelValue(isGenSetInstalled).isNull()) //
+						.or(Exp.currentModelValue(genSetEnableCharge).isNull()) //
+						.or(Exp.currentModelValue(property).greaterThanEqual(Exp.currentModelValue(genSetSocStart)));
+
+				field.setCustomValidation("reserveEnergyValidation", validationExpression, validationText);
+			}
+		});
+	}
+
+	private static final AppDef<OpenemsApp, Nameable, BundleProvider> createEmergencyReserveSocBase(//
+			final Nameable nameableToBeChecked //
+	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.reserveEnergy.label") //
-				.setDefaultValue(5) //
+				.setDefaultValue(10) //
 				.setField(JsonFormlyUtil::buildRangeFromNameable, (app, property, l, parameter, field) -> {
 					field.setMin(5) //
 							.setMax(100);
@@ -274,20 +378,30 @@ public final class IntegratedSystemProps {
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
 	}
 
-	private static List<String> getFeedInSettingsOptions() {
-		var options = new ArrayList<String>(45);
-		options.add("UNDEFINED");
-		options.add("QU_ENABLE_CURVE");
-		options.add("PU_ENABLE_CURVE");
+	private static List<Map.Entry<String, String>> getFeedInSettingsOptions(Language language) {
+		final var bundle = AbstractOpenemsApp.getTranslationBundle(language);
+		final var format = new DecimalFormat("0.0#", DecimalFormatSymbols.getInstance(language.getLocal()));
+
+		var options = new ArrayList<Map.Entry<String, String>>(45);
+		options.add(Map.entry("UNDEFINED", "UNDEFINED"));
+		options.add(
+				Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.quEnableCurve"), "QU_ENABLE_CURVE"));
+		options.add(
+				Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.puEnableCurve"), "PU_ENABLE_CURVE"));
+		options.add(Map.entry(translate(bundle, "App.IntegratedSystem.feedInSettings.cosPhiFixValue", format.format(1)),
+				"LEADING_1"));
 		// LAGGING_0_99 - LAGGING_0_80
 		for (var i = 99; i >= 80; i--) {
-			options.add("LAGGING_0_" + Integer.toString(i));
+			options.add(Map.entry(
+					translate(bundle, "App.IntegratedSystem.feedInSettings.lagging", format.format(i / 100.0)),
+					"LAGGING_0_" + i));
 		}
 		// LEADING_0_80 - LEADING_0_99
 		for (var i = 80; i < 100; i++) {
-			options.add("LEADING_0_" + Integer.toString(i));
+			options.add(Map.entry(
+					translate(bundle, "App.IntegratedSystem.feedInSettings.leading", format.format(i / 100.0)),
+					"LEADING_0_" + i));
 		}
-		options.add("LEADING_1");
 		return options;
 	}
 
@@ -300,7 +414,9 @@ public final class IntegratedSystemProps {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.IntegratedSystem.hasAcMeter.label") //
 				.setDefaultValue(false) //
-				.setField(JsonFormlyUtil::buildCheckboxFromNameable));
+				.setField(JsonFormlyUtil::buildCheckboxFromNameable, (app, property, l, parameter, field) -> {
+					field.onlyShowIf(Exp.currentModelValue(property).notNull());
+				}));
 	}
 
 	/**
@@ -341,6 +457,63 @@ public final class IntegratedSystemProps {
 						field.disabled(true);
 					}
 				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the feed in link.
+	 *
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> feedInLink() {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def//
+				.setTranslatedLabel("App.IntegratedSystem.feedInLink.label") //
+				.setTranslatedDescription("App.IntegratedSystem.feedInLink.description") //
+				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {
+					field.setLink(new LinkBuilder.AppUpdateLink("App.Core.Meta"));
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the capacity of the ESS only visible for admins.
+	 * 
+	 * @param defaultValue the default value
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> capacityEss(//
+			int defaultValue //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setTranslatedLabel("App.IntegratedSystem.ess.capacity.label") //
+				.setTranslatedDescription("App.IntegratedSystem.ess.capacity.description") //
+				.setDefaultValue(defaultValue) //
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, property, l, parameter, field) -> field.setInputType(NUMBER) //
+								.onlyPositiveNumbers() //
+				) //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+		);
+	}
+
+	/**
+	 * Creates a {@link AppDef} for the max battery power of the ESS only visible
+	 * for admins.
+	 * 
+	 * @param defaultValue the default value
+	 * @return the created {@link AppDef}
+	 */
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> maxBatteryPower(//
+			int defaultValue //
+	) {
+		return AppDef.copyOfGeneric(CommonProps.defaultDef(), appDef -> appDef //
+				.setTranslatedLabel("App.IntegratedSystem.ess.maxBatteryPower.label") //
+				.setTranslatedDescription("App.IntegratedSystem.ess.maxBatteryPower.description") //
+				.setRequired(true) //
+				.setDefaultValue(defaultValue) //
+				.setField(JsonFormlyUtil::buildInputFromNameable,
+						(app, prop, l, params, field) -> field.setInputType(InputType.NUMBER) //
+				) //
+				.setIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)) //
+		);
 	}
 
 	private IntegratedSystemProps() {

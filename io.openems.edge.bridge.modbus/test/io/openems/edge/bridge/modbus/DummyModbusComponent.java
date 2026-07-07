@@ -1,8 +1,11 @@
 package io.openems.edge.bridge.modbus;
 
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 import org.osgi.framework.Constants;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.test.DummyConfigurationAdmin.DummyConfiguration;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -12,14 +15,17 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.DummyComponentContext;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
-import io.openems.edge.common.test.DummyConfigurationAdmin.DummyConfiguration;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DummyModbusComponent extends AbstractOpenemsModbusComponent implements ModbusComponent {
 
 	public static final String DEFAULT_COMPONENT_ID = "device0";
 	public static final String DEFAULT_BRIDGE_ID = "modbus0";
 	public static final int DEFAULT_UNIT_ID = 1;
+
+	private List<TaskHook> taskHooks = new ArrayList<>();
 
 	public DummyModbusComponent() throws OpenemsException {
 		this(DEFAULT_COMPONENT_ID, DEFAULT_BRIDGE_ID);
@@ -64,4 +70,17 @@ public class DummyModbusComponent extends AbstractOpenemsModbusComponent impleme
 		return super.addChannel(channelId);
 	}
 
+	@Override
+	public List<TaskHook> getModbusTaskHooks() {
+		return this.taskHooks;
+	}
+
+	/**
+	 * Adds a hook that is executed for all modbus tasks.
+	 *
+	 * @param hook Hook to add
+	 */
+	public void addModbusTaskHook(TaskHook hook) {
+		this.taskHooks.add(hook);
+	}
 }

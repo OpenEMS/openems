@@ -64,10 +64,7 @@ public class EdgeRpcRequestHandler {
 		var edgeId = edgeRpcRequest.getEdgeId();
 		var request = edgeRpcRequest.getPayload();
 
-		if (user.getRole(edgeId).isEmpty()) {
-			this.parent.metadata.getEdgeMetadataForUser(user, edgeId);
-		}
-		user.assertEdgeRoleIsAtLeast(EdgeRpcRequest.METHOD, edgeRpcRequest.getEdgeId(), Role.GUEST);
+		final var role = this.parent.metadata.assertUserRole(user, edgeId, Role.GUEST, EdgeRpcRequest.METHOD);
 
 		var resultFuture = switch (request.getMethod()) {
 		case AppCenterRequest.METHOD -> AppCenterHandler.handleUserRequest(this.parent.appCenterMetadata, //
@@ -125,7 +122,7 @@ public class EdgeRpcRequestHandler {
 
 		if (resultFuture == null) {
 			// Request not handled delegate to edge
-			resultFuture = this.parent.edgeManager.send(edgeId, user, request);
+			resultFuture = this.parent.edgeManager.send(edgeId, user, role, request);
 		}
 
 		// Wrap reply in EdgeRpcResponse
@@ -221,12 +218,11 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricDataRequest(String edgeId, User user,
-			QueryHistoricTimeseriesDataRequest request) throws OpenemsNamedException {
-		var historicData = this.parent.timedataManager.queryHistoricData(edgeId, request);
-
-		// JSON-RPC response
-		return CompletableFuture
-				.completedFuture(new QueryHistoricTimeseriesDataResponse(request.getId(), historicData));
+			QueryHistoricTimeseriesDataRequest request) {
+		return this.parent.submitQueryRequest("handleQueryHistoricDataRequest", () -> {
+			final var historicData = this.parent.timedataManager.queryHistoricData(edgeId, request);
+			return new QueryHistoricTimeseriesDataResponse(request.getId(), historicData);
+		});
 	}
 
 	/**
@@ -239,12 +235,12 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyRequest(String edgeId, User user,
-			QueryHistoricTimeseriesEnergyRequest request) throws OpenemsNamedException {
-		var data = this.parent.timedataManager.queryHistoricEnergy(//
-				edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
-
-		// JSON-RPC response
-		return CompletableFuture.completedFuture(new QueryHistoricTimeseriesEnergyResponse(request.getId(), data));
+			QueryHistoricTimeseriesEnergyRequest request) {
+		return this.parent.submitQueryRequest("handleQueryHistoricEnergyRequest", () -> {
+			var data = this.parent.timedataManager.queryHistoricEnergy(//
+					edgeId, request.getFromDate(), request.getToDate(), request.getChannels());
+			return new QueryHistoricTimeseriesEnergyResponse(request.getId(), data);
+		});
 	}
 
 	/**
@@ -257,12 +253,13 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricEnergyPerPeriodRequest(String edgeId,
-			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) throws OpenemsNamedException {
-		var data = this.parent.timedataManager.queryHistoricEnergyPerPeriod(//
-				edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
+			User user, QueryHistoricTimeseriesEnergyPerPeriodRequest request) {
+		return this.parent.submitQueryRequest("handleQueryHistoricEnergyPerPeriodRequest", () -> {
+			var data = this.parent.timedataManager.queryHistoricEnergyPerPeriod(//
+					edgeId, request.getFromDate(), request.getToDate(), request.getChannels(), request.getResolution());
 
-		return CompletableFuture
-				.completedFuture(new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data));
+			return new QueryHistoricTimeseriesEnergyPerPeriodResponse(request.getId(), data);
+		});
 	}
 
 	/**
@@ -275,9 +272,10 @@ public class EdgeRpcRequestHandler {
 	 * @throws OpenemsNamedException on error
 	 */
 	private CompletableFuture<JsonrpcResponseSuccess> handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,
-			User user, QueryHistoricTimeseriesExportXlxsRequest request) throws OpenemsNamedException {
-		return CompletableFuture.completedFuture(
-				this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage()));
+			User user, QueryHistoricTimeseriesExportXlxsRequest request) {
+		return this.parent.submitQueryRequest("handleQueryHistoricTimeseriesExportXlxsRequest", () -> {
+			return this.handleQueryHistoricTimeseriesExportXlxsRequest(edgeId, request, user.getLanguage());
+		});
 	}
 
 	private QueryHistoricTimeseriesExportXlsxResponse handleQueryHistoricTimeseriesExportXlxsRequest(String edgeId,

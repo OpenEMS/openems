@@ -16,6 +16,7 @@ public record GlobalContextV1(//
 		PredictorManager predictorManager, //
 		TimeOfUseTariff timeOfUseTariff) {
 
+	@Deprecated
 	public static class Builder {
 		private Clock clock;
 		private EnergyScheduleHandlerV1 energyScheduleHandler;
@@ -29,6 +30,7 @@ public record GlobalContextV1(//
 		 * @param clock the {@link Clock}
 		 * @return myself
 		 */
+		@Deprecated
 		public Builder setClock(Clock clock) {
 			this.clock = clock;
 			return this;
@@ -40,6 +42,7 @@ public record GlobalContextV1(//
 		 * @param energyScheduleHandler the {@link EnergyScheduleHandlerV1}
 		 * @return myself
 		 */
+		@Deprecated
 		public Builder setEnergyScheduleHandler(EnergyScheduleHandlerV1 energyScheduleHandler) {
 			this.energyScheduleHandler = energyScheduleHandler;
 			return this;
@@ -51,6 +54,7 @@ public record GlobalContextV1(//
 		 * @param sum the {@link Sum}
 		 * @return myself
 		 */
+		@Deprecated
 		public Builder setSum(Sum sum) {
 			this.sum = sum;
 			return this;
@@ -62,6 +66,7 @@ public record GlobalContextV1(//
 		 * @param predictorManager the {@link PredictorManager}
 		 * @return myself
 		 */
+		@Deprecated
 		public Builder setPredictorManager(PredictorManager predictorManager) {
 			this.predictorManager = predictorManager;
 			return this;
@@ -73,6 +78,7 @@ public record GlobalContextV1(//
 		 * @param timeOfUseTariff the {@link TimeOfUseTariff}
 		 * @return myself
 		 */
+		@Deprecated
 		public Builder setTimeOfUseTariff(TimeOfUseTariff timeOfUseTariff) {
 			this.timeOfUseTariff = timeOfUseTariff;
 			return this;
@@ -83,6 +89,7 @@ public record GlobalContextV1(//
 		 * 
 		 * @return the {@link GlobalContextV1} record
 		 */
+		@Deprecated
 		public GlobalContextV1 build() {
 			return new GlobalContextV1(this.clock, this.energyScheduleHandler, this.sum, this.predictorManager,
 					this.timeOfUseTariff);
@@ -94,6 +101,7 @@ public record GlobalContextV1(//
 	 * 
 	 * @return a {@link Builder}
 	 */
+	@Deprecated
 	public static Builder create() {
 		return new GlobalContextV1.Builder();
 	}

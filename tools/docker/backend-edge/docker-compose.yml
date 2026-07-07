@@ -1,0 +1,16 @@
+services:
+  openems_backend_edge:
+    image: openems/backend-edge:latest
+    container_name: openems_backend_edge
+    hostname: openems-backend-edge
+    restart: unless-stopped
+    volumes:
+      - openems-backend-edge-conf:/var/opt/openems/config:rw
+      - openems-backend-edge-data:/var/opt/openems/data:rw
+    ports: 
+      - 8078:8078 # Apache-Felix
+      - 8081:8081 # Edge-Websocket
+
+volumes:
+  openems-backend-edge-conf:
+  openems-backend-edge-data:

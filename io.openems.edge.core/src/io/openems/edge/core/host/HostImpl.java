@@ -82,7 +82,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 				OpenemsComponent.ChannelId.values(), //
 				Host.ChannelId.values() //
 		);
-		
+
 		// Initialize correct Operating System handler
 		this.operatingSystem = this.getCurrentOS();
 		this.diskSpaceWorker = new DiskSpaceWorker(this);
@@ -110,7 +110,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	}
 
 	@Activate
-	private void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
+	protected void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
 			throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
@@ -132,7 +132,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	}
 
 	@Modified
-	private void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
+	protected void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
 		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
 
@@ -331,21 +331,32 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 			return s.hasNext() ? s.next().trim() : "";
 		}
 	}
-	
+
 	private OperatingSystem getCurrentOS() {
 		if (Files.exists(Paths.get("/.dockerenv"))) {
 			return new OperatingSystemDocker();
 		}
-		
+
 		final String osName = System.getProperty("os.name");
 
-        if (osName.startsWith("Windows")) {
-            return new OperatingSystemWindows();
-        } else if (osName.startsWith("Mac")) {
-            return new OperatingSystemMac();
-        }
-		
-		return new OperatingSystemDebianSystemd(this);
+		if (osName.startsWith("Windows")) {
+			return new OperatingSystemWindows();
+		} else if (osName.startsWith("Mac")) {
+			return new OperatingSystemMac();
+		}
+
+		return new OperatingSystemDebianSystemd();
+	}
+
+	/**
+	 * Deletes network interface configuration files.
+	 * 
+	 * @param user           the user performing the operation
+	 * @param interfaceNames the list of interface names to delete
+	 * @throws OpenemsNamedException on error
+	 */
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		this.operatingSystem.deleteNetworkInterfaces(user, interfaceNames);
 	}
 
 }

@@ -2,8 +2,8 @@ package io.openems.edge.kaco.blueplanet.hybrid10.pvinverter;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class KacoBlueplanetHybrid10PvInverterImplTest {
 

@@ -30,17 +30,15 @@ public class StateChannelDoc extends BooleanDoc {
 		return this.level;
 	}
 
-	/**
-	 * Creates an instance of {@link Channel} for the given Channel-ID using its
-	 * Channel-{@link Doc}.
-	 *
-	 * @param channelId the Channel-ID
-	 * @return the Channel
-	 */
+	protected StateChannel createChannelInstance(OpenemsComponent component,
+			io.openems.edge.common.channel.ChannelId channelId, BooleanDoc channelDoc) {
+		return new StateChannel(component, channelId, channelDoc, this.level, this.debounce, this.debounceMode);
+	}
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public StateChannel createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId) {
-		return new StateChannel(component, channelId, this, this.level, this.debounce, this.debounceMode);
+		return this.createChannelInstance(component, channelId, this);
 	}
 }

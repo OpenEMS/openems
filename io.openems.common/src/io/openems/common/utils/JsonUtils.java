@@ -3,9 +3,11 @@ package io.openems.common.utils;
 import static io.openems.common.utils.EnumUtils.toEnum;
 
 import java.net.Inet4Address;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +41,7 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.types.OpenemsType;
 
 public final class JsonUtils {
@@ -211,6 +214,20 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a Object with {@link JsonSerializer} to the {@link JsonObject}.
+		 *
+		 * @param <T>        the type of the Object
+		 * @param property   the key
+		 * @param value      the value
+		 * @param serializer the {@link JsonSerializer}
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public <T> JsonObjectBuilder add(String property, T value, JsonSerializer<T> serializer) {
+			this.j.add(property, serializer.serialize(value));
+			return this;
+		}
+
+		/**
 		 * Add a Boolean value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -365,6 +382,48 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link LocalTime} value to the {@link JsonObject}.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, LocalTime value) {
+			this.j.addProperty(property, value == null ? null : value.format(DateTimeFormatter.ISO_LOCAL_TIME));
+			return this;
+		}
+
+		/**
+		 * Add a Duration value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, Duration value) {
+			this.j.addProperty(property, value.toString());
+			return this;
+		}
+
+		/**
+		 * Add a {@link UUID} value to the {@link JsonObject}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addProperty(String property, UUID value) {
+			if (value != null) {
+				this.j.addProperty(property, value.toString());
+			}
+			return this;
+		}
+
+		/**
 		 * Add a {@link Boolean} value to the {@link JsonObject}.
 		 *
 		 * @param property the key
@@ -485,6 +544,38 @@ public final class JsonUtils {
 		}
 
 		/**
+		 * Add a {@link LocalTime} value to the {@link JsonObject} if it is not null.
+		 *
+		 * <p>
+		 * The value gets added in the format of
+		 * {@link DateTimeFormatter#ISO_LOCAL_TIME}.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addPropertyIfNotNull(String property, LocalTime value) {
+			if (value != null) {
+				this.addProperty(property, value);
+			}
+			return this;
+		}
+
+		/**
+		 * Add a {@link JsonObject} value to the {@link JsonObject} if it is not null.
+		 *
+		 * @param property the key
+		 * @param value    the value
+		 * @return the {@link JsonObjectBuilder}
+		 */
+		public JsonObjectBuilder addIfNotNull(String property, JsonElement value) {
+			if (value != null) {
+				this.add(property, value);
+			}
+			return this;
+		}
+
+		/**
 		 * Call a method on a JsonObjectBuilder if an expression is true.
 		 *
 		 * @param expression     the expression
@@ -506,7 +597,6 @@ public final class JsonUtils {
 		public JsonObject build() {
 			return this.j;
 		}
-
 	}
 
 	public static class JsonArrayCollector implements Collector<JsonElement, JsonArrayBuilder, JsonArray> {

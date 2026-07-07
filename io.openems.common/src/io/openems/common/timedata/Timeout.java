@@ -7,7 +7,7 @@ import java.time.Instant;
 public class Timeout {
 
 	private Instant entryTime = Instant.MIN;
-	private Duration timeout;
+	private final Duration timeout;
 
 	private Timeout(Duration duration) {
 		this.timeout = duration;
@@ -31,6 +31,16 @@ public class Timeout {
 	 */
 	public static Timeout ofMinutes(int timeout) {
 		return new Timeout(Duration.ofMinutes(timeout));
+	}
+
+	/**
+	 * Get the {@link Timeout}.
+	 *
+	 * @param duration the amount of time
+	 * @return the {@link Timeout}
+	 */
+	public static Timeout of(Duration duration) {
+		return new Timeout(duration);
 	}
 
 	/**

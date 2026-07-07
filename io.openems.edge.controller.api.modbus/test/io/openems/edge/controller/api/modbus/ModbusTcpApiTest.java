@@ -1,13 +1,13 @@
 package io.openems.edge.controller.api.modbus;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.facade.ModbusTCPMaster;
 import com.ghgande.j2mod.modbus.procimg.InputRegister;
@@ -31,7 +31,7 @@ public class ModbusTcpApiTest {
 		return master;
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testOpenemsHashCode() throws Exception {
 		var master = getMaster();
@@ -40,7 +40,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testVersion() throws Exception {
 		var master = getMaster();
@@ -58,7 +58,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testSumEssSocFC4() throws Exception {
 		var master = getMaster();
@@ -68,7 +68,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testSumStateOfChargeFC3() throws Exception {
 		var master = getMaster();
@@ -78,7 +78,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testWrite() throws Exception {
 		var bytes = ByteBuffer.allocate(4).putFloat(2500).array();
@@ -90,7 +90,7 @@ public class ModbusTcpApiTest {
 		master.disconnect();
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testFloat32() throws Exception {
 		var master = getMaster();

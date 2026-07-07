@@ -1,26 +1,14 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
-import static io.openems.common.utils.StringUtils.definedOrElse;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.timeofusetariff.api.TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 import static io.openems.edge.timeofusetariff.api.utils.ExchangeRateApi.getExchangeRateOrElse;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.parseCurrency;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.parsePrices;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.parseToSchedule;
-import static io.openems.edge.timeofusetariff.entsoe.Utils.processPrices;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -31,15 +19,18 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.oem.OpenemsEdgeOem;
-import io.openems.common.utils.ThreadPoolUtils;
+import io.openems.common.types.MarketPriceData;
+import io.openems.common.utils.TimeRangeValues;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.MarketPriceUpdateEvent;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeConfiguration;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProvider;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProviderPool;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
@@ -52,26 +43,27 @@ import io.openems.edge.timeofusetariff.api.TouManualHelper;
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe, OpenemsComponent, TimeOfUseTariff {
-
-	private static final int API_EXECUTE_HOUR = 14;
+	private static final int INTERNAL_ERROR = -1;
 
 	private final Logger log = LoggerFactory.getLogger(TouEntsoeImpl.class);
-	private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-	private final AtomicReference<TimeOfUsePrices> prices = new AtomicReference<>(TimeOfUsePrices.EMPTY_PRICES);
+	private final AtomicReference<TimeRangeValues<Double>> prices = new AtomicReference<>(null);
+
+	@Reference
+	private EntsoeMarketPriceProviderPool entsoeMarketPriceProviderPool;
 
 	@Reference
 	private Meta meta;
 
 	@Reference
-	private OpenemsEdgeOem oem;
-
-	@Reference
 	private ComponentManager componentManager;
 
-	private Config config = null;
-	private String securityToken = null;
 	private TouManualHelper helper = TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
-	private ScheduledFuture<?> future = null;
+	private EntsoeMarketPriceProvider priceProvider;
+
+	private final Consumer<MarketPriceUpdateEvent> onUpdateEvent = this::onUpdateEvent;
+	private final Consumer<MarketPriceData> onNewPrices = this::setPrices;
+	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> this
+			.reloadPricesDueToCurrencyChange();
 
 	public TouEntsoeImpl() {
 		super(//
@@ -80,114 +72,112 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		);
 	}
 
-	private final BiConsumer<Value<Integer>, Value<Integer>> onCurrencyChange = (a, b) -> {
-		this.scheduleTask(0);
-	};
+	private void reloadPricesDueToCurrencyChange() {
+		if (this.priceProvider != null) {
+			this.logInfo(this.log, "Triggering price update due to currency change ...");
+			this.setPrices(this.priceProvider.getMarketPrices().getValue());
+		}
+	}
+
+	@Override
+	public void triggerPriceUpdate() {
+		if (this.priceProvider != null) {
+			this.priceProvider.triggerPriceUpdate();
+		}
+	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+	private synchronized void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
 			return;
 		}
 
-		this.applyConfig(config);
+		this.applySchedule(config);
+
+		this.priceProvider = this.entsoeMarketPriceProviderPool
+				.get(new EntsoeConfiguration(config.biddingZone(), config.securityToken()));
+
+		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
+		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
-
-		// Schedule once
-		this.scheduleTask(0);
 	}
 
-	@Deactivate
-	protected void deactivate() {
-		super.deactivate();
-		this.meta.getCurrencyChannel().removeOnChangeCallback(this.onCurrencyChange);
-		ThreadPoolUtils.shutdownAndAwaitTermination(this.executor, 0);
-	}
-
-	/**
-	 * Schedules execution the the update Task.
-	 * 
-	 * @param seconds execute task in seconds
-	 */
-	private synchronized void scheduleTask(long seconds) {
-		if (this.future != null) {
-			this.future.cancel(false);
-		}
-		this.future = this.executor.schedule(this.task, seconds, TimeUnit.SECONDS);
-	}
-
-	private final Runnable task = () -> {
-		var token = this.securityToken;
-		var areaCode = this.config.biddingZone().code;
-		var fromDate = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
-		var toDate = fromDate.plusDays(1);
-		var unableToUpdatePrices = false;
-		var preferredResolution = this.config.resolution();
+	private void applySchedule(Config config) {
+		final var clock = this.componentManager.getClock();
 
 		try {
-			final var result = EntsoeApi.query(token, areaCode, fromDate, toDate);
-			final var entsoeCurrency = parseCurrency(result);
-			final var globalCurrency = this.meta.getCurrency();
-			final double exchangeRate = getExchangeRateOrElse(entsoeCurrency, globalCurrency, 1.);
-			final var gridFees = this.helper.getPrices();
-
-			// Parse the response for the prices
-			var parsedPrices = parsePrices(result, exchangeRate, preferredResolution);
-
-			this.prices.set(processPrices(this.componentManager.getClock(), parsedPrices, exchangeRate, gridFees));
-
-		} catch (IOException | ParserConfigurationException | SAXException e) {
-			this.logWarn(this.log, "Unable to Update Entsoe Time-Of-Use Price: " + e.getMessage());
-			e.printStackTrace();
-			unableToUpdatePrices = true;
-		}
-
-		this.channel(TouEntsoe.ChannelId.UNABLE_TO_UPDATE_PRICES).setNextValue(unableToUpdatePrices);
-
-		/*
-		 * Schedule next price update at 2 o clock every day.
-		 */
-		var now = ZonedDateTime.now();
-		var nextRun = now.withHour(API_EXECUTE_HOUR).truncatedTo(ChronoUnit.HOURS);
-		if (unableToUpdatePrices) {
-			// If the prices are not updated, try again in next minute.
-			nextRun = now.plusMinutes(1).truncatedTo(ChronoUnit.MINUTES);
-			this.logWarn(this.log, "Unable to Update the prices, Trying again at: " + nextRun);
-		} else if (now.isAfter(nextRun)) {
-			nextRun = nextRun.plusDays(1);
-		}
-
-		var delay = Duration.between(now, nextRun).getSeconds();
-		this.scheduleTask(delay);
-	};
-
-	private void applyConfig(Config config) {
-		this.securityToken = definedOrElse(config.securityToken(), this.oem.getEntsoeToken());
-		if (this.securityToken == null) {
-			this.logError(this.log, "Please configure Security Token to access ENTSO-E");
-			return;
-		}
-
-		this.config = config;
-
-		try {
-			var schedule = parseToSchedule(config.biddingZone(), config.ancillaryCosts(),
+			final var schedule = Utils.parseToSchedule(clock, config.biddingZone(), config.ancillaryCosts(),
 					msg -> this.logWarn(this.log, msg));
-			this.helper = new TouManualHelper(schedule, 0.0);
+			this.helper = new TouManualHelper(clock, schedule, 0.0);
+
 		} catch (OpenemsNamedException e) {
 			this.logWarn(this.log, "Unable to parse Schedule: " + e.getMessage());
 			this.helper = EMPTY_TOU_MANUAL_HELPER;
 		}
+	}
 
+	@Deactivate
+	protected synchronized void deactivate() {
+		super.deactivate();
+
+		this.meta.getCurrencyChannel().removeOnChangeCallback(this.onCurrencyChange);
+
+		if (this.priceProvider != null) {
+			this.priceProvider.getMarketPrices().unsubscribe(this.onNewPrices);
+			this.priceProvider.getUpdateState().unsubscribe(this.onUpdateEvent);
+			this.entsoeMarketPriceProviderPool.unget(this.priceProvider);
+			this.priceProvider = null;
+		}
+	}
+
+	protected void onUpdateEvent(MarketPriceUpdateEvent event) {
+		if (event == null) {
+			return;
+		}
+
+		switch (event) {
+		case MarketPriceUpdateEvent.Successful(var data) -> {
+			setValue(this, TouEntsoe.ChannelId.HTTP_STATUS_CODE, 200);
+			setValue(this, TouEntsoe.ChannelId.UNABLE_TO_UPDATE_PRICES, false);
+		}
+		case MarketPriceUpdateEvent.FailedWithHttpError(var httpStatus, var httpBody) -> {
+			setValue(this, TouEntsoe.ChannelId.HTTP_STATUS_CODE, httpStatus.code());
+			setValue(this, TouEntsoe.ChannelId.UNABLE_TO_UPDATE_PRICES, true);
+		}
+		case MarketPriceUpdateEvent.FailedWithException(var exception) -> {
+			setValue(this, TouEntsoe.ChannelId.HTTP_STATUS_CODE, INTERNAL_ERROR);
+			setValue(this, TouEntsoe.ChannelId.UNABLE_TO_UPDATE_PRICES, true);
+		}
+		}
+	}
+
+	protected void setPrices(MarketPriceData marketPriceData) {
+		if (marketPriceData == null) {
+			this.prices.set(null);
+			return;
+		}
+
+		final var globalCurrency = this.meta.getCurrency();
+		final double exchangeRate = getExchangeRateOrElse(marketPriceData.getCurrency(), globalCurrency, 1.);
+		final var gridFees = this.helper.getPrices();
+
+		final var processedPrices = Utils.processPrices(this.componentManager.getClock(), marketPriceData.getValues(),
+				exchangeRate, gridFees);
+		this.prices.set(processedPrices);
 	}
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		var currentPrices = this.prices.get();
+		if (currentPrices == null) {
+			return TimeOfUsePrices.EMPTY_PRICES;
+		}
+
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), currentPrices);
 	}
 
 	@Override

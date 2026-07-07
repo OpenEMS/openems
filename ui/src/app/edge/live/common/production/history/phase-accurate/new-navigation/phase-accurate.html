@@ -1,0 +1,22 @@
+@if (isInitialized && componentType) {
+<oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+        <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+        <pickdate *ngIf="!ref.children.length"></pickdate>
+    </ion-buttons>
+    @switch (componentType.type) {
+    @case ('sum') {
+    <oe-common-production-history-sum
+        [isOnlyChart]="true"></oe-common-production-history-sum>
+    }
+    @case ('productionMeter') {
+    <oe-common-production-history-meter
+        [isOnlyChart]="true"></oe-common-production-history-meter>
+    }
+    @case ('charger') {
+    <oe-common-production-history-charger
+        [isOnlyChart]="true"></oe-common-production-history-charger>
+    }
+    }
+</oe-navigation-view>
+}

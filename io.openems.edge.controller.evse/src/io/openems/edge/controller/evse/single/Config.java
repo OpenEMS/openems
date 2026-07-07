@@ -3,8 +3,6 @@ package io.openems.edge.controller.evse.single;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.evse.api.chargepoint.Mode;
-
 @ObjectClassDefinition(//
 		name = "EVSE Controller Single Charge-Point", //
 		description = "Controls a single EVSE Charge-Point")
@@ -19,7 +17,7 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Mode", description = "Set the mode")
+	@AttributeDefinition(name = "Mode", description = "Set the default mode")
 	Mode mode() default Mode.ZERO;
 
 	@AttributeDefinition(name = "Charge-Point-ID", description = "ID of EVSE Charge-Point", required = true)
@@ -31,9 +29,12 @@ import io.openems.edge.evse.api.chargepoint.Mode;
 	@AttributeDefinition(name = "Phase-Switching", description = "The Phase-Switching configuration.")
 	PhaseSwitching phaseSwitching() default PhaseSwitching.DISABLE;
 
-	// TODO implement
-	@AttributeDefinition(name = "Smart mode: JSON Configuration", description = "")
-	String smartConfig() default "";
+	// TODO implement One-Shot
+	@AttributeDefinition(name = "One-Shot Mode Configuration", description = "One-Shot Mode has highest priority; reset on next cable unplug event")
+	String oneShot() default "";
+
+	@AttributeDefinition(name = "JSCalendar Schedule", description = "Takes a JSON-Array in JSCalendar format")
+	String jsCalendar() default "[]";
 
 	@AttributeDefinition(name = "Manual mode: Session Energy limit in [Wh]", description = "The charging station will only charge till this limit; '0' is no limit.")
 	int manualEnergySessionLimit() default 0;

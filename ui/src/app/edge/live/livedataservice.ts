@@ -1,6 +1,7 @@
 import { Directive, effect, EffectRef, Inject, inject, Injector, OnDestroy } from "@angular/core";
 import { takeUntil } from "rxjs/operators";
 import { v4 as uuidv4 } from "uuid";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DataService } from "../../shared/components/shared/dataservice";
 import { ChannelAddress, CurrentData, Edge, Service, Websocket } from "../../shared/shared";
@@ -26,9 +27,13 @@ export class LiveDataService extends DataService implements OnDestroy {
         });
     }
 
-    public getValues(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
+    public subscribeChannels(channelAddresses: ChannelAddress[], edge: Edge | null, componentId: string) {
 
         AssertionUtils.assertIsDefined(edge);
+
+        if (this.subscribedChannelAddresses.length !== 0 && ArrayUtils.containsAll<ChannelAddress>({ arr: channelAddresses, strings: this.subscribedChannelAddresses })) {
+            return;
+        };
 
         for (const channelAddress of channelAddresses) {
             this.subscribedChannelAddresses.push(channelAddress);
@@ -59,7 +64,7 @@ export class LiveDataService extends DataService implements OnDestroy {
             return;
         }
 
-        this.edge?.unsubscribeFromChannels(this.websocket, this.subscribedChannelAddresses);
+        this.edge?.unsubscribeFromChannels(this.subscribeId, this.websocket, this.subscribedChannelAddresses);
         this.stopOnDestroy?.next();
         this.stopOnDestroy?.complete();
         this.subscription?.destroy();
@@ -67,7 +72,7 @@ export class LiveDataService extends DataService implements OnDestroy {
 
     public unsubscribeFromChannels(channels: ChannelAddress[]) {
         this.lastUpdated.set(null);
-        this.edge?.unsubscribeFromChannels(this.websocket, channels);
+        this.edge?.unsubscribeFromChannels(this.subscribeId, this.websocket, channels);
     }
 
     public override refresh(ev: CustomEvent) {
@@ -85,7 +90,7 @@ export class LiveDataService extends DataService implements OnDestroy {
      * @returns the currentData for thes channelAddresses
      */
     public async subscribeAndGetFirstValidValueForChannels(channelAddresses: ChannelAddress[], componentId: string): Promise<CurrentData> {
-        this.getValues(channelAddresses, this.edge, componentId);
+        this.subscribeChannels(channelAddresses, this.edge, componentId);
         return new Promise<any>((res) => {
             this.subscription = effect(() => {
                 const currentValue = this.currentValue();

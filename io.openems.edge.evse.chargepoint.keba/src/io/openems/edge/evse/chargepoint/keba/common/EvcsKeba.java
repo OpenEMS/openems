@@ -4,14 +4,14 @@ import static io.openems.common.channel.PersistencePriority.HIGH;
 
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.evcs.keba.modbus.EvcsKebaModbus;
-import io.openems.edge.evcs.keba.udp.EvcsKebaUdp;
+import io.openems.edge.evcs.keba.modbus.EvcsKebaModbusImpl;
+import io.openems.edge.evcs.keba.udp.EvcsKebaUdpImpl;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.meter.api.ElectricityMeter;
 
 /**
- * Common Channels and methods for {@link EvcsKebaModbus} and
- * {@link EvcsKebaUdp}.
+ * Common Channels and methods for {@link EvcsKebaModbusImpl} and
+ * {@link EvcsKebaUdpImpl}.
  */
 public interface EvcsKeba extends OpenemsComponent, ElectricityMeter {
 

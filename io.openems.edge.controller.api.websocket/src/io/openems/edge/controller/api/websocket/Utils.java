@@ -24,7 +24,8 @@ public class Utils {
 				true, // Is Online
 				ZonedDateTime.now(), // lastMessage
 				null, // firstSetupProtocol
-				ControllerApiWebsocket.SUM_STATE //
+				ControllerApiWebsocket.SUM_STATE, //
+                null // settings
 		);
 	}
 

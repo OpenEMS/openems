@@ -1,11 +1,11 @@
 version: 2
 updates:
-  - package-ecosystem: maven
+  - package-ecosystem: "maven"
     directory: "/cnf"
     schedule:
-      interval: weekly
+      interval: "weekly"
     open-pull-requests-limit: 10
-    target-branch: develop
+    target-branch: "develop"
     groups:
       influxdb:
         patterns:
@@ -14,6 +14,7 @@ updates:
         patterns:
           - "org.dhatim:fastexcel"
           - "org.dhatim:fastexcel-reader"
+          - "com.fasterxml:aalto-xml"
       bouncycastle:
         patterns:
           - "org.bouncycastle:*"
@@ -23,41 +24,58 @@ updates:
       guava:
         patterns:
           - "com.google.guava:*"
-      retrofit2:
-        patterns:
-          - "com.squareup.retrofit2:*"
       prometheus:
         patterns:
           - "io.prometheus:*"
+      squareup:
+        patterns:
+          - "com.squareup.*:*"
+      tribuo:
+        patterns:
+          - "org.tribuo:*"
+      olcut:
+        patterns:
+          - "com.oracle.labs.olcut:*"
+      auth0:
+        patterns:
+          - "com.auth0:*"
+      mockito:
+        patterns:
+          - "org.mockito:*"
+      junit:
+        patterns:
+          - "org.junit.jupiter:*"
+          - "org.junit.platform:*"
+          - "org.junit.vintage:*"
+      bytebuddy:
+        patterns:
+          - "net.bytebuddy:*"
 
-  - package-ecosystem: npm
+  - package-ecosystem: "npm"
     directory: "/ui"
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 10
-    target-branch: develop
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    target-branch: "develop"
     groups:
       openems-ui:
         patterns:
-          - "@angular/*"
-          - "@angular-devkit/*"
-          - "@angular-eslint/*"
-          - "@schematics/angular"
-          - "@capacitor/*"
-          - "@capacitor-community/*"
-          - "capacitor-*"
-          - "@ionic-native/*"
-          - "@ngx-formly/*"
-          - "karma-*"
-          - "karma"
-          - "@stylistic/eslint-plugin"
-          - "@typescript-eslint/*"
-          - "eslint-*"
-          - "eslint"
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/tools/integration_tests"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    target-branch: "develop"
+    groups:
+      openems-integration-tests:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     directory: "/.github/workflows"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
-    target-branch: develop
+    target-branch: "develop"

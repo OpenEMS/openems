@@ -141,6 +141,7 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 				case CONSUMPTION_METERED:
 				case MANAGED_CONSUMPTION_METERED:
 				case GRID:
+				case GRID_GENSET:
 					// ignore
 					break;
 				case CONSUMPTION_NOT_METERED:

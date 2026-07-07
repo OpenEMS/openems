@@ -7,6 +7,8 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { routes } from "src/app/app-routing.module";
+import { PlatFormService } from "src/app/platform.service";
+import { RouteService } from "src/app/shared/service/route.service";
 import { Service } from "src/app/shared/shared";
 import { registerTranslateExtension } from "src/app/shared/translate.extension";
 import { Language, MyTranslateLoader } from "src/app/shared/type/language";
@@ -14,13 +16,15 @@ import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 export type TestContext = { translate: TranslateService, service: Service };
 export const BASE_TEST_BED: TestModuleMetadata = {
     imports: [
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, defaultLanguage: Language.DEFAULT.key, useDefaultLang: false }),
+        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader }, fallbackLang: Language.DEFAULT.key }),
     ],
     providers: [
+        PlatFormService,
         TranslateService,
         { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
         { provide: LOCALE_ID, useValue: Language.DEFAULT.key },
         Service,
+        RouteService,
     ],
 };
 
@@ -42,6 +46,7 @@ export namespace TestingUtils {
      * @returns the injected translateService and service
      */
     export async function sharedSetup(): Promise<TestContext> {
+        TestBed.resetTestingModule();
         await TestBed.configureTestingModule(BASE_TEST_BED)
             .compileComponents()
             .then(() => setTranslateParams());
@@ -73,6 +78,7 @@ export namespace TestingUtils {
         });
 
         // Set up the TestBed
+        TestBed.resetTestingModule();
         await TestBed.configureTestingModule(testModuleMetadata)
             .compileComponents();
         await setTranslateParams();

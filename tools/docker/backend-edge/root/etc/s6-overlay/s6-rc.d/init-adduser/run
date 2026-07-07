@@ -1,0 +1,22 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+
+PUID=${PUID:-911}
+PGID=${PGID:-911}
+
+groupmod -o -g "$PGID" abc
+usermod -o -u "$PUID" abc
+
+cat /etc/s6-overlay/s6-rc.d/init-adduser/branding
+
+echo "
+for further information visit:
+https://openems.io/
+
+───────────────────────────────────────
+GID/UID:    $(id -g abc)/$(id -u abc)
+───────────────────────────────────────"
+
+lsiown abc:abc /app
+lsiown abc:abc /config
+lsiown abc:abc /defaults

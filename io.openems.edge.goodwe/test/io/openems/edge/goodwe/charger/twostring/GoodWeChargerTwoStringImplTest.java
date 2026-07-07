@@ -2,8 +2,8 @@ package io.openems.edge.goodwe.charger.twostring;
 
 import org.junit.Test;
 
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.goodwe.ess.GoodWeEssImpl;
 
 public class GoodWeChargerTwoStringImplTest {

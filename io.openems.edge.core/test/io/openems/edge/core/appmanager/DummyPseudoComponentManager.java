@@ -42,6 +42,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 public class DummyPseudoComponentManager implements ComponentManager {
 
@@ -233,6 +234,15 @@ public class DummyPseudoComponentManager implements ComponentManager {
 		this.components.add(component);
 	}
 
+	/**
+	 * Adds a {@link EdgeConfig.Component} from a {@link ComponentDef}.
+	 * 
+	 * @param component the component to add
+	 */
+	public void addComponentFromComponentConfig(ComponentDef component) {
+		this.addComponent(component.toEdgeConfigComponent());
+	}
+
 	private static OpenemsComponent componentOf(//
 			String componentId, //
 			String factoryId, //
@@ -389,6 +399,29 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			return null;
 		}
 
+	}
+
+	/**
+	 * Updates the configuration of the internal <code>_host</code> component. This
+	 * method removes any existing <code>_host</code> component and recreates it
+	 * with the provided network and USB configuration values.
+	 *
+	 * @param newNetworkConfig the serialized network configuration JSON string to
+	 *                         apply to the <code>_host</code> component
+	 */
+	public void updateHostConfiguration(String newNetworkConfig) {
+		this.components.removeIf(c -> c.id().equals("_host"));
+		var newProperties = JsonUtils.buildJsonObject()//
+				.addProperty("networkConfiguration", newNetworkConfig)//
+				.addProperty("usbConfiguration", "")//
+				.build();
+		var newHostComponent = new EdgeConfig.Component(//
+				"_host", //
+				"Core Host", //
+				"Core.Host", //
+				newProperties//
+		);
+		this.components.add(new DummyOpenemsComponent(newHostComponent));
 	}
 
 	@Override
