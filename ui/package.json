@@ -18,7 +18,7 @@
         "@angular/platform-browser": "20.3.19",
         "@angular/platform-browser-dynamic": "20.3.19",
         "@angular/router": "20.3.19",
-        "@angular/service-worker": "20.3.19",
+        "@angular/service-worker": "20.3.25",
         "@awesome-cordova-plugins/core": "^9.2.0",
         "@awesome-cordova-plugins/file-opener": "^9.2.0",
         "@capacitor-community/file-opener": "^8.0.1",
