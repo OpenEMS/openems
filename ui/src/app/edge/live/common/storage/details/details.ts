@@ -3,7 +3,6 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FormlyModule } from "@ngx-formly/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
-import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { ModalComponentsModule } from "src/app/shared/components/modal/modal.module";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -18,7 +17,6 @@ import { SharedStorage } from "../shared/shared";
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     imports: [
         CommonUiModule,
-        HelpButtonComponent,
         ReactiveFormsModule,
         FormsModule,
         FormlyModule,

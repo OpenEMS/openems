@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.channel.Unit;
@@ -15,7 +16,7 @@ public final class ModbusSlaveNatureTable {
 
 	/**
 	 * Generates a hash code from a string text.
-	 * 
+	 *
 	 * @param text the text (e.g. "OpenemsComponent")
 	 * @return the hash value (e.g. "0xb3dc")
 	 */
@@ -39,13 +40,15 @@ public final class ModbusSlaveNatureTable {
 
 		/**
 		 * Add a Channel to the {@link Builder}.
-		 * 
+		 *
 		 * @param offset    the register address offset
 		 * @param channelId the {@link ChannelId}
 		 * @param type      the {@link ModbusType}
+		 * @param mapValue  an optional mapping function to map the Channel value to a
+		 *                  Number
 		 * @return myself
 		 */
-		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
+		public Builder channel(int offset, ChannelId channelId, ModbusType type, UnaryOperator<Number> mapValue) {
 			var filter = this.accessModeFilter;
 			var channel = channelId.doc().getAccessMode();
 			if (
@@ -58,7 +61,7 @@ public final class ModbusSlaveNatureTable {
 					// Filter for WRITE_ONLY channels
 					filter == AccessMode.WRITE_ONLY
 							&& (channel == AccessMode.WRITE_ONLY || channel == AccessMode.READ_WRITE)) {
-				this.add(new ModbusRecordChannel(offset, type, channelId, filter));
+				this.add(new ModbusRecordChannel(offset, type, channelId, filter, mapValue));
 
 			} else {
 				// Channel did not pass filter -> show as Reserved
@@ -67,6 +70,7 @@ public final class ModbusSlaveNatureTable {
 				case FLOAT64 -> this.float64Reserved(offset);
 				case STRING16 -> this.string16Reserved(offset);
 				case ENUM16, UINT16 -> this.uint16Reserved(offset);
+				case INT16 -> this.int16Reserved(offset);
 				case UINT32 -> this.uint32Reserved(offset);
 				case UINT64 -> this.uint64Reserved(offset);
 				}
@@ -75,13 +79,25 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		/**
+		 * Add a Channel to the {@link Builder}.
+		 *
+		 * @param offset    the register address offset
+		 * @param channelId the {@link ChannelId}
+		 * @param type      the {@link ModbusType}
+		 * @return myself
+		 */
+		public Builder channel(int offset, ChannelId channelId, ModbusType type) {
+			return this.channel(offset, channelId, type, null);
+		}
+
+		/**
 		 * Add a CycleValue to the {@link Builder}.
-		 * 
+		 *
 		 * <p>
 		 * A {@link ModbusRecordCycleValue} allows to receive a {@link ModbusRecord} via
 		 * a {@link Function}. The Function is executed in the 'run()' method of the
 		 * Modbus-TCP-Api-Controller.
-		 * 
+		 *
 		 * @param <T>              the target OpenemsType
 		 * @param offset           the register address offset
 		 * @param name             the name
@@ -100,7 +116,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Unsigned Int 16 value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @param name   the name of the register
 		 * @param value  the value
@@ -114,7 +130,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Unsigned Int 16 Hash value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @param text   the description text
 		 * @return myself
@@ -127,7 +143,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Unsigned Int 16 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -137,9 +153,21 @@ public final class ModbusSlaveNatureTable {
 		}
 
 		/**
+		 * Add a Signed Int 16 Reserved value to the {@link ModbusSlaveNatureTable}
+		 * {@link Builder}.
+		 *
+		 * @param offset the address offset
+		 * @return myself
+		 */
+		public Builder int16Reserved(int offset) {
+			this.add(new ModbusRecordInt16Reserved(offset));
+			return this;
+		}
+
+		/**
 		 * Add a Unsigned Int 32 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -151,7 +179,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Unsigned Int 64 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -162,7 +190,7 @@ public final class ModbusSlaveNatureTable {
 
 		/**
 		 * Add a Float 32 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @param name   the name of the register
 		 * @param value  the value
@@ -176,7 +204,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Float 32 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -187,7 +215,7 @@ public final class ModbusSlaveNatureTable {
 
 		/**
 		 * Add a Float 64 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @param name   the name of the register
 		 * @param value  the value
@@ -201,7 +229,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a Float 64 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -212,7 +240,7 @@ public final class ModbusSlaveNatureTable {
 
 		/**
 		 * Add a String 16 value to the {@link ModbusSlaveNatureTable} {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @param name   the name of the register
 		 * @param value  the value
@@ -226,7 +254,7 @@ public final class ModbusSlaveNatureTable {
 		/**
 		 * Add a String 16 Reserved value to the {@link ModbusSlaveNatureTable}
 		 * {@link Builder}.
-		 * 
+		 *
 		 * @param offset the address offset
 		 * @return myself
 		 */
@@ -254,7 +282,7 @@ public final class ModbusSlaveNatureTable {
 
 	/**
 	 * Builds a {@link ModbusSlaveNatureTable} {@link Builder}.
-	 * 
+	 *
 	 * @param nature     the OpenEMS Nature {@link Class}
 	 * @param accessMode the {@link AccessMode}
 	 * @param length     the reserved total length
@@ -276,10 +304,9 @@ public final class ModbusSlaveNatureTable {
 
 	/**
 	 * Gets the Nature class.
-	 * 
+	 *
 	 * @return the nature class, e.g.
 	 *         {@link io.openems.edge.common.component.OpenemsComponent}
-	 * 
 	 */
 	public Class<?> getNatureClass() {
 		return this.nature;
@@ -287,7 +314,7 @@ public final class ModbusSlaveNatureTable {
 
 	/**
 	 * Gets the Nature name, i.e. the SimpleName of the Nature Class.
-	 * 
+	 *
 	 * @return the nature name, e.g. "OpenemsComponent" for
 	 *         {@link io.openems.edge.common.component.OpenemsComponent}
 	 */
@@ -298,7 +325,7 @@ public final class ModbusSlaveNatureTable {
 	/**
 	 * Gets the Hash code for this Nature, built from the Nature-Name via
 	 * {@link #getNatureName()}.
-	 * 
+	 *
 	 * @return the Hash code, e.g. "0xb3dc" for "OpenemsComponent"
 	 */
 	public int getNatureHash() {

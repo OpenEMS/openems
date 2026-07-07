@@ -34,10 +34,11 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterScheduleContext;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.OptimizationContext;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.cluster.jsonrpc.GetSchedule;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes.JointMode;
 import io.openems.edge.energy.api.handler.DifferentModes.Period;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.EshWithDifferentModes;
@@ -63,7 +64,7 @@ public class ControllerEvseClusterImpl extends AbstractOpenemsComponent
 	private Sum sum;
 
 	private Config config;
-	private EshWithDifferentModes<SingleModes, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
+	private EshWithDifferentModes<JointMode<Mode>, OptimizationContext, ClusterScheduleContext> energyScheduleHandler;
 
 	// TODO sort by configuration
 	private List<ControllerEvseSingle> ctrls = new CopyOnWriteArrayList<ControllerEvseSingle>();

@@ -44,15 +44,15 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(edge);
 
         const isAskoma = component.factoryId === "Heat.Askoma";
-        const isAskomaReadOnly = isAskoma && component.properties?.readOnly === true;
-        const showAskomaSettings = isAskoma && !isAskomaReadOnly;
-
+        const isMyPv = component.factoryId === "Heat.MyPv";
+        const isWritable = component.properties?.readOnly !== true;
         return {
             title: Name.METER_ALIAS_OR_ID(component),
             icon: { name: "flame", color: "normal", size: "normal" },
             lines: [
                 ...(isAskoma ? SharedControllerHeat.getAskomaIcon() : []),
-                ...SharedControllerHeat.getFormlySettingsLines(translate, showAskomaSettings),
+                ...(isMyPv ? SharedControllerHeat.getMyPvIcon() : []),
+                ...(isWritable ? SharedControllerHeat.getFormlySettingsLines(translate) : []),
             ],
             component,
             edge,
@@ -83,15 +83,15 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         const config = await this.service.getConfig();
         this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
 
-        if (this.component?.id == null || this.component.factoryId !== "Heat.Askoma" || this.isAskomaReadOnly()) {
+        if (this.component?.id == null || this.isReadOnly()) {
             return [];
         }
 
         return [new ChannelAddress(this.component.id, "_PropertyMode")];
     }
 
-    protected isAskomaReadOnly(): boolean {
-        return this.component?.factoryId === "Heat.Askoma" && this.component.properties?.readOnly === true;
+    protected isReadOnly(): boolean {
+        return this.component == null || this.component?.properties?.readOnly === true;
     }
 }
 

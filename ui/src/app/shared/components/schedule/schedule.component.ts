@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { ChangeDetectorRef, Component, ContentChild, effect, Inject, model, TemplateRef } from "@angular/core";
+import { ChangeDetectorRef, Component, ContentChild, effect, Inject, input, model, output, TemplateRef, } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -7,6 +7,7 @@ import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
 import { filter, take } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
+
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -33,13 +34,15 @@ import { JsCalendar } from "./js-calendar-task";
         FlatWidgetButtonComponent,
         NgxSpinnerModule,
     ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-        DatePipe,
-    ],
+    providers: [{ provide: DataService, useClass: LiveDataService }, DatePipe],
 })
 export class ScheduleComponent extends AbstractModal {
     @ContentChild(TemplateRef) public content!: TemplateRef<any>;
+    protected tasks = output<JsCalendar.Task[]>();
+    protected sectionTitle = input<string | null>(null);
+    protected taskFilter = input<(task: JsCalendar.Task) => boolean>(
+        () => true,
+    );
     protected payload = model(new JsCalendar.BaseOpenEMSPayload());
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected spinnerId: string = uuidv4();
@@ -49,18 +52,30 @@ export class ScheduleComponent extends AbstractModal {
         @Inject(Websocket) protected override websocket: Websocket,
         @Inject(ActivatedRoute) protected override route: ActivatedRoute,
         @Inject(Service) protected override service: Service,
-        @Inject(ModalController) public override modalController: ModalController,
-        @Inject(TranslateService) protected override translate: TranslateService,
+        @Inject(ModalController)
+        public override modalController: ModalController,
+        @Inject(TranslateService)
+        protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
         public override ref: ChangeDetectorRef,
     ) {
-        super(websocket, route, service, modalController, translate, formBuilder, ref);
+        super(
+            websocket,
+            route,
+            service,
+            modalController,
+            translate,
+            formBuilder,
+            ref,
+        );
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
-            for (const { lang, translation, shouldMerge } of translations) {
-                translate.setTranslation(lang, translation, shouldMerge);
-            }
-        });
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
+            (translations) => {
+                for (const { lang, translation, shouldMerge } of translations) {
+                    translate.setTranslation(lang, translation, shouldMerge);
+                }
+            },
+        );
 
         effect(() => {
             const edge = this.service.currentEdge();
@@ -69,32 +84,50 @@ export class ScheduleComponent extends AbstractModal {
             }
 
             const config = edge.getConfigSignal()();
-            if (config == null || this.isInitialized == false || this.component == null) {
+            if (
+                config == null ||
+                this.isInitialized == false ||
+                this.component == null
+            ) {
                 return;
             }
             this.onIsInitialized();
         });
     }
 
-    public static translateRecurrence(recurrenceRule: JsCalendar.Task["recurrenceRules"], translate: TranslateService): string {
-        return recurrenceRule.map(el => {
-            switch (el.frequency) {
-                case "daily": return translate.instant("JS_SCHEDULE.FREQ.DAILY");
-                case "weekly": return translate.instant("JS_SCHEDULE.FREQ.WEEKLY");
-                case "monthly": return translate.instant("JS_SCHEDULE.FREQ.MONTHLY");
-                case "yearly": return translate.instant("JS_SCHEDULE.FREQ.YEARLY");
-                default: return;
-            }
-        }).join(",");
+    public static translateRecurrence(
+        recurrenceRule: JsCalendar.Task["recurrenceRules"],
+        translate: TranslateService,
+    ): string {
+        return recurrenceRule
+            .map((el) => {
+                switch (el.frequency) {
+                    case "daily":
+                        return translate.instant("JS_SCHEDULE.FREQ.DAILY");
+                    case "weekly":
+                        return translate.instant("JS_SCHEDULE.FREQ.WEEKLY");
+                    case "monthly":
+                        return translate.instant("JS_SCHEDULE.FREQ.MONTHLY");
+                    case "yearly":
+                        return translate.instant("JS_SCHEDULE.FREQ.YEARLY");
+                    default:
+                        return;
+                }
+            })
+            .join(",");
     }
-
 
     public override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                res();
-            });
+            this.route.params
+                .pipe(
+                    filter((params) => params != null),
+                    take(1),
+                )
+                .subscribe((params) => {
+                    this.component = config.getComponent(params.componentId);
+                    res();
+                });
         });
     }
 
@@ -102,27 +135,41 @@ export class ScheduleComponent extends AbstractModal {
         AssertionUtils.assertIsDefined(this.component);
         const payload = this.payload();
         this.service.startSpinner(this.spinnerId);
-        this.edge?.sendRequest<JsCalendar.GetAllTasksResponse>(this.websocket, new ComponentJsonApiRequest({
-            componentId: this.component.id,
-            payload: new GetAllTasks(),
-        })
-        ).then((resp) => {
-            this.canWrite = payload.canWrite(this.edge);
-            const newSchedule = resp.result.tasks.map(item => {
-                return {
-                    uid: item.uid,
-                    start: item.start,
-                    end: JsCalendar.Utils.calculateEndTimeFromDuration(item?.start ?? null, item?.duration ?? null),
-                    durationText: "",
-                    recurrenceText: this.parseRecurrence(item),
-                    recurrenceRules: item.recurrenceRules ?? [],
-                    payloadText: payload.toPayloadText(this.translate)(item),
-                } as JsCalendar.ScheduleVM;
+        this.edge
+            ?.sendRequest<JsCalendar.GetAllTasksResponse>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: this.component.id,
+                    payload: new GetAllTasks(),
+                }),
+            )
+            .then((resp) => {
+                this.canWrite = payload.canWrite(this.edge);
+                this.tasks.emit(resp.result.tasks);
+                const newSchedule = resp.result.tasks
+                    .filter(this.taskFilter())
+                    .map((item) => {
+                        return {
+                            uid: item.uid,
+                            start: item.start,
+                            end: JsCalendar.Utils.calculateEndTimeFromDuration(
+                                item?.start ?? null,
+                                item?.duration ?? null,
+                            ),
+                            durationText: "",
+                            recurrenceText: this.parseRecurrence(item),
+                            recurrenceRules: item.recurrenceRules ?? [],
+                            payloadText: payload.toPayloadText(this.translate)(
+                                item,
+                            ),
+                        } as JsCalendar.ScheduleVM;
+                    });
+
+                this.schedule.set(newSchedule);
+            })
+            .finally(() => {
+                this.service.stopSpinner(this.spinnerId);
             });
-            this.schedule.set(newSchedule);
-        }).finally(() => {
-            this.service.stopSpinner(this.spinnerId);
-        });
     }
 
     protected override getFormGroup(): FormGroup {
@@ -131,7 +178,9 @@ export class ScheduleComponent extends AbstractModal {
         });
     }
     private parseRecurrence(item: JsCalendar.Task): string {
-        return ScheduleComponent.translateRecurrence(item.recurrenceRules ?? [], this.translate);
+        return ScheduleComponent.translateRecurrence(
+            item.recurrenceRules ?? [],
+            this.translate,
+        );
     }
 }
-

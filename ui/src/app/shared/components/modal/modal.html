@@ -24,7 +24,8 @@
 
       <ng-content select="[button]"></ng-content>
       @if (helpKey) {
-        <oe-help-button [key]="helpKey" [useDefaultPrefix]="(useDefaultPrefix === undefined) ? useDefaultPrefix : true"></oe-help-button>
+        <oe-help-button [key]="helpKey"
+          [useDefaultPrefix]="(useDefaultPrefix === undefined) ? useDefaultPrefix : true"></oe-help-button>
       }
 
       <ion-button (keydown.enter)="modalController.dismiss()" tabindex="0" (click)="modalController.dismiss()">
@@ -63,7 +64,7 @@
   <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
   @if (formGroup?.dirty) {
     <ion-fab vertical="bottom" style="position: fixed"
-      [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+      [horizontal]="this.service.getIsSmartphoneResolution() ? 'end':'center'">
       <ion-fab-button (click)="applyChanges()">
         <ion-icon size="large" name="oe-checkmark">
         </ion-icon>

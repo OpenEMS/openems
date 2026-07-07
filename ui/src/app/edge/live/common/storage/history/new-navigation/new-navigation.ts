@@ -5,6 +5,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { StorageTotalChartComponent } from "../chart/totalchart";
 
 @Component({
+    selector: "oe-common-storage-history",
     templateUrl: "./new-navigation.html",
     standalone: true,
     imports: [

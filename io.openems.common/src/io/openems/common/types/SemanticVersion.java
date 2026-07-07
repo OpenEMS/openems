@@ -1,5 +1,7 @@
 package io.openems.common.types;
 
+import java.util.Optional;
+
 public record SemanticVersion(int major, int minor, int patch, String additional) {
 
 	/**
@@ -99,6 +101,21 @@ public record SemanticVersion(int major, int minor, int patch, String additional
 			return true;
 		}
 		return this.additional.compareTo(o.additional) >= 0;
+	}
+
+	/**
+	 * Creates a {@link SemanticVersion} from three Integer that can be null.
+	 *
+	 * @param major N.X.X
+	 * @param minor X.N.X
+	 * @param patch X.X.N
+	 * @return the version
+	 */
+	public static Optional<SemanticVersion> fromNullable(Integer major, Integer minor, Integer patch) {
+		if (major == null || minor == null || patch == null) {
+			return Optional.empty();
+		}
+		return Optional.of(new SemanticVersion(major, minor, patch));
 	}
 
 	@Override

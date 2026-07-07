@@ -48,6 +48,7 @@ import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.common.RuntimeChannels;
 import io.openems.edge.ess.generic.common.RuntimeChannelsProvider;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection;
 import io.openems.edge.ess.generic.symmetric.statemachine.Context;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine;
 import io.openems.edge.ess.power.api.Power;
@@ -70,9 +71,9 @@ public class EssGenericManagedSymmetricImpl
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericManagedSymmetricImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
-	private final ChannelManager channelManager = new ChannelManager(this);
+	private final RuntimeChannelsProvider runtimeChannelsProvider = new RuntimeChannelsProvider(this);
 
-	protected final RuntimeChannelsProvider runtimeChannelsProvider = new RuntimeChannelsProvider(this);
+	private ChannelManager channelManager;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -114,6 +115,8 @@ public class EssGenericManagedSymmetricImpl
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.channelManager = new ChannelManager(this, config.essProtection());
+
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
 		this.config = config;

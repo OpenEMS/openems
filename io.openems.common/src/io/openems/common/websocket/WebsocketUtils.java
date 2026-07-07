@@ -55,7 +55,7 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshakedata the {@link Handshakedata}
-	 * @param header		the header to search for
+	 * @param header        the header to search for
 	 * @return the field value as optional; empty if not found
 	 */
 	public static Optional<String> getAsOptionalString(Handshakedata handshakedata, CommonHttpHeader header) {
@@ -71,11 +71,11 @@ public class WebsocketUtils {
 	 * "Field names are case-insensitive".
 	 *
 	 * @param handshakedata the {@link Handshakedata}
-	 * @param header     	the header to search for
+	 * @param header        the header to search for
 	 * @return the field value as optional; empty if not found or not a valid UUID
 	 */
 	public static Optional<UUID> getAsOptionalUuid(Handshakedata handshakedata, CommonHttpHeader header) {
-		return getAsOptionalString(handshakedata, header)
+		return getAsOptionalString(handshakedata, header) //
 				.map((raw) -> {
 					try {
 						return UUID.fromString(raw);
