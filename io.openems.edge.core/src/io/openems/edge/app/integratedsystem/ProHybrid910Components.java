@@ -2,6 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.enums.Parity;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.energy.api.LogVerbosity;
@@ -69,19 +70,22 @@ public class ProHybrid910Components {
 	 * Creates a default modbus component for a FENECON Pro Hybrid 9-10.
 	 *
 	 * @param modbusId the id of the modbus component
+	 * @param t        the current {@link ConfigurationTarget}
 	 * @return the {@link ComponentDef}
 	 */
 	public static ComponentDef modbus(//
-			final String modbusId //
+			final String modbusId, //
+			final ConfigurationTarget t //
 	) {
 		return new ComponentDef(modbusId, modbusId, "Bridge.Modbus.Serial", //
 				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 						.addProperty("baudRate", 9600) //
 						.addProperty("databits", 8) //
-						.addProperty("invalidateElementsAfterReadErrors", 1) //
+						.onlyIf(t == ConfigurationTarget.ADD,
+								b -> b.addProperty("invalidateElementsAfterReadErrors", 1)) //
 						.addProperty("logVerbosity", LogVerbosity.NONE) //
 						.addProperty("parity", Parity.NONE) //
-						.addProperty("portName", "/dev/ttyUSB0") //
+						.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("portName", "/dev/ttyUSB0")) //
 						.addProperty("stopbits", "ONE") //
 						.build()), //
 				ComponentDef.Configuration.defaultConfig());

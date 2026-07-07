@@ -35,7 +35,7 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
                 new ChannelAddress("_sum", "EssSoc"), new ChannelAddress("_sum", "EssActivePower"),
                 ...essMinMaxChannels,
                 // Grid
-                new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMinActivePower"), new ChannelAddress("_sum", "GridMaxActivePower"), new ChannelAddress("_sum", "GridMode"),
+                new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMinActivePower"), new ChannelAddress("_sum", "GridMaxActivePower"), new ChannelAddress("_sum", "GridMode"), new ChannelAddress("_sum", "GridBuyPrice"),
                 // Production
                 new ChannelAddress("_sum", "ProductionActivePower"), new ChannelAddress("_sum", "ProductionDcActualPower"), new ChannelAddress("_sum", "ProductionAcActivePower"), new ChannelAddress("_sum", "ProductionMaxActivePower"),
                 // Consumption

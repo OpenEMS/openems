@@ -8,7 +8,7 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedSelfConsumption } from "../shared/shared";
 
 @Component({
-    selector: "oe-common-selfconsumption-new-navigation",
+    selector: "oe-common-selfconsumption",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

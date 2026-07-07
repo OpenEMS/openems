@@ -2,9 +2,9 @@ package io.openems.edge.meter.api;
 
 import static io.openems.edge.common.test.TestUtils.activateNextProcessImage;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateCurrentsFromActivePowerAndVoltage;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.meter.test.DummyElectricityMeter;
 
@@ -197,6 +197,16 @@ public class ElectricityMeterTest {
 	public void testCalculateCurrentsFromActivePowerAndNullVoltage() {
 		var sut = prepareTestCalculateCurrentsStep1(null);
 		prepareTestCalculateCurrentsStep2(sut, null);
+
+		assertEquals(4329, sut.getCurrentL1().get().intValue());
+		assertEquals(8620, sut.getCurrentL2().get().intValue());
+		assertEquals(null, sut.getCurrentL3().get());
+	}
+
+	@Test
+	public void testCalculateCurrentsFromActivePowerVoltageZero() {
+		var sut = prepareTestCalculateCurrentsStep1(0);
+		prepareTestCalculateCurrentsStep2(sut, 0);
 
 		assertEquals(4329, sut.getCurrentL1().get().intValue());
 		assertEquals(8620, sut.getCurrentL2().get().intValue());

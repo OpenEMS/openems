@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -29,12 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
 import io.jenetics.EliteSelector;
-import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Mutator;
 import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
-import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
@@ -47,7 +45,6 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
-import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 
@@ -147,18 +144,15 @@ public class Simulator {
 			return;
 		}
 
-		var eshsWithDifferentModesIndex = 0;
+		// Simulate period
+		int modeIndex = 0;
 		for (var esh : eshs) {
 			try {
 				var csc = cscs.get(esh);
 				switch (esh) {
 				case EnergyScheduleHandler.WithDifferentModes e -> {
-					final var modeIndex = e.modes().isEmpty() //
-							? -1 // none available
-							: Optional.ofNullable(modeCombination.mode(eshsWithDifferentModesIndex++)) //
-									.map(Mode::index) //
-									.orElse(-1); // none available
-					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final int preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
 
 					if (bsc == null) {
 						e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
@@ -180,6 +174,26 @@ public class Simulator {
 		}
 
 		final EnergyFlow energyFlow = ef.solve();
+
+		// Evaluate period
+		modeIndex = 0;
+		for (var esh : eshs) {
+			try {
+				var csc = cscs.get(esh);
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentModes e -> {
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final var preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
+					e.evaluate(period, gsc, csc, energyFlow, preProcessedMode, fitness, bsc != null);
+				}
+				case EnergyScheduleHandler.WithOnlyOneMode e -> //
+					e.evaluate(period, gsc, csc, energyFlow, fitness);
+				}
+			} catch (RuntimeException e) {
+				throw new RuntimeException("Error during evaluation of [" + esh.getParentId() + "] " //
+						+ "Period [" + period.index() + "/" + period.time() + "]: " + e.getMessage(), e);
+			}
+		}
 
 		// Evaluate Grid-Buy Soft-Limit
 		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
@@ -278,7 +292,6 @@ public class Simulator {
 
 		// Build the Jenetics Engine
 		final var initialPopulation = generateInitialPopulation(codec);
-		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
 				.builder(gt -> {
@@ -287,15 +300,12 @@ public class Simulator {
 							this.normalizedEshModePreferenceRanks);
 					return result.build();
 				}, codec) //
-				.selector(//
-						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
-								new TournamentSelector<>(3)))
+				.selector(new EliteSelector<IntegerGene, Fitness>(new TournamentSelector<>()))//
 				.alterers(//
-						new ShiftMutator<>(), //
-						new ShuffleMutator<>(), //
-						new SinglePointCrossover<>(), //
-						new GaussianMutator<>()) //
-				.populationSize(populationSize) //
+						new Mutator<>(0.05), //
+						new ShiftMutator<>(0.2), //
+						new SinglePointCrossover<>(0.2)) //
+				.populationSize(300) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {
@@ -399,6 +409,19 @@ public class Simulator {
 		}
 
 		return penalty;
+	}
+
+	private static int resolveModeIndex(//
+			EnergyScheduleHandler.WithDifferentModes esh, //
+			ModeCombination modeCombination, //
+			int index) {
+		if (esh.modes().isEmpty()) {
+			return -1;
+		}
+
+		return Optional.ofNullable(modeCombination.mode(index))//
+				.map(ModeCombinations.Mode::index)//
+				.orElse(-1);
 	}
 
 	/**

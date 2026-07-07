@@ -43,6 +43,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractGenericManagedEss;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.offgrid.statemachine.Context;
 import io.openems.edge.ess.generic.offgrid.statemachine.StateMachine;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
@@ -67,10 +68,11 @@ public class EssGenericOffGridImpl
 
 	private final Logger log = LoggerFactory.getLogger(EssGenericOffGridImpl.class);
 	private final StateMachine stateMachine = new StateMachine(UNDEFINED);
-	private final ChannelManager channelManager = new ChannelManager(this);
 	private final AtomicBoolean fromOffToOnGrid = new AtomicBoolean(false);
 	private final AtomicReference<TargetGridMode> targetGridMode = new AtomicReference<>(TargetGridMode.GO_ON_GRID);
 	private final AtomicBoolean targetDeepDischarge = new AtomicBoolean();
+
+	private ChannelManager channelManager;
 
 	@Reference
 	private Cycle cycle;
@@ -107,6 +109,7 @@ public class EssGenericOffGridImpl
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.channelManager = new ChannelManager(this, EssProtectionConfig.NONE);
 		super.activate(context, config.id(), config.alias(), config.enabled(), this.cm, config.batteryInverter_id(),
 				config.battery_id(), config.startStop());
 

@@ -6,15 +6,15 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.cluster.RunUtils.calculate;
 import static io.openems.edge.controller.evse.cluster.RunUtils.findFirstEntryWithSameSetPoint;
+import static io.openems.edge.controller.evse.single.Mode.FORCE;
+import static io.openems.edge.controller.evse.single.Mode.MINIMUM;
+import static io.openems.edge.controller.evse.single.Mode.SURPLUS;
+import static io.openems.edge.controller.evse.single.Mode.ZERO;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
-import static io.openems.edge.evse.api.chargepoint.Mode.FORCE;
-import static io.openems.edge.evse.api.chargepoint.Mode.MINIMUM;
-import static io.openems.edge.evse.api.chargepoint.Mode.SURPLUS;
-import static io.openems.edge.evse.api.chargepoint.Mode.ZERO;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,15 +31,16 @@ import io.openems.common.test.TimeLeapClock;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.controller.evse.TestUtils;
 import io.openems.edge.controller.evse.TestUtils.CtrlBuilder;
-import io.openems.edge.controller.evse.cluster.EnergyScheduler.SingleModes;
 import io.openems.edge.controller.evse.cluster.RunUtils.PowerDistribution;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.PhaseSwitching;
 import io.openems.edge.controller.evse.single.Types.History;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
-public class RunUtilsTest {
+class RunUtilsTest {
 
 	protected static class CalculateTester {
 
@@ -53,7 +54,8 @@ public class RunUtilsTest {
 
 			return new CalculateTester(clock, IntStream.range(0, count) //
 					.<CtrlBuilder>mapToObj(i -> TestUtils.createSingleCtrl() //
-							.setId("evse" + i) //
+							.setCtrlSingleId("ctrlEvseSingle" + i) //
+							.setChargePointId("evseChargePoint" + i) //
 							.setMode(ZERO) //
 							.setActivePower(0) //
 							.setHistory(history) //
@@ -118,7 +120,7 @@ public class RunUtilsTest {
 					this.ctrls.stream() //
 							.<ControllerEvseSingle>map(CtrlBuilder::build) //
 							.toList(), //
-					new SingleModes(ImmutableMap.of()), //
+					new JointModes.JointMode<Mode>(ImmutableMap.of(), true, null), //
 					LogVerbosity.NONE, log -> doNothing()));
 		}
 
@@ -136,8 +138,13 @@ public class RunUtilsTest {
 					return ((ApplySetPoint.Action.Watt) this.entry.actions.build().applySetPoint()).value();
 				}
 
-				protected PhaseSwitch getPhaseSwitch() {
-					return this.entry.actions.build().phaseSwitch();
+				protected PhaseSwitchDirection getPhaseSwitchDirection() {
+					final var phaseSwitch = this.entry.actions.build().phaseSwitch();
+					if (phaseSwitch == null) {
+						return null;
+					}
+
+					return phaseSwitch.direction();
 				}
 			}
 
@@ -154,7 +161,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test1() {
+	void test1() {
 		var ct = CalculateTester.generateControllers(5); //
 		final var history = new History();
 		history.addEntry(Instant.now(ct.clock), null, 10000 /* [W] */, false);
@@ -203,7 +210,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test2() {
+	void test2() {
 		var sut = CalculateTester.generateControllers(5) //
 				.set(0, 4, c -> c //
 						.setMode(FORCE)) //
@@ -215,28 +222,28 @@ public class RunUtilsTest {
 
 		assertArrayEquals(new int[] { 16000, 6000, 6000, 6000, 16000 }, sut.getApplySetPoints());
 	}
-	
+
 	@Test
-	public void testMinimumWithSurplus() {
+	void testMinimumWithSurplus() {
 		var sut = CalculateTester.generateControllers(3) //
 				.set(0, c -> c //
 						.setMode(FORCE)) //
-				.set(1, 2, c -> 
-						c.setMode(MINIMUM)) //
+				.set(1, 2, c -> c //
+						.setMode(MINIMUM)) //
 				.sum(s -> s //
 						.withGridActivePower(-27000)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
 		assertArrayEquals(new int[] { 16000, 11565, 11565 }, sut.getApplySetPoints());
 	}
-	
+
 	@Test
-	public void testMinimumWithoutSurplus() {
+	void testMinimumWithoutSurplus() {
 		var sut = CalculateTester.generateControllers(4) //
 				.set(0, 3, c -> c //
 						.setMode(FORCE)) //
-				.set(1, 2, c -> 
-						c.setMode(MINIMUM)) //
+				.set(1, 2, c -> c //
+						.setMode(MINIMUM)) //
 				.sum(s -> s //
 						.withGridActivePower(0)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
@@ -245,7 +252,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test3() {
+	void test3() {
 		var sut = CalculateTester.generateControllers(5) //
 				.set(1, c -> c //
 						.setChargePointAbilities(cp -> cp //
@@ -264,7 +271,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test4() {
+	void test4() {
 		var sut = CalculateTester.generateControllers(5) //
 				.set(1, c -> c //
 						.setChargePointAbilities(cp -> cp //
@@ -283,12 +290,12 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test5() {
+	void test5() {
 		var sut = CalculateTester.generateControllers(5) //
 				.set(0, c -> c //
 						.setChargePointAbilities(cp -> cp //
 								.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SINGLE_PHASE, 6, 16)) //
-								.setPhaseSwitch(PhaseSwitch.TO_THREE_PHASE)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
 						.setElectricVehicleAbilities(ev -> ev //
 								.setCanInterrupt(true))) //
 				.setAll(c -> c //
@@ -296,12 +303,12 @@ public class RunUtilsTest {
 						.setPhaseSwitching(PhaseSwitching.FORCE_THREE_PHASE)) //
 				.execute(DistributionStrategy.EQUAL_POWER);
 
-		assertEquals(PhaseSwitch.TO_THREE_PHASE, sut.get(0).getPhaseSwitch());
-		assertNull(sut.get(1).getPhaseSwitch());
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, sut.get(0).getPhaseSwitchDirection());
+		assertNull(sut.get(1).getPhaseSwitchDirection());
 	}
 
 	@Test
-	public void test6() {
+	void test6() {
 		var sut = CalculateTester.generateControllers(2) //
 				.set(0, c -> c //
 						.setMode(FORCE) //
@@ -317,7 +324,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test7() {
+	void test7() {
 		final var history = new History();
 		var sut = CalculateTester.generateControllers(5) //
 				.set(0, c -> c //
@@ -343,7 +350,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test8() {
+	void test8() {
 		var sut = CalculateTester.generateControllers(2) //
 				.sum(s -> s //
 						.withGridActivePower(-29000)) //
@@ -365,7 +372,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void test9() {
+	void test9() {
 		var sut = CalculateTester.generateControllers(2) //
 				.sum(s -> s //
 						.withGridActivePower(-29000)) //
@@ -387,7 +394,7 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void testApplyChangeLimitWithHistory() {
+	void testApplyChangeLimitWithHistory() {
 		final var clock = createDummyClock();
 		final var history = new History();
 		var setPointInWatt = 10_000; // 10kW
@@ -396,7 +403,6 @@ public class RunUtilsTest {
 		clock.leap(1, ChronoUnit.SECONDS);
 
 		final var ctrl = TestUtils.createSingleCtrl() //
-				.setId("evse0") //
 				.setMode(SURPLUS) //
 				.setHistory(history) //
 				.setChargePointAbilities(cp -> cp //
@@ -412,13 +418,12 @@ public class RunUtilsTest {
 	}
 
 	@Test
-	public void testApplyChangeLimitWithoutHistory() {
+	void testApplyChangeLimitWithoutHistory() {
 		final var clock = createDummyClock();
 		final var noHistory = new History();
 		clock.leap(1, ChronoUnit.SECONDS);
 		var minSetPoint = 6 * SINGLE_PHASE.count * 230; // 6A * 1 Phase * 230 V = 1380W
 		final var ctrl = TestUtils.createSingleCtrl() //
-				.setId("evse0") //
 				.setMode(SURPLUS) //
 				.setHistory(noHistory) //
 				.setChargePointAbilities(cp -> cp //
@@ -434,11 +439,12 @@ public class RunUtilsTest {
 	}
 
 	/**
-	 * test verifies that the first entry with same set point as the last one is returned.
+	 * test verifies that the first entry with same set point as the last one is
+	 * returned.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_1() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_1() {
+		// GIVEN
 		final var clock = createDummyClock();
 		final var activePower = 123;
 		History history = new History();
@@ -448,41 +454,41 @@ public class RunUtilsTest {
 		clock.leap(1, ChronoUnit.SECONDS);
 		var lastNow = Instant.now(clock);
 		history.addEntry(lastNow, activePower, 6, true);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(firstNow, firstEntryWithSameSetPoint.getKey());
 	}
 
 	/**
-	 * test verifies that the last entry is returned when no previous entry with same set point exists.
+	 * test verifies that the last entry is returned when no previous entry with
+	 * same set point exists.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_2() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_2() {
+		// GIVEN
 		final var activePower = 123;
 		final var clock = createDummyClock();
 		History history = new History();
 		var firstNow = Instant.now(clock);
 		history.addEntry(firstNow, activePower, 6, true);
-		addEntriesToTheHistory(clock, history, 10, 6,activePower);
+		addEntriesToTheHistory(clock, history, 10, 6, activePower);
 		clock.leap(1, ChronoUnit.SECONDS);
 		var lastNow = Instant.now(clock);
 		history.addEntry(lastNow, activePower, 7, true);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(lastNow, firstEntryWithSameSetPoint.getKey());
 	}
 
-
 	/**
-	 * test verifies that entries with set point different from the last one are skipped
-	 * and ignore intermediate entries with same set point.
+	 * test verifies that entries with set point different from the last one are
+	 * skipped and ignore intermediate entries with same set point.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_3() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_3() {
+		// GIVEN
 		final var activePower = 123;
 		final var clock = createDummyClock();
 		History history = new History();
@@ -491,9 +497,9 @@ public class RunUtilsTest {
 		addEntriesToTheHistory(clock, history, 10, 6, activePower);
 		addEntriesToTheHistory(clock, history, 10, 7, activePower);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(now, firstEntryWithSameSetPoint.getKey());
 	}
 
@@ -501,17 +507,17 @@ public class RunUtilsTest {
 	 * test verifies that entries with activePower == 0 are skipped.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_4() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_4() {
+		// GIVEN
 		final var activePower = 123;
 		final var zeroActivePower = 0;
 		final var clock = createDummyClock();
 		History history = new History();
 		addEntriesToTheHistory(clock, history, 300, 6, zeroActivePower);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(now, firstEntryWithSameSetPoint.getKey());
 	}
 
@@ -519,17 +525,17 @@ public class RunUtilsTest {
 	 * test verifies that entries with activePower == null are skipped.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_5() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_5() {
+		// GIVEN
 		final var activePower = 123;
 		final Integer nullActivePower = null;
 		final var clock = createDummyClock();
 		History history = new History();
 		addEntriesToTheHistory(clock, history, 300, 6, nullActivePower);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(now, firstEntryWithSameSetPoint.getKey());
 	}
 
@@ -537,8 +543,8 @@ public class RunUtilsTest {
 	 * test verifies that entries with isReadyForCharging == false are skipped.
 	 */
 	@Test
-	public void testFindFirstEntryWithSameSetPoint_6() {
-		//GIVEN
+	void testFindFirstEntryWithSameSetPoint_6() {
+		// GIVEN
 		final var isReadyForCharging = false;
 		final var activePower = 123;
 		final Integer nullActivePower = null;
@@ -548,20 +554,22 @@ public class RunUtilsTest {
 		clock.leap(1, ChronoUnit.SECONDS);
 		history.addEntry(Instant.now(clock), activePower, 6, isReadyForCharging);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
-		//WHEN
+		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
-		//THEN
+		// THEN
 		assertEquals(now, firstEntryWithSameSetPoint.getKey());
 	}
 
-	private Instant addEntryToTheHistoryAfterOneSecond(TimeLeapClock clock, History history, int setPoint, Integer activePower) {
+	private Instant addEntryToTheHistoryAfterOneSecond(TimeLeapClock clock, History history, int setPoint,
+			Integer activePower) {
 		clock.leap(1, ChronoUnit.SECONDS);
 		var now = Instant.now(clock);
 		history.addEntry(now, activePower, setPoint, true);
 		return now;
 	}
 
-	private static void addEntriesToTheHistory(TimeLeapClock clock, History history, int amountOfEntries, int setPointInWatt, Integer activePower) {
+	private static void addEntriesToTheHistory(TimeLeapClock clock, History history, int amountOfEntries,
+			int setPointInWatt, Integer activePower) {
 		for (int cycle = 0; cycle < amountOfEntries; cycle++) {
 			clock.leap(1, ChronoUnit.SECONDS);
 			history.addEntry(Instant.now(clock), activePower, setPointInWatt, true);

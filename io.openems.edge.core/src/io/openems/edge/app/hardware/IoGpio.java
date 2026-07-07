@@ -54,7 +54,7 @@ public class IoGpio extends AbstractOpenemsAppWithProps<IoGpio, Property, Parame
 
 		ALIAS(alias()), //
 		HARDWARE_TYPE(AppDef.copyOfGeneric(defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".hardwareType.label") //
+				.setTranslatedLabel("App.Hardware.hardwareType.label") //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
 					field.setOptions(Arrays.stream(GpioHardwareType.values())//
 							.map(Enum::name)//

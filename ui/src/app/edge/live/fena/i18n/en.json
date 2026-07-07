@@ -1,0 +1,5 @@
+{
+    "FENA": {
+        "ELECTRICITY_PRICES_SUMMARY": "Your electricity prices:<br/>The highest is <strong>{{maxPrice}}</strong> at {{maxTime}}.<br/>The lowest is <strong>{{minPrice}}</strong> at {{minTime}}."
+    }
+}

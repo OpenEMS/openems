@@ -38,7 +38,6 @@ export class ChartOptionsComponent {
             translucent: false,
             componentProps: componentProps,
         });
-        await popover.present();
         popover.onDidDismiss().then((data) => {
             if (data["role"] == "Phases" && data["data"] == true) {
                 this.setShowPhases.emit(true);
