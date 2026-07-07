@@ -1,9 +1,9 @@
 package io.openems.edge.victron.battery;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
@@ -11,7 +11,7 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
-public class VictronCanBusBatteryImplTest {
+public class VictronBatteryImplTest {
 
 	private static final String BATTERY_ID = "battery0";
 	private static final String MODBUS_ID = "modbus0";
@@ -21,9 +21,14 @@ public class VictronCanBusBatteryImplTest {
 	private static final ChannelAddress BATTERY_VOLTAGE = new ChannelAddress(BATTERY_ID, "Voltage");
 	private static final ChannelAddress BATTERY_CURRENT = new ChannelAddress(BATTERY_ID, "Current");
 
-	@Test
-	public void test() throws Exception {
-		new ComponentTest(new VictronBatteryImpl()) //
+	/**
+	 * Creates a {@link ComponentTest} for a {@link VictronBatteryImpl}.
+	 * 
+	 * @return a test
+	 * @throws Exception on error
+	 */
+	public static ComponentTest createVictronBattery() throws Exception {
+		return new ComponentTest(new VictronBatteryImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						.withRegisters(259,
@@ -203,7 +208,12 @@ public class VictronCanBusBatteryImplTest {
 						.setModbusId(MODBUS_ID) //
 						.setEssId(ESS_ID) //
 						.setDebugMode(false) //
-						.build()) //
+						.build());
+	}
+
+	@Test
+	public void test() throws Exception {
+		createVictronBattery() //
 				.next(new TestCase()) // First cycle to read registers
 				.next(new TestCase() //
 						.output(BATTERY_SOC, 85) //
@@ -215,7 +225,7 @@ public class VictronCanBusBatteryImplTest {
 	public void testChannelIds() {
 		var channelIds = VictronBattery.ChannelId.values();
 		for (var channelId : channelIds) {
-			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull(channelId.doc(), "ChannelId " + channelId.name() + " should have a doc");
 		}
 	}
 
