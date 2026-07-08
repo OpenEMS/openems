@@ -22,7 +22,8 @@ export namespace SharedSelfConsumption {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: "true",
+        useDefaultPrefix: false,
+        isCommonWidget: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {
@@ -51,6 +52,6 @@ export namespace SharedSelfConsumption {
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree("selfconsumption", { baseString: "common/selfconsumption" }, { name: "oe-selfconsumption", color: "normal" }, translate.instant("GENERAL.SELF_CONSUMPTION"), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-        ], null, "LOW").toConstructorParams();
+        ], null).toConstructorParams();
     }
 }

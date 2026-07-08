@@ -34,6 +34,9 @@ public class Cache {
 	 * @return the Edge-ID or null if authentication failed
 	 */
 	public String authenticateApikey(String apikey) {
+		if (apikey == null || apikey.isBlank()) {
+			return null;
+		}
 		return this.metadata.getApikeysToEdgeIds().get(apikey);
 	}
 }

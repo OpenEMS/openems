@@ -92,4 +92,14 @@ public class BatteryProtectionDefinition implements io.openems.edge.battery.prot
 	public PolyLine getDischargeSocToPercent() {
 		return PolyLine.empty();
 	}
+
+	@Override
+	public boolean isChargeAllowed() {
+		return true;
+	}
+
+	@Override
+	public boolean isDischargeAllowed() {
+		return true;
+	}
 }

@@ -1,8 +1,8 @@
 package io.openems.edge.energy.optimizer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SimulationResultTest {
 
@@ -38,6 +38,6 @@ public class SimulationResultTest {
 				m00, m11, m20 //
 		}, 0, 0);
 
-		assertEquals(1289006.4, result.fitness().getGridBuyCost(), 0.1);
+		assertEquals(1289006.4, result.fitness().gridBuyCostScore(), 0.1);
 	}
 }

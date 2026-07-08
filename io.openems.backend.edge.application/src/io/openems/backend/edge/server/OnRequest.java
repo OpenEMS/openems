@@ -3,7 +3,6 @@ package io.openems.backend.edge.server;
 import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
 import static io.openems.common.utils.StringUtils.toShortString;
 import static java.util.concurrent.CompletableFuture.failedFuture;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
@@ -37,7 +36,7 @@ public class OnRequest implements io.openems.common.websocket.OnRequest {
 				.startTimer();
 
 		WsData wsData = ws.getAttachment();
-		var edgeId = wsData.getEdgeIdWithTimeout(10, SECONDS);
+		var edgeId = wsData.getEdgeId();
 		if (edgeId == null) {
 			timer.close();
 			return failedFuture(OpenemsError.JSONRPC_SEND_FAILED.exception());

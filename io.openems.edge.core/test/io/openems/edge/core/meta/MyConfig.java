@@ -15,6 +15,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private CurrencyConfig currency;
 		private GridFeedInLimitationType gridFeedInLimitationType = GridFeedInLimitationType.NO_LIMITATION;
 		private boolean isEssChargeFromGridAllowed;
+		private boolean isEssDischargeToGridAllowed;
 		private int maximumGridFeedInLimit = 0;
 		private int gridConnectionPointFuseLimit;
 		private SubdivisionCode subdivisionCode = SubdivisionCode.UNDEFINED;
@@ -36,6 +37,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setIsEssChargeFromGridAllowed(boolean isEssChargeFromGridAllowed) {
 			this.isEssChargeFromGridAllowed = isEssChargeFromGridAllowed;
+			return this;
+		}
+
+		public Builder setIsEssDischargeToGridAllowed(boolean isEssDischargeToGridAllowed) {
+			this.isEssDischargeToGridAllowed = isEssDischargeToGridAllowed;
 			return this;
 		}
 
@@ -133,6 +139,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public boolean isEssChargeFromGridAllowed() {
 		return this.builder.isEssChargeFromGridAllowed;
+	}
+
+	@Override
+	public boolean isEssDischargeToGridAllowed() {
+		return this.builder.isEssDischargeToGridAllowed;
 	}
 
 	@Override

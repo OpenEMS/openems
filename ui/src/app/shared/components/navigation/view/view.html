@@ -1,7 +1,4 @@
 <ion-header (ngDomChange)="onDomChange()">
-  @if (navigationService.position() === 'left') {
-    <oe-navigation-breadcrumbs (navigate)="navigationService.navigateTo($event)"></oe-navigation-breadcrumbs>
-  }
   <ng-content select="[header]"></ng-content>
 </ion-header>
 @if (contentHeight !== null) {

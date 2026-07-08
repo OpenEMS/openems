@@ -1,7 +1,64 @@
-@if(isInitialized){
-  <oe-components-scheduler (schedule)="schedule" [(payload)]="payload">
+@if (isInitialized) {
+  <oe-components-scheduler (schedule)="(schedule)" (tasks)="updateSmartEvents($event)" [(payload)]="payload" [sectionTitle]="isIntersolarSmartEventVisible ? ('JS_SCHEDULE.MANUAL_EVENTS' | translate) : null" [taskFilter]="manualTaskFilter">
     <ng-template let-task="task">
       {{ ("EVSE_SINGLE.SCHEDULE.MODE" | translate) + " " + task.payloadText }}
     </ng-template>
+
+    @if (smartEvents.length > 0) {
+      <ion-grid afterSchedule>
+        <ion-row>
+          <ion-col>
+            <h2 class="ion-margin-bottom">
+              {{ "JS_SCHEDULE.SMART_EVENTS" | translate }}
+            </h2>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          @for (smartEvent of smartEvents; track smartEvent.uid; let last = $last) {
+            <ion-col size-sm="12" size-md="12" size-lg="4">
+              <ion-card>
+                <ion-item lines="full" color="light">
+                  <ion-label>
+                    {{ "EVSE_SINGLE.SCHEDULE.SMART_EVENT_TITLE" | translate: { kwh: smartEvent.sessionEnergyMinimum } }}
+                  </ion-label>
+                </ion-item>
+                <ion-card-content>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col class="ion-text-bold">
+                        {{ "JS_SCHEDULE.END" | translate }}
+                      </ion-col>
+                      <ion-col class="ion-text-align-end">{{ smartEvent.endTime }}</ion-col>
+                    </ion-row>
+                    <ion-row>
+                      <ion-col class="ion-text-bold">
+                        {{ "JS_SCHEDULE.FREQUENCY" | translate }}
+                      </ion-col>
+                      <ion-col class="ion-text-align-end">
+                        {{ smartEvent.recurrenceText }}
+                      </ion-col>
+                    </ion-row>
+                    <ion-row>
+                      <ion-col class="ion-align-items-start">
+                        <oe-flat-button [disabled]="!canWrite" size="small" expand="block" fill="outline">
+                          <ion-icon slot="start" name="pencil-outline"></ion-icon>
+                          {{ "JS_SCHEDULE.EDIT" | translate | uppercase }}
+                        </oe-flat-button>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-card-content>
+              </ion-card>
+              @if (last) {
+                <oe-flat-button [disabled]="!canWrite" size="small">
+                  <ion-icon slot="start" name="add-outline"></ion-icon>
+                  {{ "JS_SCHEDULE.ADD" | translate | uppercase }}
+                </oe-flat-button>
+              }
+            </ion-col>
+          }
+        </ion-row>
+      </ion-grid>
+    }
   </oe-components-scheduler>
 }

@@ -22,8 +22,11 @@ public class GetUpdateState implements EndpointRequestType<Request, Response> {
 
 		public record Running(//
 				int percentCompleted, //
+				int avgDurationInMinutes, //
 				List<String> logs //
 		) implements UpdateState {
+
+			private static final int DEFAULT_AVG_DURATION_IN_MINUTES = 10;
 
 			/**
 			 * Gets the type identifier of this class used for serialization.
@@ -44,12 +47,14 @@ public class GetUpdateState implements EndpointRequestType<Request, Response> {
 				return jsonObjectSerializer(GetUpdateState.UpdateState.Running.class, json -> {
 					return new GetUpdateState.UpdateState.Running(//
 							json.getInt("percentCompleted"), //
+							json.getOptionalInt("avgDurationInMinutes").orElse(DEFAULT_AVG_DURATION_IN_MINUTES), //
 							json.getList("logs", JsonElementPath::getAsString) //
 					);
 				}, obj -> {
 					return JsonUtils.buildJsonObject() //
 							.addProperty("type", Running.getTypeName()) //
 							.addProperty("percentCompleted", obj.percentCompleted()) //
+							.addProperty("avgDurationInMinutes", obj.avgDurationInMinutes()) //
 							.add("logs", obj.logs().stream() //
 									.map(JsonPrimitive::new) //
 									.collect(toJsonArray()))
@@ -125,6 +130,35 @@ public class GetUpdateState implements EndpointRequestType<Request, Response> {
 
 		}
 
+		public record Error(String errorMessage) implements UpdateState {
+
+			/**
+			 * Gets the type identifier of this class used for serialization.
+			 *
+			 * @return the type identifier
+			 */
+			public static String getTypeName() {
+				return "error";
+			}
+
+			/**
+			 * Returns a {@link JsonSerializer} for a
+			 * {@link GetUpdateState.UpdateState.Error}.
+			 *
+			 * @return the created {@link JsonSerializer}
+			 */
+			public static JsonSerializer<GetUpdateState.UpdateState.Error> serializer() {
+				return jsonObjectSerializer(GetUpdateState.UpdateState.Error.class, //
+						json -> new GetUpdateState.UpdateState.Error(//
+								json.getString("errorMessage")), //
+						obj -> JsonUtils.buildJsonObject() //
+								.addProperty("type", Error.getTypeName()) //
+								.addProperty("errorMessage", obj.errorMessage()) //
+								.build());
+			}
+
+		}
+
 		public record Unknown() implements UpdateState {
 
 			/**
@@ -163,6 +197,7 @@ public class GetUpdateState implements EndpointRequestType<Request, Response> {
 					.add(Available.class, Available.serializer(), Available.getTypeName()) //
 					.add(Updated.class, Updated.serializer(), Updated.getTypeName()) //
 					.add(Unknown.class, Unknown.serializer(), Unknown.getTypeName())//
+					.add(Error.class, Error.serializer(), Error.getTypeName()) //
 					.build();
 
 			return jsonSerializer(GetUpdateState.UpdateState.class, json -> {

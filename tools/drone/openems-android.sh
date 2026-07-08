@@ -4,10 +4,10 @@ JAVA_VERSION=21
 NODE_MAJOR=24
 NPM_VERSION=11
 
-ANDROID_SDK_VERSION=11076708
+ANDROID_SDK_VERSION=13114758
 ANDROID_HOME="/opt/android-sdk"
-ANDROID_BUILD_TOOLS_VERSION=34.0.0
-ANDROID_PLATFORMS_VERSION=34
+ANDROID_BUILD_TOOLS_VERSION=35.0.0
+ANDROID_PLATFORMS_VERSION=35
 
 # Build/Update 'openems-android' Container for Drone/Woodpecker CI
 
@@ -32,11 +32,13 @@ ENV ANDROID_HOME="${ANDROID_HOME}"
 
 RUN wget https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip \
     && unzip commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip \
-    && mkdir $ANDROID_HOME && mv cmdline-tools $ANDROID_HOME \
-    && yes | $ANDROID_HOME/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses \
-    && $ANDROID_HOME/cmdline-tools/bin/sdkmanager --sdk_root=$ANDROID_HOME "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-${ANDROID_PLATFORMS_VERSION}"
+    && mkdir -p $ANDROID_HOME/cmdline-tools/latest \
+    && mv cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest \
+    && yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --licenses \
+    && $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME --channel=0 "platform-tools" "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;android-${ANDROID_PLATFORMS_VERSION}" \
+    && rm -f commandlinetools-linux-${ANDROID_SDK_VERSION}_latest.zip
 
-ENV PATH="$PATH:$ANDROID_HOME/cmdline-tools/bin"
+ENV PATH="$PATH:$ANDROID_HOME/cmdline-tools/latest/bin"
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 

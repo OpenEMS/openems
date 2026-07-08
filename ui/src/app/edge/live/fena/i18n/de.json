@@ -1,0 +1,5 @@
+{
+    "FENA": {
+        "ELECTRICITY_PRICES_SUMMARY": "Deine Strompreise:<br/>Der höchste liegt bei <strong>{{maxPrice}}</strong> {{maxTime}} Uhr.<br/>Der niedrigste liegt bei <strong>{{minPrice}}</strong> {{minTime}} Uhr."
+    }
+}

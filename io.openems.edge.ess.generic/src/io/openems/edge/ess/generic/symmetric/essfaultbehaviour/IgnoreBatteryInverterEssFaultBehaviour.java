@@ -6,7 +6,11 @@ public class IgnoreBatteryInverterEssFaultBehaviour implements EssFaultBehaviour
 
 	@Override
 	public boolean hasEssFault(Context context) {
-		return context.getParent().hasFaults() || context.battery.hasFaults();
+		final var essFault = context.getParent().hasFaults();
+		final var batteryFault = context.battery.hasFaults();
+		context.getParent()._setEssFaultDueToBatteryFault(batteryFault);
+		context.getParent()._setEssFaultDueToBatteryInverterFault(false);
+		return essFault || batteryFault;
 	}
 
 	@Override

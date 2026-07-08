@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -29,12 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
 import io.jenetics.EliteSelector;
-import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Mutator;
 import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
-import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
@@ -45,10 +43,8 @@ import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.handler.Fitness;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
-import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 
@@ -86,7 +82,7 @@ public class Simulator {
 		return (int) this.generationsCounter.get();
 	}
 
-	protected static Fitness simulate(//
+	protected static Fitness.Builder simulate(//
 			GlobalOptimizationContext goc, //
 			ModeCombinations modeCombinations, //
 			int[] schedule, //
@@ -102,7 +98,7 @@ public class Simulator {
 		}
 		final var cscs = cscsBuilder.build();
 		final var noOfPeriods = goc.periods().size();
-		final var fitness = new Fitness();
+		final var fitness = Fitness.builder();
 
 		for (var periodIndex = 0; periodIndex < noOfPeriods; periodIndex++) {
 			var modeCombination = modeCombinations.get(schedule[periodIndex]);
@@ -111,7 +107,7 @@ public class Simulator {
 
 		final var modePreferencePenalty = calculateModePreferencePenalty(goc, modeCombinations, schedule,
 				normalizedEshModePreferenceRanks);
-		fitness.setModePreferencePenalty(modePreferencePenalty);
+		fitness.withModePreferencePenalty(modePreferencePenalty);
 
 		final var runLengthCost = calculateRunLengthCost(goc, modeCombinations, schedule);
 		fitness.addSoftConstraintViolation(runLengthCost);
@@ -126,7 +122,7 @@ public class Simulator {
 	 * @param cscs            the ControllerScheduleContexts
 	 * @param periodIndex     the index of the simulated period
 	 * @param modeCombination the {@link ModeCombination} of the simulated period
-	 * @param fitness         the {@link Fitness} result
+	 * @param fitness         the {@link Fitness.Builder} result
 	 * @param bsc             the {@link BestScheduleCollector}; or null
 	 */
 	public static void simulatePeriod(//
@@ -134,7 +130,7 @@ public class Simulator {
 			ImmutableMap<EnergyScheduleHandler, Object> cscs, //
 			int periodIndex, //
 			ModeCombination modeCombination, //
-			Fitness fitness, //
+			Fitness.Builder fitness, //
 			BestScheduleCollector bsc) {
 		final var period = gsc.goc.periods().get(periodIndex);
 		final var eshs = gsc.goc.eshs();
@@ -148,18 +144,15 @@ public class Simulator {
 			return;
 		}
 
-		var eshsWithDifferentModesIndex = 0;
+		// Simulate period
+		int modeIndex = 0;
 		for (var esh : eshs) {
 			try {
 				var csc = cscs.get(esh);
 				switch (esh) {
 				case EnergyScheduleHandler.WithDifferentModes e -> {
-					final var modeIndex = e.modes().isEmpty() //
-							? -1 // none available
-							: Optional.ofNullable(modeCombination.mode(eshsWithDifferentModesIndex++)) //
-									.map(Mode::index) //
-									.orElse(-1); // none available
-					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final int preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
 
 					if (bsc == null) {
 						e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
@@ -182,36 +175,66 @@ public class Simulator {
 
 		final EnergyFlow energyFlow = ef.solve();
 
+		// Evaluate period
+		modeIndex = 0;
+		for (var esh : eshs) {
+			try {
+				var csc = cscs.get(esh);
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentModes e -> {
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final var preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
+					e.evaluate(period, gsc, csc, energyFlow, preProcessedMode, fitness, bsc != null);
+				}
+				case EnergyScheduleHandler.WithOnlyOneMode e -> //
+					e.evaluate(period, gsc, csc, energyFlow, fitness);
+				}
+			} catch (RuntimeException e) {
+				throw new RuntimeException("Error during evaluation of [" + esh.getParentId() + "] " //
+						+ "Period [" + period.index() + "/" + period.time() + "]: " + e.getMessage(), e);
+			}
+		}
+
 		// Evaluate Grid-Buy Soft-Limit
 		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
 			fitness.addHardConstraintViolation();
 		}
 
-		if (period instanceof Period.WithPrice periodWithPrice) {
-			final var price = periodWithPrice.price().actual();
+		// Calculate Grid-Buy metrics
+		if (energyFlow.getGrid() > 0) {
+			final int buyFromGrid = max(0, energyFlow.getGrid());
+			final int chargeEss = max(0, -energyFlow.getEss());
+			final int gridToEss = Math.min(buyFromGrid, chargeEss);
+			final int gridToCons = buyFromGrid - gridToEss;
 
-			// Calculate Grid-Buy Cost
-			if (energyFlow.getGrid() > 0) {
-				int buyFromGrid = max(0, energyFlow.getGrid());
-				int chargeEss = max(0, -energyFlow.getEss());
-				int gridToEss = Math.min(buyFromGrid, chargeEss);
-				int gridToCons = buyFromGrid - gridToEss;
-				fitness.addGridBuyCost(
-						// Cost for direct Consumption
-						gridToCons * price
-								// Cost for future Consumption after storage
-								+ max(0, gridToEss) * price * EFFICIENCY_FACTOR);
-			}
+			period.data().gridBuyPrice().ifPresent(p -> {
+				final double shiftedGridBuyPrice = p.positiveShifted();
 
-			// Calculate Grid-Sell Revenue
-			if (energyFlow.getGrid() < 0) {
-				int sellToGrid = max(0, -energyFlow.getGrid());
-				int dischargeEnergy = max(0, energyFlow.getEss());
-				int essToGrid = Math.min(sellToGrid, dischargeEnergy);
-				fitness.addGridSellRevenue(//
-						// Revenue for Discharge-to-Grid
-						essToGrid * price);
-			}
+				// Cost for direct consumption
+				final double directCost = gridToCons * shiftedGridBuyPrice;
+				// Cost for future consumption after storage
+				final double costWithStorage = gridToEss * shiftedGridBuyPrice * EFFICIENCY_FACTOR;
+
+				fitness.addGridBuyCostScore(directCost + costWithStorage);
+			});
+
+			fitness.addGridBuyEnergyWh(
+					// Energy for direct consumption
+					gridToCons
+							// Energy for future consumption after storage
+							+ gridToEss * EFFICIENCY_FACTOR);
+		}
+
+		// Calculate Grid-Sell metrics
+		if (energyFlow.getGrid() < 0) {
+			final int sellToGrid = max(0, -energyFlow.getGrid());
+
+			period.data().gridSellPrice().ifPresent(p -> {
+				final double gridSellPrice = p.actual();
+				fitness.addGridSellRevenueScore(sellToGrid * gridSellPrice);
+			});
+
+			fitness.addGridSellEnergyWh(sellToGrid);
 		}
 
 		if (bsc != null) {
@@ -269,22 +292,20 @@ public class Simulator {
 
 		// Build the Jenetics Engine
 		final var initialPopulation = generateInitialPopulation(codec);
-		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
 				.builder(gt -> {
 					this.simulationsCounter.incrementAndGet();
-					return simulate(this.goc, this.modeCombinations, gt, null, this.normalizedEshModePreferenceRanks);
+					final var result = simulate(this.goc, this.modeCombinations, gt, null,
+							this.normalizedEshModePreferenceRanks);
+					return result.build();
 				}, codec) //
-				.selector(//
-						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
-								new TournamentSelector<>(3)))
+				.selector(new EliteSelector<IntegerGene, Fitness>(new TournamentSelector<>()))//
 				.alterers(//
-						new ShiftMutator<>(), //
-						new ShuffleMutator<>(), //
-						new SinglePointCrossover<>(), //
-						new GaussianMutator<>()) //
-				.populationSize(populationSize) //
+						new Mutator<>(0.05), //
+						new ShiftMutator<>(0.2), //
+						new SinglePointCrossover<>(0.2)) //
+				.populationSize(300) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {
@@ -388,6 +409,19 @@ public class Simulator {
 		}
 
 		return penalty;
+	}
+
+	private static int resolveModeIndex(//
+			EnergyScheduleHandler.WithDifferentModes esh, //
+			ModeCombination modeCombination, //
+			int index) {
+		if (esh.modes().isEmpty()) {
+			return -1;
+		}
+
+		return Optional.ofNullable(modeCombination.mode(index))//
+				.map(ModeCombinations.Mode::index)//
+				.orElse(-1);
 	}
 
 	/**

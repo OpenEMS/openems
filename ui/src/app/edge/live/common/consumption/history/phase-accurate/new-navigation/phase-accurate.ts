@@ -8,6 +8,7 @@ import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 
 @Component({
+    selector: "oe-common-consumption-single-history-overview",
     templateUrl: "./phase-accurate.html",
     standalone: false,
 })

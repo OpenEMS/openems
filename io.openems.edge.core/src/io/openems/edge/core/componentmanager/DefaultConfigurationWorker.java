@@ -17,7 +17,6 @@ import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.DeleteComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
-import io.openems.common.utils.DictionaryUtils;
 import io.openems.edge.common.component.OpenemsComponent;
 
 /**

@@ -2,10 +2,13 @@ package io.openems.edge.app.evcs;
 
 import static io.openems.edge.core.appmanager.formly.enums.InputType.NUMBER;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
+import io.openems.edge.app.enums.EMobilityArchitectureType;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -18,6 +21,7 @@ import com.google.gson.JsonElement;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
@@ -36,6 +40,7 @@ import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
+import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter;
@@ -67,7 +72,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  */
 @Component(name = "App.Evcs.IesKeywatt")
 public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, MetaSupplier {
+		implements OpenemsApp, MetaSupplier, EMobilityApp {
 
 	public static enum Property implements Type<Property, IesKeywattEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -196,4 +201,19 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 		return this.meta;
 	}
 
+	@Override
+	public OpenemsAppPermissions getAppPermissions() {
+		return OpenemsAppPermissions.create()//
+				.setCanSee(Role.ADMIN) //
+				.setCanDelete(Role.ADMIN) //
+				.setCanInstall(List.of(//
+						Role.ADMIN //
+				)) //
+				.build();
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
+	}
 }

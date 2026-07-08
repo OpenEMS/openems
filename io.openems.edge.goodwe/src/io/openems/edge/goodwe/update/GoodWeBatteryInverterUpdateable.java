@@ -18,12 +18,12 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import io.openems.common.session.Language;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.BridgeModbusSerial;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.type.TextProvider;
 import io.openems.edge.common.update.Progress;
 import io.openems.edge.common.update.ProgressHistory;
 import io.openems.edge.common.update.ProgressPublisher;
@@ -33,8 +33,9 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 
 public class GoodWeBatteryInverterUpdateable implements Updateable {
 
-	private final Logger log = LoggerFactory.getLogger(GoodWeBatteryInverterUpdateable.class);
+	private static final int AVG_UPDATE_DURATION_IN_MINUTES = 10;
 
+	private final Logger log;
 	private final ExecutorService executor = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
 	private final BridgeModbus bridgeModbus;
 	private final GoodWeBatteryInverterUpdateParams updateParamsProvider;
@@ -45,7 +46,7 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 	private final List<Consumer<GoodWeVersion>> versionListener = new CopyOnWriteArrayList<>();
 
 	private volatile GoodWeType goodWeType = GoodWeType.UNDEFINED;
-	private volatile GetUpdateState.UpdateState updateState = new GetUpdateState.UpdateState.Unknown();
+	private volatile GoodweBatteryInverterUpdateState updateState = new GoodweBatteryInverterUpdateState.NormalOperation();
 
 	public GoodWeBatteryInverterUpdateable(//
 			BridgeModbus bridgeModbus, //
@@ -54,8 +55,10 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 			Channel<Integer> dspFirmwareVersionMaster, //
 			Channel<Integer> dspFirmwareBetaVersionMaster, //
 			Channel<Integer> armFirmwareVersion, //
-			Channel<Integer> armFirmwareBetaVersion //
+			Channel<Integer> armFirmwareBetaVersion, //
+			Logger logger //
 	) {
+		this.log = logger;
 		this.bridgeModbus = bridgeModbus;
 		this.updateParamsProvider = updateParamsProvider;
 
@@ -108,10 +111,10 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 	@Override
 	public void executeUpdate() {
 		synchronized (this) {
-			if (this.updateState instanceof GetUpdateState.UpdateState.Running) {
+			if (this.updateState instanceof GoodweBatteryInverterUpdateState.UpdateRunning) {
 				return;
 			}
-			this.updateState = new GetUpdateState.UpdateState.Running(0, Collections.emptyList());
+			this.updateState = new GoodweBatteryInverterUpdateState.UpdateRunning(0, Collections.emptyList());
 		}
 
 		this.executor.execute(() -> {
@@ -119,28 +122,39 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 				final var progressHistory = new ProgressHistory();
 				progressHistory.addOnChangeListener(history -> {
 					final var last = history.last();
-					this.log.info(last.toString());
-					this.updateState = new GetUpdateState.UpdateState.Running(last.percentage(), history.asLog());
+					this.log.info("Update State: " + last.toString());
+					this.updateState = new GoodweBatteryInverterUpdateState.UpdateRunning(last.percentage(),
+							history.asLog());
 				});
 
 				this.executeUpdateInternal(progressHistory);
 				progressHistory.addProgress(new Progress(100, "Finished GoodWe update"));
+
+				this.updateState = new GoodweBatteryInverterUpdateState.NormalOperation();
 			} catch (Exception e) {
-				// TODO update state failed?
 				this.log.error("Error while executing Firmware Update: ", e);
-			} finally {
-				this.updateState = new GetUpdateState.UpdateState.Unknown();
+
+				var errorText = TextProvider
+						.byTranslation(GoodWeBatteryInverterUpdateable.class, "GoodweBatteryInverter.UpdateFailed")
+						.formatWithArguments(e.getMessage());
+				this.updateState = new GoodweBatteryInverterUpdateState.UpdateFailed(errorText);
 			}
 		});
 	}
 
 	@Override
-	public GetUpdateState.UpdateState getUpdateState() {
-		final var currentUpdateState = this.updateState;
-		if (currentUpdateState instanceof GetUpdateState.UpdateState.Running) {
-			return currentUpdateState;
-		}
+	public GetUpdateState.UpdateState getUpdateState(Language lang) {
+		return switch (this.updateState) {
+		case GoodweBatteryInverterUpdateState.NormalOperation() -> //
+			this.calculateAvailableUpdatesStatus();
+		case GoodweBatteryInverterUpdateState.UpdateRunning(var percentCompleted, var logs) -> //
+			new GetUpdateState.UpdateState.Running(percentCompleted, AVG_UPDATE_DURATION_IN_MINUTES, logs);
+		case GoodweBatteryInverterUpdateState.UpdateFailed(var errorText) -> //
+			new GetUpdateState.UpdateState.Error(errorText.getText(lang));
+		};
+	}
 
+	private GetUpdateState.UpdateState calculateAvailableUpdatesStatus() {
 		final var currentVersion = this.version.get();
 		if (!currentVersion.isDefined()) {
 			return new GetUpdateState.UpdateState.Unknown();
@@ -199,7 +213,7 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 		serialBridge.stop();
 		progress.sleep(15000, 10, 15, "Waiting for modbus bridge to stop");
 
-		try (final var updateHandler = new UpdateHandler(portName, baudrate)) {
+		try (final var updateHandler = new UpdateHandler(portName, baudrate, this.log)) {
 			updateHandler.updateArmVersion(progress.subProgress(15, 50), fileNameArm.toString());
 
 			updateHandler.closePort();
@@ -254,6 +268,17 @@ public class GoodWeBatteryInverterUpdateable implements Updateable {
 				var fileOutputStream = new FileOutputStream(destination)) {
 			var fileChannel = fileOutputStream.getChannel();
 			fileChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
+		}
+	}
+
+	private sealed interface GoodweBatteryInverterUpdateState {
+		record NormalOperation() implements GoodweBatteryInverterUpdateState {
+		}
+
+		record UpdateRunning(int percentCompleted, List<String> logs) implements GoodweBatteryInverterUpdateState {
+		}
+
+		record UpdateFailed(TextProvider errorText) implements GoodweBatteryInverterUpdateState {
 		}
 	}
 

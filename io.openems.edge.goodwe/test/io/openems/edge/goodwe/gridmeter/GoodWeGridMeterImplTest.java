@@ -14,13 +14,14 @@ import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.getGoodweType
 import static io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.getPhaseConnectionValue;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
+import io.openems.edge.common.test.DummySerialNumberStorage;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.gridmeter.GoodWeGridMeterImpl.GoodWeTypeAndVersionSpecific;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -34,6 +35,7 @@ public class GoodWeGridMeterImplTest {
 		new ComponentTest(sut) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
@@ -142,6 +144,7 @@ public class GoodWeGridMeterImplTest {
 						.withRegisters(36052, //
 								/* VOLTAGE */ 2000 /* L1 */, 2200 /* L2 */, 2300 /* L3 */, //
 								/* CURRENT */ 50 /* L1 */, 60 /* L2 */, 70 /* L3 */))
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
@@ -158,7 +161,7 @@ public class GoodWeGridMeterImplTest {
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, -1610) //
 						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 710)) //
 
-				.next(new TestCase(), 3) // Wait for 36052
+				.next(new TestCase(), 5) // Wait for 36052
 				.next(new TestCase() //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 200_000) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 220_000) //
@@ -197,6 +200,7 @@ public class GoodWeGridMeterImplTest {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
@@ -210,6 +214,7 @@ public class GoodWeGridMeterImplTest {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
@@ -223,6 +228,7 @@ public class GoodWeGridMeterImplTest {
 		new ComponentTest(new GoodWeGridMeterImpl()) //
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //

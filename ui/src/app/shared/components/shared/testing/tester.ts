@@ -145,7 +145,6 @@ export class OeFormlyViewTester {
                 return {
                     type: field.type,
                     name: field.name,
-                    style: field.style ?? "",
                 };
             }
 
@@ -205,6 +204,20 @@ export class OeFormlyViewTester {
                     controlName: field.controlName,
                     expectedValue: expectedValue,
                     properties: properties,
+                };
+            }
+
+            case "input-line": {
+                const expectedValue = fg
+                    ? FormUtils.findFormControlsValueSafely<string>(fg, field.controlName) ?? null
+                    : null;
+
+                return {
+                    type: "input-line",
+                    name: field.name,
+                    controlName: field.controlName,
+                    properties: field.properties,
+                    expectedValue: expectedValue,
                 };
             }
         }
@@ -404,6 +417,7 @@ export namespace OeFormlyViewTester {
         | Field.RangeButtonFromFormControlLine
         | Field.RadioButtonsFromFormControlLine
         | Field.ImageLine
+        | Field.InputLine
         ;
 
     export namespace Field {
@@ -411,7 +425,6 @@ export namespace OeFormlyViewTester {
         export type InfoLine = {
             type: "info-line",
             name: string | { text: string, lineStyle?: string }[],
-            style?: string,
         };
 
         export type Item = {
@@ -466,6 +479,15 @@ export namespace OeFormlyViewTester {
         export type ImageLine = {
             type: "image-line",
             img: OeImageComponent["img"],
+        };
+        export type InputLine = {
+            type: "input-line",
+            name: string,
+            controlName: string,
+            properties: {
+                unit: string;
+            },
+            expectedValue?: number | string | null,
         };
     }
 
@@ -538,6 +560,8 @@ function prepareOptionsForTesting(options: Chart.ChartOptions, chartData: Histor
 
     delete options.plugins.tooltip.caretPadding;
     delete options.layout;
+    delete options.plugins["syncChart"];
+    delete options.indexAxis;
     options.plugins.tooltip = ObjectUtils.excludeProperties(options.plugins.tooltip, ["boxHeight", "boxWidth", "boxPadding"]);
     options.plugins.legend.labels = ObjectUtils.excludeProperties(options.plugins.legend.labels, ["boxHeight", "boxWidth"]);
 

@@ -6,12 +6,18 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Function;
 import com.google.gson.JsonObject;
 
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 
 public class DependencyDeclaration {
+
+	private final Logger log = LoggerFactory.getLogger(DependencyDeclaration.class);
 
 	public final String key;
 
@@ -32,6 +38,10 @@ public class DependencyDeclaration {
 
 		if (appConfigs.length == 0) {
 			throw new IllegalArgumentException("There has to be atleast one 'appConfig'!");
+		}
+		if (createPolicy == CreatePolicy.NEVER && Arrays.stream(appConfigs)
+				.anyMatch(c -> c.getInitialProperties() != null && !c.getInitialProperties().values().isEmpty())) {
+			this.log.warn("CreatePolicy is NEVER but initial properties has values");
 		}
 		// TODO check for duplicated appIds
 		this.appConfigs = Collections.unmodifiableList(Arrays.asList(appConfigs));
@@ -61,11 +71,11 @@ public class DependencyDeclaration {
 		public final String appId;
 		public final UUID specificInstanceId;
 		public final String alias;
-		public final JsonObject properties;
-		public final JsonObject initialProperties;
+		private final DependencyProperties properties;
+		private final DependencyProperties initialProperties;
 
-		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias, JsonObject properties,
-				JsonObject initialProperties) {
+		private AppDependencyConfig(String appId, UUID specificInstanceId, String alias,
+				DependencyProperties properties, DependencyProperties initialProperties) {
 			if (appId == null && specificInstanceId == null) {
 				throw new NullPointerException(
 						"'appId' and 'specificInstanceId' of a AppDependencyConfig can't be both null!");
@@ -73,8 +83,8 @@ public class DependencyDeclaration {
 			this.appId = appId;
 			this.specificInstanceId = specificInstanceId;
 			this.alias = alias;
-			this.properties = properties == null ? new JsonObject() : properties;
-			this.initialProperties = initialProperties == null ? this.properties : initialProperties;
+			this.properties = properties == null ? DependencyProperties.emptyProperties() : properties;
+			this.initialProperties = initialProperties;
 		}
 
 		/**
@@ -86,12 +96,62 @@ public class DependencyDeclaration {
 			return new Builder();
 		}
 
+		/**
+		 * Getter for the properties to create a new instance of an app. Value is
+		 * initialProperties if not null else properties.
+		 * 
+		 * @return the properties for instance creation
+		 */
+		public DependencyProperties getPropertiesForInstanceCreation() {
+			return this.initialProperties != null ? this.initialProperties : this.properties;
+		}
+
+		/**
+		 * Getter for the initial properties.
+		 *
+		 * @return the initial properties
+		 */
+		public DependencyProperties getInitialProperties() {
+			return this.initialProperties;
+		}
+
+		/**
+		 * Creates a new AppDependencyConfig with initial properties.
+		 * 
+		 * @param initialProperties initial properties
+		 * @return AppDependencyConfig the new AppDependencyConfig
+		 */
+		public AppDependencyConfig withInitialProperties(DependencyProperties initialProperties) {
+			return new AppDependencyConfig(this.appId, this.specificInstanceId, this.alias, this.properties,
+					initialProperties);
+		}
+
+		/**
+		 * Getter for the properties.
+		 * 
+		 * @return the properties
+		 */
+		public DependencyProperties getProperties() {
+			return this.properties;
+		}
+
+		/**
+		 * Creates a new AppDependencyConfig with properties.
+		 * 
+		 * @param properties the properties
+		 * @return AppDependencyConfig the new AppDependencyConfig
+		 */
+		public AppDependencyConfig withProperties(DependencyProperties properties) {
+			return new AppDependencyConfig(this.appId, this.specificInstanceId, this.alias, properties,
+					this.initialProperties);
+		}
+
 		public static final class Builder {
 			private String appId;
 			private UUID specificInstanceId;
 			private String alias;
-			private JsonObject properties;
-			private JsonObject initialProperties;
+			private DependencyProperties properties;
+			private DependencyProperties initialProperties;
 
 			public Builder() {
 			}
@@ -117,8 +177,33 @@ public class DependencyDeclaration {
 			 * @param properties the properties
 			 * @return this
 			 */
-			public Builder setProperties(JsonObject properties) {
+			public Builder setProperties(DependencyProperties properties) {
 				this.properties = properties;
+				return this;
+			}
+
+			/**
+			 * The properties that are used to update the instance.
+			 *
+			 * @param properties the properties
+			 * @return this
+			 */
+			public Builder setProperties(JsonObject properties) {
+				this.properties = DependencyProperties.fromJson(properties);
+				return this;
+			}
+
+			/**
+			 * The properties that are used to firstly instantiate the app.
+			 *
+			 * <p>
+			 * If not set the properties are used.
+			 *
+			 * @param initialProperties the properties
+			 * @return this
+			 */
+			public Builder setInitialProperties(DependencyProperties initialProperties) {
+				this.initialProperties = initialProperties;
 				return this;
 			}
 
@@ -132,7 +217,7 @@ public class DependencyDeclaration {
 			 * @return this
 			 */
 			public Builder setInitialProperties(JsonObject initialProperties) {
-				this.initialProperties = initialProperties;
+				this.initialProperties = DependencyProperties.fromJson(initialProperties);
 				return this;
 			}
 

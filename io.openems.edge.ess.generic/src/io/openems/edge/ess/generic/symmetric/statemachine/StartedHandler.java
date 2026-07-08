@@ -10,6 +10,10 @@ public class StartedHandler extends StateHandler<State, Context> {
 	public State runAndGetNextState(Context context) {
 		final var ess = context.getParent();
 
+		if (context.battery.isFirmwareUpdateRunning()) {
+			return State.MAINTENANCE;
+		}
+
 		if (context.hasEssFaults()) {
 			return State.ERROR;
 		}

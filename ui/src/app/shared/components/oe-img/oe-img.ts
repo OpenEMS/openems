@@ -9,6 +9,11 @@ import { TIntRange } from "../../type/utility";
     imports: [
         IonicModule,
     ],
+    styles: [`
+        :host {
+            display: block;
+        }
+        `],
 })
 export class OeImageComponent {
 

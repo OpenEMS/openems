@@ -24,38 +24,38 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		/**
 		 * Current state of the StateMachine.
 		 */
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
 
 		/**
 		 * Holds {@link ManagedSymmetricEss.ChannelId#DEBUG_SET_ACTIVE_POWER} for debug
 		 * purpose.
 		 */
-		DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_SET_ACTIVE_POWER(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 
 		/**
 		 * Holds {@link ManagedSymmetricEss.ChannelId#DEBUG_SET_ACTIVE_POWER_RAW} for
 		 * debug purpose.
 		 */
-		DEBUG_SET_ACTIVE_POWER_RAW(Doc.of(OpenemsType.INTEGER) //
+		DEBUG_SET_ACTIVE_POWER_RAW(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.WATT)), //
 
 		/**
 		 * Holds power to increase/decrease ramp for every cycle.
 		 */
-		DEBUG_RAMP_POWER(Doc.of(OpenemsType.FLOAT) //
+		DEBUG_RAMP_POWER(Doc.of(OpenemsType.FLOAT)//
 				.unit(Unit.WATT).text("The debug ramp power to decrease power")), //
 
 		/**
 		 * Holds {@link SymmetricEss.ChannelId#CAPACITY} for detecting a capacity
 		 * change.
 		 */
-		ESS_CAPACITY(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT_HOURS) //
+		ESS_CAPACITY(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT_HOURS)//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
-		NO_VALID_TARGET_TIME(Doc.of(Level.WARNING) //
+		NO_VALID_TARGET_TIME(Doc.of(Level.WARNING)//
 				.text("Target time is not valid.")), //
 
 		/**
@@ -69,7 +69,7 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 * When the target SoC not reached or the controller not running the default is
 		 * 0, to be able to use the pastValues and get the last valid (not Null) value.
 		 */
-		AT_TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
+		AT_TARGET_EPOCH_SECONDS(Doc.of(OpenemsType.LONG)//
 				.text("Time when the target SoC was reached a epoch seconds.")),
 
 		/**
@@ -83,40 +83,48 @@ public interface FixStateOfCharge extends Controller, OpenemsComponent {
 		 * Controller keep staying in "NotStarted" if there is still enough time left to
 		 * reach the target soc.s
 		 */
-		EXPECTED_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG) //
-				.text("Time when the controller is starting to charge or discharge depending on the target date and time.") //
+		EXPECTED_START_EPOCH_SECONDS(Doc.of(OpenemsType.LONG)//
+				.text("Time when the controller is starting to charge or discharge depending on the target date and time.")//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
 		/**
 		 * ESS is at target SoC. Discharging and charging is blocked by Controller.
 		 */
-		CTRL_IS_BLOCKING_ESS(Doc.of(Level.WARNING) //
-				.text("The ESS is at the target state of charge. Charging/discharging is blocked by the controller as long as a fallback time is reached or a condition, e.g. capacity change, is fulfilled.")), //
+		CTRL_IS_BLOCKING_ESS(Doc.of(Level.WARNING)//
+				.translationKey(FixStateOfCharge.class, "ctrlIsBlockingEss")),//
 
 		/**
 		 * ESS is at below SoC. Ess is forced to charge with a minimum power.
 		 */
-		CTRL_IS_CHARGING_ESS(Doc.of(Level.WARNING) //
+		CTRL_IS_CHARGING_ESS(Doc.of(Level.WARNING)//
 				.text("The system will not behave as usual. Controller is charging the ESS to reach the target state of charge.")), //
 
 		/**
 		 * ESS is at above SoC. Ess is forced to discharge with a minimum power.
 		 */
-		CTRL_IS_DISCHARGING_ESS(Doc.of(Level.WARNING) //
+		CTRL_IS_DISCHARGING_ESS(Doc.of(Level.WARNING)//
 				.text("The system will not behave as usual. Controller is discharging the ESS to reach the target state of charge.")), //
 
 		/**
 		 * Controller has set the property isRunning to false if there was a termination
 		 * by a condition or fallback time.
 		 */
-		CTRL_WAS_SELF_TERMINATED(Doc.of(Level.INFO) //
+		CTRL_WAS_SELF_TERMINATED(Doc.of(Level.INFO)//
 				.text("Charging/Discharging to fix State of Charge deactivated. Capacity changed or SoC reached and fallback time passed.")), //
 
 		/**
 		 * Controller has detected a change in the ess capacity.
 		 */
-		CAPACTITY_CHANGED(Doc.of(Level.INFO) //
+		CAPACTITY_CHANGED(Doc.of(Level.INFO)//
 				.text("The capacity changed.")), //
+
+		/**
+		 * Controller is currently executing the reference cycle (including the hold
+		 * phase at the reference SoC). While this channel is true, the battery
+		 * preparation process is not yet complete.
+		 */
+		CTRL_IS_IN_REFERENCE_CYCLE(Doc.of(Level.INFO)//
+				.translationKey(FixStateOfCharge.class, "ctrlIsInReferenceCycle")), //
 		;
 
 		private final Doc doc;

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, untracked, ViewChild, } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,6 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
+import { UserService } from "../../service/user.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -16,22 +17,38 @@ import { StatusSingleComponent } from "../status/single/status.component";
     selector: "app-header",
     templateUrl: "./header.component.html",
     standalone: false,
+    styles: [
+        `
+            ion-title::part(native) {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        `,
+    ],
 })
 export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
-
-    @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
+    @ViewChild(PickDateComponent, { static: false })
+    public PickDateComponent: PickDateComponent;
 
     public environment = environment;
     public backUrl: string | boolean = "/";
     public enableSideMenu: boolean = false;
-    public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
+    public currentPage:
+        | "EdgeSettings"
+        | "Other"
+        | "IndexLive"
+        | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
     protected showBackButton: boolean = false;
+    protected isNewNavigation: boolean = false;
+    protected edge = this.service.currentEdge;
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
+    private readonly userService: UserService = inject(UserService);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -48,16 +65,25 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             const currentNode = navigationService.currentNode();
             const _currentUrl = routeService.currentUrl();
 
-            if (currentNode && currentNode.getParents() && currentNode.getParents().length > 0) {
+            if (
+                currentNode &&
+                currentNode.getParents() &&
+                currentNode.getParents().length > 0 &&
+                untracked(() => navigationService.position() !== "disabled")
+            ) {
                 this.showBackButton = false;
             } else {
                 this.showBackButton = true;
             }
 
             this.updateUrl(this.router.routerState.snapshot.url);
+
+            this.isNewNavigation = NavigationService.isNewNavigation(
+                this.userService.currentUser(),
+                this.service.currentEdge()?.getConfigSignal()(),
+            );
         });
     }
-
 
     @Input() public set customBackUrl(url: string | null) {
         if (!url) {
@@ -71,14 +97,15 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // set inital URL
         this.updateUrl(this.router.routerState.snapshot.url);
         // update backUrl on navigation events
-        this.router.events.pipe(
-            takeUntil(this.ngUnsubscribe),
-            filter(event => event instanceof NavigationEnd),
-        ).subscribe(event => {
-            window.scrollTo(0, 0);
-            this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        });
-
+        this.router.events
+            .pipe(
+                takeUntil(this.ngUnsubscribe),
+                filter((event) => event instanceof NavigationEnd),
+            )
+            .subscribe((event) => {
+                window.scrollTo(0, 0);
+                this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+            });
     }
 
     // used to prevent 'Expression has changed after it was checked' error
@@ -97,8 +124,14 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         const urlArray = url.split("/");
         const file = urlArray.pop();
 
-        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
-
+        if (
+            file == "user" ||
+            file == "settings" ||
+            file == "changelog" ||
+            file == "login" ||
+            file == "index" ||
+            urlArray.length > 3
+        ) {
             if (this.navigationService.position() != "disabled") {
                 this.enableSideMenu = true;
                 return;
@@ -126,23 +159,28 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             }
         } else if (file == "settings" && urlArray.length > 1) {
             this.currentPage = "EdgeSettings";
-        }
-        else {
+        } else {
             this.currentPage = "Other";
         }
     }
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
+            this.router.navigate(
+                ["/device/" + this.service.currentEdge().id + "/live"],
+                { replaceUrl: true },
+            );
             // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-
-            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
-            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            this.router.navigate([
+                "/device/" + this.service.currentEdge().id + "/history",
+            ]);
+            /**
+             * Creates bug of being infinite forwarded betweeen live and
+             * history, if not relatively routed
+             */
             // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
@@ -165,7 +203,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     private updateBackUrl(url: string) {
-
         if (this._customBackUrl) {
             this.backUrl = this._customBackUrl;
             return;
@@ -188,7 +225,11 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
+        if (
+            file === "live" &&
+            urlArray.length == 3 &&
+            this.environment.backend === "OpenEMS Edge"
+        ) {
             this.backUrl = false;
             return;
         }
@@ -214,11 +255,14 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     private isAllowedForView(url: string): boolean {
-
         // Strip queryParams
         const cleanUrl = url.split("?")[0];
 
-        if (url.includes("/history/") && !url.includes("/history/user") && this.navigationService.position() === "disabled") {
+        if (
+            url.includes("/history/") &&
+            !url.includes("/history/user") &&
+            this.navigationService.position() === "disabled"
+        ) {
             return false;
         }
 
@@ -232,5 +276,4 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
                 return true;
         }
     }
-
 }

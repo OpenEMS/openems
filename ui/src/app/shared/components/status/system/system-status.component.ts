@@ -1,15 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { Component, effect, inject, OnDestroy } from "@angular/core";
-import { IonicModule, ModalController } from "@ionic/angular";
+import { IonicModule, IonIcon, ModalController } from "@ionic/angular";
 import { filter } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
-import { SumState } from "src/app/index/shared/sumState";
 import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { environment } from "src/environments";
 import { DataService } from "../../shared/dataservice";
 import { StatusSingleComponent } from "../single/status.component";
-
+type Colors = `--ion-color-${"warning" | "success" | "danger"}`;
 
 @Component({
     selector: SystemStatusComponent.SELECTOR,
@@ -24,13 +24,15 @@ import { StatusSingleComponent } from "../single/status.component";
     ],
 })
 export class SystemStatusComponent implements OnDestroy {
+
+    public static readonly SUM_STATE_CHANNEL = new ChannelAddress("_sum", "State");
+
     private static readonly SELECTOR = "oe-system-status";
-    private static readonly SUM_STATE_CHANNEL = new ChannelAddress("_sum", "State");
 
     public environment = environment;
     public edge: Edge | null = null;
 
-    protected sumState: SumState | null = null;
+    protected icon: { color: IonIcon["color"], name: IonIcon["name"], style: Colors } | null = null;
 
     private subscribed = false;
     private liveDataService = inject(DataService);
@@ -54,11 +56,10 @@ export class SystemStatusComponent implements OnDestroy {
             ], edge, uuidv4());
 
             edge.currentData.pipe(
-                filter(currentData => currentData !== null),
+                filter(currentData => currentData !== null && !ObjectUtils.isObjectNullOrEmpty(currentData.channel))
             ).subscribe((currentData) => {
                 const channelValue: number = currentData.channel[SystemStatusComponent.SUM_STATE_CHANNEL.toString()];
-
-                this.sumState = this.mapChannelValueToSumState(channelValue);
+                this.setChannelValueToSumState(channelValue, edge);
             });
         });
     }
@@ -74,21 +75,28 @@ export class SystemStatusComponent implements OnDestroy {
         return await modal.present();
     }
 
-    private mapChannelValueToSumState(channelValue: number): SumState {
+    private setChannelValueToSumState(channelValue: number, edge: Edge) {
         switch (channelValue) {
             case 0: {
-                return SumState.OK;
+                this.icon = { color: "success", name: "oe-checkmark", style: "--ion-color-success" };
+                break;
             }
             case 1: {
-                return SumState.INFO;
+                this.icon = { color: "success", name: edge.roleIsAtLeast("admin") ? "oe-info" : "oe-checkmark", style: "--ion-color-success" };
+                break;
             }
             case 2: {
-                return SumState.WARNING;
+                this.icon = { color: "warning", name: "oe-warning", style: "--ion-color-warning" };
+                break;
             }
             case 3: {
-                return SumState.FAULT;
+                this.icon = { color: "danger", name: "oe-error", style: "--ion-color-danger" };
+                break;
+            }
+            default: {
+                this.icon = null;
+                break;
             }
         }
-        return SumState.UNDEFINED;
     }
 }

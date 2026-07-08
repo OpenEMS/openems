@@ -34,7 +34,7 @@ public class EnergyPerformanceTestApp {
 
 		var gsc = GlobalScheduleContext.from(simulator.goc);
 
-		Simulator.simulatePeriod(gsc, ImmutableMap.of(), 0 /* period */, modeCombination, new Fitness(), null);
+		Simulator.simulatePeriod(gsc, ImmutableMap.of(), 0 /* period */, modeCombination, Fitness.builder(), null);
 	}
 
 }
