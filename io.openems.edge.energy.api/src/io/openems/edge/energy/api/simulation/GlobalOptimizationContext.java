@@ -59,11 +59,9 @@ public record GlobalOptimizationContext(//
 	}
 
 	public record Grid(//
-			/** Max Buy-From-Grid Power [W] */
 			int maxBuyPower, //
-			/** Max Sell-To-Grid Power [W] */
-			int maxSellPower,
-			/** The Grid-Buy Soft-Limit [W] */
+			int maxSellPower, //
+			int maxSellPowerWithBuffer, //
 			JSCalendar.Tasks<GridBuySoftLimit> gridBuySoftLimit) {
 
 		/**
@@ -77,11 +75,13 @@ public record GlobalOptimizationContext(//
 				return new Grid(//
 						json.getInt("maxBuyPower"), //
 						json.getInt("maxSellPower"), //
+						json.getInt("maxSellPowerWithBuffer"), //
 						json.getObject("gridBuySoftLimit", GridBuySoftLimit.tasksSerializer(clock)));
 			}, obj -> {
 				return buildJsonObject() //
 						.addProperty("maxBuyPower", obj.maxBuyPower) //
 						.addProperty("maxSellPower", obj.maxSellPower) //
+						.addProperty("maxSellPowerWithBuffer", obj.maxSellPowerWithBuffer) //
 						.add("gridBuySoftLimit", obj.gridBuySoftLimit, GridBuySoftLimit.tasksSerializer(clock)) //
 						.build();
 			});

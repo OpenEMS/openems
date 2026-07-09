@@ -5,7 +5,7 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Mode, SharedControllerHeat } from "../shared/shared";
+import { PropertyMode, SharedControllerHeat } from "../shared/shared";
 
 @Component({
     selector: "heat-modal",
@@ -46,17 +46,20 @@ export class ControllerHeatModalComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<Mode>(
+        const readOnly = this.isReadOnly();
+        const channelAddress =
+            !readOnly && this.component != null
+                ? new ChannelAddress(this.component.id, "_PropertyMode")
+                : null;
+        this.setFormControlSafelyWithChannel<PropertyMode>(
             this.form,
             ControllerHeatModalComponent.formControlName,
             currentData,
-            this.isReadOnly() || this.component == null
-                ? null
-                : new ChannelAddress(this.component.id, "_PropertyMode"),
+            channelAddress,
         );
     }
 
     private isReadOnly(): boolean {
-        return this.component?.factoryId !== "Heat.Askoma" || this.component.properties?.readOnly === true;
+        return this.component == null || this.component?.properties?.readOnly === true;
     }
 }

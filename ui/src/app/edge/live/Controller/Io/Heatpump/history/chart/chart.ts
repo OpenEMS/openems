@@ -14,11 +14,13 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, Utils, YAxisType, } from "src/app/shared/utils/utils";
+import { SharedControllerIoHeatpump } from "../../shared/shared";
 
 @Component({
     selector: "controller-io-heatpump-chart",
-    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl:
+        "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
     imports: [
         CommonUiModule,
@@ -30,93 +32,239 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
     ],
 })
 export class ChartComponent extends AbstractHistoryChart {
+    public static getChartData(
+        config: EdgeConfig,
+        component: EdgeConfig.Component | undefined,
+        translate: TranslateService,
+        chartType: "line" | "bar",
+        periodString: DefaultTypes.PeriodString,
+    ): HistoryUtils.ChartData {
+        AssertionUtils.assertIsDefined<EdgeConfig.Component | undefined>(
+            component,
+        );
+        AssertionUtils.assertIsDefined(config);
+        const consumptionMeter = SharedControllerIoHeatpump.getConsumptionMeter(
+            config,
+            component,
+        );
 
-    public static getChartData(component: EdgeConfig.Component | undefined, translate: TranslateService, chartType: "line" | "bar", periodString: DefaultTypes.PeriodString): HistoryUtils.ChartData {
-        AssertionUtils.assertIsDefined<EdgeConfig.Component | undefined>(component);
         const input: HistoryUtils.InputChannel[] = [
-            { name: "Status", powerChannel: new ChannelAddress(component.id, "Status") },
-            { name: "ForceOnStateTime", energyChannel: new ChannelAddress(component.id, "ForceOnStateTime") },
-            { name: "LockStateTime", energyChannel: new ChannelAddress(component.id, "LockStateTime") },
-            { name: "RecommendationStateTime", energyChannel: new ChannelAddress(component.id, "RecommendationStateTime") },
-            { name: "RegularStateTime", energyChannel: new ChannelAddress(component.id, "RegularStateTime") },
+            {
+                name: "Status",
+                powerChannel: new ChannelAddress(component.id, "Status"),
+            },
+            {
+                name: "ForceOnStateTime",
+                energyChannel: new ChannelAddress(
+                    component.id,
+                    "ForceOnStateTime",
+                ),
+            },
+            {
+                name: "LockStateTime",
+                energyChannel: new ChannelAddress(
+                    component.id,
+                    "LockStateTime",
+                ),
+            },
+            {
+                name: "RecommendationStateTime",
+                energyChannel: new ChannelAddress(
+                    component.id,
+                    "RecommendationStateTime",
+                ),
+            },
+            {
+                name: "RegularStateTime",
+                energyChannel: new ChannelAddress(
+                    component.id,
+                    "RegularStateTime",
+                ),
+            },
         ];
+
+        if (consumptionMeter) {
+            input.push({
+                name: "Total",
+                powerChannel: new ChannelAddress(
+                    consumptionMeter.id,
+                    "ActivePower",
+                ),
+                energyChannel: new ChannelAddress(
+                    consumptionMeter.id,
+                    "ActiveProductionEnergy",
+                ),
+            });
+        }
+
         return {
             input: input,
             output: (rawData: HistoryUtils.ChannelData) => {
                 let data = rawData;
-                if (chartType === "line") {
-                    return [{
-                        name: translate.instant("GENERAL.STATE"),
-                        converter: () => data["Status"]?.map(val => {
-                            const value = Utils.multiplySafely(val, 1000);
-                            return value != null ? Utils.addSafely(value, 1) : null;
-                        }),
-                        color: ChartConstants.Colors.RED,
-                        stack: 0,
-                    }];
+                data = ChartComponent.sanitizeData(rawData, periodString);
+                const consumption: HistoryUtils.DisplayValue[] = [];
+
+                if (consumptionMeter) {
+                    consumption.push({
+                        name: translate.instant("EDGE.HISTORY.TOTAL"),
+                        nameSuffix: (
+                            energyValues: QueryHistoricTimeseriesEnergyResponse,
+                        ) =>
+                            energyValues?.result.data[
+                                consumptionMeter.id + "/ActiveProductionEnergy"
+                            ],
+                        converter: () =>
+                            data["Total"]?.map((val) =>
+                                val === null
+                                    ? null
+                                    : NumberUtils.divideSafely(val, 1000),
+                            ),
+                        color: ChartConstants.Colors.GREEN,
+                        stack: 1,
+                        yAxisId: ChartAxis.RIGHT,
+                    });
                 }
 
-                data = ChartComponent.sanitizeData(rawData, periodString);
+                if (chartType === "line") {
+                    return [
+                        ...consumption,
+                        {
+                            name: translate.instant("GENERAL.STATE"),
+                            converter: () =>
+                                data["Status"]?.map((val) => {
+                                    return val === null
+                                        ? null
+                                        : NumberUtils.addSafely(val, 1);
+                                }),
+                            color: ChartConstants.Colors.RED,
+                            stack: 0,
+                            yAxisId: ChartAxis.LEFT,
+                        },
+                    ];
+                }
+
                 return [
+                    ...consumption,
                     {
-                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
-                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/LockStateTime"],
+                        name: translate.instant(
+                            "EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK",
+                        ),
+                        nameSuffix: (
+                            energyValues: QueryHistoricTimeseriesEnergyResponse,
+                        ) =>
+                            energyValues?.result.data[
+                                component.id + "/LockStateTime"
+                            ],
                         converter: () => data["LockStateTime"],
                         color: ChartConstants.Colors.DARK_GREY,
                         stack: 0,
+                        yAxisId: ChartAxis.LEFT,
                     },
                     {
-                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"),
-                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RegularStateTime"],
+                        name: translate.instant(
+                            "EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION",
+                        ),
+                        nameSuffix: (
+                            energyValues: QueryHistoricTimeseriesEnergyResponse,
+                        ) =>
+                            energyValues?.result.data[
+                                component.id + "/RegularStateTime"
+                            ],
                         converter: () => data["RegularStateTime"],
                         color: ChartConstants.Colors.YELLOW,
                         stack: 0,
-                    }, {
-                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
-                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => energyValues?.result.data[component.id + "/RecommendationStateTime"],
+                        yAxisId: ChartAxis.LEFT,
+                    },
+                    {
+                        name: translate.instant(
+                            "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC",
+                        ),
+                        nameSuffix: (
+                            energyValues: QueryHistoricTimeseriesEnergyResponse,
+                        ) =>
+                            energyValues?.result.data[
+                                component.id + "/RecommendationStateTime"
+                            ],
                         converter: () => data["RecommendationStateTime"],
                         color: ChartConstants.Colors.ORANGE,
                         stack: 0,
-                    }, {
-                        name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
-                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
-                            return energyValues?.result.data[component.id + "/ForceOnStateTime"];
+                        yAxisId: ChartAxis.LEFT,
+                    },
+                    {
+                        name: translate.instant(
+                            "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM",
+                        ),
+                        nameSuffix: (
+                            energyValues: QueryHistoricTimeseriesEnergyResponse,
+                        ) => {
+                            return energyValues?.result.data[
+                                component.id + "/ForceOnStateTime"
+                            ];
                         },
                         converter: () => data["ForceOnStateTime"],
                         color: ChartConstants.Colors.RED,
                         stack: 0,
-                    }];
+                        yAxisId: ChartAxis.LEFT,
+                    },
+                ];
             },
             tooltip: {
-                formatNumber: ChartConstants.NumberFormat.NO_DECIMALS,
+                formatNumber: ChartConstants.NumberFormat.ZERO_TO_TWO,
             },
-            yAxes: [{
-                unit: chartType === "line" ? YAxisType.HEAT_PUMP : YAxisType.TIME,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes:
+                consumptionMeter !== null && consumptionMeter !== undefined
+                    ? [
+                          {
+                              unit: YAxisType.ENERGY,
+                              position: "right",
+                              yAxisId: ChartAxis.RIGHT,
+                          },
+                          {
+                              unit:
+                                  chartType === "line"
+                                      ? YAxisType.HEAT_PUMP
+                                      : YAxisType.TIME,
+                              position: "left",
+                              yAxisId: ChartAxis.LEFT,
+                          },
+                      ]
+                    : [
+                          {
+                              unit:
+                                  chartType === "line"
+                                      ? YAxisType.HEAT_PUMP
+                                      : YAxisType.TIME,
+                              position: "left",
+                              yAxisId: ChartAxis.LEFT,
+                          },
+                      ],
         };
     }
-
 
     /**
      * Sanitizes channel data
      *
-     * @param rawData the rawData
-     * @param period the current period
-     * @returns the sanitized channelData
+     * @param rawData The rawData
+     * @param period The current period
+     * @returns The sanitized channelData
      */
-    private static sanitizeData(rawData: HistoryUtils.ChannelData, period: DefaultTypes.PeriodString): HistoryUtils.ChannelData {
-
+    private static sanitizeData(
+        rawData: HistoryUtils.ChannelData,
+        period: DefaultTypes.PeriodString,
+    ): HistoryUtils.ChannelData {
         const ONE_DAY_IN_S = 86400;
         const ONE_HOUR = 60 * 60;
         const DAY_MINUS_ONE_MINUTE_IN_S = 86340;
         const channelData: HistoryUtils.ChannelData = {};
 
-        const summarizedData = ArrayUtils.summarizeValuesByIndex(rawData).map(el => Utils.multiplySafely(el, 1000));
+        const summarizedData = ArrayUtils.summarizeValuesByIndex(rawData).map(
+            (el) => Utils.multiplySafely(el, 1000),
+        );
         for (let i = 0; i < Object.keys(rawData).length; i++) {
             const [key, arr] = Object.entries(rawData)[i];
-            let data: (number | null)[] = arr.map(el => Utils.multiplySafely(el, 1000));
+            let data: (number | null)[] = arr.map((el) =>
+                Utils.multiplySafely(el, 1000),
+            );
 
             // Only adjust regular state time if it doesnt add up to full days, months ...
             if (key !== "RegularStateTime") {
@@ -130,8 +278,19 @@ export class ChartComponent extends AbstractHistoryChart {
                         if (el == null) {
                             return null;
                         }
-                        const diff: number = Utils.orElse(Utils.subtractSafely(ONE_DAY_IN_S, summarizedData[index]), 0) as number;
-                        return NumberUtils.convertNumberToBeAtMost(summarizedData[index] > DAY_MINUS_ONE_MINUTE_IN_S ? Utils.addSafely(el, diff) : el, ONE_DAY_IN_S);
+                        const diff: number = Utils.orElse(
+                            Utils.subtractSafely(
+                                ONE_DAY_IN_S,
+                                summarizedData[index],
+                            ),
+                            0,
+                        ) as number;
+                        return NumberUtils.convertNumberToBeAtMost(
+                            summarizedData[index] > DAY_MINUS_ONE_MINUTE_IN_S
+                                ? Utils.addSafely(el, diff)
+                                : el,
+                            ONE_DAY_IN_S,
+                        );
                     });
                     break;
                 case DefaultTypes.PeriodString.YEAR:
@@ -140,11 +299,33 @@ export class ChartComponent extends AbstractHistoryChart {
                             return null;
                         }
 
-                        const daysInMonth = Utils.floorSafely(Utils.divideSafely(el, ONE_DAY_IN_S)) as number;
-                        const MONTH_IN_S = Utils.multiplySafely(daysInMonth + 1, ONE_DAY_IN_S);
-                        const MONTH_MINUS_ONE_HOUR = Utils.orElse(Utils.subtractSafely(Utils.multiplySafely(daysInMonth + 1, ONE_DAY_IN_S), ONE_HOUR), MONTH_IN_S);
-                        const diff = Utils.subtractSafely(MONTH_IN_S, summarizedData[index]);
-                        return NumberUtils.convertNumberToBeAtMost(summarizedData[index] > MONTH_MINUS_ONE_HOUR ? Utils.addSafely(el, diff) : el, MONTH_IN_S);
+                        const daysInMonth = Utils.floorSafely(
+                            Utils.divideSafely(el, ONE_DAY_IN_S),
+                        ) as number;
+                        const MONTH_IN_S = Utils.multiplySafely(
+                            daysInMonth + 1,
+                            ONE_DAY_IN_S,
+                        );
+                        const MONTH_MINUS_ONE_HOUR = Utils.orElse(
+                            Utils.subtractSafely(
+                                Utils.multiplySafely(
+                                    daysInMonth + 1,
+                                    ONE_DAY_IN_S,
+                                ),
+                                ONE_HOUR,
+                            ),
+                            MONTH_IN_S,
+                        );
+                        const diff = Utils.subtractSafely(
+                            MONTH_IN_S,
+                            summarizedData[index],
+                        );
+                        return NumberUtils.convertNumberToBeAtMost(
+                            summarizedData[index] > MONTH_MINUS_ONE_HOUR
+                                ? Utils.addSafely(el, diff)
+                                : el,
+                            MONTH_IN_S,
+                        );
                     });
                     break;
             }
@@ -154,6 +335,12 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
-        return ChartComponent.getChartData(this.component, this.translate, this.chartType, this.service.periodString);
+        return ChartComponent.getChartData(
+            this.config,
+            this.component,
+            this.translate,
+            this.chartType,
+            this.service.periodString,
+        );
     }
 }

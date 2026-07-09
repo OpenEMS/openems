@@ -1,0 +1,26 @@
+@if (messages().length > 0) {
+  <ion-grid>
+    <ion-row class="ion-nowrap ion-align-items-end">
+      <ion-col size="auto" class="ion-align-self-start">
+        <img src="assets/img/fena.png" alt="FENA" style="width: 3rem; height: 3rem" />
+      </ion-col>
+
+      <ion-col class="ion-padding-end">
+        @for (message of messages(); track message.text) {
+          <ion-card class="fena-bubble ion-padding">
+            <ion-text [innerHTML]="message.text"></ion-text>
+            @if (message.actions?.length > 0) {
+              <ion-buttons class="ion-margin-top">
+                @for (action of message.actions; track action.title) {
+                  <ion-button size="small" fill="outline" color="primary" (click)="action.callback()">
+                    {{ action.title }}
+                  </ion-button>
+                }
+              </ion-buttons>
+            }
+          </ion-card>
+        }
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+}

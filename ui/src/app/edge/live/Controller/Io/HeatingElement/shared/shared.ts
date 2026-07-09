@@ -173,6 +173,7 @@ export namespace SharedControllerIoHeatingElement {
         return new NavigationTree(component.id, { baseString: "controller/heatingelement/" + component.id }, { name: "flame", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
             new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
             NavigationConstants.CommonNodes.SETTINGS(translate),
+            NavigationConstants.CommonNodes.INFO(translate, { source: component.id }),
         ], null).toConstructorParams();
     }
 }

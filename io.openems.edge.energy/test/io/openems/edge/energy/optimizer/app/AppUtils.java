@@ -166,6 +166,7 @@ public final class AppUtils {
 			final var meta = new DummyMeta() //
 					.withGridBuyHardLimit(grid.maxBuyPower()) //
 					.withGridSellHardLimit(grid.maxSellPower()) //
+					.withGridSellHardLimitWithBuffer(grid.maxSellPowerWithBuffer()) //
 					.withGridBuySoftLimit(grid.gridBuySoftLimit());
 			final var ess = json.getObject("ess", Ess.serializer());
 			final var sum = new DummySum() //

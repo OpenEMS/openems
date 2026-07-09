@@ -8,9 +8,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface HeatMyPvAcThor9s extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		BOOST_ACTIVE(Doc.of(Level.FAULT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Boost mode overrides the controls " //
+		BOOST_ACTIVE(Doc.of(Level.FAULT)//
+				.persistencePriority(PersistencePriority.HIGH)//
+				.text("Boost mode overrides the controls "//
 						+ "| Please disable boost mode in the MyPv app ")); //
 
 		private final Doc doc;

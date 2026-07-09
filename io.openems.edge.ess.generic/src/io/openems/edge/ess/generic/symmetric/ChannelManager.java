@@ -7,12 +7,13 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.generic.common.AbstractChannelManager;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 
 public class ChannelManager
 		extends AbstractChannelManager<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> {
 
-	public ChannelManager(EssGenericManagedSymmetric parent) {
-		super(parent, new AllowedChargeDischargeHandler(parent));
+	public ChannelManager(EssGenericManagedSymmetric parent, EssProtectionConfig essProtectionConfig) {
+		super(parent, new AllowedChargeDischargeHandler(parent, essProtectionConfig));
 	}
 
 	@Override

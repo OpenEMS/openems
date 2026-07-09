@@ -105,6 +105,7 @@ export class CurrentData {
                 sellActivePowerL3: null,
                 maxSellActivePower: null,
                 restrictionMode: null,
+                gridBuyPrice: null,
             }, consumption: {
                 powerRatio: null,
                 activePower: null,
@@ -134,6 +135,7 @@ export class CurrentData {
             }
             result.grid.gridMode = c["_sum/GridMode"];
             result.grid.restrictionMode = c["ctrlEssLimiter14a0/RestrictionMode"];
+            result.grid.gridBuyPrice = c["_sum/GridBuyPrice"];
             if (gridActivePower > 0) {
                 result.grid.sellActivePower = 0;
                 result.grid.buyActivePower = gridActivePower;
@@ -259,13 +261,13 @@ export class CurrentData {
             result.system.totalPower = Math.max(
                 // Productions
                 result.grid.buyActivePower
-        + (result.production.activePower > 0 ? result.production.activePower : 0)
-        + result.storage.dischargeActivePowerAc,
+                + (result.production.activePower > 0 ? result.production.activePower : 0)
+                + result.storage.dischargeActivePowerAc,
                 + (result.consumption.activePower < 0 ? result.consumption.activePower * -1 : 0),
                 // Consumptions
                 result.grid.sellActivePower
-        + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
-        + result.storage.chargeActivePowerAc,
+                + (result.production.activePower < 0 ? result.production.activePower * -1 : 0)
+                + result.storage.chargeActivePowerAc,
                 + (result.consumption.activePower > 0 ? result.consumption.activePower : 0),
             );
             result.system.autarchy = CurrentData.calculateAutarchy(result.grid.buyActivePower, result.consumption.activePower);

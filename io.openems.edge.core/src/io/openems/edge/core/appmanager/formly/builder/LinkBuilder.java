@@ -77,8 +77,7 @@ public final class LinkBuilder extends FormlyBuilder<LinkBuilder> {
 
 		public static JsonSerializer<AppInstallLink> serializer() {
 			return JsonSerializerUtil.jsonObjectSerializer(AppInstallLink.class, json -> {
-				return new AppInstallLink(json.getString("appId"),
-						json.getString("name"));
+				return new AppInstallLink(json.getString("appId"), json.getString("name"));
 			}, obj -> {
 				return JsonUtils.buildJsonObject() //
 						.addProperty("type", AppInstallLink.identifier()) //

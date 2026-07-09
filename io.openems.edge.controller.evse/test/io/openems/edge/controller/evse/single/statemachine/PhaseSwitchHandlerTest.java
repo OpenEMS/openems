@@ -5,47 +5,177 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.TestUtils.generateSingleSut;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.controller.evse.single.ControllerEvseSingle;
 import io.openems.edge.controller.evse.single.ControllerEvseSingleImpl;
 import io.openems.edge.controller.evse.single.LogVerbosity;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchAbility;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
-public class PhaseSwitchHandlerTest {
+class PhaseSwitchHandlerTest {
 
 	@Test
-	public void testToThreePhase() throws IllegalArgumentException, OpenemsNamedException {
+	void testInternalToThreePhase() throws IllegalArgumentException {
 		final var clock = createDummyClock();
 		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
 		final var ctrl = singleSut.ctrlSingle();
 		final var mode = ctrl.getParams().mode();
 		final var chargePoint = singleSut.chargePoint();
-		final BiConsumer<Integer, PhaseSwitch> test = (setPoint, phaseSwitch) -> {
+		final BiConsumer<Integer, PhaseSwitchDirection> test = (setPoint, phaseSwitch) -> {
 			var cpa = chargePoint.getLastChargePointActions();
 			if (setPoint == null && phaseSwitch == null) {
 				assertNull(cpa);
 			} else {
-				assertEquals(setPoint.intValue(), cpa.applySetPoint().value());
-				assertEquals(phaseSwitch, cpa.phaseSwitch());
+				assertEquals(setPoint, Integer.valueOf(cpa.applySetPoint().value()));
+				assertEquals(phaseSwitch, cpa.phaseSwitch() != null ? cpa.phaseSwitch().direction() : null);
+			}
+		};
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.build();
+		ctrl.apply(mode, actions);
+
+		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal())) //
+				.build();
+
+		ctrl.apply(mode, actions);
+
+		ctrl.apply(mode, actions);
+		test.accept(null, null); // null because of Force-Next-State
+
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase");
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);// extra needed because of new Entry state
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
+		clock.leap(29, SECONDS);
+		chargePoint.withActivePower(1380);
+		ctrl.apply(mode, actions);
+		test.accept(6900, PhaseSwitchDirection.TO_THREE_PHASE); // setpoint sent to chargepoint is 6900
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(4140) //
+				.build();
+		ctrl.apply(mode, actions);
+		test.accept(6900, null); // setpoint sent to chargepoint is 6900
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
+		clock.leap(1, SECONDS);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|Charging");
+	}
+
+	@Test
+	void testInternalToSinglePhase() throws IllegalArgumentException {
+		final var clock = createDummyClock();
+		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		final var ctrl = singleSut.ctrlSingle();
+		final var mode = ctrl.getParams().mode();
+		final var chargePoint = singleSut.chargePoint();
+		final BiConsumer<Integer, PhaseSwitchDirection> test = (setPoint, phaseSwitch) -> {
+			var cpa = chargePoint.getLastChargePointActions();
+			if (setPoint == null && phaseSwitch == null) {
+				assertNull(cpa);
+			} else {
+				assertEquals(setPoint, Integer.valueOf(cpa.applySetPoint().value()));
+				assertEquals(phaseSwitch, cpa.phaseSwitch() != null ? cpa.phaseSwitch().direction() : null);
+			}
+		};
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(4140) //
+				.build();
+		ctrl.apply(mode, actions);
+
+		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(4140) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_SINGLE_PHASE, //
+						new PhaseSwitchAbility.Internal())) //
+				.build();
+
+		ctrl.apply(mode, actions);
+
+		ctrl.apply(mode, actions);
+		test.accept(null, null); //
+
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToSinglePhase");
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions); //
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToSinglePhase-PhaseSwitchInternal-DeadTime-0s");
+
+		clock.leap(29, SECONDS);
+		chargePoint.withActivePower(4140);
+		ctrl.apply(mode, actions);
+		test.accept(2300, PhaseSwitchDirection.TO_SINGLE_PHASE); //
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToSinglePhase-PhaseSwitchInternal-DeadTime-29s");
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(1380) //
+				.build();
+		ctrl.apply(mode, actions);
+		test.accept(2300, null); //
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToSinglePhase-PhaseSwitchInternal-DeadTime-29s");
+
+		clock.leap(1, SECONDS);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|Charging");
+	}
+
+	@Test
+	void testToThreePhase() throws IllegalArgumentException {
+		final var clock = createDummyClock();
+		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		final var ctrl = singleSut.ctrlSingle();
+		final var mode = ctrl.getParams().mode();
+		final var chargePoint = singleSut.chargePoint();
+		final BiConsumer<Integer, PhaseSwitchDirection> test = (setPoint, phaseSwitch) -> {
+			var cpa = chargePoint.getLastChargePointActions();
+			if (setPoint == null && phaseSwitch == null) {
+				assertNull(cpa);
+			} else {
+				assertEquals(setPoint, Integer.valueOf(cpa.applySetPoint().value()));
+				assertEquals(phaseSwitch, cpa.phaseSwitch() != null ? cpa.phaseSwitch().direction() : null);
 			}
 		};
 
 		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SINGLE_PHASE, 6, 16)) //
-				.setPhaseSwitch(PhaseSwitch.TO_THREE_PHASE) //
+				.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE) //
 				.build());
 		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
 				.setApplySetPointInAmpere(25) //
@@ -54,14 +184,15 @@ public class PhaseSwitchHandlerTest {
 
 		actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
 				.setApplySetPointInAmpere(25) //
-				.setPhaseSwitch(PhaseSwitch.TO_THREE_PHASE) //
+				.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE) //
 				.build();
 
 		ctrl.apply(mode, actions);
-		test.accept(null, null); // null because of Force-Next-State
+		test.accept(null, null); //
 
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase");
 		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);//
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-DeadTime-0s");
 		ctrl.apply(mode, actions);
 
@@ -77,32 +208,32 @@ public class PhaseSwitchHandlerTest {
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-PredicateFalse-30s");
 
 		clock.leap(1, SECONDS);
-		chargePoint.withActivePower(100); // 100 is considered charging
+		chargePoint.withActivePower(100); //
 		ctrl.apply(mode, actions);
 		test.accept(0, null);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-PredicateFalse-31s");
 
 		clock.leap(1, SECONDS);
-		chargePoint.withActivePower(99); // 99 is considered non-charging
+		chargePoint.withActivePower(99); //
 		ctrl.apply(mode, actions);
 		test.accept(0, null);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-PredicateTrue-32s");
 
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
-		test.accept(0, PhaseSwitch.TO_THREE_PHASE); // Apply Phase-Switch
-		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitch-DeadTime-1s");
+		test.accept(0, PhaseSwitchDirection.TO_THREE_PHASE); //
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchManual-DeadTime-1s");
 
 		clock.leap(28, SECONDS);
-		chargePoint.withActivePower(0); // actually Zero
+		chargePoint.withActivePower(0); //
 		ctrl.apply(mode, actions);
-		test.accept(0, PhaseSwitch.TO_THREE_PHASE);
-		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitch-DeadTime-29s");
+		test.accept(0, PhaseSwitchDirection.TO_THREE_PHASE);
+		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitchManual-DeadTime-29s");
 
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
-		test.accept(0, PhaseSwitch.TO_THREE_PHASE);
-		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitch-PredicateFalse-30s");
+		test.accept(0, PhaseSwitchDirection.TO_THREE_PHASE);
+		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitchManual-PredicateFalse-30s");
 
 		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(THREE_PHASE, 6, 32)) //
@@ -113,8 +244,8 @@ public class PhaseSwitchHandlerTest {
 
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
-		test.accept(0, PhaseSwitch.TO_THREE_PHASE);
-		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitch-PredicateTrue-31s");
+		test.accept(0, PhaseSwitchDirection.TO_THREE_PHASE);
+		assertDebugLog(ctrl, "Mode:Zero|PhaseSwitchToThreePhase-PhaseSwitchManual-PredicateTrue-31s");
 
 		clock.leap(1, SECONDS);
 		ctrl.apply(mode, actions);
@@ -129,7 +260,55 @@ public class PhaseSwitchHandlerTest {
 	}
 
 	@Test
-	public void testTimeout() throws IllegalArgumentException, OpenemsNamedException {
+	void testInternalTimeout() throws IllegalArgumentException {
+		final var clock = createDummyClock();
+		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
+		final var ctrl = singleSut.ctrlSingle();
+		final var mode = ctrl.getParams().mode();
+		final var chargePoint = singleSut.chargePoint();
+		final BooleanSupplier phaseSwitchFailed = () -> (boolean) ctrl
+				.channel(ControllerEvseSingle.ChannelId.PHASE_SWITCH_FAILED).getNextValue().get();
+
+		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal()))
+				.build());
+		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
+				.setApplySetPointInWatt(2300) //
+				.setPhaseSwitch(new ApplyPhaseSwitch(PhaseSwitchDirection.TO_THREE_PHASE, //
+						new PhaseSwitchAbility.Internal())) //
+				.build();
+
+		chargePoint.withActivePower(1380);
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-0s");
+
+		clock.leap(29, SECONDS);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-DeadTime-29s");
+		assertFalse(phaseSwitchFailed.getAsBoolean());
+
+		clock.leap(1, SECONDS);
+		ctrl.apply(mode, actions);
+		// Phase has not switched yet -> PREDICATE_FALSE
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-PredicateFalse-30s");
+
+		clock.leap(569, SECONDS);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-PhaseSwitchInternal-PredicateFalse-599s");
+		assertFalse(phaseSwitchFailed.getAsBoolean());
+
+		clock.leap(1, SECONDS);
+		ctrl.apply(mode, actions);
+		assertDebugLog(ctrl, "Mode:Minimum|Charging");
+		assertTrue(phaseSwitchFailed.getAsBoolean());
+	}
+
+	@Test
+	void testTimeout() throws IllegalArgumentException {
 		final var clock = createDummyClock();
 		final var singleSut = generateSingleSut(clock, 0, config -> config.setLogVerbosity(LogVerbosity.DEBUG_LOG));
 		final var ctrl = singleSut.ctrlSingle();
@@ -140,14 +319,15 @@ public class PhaseSwitchHandlerTest {
 
 		chargePoint.withChargePointAbilities(ChargePointAbilities.create() //
 				.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SINGLE_PHASE, 6, 16)) //
-				.setPhaseSwitch(PhaseSwitch.TO_THREE_PHASE) //
+				.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE) //
 				.build());
 		var actions = ChargePointActions.from(chargePoint.getChargePointAbilities()) //
 				.setApplySetPointInAmpere(25) //
-				.setPhaseSwitch(PhaseSwitch.TO_THREE_PHASE) //
+				.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE) //
 				.build();
 
 		chargePoint.withActivePower(1234);
+		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		ctrl.apply(mode, actions);
 		assertDebugLog(ctrl, "Mode:Minimum|PhaseSwitchToThreePhase-StopCharge-DeadTime-0s");

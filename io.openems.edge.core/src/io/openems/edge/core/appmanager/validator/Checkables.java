@@ -1,8 +1,10 @@
 package io.openems.edge.core.appmanager.validator;
 
 import java.util.Collections;
+import java.util.Set;
 import java.util.TreeMap;
 
+import io.openems.edge.common.meta.types.CountryCode;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig.CheckableConfig;
 import io.openems.edge.core.appmanager.validator.relaycount.CheckRelayCount;
 import io.openems.edge.core.appmanager.validator.relaycount.InjectableComponentConfig;
@@ -100,6 +102,16 @@ public final class Checkables {
 	}
 
 	/**
+	 * Creates a {@link CheckableConfig} which checks if the installed system is a
+	 * Commercial 100.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCommercial100() {
+		return empty(CheckCommercial100.COMPONENT_NAME);
+	}
+
+	/**
 	 * Creates a {@link CheckableConfig} which checks if at least one of the checks
 	 * is successful.
 	 *
@@ -157,6 +169,49 @@ public final class Checkables {
 				new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>()) //
 						.put("appIds", appIds) //
 						.build());
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if no EVSE charge point is
+	 * installed.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkEvseNotInstalled() {
+		return empty(CheckEvseNotInstalled.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if no EVCS is installed.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkEvcsNotInstalled() {
+		return empty(CheckEvcsNotInstalled.COMPONENT_NAME);
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the system country is one
+	 * of the given allowed countries.
+	 *
+	 * @param allowedCountries the set of allowed country codes
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkCountry(Set<CountryCode> allowedCountries) {
+		return new ValidatorConfig.CheckableConfig(CheckCountry.COMPONENT_NAME, //
+				new ValidatorConfig.MapBuilder<>(new TreeMap<String, Object>())//
+						.put("allowedCountries", allowedCountries)//
+						.build());
+	}
+
+	/**
+	 * Creates a {@link CheckableConfig} which checks if the system uses Energy
+	 * Scheduler V2.
+	 *
+	 * @return the {@link CheckableConfig}
+	 */
+	public static CheckableConfig checkEnergySchedulerV2() {
+		return empty(CheckEnergySchedulerV2.COMPONENT_NAME);
 	}
 
 	private static CheckableConfig empty(String checkableName) {

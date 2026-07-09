@@ -9,6 +9,7 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ControllerIoHeatingElementChartComponent } from "../chart/chart";
 
 @Component({
+    selector: "oe-controller-heating-element-history",
     templateUrl: "./new-navigation.html",
     standalone: true,
     imports: [
