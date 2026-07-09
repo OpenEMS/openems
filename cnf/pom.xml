@@ -36,7 +36,9 @@
 			<!--
 			Javaluator is a simple, but powerful, infix expression evaluator for Java
 			Changelog: https://github.com/fathzer/javaluator/releases
-			Wrapper: io.openems.wrapper.javaluator
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
 			-->
 			<groupId>com.fathzer</groupId>
 			<artifactId>javaluator</artifactId>
