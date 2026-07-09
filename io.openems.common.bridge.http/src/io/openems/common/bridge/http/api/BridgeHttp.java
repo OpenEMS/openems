@@ -72,14 +72,24 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 
 		public static class Builder {
 			private final String url;
-			private HttpMethod method = HttpMethod.GET;
-			private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-			private int readTimeout = DEFAULT_READ_TIMEOUT;
+			private HttpMethod method;
+			private int connectTimeout;
+			private int readTimeout;
 			private String body;
 			private final Map<String, String> properties = new HashMap<>();
 
 			public Builder(String url) {
+				this(url, HttpMethod.GET, DEFAULT_CONNECT_TIMEOUT, DEFAULT_READ_TIMEOUT, null, emptyMap());
+			}
+
+			Builder(String url, HttpMethod method, int connectTimeout, int readTimeout, String body,
+					Map<String, String> properties) {
 				this.url = url;
+				this.method = method;
+				this.connectTimeout = connectTimeout;
+				this.readTimeout = readTimeout;
+				this.body = body;
+				this.properties.putAll(properties);
 			}
 
 			/**
@@ -101,6 +111,10 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 				Objects.requireNonNull(value, "Header value must not be null!");
 				this.properties.put(key, value);
 				return this;
+			}
+
+			public Builder setHeader(HttpHeader header) {
+				return this.setHeader(header.key(), header.value());
 			}
 
 			public Builder setMethod(HttpMethod method) {
@@ -126,12 +140,12 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 			}
 
 			public Builder setBodyJson(JsonElement json) {
-				this.setHeader("Content-Type", "application/json");
+				this.setHeader(HttpHeader.contentType(HttpMediaType.Application.JSON));
 				return this.setBody(json.toString());
 			}
 
 			public Builder setBodyFormEncoded(Map<String, String> body) {
-				this.setHeader("Content-Type", "application/x-www-form-urlencoded");
+				this.setHeader(HttpHeader.contentType(HttpMediaType.Application.X_WWW_FORM_URLENCODED));
 				return this.setBody(UrlBuilder.encodeFormUrlencodedBody(body));
 			}
 
@@ -161,6 +175,17 @@ public interface BridgeHttp extends BridgeHttpEventRaiser {
 			Objects.requireNonNull(url, "Url of Endpoint must not be null!");
 			Objects.requireNonNull(method, "Method of Endpoint must not be null!");
 			Objects.requireNonNull(properties, "Properties of Endpoint must not be null!");
+		}
+
+		/**
+		 * Creates a {@link Builder} instance initialized with the values of this
+		 * {@link Endpoint}.
+		 * 
+		 * @return the {@link Builder}
+		 */
+		public Builder toBuilder() {
+			return new Builder(this.url, this.method, this.connectTimeout, this.readTimeout, this.body,
+					this.properties);
 		}
 
 	}

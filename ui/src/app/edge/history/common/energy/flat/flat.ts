@@ -29,7 +29,7 @@ export class FlatComponent extends AbstractFlatWidget {
     private static readonly EXCEL_EXTENSION = ".xlsx";
     protected spinnerId: string = uuidv4();
     protected autarchyValue: number | null = null;
-    protected readonly isSmartphoneResolution = this.service.isSmartphoneResolution;
+    protected readonly isSmartphoneResolution = this.service.getIsSmartphoneResolution();
     protected readonly isApp: boolean = PlatFormService.platform !== "web";
     protected chartHeight: number | null = null;
 
@@ -49,7 +49,7 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     public getChartHeight(): number {
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position());
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position());
     }
 
     protected override onCurrentData(currentData: CurrentData) {

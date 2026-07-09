@@ -1,31 +1,127 @@
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
+import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
+import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
+
+import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { User } from "src/app/shared/jsonrpc/shared";
+import { UserService } from "src/app/shared/service/user.service";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
+import { ConsumptionChartComponent } from "./chart/consumption-chart-component";
 
 @Component({
-    selector: "oe-common-consumption-new-navigation",
-    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
+    selector: "oe-common-consumption",
+    templateUrl:
+        "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
+    protected override formlyWrapper:
+        | "formly-field-modal"
+        | "formly-field-navigation" = "formly-field-navigation";
 
-    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
+    private readonly userService = inject(UserService);
 
     private evcss: EvcsComponent[] = [];
     private consumptionMeters: EdgeConfig.Component[] = [];
 
-    public static getFormlyGeneralView(config: EdgeConfig | null, translate: TranslateService, evcss: EvcsComponent[], consumptionMeters: EdgeConfig.Component[]): OeFormlyView {
-
+    public static async getFormlyGeneralView(
+        translate: TranslateService,
+        service: Service,
+        user: User | null,
+        edge: Edge,
+        energyScheduler: EnergySchedulerV2,
+        evcss: EvcsComponent[],
+        consumptionMeters: EdgeConfig.Component[],
+    ): Promise<OeFormlyView> {
+        await energyScheduler?.updateSchedule(edge, service.websocket);
         const lines: OeFormlyField[] = [];
+
+        if (energyScheduler.schedule !== GetSchedule.Response.empty) {
+            // TODO INTERSOLAR
+            if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
+                const energyToday =
+                    energyScheduler.schedule.calculateEnergyFromPower(
+                        "today",
+                        "ConsumptionActivePower",
+                    );
+                const energyTomorrow =
+                    energyScheduler.schedule.calculateEnergyFromPower(
+                        "tomorrow",
+                        "ConsumptionActivePower",
+                    );
+                lines.push({
+                    type: "stats-line",
+                    stats: [
+                        {
+                            name: translate.instant("EDGE.HISTORY.TODAY"),
+                            value: energyToday.history,
+                            unit: "kWh",
+                            predictionValue: energyToday.prediction,
+                        },
+                        {
+                            name: translate.instant("EDGE.HISTORY.TOMORROW"),
+                            value: energyTomorrow.prediction,
+                            unit: "kWh",
+                        },
+                    ],
+                });
+            }
+
+            lines.push(
+                {
+                    type: "component-line",
+                    component: SingleXAxisComponent,
+                    inputs: {
+                        data: energyScheduler?.schedule,
+                    },
+                },
+                {
+                    type: "horizontal-line",
+                },
+                {
+                    type: "channel-line",
+                    name: translate.instant("GENERAL.POWER"),
+                    channel: new ChannelAddress(
+                        "_sum",
+                        "ProductionActivePower",
+                    ).toString(),
+                    converter: Converter.POWER_IN_KILO_WATT,
+                    style: {
+                        name: { fontSize: "large" },
+                        value: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
+                },
+                {
+                    type: "component-line",
+                    component: ConsumptionChartComponent,
+                    inputs: {
+                        edge: edge,
+                        refresh: false,
+                        data: energyScheduler?.schedule,
+                    },
+                },
+                {
+                    type: "horizontal-line",
+                },
+                {
+                    type: "name-line",
+                    name: translate.instant("GENERAL.DETAILS"),
+                    style: {
+                        name: { fontSize: "large" },
+                    },
+                    cssClass: "ion-padding-top",
+                },
+            );
+        }
 
         for (const evcs of evcss) {
             lines.push({
@@ -35,11 +131,14 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                 converter: Converter.POWER_IN_KILO_WATT,
             });
         }
+
         for (const consumptionMeter of consumptionMeters) {
             lines.push({
                 type: "channel-line",
                 name: consumptionMeter.alias ?? consumptionMeter.id,
-                channel: ChannelAddress.fromString(consumptionMeter.id + "/ActivePower").toString(),
+                channel: ChannelAddress.fromString(
+                    consumptionMeter.id + "/ActivePower",
+                ).toString(),
                 converter: Converter.POWER_IN_KILO_WATT,
             });
         }
@@ -52,14 +151,22 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                 {
                     type: "value-from-channels-line",
                     name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
-                    value: (currentData: CurrentData) => Converter.POSITIVE_POWER_IN_KILO_WATT(
-                        Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
+                    value: (currentData: CurrentData) =>
+                        Converter.POSITIVE_POWER_IN_KILO_WATT(
+                            Converter.CALCULATE_CONSUMPTION_OTHER_POWER(
+                                evcss,
+                                consumptionMeters,
+                                currentData,
+                            ),
+                        ),
                     channelsToSubscribe: [
                         new ChannelAddress("_sum", "ConsumptionActivePower"),
-                        ...consumptionMeters.map(el => new ChannelAddress(el.id, "ActivePower")),
-                        ...evcss.map(el => el.powerChannel),
+                        ...consumptionMeters.map(
+                            (el) => new ChannelAddress(el.id, "ActivePower"),
+                        ),
+                        ...evcss.map((el) => el.powerChannel),
                     ],
-                }
+                },
             );
         }
 
@@ -73,15 +180,33 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         };
     }
 
-    protected override generateView(): OeFormlyView {
+    protected override async generateView(): Promise<OeFormlyView> {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
+        const user = this.userService.currentUser();
+        const energy = new EnergySchedulerV2(config);
 
         this.evcss = EvcsComponent.getComponents(config, edge);
-        this.consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+        this.consumptionMeters = config
+            .getComponentsImplementingNature(
+                "io.openems.edge.meter.api.ElectricityMeter",
+            )
+            .filter(
+                (component) =>
+                    component.isEnabled &&
+                    config.isTypeConsumptionMetered(component) &&
+                    !this.evcss.some((el) => el.id === component.id),
+            );
 
-        return CommonConsumptionHomeComponent.getFormlyGeneralView(config, this.translate, this.evcss, this.consumptionMeters);
+        return CommonConsumptionHomeComponent.getFormlyGeneralView(
+            this.translate,
+            this.service,
+            user,
+            edge,
+            energy,
+            this.evcss,
+            this.consumptionMeters,
+        );
     }
 }

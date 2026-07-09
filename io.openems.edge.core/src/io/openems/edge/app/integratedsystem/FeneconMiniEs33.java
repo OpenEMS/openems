@@ -122,7 +122,7 @@ public class FeneconMiniEs33
 					FeneconMiniComponents.ess(essId, modbusId, essPhase, essReadOnly), //
 					FeneconMiniComponents.gridMeter(gridMeterId, modbusId), //
 					FeneconMiniComponents.pvMeter(pvMeterId, modbusId), //
-					FeneconMiniComponents.modbus(modbusId) //
+					FeneconMiniComponents.modbus(modbusId, t) //
 			);
 
 			return AppConfiguration.create() //

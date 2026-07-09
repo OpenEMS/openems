@@ -2,6 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
@@ -39,8 +40,8 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome15.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -167,7 +168,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			}
 			final var hasEssLimiter14a = this.getBoolean(p, Property.HAS_ESS_LIMITER_14A);
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
@@ -184,14 +185,15 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 					FeneconHomeComponents.ess(bundle, essId, "battery0", "batteryInverter0"),
 					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), //
 					// battery
-					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
 							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),
 					// other
-					FeneconHomeComponents.power(), FeneconHomeComponents.io(bundle, modbusIdInternal));
+					FeneconHomeComponents.power());
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
 
 			for (int i = 0; i < 3; i++) {
 				final var oneBase = i + 1;

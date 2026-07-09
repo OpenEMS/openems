@@ -3,10 +3,13 @@ package io.openems.edge.app.evcs;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommunicationProps.modbusUnitId;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
 
+import io.openems.edge.app.enums.EMobilityArchitectureType;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -72,7 +75,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Webasto.Next")
 public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, EMobilityApp {
 
 	public enum Property implements Type<Property, WebastoNextEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -212,6 +215,11 @@ public class WebastoNextEvcs extends AbstractOpenemsAppWithProps<WebastoNextEvcs
 	@Override
 	public Meta getMeta() {
 		return this.meta;
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 
 }

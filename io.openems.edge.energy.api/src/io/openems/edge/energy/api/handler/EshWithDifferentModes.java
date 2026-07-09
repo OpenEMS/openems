@@ -26,47 +26,67 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		extends AbstractEnergyScheduleHandler<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> //
 		implements EnergyScheduleHandler.WithDifferentModes {
 
-	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<MODE>> modesFunction;
+	private final BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> modesFunction;
 	private final InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider;
 	private final PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor;
 	private final Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator;
+	private final DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator;
 	private final SortedMap<ZonedDateTime, DifferentModes.Period<MODE, OPTIMIZATION_CONTEXT>> schedule = new TreeMap<>();
 
-	private Modes<MODE> modes = Modes.empty();
+	private Modes<?, MODE> _modes = null;
 
 	protected EshWithDifferentModes(//
 			String parentFactoryPid, String parentId, //
 			Serializer<?> serializer, //
-			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<MODE>> modesFunction, //
+			BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> modesFunction, //
 			Function<GlobalOptimizationContext, OPTIMIZATION_CONTEXT> cocFunction, //
 			Function<OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> cscFunction, //
 			InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider, //
 			PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor, //
-			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator) {
+			Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator, //
+			DifferentModes.Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
 		super(parentFactoryPid, parentId, serializer, cocFunction, cscFunction);
 		this.modesFunction = modesFunction;
 		this.initialPopulationsProvider = initialPopulationsProvider;
 		this.preProcessor = preProcessor;
 		this.simulator = simulator;
+		this.evaluator = evaluator;
 	}
 
 	@Override
 	public OPTIMIZATION_CONTEXT initialize(GlobalOptimizationContext goc) {
 		var context = super.initialize(goc);
-		this.modes = this.modesFunction.apply(goc, context);
+		this._modes = this.modesFunction.apply(goc, context);
 		return context;
 	}
 
 	@Override
 	public ImmutableList<InitialPopulation.Transition> getInitialPopulation(GlobalOptimizationContext goc) {
-		return this.initialPopulationsProvider.get(goc, this.coc, this.modes).stream() //
-				.map(ip -> ip.toTansition(this.modes::getIndex)) //
-				.collect(toImmutableList());
+		final var modes = this._modes;
+		return modes != null //
+				? this.initialPopulationsProvider.get(goc, this.coc, modes).stream() //
+						.map(ip -> ip.toTansition(modes::getIndex)) //
+						.collect(toImmutableList()) //
+				: ImmutableList.of();
 	}
 
 	@Override
-	public Modes<?> modes() {
-		return this.modes;
+	public Modes<?, MODE> modes() {
+		return this._modes;
+	}
+
+	private MODE getMode(int index) {
+		final var modes = this._modes;
+		return modes != null //
+				? modes.get(index) //
+				: null;
+	}
+
+	private int getModeIndex(MODE mode) {
+		final var modes = this._modes;
+		return modes != null //
+				? modes.getIndex(mode) //
+				: 0;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -77,9 +97,9 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 
 	@Override
 	public int preProcessPeriod(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, int modeIndex) {
-		var oldMode = this.modes.get(modeIndex);
+		var oldMode = this.getMode(modeIndex);
 		var newMode = this.preProcessor.preProcess(period, this.coc, oldMode);
-		return this.modes.getIndex(newMode);
+		return this.getModeIndex(newMode);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,8 +107,16 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 	public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
 			EnergyFlow.Model ef, int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
 		var postProcessedMode = this.simulator.simulate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc,
-				ef, this.modes.get(modeIndex), fitness, isFinalRun);
-		return this.modes.getIndex(postProcessedMode);
+				ef, this.getMode(modeIndex), fitness, isFinalRun);
+		return this.getModeIndex(postProcessedMode);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc, EnergyFlow ef,
+			int modeIndex, Fitness.Builder fitness, boolean isFinalRun) {
+		this.evaluator.evaluate(this.parentId, period, gsc, this.coc, (SCHEDULE_CONTEXT) csc, ef,
+				this.getMode(modeIndex), fitness, isFinalRun);
 	}
 
 	@Override
@@ -96,6 +124,12 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 		final var thisQuarter = roundDownToQuarter(this.getNow());
 		final var nextQuarter = thisQuarter.plusMinutes(15);
 		final var coc = this.coc;
+		final var modes = this._modes;
+		if (modes == null || modes.isEmpty()) {
+			System.err.println("Modes is empty!"); // TODO proper log
+			return;
+		}
+
 		synchronized (this.schedule) {
 			// Clear outdated entries
 			this.schedule.headMap(thisQuarter).clear();
@@ -104,12 +138,8 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 			this.schedule.tailMap(nextQuarter).clear();
 
 			// Update entries from param
-			if (this.modes.isEmpty()) {
-				System.err.println("Modes is empty!"); // TODO proper log
-				return;
-			}
 			schedule.forEach((k, t) -> {
-				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, this.modes::get, coc));
+				this.schedule.put(k, DifferentModes.Period.fromTransitionRecord(t, modes::get, coc));
 			});
 		}
 	}
@@ -136,9 +166,9 @@ public final class EshWithDifferentModes<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CO
 
 	@Override
 	protected void buildToString(MoreObjects.ToStringHelper toStringHelper) {
-		var modes = this.modes;
+		var modes = this._modes;
 		if (modes != null) {
-			toStringHelper.add("modes", this.modes.toString());
+			toStringHelper.add("modes", modes.toString());
 		}
 	}
 }

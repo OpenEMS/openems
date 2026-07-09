@@ -8,11 +8,12 @@ import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.common.AbstractAllowedChargeDischargeHandler;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 
 public class AllowedChargeDischargeHandler extends AbstractAllowedChargeDischargeHandler<EssGenericManagedSymmetric> {
 
-	public AllowedChargeDischargeHandler(EssGenericManagedSymmetric parent) {
-		super(parent);
+	public AllowedChargeDischargeHandler(EssGenericManagedSymmetric parent, EssProtectionConfig essProtectionConfig) {
+		super(parent, essProtectionConfig);
 	}
 
 	@Override
