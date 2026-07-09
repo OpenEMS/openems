@@ -1,12 +1,14 @@
 package io.openems.edge.timeofusetariff.entsoe;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Clock;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.timedata.DurationUnit;
 import io.openems.common.utils.TimeRangeValues;
@@ -37,5 +39,33 @@ public class PriceCalculatorTest {
 		assertEquals(23.8, result.getAt(baseInstant), 0.1);
 		assertEquals(47.6, result.getAt(baseInstant.plus(15, MINUTES)), 0.1);
 		assertEquals(71.4, result.getAt(baseInstant.plus(30, MINUTES)), 0.1);
+	}
+
+	@Test
+	public void test() {
+		// Division by zero
+		assertTrue(Double.isNaN(new PriceCalculator("x / y").calculate(0, 0)));
+
+		// Fallback to 'x + y'
+		assertEquals(2, new PriceCalculator(null).calculate(1, 1));
+		assertEquals(2, new PriceCalculator("").calculate(1, 1));
+		assertEquals(2, new PriceCalculator("   ").calculate(1, 1));
+
+		// 'z is not a number'
+		assertThrows(IllegalArgumentException.class, () -> new PriceCalculator("x + y + z").calculate(1, 1));
+
+		// Expected results
+		assertTrue(Double.isNaN(new PriceCalculator("x + y").calculate(Double.NaN, 1)));
+		assertEquals(1, new PriceCalculator("x / y").calculate(1, 1));
+		assertEquals(2, new PriceCalculator("x + y").calculate(1, 1));
+		assertEquals(0, new PriceCalculator("x - y").calculate(1, 1));
+		assertEquals(1, new PriceCalculator("x * y").calculate(1, 1));
+		assertEquals(-3, new PriceCalculator("x + y").calculate(-5, 2));
+		assertEquals(-4, new PriceCalculator("(x + y) * 2").calculate(-3, 1));
+
+		// Repeated calls update variables on the same instance
+		var reusedPriceCalculator = new PriceCalculator("x - y");
+		assertEquals(8, reusedPriceCalculator.calculate(10, 2));
+		assertEquals(1, reusedPriceCalculator.calculate(3, 2));
 	}
 }

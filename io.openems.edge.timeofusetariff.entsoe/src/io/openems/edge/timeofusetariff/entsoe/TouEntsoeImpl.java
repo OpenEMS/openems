@@ -103,7 +103,15 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
 
-		this.priceCalculator = new PriceCalculator(config.calculateExpression());
+		try {
+			final var priceCalculator = new PriceCalculator(config.calculateExpression());
+			priceCalculator.calculate(1., 1.);
+			this.priceCalculator = priceCalculator;
+		} catch (Exception e) {
+			this.logWarn(this.log,
+					"Calculate expression [" + config.calculateExpression() + "] failed. Falling back to [x + y].");
+			this.priceCalculator = new PriceCalculator("");
+		}
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
