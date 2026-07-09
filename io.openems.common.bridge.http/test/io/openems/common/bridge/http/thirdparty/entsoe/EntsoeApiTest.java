@@ -1,20 +1,22 @@
 package io.openems.common.bridge.http.thirdparty.entsoe;
 
-import io.openems.common.bridge.http.time.DelayTimeProvider;
-import io.openems.common.exceptions.OpenemsError;
-import io.openems.common.types.EntsoeBiddingZone;
-import io.openems.common.xml.serialization.XmlParser;
-import org.junit.Test;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 
-import static io.openems.common.test.TestUtils.createDummyClock;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
+
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.exceptions.OpenemsError;
+import io.openems.common.types.EntsoeBiddingZone;
+import io.openems.common.xml.serialization.XmlParser;
 
 public class EntsoeApiTest {
 	private static final String XML = """
@@ -4843,8 +4845,9 @@ public class EntsoeApiTest {
 		assertEquals(116.09, prices.getValues().getAt(Instant.parse("2025-10-14T22:15:00Z")), 0.001);
 		assertEquals(90.22, prices.getValues().getAt(Instant.parse("2025-10-15T22:00:00Z")), 0.001);
 
-		prices = api.readPriceData(parser.parseXml(XML_ONLY_WITH_SEQUENCE_2), biddingZone, clock);
-		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
+		assertThrows(RuntimeException.class /* Missing currency data in sequences */, () -> {
+			api.readPriceData(parser.parseXml(XML_ONLY_WITH_SEQUENCE_2), biddingZone, clock);
+		});
 
 		prices = api.readPriceData(parser.parseXml(MISSING_DATA_AND_MULTIPLE_PERIODS_XML), biddingZone, clock);
 		assertFalse("Price map should not be empty", prices.getValues().isEmpty());
@@ -4906,21 +4909,24 @@ public class EntsoeApiTest {
 		baseTime = ZonedDateTime.parse("2025-10-21T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be less than 1 hour", duration.compareTo(Duration.ofHours(1)) < 0);
 
 		baseTime = ZonedDateTime.parse("2025-10-14T12:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be 2 hours", duration.toHours() == 2);
 
 		baseTime = ZonedDateTime.parse("2025-10-14T14:00:00Z");
 		clock = Clock.fixed(baseTime.toInstant(), baseTime.getZone());
 
-		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2), EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
+		delay = EntsoeApi.INSTANCE.calculateNextFetchDelay(XmlParser.INSTANCE.parseXml(XML_WITH_BOTH_SEQUENCE_1_AND_2),
+				EntsoeApi.ENTSOE_UPDATE_HOUR, clock);
 		duration = ((DelayTimeProvider.Delay.DurationDelay) delay).getDuration();
 		assertTrue("Delay should be 24 hours", duration.toHours() == 24);
 

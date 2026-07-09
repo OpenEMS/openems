@@ -20,6 +20,7 @@ import { SystemOutageInfoComponent } from "./edge/live/system-outage-info/oe-sys
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
+import { FooterContentComponent } from "./shared/components/footer/content/content";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
@@ -40,6 +41,7 @@ provideTranslateLoader(MyTranslateLoader);
         NavigationComponent,
     ],
     imports: [
+        FooterContentComponent,
         SystemOutageInfoComponent,
         AngularMyDatePickerModule,
         AppRoutingModule,

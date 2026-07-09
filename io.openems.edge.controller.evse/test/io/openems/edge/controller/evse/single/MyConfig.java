@@ -3,7 +3,6 @@ package io.openems.edge.controller.evse.single;
 import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -51,7 +50,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.oneShot = oneShot;
 			return this;
 		}
-		
+
 		public Builder setJsCalendar(String jsCalendar) {
 			this.jsCalendar = jsCalendar;
 			return this;

@@ -79,7 +79,6 @@ export class ChartComponent implements OnInit, OnChanges {
             },
         });
 
-        await popover.present();
         popover.onDidDismiss().then((data) => {
             this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
             this.showTotal = data.role == "Total" ? data.data : this.showTotal;

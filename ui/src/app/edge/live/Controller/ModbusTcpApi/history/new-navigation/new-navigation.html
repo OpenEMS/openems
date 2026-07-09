@@ -1,0 +1,29 @@
+@if (edge) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
+      @if (!ref.children.length) {
+        <pickdate></pickdate>
+      }
+    </ion-buttons>
+    <oe-controller-modbus-tcp-api-chart [isOnlyChart]="true">
+      @if (this.component && this.component.factoryId === "Controller.Api.ModbusTcp.ReadWrite") {
+        <div>
+          <ion-row class="ion-justify-content-center">
+            <ion-item class="ion-text-center" lines="none">
+              <ion-icon color="primary" size="large" slot="start" name="alert-outline"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <ion-row class="ion-text-center" style="white-space: pre !important; width: 100%">
+                  <small translate> EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_CHARGE </small>
+                </ion-row>
+                <ion-row size="6" class="ion-text-center" style="white-space: pre !important; width: 100%">
+                  <small translate> EDGE.INDEX.WIDGETS.INFO_STORAGE_FOR_DISCHARGE </small>
+                </ion-row>
+              </ion-label>
+            </ion-item>
+          </ion-row>
+        </div>
+      }
+    </oe-controller-modbus-tcp-api-chart>
+  </oe-navigation-view>
+}

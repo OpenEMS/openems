@@ -3,6 +3,7 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.deinstallableSelfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
@@ -151,14 +152,18 @@ public class FeneconCommercial92
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+			final var dcMinVoltage = GridCode.VDE_4110.name().equals(gridCode) ? 653 : 650;
+			final var essProtection = GridCode.VDE_4110.name().equals(gridCode) //
+					? "RAMP"
+					: "VOLTAGE_REGULATION";
 
 			final var components = Lists.newArrayList(//
-					ComponentDef
-							.from(FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget)), //
+					ComponentDef.from(FeneconHomeComponents.battery(deviceHardware, bundle, batteryId,
+							modbusToBatteryId, batteryTarget)), //
 					FeneconCommercialComponents.batteryInverterWithForceErrorBehaviour(bundle, batteryInverterId,
-							modbusToBatteryInverterId, gridCode), //
+							modbusToBatteryInverterId, dcMinVoltage, gridCode), //
 					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
-							batteryInverterId), //
+							batteryInverterId, essProtection), //
 					ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)), //
 					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
 					ComponentDef.from(
@@ -166,6 +171,12 @@ public class FeneconCommercial92
 					ComponentDef.from(FeneconHomeComponents.modbusForExternalMeters(bundle, t,
 							modbusToExternalDevicesId, deviceHardware)) //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(//
+						ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)) //
+				);
+			}
 
 			final var dependencies = Lists.newArrayList(//
 					deinstallableSelfConsumptionOptimization(t, essId, gridMeterId), //

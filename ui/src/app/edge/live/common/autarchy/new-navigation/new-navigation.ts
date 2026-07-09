@@ -8,7 +8,7 @@ import { LiveDataService } from "../../../livedataservice";
 import { SharedAutarchy } from "../shared/shared";
 
 @Component({
-    selector: "oe-common-autarchy-new-navigation",
+    selector: "oe-common-autarchy",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [

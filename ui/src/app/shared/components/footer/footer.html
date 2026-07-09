@@ -1,29 +1,5 @@
-@if (!service.isSmartphoneResolution) {
+@if (!isSmartphone) {
   <ion-footer style="--background: var(--ion-color-toolbar-primary);">
-    @if (user && edge && displayValues) {
-      <ng-container lines="none">
-        <ion-grid style="background-color: var(--ion-color-toolbar-primary); color: var(--ion-color-primary-footer)">
-          <ion-row>
-            <ion-col size="12">
-              @if (displayValues.comment) {
-                <span>
-                  {{displayValues.comment}}
-                  |
-                </span>
-              }
-              <span>
-                {{displayValues.id}}
-              </span>
-              |
-              @if ((service.metadata | async)?.user?.globalRole; as role) {
-                <a routerLink="/device/{{edge.id}}/settings/system" style="color: var(--ion-color-primary-footer)">
-                  Version {{(displayValues.version | version:role)}}
-                </a>
-              }
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ng-container>
-    }
+    <oe-footer-content></oe-footer-content>
   </ion-footer>
 }

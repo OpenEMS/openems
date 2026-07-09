@@ -10,7 +10,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	public enum State implements io.openems.edge.common.statemachine.State<State>, OptionsEnum {
 		OFF(1), //
 		FAST_HEAT(2), //
-		FAST_HEAT_PAUSE(3), //
+		FAST_HEAT_PROTECTION_PAUSE(3), //
 		SURPLUS(4); //
 
 		private final int value;
@@ -64,8 +64,9 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	 * operating mode.
 	 *
 	 * <p>
-	 * This keeps {@link State#FAST_HEAT_PAUSE} within {@link Mode#FAST_HEAT}
-	 * without forcing a transition back to {@link State#FAST_HEAT} on every cycle.
+	 * This keeps {@link State#FAST_HEAT_PROTECTION_PAUSE} within
+	 * {@link Mode#FAST_HEAT} without forcing a transition back to
+	 * {@link State#FAST_HEAT} on every cycle.
 	 *
 	 * @param state the current state-machine state
 	 * @param mode  the resolved operating mode
@@ -74,7 +75,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 	public static boolean matchesMode(State state, Mode mode) {
 		return switch (mode) {
 		case OFF -> state == State.OFF;
-		case FAST_HEAT -> state == State.FAST_HEAT || state == State.FAST_HEAT_PAUSE;
+		case FAST_HEAT -> state == State.FAST_HEAT || state == State.FAST_HEAT_PROTECTION_PAUSE;
 		case SURPLUS -> state == State.SURPLUS;
 		};
 	}
@@ -84,7 +85,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		return switch (state) {
 		case OFF -> new OffHandler();
 		case FAST_HEAT -> new FastHeatHandler();
-		case FAST_HEAT_PAUSE -> new FastHeatPauseHandler();
+		case FAST_HEAT_PROTECTION_PAUSE -> new FastHeatProtectionPauseHandler();
 		case SURPLUS -> new SurplusHandler();
 		};
 	}
