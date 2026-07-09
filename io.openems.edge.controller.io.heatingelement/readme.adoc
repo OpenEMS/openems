@@ -76,7 +76,7 @@ Channel _TotalPhaseTime_::
 
 === Schedule Configuration
 This controller supports time-based scheduling via the schedule parameter. It uses the JSCalendar format to define recurring schedules. +
-Examples of usage and formatting can be found in the test classes ControllerHeatingElementImplTest9.java and ControllerHeatingElementImplTest10.java. +
+Examples of usage and formatting can be found in the test classes https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.io.heatingelement/test/io/openems/edge/controller/io/heatingelement/ControllerHeatingElementImplTest9.java[ControllerHeatingElementImplTest9.java] and https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.controller.io.heatingelement/test/io/openems/edge/controller/io/heatingelement/ControllerHeatingElementImplTest10.java[ControllerHeatingElementImplTest10.java]. +
 Note: The schedule only takes effect in the Mode Automatic with any WorkMode (None, Time, Energy)
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.io.heatingelement[Source Code icon:github[]]
