@@ -25,6 +25,16 @@ describe("Array-Utils", () => {
         expect(() => ArrayUtils.sortedAlphabetically(inputArr, null)).toThrow();
     });
 
+    it("sorts numeric suffixes naturally", () => {
+        const inputArr = ["Meter 10", "Meter 2", "Meter 1"];
+
+        expect(ArrayUtils.sortedAlphabetically(inputArr, a => a)).toEqual([
+            "Meter 1",
+            "Meter 2",
+            "Meter 10",
+        ]);
+    });
+
     describe("ReducerFunctions", () => {
 
         it("+sum", () => {

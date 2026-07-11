@@ -84,6 +84,7 @@ export namespace ArrayUtils {
             }
             return aVal.localeCompare(bVal, undefined, {
                 sensitivity: "accent",
+                numeric: true,
             });
         });
     }

@@ -11,6 +11,22 @@ import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
 
+describe("EdgeConfig component ordering", () => {
+    it("sorts components returned by a factory by alias", () => {
+        const config = DummyConfig.from(
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Meter 10"),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", ""),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter2", "Meter 2"),
+        );
+
+        expect(config.getComponentsByFactory("Meter.Socomec.Threephase").map(component => component.alias)).toEqual([
+            "Meter 2",
+            "Meter 10",
+            "",
+        ]);
+    });
+});
+
 export namespace DummyConfig {
     export function dummyEdge(values: {
         edgeId?: string;

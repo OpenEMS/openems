@@ -1,6 +1,7 @@
 import { TranslateService } from "@ngx-translate/core";
 import { ChannelAddress } from "../../shared";
 import { Widgets } from "../../type/widgets";
+import { ArrayUtils } from "../../utils/array/array.utils";
 import { Edge } from "./edge";
 
 export interface CategorizedComponents {
@@ -105,6 +106,10 @@ export class EdgeConfig {
 
                 // Complete 'factories' map
                 factory.componentIds.push(componentId);
+            }
+
+            for (const factory of Object.values(this.factories)) {
+                ArrayUtils.sortedAlphabetically(factory.componentIds, componentId => this.components[componentId].alias);
             }
         }
 
