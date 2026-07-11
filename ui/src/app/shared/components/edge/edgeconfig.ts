@@ -480,6 +480,7 @@ export class EdgeConfig {
                 result.push(...this.getComponentsImplementingNature("io.openems.edge.meter.api.SymmetricMeter"));
         }
 
+        ArrayUtils.sortedAlphabetically(result, component => component.alias);
         return result;
     }
 
@@ -708,9 +709,8 @@ export class EdgeConfig {
                     // remove Components from list that have already been listed before
                     .filter(component => !ignoreComponentIds.includes(component.id))
                     // remove duplicates
-                    .filter((e, i, arr) => arr.indexOf(e) === i)
-                    // sort by ID
-                    .sort((c1, c2) => c1.id.localeCompare(c2.id));
+                    .filter((e, i, arr) => arr.indexOf(e) === i);
+            ArrayUtils.sortedAlphabetically(components, component => component.alias);
             if (components.length > 0) {
                 components.forEach(component => {
                     ignoreComponentIds.push(component.id);
