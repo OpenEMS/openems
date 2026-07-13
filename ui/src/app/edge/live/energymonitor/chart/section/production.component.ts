@@ -1,7 +1,9 @@
 // @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
@@ -17,19 +19,21 @@ import { AnimationService } from "./animation.service";
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
 
-    private unitpipe: UnitvaluePipe;
+    protected productionAnimationClass: string = "production-hide";
+
     private subShow?: Subscription;
-    private productionAnimationClass: string = "production-hide";
     private animationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
+        private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
-        this.unitpipe = unitpipe;
+        super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, navigationService, router, route, "Common_Production", ["common", "production"]);
     }
 
     ngOnInit() {

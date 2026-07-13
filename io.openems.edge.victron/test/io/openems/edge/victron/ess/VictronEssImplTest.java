@@ -3,9 +3,14 @@ package io.openems.edge.victron.ess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
+import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.victron.battery.VictronBatteryImplTest;
 
 /**
  * Tests for {@link VictronEssImpl}.
@@ -14,6 +19,27 @@ public class VictronEssImplTest {
 
 	private static final String ESS_ID = "ess0";
 	private static final String MODBUS_ID = "modbus0";
+
+	@Test
+	public void test() throws OpenemsException, Exception {
+		new ComponentTest(new VictronEssImpl()) //
+				.addReference("battery", VictronBatteryImplTest.createVictronBattery().sut) //
+				.activate(MyConfig.create() //
+						.setId(ESS_ID) //
+						.setAlias("Victron ESS") //
+						.setEnabled(true) //
+						.setModbusId(MODBUS_ID) //
+						.setModbusUnitId(227) //
+						.setPhase(SingleOrAllPhase.ALL) //
+						.setDebugMode(false) //
+						.setReadOnlyMode(false) //
+						.setCapacity(10000) //
+						.setMaxApparentPower(5000) //
+						.build()) //
+				.next(new TestCase() //
+						.output(SymmetricEss.ChannelId.CAPACITY, 10000)) //
+				.deactivate();
+	}
 
 	@Test
 	public void testChannelIdCount() {

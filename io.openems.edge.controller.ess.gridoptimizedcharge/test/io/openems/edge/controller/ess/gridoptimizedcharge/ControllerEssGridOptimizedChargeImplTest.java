@@ -3,6 +3,7 @@ package io.openems.edge.controller.ess.gridoptimizedcharge;
 import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_DC_ACTUAL_POWER;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.DELAY_CHARGE_STATE;
+import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.NO_VALID_PRODUCTION_PREDICTION;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.PREDICTED_TARGET_MINUTE;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.PREDICTED_TARGET_MINUTE_ADJUSTED;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT;
@@ -17,8 +18,8 @@ import static io.openems.edge.ess.api.SymmetricEss.ChannelId.MAX_APPARENT_POWER;
 import static io.openems.edge.ess.api.SymmetricEss.ChannelId.SOC;
 import static io.openems.edge.predictor.api.prediction.Prediction.EMPTY_PREDICTION;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.awt.Color;
 import java.io.File;
@@ -34,8 +35,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.ThrowingRunnable;
@@ -328,7 +329,6 @@ public class ControllerEssGridOptimizedChargeImplTest {
 						.output(DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2673) //
 						.output(RAW_DELAY_CHARGE_MAXIMUM_CHARGE_LIMIT, 2666)) //
 				.deactivate();
-		;
 	}
 
 	@Test
@@ -1256,7 +1256,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
-	public void getCalculatedPowerLimit_middayTest() throws Exception {
+	public void getCalculatedPowerLimit_middayTest() {
 		/*
 		 * Initial values
 		 */
@@ -1290,7 +1290,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 
 		// If Energy calculation would be applied on medium risk level - Predicted
 		// available Energy is not enough to reach 100%
-		assertEquals(1620, (int) maximumChargePower); //
+		assertEquals(1620, maximumChargePower); //
 	}
 
 	private static final Integer[] PRODUCTION_PREDICTION_LOW = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1364,8 +1364,8 @@ public class ControllerEssGridOptimizedChargeImplTest {
 			3226, 2358, 1778, 1002, 455, 654, 534, 1587, 1638, 459, 330, 258, 368, 728, 1096, 878 };
 
 	@Test
-	@Ignore // Avoid creating files in every automatic build
-	public void getCalculatedPowerLimit_wholeDayTest() throws Exception {
+	@Disabled // Avoid creating files in every automatic build
+	public void getCalculatedPowerLimit_wholeDayTest() {
 
 		/*
 		 * Initial values
@@ -1772,7 +1772,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
-	public void calculateAvailEnergy_shortPrediction_test() throws Exception {
+	public void calculateAvailEnergy_shortPrediction_test() {
 		final var clock = new TimeLeapClock(Instant.parse("2020-01-01T08:00:00.00Z"), ZoneOffset.UTC);
 
 		// Only 2 prediction entries but targetMinute at 12:00 requires endIndex=16.
@@ -1831,7 +1831,7 @@ public class ControllerEssGridOptimizedChargeImplTest {
 	}
 
 	@Test
-	public void getCalculatedPowerLimit_morningTest_HighCap() throws Exception {
+	public void getCalculatedPowerLimit_morningTest_HighCap() {
 
 		/*
 		 * Initial values
@@ -1881,5 +1881,40 @@ public class ControllerEssGridOptimizedChargeImplTest {
 		}
 
 		return targetTime.get(ChronoField.MINUTE_OF_DAY);
+	}
+
+	@Test
+	public void testPvWarning() throws Exception {
+
+		var sut = new ControllerEssGridOptimizedChargeImpl();
+		new ControllerTest(sut) //
+				.addReference("meta", META) //
+				.addReference("predictorManager", new DummyPredictorManager()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("ess", ESS) //
+				.addReference("meter", METER) //
+				.addReference("sum", new DummySum()) //
+				.addReference("rcr", RCR) //
+				.activate(MyConfig.create() //
+						.setEssId("ess0") //
+						.setId("ctrlGridOptimizedCharge0") //
+						.setMeta(META) //
+						.setGridFeedInLimitationType(GridFeedInLimitationType.DYNAMIC_LIMITATION) //
+						.setMeterId("meter0") //
+						.setDelayChargeRiskLevel(DelayChargeRiskLevel.MEDIUM) //
+						.setMode(Mode.AUTOMATIC) //
+						.setSellToGridLimitEnabled(true) //
+						.setSellToGridLimitRampPercentage(5) //
+						.setManualTargetTime("") //
+						.build()) //
+				.next(new TestCase() //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, null) //
+						.output(NO_VALID_PRODUCTION_PREDICTION, true)) //
+				.next(new TestCase() //
+						.onAfterProcessImage(sut::disableRun) //
+						.input(SUM_PRODUCTION_ACTIVE_POWER, 5000) //
+						.output(NO_VALID_PRODUCTION_PREDICTION, false)) //
+				.deactivate();
 	}
 }

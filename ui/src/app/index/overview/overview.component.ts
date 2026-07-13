@@ -2,14 +2,13 @@
 import { Component, effect, model, OnDestroy, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, Platform, ViewWillEnter, } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
-import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, Service, Utils, Websocket } from "src/app/shared/shared";
+import { Edge, Service, UserPermission, Utils, Websocket, } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
@@ -26,7 +25,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /** True, if there is no access to any Edge. */
     public noEdges: boolean = false;
 
-    /**  True, if the logged in user is allowed to install new edges. */
+    /** True, if the logged in user is allowed to install new edges. */
     public loggedInUserCanInstall: boolean = false;
 
     public form: FormGroup;
@@ -59,7 +58,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         private userService: UserService,
         private platform: Platform,
     ) {
-
         effect(async () => {
             const user = this.userService.currentUser();
             if (user) {
@@ -67,8 +65,15 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
 
                 this.filters = [
-                    ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
-                    ...(this.loggedInUserCanInstall ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)] : []),
+                    ...(this.isAtLeastOwner
+                        ? [ORDER_STATES(this.translate)]
+                        : []),
+                    ...(this.loggedInUserCanInstall
+                        ? [
+                              environment.PRODUCT_TYPES(this.translate),
+                              SUM_STATES(this.translate),
+                          ]
+                        : []),
                 ];
                 this.filteredEdges.set(await this.loadNextPage());
             }
@@ -83,7 +88,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     ionViewDidEnter() {
         // TODO implement gestures
         // prevent url segment pop by back navigation gesture
-        this.sub = this.platform.backButton.subscribeWithPriority(1, () => { });
+        this.sub = this.platform.backButton.subscribeWithPriority(1, () => {});
     }
 
     ionViewWillLeave() {
@@ -97,17 +102,22 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /**
      * Updates available edges on scroll-event
      *
-     * @param infiniteScroll the InfiniteScrollCustomEvent
+     * @param infiniteScroll The InfiniteScrollCustomEvent
      */
     doInfinite(infiniteScroll: InfiniteScrollCustomEvent) {
         setTimeout(() => {
             this.page++;
-            this.loadNextPage().then((edges) => {
-                this.filteredEdges.update(el => { el.push(...edges); return el; });
-                infiniteScroll.target.complete();
-            }).catch(() => {
-                infiniteScroll.target.complete();
-            });
+            this.loadNextPage()
+                .then((edges) => {
+                    this.filteredEdges.update((el) => {
+                        el.push(...edges);
+                        return el;
+                    });
+                    infiniteScroll.target.complete();
+                })
+                .catch(() => {
+                    infiniteScroll.target.complete();
+                });
         }, 200);
     }
 
@@ -117,7 +127,6 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     }
 
     loadNextPage(): Promise<Edge[]> {
-
         this.loading.set(true);
         return new Promise<Edge[]>((resolve, reject) => {
             if (this.limitReached) {
@@ -138,34 +147,27 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 ...(searchParamsObj && { searchParams: searchParamsObj }),
             });
 
-            this.service.getEdges(req)
+            this.service
+                .getEdges(req)
                 .then((edges) => {
-
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
-
-                    if (this.shouldRedirectToFirstFems(user, edges)) {
+                    // TODO could be applied before calling getEdges
+                    if (
+                        !UserPermission.isUserAllowedToSeeOverview(user) &&
+                        edges.length > 0
+                    ) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
                         }, 100);
                     }
                     resolve(edges);
-                }).catch((err) => {
+                })
+                .catch((err) => {
                     reject(err);
                 });
-        }).finally(() =>
-            this.loading.set(false));
-    }
-
-    protected shouldRedirectToFirstFems(user: User, edges: Edge[]): boolean {
-        return (
-            (environment.backend == "OpenEMS Edge" && user.hasMultipleEdges === false) ||
-            (
-                (user.globalRole === "guest" || user.globalRole === "owner") &&
-                (user.hasMultipleEdges === false && edges.length == 1)
-            )
-        );
+        }).finally(() => this.loading.set(false));
     }
 
     protected getAndSubscribeEdge(edge: Edge) {
@@ -175,10 +177,11 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     /**
      * Search on change, triggered by searchbar input-event.
      *
-     * @param event from template passed event
+     * @param event From template passed event
      */
-    protected searchOnChange(searchParams?: Map<string, ChosenFilter["value"]>) {
-
+    protected searchOnChange(
+        searchParams?: Map<string, ChosenFilter["value"]>,
+    ) {
         if (searchParams) {
             this.searchParams = searchParams;
         }

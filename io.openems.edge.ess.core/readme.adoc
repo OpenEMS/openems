@@ -1,0 +1,336 @@
+= ESS Power - Power Distribution
+
+The ESS Power component is the central authority for distributing active and reactive power across all battery ESS units in an OpenEMS Edge system.
+Every control cycle, it collects power requests from all active controllers, resolves any conflicts, respects each ESS's hardware limits, and delivers a consistent setpoint to each unit.
+
+It follows the OpenEMS https://openems.github.io/openems.io/openems/latest/edge/architecture.html[Input-Process-Output] model: hardware measurements are read first, controllers add their constraints, and the computed setpoints are written to the ESS units - all within a single cycle.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.core[Source Code icon:github[]]
+
+---
+
+== 1. Control Cycle
+
+The power distribution runs every https://openems.github.io/openems.io/openems/latest/edge/architecture.html#_cycle[Core cycle] (1 second default), aligned with the OpenEMS Edge cycle events:
+
+AfterProcessImage::
+  Live measurements are captured from each ESS: allowed charge power, allowed discharge power, state-of-charge, and maximum apparent power.
+  These values define the hardware boundaries for the upcoming solve and remain constant for the rest of the cycle.
+
+BeforeWrite::
+  Controllers inject their power requests as _constraints_.
+  The solver computes a setpoint for each ESS and calls `applyPower()` on each ESS.
+
+AfterWrite::
+  Constraints are cleared. Fresh constraints will be collected at the start of the next cycle.
+
+NOTE: The process image — including hardware limits — is guaranteed not to change between `AfterProcessImage` and `AfterWrite`.
+Controllers always work against a consistent image of the system state.
+
+---
+
+== 2. Power Constraints
+
+A constraint is a bound that a controller places on the power of a specific ESS for the current cycle.
+Multiple controllers can add constraints simultaneously; the solver finds the ESS setpoint that satisfies all of them at once.
+
+[cols="1,3,3"]
+|===
+| Type | Meaning | Example
+
+| `EQUALS` | Force an exact power value | Charge this ESS at exactly 5 000 W
+| `LESS_OR_EQUALS` | Set an upper limit | Discharge no more than 10 000 W
+| `GREATER_OR_EQUALS` | Set a lower limit | Must discharge at least 2 000 W
+|===
+
+Constraints can apply to:
+
+* *Active power* (W) — real power delivered to or drawn from the Grid
+* *Reactive power* (VAr) — reactive power for power factor or voltage support
+* *All phases combined* (symmetric ESS) or *individual phases L1 / L2 / L3* (asymmetric ESS)
+
+Example: A peak-shaving controller sets a `LESS_OR_EQUALS` constraint to cap grid feed-in.
+At the same time, an emergency reserve controller sets a `GREATER_OR_EQUALS` constraint to ensure a minimum SoC buffer is never discharged.
+The solver satisfies both simultaneously; if they conflict, it finds the closest feasible operating point and raises a fault flag.
+
+NOTE: If the set of constraints has no feasible solution, all ESS units are driven to zero for that cycle and the `NotSolved` channel is set.
+
+=== 2.1 Coefficients
+
+A *Coefficient* identifies the specific power quantity being targeted by a constraint.
+It answers three questions:
+
+* *Which ESS?* — the ESS or cluster by ID
+* *Which power type?* — active power (W) or reactive power (VAr)
+* *Which phase?* — all phases combined (symmetric) or a single phase L1 / L2 / L3 (asymmetric)
+
+For example: _"the active power of ESS1 across all phases"_ is one Coefficient.
+_"the reactive power of ESS2 on phase L2"_ is another.
+
+==== Simple Constraints
+
+A *simple constraint* binds a single Coefficient to a fixed value.
+This is what controllers typically use to express a power request:
+
+----
+ESS1 / All phases / Active power  <=  10 000 W
+----
+
+==== Complex Constraints
+
+A *complex constraint* ties two or more Coefficients together in a linear relationship.
+No fixed value is imposed — instead, a *ratio* between the power quantities of different ESS units is enforced.
+This is what the distribution strategies use internally to express proportional loading:
+
+----
+ESS1_ActivePower x weight_B  =  ESS2_ActivePower x weight_A
+----
+
+Example: The _Move Towards Target_ strategy builds one such constraint for every pair of ESS units.
+If ESS1 should carry 70 % and ESS2 should carry 30 % of the total power, the constraint becomes:
+
+----
+ESS1_ActivePower x 30  =  ESS2_ActivePower x 70
+----
+
+The solver satisfies this alongside all hardware and controller constraints simultaneously, producing a setpoint where both the ratio and the bounds are respected.
+
+NOTE: Controllers always use simple constraints. Complex constraints are constructed internally by the solver strategies and are never exposed to individual controllers.
+
+---
+
+== 3. Solvers
+
+The component provides two types solver. The active solver is selected by the `strategy` configuration parameter.
+
+[cols="1,2,3"]
+|===
+| Engine | Strategy | Best suited for
+
+| *V1* — Linear Constraint Solver
+| `OPTIMIZE_BY_MOVING_TOWARDS_TARGET` _(default)_ +
+  `OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER` +
+  `OPTIMIZE_BY_KEEPING_ALL_EQUAL` +
+  `OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL`  +
+  `ALL_CONSTRAINTS`
+| Systems with multiple standalone ESS units where SoC balancing and constraint-based optimisation are required
+
+| *V2* — Balance
+| `BALANCE`
+| Clustered systems where physical ESS units are grouped under a MetaEss and proportional top-down distribution is sufficient
+|===
+
+---
+
+== 4. V1 — Linear Constraint Solver
+
+V1 uses linear programming to find the optimal power setpoint for each ESS that satisfies all active constraints simultaneously.
+If the chosen strategy cannot produce a valid setpoint, the engine automatically tries the remaining strategies in the fallback order defined below.
+As a final last resort, `ALL_CONSTRAINTS` performs a pure feasibility solve — finding any operating point that satisfies all hardware and controller constraints, with no further optimisation objective.
+
+[cols="2,3"]
+|===
+| Configured strategy | Fallback sequence (left to right, then ALL_CONSTRAINTS)
+
+| `OPTIMIZE_BY_MOVING_TOWARDS_TARGET`
+| -> `OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER` -> `ALL_CONSTRAINTS`
+
+| `OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER`
+| -> `OPTIMIZE_BY_MOVING_TOWARDS_TARGET` -> `ALL_CONSTRAINTS`
+
+| `OPTIMIZE_BY_KEEPING_ALL_EQUAL`
+| -> `OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL` -> `OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER` -> `OPTIMIZE_BY_MOVING_TOWARDS_TARGET` -> `ALL_CONSTRAINTS`
+
+| `OPTIMIZE_BY_KEEPING_ALL_NEAR_EQUAL`
+| -> `OPTIMIZE_BY_KEEPING_ALL_EQUAL` -> `OPTIMIZE_BY_KEEPING_TARGET_DIRECTION_AND_MAXIMIZING_IN_ORDER` -> `OPTIMIZE_BY_MOVING_TOWARDS_TARGET` -> `ALL_CONSTRAINTS`
+
+| `ALL_CONSTRAINTS` / `UNDEFINED`
+| -> `ALL_CONSTRAINTS` directly (no optimisation attempted)
+|===
+
+=== 4.1 Charge / Discharge Direction
+
+Before distributing power, the engine determines the *operating direction* from the combined effect of all active constraints:
+
+DISCHARGE:: Power flows *out of* the battery into the grid or load.
+
+CHARGE:: Power flows *into* the battery from the grid or a PV source.
+
+KEEP_ZERO:: No power exchange is required. All ESS units are driven toward zero active power.
+
+=== 4.2 ESS Selection
+
+When only a subset of ESS units is needed to fulfil a power request, the engine activates the *minimum number* required:
+
+* On *discharge*: ESS units with the highest state-of-charge are activated first.
+* On *charge*: ESS units with the lowest state-of-charge are activated first.
+
+This reduces unnecessary cycling of units that do not need to participate in a given operating point and limits wear on ESS units that are already near their SoC limits.
+
+Example: Three batteries at 80 %, 60 %, and 30 % SoC must deliver 10 kW.
+If one ESS alone can cover 10 kW, only the 80 % unit is used.
+The other two remain idle for that cycle.
+
+NOTE: The operating direction does not switch immediately when the power request changes from discharge to charge or vice versa.
+The engine waits for 100 consecutive cycles of the new direction before committing to the switch.
+This prevents rapid ESS on/off switching when the system oscillates around zero power.
+
+=== 4.3 Distribution Strategies
+
+==== 4.3.1 Move Towards Target 
+
+Each ESS is assigned a *weight* derived from its state-of-charge and the current operating direction:
+
+* *Discharge*: weight is proportional to SoC — higher SoC ESS units carry more of the load.
+* *Charge*: weight is inversely proportional to SoC — lower SoC ESS units absorb more of the incoming power.
+
+Rather than jumping immediately to the target weights, the distribution moves *10 % of the remaining difference* each cycle.
+This produces a smooth, gradual load shift between ESS units and avoids abrupt step changes on the AC bus.
+
+Example: Two batteries at 70 % and 40 % SoC must discharge 8 kW.
+The target weight gives 70 % of the power (~5.6 kW) to the high-SoC unit and 30 % (~2.4 kW) to the low-SoC unit.
+If last cycle both were carrying equal power, this cycle moves 10 % of the way toward that split.
+Over the following cycles, the distribution gradually converges to the SoC-weighted target.
+
+==== 4.3.2 Keep Target Direction and Maximize in Order
+
+Each active ESS is pushed as far as possible in the target direction — full discharge or full charge — one ESS at a time — on discharge, highest SoC first; on charge, lowest SoC first.
+The first ESS is loaded to its hardware limit before the next one is engaged.
+
+This strategy minimises the number of ESS units operating simultaneously and runs each participating unit at or near its rated power rather than spreading a modest load across all units.
+
+==== 4.3.3 Keep All Equal
+
+All active ESS units carry the *same active and reactive power*.
+Power is split equally regardless of state-of-charge.
+
+This is appropriate when all battery units are identical in capacity and chemistry, and even thermal loading across ESS units is the primary objective.
+
+NOTE: If strict equality is not achievable under the individual hardware limits (e.g. one ESS is near its charge limit), the strategy falls back to Keep All Near Equal automatically.
+
+==== 4.3.4 Keep All Near Equal _(default)_
+
+Power is distributed using *SoC-based weights*, computed in the same way as Move Towards Target:
+
+* *Discharge*: weight proportional to SoC — higher SoC ESS units carry more of the load.
+* *Charge*: weight inversely proportional to SoC — lower SoC ESS units absorb more of the incoming power.
+
+Unlike Move Towards Target, which shifts gradually toward the target over many cycles, Keep All Near Equal solves the weighted distribution *in one step* each cycle using a linear system (LU decomposition).
+The proportionality equations and the total power sum are expressed as a matrix and solved directly to produce each ESS's setpoint.
+
+If the unconstrained solution would push any ESS beyond its hardware limit, that ESS is clamped to its limit and the remaining power is redistributed among the unclamped units — still proportionally, using the same SoC weights.
+This clamping and re-solve repeats until all ESS setpoints are within their bounds.
+
+Example: Two ESS units must discharge 8 kW. ESS A has SoC 60 % and can deliver up to 6 kW; ESS B has SoC 40 % and can deliver up to 10 kW.
+The initial weighted split gives ESS A ~5.3 kW (60 %) and ESS B ~3.7 kW (40 %).
+Since both are within their limits, the result is applied directly — no clamping needed.
+If the target were instead 12 kW, the weighted split would give ESS A ~7.2 kW — exceeding its 6 kW limit.
+ESS A is clamped to 6 kW and the remaining 6 kW is assigned entirely to ESS B, which has sufficient headroom.
+
+ESS units currently in a fault state are automatically excluded and held at zero active power.
+This prevents a faulted unit from reducing the total available capacity and starving healthy ESS units of their fair share.
+
+==== 4.3.5 All Constraints
+
+`ALL_CONSTRAINTS` performs a pure feasibility solve with no optimisation objective.
+Rather than balancing SoC or distributing power proportionally, it simply finds *any* operating point that satisfies all active hardware and controller constraints simultaneously.
+
+It is used in two ways:
+
+* As an *explicit configuration choice* — when no distribution optimisation is needed, the solver skips all strategy logic and goes directly to the feasibility solve.
+* As the *automatic last-resort fallback* — after every other configured strategy has failed to produce a valid solution, `ALL_CONSTRAINTS` is always tried before the solver gives up and sets all ESS units to zero.
+
+=== 4.4 Reactive Power
+
+In V1, reactive power is solved *jointly* with active power in the same linear constraint system.
+Controller constraints on reactive power are added alongside active power constraints and satisfied simultaneously in a single solve.
+
+The apparent power limit is enforced *inside the solver* — not as a post-solve check.
+Before each cycle, the apparent power circle (`P² + Q² ≤ S²`) is approximated by 8 linear tangent lines forming a polygon, and these are injected as hardware constraints alongside the AllowedCharge and AllowedDischarge bounds.
+The solver physically cannot produce a P+Q combination that lies outside this polygon.
+
+NOTE: The polygon approximation is slightly conservative — the octagon sits *inside* the true circle — so the usable apparent power is marginally less than the rated value. In V2, by contrast, reactive power is bounded sequentially after active power is fixed, using the exact formula `Q_max = sqrt(S² - P²)`.
+
+---
+
+== 5. V2 — Balance
+
+V2 is used when a *cluster* groups several physical ESS units under a single logical ESS (MetaEss).
+It does not use linear programming — instead, power is distributed top-down through the cluster hierarchy in a single pass.
+
+1. The cluster receives a target setpoint from its constraint (e.g. charge the entire cluster at 20 kW).
+2. The target is clamped to the aggregate charge or discharge capability of all member ESS units.
+   This clamping happens *before* distribution begins — so if the target is physically unreachable, each ESS still receives a valid, feasible command rather than an impossible one.
+3. Power is divided among members *proportionally to their individual available capacity*.
+   The reason for proportional distribution is the same as in Keep All Near Equal: an ESS with more headroom can and should absorb a larger share, making full use of the available capacity across the cluster.
+4. Sub-clusters are resolved recursively in the same way, level by level, until every physical ESS has a setpoint.
+
+Each ESS's contribution is bounded by its own allowed charge or discharge power at every level.
+Infeasible cluster targets — for example, requesting more power than all members combined can provide — are automatically corrected to the nearest achievable value before distribution begins.
+
+=== 5.1 Reactive Power
+
+In V2, reactive power is solved *after* active power.
+Once each ESS's active power setpoint is fixed, its remaining reactive power capacity is calculated from the apparent power rating:
+
+----
+Q_max = sqrt( Apparent_power^2 - Active_power^2 )
+----
+
+The reactive power setpoint is then bounded to `[-Q_max .. +Q_max]`, and any controller constraints — such as a target reactive power — are applied within that window.
+This guarantees that the combined active and reactive setpoint never exceeds the ESS's apparent power rating `Apparent_power`, regardless of the active power share.
+
+---
+
+== 6. Output Filtering
+
+To prevent rapid oscillations in the power command sent to hardware, each ESS's setpoint is passed through an output filter before being applied.
+The filter type is selected in the configuration.
+
+PID Filter _(default)_::
+  A Proportional-Integral-Derivative filter. Reacts quickly to large setpoint changes while dampening small oscillations.
+  This is the recommended setting for most installations. +
+  Default gains: P = 0.3, I = 0.3, D = 0.
+
+PT1 Filter::
+  A first-order lag filter. The output approaches the target exponentially with a configurable time constant.
+  Simpler than PID and predictable in response speed. Suitable when a fixed ramp rate is preferred over adaptive control.
+
+Disabled::
+  No filtering. The raw solver setpoint is written to the inverter each cycle.
+  Use only if ramp-rate limiting is already handled at the inverter or controller level.
+
+NOTE: The filter operates per ESS. A system with three batteries uses three independent filter instances, one for each ESS.
+
+---
+
+== 7. Configuration
+
+[cols="2,1,3"]
+|===
+| Parameter | Default | Description
+
+| `strategy` | `OPTIMIZE_BY_MOVING_TOWARDS_TARGET` | Power distribution strategy (see section 3)
+| `symmetricMode` | `true` | Forces asymmetric ESS units to balance all three phases to the same power level
+| `debugMode` | `false` | Logs active constraints and solver result to the Edge log each cycle
+| `enablePid` | `true` | Enables PID output filter
+| `p` | `0.3` | PID proportional gain `[0..1]`
+| `i` | `0.3` | PID integral gain `[0..1]`
+| `d` | `0.0` | PID derivative gain `[0..1]`
+| `enablePT1Filter` | `false` | Enables PT1 filter (only effective when PID is disabled)
+| `pt1TimeConstant` | `30 000 ms` | PT1 time constant — time for the output to reach ~63 % of a step change
+|===
+
+---
+
+== 8. Status Channels
+
+[cols="2,3"]
+|===
+| Channel | Meaning
+
+| `StaticConstraintsFailed` | The hardware limits alone — before any controller constraints — already form an infeasible combination. Indicates a configuration or hardware problem.
+| `NotSolved` | No valid setpoint could be computed this cycle. All ESS units were set to zero.
+| `SolveDuration` | Time taken by the solver in milliseconds. Useful for performance monitoring.
+| `SolveStrategy` | The strategy that successfully produced a solution this cycle. Helps identify when fallbacks are being used regularly.
+|===

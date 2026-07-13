@@ -6,6 +6,7 @@ import { CurrentVoltageAsymmetricChartComponent } from "../chart/asymmetricMeter
 import { CurrentVoltageSymmetricChartComponent } from "../chart/symmetricMeter";
 
 @Component({
+    selector: "oe-current-voltage-overview",
     templateUrl: "./new-navigation.html",
     imports: [
         CommonUiModule,

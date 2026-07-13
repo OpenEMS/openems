@@ -125,7 +125,8 @@ public final class UtilsV1 {
 		case BALANCING -> null; // delegate to next priority Controller
 		case DELAY_DISCHARGE -> pwrDelayDischarge;
 		case CHARGE_GRID -> pwrChargeGrid;
-		case DISCHARGE_GRID, PEAK_SHAVING -> null; // NOT IMPLEMENTED
+		case DISCHARGE_GRID, PEAK_SHAVING, DELAY_CHARGE, LIMIT_CHARGE, AVOID_GRID_SELL_LIMIT, DISCHARGE_CONSUMPTION ->
+			null; // Not implemented here; only implemented in V2
 		};
 
 		return new ApplyMode(actualState, setPoint);

@@ -1,6 +1,7 @@
 {
     "TODAY": "Today",
     "WEEKLY_FORECAST": "Weekly forecast",
+    "TITLE": "Weather",
     "TITLE_WITH_LOCATION": "Weather forecast for {{location}}",
     "MIN_TEMPERATURE": "L: {{temp}}°",
     "MAX_TEMPERATURE": "H: {{temp}}°",

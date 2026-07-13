@@ -1,6 +1,10 @@
 package io.openems.edge.controller.io.heatpump.sgready;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.time.Instant;
+import java.util.Optional;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -20,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.WriteChannel;
@@ -30,6 +35,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 
@@ -42,6 +48,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("meter")
 public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 		implements Controller, OpenemsComponent, ControllerIoHeatPumpSgReady, EventHandler, TimedataProvider {
 
@@ -66,6 +73,9 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
+	@Reference(cardinality = OPTIONAL, policyOption = GREEDY, target = "(&(id=${config.meter_id})(enabled=true))")
+	private ElectricityMeter meter;
+
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
@@ -89,7 +99,7 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
 		// reset channels
@@ -159,14 +169,13 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 		this._setAwaitingHysteresis(false);
 
 		// We are only interested in discharging, not charging
-		essDischargePower = essDischargePower < 0 ? 0 : essDischargePower;
+		essDischargePower = Math.max(essDischargePower, 0);
 
 		// Calculate power used by the heat pump
-		var heatPumpPower = this.recommState.isActive() ? this.config.automaticRecommendationSurplusPower() : 0;
-		heatPumpPower = this.forceOnState.isActive() ? this.config.automaticForceOnSurplusPower() : heatPumpPower;
+		var heatPumpPower = this.getHeatpumpPower();
 
 		// Calculate surplus power
-		long surplusPower = gridActivePower * -1 - essDischargePower + heatPumpPower;
+		long surplusPower = gridActivePower * -1L - essDischargePower + heatPumpPower;
 
 		// Check conditions for lock mode (Lock mode is not depending on the
 		// essDischarge Power)
@@ -289,6 +298,21 @@ public class ControllerIoHeatPumpSgReadyImpl extends AbstractOpenemsComponent
 			this.logDebug(this.log, "Set output [" + outputChannel.address() + "] " + value + ".");
 			outputChannel.setNextWriteValue(value);
 		}
+	}
+
+	protected int getHeatpumpPower() {
+		var meterPower = Optional.ofNullable(this.meter) //
+				.map(ElectricityMeter::getActivePower) //
+				.map(Value::get).orElse(null);
+		if (meterPower != null) {
+			return meterPower;
+		}
+		var heatPumpPower = this.recommState.isActive() //
+				? this.config.automaticRecommendationSurplusPower()
+				: 0;
+		return this.forceOnState.isActive() //
+				? this.config.automaticForceOnSurplusPower()
+				: heatPumpPower;
 	}
 
 	@Override

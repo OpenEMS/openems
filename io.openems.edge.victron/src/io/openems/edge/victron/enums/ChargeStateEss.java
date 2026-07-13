@@ -16,7 +16,7 @@ public enum ChargeStateEss implements OptionsEnum {
 	ABSORPTION_REPEAT(5, "Absorption Repeat"), //
 	ABSORPTION_FORCED(6, "Absorption Forced"), //
 	EQUALIZE(7, "Equalize"), //
-	BULK_STOPPED(1, "Bulk Stopped"), //
+	BULK_STOPPED(8, "Bulk Stopped"), //
 	UNKNOWN(9, "Unknown");
 
 	private final int value;

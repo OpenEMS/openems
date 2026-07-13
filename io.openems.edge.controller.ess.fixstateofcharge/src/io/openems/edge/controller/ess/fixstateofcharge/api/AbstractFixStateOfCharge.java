@@ -436,30 +436,28 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		var componentId = this.id();
 		if (timedata == null || componentId == null) {
 			return;
-		} else {
-			timedata.getLatestValue(new ChannelAddress(componentId, FixStateOfCharge.ChannelId.ESS_CAPACITY.id()))
-					.thenAccept(capacity -> {
-						if (this.getEssCapacity().isDefined()) {
-							// Value has been read from device in the meantime
-							return;
-						}
-
-						if (capacity.isPresent()) {
-							try {
-								this._setEssCapacity(TypeUtils.getAsType(OpenemsType.INTEGER, capacity));
-								return;
-							} catch (IllegalArgumentException e) {
-								// Set initial EssCapacity
-								this._setEssCapacity(fallbackCapacity);
-								return;
-							}
-						} else {
-							// Set initial EssCapacity
-							this._setEssCapacity(fallbackCapacity);
-							return;
-						}
-					});
 		}
+
+		timedata.getLatestValue(new ChannelAddress(componentId, FixStateOfCharge.ChannelId.ESS_CAPACITY.id()))
+				.whenComplete((capacity, throwable) -> {
+					if (this.getEssCapacity().isDefined()) {
+						// Value has been read from device in the meantime
+						return;
+					}
+
+					if (throwable != null || capacity.isEmpty()) {
+						// Set initial EssCapacity
+						this._setEssCapacity(fallbackCapacity);
+						return;
+					}
+
+					try {
+						this._setEssCapacity(TypeUtils.getAsType(OpenemsType.INTEGER, capacity));
+					} catch (IllegalArgumentException e) {
+						// Set initial EssCapacity
+						this._setEssCapacity(fallbackCapacity);
+					}
+				});
 	}
 
 	/**
