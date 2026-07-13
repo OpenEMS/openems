@@ -1,7 +1,7 @@
 package io.openems.edge.victron.ess;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -69,7 +69,7 @@ public class VictronEssImplTest {
 	public void testChannelIdDoc() {
 		// Verify that all ChannelIds have a doc
 		for (var channelId : VictronEss.ChannelId.values()) {
-			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull(channelId.doc(), "ChannelId " + channelId.name() + " should have a doc");
 		}
 	}
 
@@ -199,8 +199,8 @@ public class VictronEssImplTest {
 	/**
 	 * Regression test for the Read-Only-Mode bug: the symmetric
 	 * {@code applyPower(int, int)} used to set the disable-charge/-discharge flags
-	 * before checking Read-Only-Mode, leaking those write-values to the hardware. It
-	 * must not enqueue any hardware write in Read-Only-Mode.
+	 * before checking Read-Only-Mode, leaking those write-values to the hardware.
+	 * It must not enqueue any hardware write in Read-Only-Mode.
 	 */
 	@Test
 	public void testApplyPowerSymmetricDoesNotWriteInReadOnlyMode() throws Exception {
@@ -212,8 +212,8 @@ public class VictronEssImplTest {
 	}
 
 	/**
-	 * Same regression on the asymmetric
-	 * {@code applyPower(p1, q1, p2, q2, p3, q3)} overload.
+	 * Same regression on the asymmetric {@code applyPower(p1, q1, p2, q2, p3, q3)}
+	 * overload.
 	 */
 	@Test
 	public void testApplyPowerAsymmetricDoesNotWriteInReadOnlyMode() throws Exception {
@@ -225,8 +225,8 @@ public class VictronEssImplTest {
 	}
 
 	/**
-	 * A zero power-target still disables charge/discharge via write-flags; this must
-	 * also be suppressed in Read-Only-Mode.
+	 * A zero power-target still disables charge/discharge via write-flags; this
+	 * must also be suppressed in Read-Only-Mode.
 	 */
 	@Test
 	public void testApplyPowerZeroDoesNotWriteInReadOnlyMode() throws Exception {
@@ -244,7 +244,8 @@ public class VictronEssImplTest {
 	 * {@code applyPower(int, int)} must fall through the Read-Only-Mode guard. Here
 	 * the readiness gate is left closed, so the method stops right after the guard
 	 * without needing a battery-inverter reference; the point is that the guard did
-	 * not short-circuit and no hardware write leaked from the readiness gate either.
+	 * not short-circuit and no hardware write leaked from the readiness gate
+	 * either.
 	 */
 	@Test
 	public void testApplyPowerSymmetricFallsThroughReadOnlyGuardWhenDisabled() throws Exception {
@@ -273,31 +274,16 @@ public class VictronEssImplTest {
 	}
 
 	/**
-	 * Activates a {@link VictronEssImpl} and forces {@code operationalValuesOk} to
-	 * {@code true}, so that {@code applyPower(...)} is stopped only by the
-	 * Read-Only-Mode guard and not by the readiness gate - this is what makes the
-	 * applyPower tests actually exercise the guard under test.
-	 *
-	 * @param phase        the configured phase
-	 * @param readOnlyMode whether to activate in Read-Only-Mode
-	 * @return the activated component
-	 * @throws Exception on error
-	 */
-	private static VictronEssImpl activatedEss(SingleOrAllPhase phase, boolean readOnlyMode) throws Exception {
-		return activatedEss(phase, readOnlyMode, true);
-	}
-
-	/**
 	 * Activates a {@link VictronEssImpl}.
 	 *
-	 * @param phase          the configured phase
-	 * @param readOnlyMode   whether to activate in Read-Only-Mode
-	 * @param operationalOk  the value to force on {@code operationalValuesOk};
-	 *                       {@code true} lets {@code applyPower(...)} run past the
-	 *                       readiness gate, {@code false} leaves the gate closed so
-	 *                       the method returns right after the Read-Only-Mode guard
-	 *                       (used to exercise that guard's disabled branch without a
-	 *                       battery-inverter reference)
+	 * @param phase         the configured phase
+	 * @param readOnlyMode  whether to activate in Read-Only-Mode
+	 * @param operationalOk the value to force on {@code operationalValuesOk};
+	 *                      {@code true} lets {@code applyPower(...)} run past the
+	 *                      readiness gate, {@code false} leaves the gate closed so
+	 *                      the method returns right after the Read-Only-Mode guard
+	 *                      (used to exercise that guard's disabled branch without a
+	 *                      battery-inverter reference)
 	 * @return the activated component
 	 * @throws Exception on error
 	 */
@@ -328,8 +314,7 @@ public class VictronEssImplTest {
 	private static void assertNoHardwareWrites(VictronEssImpl ess) {
 		for (var channelId : HARDWARE_WRITE_CHANNELS) {
 			WriteChannel<?> channel = ess.channel(channelId);
-			assertTrue(channel.getNextWriteValue().isEmpty(),
-					"Read-Only-Mode leaked a write to " + channelId.name());
+			assertTrue(channel.getNextWriteValue().isEmpty(), "Read-Only-Mode leaked a write to " + channelId.name());
 		}
 	}
 
