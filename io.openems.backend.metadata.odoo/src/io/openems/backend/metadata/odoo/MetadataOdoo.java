@@ -706,7 +706,8 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 					"App.Cloud.Clever-PV", //
 					"App.Prediction.Weather", //
 					"App.Meter.Shelly", //
-					"App.Evse.ElectricVehicle.Generic" //
+					"App.Evse.ElectricVehicle.Generic", //
+					"App.Tariff.Manual.EEG2025.GridSell" //
 			).contains(appId);
 		});
 	}

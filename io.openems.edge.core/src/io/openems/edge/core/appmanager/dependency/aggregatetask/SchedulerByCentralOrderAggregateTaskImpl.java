@@ -111,6 +111,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl
 					.thenByFactoryId("Controller.Ess.RippleControlReceiver") //
 					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
+					.thenByFactoryId("Controller.Symmetric.FixReactivePower") //
 					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
 					.thenByFactoryId("Controller.Ess.SoH.Cycle") //
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //

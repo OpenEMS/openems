@@ -5,6 +5,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -55,6 +57,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
  */
 public class CalculateEnergyFromPower {
 
+	private static final Logger LOG = LoggerFactory.getLogger(CalculateEnergyFromPower.class);
+
 	/**
 	 * Available States.
 	 *
@@ -103,6 +107,7 @@ public class CalculateEnergyFromPower {
 	private Integer lastPower = null;
 
 	private final Clock clock;
+	private final TimedataQueryRetryHandler retryHandler;
 
 	public CalculateEnergyFromPower(TimedataProvider component, ChannelId channelId) {
 		this(component, channelId, Clock.systemDefaultZone());
@@ -112,6 +117,7 @@ public class CalculateEnergyFromPower {
 		this.component = component;
 		this.channelId = channelId;
 		this.clock = clock;
+		this.retryHandler = new TimedataQueryRetryHandler(LOG, clock, component.id(), channelId.id());
 	}
 
 	/**
@@ -140,7 +146,7 @@ public class CalculateEnergyFromPower {
 	}
 
 	/**
-	 * Initialize cumulated energy value from from Timedata service.
+	 * Initialize cumulated energy value from Timedata service.
 	 */
 	private void initializeCumulatedEnergyFromTimedata() {
 		var timedata = this.component.getTimedata();
@@ -148,27 +154,38 @@ public class CalculateEnergyFromPower {
 		if (timedata == null || componentId == null) {
 			// Wait for Timedata service to appear or Component to be activated
 			this.state = State.TIMEDATA_QUERY_NOT_STARTED;
+			return;
+		}
 
-		} else {
-			// do not query Timedata twice
-			this.state = State.TIMEDATA_QUERY_IS_RUNNING;
+		// Do not query Timedata twice
+		this.state = State.TIMEDATA_QUERY_IS_RUNNING;
 
-			timedata.getLatestValue(new ChannelAddress(this.component.id(), this.channelId.id()))
-					.thenAccept(cumulatedEnergyOpt -> {
+		timedata.getLatestValue(new ChannelAddress(this.component.id(), this.channelId.id()))
+				.whenComplete((cumulatedEnergyOpt, throwable) -> {
+					if (throwable != null) {
+						if (this.retryHandler.onFailure(throwable) == TimedataQueryRetryHandler.Decision.RETRY) {
+							this.state = State.TIMEDATA_QUERY_NOT_STARTED;
+							return;
+						}
+
 						this.state = State.CALCULATE_ENERGY_OPERATION;
+						this.baseCumulatedEnergy = 0L;
+						return;
+					}
 
-						if (cumulatedEnergyOpt.isPresent()) {
-							try {
-								this.baseCumulatedEnergy = TypeUtils.getAsType(OpenemsType.LONG,
-										cumulatedEnergyOpt.get());
-							} catch (IllegalArgumentException e) {
-								this.baseCumulatedEnergy = 0L;
-							}
-						} else {
+					this.retryHandler.reset();
+					this.state = State.CALCULATE_ENERGY_OPERATION;
+
+					if (cumulatedEnergyOpt.isPresent()) {
+						try {
+							this.baseCumulatedEnergy = TypeUtils.getAsType(OpenemsType.LONG, cumulatedEnergyOpt.get());
+						} catch (IllegalArgumentException e) {
 							this.baseCumulatedEnergy = 0L;
 						}
-					});
-		}
+					} else {
+						this.baseCumulatedEnergy = 0L;
+					}
+				});
 	}
 
 	/**
@@ -201,10 +218,10 @@ public class CalculateEnergyFromPower {
 
 	/**
 	 * Set baseEnergy manually.
-	 * 
+	 *
 	 * <p>
 	 * Set baseEnergy manually & go to CALCULATE_ENERGY_OPERATION
-	 * 
+	 *
 	 * @param baseCumulatedEnergy baseCumulatedEnergy
 	 */
 	public void setBaseEnergyManually(long baseCumulatedEnergy) {

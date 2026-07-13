@@ -3,13 +3,15 @@ package io.openems.edge.evse.chargepoint.mennekes.common;
 import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
+import io.openems.common.channel.Unit;
 import io.openems.edge.common.channel.Doc;
-import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evse.chargepoint.mennekes.enums.PhaseSwitchMode;
 
 /**
  * Mennekes Amtron Professional charging protocol interface.
@@ -19,7 +21,7 @@ import io.openems.edge.common.component.OpenemsComponent;
  */
 public interface Mennekes extends OpenemsComponent {
 
-	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
+	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
 		/**
 		 * Apply charge current limit.
@@ -38,12 +40,21 @@ public interface Mennekes extends OpenemsComponent {
 
 		EMS_CURRENT_LIMIT(Doc.of(INTEGER)//
 				.unit(AMPERE)), //
-		
+
 		HEMS_MIN_POWER(Doc.of(INTEGER)//
 				.unit(WATT)), //
 
 		HEMS_MAX_POWER(Doc.of(INTEGER)//
 				.unit(WATT)), //
+		PHASE_SWITCH_MODE(Doc.of(PhaseSwitchMode.values())),
+
+		PHASE_SWITCH_PAUSE(Doc.of(INTEGER)//
+				.unit(Unit.SECONDS)),
+
+		PHASE_SWITCH_RUNNING(Doc.of(BOOLEAN)), //
+
+		DEVICE_ID(Doc.of(DeviceID.values())), //
+
 		;
 
 		private final Doc doc;
@@ -60,58 +71,57 @@ public interface Mennekes extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#SET_POWER_LIMIT}.
-	 * Used for EVSE.
+	 * Gets the Channel for {@link ChannelId#SET_POWER_LIMIT}. Used for EVSE.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerWriteChannel getApplyPowerLimitChannel() {
+	default IntegerWriteChannel getApplyPowerLimitChannel() {
 		return this.channel(ChannelId.SET_POWER_LIMIT);
 	}
-	
+
 	/**
-	 * Gets the Channel for {@link ChannelId#SET_CURRENT_LIMIT}.
-	 * Used for EVCS.
+	 * Gets the Channel for {@link ChannelId#SET_CURRENT_LIMIT}. Used for EVCS.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerWriteChannel getApplyCurrentLimitChannel() {
+	default IntegerWriteChannel getApplyCurrentLimitChannel() {
 		return this.channel(ChannelId.SET_CURRENT_LIMIT);
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#HEMS_MIN_POWER}.
+	 * Gets the Channel for {@link ChannelId#PHASE_SWITCH_MODE}.
+	 * 
+	 * @return the Channel
+	 */
+	default EnumReadChannel getPhaseSwitchModeChannel() {
+		return this.channel(ChannelId.PHASE_SWITCH_MODE);
+	}
+
+	/**
+	 * Gets the {@link PhaseSwitchMode}.
+	 * 
+	 * @return the {@link PhaseSwitchMode}
+	 */
+	default PhaseSwitchMode getPhaseSwitchMode() {
+		return this.getPhaseSwitchModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEVICE_ID}.
 	 *
 	 * @return the Channel
 	 */
-	public default IntegerReadChannel getHemsMinPowerChannel() {
-		return this.channel(ChannelId.HEMS_MIN_POWER);
+	default EnumReadChannel getMennekesDeviceIdChannel() {
+		return this.channel(ChannelId.DEVICE_ID);
 	}
-	
+
 	/**
-	 * Gets the minimum power value of the charging station.
+	 * Gets the {@link DeviceID}.
 	 *
-	 * @return the Channel {@link Value}
+	 * @return the {@link DeviceID}
 	 */
-	public default Value<Integer> getHemsMinPower() {
-		return this.getHemsMinPowerChannel().value();
+	default DeviceID getMennekesDeviceId() {
+		return this.getMennekesDeviceIdChannel().value().asEnum();
 	}
-	
-	/**
-	 * Gets the Channel for {@link ChannelId#HEMS_MAX_POWER}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getHemsMaxPowerChannel() {
-		return this.channel(ChannelId.HEMS_MAX_POWER);
-	}
-	
-	/**
-	 * Gets the maximum power value of the charging station.
-	 *
-	 * @return the Channel {@link Value}
-	 */
-	public default Value<Integer> getHemsMaxPower() {
-		return this.getHemsMaxPowerChannel().value();
-	}
+
 }

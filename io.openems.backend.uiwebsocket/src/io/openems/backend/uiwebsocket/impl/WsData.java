@@ -5,7 +5,6 @@ import static java.util.UUID.randomUUID;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -29,9 +28,6 @@ import io.openems.common.jsonrpc.request.EdgeRpcRequest;
 import io.openems.common.jsonrpc.request.SubscribeChannelsRequest;
 
 public class WsData extends io.openems.common.websocket.WsData {
-
-	// This list can be used to enable debug log messages for certain user ids
-	private static final List<String> DEBUG_USER_IDS = List.of();
 
 	private static class SubscribedChannels {
 
@@ -112,9 +108,7 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	public void setUser(User user) {
-		super.setDebug(user == null //
-				? false //
-				: DEBUG_USER_IDS.contains(user.getUserId()));
+		super.setDebug(user != null && user.isBackendDebugEnabled());
 		this.user = user;
 	}
 

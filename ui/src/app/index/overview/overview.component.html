@@ -100,7 +100,7 @@
         }
 
         <!-- Add-Button for desktop devices -->
-        @if (loggedInUserCanInstall && !this.service.isSmartphoneResolution) {
+        @if (loggedInUserCanInstall && !this.service.getIsSmartphoneResolution()) {
           <ion-fab style="position: fixed; margin-top: 10%; display: block;" vertical="bottom" horizontal="center"
             testId="ibn-button">
             <ion-fab-button size="large">
@@ -115,7 +115,7 @@
         }
 
         <!-- Add-Button for mobile devices -->
-        @if (loggedInUserCanInstall && this.service.isSmartphoneResolution) {
+        @if (loggedInUserCanInstall && this.service.getIsSmartphoneResolution()) {
           <ion-fab style="position: fixed;" horizontal="end" vertical="bottom" testId="ibn-button">
             <ion-fab-button size="small">
               <ion-icon name="add-outline"></ion-icon>

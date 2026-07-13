@@ -10,7 +10,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String id;
 		private double fixedGridSellPrice;
 		private String securityToken;
-		private EntsoeBiddingZone biddingZone;
 
 		private Builder() {
 		}
@@ -27,11 +26,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setSecurityToken(String securityToken) {
 			this.securityToken = securityToken;
-			return this;
-		}
-
-		public Builder setBiddingZone(EntsoeBiddingZone biddingZone) {
-			this.biddingZone = biddingZone;
 			return this;
 		}
 
@@ -64,10 +58,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String securityToken() {
 		return this.builder.securityToken;
-	}
-
-	@Override
-	public EntsoeBiddingZone biddingZone() {
-		return this.builder.biddingZone;
 	}
 }

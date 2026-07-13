@@ -13,6 +13,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.utils.JsonUtils;
+
 public final class JsonSerializerUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JsonSerializerUtil.class);
@@ -37,6 +39,24 @@ public final class JsonSerializerUtil {
 	 */
 	public static JsonSerializer<String> stringSerializer() {
 		return jsonSerializer(String.class, JsonElementPath::getAsString, JsonPrimitive::new);
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for an enum value located at the provided
+	 * key in a {@link JsonObject}.
+	 *
+	 * @param <T>       the enum type
+	 * @param name      the key of the enum value in the json object
+	 * @param enumClass the enum class
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static <T extends Enum<T>> JsonSerializer<T> enumSerializerFromObjectNullable(String name,
+			Class<T> enumClass) {
+		return jsonObjectSerializer(//
+				json -> json.getOptionalEnum(name, enumClass).orElse(null), //
+				enumValue -> JsonUtils.buildJsonObject() //
+						.addProperty(name, enumValue.name()) //
+						.build());
 	}
 
 	/**

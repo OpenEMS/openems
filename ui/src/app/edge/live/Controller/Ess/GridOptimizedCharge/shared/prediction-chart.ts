@@ -64,7 +64,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
 
     protected override getChartHeight(): number | null {
         const fourTimesTheHeight = 400;
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), fourTimesTheHeight);
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position(), fourTimesTheHeight);
     }
 
     protected override getChartData(): HistoryUtils.ChartData {

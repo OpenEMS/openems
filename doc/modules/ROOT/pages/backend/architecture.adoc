@@ -1,2 +1,59 @@
 = Backend Architecture
+:sectnums:
+:sectnumlevels: 4
+:toclevels: 4
+:experimental:
+:keywords: AsciiDoc
+:source-highlighter: highlight.js
+:icons: font
 :imagesdir: ../../assets/images
+
+OpenEMS Backend runs on a (cloud) server. It connects the decentralized OpenEMS Edge systems and provides aggregation, monitoring and control via the internet. Internally it is built from loosely coupled OSGi services, most importantly:
+
+* *Metadata* (xref:backend/metadata.adoc[Metadata]) - identification and authorization of Edges and Users.
+* *Timedata* (xref:backend/timedata.adoc[Timedata]) - persistence and query of historic data.
+* *Ui.Websocket* - the WebSocket endpoint for the OpenEMS UI.
+* *Edge.Manager* - the service that manages the connected OpenEMS Edges.
+* *Backend-to-Backend* (xref:backend/backend-to-backend.adoc[Backend-to-Backend]) - APIs for third-party systems.
+
+== Connecting OpenEMS Edge
+
+An OpenEMS Edge connects to the Backend using its `Controller.Api.Backend` over a WebSocket connection. Historically the Edge-facing endpoint was a component running inside the central Backend server. To be able to scale to a large number of Edges, this endpoint was separated into its own application, the *Backend.Edge.App*, which can be deployed on one or more independent servers.
+
+The general setup is:
+
+....
+   [OpenEMS Edge]        [OpenEMS Edge]        [OpenEMS Edge]      ...
+        |                     |                     |
+        |  WebSocket (Controller.Api.Backend)       |
+        v                     v                     v
+ +--------------------------------------------------------------+
+ |                      Backend.Edge.App                        |   <- Edge-facing server(s)
+ |         (accepts Edge connections, relays messages)          |      (one or more, scalable)
+ +--------------------------------------------------------------+
+        |
+        |  WebSocket
+        v
+ +--------------------------------------------------------------+
+ |                    OpenEMS Backend (central)                 |   <- Central server
+ |   Edge.Manager  ·  Metadata  ·  Timedata  ·  Ui.Websocket    |
+ +--------------------------------------------------------------+
+....
+
+The *Backend.Edge.App* acts as a proxy/relay between the OpenEMS Edges and the central Backend:
+
+* it accepts the incoming WebSocket connections from the Edges (authenticating each Edge by its API-key),
+* it relays messages in both directions between the Edge and the central Backend's *Edge.Manager*, and
+* it keeps a local cache of connection state (e.g. the mapping of API-key to Edge-ID that it receives from the central Backend's Metadata service).
+
+Because the Backend.Edge.App handles the protocol towards the central Backend, *the Edge `Controller.Api.Backend` does not need to be modified*: an Edge always connects to a Backend.Edge.App, regardless of how many Edge-facing servers are deployed.
+
+=== Deployment options
+
+* *Scaled setup*: run one or more Backend.Edge.App instances on separate physical servers, each connecting back to the central Backend's Edge.Manager. This distributes the Edge connections across several machines.
+* *Single-server setup*: run a single Backend.Edge.App on the central server itself and let it connect to the Backend's Edge.Manager on `localhost`. This is the simplest setup for small deployments.
+
+[NOTE]
+====
+The Metadata service on the central Backend supplies the Backend.Edge.App with the API-key to Edge-ID mapping. When using File-based Metadata, make sure it provides this mapping (see xref:backend/metadata.adoc[Metadata]); the Odoo and Dummy Metadata implementations already do.
+====

@@ -62,31 +62,43 @@ public abstract class AbstractWriteTask<//
 		}
 
 		private ExecuteState _execute(AbstractModbusBridge bridge) {
-			final REQUEST request;
+			this.callHooks(h -> h.preExecute(bridge, this));
 			try {
-				request = this.createModbusRequest();
-			} catch (OpenemsException e) {
-				logError(this.log, e, "Creating Modbus Request failed.");
-				return new ExecuteState.Error(e);
-			}
+				final REQUEST request;
+				try {
+					request = this.createModbusRequest();
+				} catch (OpenemsException e) {
+					logError(this.log, e, "Creating Modbus Request failed.");
+					var state = new ExecuteState.Error(e);
+					this.callHooks(h -> h.execute(bridge, this, state));
+					return state;
+				}
 
-			if (request == null) {
-				return ExecuteState.NO_OP;
-			}
-
-			try {
-				var response = this.executeRequest(bridge, request);
-
-				if (response == null) {
-					// Bridge is stopped
+				if (request == null) {
+					this.callHooks(h -> h.execute(bridge, this, ExecuteState.NO_OP));
 					return ExecuteState.NO_OP;
 				}
 
-				return ExecuteState.OK;
+				try {
+					var response = this.executeRequest(bridge, request);
 
-			} catch (Exception e) {
-				// On error a log message has already been logged
-				return new ExecuteState.Error(e);
+					if (response == null) {
+						// Bridge is stopped
+						this.callHooks(h -> h.execute(bridge, this, ExecuteState.NO_OP));
+						return ExecuteState.NO_OP;
+					}
+
+					this.callHooks(h -> h.execute(bridge, this, ExecuteState.OK));
+					return ExecuteState.OK;
+
+				} catch (Exception e) {
+					// On error a log message has already been logged
+					var state = new ExecuteState.Error(e);
+					this.callHooks(h -> h.execute(bridge, this, state));
+					return state;
+				}
+			} finally {
+				this.callHooks(h -> h.postExecute(bridge, this));
 			}
 		}
 

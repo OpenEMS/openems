@@ -5,6 +5,7 @@ import { SharedModule } from "src/app/shared/shared.module";
 import { FlatComponent } from "./flat/flat";
 import { ControllerEssTimeOfUseTariffHistory } from "./history/timeOfUseTariff.module";
 import { ModalComponent } from "./modal/modal";
+import { ScheduleGridSellChartComponent } from "./new-navigation/grid-sell-chart";
 import { ControllerEssTimeOfUseTariffHomeComponent } from "./new-navigation/new-navigation";
 import { SchedulePowerAndSocChartComponent } from "./new-navigation/power-soc-chart";
 import { ScheduleStateAndPriceChartComponent } from "./new-navigation/state-price-chart";
@@ -22,6 +23,7 @@ import { ControllerEssTimeOfUseTariffSettingsComponent } from "./settings/settin
     declarations: [
         ModalComponent,
         FlatComponent,
+        ScheduleGridSellChartComponent,
         SchedulePowerAndSocChartComponent,
         ScheduleStateAndPriceChartComponent,
     ],

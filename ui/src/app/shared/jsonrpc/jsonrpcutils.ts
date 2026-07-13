@@ -3,45 +3,56 @@ import { ObjectUtils } from "../utils/object/object-utils";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "./base";
 
 export class JsonRpcUtils {
-
-    private static THRESHOLD: number = -0.50;
+    private static THRESHOLD: number = -0.5;
 
     /**
      * Gets the most inner/most deeply nested request.
      *
-     * @param request the request
-     * @returns the most inner request
+     * @param request The request
+     * @returns The most inner request
      */
-    public static getMostInnerRequest(request: JsonrpcRequest): JsonrpcRequest | null {
+    public static getMostInnerRequest(
+        request: JsonrpcRequest,
+    ): JsonrpcRequest | null {
         let innerReq: JsonrpcRequest | null = request;
-        let condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+        let condition = ObjectUtils.getValueByKeySafely(
+            innerReq?.params as any,
+            "payload",
+        );
         while (condition != null) {
             innerReq = condition;
-            condition = ObjectUtils.getKeySafely(innerReq?.params as any, "payload");
+            condition = ObjectUtils.getValueByKeySafely(
+                innerReq?.params as any,
+                "payload",
+            );
         }
         return innerReq;
     }
 
-    public static normalizeQueryData(data: (number | null)[]): (number | null)[] {
-        return data.map(el => JsonRpcUtils.roundSlightlyNegativeValues(el));
+    public static normalizeQueryData(
+        data: (number | null)[],
+    ): (number | null)[] {
+        return data.map((el) => JsonRpcUtils.roundSlightlyNegativeValues(el));
     }
 
     /**
      * Rounds values between 0 and -1kW to 0
      *
-     * @param value the value to convert
+     * @param value The value to convert
      */
-    public static roundSlightlyNegativeValues(value: number | null): number | null {
+    public static roundSlightlyNegativeValues(
+        value: number | null,
+    ): number | null {
         if (value == null) {
             return null;
         }
 
-        return (value > JsonRpcUtils.THRESHOLD && value < 0) ? 0 : value;
+        return value > JsonRpcUtils.THRESHOLD && value < 0 ? 0 : value;
     }
 
-
     /**
-     * Converts an array of ChannelAddresses to a string array with unique values.
+     * Converts an array of ChannelAddresses to a string array with unique
+     * values.
      */
     public static channelsToStringArray(channels: ChannelAddress[]): string[] {
         const result = [];
@@ -54,10 +65,12 @@ export class JsonRpcUtils {
     /**
      * Handles jsonRpcRequests
      *
-     * @param promise the promise
-     * @returns either an error or the result
+     * @param promise The promise
+     * @returns Either an error or the result
      */
-    public static handle<T = JsonrpcRequest>(promise: Promise<T>): Promise<[Error | null, T | null]> {
+    public static handle<T = JsonrpcRequest>(
+        promise: Promise<T>,
+    ): Promise<[Error | null, T | null]> {
         return promise
             .then((data): [null, T] => [null, data])
             .catch((err: Error): [Error, null] => [err, null]);
@@ -66,11 +79,15 @@ export class JsonRpcUtils {
     /**
      * Handles a jsonRpcRequests, with fallback value if error thrown
      *
-     * @param promise the promise
-     * @param orElse the default value to use, if err thrown
-     * @returns either the the result or if error thrown the fallback value orElse
+     * @param promise The promise
+     * @param orElse The default value to use, if err thrown
+     * @returns Either the the result or if error thrown the fallback value
+     *   orElse
      */
-    public static handleOrElse<T = JsonrpcRequest>(promise: Promise<T>, orElse: T): Promise<[null | Error, T]> {
+    public static handleOrElse<T = JsonrpcRequest>(
+        promise: Promise<T>,
+        orElse: T,
+    ): Promise<[null | Error, T]> {
         return promise
             .then((data): [null, T] => [null, data])
             .catch((err): [Error, T] => [err, orElse]);
@@ -79,11 +96,14 @@ export class JsonRpcUtils {
     /**
      * Handles a jsonRpcRequests, with fallback value if error thrown
      *
-     * @param promise the promise
-     * @param orElse the default value to use, if err thrown
-     * @returns either the the result or if error thrown the fallback value orElse
+     * @param promise The promise
+     * @param orElse The default value to use, if err thrown
+     * @returns Either the the result or if error thrown the fallback value
+     *   orElse
      */
-    public static handleResponse<T extends JsonrpcResponseSuccess>(promise: Promise<T>): Promise<[null | Error, T | null]> {
+    public static handleResponse<T extends JsonrpcResponseSuccess>(
+        promise: Promise<T>,
+    ): Promise<[null | Error, T | null]> {
         return promise
             .then((data): [null, T] => [null, data])
             .catch((err): [Error, null] => [err, null]);
