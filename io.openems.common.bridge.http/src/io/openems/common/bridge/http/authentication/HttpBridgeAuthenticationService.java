@@ -2,10 +2,9 @@ package io.openems.common.bridge.http.authentication;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,31 +14,27 @@ import io.openems.common.bridge.http.api.BridgeHttpEventDefinition;
 import io.openems.common.bridge.http.api.BridgeHttpEventListener;
 import io.openems.common.bridge.http.api.HttpBridgeService;
 import io.openems.common.bridge.http.api.HttpBridgeServiceDefinition;
-import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.function.Disposable;
 import io.openems.common.types.DebugMode;
 
-public class HttpBridgeAuthenticationService implements HttpBridgeService, BridgeHttp {
+public class HttpBridgeAuthenticationService<C> implements HttpBridgeService, BridgeHttp {
 
 	private final Logger log = LoggerFactory.getLogger(HttpBridgeAuthenticationService.class);
 
 	private final BridgeHttp bridgeHttp;
 	private final Map<HttpBridgeServiceDefinition<?>, HttpBridgeServiceDefinition<?>> mappedDefinitions = new ConcurrentHashMap<>();
 
-	private final Supplier<CompletableFuture<HttpHeader>> authHeaderSupplier;
-	private final Predicate<Throwable> sessionExpiredPredicate;
+	private final HttpBridgeAuthenticationServiceConfig<C> config;
 
-	private volatile CompletableFuture<HttpHeader> loginFuture = CompletableFuture.failedFuture(new RuntimeException());
+	private volatile CompletableFuture<C> loginFuture = CompletableFuture.failedFuture(new RuntimeException());
 
 	public HttpBridgeAuthenticationService(//
 			BridgeHttp bridgeHttp, //
-			Supplier<CompletableFuture<HttpHeader>> authHeaderSupplier, //
-			Predicate<Throwable> sessionExpiredPredicate //
+			HttpBridgeAuthenticationServiceConfig<C> config //
 	) {
 		this.bridgeHttp = bridgeHttp;
-		this.authHeaderSupplier = authHeaderSupplier;
-		this.sessionExpiredPredicate = sessionExpiredPredicate;
+		this.config = config;
 	}
 
 	@Override
@@ -101,7 +96,7 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 		this.bridgeHttp.raiseEvent(eventDefinition, eventData);
 	}
 
-	private CompletableFuture<HttpHeader> authenticateAsAdmin() {
+	private CompletableFuture<C> authenticate() {
 		var currentFuture = this.loginFuture;
 		if (!currentFuture.isDone()) {
 			return currentFuture;
@@ -113,7 +108,7 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 				return currentFuture;
 			}
 
-			return this.loginFuture = this.authHeaderSupplier.get().orTimeout(5, TimeUnit.MINUTES) //
+			this.loginFuture = this.config.fetchAuthHeader().orTimeout(5, TimeUnit.MINUTES) //
 					.whenComplete((s, throwable) -> {
 						if (throwable != null) {
 							this.raiseEvent(HttpBridgeAuthenticationEvents.AUTHENTICATION_FAILED, null);
@@ -121,29 +116,42 @@ public class HttpBridgeAuthenticationService implements HttpBridgeService, Bridg
 						}
 						this.raiseEvent(HttpBridgeAuthenticationEvents.AUTHENTICATION_SUCCESS, null);
 					});
+
+			return this.loginFuture;
 		}
 	}
 
 	private CompletableFuture<HttpResponse<String>> sendAuthenticatedRequest(Endpoint endpoint) {
-		return this.loginFuture.exceptionallyCompose(t -> this.authenticateAsAdmin()) //
-				.thenCompose(header -> this.bridgeHttp.request(addAuthHeader(endpoint, header))
-						.exceptionallyCompose(throwable -> {
+		return this.loginFuture.exceptionallyCompose(t -> this.authenticate()) //
+				.thenCompose(
+						authParams -> this.bridgeHttp.request(this.config.applyAuthentication(endpoint, authParams)) //
+								.thenCompose(response -> {
+									// retry once if authentication failed for success response
+									// may happen for apis which always return 200/OK and then have an error in the
+									// body
+									if (this.config.isSessionExpired(response, null)) {
+										this.log.info("Session expired, re-authenticating and retrying request {}",
+												response);
+										return this.authenticate() //
+												.thenCompose(t -> this.bridgeHttp
+														.request(this.config.applyAuthentication(endpoint, t)));
+									}
 
-							// retry once if authentication failed
-							if (this.sessionExpiredPredicate.test(throwable)) {
-								this.log.info("Session expired, re-authenticating and retrying request", throwable);
-								return this.authenticateAsAdmin() //
-										.thenCompose(s -> this.bridgeHttp.request(addAuthHeader(endpoint, s)));
-							}
+									return CompletableFuture.completedFuture(response);
+								}) //
+								.exceptionallyCompose(throwable -> {
+									// retry once if authentication failed
+									if (this.config.isSessionExpired(null,
+											throwable instanceof CompletionException ce ? ce.getCause() : throwable)) {
+										this.log.info("Session expired, re-authenticating and retrying request",
+												throwable);
+										return this.authenticate() //
+												.thenCompose(t -> this.bridgeHttp
+														.request(this.config.applyAuthentication(endpoint, t)));
+									}
 
-							return CompletableFuture.failedFuture(throwable);
-						}));
-	}
-
-	private static Endpoint addAuthHeader(Endpoint endpoint, HttpHeader authToken) {
-		return endpoint.toBuilder() //
-				.setHeader(authToken) //
-				.build();
+									return CompletableFuture.failedFuture(throwable);
+								}));
 	}
 
 }

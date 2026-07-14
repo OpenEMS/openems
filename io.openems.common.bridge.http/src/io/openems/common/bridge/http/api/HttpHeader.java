@@ -40,4 +40,15 @@ public record HttpHeader(String key, String value) {
 		return new HttpHeader(HEADER_CONTENT_TYPE, mediaType);
 	}
 
+	/**
+	 * Creates a 'Cookie' header.
+	 *
+	 * @param cookie the value of the cookie
+	 * @return the created {@link HttpHeader}
+	 * @see HttpMediaType
+	 */
+	public static HttpHeader cookie(String cookie) {
+		return new HttpHeader(HEADER_COOKIE, cookie);
+	}
+
 }

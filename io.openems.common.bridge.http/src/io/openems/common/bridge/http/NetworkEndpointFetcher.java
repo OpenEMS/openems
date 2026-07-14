@@ -76,7 +76,7 @@ public class NetworkEndpointFetcher implements EndpointFetcher {
 
 			final var status = HttpStatus.fromCodeOrCustom(con.getResponseCode(), con.getResponseMessage());
 
-			String body = readBody(con, status);
+			final var body = readBody(con, status);
 
 			if (status.isError()) {
 				throw new HttpError.ResponseError(status, body);

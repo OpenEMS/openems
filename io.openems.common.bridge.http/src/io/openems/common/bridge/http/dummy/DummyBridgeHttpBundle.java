@@ -12,12 +12,34 @@ import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
 
-public class DummyBridgeHttpBundle {
+public record DummyBridgeHttpBundle(//
+		DummyEndpointFetcher fetcher, //
+		DummyBridgeHttpExecutor pool, //
+		DummyBridgeHttpFactory bridgeFactory //
+) {
 
-	private final DummyEndpointFetcher fetcher = dummyEndpointFetcher();
-	private final DummyBridgeHttpExecutor pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(true);
-	private final DummyBridgeHttpFactory bridgeFactory = DummyBridgeHttpFactory.ofBridgeImpl(() -> this.fetcher,
-			() -> this.pool);
+	/**
+	 * Creates a {@link DummyBridgeHttpBundle} with the given
+	 * {@link DummyBridgeHttpExecutor}.
+	 * 
+	 * @param pool the {@link DummyBridgeHttpExecutor}
+	 * @return the {@link DummyBridgeHttpBundle}
+	 */
+	public static DummyBridgeHttpBundle of(DummyBridgeHttpExecutor pool) {
+		final var fetcher = dummyEndpointFetcher();
+		return new DummyBridgeHttpBundle(fetcher, pool, DummyBridgeHttpFactory.ofBridgeImpl(() -> fetcher, () -> pool));
+	}
+
+	/**
+	 * Creates a {@link DummyBridgeHttpBundle}.
+	 *
+	 * @return the {@link DummyBridgeHttpBundle}
+	 */
+	public static DummyBridgeHttpBundle of() {
+		final var fetcher = dummyEndpointFetcher();
+		final var pool = DummyBridgeHttpFactory.dummyBridgeHttpExecutor(true);
+		return new DummyBridgeHttpBundle(fetcher, pool, DummyBridgeHttpFactory.ofBridgeImpl(() -> fetcher, () -> pool));
+	}
 
 	/**
 	 * Sets a one time response which will be returned for the next http call.
@@ -100,7 +122,7 @@ public class DummyBridgeHttpBundle {
 				return null;
 			}
 			request.complete(t);
-			return HttpResponse.ok(null);
+			return null;
 		});
 		return result;
 	}

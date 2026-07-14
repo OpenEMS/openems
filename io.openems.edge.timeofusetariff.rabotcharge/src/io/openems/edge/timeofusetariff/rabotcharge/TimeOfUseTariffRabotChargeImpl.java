@@ -107,7 +107,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	private RabotChargeApiService apiService;
 	private RabotChargeApiService authenticatedApiService;
-	private HttpBridgeAuthenticationService authenticationService;
+	private HttpBridgeAuthenticationService<HttpHeader> authenticationService;
 	private String customerNumber;
 	private String contractId;
 	private TimeEndpoint pricePollingEndpoint;
@@ -156,7 +156,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		// Initialize Service
 		this.apiService = new RabotChargeApiService(this.httpBridge, partnerReg);
 		this.authenticationService = this.httpBridge
-				.createService(new HttpBridgeAuthenticationServiceDefinition(() -> this.apiService.getPartnerToken()
+				.createService(HttpBridgeAuthenticationServiceDefinition.of(() -> this.apiService.getPartnerToken()
 						.thenApply(token -> HttpHeader.authorization(HttpAuthorization.bearer(token)))));
 		this.authenticatedApiService = new RabotChargeApiService(this.authenticationService, partnerReg);
 
