@@ -3,7 +3,6 @@ import { Currency } from "../../shared";
 import { Language } from "../../type/language";
 
 export namespace Formatter {
-
     // Changes the number format based on the language selected.
     const locale: string = Language.geti18nLocale();
 
@@ -16,6 +15,10 @@ export namespace Formatter {
 
     export const FORMAT_VOLT_AMPERE_REACTIVE = (value: number) => {
         return formatNumber(value, locale, "1.0-0") + " var";
+    };
+
+    export const FORMAT_KILO_VOLT_AMPERE_REACTIVE = (value: number) => {
+        return formatNumber(value, locale, "1.0-0") + " kvar";
     };
 
     export const FORMAT_KILO_WATT = (value: number) => {
@@ -55,11 +58,14 @@ export namespace Formatter {
     };
 
     export const FORMAT_CURRENCY_PER_KWH = (value: number | string, currency: string = Currency.Unit.CENT) => {
-        return formatNumber(Number.parseInt(value.toString()), locale, "1.0-2") + " " + Currency.getCurrencyLabelByCurrency(currency);
+        return (
+            formatNumber(Number.parseInt(value.toString()), locale, "1.0-2") +
+            " " +
+            Currency.getCurrencyLabelByCurrency(currency)
+        );
     };
 
     export const formatSafely = (value: number | string | null, format: string) => {
-
         if (value == null) {
             return value;
         }
@@ -68,7 +74,6 @@ export namespace Formatter {
     };
 
     export const formatSafelyWithSuffix = (value: number | string | null, format: string, suffix: string | null) => {
-
         const formattedValue = Formatter.formatSafely(value, format);
         if (formattedValue == null) {
             return null;
@@ -76,4 +81,3 @@ export namespace Formatter {
         return formattedValue + " " + suffix;
     };
 }
-

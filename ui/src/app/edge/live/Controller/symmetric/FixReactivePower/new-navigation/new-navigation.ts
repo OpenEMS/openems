@@ -5,18 +5,19 @@ import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
+import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { Utils } from "src/app/shared/shared";
-import { FixPowerComponent } from "../shared/shared-new-navigation";
+import { FixPowerComponent } from "../../../Ess/FixActivePower/shared/shared-new-navigation";
 
 @Component({
-    selector: "oe-controller-ess-fix-active-power",
+    selector: "oe-controller-ess-fix-reactive-power",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
-export class ControllerEssFixActivePowerComponent extends FixPowerComponent {
-    protected readonly powerConverter: (value: number | null) => string = Utils.CONVERT_WATT_TO_KILOWATT;
-    protected readonly unit: string = "kW";
+export class ControllerEssFixReactivePowerComponent extends FixPowerComponent {
+    protected override readonly powerConverter: (value: number | null) => string =
+        Converter.CONVERT_VAR_TO_KILO_VOLT_AMPERE_REACTIVE;
+    protected override readonly unit: string = "kvar";
 }

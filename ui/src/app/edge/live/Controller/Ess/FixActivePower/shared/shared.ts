@@ -1,12 +1,12 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
-import { OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -23,25 +23,18 @@ export namespace SharedEssFixDigitalPowerControl {
     };
 
     // Creates a hide predicate that hides the field when the form mode does not match the given mode
-    const DONOT_HIDE_ON_MODE = (mode: Mode) => (el: FormModel) =>
-        el.mode !== mode;
+    const DONOT_HIDE_ON_MODE = (mode: Mode) => (el: FormModel) => el.mode !== mode;
 
     export const PROPERTY_MODE = "_PropertyMode";
     export const PROPERTY_POWER = "_PropertyPower";
     export const PROPERTY_CHARGE_ONCE_POWER = "_PropertyChargeOncePower";
-    export const PROPERTY_CHARGE_ONCE_TARGET_SOC_ENABLE =
-        "_PropertyChargeOnceTargetSocEnable";
-    export const PROPERTY_CHARGE_ONCE_TARGET_SOC =
-        "_PropertyChargeOnceTargetSoc";
+    export const PROPERTY_CHARGE_ONCE_TARGET_SOC_ENABLE = "_PropertyChargeOnceTargetSocEnable";
+    export const PROPERTY_CHARGE_ONCE_TARGET_SOC = "_PropertyChargeOnceTargetSoc";
     export const PROPERTY_DISCHARGE_ONCE_POWER = "_PropertyDischargeOncePower";
-    export const PROPERTY_DISCHARGE_ONCE_TARGET_SOC_ENABLE =
-        "_PropertyDischargeOnceTargetSocEnable";
-    export const PROPERTY_DISCHARGE_ONCE_TARGET_SOC =
-        "_PropertyDischargeOnceTargetSoc";
-    export const CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED =
-        "IsEssChargeFromGridAllowed";
-    export const CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED =
-        "IsEssDischargeToGridAllowed";
+    export const PROPERTY_DISCHARGE_ONCE_TARGET_SOC_ENABLE = "_PropertyDischargeOnceTargetSocEnable";
+    export const PROPERTY_DISCHARGE_ONCE_TARGET_SOC = "_PropertyDischargeOnceTargetSoc";
+    export const CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED = "IsEssChargeFromGridAllowed";
+    export const CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED = "IsEssDischargeToGridAllowed";
     export const TARGET_AFTER_LIMITATIONS = "TargetAfterLimitations";
 
     export const NEW_FEATURES_MIN_VERSION = "2026.6.2";
@@ -50,10 +43,12 @@ export namespace SharedEssFixDigitalPowerControl {
         translate: TranslateService,
         component: EdgeConfig.Component,
         edge: Edge,
+        unit: string,
+        powerConverter: (value: number | null) => string,
     ): OeFormlyView<FormModel> => {
         const isNewVersion =
-            edge.isVersionAtLeast(NEW_FEATURES_MIN_VERSION) ||
-            edge.isVersionAtLeast("2026.6.2-SNAPSHOT");
+            (edge.isVersionAtLeast(NEW_FEATURES_MIN_VERSION) || edge.isVersionAtLeast("2026.6.2-SNAPSHOT")) &&
+            component.factoryId !== "Controller.Symmetric.FixReactivePower";
 
         return {
             title: component.alias,
@@ -63,38 +58,23 @@ export namespace SharedEssFixDigitalPowerControl {
                 size: "large",
             },
             lines: [
-                ...getFormlySharedModeAndStateLines(translate, component),
+                ...getFormlySharedModeAndStateLines(translate, component, powerConverter),
                 ...getFormlySharedLines(translate, isNewVersion),
-                ...getFormlyManualOnView(
-                    translate,
-                    DONOT_HIDE_ON_MODE(Mode.MANUAL_ON),
-                ),
+                ...getFormlyManualOnView(translate, DONOT_HIDE_ON_MODE(Mode.MANUAL_ON), unit),
+                ...(isNewVersion ? getFormlyChargeOnceView(translate, DONOT_HIDE_ON_MODE(Mode.CHARGE_ONCE), unit) : []),
                 ...(isNewVersion
-                    ? getFormlyChargeOnceView(
-                          translate,
-                          DONOT_HIDE_ON_MODE(Mode.CHARGE_ONCE),
-                      )
-                    : []),
-                ...(isNewVersion
-                    ? getFormlyDischargeOnceView(
-                          translate,
-                          DONOT_HIDE_ON_MODE(Mode.DISCHARGE_ONCE),
-                      )
+                    ? getFormlyDischargeOnceView(translate, DONOT_HIDE_ON_MODE(Mode.DISCHARGE_ONCE), unit)
                     : []),
                 ...(isNewVersion
                     ? getSharedChargeConsumptionFromGridView(
                           translate,
-                          (el) =>
-                              el.mode !== Mode.MANUAL_ON &&
-                              el.mode !== Mode.CHARGE_ONCE,
+                          (el) => el.mode !== Mode.MANUAL_ON && el.mode !== Mode.CHARGE_ONCE,
                       )
                     : []),
                 ...(isNewVersion
                     ? getSharedDischargeConsumptionFromGridView(
                           translate,
-                          (el) =>
-                              el.mode !== Mode.MANUAL_ON &&
-                              el.mode !== Mode.DISCHARGE_ONCE,
+                          (el) => el.mode !== Mode.MANUAL_ON && el.mode !== Mode.DISCHARGE_ONCE,
                       )
                     : []),
             ],
@@ -109,12 +89,10 @@ export namespace SharedEssFixDigitalPowerControl {
     ): OeFormlyView<FormModel>["lines"] => {
         // Block is visible when mode is CHARGE_ONCE, or MANUAL_ON with CHARGE direction
         const blockHide = (el: FormModel) =>
-            hideCondition(el) ||
-            (el.mode === Mode.MANUAL_ON && el.powerDirection !== "CHARGE");
+            hideCondition(el) || (el.mode === Mode.MANUAL_ON && el.powerDirection !== "CHARGE");
 
         // Info-line is additionally hidden when charge-from-grid is not allowed
-        const infoLineHide = (el: FormModel) =>
-            blockHide(el) || !el.isEssChargeToGridAllowed;
+        const infoLineHide = (el: FormModel) => blockHide(el) || !el.isEssChargeToGridAllowed;
 
         return [
             {
@@ -123,9 +101,7 @@ export namespace SharedEssFixDigitalPowerControl {
             },
             {
                 type: "toggle-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID_ALLOWED",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID_ALLOWED"),
                 controlName: "isEssChargeToGridAllowed",
                 hide: blockHide,
             },
@@ -135,9 +111,7 @@ export namespace SharedEssFixDigitalPowerControl {
             },
             {
                 type: "info-line",
-                html: translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_CONSUMPTION",
-                ),
+                html: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_CONSUMPTION"),
                 hide: infoLineHide,
             },
         ];
@@ -149,12 +123,10 @@ export namespace SharedEssFixDigitalPowerControl {
     ): OeFormlyView<FormModel>["lines"] => {
         // Block is visible when mode is DISCHARGE_ONCE, or MANUAL_ON with DISCHARGE direction
         const blockHide = (el: FormModel) =>
-            hideCondition(el) ||
-            (el.mode === Mode.MANUAL_ON && el.powerDirection !== "DISCHARGE");
+            hideCondition(el) || (el.mode === Mode.MANUAL_ON && el.powerDirection !== "DISCHARGE");
 
         // Info-line is additionally hidden when discharge-to-grid is not allowed
-        const infoLineHide = (el: FormModel) =>
-            blockHide(el) || !el.isEssDischargeToGridAllowed;
+        const infoLineHide = (el: FormModel) => blockHide(el) || !el.isEssDischargeToGridAllowed;
 
         return [
             {
@@ -163,9 +135,7 @@ export namespace SharedEssFixDigitalPowerControl {
             },
             {
                 type: "toggle-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_ACTIVATE",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_ACTIVATE"),
                 controlName: "isEssDischargeToGridAllowed",
                 hide: blockHide,
             },
@@ -175,9 +145,7 @@ export namespace SharedEssFixDigitalPowerControl {
             },
             {
                 type: "info-line",
-                html: translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_DESCRIPTION",
-                ),
+                html: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCHARGE_TO_GRID_DESCRIPTION"),
                 hide: infoLineHide,
             },
         ];
@@ -186,6 +154,7 @@ export namespace SharedEssFixDigitalPowerControl {
     const getFormlyManualOnView = (
         translate: TranslateService,
         hideCondition: (field: FormModel) => boolean,
+        unit: string,
     ): OeFormlyView<FormModel>["lines"] => [
         {
             type: "select-line",
@@ -205,7 +174,7 @@ export namespace SharedEssFixDigitalPowerControl {
             name: translate.instant("GENERAL.POWER"),
             controlName: "power",
             properties: {
-                unit: "W",
+                unit: unit,
             },
             hide: hideCondition,
         },
@@ -214,13 +183,14 @@ export namespace SharedEssFixDigitalPowerControl {
     const getFormlyChargeOnceView = (
         translate: TranslateService,
         hideCondition: (field: FormModel) => boolean,
+        unit: string,
     ): OeFormlyView<FormModel>["lines"] => [
         {
             type: "input-line",
             name: translate.instant("GENERAL.POWER"),
             controlName: "chargeOncePower",
             properties: {
-                unit: "W",
+                unit: unit,
             },
             hide: hideCondition,
         },
@@ -244,13 +214,14 @@ export namespace SharedEssFixDigitalPowerControl {
     const getFormlyDischargeOnceView = (
         translate: TranslateService,
         hideCondition: (field: FormModel) => boolean,
+        unit: string,
     ): OeFormlyView<FormModel>["lines"] => [
         {
             type: "input-line",
             name: translate.instant("GENERAL.POWER"),
             controlName: "dischargeOncePower",
             properties: {
-                unit: "W",
+                unit: unit,
             },
             hide: hideCondition,
         },
@@ -274,19 +245,16 @@ export namespace SharedEssFixDigitalPowerControl {
     export const getFormlySharedModeAndStateLines = (
         translate: TranslateService,
         component: EdgeConfig.Component,
+        powerConverter: (value: number | null) => string,
     ): OeFormlyView["lines"] => {
         const lines: OeFormlyField[] = [];
-        const TARGET_AFTER_LIMITATIONS_CHANNEL =
-            component.id + "/" + TARGET_AFTER_LIMITATIONS;
+        const TARGET_AFTER_LIMITATIONS_CHANNEL = component.id + "/" + TARGET_AFTER_LIMITATIONS;
 
         lines.push(
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.STATE"),
-                channel: new ChannelAddress(
-                    component.id,
-                    PROPERTY_MODE,
-                ).toString(),
+                channel: new ChannelAddress(component.id, PROPERTY_MODE).toString(),
                 converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
             },
             {
@@ -297,35 +265,15 @@ export namespace SharedEssFixDigitalPowerControl {
                     new ChannelAddress(component.id, TARGET_AFTER_LIMITATIONS),
                 ],
                 value: (currentData: CurrentData) => {
-                    const power =
-                        currentData.allComponents[
-                            TARGET_AFTER_LIMITATIONS_CHANNEL
-                        ];
-                    const powerValue = Utils.convertChargeDischargePower(
-                        translate,
-                        power,
-                    );
-                    return Utils.CONVERT_WATT_TO_KILOWATT(powerValue.value);
+                    const power = currentData.allComponents[TARGET_AFTER_LIMITATIONS_CHANNEL];
+                    const powerValue = Utils.convertChargeDischargePower(translate, power);
+                    return powerConverter(powerValue.value);
                 },
                 filter: (currentData: CurrentData) => {
-                    const mode =
-                        currentData.allComponents[
-                            new ChannelAddress(
-                                component.id,
-                                PROPERTY_MODE,
-                            ).toString()
-                        ];
-                    const power =
-                        currentData.allComponents[
-                            TARGET_AFTER_LIMITATIONS_CHANNEL
-                        ] ?? null;
+                    const mode = currentData.allComponents[new ChannelAddress(component.id, PROPERTY_MODE).toString()];
+                    const power = currentData.allComponents[TARGET_AFTER_LIMITATIONS_CHANNEL] ?? null;
 
-                    return (
-                        (mode === Mode.MANUAL_ON ||
-                            mode === Mode.CHARGE_ONCE) &&
-                        power != null &&
-                        power < 0
-                    );
+                    return (mode === Mode.MANUAL_ON || mode === Mode.CHARGE_ONCE) && power != null && power < 0;
                 },
             },
             {
@@ -336,39 +284,20 @@ export namespace SharedEssFixDigitalPowerControl {
                     new ChannelAddress(component.id, TARGET_AFTER_LIMITATIONS),
                 ],
                 value: (currentData: CurrentData) => {
-                    const power =
-                        currentData.allComponents[
-                            TARGET_AFTER_LIMITATIONS_CHANNEL
-                        ];
-                    return Utils.CONVERT_WATT_TO_KILOWATT(Math.abs(power ?? 0));
+                    const power = currentData.allComponents[TARGET_AFTER_LIMITATIONS_CHANNEL];
+                    return powerConverter(Math.abs(power ?? 0));
                 },
                 filter: (currentData: CurrentData) => {
-                    const mode =
-                        currentData.allComponents[
-                            new ChannelAddress(
-                                component.id,
-                                PROPERTY_MODE,
-                            ).toString()
-                        ];
-                    const power =
-                        currentData.allComponents[
-                            TARGET_AFTER_LIMITATIONS_CHANNEL
-                        ] ?? null;
-                    return (
-                        (mode === Mode.MANUAL_ON ||
-                            mode === Mode.DISCHARGE_ONCE) &&
-                        (power == null || power >= 0)
-                    );
+                    const mode = currentData.allComponents[new ChannelAddress(component.id, PROPERTY_MODE).toString()];
+                    const power = currentData.allComponents[TARGET_AFTER_LIMITATIONS_CHANNEL] ?? null;
+                    return (mode === Mode.MANUAL_ON || mode === Mode.DISCHARGE_ONCE) && (power == null || power >= 0);
                 },
             },
         );
         return lines;
     };
 
-    const getFormlySharedLines = (
-        translate: TranslateService,
-        isNewVersion: boolean,
-    ): OeFormlyView["lines"] => [
+    const getFormlySharedLines = (translate: TranslateService, isNewVersion: boolean): OeFormlyView["lines"] => [
         {
             type: "horizontal-line",
         },
@@ -434,16 +363,12 @@ export namespace SharedEssFixDigitalPowerControl {
         AssertionUtils.assertIsDefined(config);
 
         const EnerixControlComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
 
         AssertionUtils.assertIsDefined(EnerixControlComponent);
 
         const isNewVersion =
-            edge.isVersionAtLeast(NEW_FEATURES_MIN_VERSION) ||
-            edge.isVersionAtLeast("2026.6.2-SNAPSHOT");
+            edge.isVersionAtLeast(NEW_FEATURES_MIN_VERSION) || edge.isVersionAtLeast("2026.6.2-SNAPSHOT");
 
         const channelAddresses = [
             new ChannelAddress(EnerixControlComponent.id, PROPERTY_MODE),
@@ -452,43 +377,19 @@ export namespace SharedEssFixDigitalPowerControl {
 
         if (isNewVersion) {
             channelAddresses.push(
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_CHARGE_ONCE_POWER,
-                ),
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_CHARGE_ONCE_TARGET_SOC_ENABLE,
-                ),
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_CHARGE_ONCE_TARGET_SOC,
-                ),
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_DISCHARGE_ONCE_POWER,
-                ),
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_DISCHARGE_ONCE_TARGET_SOC_ENABLE,
-                ),
-                new ChannelAddress(
-                    EnerixControlComponent.id,
-                    PROPERTY_DISCHARGE_ONCE_TARGET_SOC,
-                ),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_CHARGE_ONCE_POWER),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_CHARGE_ONCE_TARGET_SOC_ENABLE),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_CHARGE_ONCE_TARGET_SOC),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_DISCHARGE_ONCE_POWER),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_DISCHARGE_ONCE_TARGET_SOC_ENABLE),
+                new ChannelAddress(EnerixControlComponent.id, PROPERTY_DISCHARGE_ONCE_TARGET_SOC),
             );
 
             const meta = new MetaComponent(config);
             if (meta != null) {
                 channelAddresses.push(
-                    new ChannelAddress(
-                        meta.id,
-                        CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED,
-                    ),
-                    new ChannelAddress(
-                        meta.id,
-                        CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED,
-                    ),
+                    new ChannelAddress(meta.id, CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED),
+                    new ChannelAddress(meta.id, CHANNEL_ID_META_IS_ESS_DISCHARGE_TO_GRID_ALLOWED),
                 );
             }
         }
@@ -515,10 +416,11 @@ export namespace SharedEssFixDigitalPowerControl {
     export function getNavigationTree(
         translate: TranslateService,
         component: EdgeConfig.Component,
+        baseString: string,
     ): ConstructorParameters<typeof NavigationTree> {
         return new NavigationTree(
             component.id,
-            { baseString: "controller/ess-fix-active-power/" + component.id },
+            { baseString: baseString },
             { name: "swap-vertical-outline", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
