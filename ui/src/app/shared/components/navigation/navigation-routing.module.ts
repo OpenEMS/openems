@@ -48,6 +48,9 @@ import { ControllerBraiinsModeComponent } from "src/app/edge/live/Controller/Io/
 import { ControllerBraiinsScheduleComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/schedule.component";
 import { ControllerBraiinsAddTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/add/add";
 import { ControllerBraiinsEditTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/edit/edit";
+import { ControllerIoChannelSingleThresholdHistoryComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/history/new-navigation/new-navigation";
+import { ControllerIoChannelSingleThresholdHomeComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/new-navigation/new-navigation";
+import { ControllerIoChannelSingleThresholdSettingsComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/settings/settings";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
@@ -352,6 +355,18 @@ export const newNavigationRoutes: Routes = [
     {
         path: "common/storage/controller/peak-shaving-asymmetric/:componentId/history",
         component: ControllerPeakShavingAsymmetricHistoryComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId",
+        component: ControllerIoChannelSingleThresholdHomeComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/settings",
+        component: ControllerIoChannelSingleThresholdSettingsComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/history",
+        component: ControllerIoChannelSingleThresholdHistoryComponent,
     },
     {
         path: "controller/enerix-control/:componentId",

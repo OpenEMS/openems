@@ -9,6 +9,7 @@ import { SharedControllerEnerixControl } from "src/app/edge/live/Controller/Ener
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
 import { ControllerBraiinsShared } from "src/app/edge/live/Controller/Io/Braiins/shared/shared";
+import { SharedIoChannelSingleThreshold } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/shared/shared";
 import { SharedControllerIoFixDigitalOutput } from "src/app/edge/live/Controller/Io/FixDigitalOutput/shared/shared";
 import { SharedControllerIoHeatingElement } from "src/app/edge/live/Controller/Io/HeatingElement/shared/shared";
 import { SharedControllerIoHeatpump } from "src/app/edge/live/Controller/Io/Heatpump/shared/shared";
@@ -114,6 +115,11 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.IO.ChannelSingleThreshold":
+                return SharedIoChannelSingleThreshold.getNavigationTree(
+                    translate,
+                    component,
+                );
             case "Controller.Clever-PV":
                 return SharedControllerEnerixControl.getNavigationTree(
                     translate,

@@ -12,7 +12,7 @@ export type Converter = (value: number | string | null) => string;
 
 export namespace Converter {
     /**
-     * 'No-Operation' Converter: just returns the unchanged value as string.
+     * Converts a number or string value to its string representation.
      *
      * @param value The value
      * @returns The value or empty string for null
@@ -22,6 +22,21 @@ export namespace Converter {
             return "";
         }
         return "" + value;
+    };
+
+    /**
+     * Appends a percent sign to a number or string value.
+     *
+     * Returns an empty string when the input is null.
+     *
+     * @param value The value to format.
+     * @returns The value with a ' %' suffix, or an empty string for null.
+     */
+    export const TO_PERCENT: Converter = (value): string => {
+        if (value === null) {
+            return "";
+        }
+        return "" + value + " %";
     };
 
     export const IF_NUMBER = (
@@ -501,7 +516,7 @@ export namespace Converter {
     };
 
     export const ON_OFF = (translate: TranslateService) => {
-        return (raw: number | string): string => {
+        return (raw: number | string | null): string => {
             return translate.instant(raw == 1 ? "GENERAL.ON" : "GENERAL.OFF");
         };
     };
@@ -693,8 +708,10 @@ export namespace Converter {
                     case "MANUAL":
                         return translate.instant("GENERAL.MANUALLY");
                     case "MANUAL_ON":
+                    case "ON":
                         return translate.instant("GENERAL.ON");
                     case "MANUAL_OFF":
+                    case "OFF":
                         return translate.instant("GENERAL.OFF");
                     case "CHARGE_ONCE":
                         return translate.instant("GENERAL.CHARGE_ONCE");
