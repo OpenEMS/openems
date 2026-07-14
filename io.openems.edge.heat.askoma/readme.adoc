@@ -50,4 +50,8 @@ This bundle implements the following OpenEMS Components:
 
 [[_askoma_heating]]
 
+=== Modbus Register Documentation
+
+https://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html[Askomaheat+ Modbus (External Link)]
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.askoma[Source Code icon:github[]]
