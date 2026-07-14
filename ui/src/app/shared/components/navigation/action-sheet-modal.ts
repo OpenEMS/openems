@@ -1,7 +1,7 @@
-import { Component, effect, signal, untracked, ViewChild, WritableSignal } from "@angular/core";
+import { Component, effect, inject, model, signal, untracked, ViewChild, WritableSignal } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
 import { ModalBreakpointChangeEventDetail } from "@ionic/core";
-import { NumberUtils } from "../../utils/number/number-utils";
+import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "./service/navigation.service";
 import { AvailableScope, NavigationTree } from "./shared";
 
@@ -30,10 +30,12 @@ export class NavigationComponent {
 
     protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
     protected upperMostBreakPoint: number = NavigationComponent.UPPERMOST_BREAKPOINT;
+    protected isActionSheetOpened = model<boolean>(false);
     protected isVisible: boolean = false;
-    protected childrenPerRow: (typeof this.children)[] = [];
-    protected absoluteChildrenPerRow: (typeof this.children)[] = [];
+    protected displayChildren: NavigationTree[] = [];
     protected children: NavigationTree[] = [];
+
+    private readonly translate = inject(TranslateService);
 
     constructor(public navigationService: NavigationService) {
         effect(() => {
@@ -44,36 +46,39 @@ export class NavigationComponent {
 
             this.isVisible = this.computeIsVisible(currentNode);
             this.children = [...currentNode.getChildren().filter((el) => el.availableScope === AvailableScope.LOCAL)];
-            this.absoluteChildrenPerRow = NavigationComponent.splitChildrenByItemsPerRow(this.children);
-            this.childrenPerRow = NavigationComponent.splitChildrenByItemsPerRow([...this.children]);
+            this.displayChildren = NavigationComponent.getNonCommonChildren(this.children, this.translate);
         });
     }
 
     /**
-     * Splits navigation tree children by number of items per row.
-     *
-     * @example
-     *     rowCount = 2
-     *     [item1, item2, item3, item4, item5] -> [[item1,item2], [item3, item4], [item5]]
+     * Filters out navigation tree children that are not common.
      *
      * @param children The children
-     * @param numberOfItemsPerRow The number of items per row
-     * @returns The navigationtree children split into number of items per row.
+     * @returns The non common children
      */
-    private static splitChildrenByItemsPerRow(
+    private static getNonCommonChildren(
         children: NavigationTree[] = [],
-        numberOfItemsPerRow: number | null = 1,
-    ): NavigationTree[][] {
-        const splitIndex = NumberUtils.ceilSafely(
-            NumberUtils.divideSafely(Math.max(children.length, 0), numberOfItemsPerRow),
-        );
-        if (numberOfItemsPerRow == null || splitIndex == null) {
-            return [children];
+        translate: TranslateService,
+    ): NavigationTree[] {
+        const nonCommonChildren = children.filter((el) => !el.isCommonWidget);
+
+        if (nonCommonChildren.length == 0) {
+            return [];
         }
 
-        const filteredChildren = children.filter((node) => node.showOrder !== "HIDE");
-
-        return [filteredChildren.slice(0, splitIndex), filteredChildren.slice(splitIndex) ?? []];
+        return [
+            ...nonCommonChildren,
+            new NavigationTree(
+                "system-overview",
+                { baseString: "overview" },
+                { name: "menu-outline" },
+                translate.instant("MENU.OVERVIEW"),
+                "label",
+                [],
+                null,
+                { customLink: "/overview" },
+            ),
+        ];
     }
 
     /**
@@ -101,8 +106,8 @@ export class NavigationComponent {
      */
     protected onBreakpointDidChange(event: CustomEvent<ModalBreakpointChangeEventDetail>) {
         NavigationComponent.breakPoint.set(event.detail.breakpoint);
-        const numberOfRows = event.detail.breakpoint > NavigationComponent.INITIAL_BREAKPOINT ? null : 1;
-        this.childrenPerRow = NavigationComponent.splitChildrenByItemsPerRow(...this.childrenPerRow, numberOfRows);
+        this.isActionSheetOpened.set(event.detail.breakpoint > NavigationComponent.INITIAL_BREAKPOINT);
+        this.displayChildren = NavigationComponent.getNonCommonChildren(this.children, this.translate);
     }
 
     /**

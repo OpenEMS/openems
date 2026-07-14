@@ -155,6 +155,7 @@ export namespace SharedStorage {
                 NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
             ],
             null,
+            { isCommonWidget: true },
         ).toConstructorParams();
     }
 
