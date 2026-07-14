@@ -8,6 +8,8 @@
         "ENERGY_MANAGEMENT": "Energiemanagementsystem",
         "FAQ": "Häufig gestellte Fragen (FAQ)",
         "LANGUAGE": "Sprache wählen:",
+        "THEME": "Theme",
+        "NEW_UI": "Neues UI",
         "OPEN_EMS": "Mehr zu OpenEMS",
         "PATCHNOTES": "Änderungen im Monitoring zu diesem Build"
     },

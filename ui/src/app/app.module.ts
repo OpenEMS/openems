@@ -1,13 +1,13 @@
 import { registerLocaleData } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import localDE from "@angular/common/locales/de";
-import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer } from "@angular/core";
+import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer, } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
 import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
-import { provideTranslateLoader, TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
+import { provideTranslateLoader, TranslateLoader, TranslateModule, TranslateService, } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
 import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
@@ -53,16 +53,27 @@ provideTranslateLoader(MyTranslateLoader);
         IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
         HttpClientModule,
         SharedModule,
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
+        TranslateModule.forRoot({
+            loader: { provide: TranslateLoader, useClass: MyTranslateLoader },
+            fallbackLang: Language.EN.key,
+        }),
         UserModule,
     ],
     providers: [
         { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
         CookieService,
         { provide: ErrorHandler, useClass: MyErrorHandler },
-        { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },
+        {
+            provide: LOCALE_ID,
+            useFactory: () => Language.getCurrentLanguage().key,
+        },
         // Use factory for formly. This allows us to use translations in validationMessages.
-        { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+        {
+            provide: FORMLY_CONFIG,
+            multi: true,
+            useFactory: registerTranslateExtension,
+            deps: [TranslateService],
+        },
         DeviceDetectorService,
         Pagination,
         CheckForUpdateService,
@@ -84,5 +95,5 @@ export class AppModule {
 }
 
 export function initializeService(): () => Promise<void> {
-    return async () => { };
+    return async () => {};
 }
