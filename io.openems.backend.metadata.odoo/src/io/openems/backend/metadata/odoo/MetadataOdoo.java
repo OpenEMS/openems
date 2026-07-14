@@ -78,6 +78,8 @@ import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.backend.metrics.prometheus.httpbridge.HttpBridgePrometheusMetricServiceDefinition;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
@@ -173,6 +175,9 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.bridgeHttp.setDebugMode(config.debugMode());
 		this.bridgeHttp.setMaximumPoolSize(config.requestPoolSize());
 
+		this.bridgeHttp.createService(
+				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.contextId(ID) //
+						.withSanitizeHeader(HttpBridgeLoggingServiceConfiguration.SANITIZE_COOKIE)));
 		this.bridgeHttp.createService(HttpBridgePrometheusMetricServiceDefinition.byPath(ID));
 		this.httpBridgeOdooService = this.bridgeHttp
 				.createService(new HttpBridgeOdooServiceDefinition(Credentials.fromConfig(config)));

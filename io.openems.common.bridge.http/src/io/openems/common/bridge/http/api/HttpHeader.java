@@ -2,6 +2,11 @@ package io.openems.common.bridge.http.api;
 
 public record HttpHeader(String key, String value) {
 
+	public static final String HEADER_AUTHORIZATION = "Authorization";
+	public static final String HEADER_ACCEPT = "Accept";
+	public static final String HEADER_CONTENT_TYPE = "Content-Type";
+	public static final String HEADER_COOKIE = "Cookie";
+
 	/**
 	 * Creates an 'Authorization' header.
 	 *
@@ -10,7 +15,7 @@ public record HttpHeader(String key, String value) {
 	 * @see HttpAuthorization
 	 */
 	public static HttpHeader authorization(String value) {
-		return new HttpHeader("Authorization", value);
+		return new HttpHeader(HEADER_AUTHORIZATION, value);
 	}
 
 	/**
@@ -21,7 +26,7 @@ public record HttpHeader(String key, String value) {
 	 * @see HttpMediaType
 	 */
 	public static HttpHeader accept(String mediaType) {
-		return new HttpHeader("Accept", mediaType);
+		return new HttpHeader(HEADER_ACCEPT, mediaType);
 	}
 
 	/**
@@ -32,7 +37,7 @@ public record HttpHeader(String key, String value) {
 	 * @see HttpMediaType
 	 */
 	public static HttpHeader contentType(String mediaType) {
-		return new HttpHeader("Content-Type", mediaType);
+		return new HttpHeader(HEADER_CONTENT_TYPE, mediaType);
 	}
 
 }
