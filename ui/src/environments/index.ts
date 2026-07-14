@@ -85,6 +85,7 @@ export interface Environment {
             readonly HARDY_BARTH: string | null;
             readonly ALPITRONIC: string | null;
             readonly MENNEKES: string | null;
+            readonly SIMULATOR: string | null;
         };
         readonly LOGO: {
             readonly DARK: string | null;
