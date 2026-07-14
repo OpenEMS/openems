@@ -42,6 +42,7 @@
                 "WARNING": "Warning Notifications"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Available",
                 "BUY_APP": "Buy licence key",
                 "CARDINALITY": "Cardinality",

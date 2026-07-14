@@ -42,6 +42,7 @@
                 "WARNING": "Warnungs Benachrichtigung"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Verfügbar",
                 "BUY_APP": "Lizenzschlüssel kaufen",
                 "CARDINALITY": "Kardinalität",

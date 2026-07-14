@@ -52,26 +52,34 @@ export class NavigationComponent {
     /**
      * Splits navigation tree children by number of items per row.
      *
-     * @param children the children
-     * @param numberOfItemsPerRow the number of items per row
+     * @example
+     *     rowCount = 2
+     *     [item1, item2, item3, item4, item5] -> [[item1,item2], [item3, item4], [item5]]
      *
-     * @example rowCount = 2
-     *          [item1, item2, item3, item4, item5] -> [[item1,item2], [item3, item4], [item5]]
-     * @returns the navigationtree children split into number of items per row.
+     * @param children The children
+     * @param numberOfItemsPerRow The number of items per row
+     * @returns The navigationtree children split into number of items per row.
      */
-    private static splitChildrenByItemsPerRow(children: NavigationTree[] = [], numberOfItemsPerRow: number | null = 1): NavigationTree[][] {
-        const splitIndex = NumberUtils.ceilSafely(NumberUtils.divideSafely(Math.max(children.length, 0), numberOfItemsPerRow));
+    private static splitChildrenByItemsPerRow(
+        children: NavigationTree[] = [],
+        numberOfItemsPerRow: number | null = 1,
+    ): NavigationTree[][] {
+        const splitIndex = NumberUtils.ceilSafely(
+            NumberUtils.divideSafely(Math.max(children.length, 0), numberOfItemsPerRow),
+        );
         if (numberOfItemsPerRow == null || splitIndex == null) {
             return [children];
         }
 
-        return [children.slice(0, splitIndex), children.slice(splitIndex) ?? []];
+        const filteredChildren = children.filter((node) => node.showOrder !== "HIDE");
+
+        return [filteredChildren.slice(0, splitIndex), filteredChildren.slice(splitIndex) ?? []];
     }
 
     /**
      * Navigates to passed link
      *
-     * @param link the link segment to navigate to
+     * @param link The link segment to navigate to
      * @returns
      */
     public async navigateTo(node: NavigationTree, shouldNavigate: boolean): Promise<void> {
@@ -89,7 +97,7 @@ export class NavigationComponent {
     /**
      * Executed on ion-modals breakpoint change.
      *
-     * @param event the event on the IonModals breakpoint change
+     * @param event The event on the IonModals breakpoint change
      */
     protected onBreakpointDidChange(event: CustomEvent<ModalBreakpointChangeEventDetail>) {
         NavigationComponent.breakPoint.set(event.detail.breakpoint);
@@ -100,8 +108,8 @@ export class NavigationComponent {
     /**
      * Checks if action sheet should be shown.
      *
-     * @param currentNode the current node
-     * @returns true, if at least one parent or child exists
+     * @param currentNode The current node
+     * @returns True, if at least one parent or child exists
      */
     private computeIsVisible(currentNode: NavigationTree): boolean {
         const hasBreadCrumbs = currentNode.getBreadCrumbs()?.length > 0;

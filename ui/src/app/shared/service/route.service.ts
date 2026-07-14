@@ -111,6 +111,15 @@ export class RouteService {
         return value as T;
     }
 
+    /**
+     * Gets the query params signal.
+     *
+     * @returns The query params signal
+     */
+    public getQueryParams() {
+        return this.queryParams.asReadonly();
+    }
+
     public navigateAfterAuthentication() {
         const oauthredirectstate = this.cookieService.get("oauthredirectstate");
         const oauthRedirectStateHref = ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;

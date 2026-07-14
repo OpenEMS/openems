@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, HostListener, inject, OnDestroy, OnInit, } from "@angular/core";
+import { Component, HostListener, inject, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
@@ -8,6 +8,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
 import { filter, takeUntil } from "rxjs/operators";
+import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/back-button";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -22,7 +24,7 @@ import { GetApps } from "./jsonrpc/getApps";
 import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterGetPossibleApps } from "./keypopup/appCenterGetPossibleApps";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
-import { KeyModalComponent, KeyValidationBehaviour, } from "./keypopup/modal.component";
+import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
 import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
 
 @Component({
@@ -35,6 +37,7 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
         NgxSpinnerComponent,
         ReactiveFormsModule,
         RouterModule,
+        NavigationBackButtonComponent,
     ],
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
@@ -64,6 +67,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
     private routeService: RouteService = inject(RouteService);
+    private navigationService: NavigationService = inject(NavigationService);
 
     public constructor(
         private route: ActivatedRoute,
@@ -85,7 +89,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
         this.service.startSpinner(this.spinnerId);
         this.updateIsXL();
 
-        this.appId = this.routeService.getRouteParam("appId");
+        this.appId = this.routeService.getQueryParam("appId");
         this.appName = this.routeService.getQueryParam("name");
         const appId = this.appId;
         this.service.getCurrentEdge().then((edge) => {
@@ -101,8 +105,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     }),
                 )
                 .then((response) => {
-                    const result = (response as AppCenterIsAppFree.Response)
-                        .result;
+                    const result = (response as AppCenterIsAppFree.Response).result;
                     this.isFreeApp = result.isAppFree;
                 })
                 .catch(() => {
@@ -119,8 +122,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     )
                     .subscribe((next) => {
                         const appManager = next.getComponent("_appManager");
-                        const newKeyForFreeApps =
-                            appManager.properties["keyForFreeApps"];
+                        const newKeyForFreeApps = appManager.properties["keyForFreeApps"];
                         if (!newKeyForFreeApps) {
                             // no key in config
                             this.increaseReceivedResponse();
@@ -134,23 +136,18 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                             .sendRequest(
                                 this.websocket,
                                 new AppCenter.Request({
-                                    payload:
-                                        new AppCenterGetPossibleApps.Request({
-                                            key: this.keyForFreeApps,
-                                        }),
+                                    payload: new AppCenterGetPossibleApps.Request({
+                                        key: this.keyForFreeApps,
+                                    }),
                                 }),
                             )
                             .then((response) => {
-                                const result = (
-                                    response as AppCenterGetPossibleApps.Response
-                                ).result;
-                                this.isPreInstalledApp = result.bundles.some(
-                                    (bundle) => {
-                                        return bundle.some((app) => {
-                                            return app.appId == this.appId;
-                                        });
-                                    },
-                                );
+                                const result = (response as AppCenterGetPossibleApps.Response).result;
+                                this.isPreInstalledApp = result.bundles.some((bundle) => {
+                                    return bundle.some((app) => {
+                                        return app.appId == this.appId;
+                                    });
+                                });
                             })
                             .finally(() => {
                                 this.increaseReceivedResponse();
@@ -161,12 +158,10 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 this.increaseReceivedResponse();
             }
 
-            this.service.metadata
-                .pipe(takeUntil(this.stopOnDestroy))
-                .subscribe((entry) => {
-                    this.canEnterKey = canEnterKey(edge, entry.user);
-                    this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
-                });
+            this.service.metadata.pipe(takeUntil(this.stopOnDestroy)).subscribe((entry) => {
+                this.canEnterKey = canEnterKey(edge, entry.user);
+                this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
+            });
 
             // set appname, image ...
             const state = history?.state;
@@ -199,10 +194,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                     .catch((reason) => {
                         console.error(reason.error);
                         this.service.toast(
-                            "Error while receiving App[" +
-                                appId +
-                                "]: " +
-                                reason.error.message,
+                            "Error while receiving App[" + appId + "]: " + reason.error.message,
                             "danger",
                         );
                     });
@@ -216,21 +208,13 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 }),
             )
                 .then((response) => {
-                    const descriptor = (response as GetAppDescriptor.Response)
-                        .result;
-                    this.descriptor = GetAppDescriptor.postprocess(
-                        descriptor,
-                        this.sanitizer,
-                    );
+                    const descriptor = (response as GetAppDescriptor.Response).result;
+                    this.descriptor = GetAppDescriptor.postprocess(descriptor, this.sanitizer);
                 })
                 .catch(
                     InstallAppComponent.errorToast(
                         this.service,
-                        (error) =>
-                            "Error while receiving AppDescriptor for App[" +
-                            appId +
-                            "]: " +
-                            error,
+                        (error) => "Error while receiving AppDescriptor for App[" + appId + "]: " + error,
                     ),
                 )
                 .finally(() => {
@@ -252,37 +236,22 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     }
 
     protected installApp(appId: string) {
-        if (
-            this.key ||
-            this.useMasterKey ||
-            Flags.getByType(this.app.flags, Flags.FREE_FROM_DEPENDENCY)
-        ) {
+        if (this.key || this.useMasterKey || Flags.getByType(this.app.flags, Flags.FREE_FROM_DEPENDENCY)) {
             // if key already set navigate directly to installation view
-            const state = this.useMasterKey
-                ? { useMasterKey: true }
-                : { appKey: this.key };
-            this.router.navigate(
-                [
-                    "device/" +
-                        this.edge.id +
-                        "/settings/app/install/" +
-                        this.appId,
-                ],
-                { queryParams: { name: this.appName }, state: state },
-            );
+            const state = this.useMasterKey ? { useMasterKey: true } : { appKey: this.key };
+            this.router.navigate(["./install"], {
+                queryParams: { name: this.appName, appId: this.appId },
+                state: state,
+                relativeTo: this.route,
+            });
             return;
         }
         // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
         if (!hasKeyModel(this.edge) || this.isFreeApp) {
-            this.router.navigate(
-                [
-                    "device/" +
-                        this.edge.id +
-                        "/settings/app/install/" +
-                        this.appId,
-                ],
-                { queryParams: { name: this.appName } },
-            );
+            this.router.navigate(["./install"], {
+                queryParams: { name: this.appName, appId: this.appId },
+                relativeTo: this.route,
+            });
             return;
         }
         // show modal to let the user enter a key
@@ -312,10 +281,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     }
 
     // popup for key
-    private async presentModal(
-        appId: string,
-        behaviour: KeyValidationBehaviour,
-    ) {
+    private async presentModal(appId: string, behaviour: KeyValidationBehaviour) {
         const modal = await this.modalController.create({
             component: KeyModalComponent,
             componentProps: {
@@ -323,6 +289,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 appId: appId,
                 behaviour: behaviour,
                 appName: this.appName,
+                route: this.route,
             },
             cssClass: "auto-height",
         });

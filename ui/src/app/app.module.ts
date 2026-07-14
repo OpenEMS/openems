@@ -1,13 +1,13 @@
 import { registerLocaleData } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import localDE from "@angular/common/locales/de";
-import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer, } from "@angular/core";
+import { ErrorHandler, inject, LOCALE_ID, NgModule, provideAppInitializer } from "@angular/core";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouteReuseStrategy } from "@angular/router";
 import { IonicModule, IonicRouteStrategy } from "@ionic/angular";
 import { FORMLY_CONFIG } from "@ngx-formly/core";
-import { provideTranslateLoader, TranslateLoader, TranslateModule, TranslateService, } from "@ngx-translate/core";
+import { provideTranslateLoader, TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
 import { AngularMyDatePickerModule } from "@nodro7/angular-mydatepicker";
 import { provideCharts, withDefaultRegisterables } from "ng2-charts";
 import { CookieService } from "ngx-cookie-service";
@@ -22,6 +22,7 @@ import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
 import { FooterContentComponent } from "./shared/components/footer/content/content";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
+import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/back-button";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
@@ -35,12 +36,9 @@ import { UserModule } from "./user/user.module";
 provideTranslateLoader(MyTranslateLoader);
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        ChartOptionsPopoverComponent,
-        NavigationComponent,
-    ],
+    declarations: [AppComponent, ChartOptionsPopoverComponent, NavigationComponent],
     imports: [
+        NavigationBackButtonComponent,
         FooterContentComponent,
         SystemOutageInfoComponent,
         AngularMyDatePickerModule,
