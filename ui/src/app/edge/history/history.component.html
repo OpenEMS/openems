@@ -18,7 +18,7 @@
           <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
         </ion-col>
 
-        @for (clazz of widgets.classes; track clazz) {
+        @for (clazz of widgets.classes; track i; let i = $index) {
           @switch (clazz) {
             @case ("Storage") {
               <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
@@ -65,7 +65,7 @@
           }
         }
 
-        @for (widget of widgets.list; track widget.name) {
+        @for (widget of widgets.list; track i; let i = $index) {
           @switch (widget.name) {
             @case ("Controller.Symmetric.PeakShaving") {
               <ion-col size="12" size-md="6" size-lg="4" size-xl="3">

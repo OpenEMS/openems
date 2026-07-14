@@ -12,65 +12,38 @@ import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
-    selector: "channelthresholdWidget",
+    selector: "channelsingleThresholdWidget",
     templateUrl: "./flat.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-        ComponentsModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule, ComponentsModule],
 })
 export class FlatComponent extends AbstractFlatWidget {
     protected controllerLines: { name: string; channelAddress: string }[] = [];
-    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(
-        this.translate.getCurrentLang(),
-    );
+    protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
 
     protected override getChannelAddresses(): ChannelAddress[] {
         AssertionUtils.assertIsDefined(this.config);
 
-        const controllersByFactory =
-            this.config.getComponentsByFactory(
-                "Controller.IO.ChannelSingleThreshold",
-            ) ?? [];
+        const controllersByFactory = this.config.getComponentsByFactory("Controller.IO.ChannelSingleThreshold") ?? [];
 
-        const controllers = controllersByFactory.filter(
-            (controller) => controller != null,
-        );
+        const controllers = controllersByFactory.filter((controller) => controller != null);
 
         const channelAddresses: ChannelAddress[] = [];
 
         for (const controller of controllers) {
-            const outputChannelAddress =
-                controller.getPropertyFromComponent<string>(
-                    "outputChannelAddress",
-                );
+            const outputChannelAddress = controller.getPropertyFromComponent<string>("outputChannelAddress");
 
-            const output =
-                outputChannelAddress == null
-                    ? null
-                    : ChannelAddress.fromString(outputChannelAddress);
+            const output = outputChannelAddress == null ? null : ChannelAddress.fromString(outputChannelAddress);
             this.controllerLines.push({
                 name: this.getDisplayName(controller, output),
                 channelAddress: controller.id + "/CumulatedActiveTime",
             });
-            channelAddresses.push(
-                new ChannelAddress(controller.id, "CumulatedActiveTime"),
-            );
+            channelAddresses.push(new ChannelAddress(controller.id, "CumulatedActiveTime"));
         }
         return channelAddresses;
     }
 
-    private getDisplayName(
-        controller: EdgeConfig.Component,
-        output: ChannelAddress | null,
-    ): string {
-        return controller.id === controller.alias
-            ? (output?.channelId ?? controller.alias)
-            : controller.alias;
+    private getDisplayName(controller: EdgeConfig.Component, output: ChannelAddress | null): string {
+        return controller.id === controller.alias ? (output?.channelId ?? controller.alias) : controller.alias;
     }
 }
