@@ -33,6 +33,8 @@ public final class CancellationToken {
 	}
 
 	public static class CancellationException extends RuntimeException {
+		private static final long serialVersionUID = -7669067388268558320L;
+
 		public CancellationException() {
 			super("Operation was cancelled.");
 		}
