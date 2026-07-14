@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import io.openems.common.utils.CancellationToken;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
@@ -288,7 +289,7 @@ public class AppManagerTestBundle {
 	 * @throws Exception on error
 	 */
 	public void assertNoValidationErrors() throws Exception {
-		this.appValidateWorker.validateApps();
+		this.appValidateWorker.validateApps(new CancellationToken());
 
 		// should not have found defective Apps
 		if (!this.appValidateWorker.defectiveApps.isEmpty()) {
