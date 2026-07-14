@@ -1,4 +1,4 @@
-import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircleOutline, warningOutline } from "ionicons/icons";
+import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircleOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -46,6 +46,7 @@ export const OemMeta: BaseMeta = {
         COMPONENT: {
             HEATPUMP: flame,
             EVCS: "assets/img/icon/evcs.svg",
+            HEATING_ELEMENT: flame,
         },
         STATUS: {
             CHECKMARK: checkmarkDoneCircleOutline,

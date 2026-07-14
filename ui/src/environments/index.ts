@@ -66,6 +66,7 @@ export interface Environment {
         readonly COMPONENT: {
             readonly HEATPUMP: string;
             readonly EVCS: string;
+            readonly HEATING_ELEMENT: string;
         };
         readonly STATUS: {
             readonly CHECKMARK: string;
@@ -228,11 +229,10 @@ export interface Environment {
             /**
              * Gets the image url of an OpenemsApp.
              *
-             * The current order of the displayed image of an app is: Image from
-             * edge -> Image from Url -> No image just the app name
+             * The current order of the displayed image of an app is: Image from edge -> Image from Url -> No image just
+             * the app name
              *
-             * @param language The currently used language; can be obtained with
-             *   {@link TranslateService#currentLang}
+             * @param language The currently used language; can be obtained with {@link TranslateService#currentLang}
              * @param appId The appId of the image
              * @returns The url of the image or null if not provided
              */
@@ -267,8 +267,6 @@ export interface Environment {
 /*
  * Return the proper websocket scheme ("ws" or "wss") depending on whether the page is accessed via HTTP or HTTPS.
  */
-export function getWebsocketScheme(
-    protocol: string = window.location.protocol,
-): string {
+export function getWebsocketScheme(protocol: string = window.location.protocol): string {
     return protocol === "https:" ? "wss" : "ws";
 }

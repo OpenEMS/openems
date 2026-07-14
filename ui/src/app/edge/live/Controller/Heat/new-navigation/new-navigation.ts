@@ -16,26 +16,25 @@ import { SharedControllerHeat } from "../shared/shared";
     selector: "oe-controller-heat-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private readonly routeService: RouteService = inject(RouteService);
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge, isMyPV: boolean, isAskoma: boolean, isReadOnly: boolean): OeFormlyView {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+        isMyPV: boolean,
+        isAskoma: boolean,
+        isReadOnly: boolean,
+    ): OeFormlyView {
         return {
             title: component.alias,
-            icon: { name: "flame", color: "normal", size: "normal" },
+            icon: { name: "oe-heating-element", color: "normal", size: "normal" },
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
             lines: [
                 ...(isAskoma ? SharedControllerHeat.getAskomaIcon() : []),
@@ -57,9 +56,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         AssertionUtils.assertIsDefined(component);
 
         // Check for specific factoryId
-        const isMyPV =
-            component.factoryId === "Heat.MyPv.AcThor9s" ||
-          component.factoryId === "Heat.MyPv";
+        const isMyPV = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
         const isAskoma = component.factoryId === "Heat.Askoma";
         const isReadOnly = component.properties?.readOnly === true;
         return ControllerHeatHomeComponent.generateView(this.translate, component, edge, isMyPV, isAskoma, isReadOnly);
