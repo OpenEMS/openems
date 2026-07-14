@@ -1,37 +1,26 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { GroupedNavigationTreeUtility, NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Formatter } from "src/app/shared/components/shared/formatter";
-import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { CurrentDataUtils } from "src/app/shared/type/currentdata";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { StringUtils } from "src/app/shared/utils/string/string.utils";
 
 export namespace SharedIoChannelSingleThreshold {
-    type KnownInputChannelAddress =
-        | "_sum/EssSoc"
-        | "_sum/GridActivePower"
-        | "_sum/ProductionActivePower";
+    type KnownInputChannelAddress = "_sum/EssSoc" | "_sum/GridActivePower" | "_sum/ProductionActivePower";
 
-    const isKnownInputChannelAddress = (
-        inputChannelAddress: string,
-    ): inputChannelAddress is KnownInputChannelAddress =>
+    const isKnownInputChannelAddress = (inputChannelAddress: string): inputChannelAddress is KnownInputChannelAddress =>
         inputChannelAddress === "_sum/EssSoc" ||
         inputChannelAddress === "_sum/GridActivePower" ||
         inputChannelAddress === "_sum/ProductionActivePower";
 
-    export type InputMode =
-        | "SOC"
-        | "GRIDSELL"
-        | "GRIDBUY"
-        | "PRODUCTION"
-        | "OTHER";
+    export type InputMode = "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION" | "OTHER";
 
     export const getFormlyView = async (
         translate: TranslateService,
@@ -41,11 +30,7 @@ export namespace SharedIoChannelSingleThreshold {
     ): Promise<
         OeFormlyView<{
             mode: Mode;
-            inputChannelAddressToggleValue:
-                | "SOC"
-                | "GRIDSELL"
-                | "GRIDBUY"
-                | "PRODUCTION";
+            inputChannelAddressToggleValue: "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION";
         }>
     > => {
         return {
@@ -67,30 +52,16 @@ export namespace SharedIoChannelSingleThreshold {
     ): Promise<
         OeFormlyView<{
             mode: Mode;
-            inputChannelAddressToggleValue:
-                | "SOC"
-                | "GRIDSELL"
-                | "GRIDBUY"
-                | "PRODUCTION";
+            inputChannelAddressToggleValue: "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION";
         }>["lines"]
     > => {
         const lines: OeFormlyView<{
             mode: Mode;
-            inputChannelAddressToggleValue:
-                | "SOC"
-                | "GRIDSELL"
-                | "GRIDBUY"
-                | "PRODUCTION";
+            inputChannelAddressToggleValue: "SOC" | "GRIDSELL" | "GRIDBUY" | "PRODUCTION";
         }>["lines"] = [];
 
-        const gridActivePowerChannelAddress = new ChannelAddress(
-            "_sum",
-            "GridActivePower",
-        );
-        const productionActivePowerChannelAddress = new ChannelAddress(
-            "_sum",
-            "ProductionActivePower",
-        );
+        const gridActivePowerChannelAddress = new ChannelAddress("_sum", "GridActivePower");
+        const productionActivePowerChannelAddress = new ChannelAddress("_sum", "ProductionActivePower");
         const getUnit = await createUnitResolver(edge, websocket, [
             gridActivePowerChannelAddress,
             productionActivePowerChannelAddress,
@@ -100,9 +71,7 @@ export namespace SharedIoChannelSingleThreshold {
             {
                 type: "select-line",
                 controlName: "inputChannelAddressToggleValue",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON"),
                 options: [
                     { name: translate.instant("GENERAL.SOC"), value: "SOC" },
                     {
@@ -123,9 +92,7 @@ export namespace SharedIoChannelSingleThreshold {
 
             {
                 type: "input-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCHED_LOAD_POWER",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCHED_LOAD_POWER"),
                 controlName: "switchedLoadPower",
                 properties: {
                     unit: "W",
@@ -148,66 +115,40 @@ export namespace SharedIoChannelSingleThreshold {
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.CURRENT_VALUE"),
-                channel: new ChannelAddress(
-                    "_sum",
-                    "GridActivePower",
-                ).toString(),
-                converter: createGridPowerConverter(
-                    getUnit,
-                    gridActivePowerChannelAddress,
-                    -1,
-                ),
+                channel: new ChannelAddress("_sum", "GridActivePower").toString(),
+                converter: createGridPowerConverter(getUnit, gridActivePowerChannelAddress, -1),
                 hide: HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDSELL,
             },
             // GRIDBUY
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.CURRENT_VALUE"),
-                channel: new ChannelAddress(
-                    "_sum",
-                    "GridActivePower",
-                ).toString(),
-                converter: createGridPowerConverter(
-                    getUnit,
-                    gridActivePowerChannelAddress,
-                    1,
-                ),
+                channel: new ChannelAddress("_sum", "GridActivePower").toString(),
+                converter: createGridPowerConverter(getUnit, gridActivePowerChannelAddress, 1),
                 hide: HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDBUY,
             },
             // PRODUCTION
             {
                 type: "channel-line",
                 name: translate.instant("GENERAL.CURRENT_VALUE"),
-                channel: new ChannelAddress(
-                    "_sum",
-                    "ProductionActivePower",
-                ).toString(),
+                channel: new ChannelAddress("_sum", "ProductionActivePower").toString(),
                 converter: (value) => {
                     const unit = getUnit(productionActivePowerChannelAddress);
 
-                    return (
-                        SharedIoChannelSingleThreshold.createCurrentValueLabel(
-                            value,
-                            unit,
-                        ) ?? String(value)
-                    );
+                    return SharedIoChannelSingleThreshold.createCurrentValueLabel(value, unit) ?? String(value);
                 },
                 hide: HIDE_ON_MODE_NOT_AUTOMATIC_OR_NOT_PRODUCTION,
             },
             {
                 type: "value-from-form-control-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD"),
                 controlName: "threshold",
                 converter: Converter.TO_PERCENT,
                 hide: HIDE_ON_NOT_AUTOMATIC_OR_NOT_SOC,
             },
             {
                 type: "input-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.THRESHOLD"),
                 controlName: "threshold",
                 properties: {
                     unit: "W",
@@ -234,15 +175,11 @@ export namespace SharedIoChannelSingleThreshold {
             //regular behaviour for invert if GridSell is not selected
             {
                 type: "buttons-from-form-control-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.BEHAVIOUR",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.BEHAVIOUR"),
                 controlName: "invert",
                 buttons: [
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE_THRESHOLD",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE_THRESHOLD"),
                         value: false,
                         icon: {
                             color: "success",
@@ -251,9 +188,7 @@ export namespace SharedIoChannelSingleThreshold {
                         },
                     },
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW_THRESHOLD",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW_THRESHOLD"),
                         value: true,
                         icon: {
                             color: "danger",
@@ -267,15 +202,11 @@ export namespace SharedIoChannelSingleThreshold {
             // invert behaviour for invert if GridSell is selected
             {
                 type: "buttons-from-form-control-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.BEHAVIOUR",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.BEHAVIOUR"),
                 controlName: "invert",
                 buttons: [
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE_THRESHOLD",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_ABOVE_THRESHOLD"),
                         value: true,
                         icon: {
                             color: "success",
@@ -284,9 +215,7 @@ export namespace SharedIoChannelSingleThreshold {
                         },
                     },
                     {
-                        name: translate.instant(
-                            "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW_THRESHOLD",
-                        ),
+                        name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCH_ON_BELOW_THRESHOLD"),
                         value: false,
                         icon: {
                             color: "danger",
@@ -303,9 +232,7 @@ export namespace SharedIoChannelSingleThreshold {
             },
             {
                 type: "input-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME"),
                 controlName: "minimumSwitchingTime",
                 properties: {
                     unit: "s",
@@ -322,18 +249,13 @@ export namespace SharedIoChannelSingleThreshold {
         component: EdgeConfig.Component,
     ): OeFormlyView["lines"] => {
         const lines: OeFormlyView["lines"] = [];
-        const outputChannelAddress = component.getPropertyFromComponent<string>(
-            "outputChannelAddress",
-        );
+        const outputChannelAddress = component.getPropertyFromComponent<string>("outputChannelAddress");
 
         if (outputChannelAddress != null) {
             lines.push({
                 type: "channel-line",
                 name: translate.instant("GENERAL.STATE"),
-                channel: new ChannelAddress(
-                    component.id,
-                    outputChannelAddress,
-                ).toString(),
+                channel: new ChannelAddress(component.id, outputChannelAddress).toString(),
                 converter: Converter.ON_OFF(translate),
             });
         }
@@ -415,14 +337,11 @@ export namespace SharedIoChannelSingleThreshold {
             lines.push(
                 {
                     type: "channel-line",
-                    name: translate.instant(
-                        "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON",
-                    ),
+                    name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.DEPENDEND_ON"),
                     channel: component.id + outputChannel,
                     converter: (_value) =>
                         Converter.IF_STRING(inputChannel, (channel) => {
-                            const inputChannelAddress =
-                                ChannelAddress.fromString(channel);
+                            const inputChannelAddress = ChannelAddress.fromString(channel);
                             return SharedIoChannelSingleThreshold.createDependenOnLabel(
                                 inputChannelAddress,
                                 translate,
@@ -435,34 +354,21 @@ export namespace SharedIoChannelSingleThreshold {
                     name: translate.instant("GENERAL.CURRENT_VALUE"),
                     channel: component.id + outputChannel,
                     converter: (value) => {
-                        const unit = getUnit(
-                            ChannelAddress.fromString(inputChannel),
-                        );
+                        const unit = getUnit(ChannelAddress.fromString(inputChannel));
 
-                        return (
-                            SharedIoChannelSingleThreshold.createCurrentValueLabel(
-                                value,
-                                unit,
-                            ) ?? ""
-                        );
+                        return SharedIoChannelSingleThreshold.createCurrentValueLabel(value, unit) ?? "";
                     },
                     filter: (value) => {
                         if (inputChannel == null) {
                             return false;
                         }
-                        const isOtherInputAddress = StringUtils.isNotInArr(
-                            inputChannel.toString(),
-                            [
-                                "_sum/EssSoc",
-                                "_sum/GridActivePower",
-                                "_sum/ProductionActivePower",
-                            ],
-                        );
+                        const isOtherInputAddress = StringUtils.isNotInArr(inputChannel.toString(), [
+                            "_sum/EssSoc",
+                            "_sum/GridActivePower",
+                            "_sum/ProductionActivePower",
+                        ]);
 
-                        return (
-                            Filter.NOT_NULL_OR_UNDEFINED(value) &&
-                            isOtherInputAddress
-                        );
+                        return Filter.NOT_NULL_OR_UNDEFINED(value) && isOtherInputAddress;
                     },
                 },
             );
@@ -473,25 +379,16 @@ export namespace SharedIoChannelSingleThreshold {
             name: {
                 converter: (value: string | number | null): string =>
                     Converter.IF_NUMBER(value, (outputChannelValue) => {
-                        const threshold =
-                            component.getPropertyFromComponent<number>(
-                                "threshold",
-                            );
-                        const invert =
-                            component.getPropertyFromComponent<boolean>(
-                                "invert",
-                            );
-                        const isThresholdPositive =
-                            threshold !== null && threshold > 0;
+                        const threshold = component.getPropertyFromComponent<number>("threshold");
+                        const invert = component.getPropertyFromComponent<boolean>("invert");
+                        const isThresholdPositive = threshold !== null && threshold > 0;
 
                         const label =
                             SharedIoChannelSingleThreshold.SwitchStateLabel.find(
                                 (el) =>
                                     el.invert === invert &&
-                                    el.outputChannelValue ===
-                                        outputChannelValue &&
-                                    el.propertyThresholdPositive ===
-                                        isThresholdPositive,
+                                    el.outputChannelValue === outputChannelValue &&
+                                    el.propertyThresholdPositive === isThresholdPositive,
                             )?.label ?? null;
 
                         return label == null ? "" : translate.instant(label);
@@ -501,45 +398,25 @@ export namespace SharedIoChannelSingleThreshold {
             channelsToSubscribe: [ChannelAddress.fromString(inputChannel)],
             value: (currentData: CurrentData) => {
                 const unit = getUnit(ChannelAddress.fromString(inputChannel));
-                const dependendOnValue = getDependendOnValue(
-                    component,
-                    currentData,
-                );
+                const dependendOnValue = getDependendOnValue(component, currentData);
 
-                return (
-                    SharedIoChannelSingleThreshold.createCurrentValueLabel(
-                        dependendOnValue,
-                        unit,
-                    ) ?? ""
-                );
+                return SharedIoChannelSingleThreshold.createCurrentValueLabel(dependendOnValue, unit) ?? "";
             },
             filter: (currentData: CurrentData) => {
                 if (inputChannel == null) {
                     return false;
                 }
                 const unit = getUnit(ChannelAddress.fromString(inputChannel));
-                const dependendOnValue = getDependendOnValue(
-                    component,
-                    currentData,
-                );
+                const dependendOnValue = getDependendOnValue(component, currentData);
 
-                const value =
-                    SharedIoChannelSingleThreshold.createCurrentValueLabel(
-                        dependendOnValue,
-                        unit,
-                    );
-                const isOtherInputAddress = StringUtils.isNotInArr(
-                    inputChannel.toString(),
-                    [
-                        "_sum/EssSoc",
-                        "_sum/GridActivePower",
-                        "_sum/ProductionActivePower",
-                    ],
-                );
+                const value = SharedIoChannelSingleThreshold.createCurrentValueLabel(dependendOnValue, unit);
+                const isOtherInputAddress = StringUtils.isNotInArr(inputChannel.toString(), [
+                    "_sum/EssSoc",
+                    "_sum/GridActivePower",
+                    "_sum/ProductionActivePower",
+                ]);
 
-                return (
-                    Filter.NOT_NULL_OR_UNDEFINED(value) && isOtherInputAddress
-                );
+                return Filter.NOT_NULL_OR_UNDEFINED(value) && isOtherInputAddress;
             },
         });
 
@@ -556,37 +433,16 @@ export namespace SharedIoChannelSingleThreshold {
         AssertionUtils.assertIsDefined(config);
 
         const channelSingleThresholdComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
 
         AssertionUtils.assertIsDefined(channelSingleThresholdComponent);
         return Promise.resolve([
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertyMode",
-            ),
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertyInputChannelAddress",
-            ),
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertyThreshold",
-            ),
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertySwitchedLoadPower",
-            ),
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertyMinimumSwitchingTime",
-            ),
-            new ChannelAddress(
-                channelSingleThresholdComponent.id,
-                "_PropertyInvert",
-            ),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertyMode"),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertyInputChannelAddress"),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertyThreshold"),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertySwitchedLoadPower"),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertyMinimumSwitchingTime"),
+            new ChannelAddress(channelSingleThresholdComponent.id, "_PropertyInvert"),
         ]);
     }
 
@@ -604,23 +460,69 @@ export namespace SharedIoChannelSingleThreshold {
 
     export function getNavigationTree(
         translate: TranslateService,
-        component: EdgeConfig.Component,
-    ): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree(
-            component.id,
-            {
-                baseString:
-                    "controller/io-channel-single-threshold/" + component.id,
-            },
-            { name: "aperture-outline", color: "normal" },
-            Name.METER_ALIAS_OR_ID(component),
-            "label",
-            [
-                NavigationConstants.CommonNodes.HISTORY(translate),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
-            ],
-            null,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
+        const component = config.getComponentSafely(componentId);
+        if (component == null) {
+            return null;
+        }
+
+        const label = component.alias?.trim() || component.id;
+        return createComponentNavigationTree(
+            componentId,
+            label,
+            "controller/io-channel-single-threshold/" + componentId,
+            translate,
         ).toConstructorParams();
+    }
+
+    export function getNavigationTreeAsChild(
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): NavigationTree | null {
+        const component = config.getComponentSafely(componentId);
+        if (component == null) {
+            return null;
+        }
+
+        const label = component.alias?.trim() || component.id;
+        return createComponentNavigationTree(componentId, label, componentId, translate);
+    }
+
+    function createComponentNavigationTree(
+        id: string,
+        label: string,
+        baseString: string,
+        translate: TranslateService,
+    ): NavigationTree {
+        return new NavigationTree(
+            id,
+            { baseString },
+            { name: "aperture-outline", color: "normal" },
+            label,
+            "label",
+            [NavigationConstants.CommonNodes.HISTORY(translate), NavigationConstants.CommonNodes.SETTINGS(translate)],
+            null,
+        );
+    }
+
+    export function getGroupedNavigationTree(
+        translate: TranslateService,
+        componentIds: EdgeConfig.Component["id"][],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
+        return GroupedNavigationTreeUtility.createGroupedNavigationTree(
+            "channel-single-threshold-controllers",
+            { name: "aperture-outline", color: "normal" },
+            "MENU.GROUPS.CHANNEL_SINGLE_THRESHOLD",
+            "controller/io-channel-single-threshold",
+            translate,
+            componentIds,
+            config,
+            (componentId) => getNavigationTreeAsChild(translate, componentId, config),
+        );
     }
 
     /**
@@ -635,15 +537,13 @@ export namespace SharedIoChannelSingleThreshold {
         translate: TranslateService,
         component: EdgeConfig.Component,
     ): string {
-        const inputChannelAddress =
-            inputChannel.toString() as KnownInputChannelAddress;
+        const inputChannelAddress = inputChannel.toString() as KnownInputChannelAddress;
 
         switch (inputChannelAddress) {
             case "_sum/EssSoc":
                 return translate.instant("GENERAL.SOC");
             case "_sum/GridActivePower": {
-                const propertyThreshold =
-                    component.getPropertyFromComponent<number>("threshold");
+                const propertyThreshold = component.getPropertyFromComponent<number>("threshold");
                 if (propertyThreshold != null && propertyThreshold < 0) {
                     return translate.instant("GENERAL.GRID_SELL");
                 }
@@ -652,26 +552,16 @@ export namespace SharedIoChannelSingleThreshold {
             case "_sum/ProductionActivePower":
                 return translate.instant("GENERAL.PRODUCTION");
             default:
-                return (
-                    translate.instant(
-                        "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER",
-                    ) +
-                    " (" +
-                    inputChannel +
-                    ")"
-                );
+                return translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.OTHER") + " (" + inputChannel + ")";
         }
     }
 
     /**
      * Gets the current value label in the form of e.g. "1000 W"
      *
-     * @param dependendOnValue The value of the channel this controller
-     *   dependends on
-     * @param unitOfInputChannel The unit of the channel this controller
-     *   dependends on
-     * @returns The {@link dependendOnValue} and the {@link unitOfInputChannel} if
-     *   defined, else null
+     * @param dependendOnValue The value of the channel this controller dependends on
+     * @param unitOfInputChannel The unit of the channel this controller dependends on
+     * @returns The {@link dependendOnValue} and the {@link unitOfInputChannel} if defined, else null
      */
     export function createCurrentValueLabel(
         dependendOnValue: string | number | null,
@@ -680,11 +570,7 @@ export namespace SharedIoChannelSingleThreshold {
         if (dependendOnValue == null || unitOfInputChannel == null) {
             return null;
         }
-        return Formatter.formatSafelyWithSuffix(
-            dependendOnValue,
-            "1.0-0",
-            unitOfInputChannel,
-        );
+        return Formatter.formatSafelyWithSuffix(dependendOnValue, "1.0-0", unitOfInputChannel);
     }
 
     /**
@@ -714,9 +600,7 @@ export namespace SharedIoChannelSingleThreshold {
         return label == null ? null : translate.instant(label);
     }
 
-    export function convertToChannelAddress(
-        inputMode: InputMode,
-    ): string | null {
+    export function convertToChannelAddress(inputMode: InputMode): string | null {
         switch (inputMode) {
             case "SOC":
                 return "_sum/EssSoc";
@@ -736,8 +620,7 @@ export namespace SharedIoChannelSingleThreshold {
         inputChannelAddress: string,
         currentData: CurrentData,
     ): InputMode {
-        const threshold =
-            currentData.allComponents[component.id + "/_PropertyThreshold"];
+        const threshold = currentData.allComponents[component.id + "/_PropertyThreshold"];
 
         if (!isKnownInputChannelAddress(inputChannelAddress)) {
             return "OTHER";
@@ -844,9 +727,7 @@ export namespace SharedIoChannelSingleThreshold {
                     return;
                 }
 
-                const unit =
-                    (await edge.getChannel(websocket, channelAddress))?.unit ??
-                    null;
+                const unit = (await edge.getChannel(websocket, channelAddress))?.unit ?? null;
                 units.set(key, unit);
             }),
         );
@@ -862,14 +743,12 @@ export namespace SharedIoChannelSingleThreshold {
                 return null;
             }
 
-            const request = edge
-                .getChannel(websocket, channelAddress)
-                .then((result) => {
-                    const unit = result?.unit ?? null;
-                    units.set(key, unit);
-                    pendingRequests.delete(key);
-                    return unit;
-                });
+            const request = edge.getChannel(websocket, channelAddress).then((result) => {
+                const unit = result?.unit ?? null;
+                units.set(key, unit);
+                pendingRequests.delete(key);
+                return unit;
+            });
 
             pendingRequests.set(key, request);
             return null;
@@ -886,32 +765,20 @@ export namespace SharedIoChannelSingleThreshold {
                 const result = Math.max(0, direction * value);
                 const unit = getUnit(channelAddress);
 
-                return unit == null
-                    ? result.toString()
-                    : result.toString() + " " + unit;
+                return unit == null ? result.toString() : result.toString() + " " + unit;
             });
     };
 
-    function getDependendOnValue(
-        component: EdgeConfig.Component,
-        currentData: CurrentData,
-    ): string | null {
-        const inputChannel =
-            component.getPropertyFromComponent<KnownInputChannelAddress>(
-                "inputChannelAddress",
-            );
+    function getDependendOnValue(component: EdgeConfig.Component, currentData: CurrentData): string | null {
+        const inputChannel = component.getPropertyFromComponent<KnownInputChannelAddress>("inputChannelAddress");
         if (inputChannel == null) {
             return null;
         }
         const inputChannelAddress = ChannelAddress.fromString(inputChannel);
-        return CurrentDataUtils.getChannel<string>(
-            inputChannelAddress,
-            currentData.allComponents,
-        );
+        return CurrentDataUtils.getChannel<string>(inputChannelAddress, currentData.allComponents);
     }
 
-    const HIDE_ON_MODE_NOT_AUTOMATIC = (el: { mode: Mode }) =>
-        el.mode !== Mode.AUTOMATIC;
+    const HIDE_ON_MODE_NOT_AUTOMATIC = (el: { mode: Mode }) => el.mode !== Mode.AUTOMATIC;
 
     const HIDE_ON_MODE_NOT_AUTOMATIC_OR_SOC_OR_PRODUCTION = (el: {
         mode: Mode;
@@ -921,45 +788,23 @@ export namespace SharedIoChannelSingleThreshold {
         el.inputChannelAddressToggleValue === "SOC" ||
         el.inputChannelAddressToggleValue === "PRODUCTION";
 
-    const HIDE_ON_NOT_AUTOMATIC_OR_IS_SOC = (el: {
-        mode: Mode;
-        inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue === "SOC";
+    const HIDE_ON_NOT_AUTOMATIC_OR_IS_SOC = (el: { mode: Mode; inputChannelAddressToggleValue: InputMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue === "SOC";
 
-    const HIDE_ON_NOT_AUTOMATIC_OR_IS_GRIDSELL = (el: {
-        mode: Mode;
-        inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue === "GRIDSELL";
+    const HIDE_ON_NOT_AUTOMATIC_OR_IS_GRIDSELL = (el: { mode: Mode; inputChannelAddressToggleValue: InputMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue === "GRIDSELL";
 
-    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_SOC = (el: {
-        mode: Mode;
-        inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue !== "SOC";
+    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_SOC = (el: { mode: Mode; inputChannelAddressToggleValue: InputMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue !== "SOC";
 
-    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDSELL = (el: {
-        mode: Mode;
-        inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue !== "GRIDSELL";
+    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDSELL = (el: { mode: Mode; inputChannelAddressToggleValue: InputMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue !== "GRIDSELL";
 
-    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDBUY = (el: {
-        mode: Mode;
-        inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue !== "GRIDBUY";
+    const HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDBUY = (el: { mode: Mode; inputChannelAddressToggleValue: InputMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue !== "GRIDBUY";
 
     const HIDE_ON_MODE_NOT_AUTOMATIC_OR_NOT_PRODUCTION = (el: {
         mode: Mode;
         inputChannelAddressToggleValue: InputMode;
-    }) =>
-        el.mode !== Mode.AUTOMATIC ||
-        el.inputChannelAddressToggleValue !== "PRODUCTION";
+    }) => el.mode !== Mode.AUTOMATIC || el.inputChannelAddressToggleValue !== "PRODUCTION";
 }

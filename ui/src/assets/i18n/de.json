@@ -863,6 +863,7 @@
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
+            "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
             "HEATING_ROOM": "Heizung",
             "BRAIINS": "Bitcoin Miner"
         },

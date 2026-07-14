@@ -881,6 +881,7 @@
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
+            "CHANNEL_SINGLE_THRESHOLD": "Threshold Control",
             "HEATING_ROOM": "Heating",
             "BRAIINS": "Bitcoin Miner"
         },
