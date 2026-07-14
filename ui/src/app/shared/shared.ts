@@ -17,7 +17,6 @@ import { isBefore, subDays, subYears } from "date-fns";
 import { addIcons } from "ionicons";
 import { environment } from "src/environments";
 import { Edge } from "./components/edge/edge";
-import { EdgeConfig } from "./components/edge/edgeconfig";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
@@ -52,22 +51,6 @@ addIcons({
 export class Permission {}
 
 export class EdgePermission {
-    /**
-     * Checks if the edge has phase switching ability.
-     *
-     * @param edge The edge to check
-     * @returns True if the edge supports switching ability, false otherwise
-     */
-    public static hasPhaseSwitchingAbility(edge: Edge, component: EdgeConfig.Component): boolean {
-        return (
-            EdgePermission.hasSwitchArchitecture(edge) &&
-            StringUtils.isInArr(component.factoryId, [
-                "Evse.ChargePoint.Keba.Modbus",
-                "Evse.ChargePoint.Keba.UDP",
-            ])
-        );
-    }
-
     /**
      * Checks if the edge has the switchArchitecture jsonRpc logic.
      *
