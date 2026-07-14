@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import io.openems.common.types.CurrencyConfig;
+import io.openems.edge.app.core.GridFeedInLimitationType;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +34,7 @@ import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
-public class TestTranslations {
+class TestTranslations {
 
 	private record TestTranslation(OpenemsApp app, boolean validateAppAssistant, JsonObject config) {
 
@@ -153,6 +157,21 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.timedataInfluxDb(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("API_KEY", "123456789") //
 					.addProperty("BUCKET", "bucket")//
+					.build()));
+			this.apps.add(new TestTranslation(Apps.meta(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("CURRENCY", CurrencyConfig.EUR) //
+					.addProperty("IS_ESS_CHARGE_FROM_GRID_ALLOWED", false) //
+					.addProperty("IS_ESS_DISCHARGE_TO_GRID_ALLOWED", false) //
+					.addProperty("GRID_CONNECTION_POINT_FUSE_LIMIT", 32) //
+					.addProperty("SUBDIVISION_CODE", SubdivisionCode.DE_BY) //
+					.addProperty("PLACE_NAME", "") //
+					.addProperty("GRID_FEED_IN_LIMITATION_TYPE", GridFeedInLimitationType.NO_LIMITATION) //
+					.addProperty("MAXIMUM_GRID_FEED_IN_LIMIT", 0) //
+					.addProperty("POSTCODE", "12345") //
+					.addProperty("LATITUDE", -1) //
+					.addProperty("LONGITUDE", -1) //
+					.addProperty("TIMEZONE", "Europe/Berlin") //
+					.addProperty("THIRD_PARTY_USAGE_ACCEPTANCE", ThirdPartyUsageAcceptance.UNDECIDED) //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.ablEvcs(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.alpitronicEvcs(t), true, new JsonObject()));
@@ -284,9 +303,9 @@ public class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.fixActivePower(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
-            this.apps.add(new TestTranslation(Apps.fixReactivePower(t), true, JsonUtils.buildJsonObject() //
-                    .addProperty("ESS_ID", "ess0") //
-                    .build()));
+			this.apps.add(new TestTranslation(Apps.fixReactivePower(t), true, JsonUtils.buildJsonObject() //
+					.addProperty("ESS_ID", "ess0") //
+					.build()));
 			this.apps.add(new TestTranslation(Apps.fixStateOfCharge(t), true, JsonUtils.buildJsonObject() //
 					.addProperty("ESS_ID", "ess0") //
 					.build()));
@@ -321,19 +340,19 @@ public class TestTranslations {
 	}
 
 	@Test
-	public void testGermanTranslation() throws Exception {
+	void testGermanTranslation() throws Exception {
 		this.testTranslations(Language.DE);
 	}
 
 	@Test
-	public void testEnglishTranslation() throws Exception {
+	void testEnglishTranslation() throws Exception {
 		this.testTranslations(Language.EN);
 	}
 
 	@Test
 	// TODO this is certainly not the best place for this test, but it holds the
 	// most testable Apps.
-	public void testOemWebsiteUrl() throws Exception {
+	void testOemWebsiteUrl() throws Exception {
 		var dummyOem = new DummyOpenemsEdgeOem();
 		this.addEvseApps();
 		var missing = this.apps.stream() //
