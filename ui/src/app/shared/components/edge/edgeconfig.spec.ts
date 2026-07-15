@@ -1,4 +1,5 @@
 // @ts-strict-ignore
+import { TranslateService } from "@ngx-translate/core";
 import { TimeUnit } from "chart.js";
 import { SumState } from "src/app/index/shared/sumState";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -10,6 +11,55 @@ import { OeImageComponent } from "../oe-img/oe-img";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
 import { EdgeConfig, PersistencePriority } from "./edgeconfig";
+
+describe("EdgeConfig component ordering", () => {
+    const translate = { instant: (key: string) => key } as TranslateService;
+
+    it("sorts components returned by a factory by alias", () => {
+        const config = DummyConfig.from(
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Meter 10"),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", ""),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter2", "Meter 2"),
+        );
+
+        expect(config.getComponentsByFactory("Meter.Socomec.Threephase").map(component => component.alias)).toEqual([
+            "Meter 2",
+            "Meter 10",
+            "",
+        ]);
+    });
+
+    it("sorts components across factories when listed by nature", () => {
+        const nullAlias = DummyConfig.Component.GOODWE_GRID_METER("goodwe1", "Meter 1");
+        nullAlias.alias = null as unknown as string;
+        const config = DummyConfig.from(
+            DummyConfig.Component.GOODWE_GRID_METER("goodwe0", "Meter 10"),
+            nullAlias,
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Meter 2"),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", ""),
+        );
+
+        const aliases = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter").map(component => component.alias);
+        expect(aliases.slice(0, 2)).toEqual(["Meter 2", "Meter 10"]);
+        expect(aliases.slice(2)).toEqual(jasmine.arrayWithExactContents(["", null]));
+    });
+
+    it("sorts active components by alias instead of component ID", () => {
+        const nullAlias = DummyConfig.Component.GOODWE_GRID_METER("goodwe1", "Meter 1");
+        nullAlias.alias = null as unknown as string;
+        const config = DummyConfig.from(
+            DummyConfig.Component.GOODWE_GRID_METER("goodwe0", "Meter 10"),
+            nullAlias,
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter0", "Meter 2"),
+            DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter1", ""),
+        );
+
+        const meterCategory = config.listActiveComponents([], translate).find(category => category.components.length > 0);
+        const aliases = meterCategory?.components.map(component => component.alias);
+        expect(aliases?.slice(0, 2)).toEqual(["Meter 2", "Meter 10"]);
+        expect(aliases?.slice(2)).toEqual(jasmine.arrayWithExactContents(["", null]));
+    });
+});
 
 export namespace DummyConfig {
     export function dummyEdge(values: {
