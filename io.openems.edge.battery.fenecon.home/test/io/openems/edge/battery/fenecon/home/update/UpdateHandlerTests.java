@@ -39,7 +39,7 @@ public class UpdateHandlerTests {
 		var ports = SerialConnectionMock.create(serialParams);
 		var transport = new BatteryUpdateModbusRtuTransport();
 		var clientConn = ports.createClientConnection();
-		var batterySlave = ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
+		ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
 				() -> new BatterySerialListenerMock(clientConn), transport);
 
 		try {

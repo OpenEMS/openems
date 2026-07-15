@@ -104,7 +104,17 @@ export class OeFormlyViewTester {
                 }
 
                 // Read or generate name
-                const name: string = field.name;
+                let name: string;
+                if (typeof field.name === "object") {
+                    const channelValue =
+                        field.name.channel != null && field.name.channel.toString() in context
+                            ? context[field.name.channel.toString()]
+                            : null;
+
+                    name = field.name.converter(channelValue);
+                } else {
+                    name = field.name;
+                }
 
                 // Prepare result
                 const result: OeFormlyViewTester.Field.ValueLine = {

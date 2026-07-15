@@ -1,7 +1,7 @@
 @if (breadCrumbs().length > 0) {
-  <ion-grid class="ion-no-padding">
+  <ion-grid class="ion-no-padding ion-padding-top">
     <ion-row>
-      <ion-col class="ion-display-flex ion-align-items-center ion-text-nowrap" aria-label="Breadcrumb">
+      <ion-col size="auto" class="ion-display-flex ion-align-items-center ion-text-nowrap" aria-label="Breadcrumb">
         @for (item of breadCrumbs(); track item.id; let i = $index) {
           @if (i > 0) {
             <span class="breadcrumb-separator ion-align-self-center" aria-hidden="true">/</span>
@@ -15,6 +15,9 @@
             }
           </ion-button>
         }
+      </ion-col>
+      <ion-col class="ion-padding-start" style="align-self: center; text-align: center">
+        <oe-navigation-chips [children]="commonChildren" (navigate)="navigationService.navigateTo($event)" (navigateAbsolute)="navigationService.navigateAbsolute($event)"></oe-navigation-chips>
       </ion-col>
     </ion-row>
   </ion-grid>

@@ -176,9 +176,9 @@ public class WsData {
 	 * @param message a {@link Supplier} for a message
 	 */
 	public void debugLog(Logger log, Supplier<String> message) {
-		if (!this.isDebug) {
+		if (!this.isDebug || !log.isInfoEnabled()) {
 			return;
 		}
-		log.info(this.toLogString() + ": " + message.get());
+		log.info("{}: {}", this.toLogString(), message.get());
 	}
 }

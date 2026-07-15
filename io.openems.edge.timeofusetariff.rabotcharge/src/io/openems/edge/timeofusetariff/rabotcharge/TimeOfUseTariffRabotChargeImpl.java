@@ -35,6 +35,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpAuthorization;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpHeader;
 import io.openems.common.bridge.http.api.HttpMediaType;
@@ -42,6 +43,8 @@ import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.authentication.HttpBridgeAuthenticationService;
 import io.openems.common.bridge.http.authentication.HttpBridgeAuthenticationServiceDefinition;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProviderChain;
 import io.openems.common.bridge.http.time.HttpBridgeTimeService.TimeEndpoint;
@@ -104,7 +107,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 
 	private RabotChargeApiService apiService;
 	private RabotChargeApiService authenticatedApiService;
-	private HttpBridgeAuthenticationService authenticationService;
+	private HttpBridgeAuthenticationService<HttpHeader> authenticationService;
 	private String customerNumber;
 	private String contractId;
 	private TimeEndpoint pricePollingEndpoint;
@@ -135,6 +138,9 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		this.httpBridge.setDebugMode(DebugMode.DETAILED);
 		this.httpBridge.setMaximumPoolSize(10);
 
+		this.httpBridge.createService(
+				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.contextId(config.id())));
+
 		this.oAuthClientBackendRegistration = new OAuthBackend.OAuthClientBackendRegistration(
 				config.backendOAuthClientIdentifier(), List.of("openid", "profile"));
 
@@ -150,7 +156,8 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		// Initialize Service
 		this.apiService = new RabotChargeApiService(this.httpBridge, partnerReg);
 		this.authenticationService = this.httpBridge
-				.createService(new HttpBridgeAuthenticationServiceDefinition(() -> this.apiService.getPartnerToken()));
+				.createService(HttpBridgeAuthenticationServiceDefinition.of(() -> this.apiService.getPartnerToken()
+						.thenApply(token -> HttpHeader.authorization(HttpAuthorization.bearer(token)))));
 		this.authenticatedApiService = new RabotChargeApiService(this.authenticationService, partnerReg);
 
 		this.scheduleDataRefresh();

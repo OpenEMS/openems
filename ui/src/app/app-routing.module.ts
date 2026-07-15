@@ -21,6 +21,7 @@ import { ControllerEnerixOverviewComponent } from "./edge/live/Controller/Enerix
 import { ControllerEssGridOptimizedChargeOverviewComponent } from "./edge/live/Controller/Ess/GridOptimizedCharge/history/overview/overview";
 import { ControllerEssTimeOfUseTariffOverviewComponent } from "./edge/live/Controller/Ess/TimeOfUseTariff/history/overview/overview";
 import { ControllerHeatOverviewComponent } from "./edge/live/Controller/Heat/history/overview/overview";
+import { ControllerIoChannelSingleThresholdOverviewComponent } from "./edge/live/Controller/Io/ChannelSingleThreshold/history/overview/overview";
 import { ControllerIoFixDigitalOutputDetailsOverviewComponent } from "./edge/live/Controller/Io/FixDigitalOutput/history/details/details.overview";
 import { ControllerIoDigitalOutputOverviewComponent } from "./edge/live/Controller/Io/FixDigitalOutput/history/overview/overview";
 import { ControllerIoHeatingElementOverviewComponent } from "./edge/live/Controller/Io/HeatingElement/history/overview/overview";
@@ -166,6 +167,10 @@ export const history: (/** Determines if titles in headers can be set */ customH
             {
                 path: "channelthresholdchart",
                 component: ChannelthresholdChartOverviewComponent,
+            },
+            {
+                path: "channelsinglethresholdchart",
+                component: ControllerIoChannelSingleThresholdOverviewComponent,
             },
             {
                 path: "digitaloutputchart",

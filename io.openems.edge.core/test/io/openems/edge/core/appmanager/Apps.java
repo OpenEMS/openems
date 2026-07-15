@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import io.openems.edge.app.meter.SiemensMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
@@ -32,6 +31,7 @@ import io.openems.edge.app.api.MqttApi;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
+import io.openems.edge.app.core.AppMeta;
 import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.FixActivePower;
 import io.openems.edge.app.ess.FixReactivePower;
@@ -102,6 +102,7 @@ import io.openems.edge.app.meter.JanitzaMeter;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.app.meter.PhoenixContactMeter;
 import io.openems.edge.app.meter.PqPlusMeter;
+import io.openems.edge.app.meter.SiemensMeter;
 import io.openems.edge.app.meter.SocomecMeter;
 import io.openems.edge.app.meter.gridmeter.GridMeterGoodWe;
 import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
@@ -770,6 +771,18 @@ public final class Apps {
 	 */
 	public static final RestJsonApiReadWrite restJsonApiReadWrite(AppManagerTestBundle t) {
 		return app(t, RestJsonApiReadWrite::new, "App.Api.RestJson.ReadWrite");
+	}
+
+	// core
+
+	/**
+	 * Test method for creating a {@link AppMeta}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static OpenemsApp meta(AppManagerTestBundle t) {
+		return app(t, AppMeta::new, "App.Core.Meta");
 	}
 
 	// Evcs

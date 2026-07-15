@@ -1,4 +1,4 @@
-import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircleOutline, warningOutline } from "ionicons/icons";
+import { alertCircleOutline, checkmarkDoneCircleOutline, flame, informationCircleOutline, warningOutline, } from "ionicons/icons";
 import { BaseMeta } from "src/environments";
 
 export const OemMeta: BaseMeta = {
@@ -46,6 +46,7 @@ export const OemMeta: BaseMeta = {
         COMPONENT: {
             HEATPUMP: flame,
             EVCS: "assets/img/icon/evcs.svg",
+            HEATING_ELEMENT: flame,
         },
         STATUS: {
             CHECKMARK: checkmarkDoneCircleOutline,
@@ -64,6 +65,7 @@ export const OemMeta: BaseMeta = {
             HARDY_BARTH: null,
             ALPITRONIC: null,
             MENNEKES: null,
+            SIMULATOR: "assets/img/product_pictures/Evse.ChargePoint.Simulator.webp",
         },
         LOGO: {
             DARK: null,
@@ -81,6 +83,7 @@ export const OemMeta: BaseMeta = {
     links: {
         DATA_PROTECTION: null,
         REDIRECT: {
+            BETA_SURVEY: null,
             BETA_CHANGE_LOG: null,
             COMMON_STORAGE: null,
             COMMON_AUTARCHY: null,
@@ -101,6 +104,30 @@ export const OemMeta: BaseMeta = {
             SETTINGS_ALERTING: null,
             SETTINGS_NETWORK_CONFIGURATION: null,
             WEATHER_WIDGET: null,
+            SYSTEM: {
+                INDUSTRIAL_S_MANUAL: null,
+                INDUSTRIAL_M_MANUAL: null,
+                INDUSTRIAL_L_OVERVIEW: null,
+                INDUSTRIAL_XL_MANUAL: null,
+            },
+            WARRANTY: {
+                HOME_GUARANTEE_CONDITIONS: {
+                    EN: "#",
+                    DE: "#",
+                },
+                COMMERCIAL_50_GEN3_GUARANTEE_CONDITIONS: {
+                    EN: "#",
+                    DE: "#",
+                },
+                COMMERCIAL_92_GUARANTEE_CONDITIONS: {
+                    EN: "#",
+                    DE: "#",
+                },
+                COMMERCIAL_100_GUARANTEE_CONDITIONS: {
+                    EN: "#",
+                    DE: "#",
+                },
+            },
             OFFLINE_INSTRUCTIONS: null,
         },
         FORGET_PASSWORD: "#",
@@ -120,22 +147,6 @@ export const OemMeta: BaseMeta = {
         SYSTEM: {
             INDUSTRIAL_S: "#",
             INDUSTRIAL_L: "#",
-        },
-
-        WARRANTY: {
-            HOME: {
-                EN: "#",
-                DE: "#",
-            },
-            COMMERCIAL: {
-                EN: "#",
-                DE: "#",
-            },
-        },
-
-        GTC: {
-            EN: "#",
-            DE: "#",
         },
 
         METER: {
@@ -162,12 +173,14 @@ export const OemMeta: BaseMeta = {
                     COMMERCIAL_50_GEN_3: "#",
                     COMMERCIAL_92: "#",
                     COMMERCIAL_92_CLUSTER: "#",
+                    COMMERCIAL_100: "#",
                 },
             },
 
             RUNDSTEUER: {
                 HOME: "#",
                 HOME_GEN_2: "#",
+                HOME_6_10_15: "#",
                 HOME_20_30: "#",
                 COMMERCIAL_50_GEN_3: "#",
             },

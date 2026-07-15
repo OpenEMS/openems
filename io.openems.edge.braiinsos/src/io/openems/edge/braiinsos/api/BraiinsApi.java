@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public class BraiinsApi {
 
 	private final BridgeHttpFactory httpBridgeFactory;
 	private final BridgeHttp httpBridge;
-	private final HttpBridgeAuthenticationService authenticationService;
+	private final HttpBridgeAuthenticationService<HttpHeader> authenticationService;
 	private final HttpBridgeTimeService timeService;
 
 	private final String baseUrl;
@@ -51,8 +50,8 @@ public class BraiinsApi {
 			Consumer<MinerStats> minerStatsCallback) {
 		this.httpBridgeFactory = httpBridgeFactory;
 		this.httpBridge = httpBridgeFactory.get();
-		this.authenticationService = this.httpBridge
-				.createService(new HttpBridgeAuthenticationServiceDefinition(this::getToken, Function.identity()));
+		this.authenticationService = this.httpBridge.createService(HttpBridgeAuthenticationServiceDefinition
+				.of(() -> this.getToken().thenApply(HttpHeader::authorization)));
 		this.timeService = this.authenticationService.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		this.baseUrl = "http://" + ip + "/api/v1";
 		this.username = username;

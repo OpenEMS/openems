@@ -26,7 +26,7 @@ export namespace SharedControllerHeat {
 
         return {
             title: Name.METER_ALIAS_OR_ID(component),
-            icon: { name: "flame", color: "normal", size: "normal" },
+            icon: { name: "oe-heating-element", color: "normal", size: "normal" },
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
             lines: [
                 ...getFormlySharedLines(translate, component, isAskoma),
@@ -261,7 +261,7 @@ export namespace SharedControllerHeat {
             component.id,
             { baseString: "controller/heat/" + component.id },
             {
-                name: "flame",
+                name: "oe-heating-element",
                 color: "normal",
             },
             Name.METER_ALIAS_OR_ID(component),

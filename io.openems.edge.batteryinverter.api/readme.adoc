@@ -90,7 +90,7 @@ Device-specific battery inverter implementations:
 
 .Implemented In
 * `io.openems.edge.batteryinverter.kaco.blueplanetgridsave` - KACO blueplanet gridsave 50/80
-* `io.openems.edge.batteryinverter.refu88k` - REFU 88K hybrid inverter
+* `io.openems.edge.batteryinverter.refu` - REFU battery inverter (SunSpec)
 * `io.openems.edge.batteryinverter.sinexcel` - Sinexcel inverter
 
 Test implementations:

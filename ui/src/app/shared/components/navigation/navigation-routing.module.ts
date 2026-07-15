@@ -22,7 +22,7 @@ import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Chan
 import { ControllerEnerixControlHistoryComponent } from "src/app/edge/live/Controller/EnerixControl/history/new-navigation/new-navigation";
 import { ControllerEnerixControlHomeComponent } from "src/app/edge/live/Controller/EnerixControl/new-navigation/new-navigation";
 import { ControllerEnerixControlSettingsComponent } from "src/app/edge/live/Controller/EnerixControl/settings/settings";
-import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
+import { ControllerEssFixActivePowerComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHomeComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/settings/settings";
@@ -48,6 +48,10 @@ import { ControllerBraiinsModeComponent } from "src/app/edge/live/Controller/Io/
 import { ControllerBraiinsScheduleComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/schedule.component";
 import { ControllerBraiinsAddTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/add/add";
 import { ControllerBraiinsEditTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/edit/edit";
+import { ControllerIoChannelSingleThresholdHistoryComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/history/new-navigation/new-navigation";
+import { ControllerIoChannelSingleThresholdHomeComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/new-navigation/new-navigation";
+import { ControllerChannelSingleThresholdGroupComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/pages/group/group";
+import { ControllerIoChannelSingleThresholdSettingsComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/settings/settings";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
@@ -68,6 +72,7 @@ import { ControllerPeakShavingSymmetricSettingsComponent } from "src/app/edge/li
 import { ControllerPeakShavingSymmetricTimeSlotHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/history/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricTimeSlotHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricTimeSlotSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/settings/settings";
+import { ControllerEssFixReactivePowerComponent } from "src/app/edge/live/Controller/symmetric/FixReactivePower/new-navigation/new-navigation";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -251,7 +256,11 @@ export const newNavigationRoutes: Routes = [
     },
     {
         path: "common/storage/controller/ess-fix-active-power/:componentId",
-        component: ControllerEssFixActivePowerHomeComponent,
+        component: ControllerEssFixActivePowerComponent,
+    },
+    {
+        path: "common/storage/controller/ess-fix-reactive-power/:componentId",
+        component: ControllerEssFixReactivePowerComponent,
     },
     {
         path: "common/weather/:componentId",
@@ -354,6 +363,22 @@ export const newNavigationRoutes: Routes = [
         component: ControllerPeakShavingAsymmetricHistoryComponent,
     },
     {
+        path: "controller/io-channel-single-threshold",
+        component: ControllerChannelSingleThresholdGroupComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId",
+        component: ControllerIoChannelSingleThresholdHomeComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/settings",
+        component: ControllerIoChannelSingleThresholdSettingsComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/history",
+        component: ControllerIoChannelSingleThresholdHistoryComponent,
+    },
+    {
         path: "controller/enerix-control/:componentId",
         component: ControllerEnerixControlHomeComponent,
     },
@@ -388,6 +413,14 @@ export const newNavigationRoutes: Routes = [
     {
         path: "controller/heatingelement/:componentId/history",
         component: ControllerHeatingElementHistoryComponent,
+    },
+    {
+        path: "controller/ess-fix-active-power/:componentId",
+        component: ControllerEssFixActivePowerComponent,
+    },
+    {
+        path: "controller/ess-fix-reactive-power/:componentId",
+        component: ControllerEssFixReactivePowerComponent,
     },
     {
         path: "controller/heat/:componentId/settings",

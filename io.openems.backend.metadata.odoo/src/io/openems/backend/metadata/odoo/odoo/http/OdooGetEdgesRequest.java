@@ -99,6 +99,9 @@ public record OdooGetEdgesRequest(//
 		 * @return the created {@link OdooGetEdgesRequest.SearchParams}
 		 */
 		public static SearchParams from(GetEdgesRequest.PaginationOptions.SearchParams searchParams) {
+			if (searchParams == null) {
+				return null;
+			}
 			return new SearchParams(//
 					searchParams.productTypes(), //
 					searchParams.sumStates(), //

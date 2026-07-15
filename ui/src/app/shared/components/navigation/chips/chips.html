@@ -56,17 +56,10 @@
 @if (navigationService.position() === "bottom") {
   @for (child of children; track child) {
     <ion-button tabindex="0" (keydown.enter)="navigateTo(child)" (click)="navigateTo(child)" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light" [class.with-label]="child.mode === 'label'">
-      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img" [size]="child.icon?.size ?? 'medium'"></ion-icon>
+      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img" [size]="child.icon?.size ?? 'medium'" style="font-size: x-large"></ion-icon>
       <ion-label slot="end" style="text-transform: none">
         {{ child.mode === "label" ? child.label : "" }}
       </ion-label>
-    </ion-button>
-  }
-
-  @if (children.length > 0 && isUserAllowedToSeeOverview && isLive()) {
-    <ion-button tabindex="0" routerLinkActive="active" routerLink="/overview" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light">
-      <ion-icon class="ion-padding-right" name="menu-outline" size="small"></ion-icon>
-      <ion-label style="text-transform: none">{{ "MENU.OVERVIEW" | translate }}</ion-label>
     </ion-button>
   }
 }

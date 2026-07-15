@@ -1,11 +1,21 @@
-@if (edge) {
+@if (edge() !== null) {
   <oe-navigation-view>
-    <ion-buttons header class="ion-justify-content-center">
-      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-      @if (!ref.children.length) {
-        <pickdate></pickdate>
-      }
-    </ion-buttons>
+    <ngx-spinner [name]="spinnerId"></ngx-spinner>
+    <ng-container header>
+      <ion-toolbar>
+        <ion-title>
+          <ion-buttons class="ion-justify-content-center">
+            <ion-button>
+              <pickdate></pickdate>
+            </ion-button>
+          </ion-buttons>
+        </ion-title>
+        <oe-flat-button button slot="end" class="ion-float-right" (click)="exportToXlxs()" [size]="'small'">
+          <ion-icon slot="start" [name]="'download-outline'"> </ion-icon>
+          {{ "GENERAL.REPORT" | translate | uppercase }}
+        </oe-flat-button>
+      </ion-toolbar>
+    </ng-container>
     <energychart [isOnlyChart]="true"></energychart>
   </oe-navigation-view>
 }

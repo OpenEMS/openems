@@ -8,6 +8,8 @@
         "ENERGY_MANAGEMENT": "Energy management system",
         "FAQ": "Frequently asked questions (FAQ)",
         "LANGUAGE": "Select language:",
+        "THEME": "Theme",
+        "NEW_UI": "New UI",
         "OPEN_EMS": "More about OpenEMS",
         "PATCHNOTES": "Changes in the monitoring for this build"
     },
@@ -40,6 +42,7 @@
                 "WARNING": "Warning Notifications"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Available",
                 "BUY_APP": "Buy licence key",
                 "CARDINALITY": "Cardinality",
@@ -525,7 +528,9 @@
                     "SWITCH_ON_ABOVE": "Switch on above",
                     "SWITCH_ON_BELOW": "Switch on below",
                     "SWITCHED_LOAD_POWER": "Switched load power",
-                    "THRESHOLD": "Threshold"
+                    "THRESHOLD": "Threshold",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Switch on above threshold",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Switch on below threshold"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Ambient temperature",
@@ -876,6 +881,7 @@
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
+            "CHANNEL_SINGLE_THRESHOLD": "Threshold Control",
             "HEATING_ROOM": "Heating",
             "BRAIINS": "Bitcoin Miner"
         },

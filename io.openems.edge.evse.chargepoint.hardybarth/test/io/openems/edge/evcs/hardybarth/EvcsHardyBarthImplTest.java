@@ -6,18 +6,18 @@ import static io.openems.edge.evcs.api.Status.CHARGING;
 import static io.openems.edge.evse.chargepoint.hardybarth.common.Constants.API_RESPONSE;
 import static io.openems.edge.evse.chargepoint.hardybarth.common.Constants.EMPTY_API_RESPONSE;
 import static io.openems.edge.meter.api.PhaseRotation.L2_L3_L1;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
 
-import io.openems.common.oem.DummyOpenemsEdgeOem;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.service.event.Event;
 
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.channel.Level;
+import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.utils.ReflectionUtils;
 import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
@@ -42,7 +42,7 @@ public class EvcsHardyBarthImplTest {
 		final var phaseRotation = L2_L3_L1;
 		var sut = new EvcsHardyBarthImpl();
 		var test = new ComponentTest(sut) //
-                .addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("httpBridgeFactory",
 						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
 								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //
@@ -175,12 +175,12 @@ public class EvcsHardyBarthImplTest {
 
 	@Test
 	public void testSetManualMode() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var phaseRotation = L2_L3_L1;
 		final var cycleSub = new DummyCycleSubscriber();
 		var sut = new EvcsHardyBarthImpl();
 		var test = new ComponentTest(sut) //
-                .addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
 				.addReference("httpBridgeCycleServiceDefinition", new HttpBridgeCycleServiceDefinition(cycleSub))
 				.activate(MyConfig.create() //
@@ -221,7 +221,7 @@ public class EvcsHardyBarthImplTest {
 		final var phaseRotation = L2_L3_L1;
 		var sut = new EvcsHardyBarthImpl();
 		var test = new ComponentTest(sut) //
-                .addReference("oem", new DummyOpenemsEdgeOem()) //
+				.addReference("oem", new DummyOpenemsEdgeOem()) //
 				.addReference("httpBridgeFactory",
 						ofBridgeImpl(DummyBridgeHttpFactory::dummyEndpointFetcher,
 								DummyBridgeHttpFactory::dummyBridgeHttpExecutor)) //

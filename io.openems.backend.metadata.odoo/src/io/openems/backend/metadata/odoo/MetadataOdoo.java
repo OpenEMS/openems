@@ -66,6 +66,7 @@ import io.openems.backend.common.metadata.Metadata;
 import io.openems.backend.common.metadata.User;
 import io.openems.backend.metadata.odoo.odoo.Credentials;
 import io.openems.backend.metadata.odoo.odoo.FieldValue;
+import io.openems.backend.metadata.odoo.odoo.HttpBridgeOdooAuthenticationServiceDefinition;
 import io.openems.backend.metadata.odoo.odoo.HttpBridgeOdooService;
 import io.openems.backend.metadata.odoo.odoo.HttpBridgeOdooServiceDefinition;
 import io.openems.backend.metadata.odoo.odoo.OdooHandler;
@@ -78,6 +79,9 @@ import io.openems.backend.metrics.prometheus.DebugExecutor;
 import io.openems.backend.metrics.prometheus.httpbridge.HttpBridgePrometheusMetricServiceDefinition;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.authentication.HttpBridgeAuthenticationServiceDefinition;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
@@ -173,8 +177,16 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		this.bridgeHttp.setDebugMode(config.debugMode());
 		this.bridgeHttp.setMaximumPoolSize(config.requestPoolSize());
 
+		this.bridgeHttp.createService(
+				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.contextId(ID) //
+						.withSanitizeHeader(HttpBridgeLoggingServiceConfiguration.SANITIZE_COOKIE)));
 		this.bridgeHttp.createService(HttpBridgePrometheusMetricServiceDefinition.byPath(ID));
-		this.httpBridgeOdooService = this.bridgeHttp
+		final var httpBridgeOdooAuthService = this.bridgeHttp
+				.createService(new HttpBridgeOdooAuthenticationServiceDefinition(Credentials.fromConfig(config)));
+		var authenticationService = this.bridgeHttp
+				.createService(new HttpBridgeAuthenticationServiceDefinition<>(httpBridgeOdooAuthService));
+
+		this.httpBridgeOdooService = authenticationService
 				.createService(new HttpBridgeOdooServiceDefinition(Credentials.fromConfig(config)));
 
 		this.eventExecutor = new DebugExecutor(MetadataOdoo.ID, //

@@ -1,10 +1,10 @@
 import { TranslateService } from "@ngx-translate/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
-import { OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, RippleControlReceiverRestrictionLevel, } from "src/app/shared/shared";
 import { ChartAnnotationState, GridMode } from "src/app/shared/type/general";
@@ -14,22 +14,15 @@ import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.
 import { transformRcrValues } from "../history/shared-grid";
 
 export namespace SharedGrid {
-    export const GRID_MODE_IS_GENERATOR: Filter = (value): boolean =>
-        value !== GridMode.GENERATOR;
+    export const GRID_MODE_IS_GENERATOR: Filter = (value): boolean => value !== GridMode.GENERATOR;
 
-    export function getFormlyView(
-        config: EdgeConfig | null,
-        role: Role,
-        translate: TranslateService,
-    ): OeFormlyView {
+    export function getFormlyView(config: EdgeConfig | null, role: Role, translate: TranslateService): OeFormlyView {
         AssertionUtils.assertIsDefined(config);
 
         // Grid-Mode
         const lines: OeFormlyField[] = [];
 
-        const gridMeters = Object.values(config.components).filter(
-            (component) => config?.isTypeGrid(component),
-        );
+        const gridMeters = Object.values(config.components).filter((component) => config?.isTypeGrid(component));
 
         // Sum Channels (if more than one meter)
         if (gridMeters.length > 1) {
@@ -43,13 +36,9 @@ export namespace SharedGrid {
                         new ChannelAddress("_sum", "GridActivePower"),
                         new ChannelAddress("_sum", "GridMode"),
                     ],
-                    value: (data) =>
-                        Converter.GRID_SELL_POWER_OR_ZERO(
-                            data.allComponents["_sum/GridActivePower"],
-                        ),
+                    value: (data) => Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
                     filter: (currentData: CurrentData) =>
-                        currentData.allComponents["_sum/GridMode"] !=
-                        GridMode.GENERATOR,
+                        currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                 },
                 {
                     type: "value-from-channels-line",
@@ -58,13 +47,9 @@ export namespace SharedGrid {
                         new ChannelAddress("_sum", "GridActivePower"),
                         new ChannelAddress("_sum", "GridMode"),
                     ],
-                    value: (data) =>
-                        Converter.GRID_BUY_POWER_OR_ZERO(
-                            data.allComponents["_sum/GridActivePower"],
-                        ),
+                    value: (data) => Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
                     filter: (currentData: CurrentData) =>
-                        currentData.allComponents["_sum/GridMode"] !=
-                        GridMode.GENERATOR,
+                        currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                 },
                 {
                     type: "horizontal-line",
@@ -87,12 +72,9 @@ export namespace SharedGrid {
                             new ChannelAddress("_sum", "GridMode"),
                         ],
                         value: (data) =>
-                            Converter.GRID_SELL_POWER_OR_ZERO(
-                                data.allComponents[meter.id + "/ActivePower"],
-                            ),
+                            Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
                         filter: (currentData: CurrentData) =>
-                            currentData.allComponents["_sum/GridMode"] !=
-                            GridMode.GENERATOR,
+                            currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                     {
                         type: "value-from-channels-line",
@@ -102,22 +84,16 @@ export namespace SharedGrid {
                             new ChannelAddress("_sum", "GridMode"),
                         ],
                         value: (data) =>
-                            Converter.GRID_BUY_POWER_OR_ZERO(
-                                data.allComponents[meter.id + "/ActivePower"],
-                            ),
+                            Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
                         filter: (currentData: CurrentData) =>
-                            currentData.allComponents["_sum/GridMode"] !=
-                            GridMode.GENERATOR,
+                            currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                 );
             } else {
                 // More than one meter? Show only one line per meter.
                 lines.push({
                     type: "channel-line",
-                    name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(
-                        translate,
-                        meter.alias,
-                    ),
+                    name: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, meter.alias),
                     channel: meter.id + "/ActivePower",
                     converter: Converter.POWER_IN_WATT,
                 });
@@ -161,9 +137,7 @@ export namespace SharedGrid {
                 <OeFormlyField>{
                     type: "children-line",
                     name: {
-                        channel: ChannelAddress.fromString(
-                            component.id + "/ActivePower" + phase,
-                        ),
+                        channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
                         converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(
                             translate,
                             translate.instant("GENERAL.PHASE") + " " + phase,
@@ -177,11 +151,7 @@ export namespace SharedGrid {
         );
     }
 
-    export function generatePhasesLineItems(
-        role: Role,
-        phase: string,
-        component: EdgeConfig.Component,
-    ) {
+    export function generatePhasesLineItems(role: Role, phase: string, component: EdgeConfig.Component) {
         const children: OeFormlyField[] = [];
         if (Role.isAtLeast(role, Role.INSTALLER)) {
             children.push(
@@ -193,8 +163,7 @@ export namespace SharedGrid {
                 {
                     type: "item",
                     channel: component.id + "/Current" + phase,
-                    converter:
-                        Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
+                    converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
                 },
             );
         }
@@ -208,34 +177,18 @@ export namespace SharedGrid {
         return children;
     }
 
-    export function setLines(
-        config: EdgeConfig,
-        translate: TranslateService,
-        lines: OeFormlyField[],
-    ) {
-        const is14aEnabled = GridSectionComponent.isControllerEnabled(
-            config,
-            "Controller.Ess.Limiter14a",
-        );
+    export function setLines(config: EdgeConfig, translate: TranslateService, lines: OeFormlyField[]) {
+        const is14aEnabled = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
         const limiter14aValue = "4,2 kW";
-        const isRcrEnabled = GridSectionComponent.isControllerEnabled(
-            config,
-            "Controller.Ess.RippleControlReceiver",
-        );
+        const isRcrEnabled = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");
 
-        const controller14a =
-            config.getComponentIdsByFactory("Controller.Ess.Limiter14a")?.[0] ??
-            null;
-        const controllerRcr =
-            config.getComponentIdsByFactory(
-                "Controller.Ess.RippleControlReceiver",
-            )?.[0] ?? null;
+        const controller14a = config.getComponentIdsByFactory("Controller.Ess.Limiter14a")?.[0] ?? null;
+        const controllerRcr = config.getComponentIdsByFactory("Controller.Ess.RippleControlReceiver")?.[0] ?? null;
 
         lines.push({
             type: "value-from-channels-line",
             name: translate.instant("GENERAL.STATE"),
-            value: (currentData: CurrentData) =>
-                Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
+            value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
             channelsToSubscribe: [...getChannelsFromController(config)],
         });
 
@@ -245,38 +198,24 @@ export namespace SharedGrid {
                 name: translate.instant("GRID_STATES.FEED_IN_LIMITATION"),
                 value: (currentData: CurrentData) => {
                     const value =
-                        transformRcrValues(
-                            currentData.allComponents[
-                                controllerRcr + "/RestrictionMode"
-                            ],
-                        ) ?? 0;
+                        transformRcrValues(currentData.allComponents[controllerRcr + "/RestrictionMode"]) ?? 0;
                     return (
                         value +
                         " % (" +
-                        translate.instant(
-                            "GRID_STATES.RIPPLE_CONTROL_RECEIVER",
-                        ) +
+                        translate.instant("GRID_STATES.RIPPLE_CONTROL_RECEIVER") +
                         " " +
                         (100 - value) +
                         "%" +
                         ")"
                     );
                 },
-                channelsToSubscribe: [
-                    new ChannelAddress(controllerRcr, "RestrictionMode"),
-                ],
+                channelsToSubscribe: [new ChannelAddress(controllerRcr, "RestrictionMode")],
                 filter: (currentData: CurrentData) => {
-                    const restrictionMode =
-                        currentData?.allComponents[
-                            controllerRcr + "/RestrictionMode"
-                        ] ?? null;
+                    const restrictionMode = currentData?.allComponents[controllerRcr + "/RestrictionMode"] ?? null;
                     if (restrictionMode == null) {
                         return true;
                     }
-                    return (
-                        restrictionMode !==
-                        RippleControlReceiverRestrictionLevel.NO_RESTRICTION
-                    );
+                    return restrictionMode !== RippleControlReceiverRestrictionLevel.NO_RESTRICTION;
                 },
             });
         }
@@ -285,19 +224,12 @@ export namespace SharedGrid {
                 type: "value-from-channels-line",
                 name: translate.instant("GRID_STATES.FEED_IN_DESCRIPITON"),
                 value: (currentData: CurrentData) =>
-                    currentData.allComponents[
-                        controller14a + "/RestrictionMode"
-                    ] == ChartAnnotationState.ON
+                    currentData.allComponents[controller14a + "/RestrictionMode"] == ChartAnnotationState.ON
                         ? limiter14aValue
                         : "-",
-                channelsToSubscribe: [
-                    new ChannelAddress(controller14a, "RestrictionMode"),
-                ],
+                channelsToSubscribe: [new ChannelAddress(controller14a, "RestrictionMode")],
                 filter: (currentData: CurrentData) => {
-                    const restrictionMode =
-                        currentData?.allComponents[
-                            controller14a + "/RestrictionMode"
-                        ] ?? null;
+                    const restrictionMode = currentData?.allComponents[controller14a + "/RestrictionMode"] ?? null;
                     if (restrictionMode == null) {
                         return true;
                     }
@@ -313,36 +245,18 @@ export namespace SharedGrid {
         }
     }
 
-    export function getChannelsFromController(
-        config: EdgeConfig,
-    ): ChannelAddress[] {
-        const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress("_sum", "GridMode"),
-        ];
-        const is14aActivated = GridSectionComponent.isControllerEnabled(
-            config,
-            "Controller.Ess.Limiter14a",
-        );
-        const isRcrActivated = GridSectionComponent.isControllerEnabled(
-            config,
-            "Controller.Ess.RippleControlReceiver",
-        );
-        const controller14a = config.getComponentIdsByFactory(
-            "Controller.Ess.Limiter14a",
-        )[0];
-        const controllerRcr = config.getComponentIdsByFactory(
-            "Controller.Ess.RippleControlReceiver",
-        )[0];
+    export function getChannelsFromController(config: EdgeConfig): ChannelAddress[] {
+        const channelAddresses: ChannelAddress[] = [new ChannelAddress("_sum", "GridMode")];
+        const is14aActivated = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
+        const isRcrActivated = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");
+        const controller14a = config.getComponentIdsByFactory("Controller.Ess.Limiter14a")[0];
+        const controllerRcr = config.getComponentIdsByFactory("Controller.Ess.RippleControlReceiver")[0];
         if (is14aActivated) {
-            channelAddresses.push(
-                new ChannelAddress(controller14a, "RestrictionMode"),
-            );
+            channelAddresses.push(new ChannelAddress(controller14a, "RestrictionMode"));
         }
 
         if (isRcrActivated) {
-            channelAddresses.push(
-                new ChannelAddress(controllerRcr, "RestrictionMode"),
-            );
+            channelAddresses.push(new ChannelAddress(controllerRcr, "RestrictionMode"));
         }
         return channelAddresses;
     }
@@ -359,11 +273,7 @@ export namespace SharedGrid {
         if (gridMeters == null) {
             return null;
         }
-        const currentAndVoltage =
-            NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(
-                translate,
-                edge,
-            );
+        const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge);
 
         return new NavigationTree(
             "grid",
@@ -401,9 +311,7 @@ export namespace SharedGrid {
                             "external-limitation",
                             { baseString: "external-limitation" },
                             { name: "flame", color: "danger" },
-                            translate.instant(
-                                "EDGE.HISTORY.EXTERNAL_LIMITATION",
-                            ),
+                            translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"),
                             "label",
                             [],
                             null,
@@ -416,6 +324,7 @@ export namespace SharedGrid {
                 }),
             ],
             null,
+            { isCommonWidget: true },
         ).toConstructorParams();
     }
 }
