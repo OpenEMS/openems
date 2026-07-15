@@ -3,7 +3,7 @@ import { Filter } from "src/app/index/filter/filter.component";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 export { environment } from "./dummy";
 
-export type Theme = "OpenEMS";
+export type Theme = "OpenEMS" | "FENECON" | "FENECONBeta" | "Heckert";
 export type BaseMeta = Pick<Environment, "icons" | "api" | "links" | "images">;
 
 export interface Environment {
@@ -166,22 +166,6 @@ export interface Environment {
         readonly CONTROLLER_API_REST_READWRITE: string;
 
         readonly EVCS_CLUSTER: string;
-
-        readonly WARRANTY: {
-            readonly HOME: {
-                readonly EN: string,
-                readonly DE: string,
-            },
-            readonly COMMERCIAL: {
-                readonly EN: string,
-                readonly DE: string,
-            },
-        }
-
-        readonly GTC: {
-            readonly EN: string,
-            readonly DE: string
-        },
 
         readonly METER: {
             readonly SOCOMEC: string;

@@ -126,11 +126,6 @@ export const settingsRoutes: Routes = [
         canActivate: [hasEdgeRole(Role.ADMIN)],
     },
     {
-        path: "energyJourney",
-        loadComponent: () => import("./energy-journey/energy-journey").then((m) => m.EnergyJourneyComponent),
-        data: { navbarTitle: "Energy Journey" },
-    },
-    {
         path: "alerting",
         loadChildren: () => import("./alerting/alerting.module").then((m) => m.AlertingModule),
         canActivate: [hasEdgeRole(Role.OWNER)],
