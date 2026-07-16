@@ -628,7 +628,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -639,7 +639,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -650,7 +650,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -661,7 +661,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -672,7 +672,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -683,7 +683,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -694,7 +694,7 @@
 			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
