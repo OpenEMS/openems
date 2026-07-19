@@ -27,14 +27,14 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.timeofusetariff.entsoe.priceprovider.MarketPriceUpdateEvent;
-import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeConfiguration;
-import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProvider;
-import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProviderPool;
 import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.TouManualHelper;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeConfiguration;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProvider;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProviderPool;
+import io.openems.edge.timeofusetariff.entsoe.priceprovider.MarketPriceUpdateEvent;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -59,6 +59,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	private TouManualHelper helper = TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 	private EntsoeMarketPriceProvider priceProvider;
+	private PriceCalculator priceCalculator;
 
 	private final Consumer<MarketPriceUpdateEvent> onUpdateEvent = this::onUpdateEvent;
 	private final Consumer<MarketPriceData> onNewPrices = this::setPrices;
@@ -73,7 +74,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	}
 
 	private void reloadPricesDueToCurrencyChange() {
-		if (this.priceProvider != null) {
+		if (this.priceProvider != null && this.priceCalculator != null) {
 			this.logInfo(this.log, "Triggering price update due to currency change ...");
 			this.setPrices(this.priceProvider.getMarketPrices().getValue());
 		}
@@ -81,7 +82,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	@Override
 	public void triggerPriceUpdate() {
-		if (this.priceProvider != null) {
+		if (this.priceProvider != null && this.priceCalculator != null) {
 			this.priceProvider.triggerPriceUpdate();
 		}
 	}
@@ -101,6 +102,16 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
+
+		try {
+			final var priceCalculator = new PriceCalculator(config.calculateExpression());
+			priceCalculator.calculate(1., 1.);
+			this.priceCalculator = priceCalculator;
+		} catch (Exception e) {
+			this.logWarn(this.log,
+					"Calculate expression [" + config.calculateExpression() + "] failed. Falling back to [x + y].");
+			this.priceCalculator = new PriceCalculator("");
+		}
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
@@ -165,8 +176,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		final double exchangeRate = getExchangeRateOrElse(marketPriceData.getCurrency(), globalCurrency, 1.);
 		final var gridFees = this.helper.getPrices();
 
-		final var processedPrices = Utils.processPrices(this.componentManager.getClock(), marketPriceData.getValues(),
-				exchangeRate, gridFees);
+		final var processedPrices = Utils.processPrices(this.componentManager.getClock(), this.priceCalculator,
+				marketPriceData.getValues(), exchangeRate, gridFees);
 		this.prices.set(processedPrices);
 	}
 
