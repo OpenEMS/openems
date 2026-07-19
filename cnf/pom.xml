@@ -33,6 +33,18 @@
 		</dependency>
 		<!-- com -->
 		<dependency>
+			<!--
+			Javaluator is a simple, but powerful, infix expression evaluator for Java
+			Changelog: https://github.com/fathzer/javaluator/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
+			-->
+			<groupId>com.fathzer</groupId>
+			<artifactId>javaluator</artifactId>
+			<version>3.0.6</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
 			<version>2.11.4</version>
@@ -450,7 +462,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -459,7 +471,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -586,7 +598,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.10</version>
 		</dependency>
 		<dependency>
 			<!--
