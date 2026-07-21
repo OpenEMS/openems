@@ -1,6 +1,5 @@
 import { Component, inject } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
 
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
@@ -10,22 +9,20 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { UserService } from "src/app/shared/service/user.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
 import { LiveDataService } from "../../../livedataservice";
 import { ConsumptionChartComponent } from "./chart/consumption-chart-component";
 
 @Component({
     selector: "oe-common-consumption",
-    templateUrl:
-        "../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private readonly userService = inject(UserService);
 
@@ -47,16 +44,14 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
             // TODO INTERSOLAR
             if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
-                const energyToday =
-                    energyScheduler.schedule.calculateEnergyFromPower(
-                        "today",
-                        "ConsumptionActivePower",
-                    );
-                const energyTomorrow =
-                    energyScheduler.schedule.calculateEnergyFromPower(
-                        "tomorrow",
-                        "ConsumptionActivePower",
-                    );
+                const energyToday = energyScheduler.schedule.calculateEnergyFromPower(
+                    "today",
+                    "ConsumptionActivePower",
+                );
+                const energyTomorrow = energyScheduler.schedule.calculateEnergyFromPower(
+                    "tomorrow",
+                    "ConsumptionActivePower",
+                );
                 lines.push({
                     type: "stats-line",
                     stats: [
@@ -78,7 +73,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
             lines.push(
                 {
                     type: "component-line",
-                    component: SingleXAxisComponent,
+                    component: TimeLineChartComponent,
                     inputs: {
                         data: energyScheduler?.schedule,
                     },
@@ -89,10 +84,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                 {
                     type: "channel-line",
                     name: translate.instant("GENERAL.POWER"),
-                    channel: new ChannelAddress(
-                        "_sum",
-                        "ProductionActivePower",
-                    ).toString(),
+                    channel: new ChannelAddress("_sum", "ProductionActivePower").toString(),
                     converter: Converter.POWER_IN_KILO_WATT,
                     style: {
                         name: { fontSize: "large" },
@@ -136,9 +128,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
             lines.push({
                 type: "channel-line",
                 name: consumptionMeter.alias ?? consumptionMeter.id,
-                channel: ChannelAddress.fromString(
-                    consumptionMeter.id + "/ActivePower",
-                ).toString(),
+                channel: ChannelAddress.fromString(consumptionMeter.id + "/ActivePower").toString(),
                 converter: Converter.POWER_IN_KILO_WATT,
             });
         }
@@ -153,17 +143,11 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
                     name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
                     value: (currentData: CurrentData) =>
                         Converter.POSITIVE_POWER_IN_KILO_WATT(
-                            Converter.CALCULATE_CONSUMPTION_OTHER_POWER(
-                                evcss,
-                                consumptionMeters,
-                                currentData,
-                            ),
+                            Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData),
                         ),
                     channelsToSubscribe: [
                         new ChannelAddress("_sum", "ConsumptionActivePower"),
-                        ...consumptionMeters.map(
-                            (el) => new ChannelAddress(el.id, "ActivePower"),
-                        ),
+                        ...consumptionMeters.map((el) => new ChannelAddress(el.id, "ActivePower")),
                         ...evcss.map((el) => el.powerChannel),
                     ],
                 },
@@ -189,9 +173,7 @@ export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {
 
         this.evcss = EvcsComponent.getComponents(config, edge);
         this.consumptionMeters = config
-            .getComponentsImplementingNature(
-                "io.openems.edge.meter.api.ElectricityMeter",
-            )
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
             .filter(
                 (component) =>
                     component.isEnabled &&

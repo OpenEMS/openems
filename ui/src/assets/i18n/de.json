@@ -439,10 +439,12 @@
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen deines AC-Thor Heizstabes kannst du in der MyPV-App vornehmen.",
-                    "HEATING": "heizt",
+                    "CONTROL_NOT_ALLOWED": "Steuerung nicht erlaubt",
+                    "ERROR": "Fehler",
+                    "HEATING": "Heizt",
                     "HEATING_ENERGY": "Heizenergie",
                     "HEATING_OUTPUT": "Heizleistung",
-                    "NO_HEATING": "heizt nicht",
+                    "NO_HEATING": "Heizt nicht",
                     "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht",
                     "TEMPERATURE": "Wassertemperatur",
                     "TEMPERATURE_UNIT": "Wassertemperatur in °C"

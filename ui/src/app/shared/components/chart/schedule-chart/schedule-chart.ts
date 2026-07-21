@@ -215,6 +215,39 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
         }
         return NumberUtils.divideSafely(width, 6);
     }
+
+    protected createDatasetPair(
+        color: string,
+        label: string,
+        historyData: (number | boolean | null)[],
+        predictionData: (number | boolean | null)[],
+    ): ScheduleChartComponent.Dataset[] {
+        const hasValues = (values: (number | boolean | null)[]): boolean => values.some((value) => value != null);
+
+        if (!hasValues(historyData) && !hasValues(predictionData)) {
+            return [];
+        }
+
+        return [
+            {
+                color,
+                data: historyData,
+                label,
+                stepped: true,
+                opacity: ScheduleChartComponent.OPACITY_NONE,
+                borderWidth: 0,
+            },
+            {
+                color,
+                data: predictionData,
+                label,
+                stepped: true,
+                opacity: ScheduleChartComponent.OPACITY_NONE,
+                pattern: "plus",
+                borderWidth: 0,
+            },
+        ];
+    }
 }
 
 export namespace ScheduleChartComponent {

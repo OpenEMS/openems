@@ -1,11 +1,12 @@
 // @ts-strict-ignore
+import { Type } from "@angular/core";
 import { TimeUnit } from "chart.js";
 import { SumState } from "src/app/index/shared/sumState";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 
 import { Role } from "../../type/role";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation, } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { OeChartTester, OeFormlyViewTester } from "../shared/testing/tester";
 import { Edge } from "./edge";
@@ -57,28 +58,19 @@ export namespace DummyConfig {
                 return { ...acc, [c.id]: c };
             }, {}),
             factories: components?.reduce((p, c) => {
-                p[c.factory.id] = new EdgeConfig.Factory(
-                    c.factory.id,
-                    "",
-                    c.factory.natureIds,
-                );
+                p[c.factory.id] = new EdgeConfig.Factory(c.factory.id, "", c.factory.natureIds);
                 return p;
             }, {}),
         });
     }
 
-    export function convertDummyEdgeConfigToRealEdgeConfig(
-        edgeConfig: EdgeConfig,
-    ): EdgeConfig {
+    export function convertDummyEdgeConfigToRealEdgeConfig(edgeConfig: EdgeConfig): EdgeConfig {
         const components = Object.values(edgeConfig?.components) ?? null;
 
         const factories = {};
         components.forEach((obj) => {
             if (factories[obj.factoryId]) {
-                factories[obj.factoryId].componentIds = [
-                    ...factories[obj.factoryId].componentIds,
-                    obj.id,
-                ];
+                factories[obj.factoryId].componentIds = [...factories[obj.factoryId].componentIds, obj.id];
             } else {
                 factories[obj.factoryId] = {
                     componentIds: [obj.id],
@@ -333,10 +325,7 @@ export namespace DummyConfig {
             },
             channels: {},
         });
-        export const EVCS_HARDY_BARTH = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const EVCS_HARDY_BARTH = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "Evcs.HardyBarth",
@@ -347,10 +336,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const EVCS_MENNEKES = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const EVCS_MENNEKES = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "Evcs.Mennekes",
@@ -361,10 +347,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const SOCOMEC_GRID_METER = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const SOCOMEC_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "Meter.Socomec.Threephase",
@@ -377,10 +360,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const SOCOMEC_CONSUMPTION_METER = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const SOCOMEC_CONSUMPTION_METER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.METER_SOCOMEC_THREEPHASE,
@@ -393,10 +373,7 @@ export namespace DummyConfig {
             },
             channels: {},
         });
-        export const GOODWE_GRID_METER = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const GOODWE_GRID_METER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.METER_GOODWE_GRID,
@@ -408,10 +385,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const GOODWE_CHARGER_MPPT_TWO_STRING = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const GOODWE_CHARGER_MPPT_TWO_STRING = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias,
             factory: Factory.CHARGER_GOODWE_MPPT_TWO_STRING,
@@ -424,10 +398,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const SOLAR_EDGE_PV_INVERTER = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const SOLAR_EDGE_PV_INVERTER = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "SolarEdge.PV-Inverter",
@@ -440,10 +411,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const ESS_GENERIC_MANAGEDSYMMETRIC = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const ESS_GENERIC_MANAGEDSYMMETRIC = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: "Ess.Generic.ManagedSymmetric",
@@ -455,10 +423,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const EDGE_2_EDGE_WEBSOCKET_ESS = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const EDGE_2_EDGE_WEBSOCKET_ESS = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factoryId: Factory.EDGE_2_EDGE_WEBSOCKET_ESS.id,
@@ -470,10 +435,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const ESS_LIMITER_14A = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const ESS_LIMITER_14A = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.ESS_LIMITER_14A,
@@ -495,10 +457,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const EVCS_KEBA_KECONTACT = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const EVCS_KEBA_KECONTACT = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.EVCS_KEBA_KECONTACT,
@@ -511,10 +470,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const EVSE_CHARGEPOINT_KEBA_UDP = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const EVSE_CHARGEPOINT_KEBA_UDP = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.EVSE_CHARGEPOINT_KEBA_UDP,
@@ -526,10 +482,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const GOODWE_CHARGER_PV_1 = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const GOODWE_CHARGER_PV_1 = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.GOODWE_CHARGER_PV_1,
@@ -538,10 +491,7 @@ export namespace DummyConfig {
             },
             channels: {},
         });
-        export const Heat_MYPV_ACTHOR = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const Heat_MYPV_ACTHOR = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.Heat_MYPV_ACTHOR,
@@ -554,10 +504,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const MODBUS_TCP_READWRITE = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const MODBUS_TCP_READWRITE = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.MODBUS_TCP_READWRITE,
@@ -594,10 +541,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const HEAT_PUMP_SG_READY = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const HEAT_PUMP_SG_READY = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.HEAT_PUMP_SG_READY,
@@ -609,10 +553,7 @@ export namespace DummyConfig {
             channels: {},
         });
 
-        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = (
-            id: string,
-            alias?: string,
-        ): Component => ({
+        export const CONTROLLER_IO_FIX_DIGITAL_OUTPUT = (id: string, alias?: string): Component => ({
             id: id,
             alias: alias ?? id,
             factory: Factory.CONTROLLER_IO_FIX_DIGITAL_OUTPUT,
@@ -647,15 +588,17 @@ type Component = {
     isEnabled?: boolean;
 };
 
-export const CHANNEL_LINE = (
-    name: string,
-    value: string,
-    indentation?: TextIndentation,
-): OeFormlyViewTester.Field => ({
+export const CHANNEL_LINE = (name: string, value: string, indentation?: TextIndentation): OeFormlyViewTester.Field => ({
     type: "channel-line",
     name: name,
     ...(indentation && { indentation: indentation }),
     value: value,
+});
+
+export const CHART_LINE = <T>(component: Type<T>, inputs?: Record<string, unknown>): OeFormlyViewTester.Field => ({
+    type: "component-line",
+    component: component.name,
+    ...(inputs && { inputs }),
 });
 
 export const VALUE_FROM_CHANNELS_LINE = (
@@ -694,10 +637,7 @@ export const PHASE_ADMIN = (
     ],
 });
 
-export const PHASE_GUEST = (
-    name: string,
-    power: string,
-): OeFormlyViewTester.Field => ({
+export const PHASE_GUEST = (name: string, power: string): OeFormlyViewTester.Field => ({
     type: "children-line",
     name: name,
     indentation: TextIndentation.SINGLE,
@@ -718,10 +658,7 @@ export const LINE_INFO_PHASES_DE: OeFormlyViewTester.Field = {
     name: "Die Summe der einzelnen Phasen kann aus technischen Gründen geringfügig von der Gesamtsumme abweichen.",
 };
 
-export const LINE_INFO = (
-    text: string,
-    style: string = "",
-): OeFormlyViewTester.Field => ({
+export const LINE_INFO = (text: string, style: string = ""): OeFormlyViewTester.Field => ({
     type: "info-line",
     name: text,
 });
@@ -738,9 +675,7 @@ export const LINE_BUTTONS_FROM_FORM_CONTROL = (
 export const RANGE_BUTTONS_FROM_FORM_CONTROL_LINE = <T>(
     controlName: string,
     expectedValue: T,
-    properties: Partial<
-        Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]
-    >,
+    properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>,
 ): OeFormlyViewTester.Field => ({
     type: "range-button-from-form-control-line",
     controlName,
@@ -757,9 +692,7 @@ export const LINE_RADIO_BUTTONS_FROM_FORM_CONTROL = (
     buttons: buttons,
     controlName: controlName,
 });
-export const SVG_LINE = (
-    img: OeImageComponent["img"],
-): OeFormlyViewTester.Field => ({
+export const SVG_LINE = (img: OeImageComponent["img"]): OeFormlyViewTester.Field => ({
     type: "image-line",
     img: img,
 });
@@ -1120,62 +1053,32 @@ export namespace ChartConfig {
 
 describe("PersistencePriority", () => {
     it("#isLessThan", () => {
-        expect(
-            PersistencePriority.isLessThan(
-                PersistencePriority.LOW,
-                PersistencePriority.HIGH,
-            ),
-        ).toBe(true);
-        expect(
-            PersistencePriority.isLessThan(
-                PersistencePriority.VERY_HIGH,
-                PersistencePriority.HIGH,
-            ),
-        ).toBe(false);
-        expect(
-            PersistencePriority.isLessThan(
-                PersistencePriority.HIGH,
-                PersistencePriority.HIGH,
-            ),
-        ).toBe(false);
-        expect(
-            PersistencePriority.isLessThan(null, PersistencePriority.HIGH),
-        ).toBe(false);
-        expect(
-            PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH),
-        ).toBe(false);
+        expect(PersistencePriority.isLessThan(PersistencePriority.LOW, PersistencePriority.HIGH)).toBe(true);
+        expect(PersistencePriority.isLessThan(PersistencePriority.VERY_HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(PersistencePriority.HIGH, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(null, PersistencePriority.HIGH)).toBe(false);
+        expect(PersistencePriority.isLessThan(undefined, PersistencePriority.HIGH)).toBe(false);
         expect(PersistencePriority.isLessThan(undefined, null)).toBe(false);
     });
 });
 
 describe("hasPropertyValue", () => {
-    const component = new EdgeConfig.Component(
-        "component0",
-        "",
-        true,
-        false,
-        "factoryId",
-        {
-            booleanValue: true,
-            booleanValueString: "true",
-            numberValueStrng: "42",
-        },
-    );
+    const component = new EdgeConfig.Component("component0", "", true, false, "factoryId", {
+        booleanValue: true,
+        booleanValueString: "true",
+        numberValueStrng: "42",
+    });
 
     it("#booleanValue", () => {
         expect(component.hasPropertyValue("booleanValue", true)).toBeTrue();
     });
 
     it("#booleanValueString", () => {
-        expect(
-            component.hasPropertyValue("booleanValueString", true),
-        ).toBeTrue();
+        expect(component.hasPropertyValue("booleanValueString", true)).toBeTrue();
     });
 
     it("#wrongEquals", () => {
-        expect(
-            component.hasPropertyValue("booleanValueString", false),
-        ).toBeFalse();
+        expect(component.hasPropertyValue("booleanValueString", false)).toBeFalse();
     });
 
     it("#compareWrongTypes", () => {

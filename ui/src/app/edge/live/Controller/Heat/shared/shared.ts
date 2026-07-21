@@ -11,6 +11,7 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { environment } from "../../../../../../environments";
 import { TimeOfUseTariffUtils } from "../../../../../shared/utils/utils";
+import { HeatConverter } from "../new-navigation/converter";
 
 export namespace SharedControllerHeat {
     export const getFormlyModalView = (
@@ -21,34 +22,43 @@ export namespace SharedControllerHeat {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
-        const isAskoma = component.factoryId === "Heat.Askoma";
-        const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
-
         return {
             title: Name.METER_ALIAS_OR_ID(component),
-            icon: { name: "oe-heating-element", color: "normal", size: "normal" },
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            lines: [
-                ...getFormlySharedLines(translate, component, isAskoma),
-                ...(isMyPv ? getMyPVInfoLine(translate) : []),
-                ...(isAskoma ? getAskomaIcon() : []),
-                ...(isMyPv ? getMyPvIcon() : []),
-            ],
+            lines: getLegacyViewLines(translate, component),
             component,
             edge,
         };
     };
 
+    /**
+     * @deprecated Temporary fallback for legacy heat views without EnergyScheduler data, especially Heat.MyPv.AcThor9s.
+     *   Remove when legacy heat UI support is dropped.
+     */
+    export const getLegacyViewLines = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+    ): OeFormlyView["lines"] => {
+        const isAskoma = component.factoryId === "Heat.Askoma";
+        const isMyPv = component.factoryId === "Heat.MyPv.AcThor9s" || component.factoryId === "Heat.MyPv";
+
+        return [
+            ...getFormlySharedLines(translate, component),
+            ...(isMyPv ? getMyPVInfoLine(translate) : []),
+            ...(isAskoma ? getAskomaIcon() : []),
+            ...(isMyPv ? getMyPvIcon() : []),
+        ];
+    };
+
     export const getFormlySharedLines = (
         translate: TranslateService,
         component: EdgeConfig.Component,
-        isAskoma: boolean,
     ): OeFormlyView["lines"] => [
         {
             type: "channel-line",
             name: translate.instant("GENERAL.STATUS"),
             channel: component.id + "/Status",
-            converter: Converter.CONVERT_POWER_2_HEAT_STATE(translate),
+            converter: HeatConverter.CONVERT_POWER_2_HEAT_STATE(translate),
         },
         {
             type: "channel-line",
@@ -387,6 +397,16 @@ export const CONVERT_CHANNEL_MODE_TO_LABEL = (translate: TranslateService) => {
         }
     };
 };
+
+export enum HeatStatus {
+    UNDEFINED = -1,
+    STANDBY = 0,
+    EXCESS = 1,
+    CONTROL_NOT_ALLOWED = 2,
+    TEMPERATURE_REACHED = 3,
+    NO_CONTROL_SIGNAL = 4,
+    ERROR = 5,
+}
 
 export enum ChannelMode {
     UNDEFINED = -1, //

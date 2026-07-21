@@ -4,7 +4,6 @@ import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
-import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -13,6 +12,7 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Utils } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedStorage } from "../shared/shared";
 import { ChargeDischargeChartComponent } from "./chart/charge-discharge-chart";
@@ -147,7 +147,7 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             lines.push(
                 {
                     type: "component-line",
-                    component: SingleXAxisComponent,
+                    component: TimeLineChartComponent,
                     inputs: {
                         data: energyScheduler.schedule,
                     },

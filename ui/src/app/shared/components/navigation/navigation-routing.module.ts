@@ -37,7 +37,6 @@ import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/sc
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
-import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
 import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
@@ -91,6 +90,7 @@ import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Cont
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
+import { ControllerHeatHomeComponent } from "../../../edge/live/Controller/Heat/new-navigation/heat-home";
 import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
 import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
