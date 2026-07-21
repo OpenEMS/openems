@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -25,6 +26,7 @@ import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
@@ -32,6 +34,134 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentPropert
 import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 
 public final class FeneconCommercialComponents {
+
+	/**
+	 * Creates a cluster battery {@link ComponentDef}.
+	 *
+	 * @param bundle          the translation bundle
+	 * @param batteryId       the id of the battery
+	 * @param slaveBatteryIds the id of the slave batteries
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBattery(//
+			ResourceBundle bundle, //
+			String batteryId, //
+			List<String> slaveBatteryIds //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.battery0.alias"),
+				"GoodWe.BatteryCluster.FeneconHome",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("battery.ids") //
+						.withValue(slaveBatteryIds),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig()); //
+	}
+
+	/**
+	 * Creates a slave cluster battery {@link ComponentDef}. Battery is connected to
+	 * port 1.
+	 *
+	 * @param bundle    the translation bundle
+	 * @param batteryId the id of the battery
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBatterySlave1(//
+			ResourceBundle bundle, //
+			String batteryId //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", 1),
+				"Battery.Fenecon.Home",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("batteryStartUpRelay") //
+						.withValue("io0/Relay4"),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("inverterPort") //
+								.withValue("PORT_1"),
+						ComponentProperties.Property.of("modbus.id") //
+								.withValue("modbus0"),
+						ComponentProperties.Property.of("modbusUnitId") //
+								.withValue(1),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig()); //
+	}
+
+	/**
+	 * Creates a slave cluster battery {@link ComponentDef}. Battery is connected to
+	 * port 2.
+	 *
+	 * @param bundle    the translation bundle
+	 * @param batteryId the id of the battery
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBatterySlave2(//
+			ResourceBundle bundle, //
+			String batteryId //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", 2),
+				"Battery.Fenecon.Home",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("batteryStartUpRelay") //
+						.withValue("io2/Relay1"),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("inverterPort") //
+								.withValue("PORT_2"),
+						ComponentProperties.Property.of("modbus.id") //
+								.withValue("modbus2"),
+						ComponentProperties.Property.of("modbusUnitId") //
+								.withValue(1),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig());
+	}
+
+	/**
+	 * Creates a modbus bridge for the second battery relay.
+	 *
+	 * @param bundle           the translation bundle
+	 * @param t                the {@link ConfigurationTarget}
+	 * @param modbusIdExternal the id of the modbus
+	 * @param deviceHardware   the device hardware type
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef modbusForClusterSlaveBattery2(//
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t, //
+			final String modbusIdExternal, //
+			final OpenemsAppInstance deviceHardware //
+	) {
+		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
+				? "/dev/bus0"
+				: "/dev/busUSB3";
+
+		final var properties = Lists.newArrayList(//
+				ComponentProperties.Property.of("enabled") //
+						.withValue(true),
+				ComponentProperties.Property.of("baudRate") //
+						.withValue(19200),
+				ComponentProperties.Property.of("databits") //
+						.withValue(8),
+				ComponentProperties.Property.of("parity") //
+						.withValue(Parity.NONE.name()),
+				ComponentProperties.Property.of("portName") //
+						.withValue(portName),
+				ComponentProperties.Property.of("stopbits") //
+						.withValue("ONE") //
+		);
+
+		if (t == ConfigurationTarget.ADD) {
+			properties.add(ComponentProperties.Property.of("invalidateElementsAfterReadErrors") //
+					.withValue(1));
+			properties.add(ComponentProperties.Property.of("logVerbosity") //
+					.withValue("NONE"));
+		}
+
+		return new ComponentDef(modbusIdExternal, translate(bundle, "App.IntegratedSystem.modbus2.alias"),
+				"Bridge.Modbus.Serial", new ComponentProperties(properties),
+				ComponentDef.Configuration.defaultConfig());
+	}
 
 	/**
 	 * Creates a default battery inverter component for a FENECON Commercial 92.
