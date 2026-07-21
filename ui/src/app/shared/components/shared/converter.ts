@@ -526,30 +526,6 @@ export namespace Converter {
         };
     };
 
-    /**
-     * Converts Power2Heat-State
-     *
-     * @param translate The current language to be translated to
-     * @returns Converted value
-     */
-    export const CONVERT_POWER_2_HEAT_STATE = (translate: TranslateService) => {
-        return (value: any): string => {
-            switch (value) {
-                case 0:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
-                case 1:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING");
-                case 2:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.TARGET_TEMPERATURE_REACHED");
-                case 3:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
-                case -1:
-                default:
-                    return translate.instant("EDGE.INDEX.WIDGETS.HEAT.NO_HEATING");
-            }
-        };
-    };
-
     export const CONVERT_TO_BAR: Converter = (raw) => {
         return IF_NUMBER(raw, (value) => Formatter.FORMAT_BAR(value));
     };

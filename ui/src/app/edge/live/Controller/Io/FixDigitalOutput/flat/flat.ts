@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -6,14 +6,13 @@ import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ControllerFixDigitalOutputModalComponent } from "../modal/modal";
 
-
 @Component({
     selector: "oe-controller-io-fix-digital-output",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ControllerFixDigitalOutputComponent extends AbstractFlatWidget {
-
     public state: string = "-";
     public outputChannel: string | null = null;
     protected modalComponent: Modal | null = null;
@@ -30,7 +29,7 @@ export class ControllerFixDigitalOutputComponent extends AbstractFlatWidget {
                 edge: this.edge,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         const edge = this.service.currentEdge();
@@ -62,5 +61,4 @@ export class ControllerFixDigitalOutputComponent extends AbstractFlatWidget {
             }
         }
     }
-
 }

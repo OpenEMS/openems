@@ -204,7 +204,7 @@ public final class FeneconHomeComponents {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
 				"GoodWe.BatteryInverter", getBatteryInverterConfig(hasEmergencyReserve, feedInType, modbusIdExternal,
-						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode));
+						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode).build());
 	}
 
 	/**
@@ -958,9 +958,9 @@ public final class FeneconHomeComponents {
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
-	 * @return the {@link JsonObject}
+	 * @return the {@link JsonUtils.JsonObjectBuilder}
 	 */
-	public static JsonObject getBatteryInverterConfig(final boolean hasEmergencyReserve, //
+	public static JsonUtils.JsonObjectBuilder getBatteryInverterConfig(final boolean hasEmergencyReserve, //
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
@@ -985,8 +985,7 @@ public final class FeneconHomeComponents {
 								|| feedInType == ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION ? "ENABLE"
 										: "DISABLE") //
 				.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
-				.addPropertyIfNotNull("gridCode", gridCode) //
-				.build();
+				.addPropertyIfNotNull("gridCode", gridCode);
 	}
 
 	private FeneconHomeComponents() {

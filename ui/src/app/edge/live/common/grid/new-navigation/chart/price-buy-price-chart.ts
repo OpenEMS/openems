@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -15,6 +15,7 @@ import { ChartConstants } from "src/app/shared/shared";
     selector: "oe-common-grid-buy-price-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -44,10 +45,7 @@ export class GridBuyPriceChartComponent extends ScheduleChartComponent {
         ];
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
-        return (item) =>
-            ScheduleChartComponent.tooltipCurrency(this.config)(item);
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
+        return (item) => ScheduleChartComponent.tooltipCurrency(this.config)(item);
     }
 }

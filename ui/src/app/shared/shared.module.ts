@@ -1,11 +1,11 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Injector, NgModule } from "@angular/core";
-import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors, } from "@angular/forms";
+import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from "@angular/forms";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
-import { FORMLY_CONFIG, FormlyFieldConfig, FormlyModule, } from "@ngx-formly/core";
+import { FORMLY_CONFIG, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { FormlyIonicModule } from "@ngx-formly/ionic";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -73,15 +73,11 @@ export function registerTranslateExtension(translate: TranslateService) {
             {
                 name: "person-name-prohibited-characters",
                 message(err, field: FormlyFieldConfig) {
-                    const INVALID_CHARACTERS =
-                        '< > & " $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )';
-                    return translate.stream(
-                        "SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS",
-                        {
-                            invalidCharacters: INVALID_CHARACTERS,
-                            formControlValue: field.formControl.value,
-                        },
-                    );
+                    const INVALID_CHARACTERS = '< > & " $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )';
+                    return translate.stream("SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS", {
+                        invalidCharacters: INVALID_CHARACTERS,
+                        formControlValue: field.formControl.value,
+                    });
                 },
             },
         ],
@@ -112,9 +108,16 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
-export function PersonNameProhibitedCharactersValidator(
-    control: FormControl,
-): ValidationErrors {
+/**
+ * Angular's Validators.required treats `false` as a valid value, so a checkbox with `props.required: true` would pass
+ * validation while unchecked. This validator makes `required: true` behave as expected for checkbox fields: the control
+ * must be checked.
+ */
+export function checkboxRequiredValidator(control: FormControl, field: FormlyFieldConfig): boolean {
+    return !field.props?.required || control.value === true;
+}
+
+export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
     // https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/userprofile/validator/PersonNameProhibitedCharactersValidator.java
     const INVALID_CHARACTERS: string[] = [
         // Control characters (ASCII 0–31)
@@ -181,9 +184,7 @@ export function PersonNameProhibitedCharactersValidator(
         "(",
         ")",
     ];
-    return [...(control.value ?? "")].some((ch) =>
-        INVALID_CHARACTERS.includes(ch),
-    )
+    return [...(control.value ?? "")].some((ch) => INVALID_CHARACTERS.includes(ch))
         ? { "person-name-prohibited-characters": true }
         : null;
 }
@@ -270,6 +271,16 @@ export function PersonNameProhibitedCharactersValidator(
                 {
                     name: "weekday-checkbox",
                     component: FormlyFieldWeekdaysComponent,
+                },
+                {
+                    // Overrides the "checkbox" type's built-in "required" behaviour so that
+                    // `props.required: true` actually enforces the checkbox being checked.
+                    name: "checkbox",
+                    defaultOptions: {
+                        validators: {
+                            required: checkboxRequiredValidator,
+                        },
+                    },
                 },
             ],
             validators: [
@@ -387,12 +398,10 @@ export class SharedModule {
     ) {
         SharedModule.injector = injector;
 
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 }

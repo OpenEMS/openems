@@ -1,6 +1,5 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 as EnergyScheduler, EnergySchedulerV2, } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -9,8 +8,9 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { User } from "src/app/shared/jsonrpc/shared";
 import { UserService } from "src/app/shared/service/user.service";
-import { ChannelAddress, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
 import { LiveDataService } from "../../../livedataservice";
 import { ProductionChartComponent } from "./chart/production-chart-component";
 
@@ -18,12 +18,10 @@ import { ProductionChartComponent } from "./chart/production-chart-component";
     selector: "oe-common-production-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class CommonProductionHomeComponent extends AbstractFormlyComponent {
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     protected productionMeterComponents: EdgeConfig.Component[] = [];
@@ -46,16 +44,11 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         if (energyScheduler.schedule !== GetSchedule.Response.empty) {
             // TODO INTERSOLAR
             if (user?.id == "intersolar@fenecon.de" || edge.id == "fems888") {
-                const energyToday =
-                    energyScheduler.schedule.calculateEnergyFromPower(
-                        "today",
-                        "ProductionActivePower",
-                    );
-                const energyTomorrow =
-                    energyScheduler.schedule.calculateEnergyFromPower(
-                        "tomorrow",
-                        "ProductionActivePower",
-                    );
+                const energyToday = energyScheduler.schedule.calculateEnergyFromPower("today", "ProductionActivePower");
+                const energyTomorrow = energyScheduler.schedule.calculateEnergyFromPower(
+                    "tomorrow",
+                    "ProductionActivePower",
+                );
                 lines.push({
                     type: "stats-line",
                     stats: [
@@ -77,7 +70,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
             lines.push(
                 {
                     type: "component-line",
-                    component: SingleXAxisComponent,
+                    component: TimeLineChartComponent,
                     inputs: {
                         data: energyScheduler?.schedule,
                     },
@@ -88,10 +81,7 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
                 {
                     type: "channel-line",
                     name: translate.instant("GENERAL.POWER"),
-                    channel: new ChannelAddress(
-                        "_sum",
-                        "ProductionActivePower",
-                    ).toString(),
+                    channel: new ChannelAddress("_sum", "ProductionActivePower").toString(),
                     converter: Converter.POWER_IN_KILO_WATT,
                     style: {
                         name: { fontSize: "large" },
@@ -156,14 +146,14 @@ export class CommonProductionHomeComponent extends AbstractFormlyComponent {
         const user = this.userService.currentUser();
 
         // Get Chargers
-        this.chargerComponents =
-            config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-                .filter(component => component.isEnabled);
+        this.chargerComponents = config
+            .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+            .filter((component) => component.isEnabled);
 
         // Get productionMeters
-        this.productionMeterComponents =
-            config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && config.isProducer(component));
+        this.productionMeterComponents = config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => component.isEnabled && config.isProducer(component));
 
         const energy = new EnergyScheduler(config);
 

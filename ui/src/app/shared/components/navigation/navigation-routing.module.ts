@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { HistoryExcelExportComponent } from "src/app/edge/history/common/energy/export/export";
 import { HistoryChartComponent } from "src/app/edge/history/common/energy/new-navigation/new-navigation";
 import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
@@ -37,7 +38,6 @@ import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/sc
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
-import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
 import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
@@ -91,6 +91,7 @@ import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Cont
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
+import { ControllerHeatHomeComponent } from "../../../edge/live/Controller/Heat/new-navigation/heat-home";
 import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
 import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
@@ -125,7 +126,7 @@ export const newNavigationRoutes: Routes = [
         component: NavigationInfoComponent,
     },
     {
-        path: "evse/:componentId/car/update/:appId",
+        path: "evse/:componentId/car/update",
         component: UpdateAppConfigComponent,
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
@@ -465,6 +466,10 @@ export const newNavigationRoutes: Routes = [
     {
         path: "history",
         component: HistoryChartComponent,
+    },
+    {
+        path: "history/export",
+        component: HistoryExcelExportComponent,
     },
 ];
 

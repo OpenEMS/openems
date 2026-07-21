@@ -34,22 +34,8 @@ export class MyTranslateLoader implements TranslateLoader {
 export type LanguageKeyUnion = (typeof Language.ALL)[number]["key"];
 
 export class Language {
-    public static readonly DE: Language = new Language(
-        "German",
-        "de",
-        "de",
-        de,
-        localDE,
-        dateFnsLocaleDe,
-    );
-    public static readonly EN: Language = new Language(
-        "English",
-        "en",
-        "en",
-        en,
-        localEN,
-        dateFnsLocaleEn,
-    );
+    public static readonly DE: Language = new Language("German", "de", "de", de, localDE, dateFnsLocaleDe);
+    public static readonly EN: Language = new Language("English", "en", "en", en, localEN, dateFnsLocaleEn);
     public static readonly CS: Language = new Language(
         "Czech",
         "cs",
@@ -58,38 +44,10 @@ export class Language {
         localCS /* NOTE: there is no locale in @angular/common for Czech */,
         dateFnsLocaleCs,
     );
-    public static readonly NL: Language = new Language(
-        "Dutch",
-        "nl",
-        "nl",
-        nl,
-        localNL,
-        dateFnsLocaleNl,
-    );
-    public static readonly ES: Language = new Language(
-        "Spanish",
-        "es",
-        "es",
-        es,
-        localES,
-        dateFnsLocaleEs,
-    );
-    public static readonly FR: Language = new Language(
-        "French",
-        "fr",
-        "fr",
-        fr,
-        localFR,
-        dateFnsLocaleFr,
-    );
-    public static readonly JA: Language = new Language(
-        "Japanese",
-        "ja",
-        "ja",
-        ja,
-        localJA,
-        dateFnsLocaleJa,
-    );
+    public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL, dateFnsLocaleNl);
+    public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES, dateFnsLocaleEs);
+    public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR, dateFnsLocaleFr);
+    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA, dateFnsLocaleJa);
 
     public static readonly ALL = [
         Language.DE,
@@ -117,8 +75,7 @@ export class Language {
     public static get SYSTEM(): Language | null {
         // navigator.userLanguage is a non-standard property (IE) and not defined
         // in the TypeScript DOM lib. Cast to any to silence the compiler.
-        const browserLang =
-            navigator.language || (navigator as any).userLanguage;
+        const browserLang = navigator.language || (navigator as any).userLanguage;
         return Language.getByBrowserLang(browserLang);
     }
 
@@ -191,9 +148,7 @@ export class Language {
         const lang = this.getByBrowserLang(language?.toLowerCase());
 
         if (!lang) {
-            console.warn(
-                `Key ${language} not part of ${Language.ALL.map((lang) => lang.title + ":" + lang.key)}`,
-            );
+            console.warn(`Key ${language} not part of ${Language.ALL.map((lang) => lang.title + ":" + lang.key)}`);
         }
 
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
@@ -213,15 +168,12 @@ export class Language {
      *
      * E.g. AdvertismentModule
      *
-     * IMPORTANT: Translation keys will overwrite each other. Make sure to use a
-     * unique top level key.
+     * IMPORTANT: Translation keys will overwrite each other. Make sure to use a unique top level key.
      *
      * @param translations The translation files
      * @returns Translations params
      */
-    public static async normalizeAdditionalTranslationFiles(
-        translations: Record<LanguageKeyUnion, any>,
-    ) {
+    public static async normalizeAdditionalTranslationFiles(translations: Record<LanguageKeyUnion, any>) {
         return Object.entries(translations).map(([key, value]) => ({
             lang: key,
             translation: value,

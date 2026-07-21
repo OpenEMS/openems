@@ -7,7 +7,7 @@ import { Language } from "src/app/shared/type/language";
 import { EvcsComponent } from "../components/edge/config-components/evcs/evcsComponent";
 import { JsonrpcResponseSuccess } from "../jsonrpc/base";
 import { QueryHistoricTimeseriesEnergyResponse } from "../jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
-import { ChannelAddress, ChartConstants, Currency, EdgeConfig, } from "../shared";
+import { ChannelAddress, ChartConstants, Currency, EdgeConfig } from "../shared";
 
 /** @deprecated Use seperate utils class */
 export class Utils {
@@ -136,10 +136,7 @@ export class Utils {
      * @param v1
      * @param v2
      */
-    public static divideSafely(
-        v1: number | null,
-        v2: number | null,
-    ): number | null {
+    public static divideSafely(v1: number | null, v2: number | null): number | null {
         if (v1 == null || v2 == null) {
             return null;
         } else if (v2 == 0) {
@@ -171,10 +168,7 @@ export class Utils {
      * @param v2
      * @returns
      */
-    public static compareArraysSafely<T>(
-        v1: T[] | null,
-        v2: T[] | null,
-    ): boolean {
+    public static compareArraysSafely<T>(v1: T[] | null, v2: T[] | null): boolean {
         if (v1 == null || v2 == null) {
             return null;
         }
@@ -182,10 +176,7 @@ export class Utils {
         const set1 = new Set(v1);
         const set2 = new Set(v2);
 
-        return (
-            v1.every((item) => set2.has(item)) &&
-            v2.every((item) => set1.has(item))
-        );
+        return v1.every((item) => set2.has(item)) && v2.every((item) => set1.has(item));
     }
 
     public static getRandomInteger(min: number, max: number) {
@@ -266,9 +257,7 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_TO_WATT = (value: number | null): string => {
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         } else if (value >= 0) {
@@ -285,9 +274,7 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_WATT_TO_KILOWATT = (value: number | null): string => {
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         if (value == null) {
             return "-";
         }
@@ -331,9 +318,7 @@ export class Utils {
             return "";
         }
 
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         return formatNumber(value, locale, "1.0-1") + " Wh";
     };
 
@@ -344,13 +329,8 @@ export class Utils {
      * @returns Converted value
      */
     public static CONVERT_TO_KILO_WATTHOURS = (value: number): string => {
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
-        return (
-            formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") +
-            " kWh"
-        );
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
+        return formatNumber(Utils.divideSafely(value, 1000), locale, "1.0-1") + " kWh";
     };
 
     /**
@@ -372,8 +352,7 @@ export class Utils {
     };
 
     /**
-     * Takes a power value and extracts the information if it represents Charge
-     * or Discharge.
+     * Takes a power value and extracts the information if it represents Charge or Discharge.
      *
      * @param translate The translate service
      * @param power The power
@@ -402,9 +381,7 @@ export class Utils {
      * @param value The value from passed value in html
      * @returns Converted value
      */
-    public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (
-        translate: TranslateService,
-    ) => {
+    public static CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC = (translate: TranslateService) => {
         return (value: any): string => {
             if (value === "MANUAL") {
                 return translate.instant("GENERAL.MANUALLY");
@@ -425,19 +402,10 @@ export class Utils {
      * @param label Label to be displayed along with price
      * @returns Converted value
      */
-    public static CONVERT_PRICE_TO_CENT_PER_KWH = (
-        decimal: number,
-        label: string,
-    ) => {
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
+    public static CONVERT_PRICE_TO_CENT_PER_KWH = (decimal: number, label: string) => {
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         return (value: number | null | undefined): string =>
-            (value == null
-                ? "-"
-                : formatNumber(value / 10, locale, "1.0-" + decimal)) +
-            " " +
-            label;
+            (value == null ? "-" : formatNumber(value / 10, locale, "1.0-" + decimal)) + " " + label;
     };
 
     /**
@@ -446,43 +414,25 @@ export class Utils {
      * @param translate The current language to be translated to
      * @returns Converted value
      */
-    public static CONVERT_TIME_OF_USE_TARIFF_STATE = (
-        translate: TranslateService,
-    ) => {
+    public static CONVERT_TIME_OF_USE_TARIFF_STATE = (translate: TranslateService) => {
         return (value: any): string => {
             switch (Math.round(value)) {
                 case 0:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
                 case 3:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
                 case 5:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
                 case 6:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE");
                 case 7:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE");
                 case 8:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT");
                 case 9:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION");
                 default: // Usually "1"
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
             }
         };
     };
@@ -516,10 +466,7 @@ export class Utils {
      * @param productionActivePower  the Production Power
      * @returns  the Self-Consumption rate
      */
-    public static calculateSelfConsumption(
-        sellToGrid: number,
-        productionActivePower: number,
-    ): number | null {
+    public static calculateSelfConsumption(sellToGrid: number, productionActivePower: number): number | null {
         if (sellToGrid == null || productionActivePower == null) {
             return null;
         }
@@ -545,14 +492,10 @@ export class Utils {
      * Calculate the Autarchy Rate
      *
      * @param buyFromGrid The Buy-From-Grid power (GridActivePower)
-     * @param consumptionActivePower The Consumption Power
-     *   (ConsumptionActivePower)
+     * @param consumptionActivePower The Consumption Power (ConsumptionActivePower)
      * @returns The Autarchy rate
      */
-    public static calculateAutarchy(
-        buyFromGrid: number,
-        consumptionActivePower: number,
-    ): number | null {
+    public static calculateAutarchy(buyFromGrid: number, consumptionActivePower: number): number | null {
         if (buyFromGrid != null && consumptionActivePower != null) {
             if (consumptionActivePower <= 0) {
                 /* avoid divide by zero; consumption == 0 -> autarchy 100 % */
@@ -562,9 +505,7 @@ export class Utils {
                     0,
                     /* max 100 */ Math.min(
                         100,
-                        /* calculate autarchy */ (1 -
-                            buyFromGrid / consumptionActivePower) *
-                            100,
+                        /* calculate autarchy */ (1 - buyFromGrid / consumptionActivePower) * 100,
                     ),
                 );
             }
@@ -578,24 +519,19 @@ export class Utils {
      *
      * @param value The value to convert
      */
-    public static roundSlightlyNegativeValues(
-        value: number | null,
-    ): number | null {
+    public static roundSlightlyNegativeValues(value: number | null): number | null {
         return value > -0.49 && value < 0 ? 0 : value;
     }
 
     /**
-     * Checks if multiple array elements exist in the source object. returns
-     * true only if all the elements in the array exist in the source Object.
+     * Checks if multiple array elements exist in the source object. returns true only if all the elements in the array
+     * exist in the source Object.
      *
      * @param arrayToCheck The array with elements that needs to be checked.
      * @param source The source Object.
      * @returns The value.
      */
-    public static isArrayExistingInSource(
-        arrayToCheck: string[],
-        source: Record<string, any>,
-    ): boolean {
+    public static isArrayExistingInSource(arrayToCheck: string[], source: Record<string, any>): boolean {
         return arrayToCheck.every((value) => {
             if (value in source) {
                 return true;
@@ -607,21 +543,15 @@ export class Utils {
         return (
             Object.values(arg.result["data"])
                 ?.map((element) => element as number[])
-                ?.every(
-                    (element) =>
-                        Array.isArray(element) &&
-                        (element?.every((elem) => elem == null) ?? true),
-                ) ?? true
+                ?.every((element) => Array.isArray(element) && (element?.every((elem) => elem == null) ?? true)) ?? true
         );
     }
 
     /**
-     * Calculates the total other consumption. other consumption = total
-     * Consumption - (total evcs consumption) - (total consumptionMeter
-     * consumption)
+     * Calculates the total other consumption. other consumption = total Consumption - (total evcs consumption) - (total
+     * consumptionMeter consumption)
      *
-     * @param energyValues The energyValues, retrieved from
-     *   {@link QueryHistoricTimeseriesEnergyRequest}
+     * @param energyValues The energyValues, retrieved from {@link QueryHistoricTimeseriesEnergyRequest}
      * @param evcsComponents The evcsComponents
      * @param consumptionMeterComponents The consumptionMeterComponents
      * @returns The other consumption
@@ -639,9 +569,7 @@ export class Utils {
         [...heatComponents].forEach((component) => {
             totalHeatConsumption = this.addSafely(
                 totalHeatConsumption,
-                energyValues.result.data[
-                    component.id + "/ActiveProductionEnergy"
-                ],
+                energyValues.result.data[component.id + "/ActiveProductionEnergy"],
             );
         });
 
@@ -663,9 +591,7 @@ export class Utils {
             Utils.subtractSafely(
                 Utils.subtractSafely(
                     Utils.subtractSafely(
-                        energyValues.result.data[
-                            "_sum/ConsumptionActiveEnergy"
-                        ],
+                        energyValues.result.data["_sum/ConsumptionActiveEnergy"],
                         totalEvcsConsumption,
                     ),
                     totalMeteredConsumption,
@@ -678,11 +604,9 @@ export class Utils {
     /**
      * Calculates the other consumption.
      *
-     * Other consumption = total Consumption - (total evcs consumption) - (total
-     * consumptionMeter consumption)
+     * Other consumption = total Consumption - (total evcs consumption) - (total consumptionMeter consumption)
      *
-     * @param channelData The channelData, retrieved from
-     *   {@link QueryHistoricTimeseriesDataRequest} or
+     * @param channelData The channelData, retrieved from {@link QueryHistoricTimeseriesDataRequest} or
      *   {@link QueryHistoricTimeseriesEnergyPerPeriodRequest}
      * @param evcsComponents The evcsComponents
      * @param consumptionMeterComponents The consumptionMeterComponents
@@ -699,33 +623,20 @@ export class Utils {
         const totalMeteredConsumption: number[] = [];
 
         evcsComponents.forEach((evcs) => {
-            channelData[evcs.powerChannel.toString()]?.forEach(
-                (value, index) => {
-                    totalMeteredConsumption[index] = Utils.addSafely(
-                        totalMeteredConsumption[index],
-                        value,
-                    );
-                },
-            );
+            channelData[evcs.powerChannel.toString()]?.forEach((value, index) => {
+                totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
+            });
         });
 
         heatComponents.forEach((component) => {
-            channelData[component.id + "/ActivePower"]?.forEach(
-                (value, index) => {
-                    totalHeatConsumption[index] = Utils.addSafely(
-                        totalHeatConsumption[index],
-                        value,
-                    );
-                },
-            );
+            channelData[component.id + "/ActivePower"]?.forEach((value, index) => {
+                totalHeatConsumption[index] = Utils.addSafely(totalHeatConsumption[index], value);
+            });
         });
 
         consumptionMeterComponents.forEach((meter) => {
             channelData[meter.id + "/ActivePower"]?.forEach((value, index) => {
-                totalMeteredConsumption[index] = Utils.addSafely(
-                    totalMeteredConsumption[index],
-                    value,
-                );
+                totalMeteredConsumption[index] = Utils.addSafely(totalMeteredConsumption[index], value);
             });
         });
 
@@ -736,10 +647,7 @@ export class Utils {
             return Utils.roundSlightlyNegativeValues(
                 Utils.subtractSafely(
                     Utils.subtractSafely(
-                        Utils.subtractSafely(
-                            value,
-                            totalEvcsConsumption[index],
-                        ),
+                        Utils.subtractSafely(value, totalEvcsConsumption[index]),
                         totalMeteredConsumption[index],
                     ),
                     totalHeatConsumption[index],
@@ -775,9 +683,7 @@ export enum ChartAxis {
     RIGHT_2 = "right2",
 }
 export namespace HistoryUtils {
-    export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (
-        data: number[],
-    ): number[] | null[] => {
+    export const CONVERT_WATT_TO_KILOWATT_OR_KILOWATTHOURS = (data: number[]): number[] | null[] => {
         return data?.map((value) => (value == null ? null : value / 1000));
     };
 
@@ -787,9 +693,7 @@ export namespace HistoryUtils {
      * @param translate The TranslateService
      * @returns A dataset
      */
-    export function createEmptyDataset(
-        translate: TranslateService,
-    ): ChartDataset[] {
+    export function createEmptyDataset(translate: TranslateService): ChartDataset[] {
         return [
             {
                 label: translate.instant("EDGE.HISTORY.NO_DATA"),
@@ -821,9 +725,7 @@ export namespace HistoryUtils {
     export type DisplayValue<T extends CustomOptions = PluginCustomOptions> = {
         name: string;
         /** Suffix to the name */
-        nameSuffix?: (
-            energyValues: QueryHistoricTimeseriesEnergyResponse,
-        ) => number | string | null;
+        nameSuffix?: (energyValues: QueryHistoricTimeseriesEnergyResponse) => number | string | null;
         /** Convert the values to be displayed in Chart */
         converter: () => any;
         /** If dataset should be hidden on Init */
@@ -835,8 +737,8 @@ export namespace HistoryUtils {
         /** Color in rgb-Format */
         color: string;
         /**
-         * The stack/stacks for this dataset to be displayed, if not provided
-         * datasets are not stacked but overlaying each other
+         * The stack/stacks for this dataset to be displayed, if not provided datasets are not stacked but overlaying
+         * each other
          */
         stack?: number | number[];
         /** False per default */
@@ -853,15 +755,12 @@ export namespace HistoryUtils {
         custom?: T;
         tooltip?: [
             {
-                afterTitle: (channelData?: {
-                    [name: string]: number[];
-                }) => string;
+                afterTitle: (channelData?: { [name: string]: number[] }) => string;
                 stackIds: number[];
             },
         ];
         /**
-         * The drawing order of dataset. Also affects order for stacking,
-         * tooltip and legend.
+         * The drawing order of dataset. Also affects order for stacking, tooltip and legend.
          *
          * @default Number.MAX_VALUE
          */
@@ -907,7 +806,7 @@ export namespace HistoryUtils {
      * TODO Lukas refactor
      */
     export type ChannelData = {
-        [name: string]: number[];
+        [name: string]: (number | null)[];
     };
 
     export class ChartData {
@@ -940,17 +839,11 @@ export namespace HistoryUtils {
     }
 
     export type yAxes = {
-        /**
-         * Name to be displayed on the left y-axis, also the unit to be
-         * displayed in tooltips and legend
-         */
+        /** Name to be displayed on the left y-axis, also the unit to be displayed in tooltips and legend */
         unit: YAxisType;
         position: "left" | "right" | "bottom" | "top";
         yAxisId: ChartAxis;
-        /**
-         * YAxis title ->
-         * {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title}
-         */
+        /** YAxis title -> {@link https://www.chartjs.org/docs/latest/samples/scale-options/titles.html Chartjs Title} */
         customTitle?: string;
         /**
          * Default: true _>
@@ -958,10 +851,7 @@ export namespace HistoryUtils {
          */
         displayGrid?: boolean;
         scale?: {
-            /**
-             * Default: false, if true scale starts at minimum value of all
-             * datasets assigned to this yaxis
-             */
+            /** Default: false, if true scale starts at minimum value of all datasets assigned to this yaxis */
             dynamicScale?: boolean;
         };
     };
@@ -997,9 +887,7 @@ export namespace HistoryUtils {
                 return Math.abs(Math.min(0, value));
             }
         };
-        export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (
-            value: number,
-        ) => {
+        export const ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE = (value: number) => {
             if (value < 0) {
                 return Math.abs(value);
             } else {
@@ -1045,8 +933,7 @@ export namespace TimeOfUseTariffUtils {
      * @param value The numeric value to be formatted.
      * @param label The label type to determine the formatting.
      * @param translate The translation service for translating labels.
-     * @param currencyLabel Optional currency label for
-     *   {@link TimeOfUseTariffState} labels.
+     * @param currencyLabel Optional currency label for {@link TimeOfUseTariffState} labels.
      * @returns The formatted label, or exits if the value is not valid.
      */
     export function getLabel(
@@ -1055,51 +942,31 @@ export namespace TimeOfUseTariffUtils {
         translate: TranslateService,
         currencyLabel?: Currency.Label,
     ): string {
-        const locale: string = (
-            Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT
-        ).i18nLocaleKey;
+        const locale: string = (Language.getByKey(localStorage.LANGUAGE) ?? Language.DEFAULT).i18nLocaleKey;
         // Error handling: Return undefined if value is not valid
-        if (
-            value === undefined ||
-            value === null ||
-            Number.isNaN(Number.parseInt(value.toString()))
-        ) {
+        if (value === undefined || value === null || Number.isNaN(Number.parseInt(value.toString()))) {
             return;
         }
 
         const socLabel = translate.instant("GENERAL.SOC");
-        const dischargeLabel = translate.instant(
-            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE",
-        );
-        const chargeConsumptionLabel = translate.instant(
-            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID",
-        );
-        const balancingLabel = translate.instant(
-            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING",
-        );
-        const peakShavingLabel = translate.instant(
-            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING",
-        );
-        const delayChargeLabel = translate.instant(
-          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE",
-        );
-        const limitChargeLabel = translate.instant(
-          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE",
-        );
+        const dischargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_DISCHARGE");
+        const chargeConsumptionLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.CHARGE_GRID");
+        const balancingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.BALANCING");
+        const peakShavingLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.PEAK_SHAVING");
+        const delayChargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DELAY_CHARGE");
+        const limitChargeLabel = translate.instant("EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.LIMIT_CHARGE");
         const avoidGridSellLimitLabel = translate.instant(
-          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT",
+            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.AVOID_GRID_SELL_LIMIT",
         );
         const dischargeConsumptionLabel = translate.instant(
-          "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION",
+            "EDGE.INDEX.WIDGETS.TIME_OF_USE_TARIFF.STATE.DISCHARGE_CONSUMPTION",
         );
         const gridBuyLabel = translate.instant("GENERAL.GRID_BUY");
 
         // Switch case to handle different labels
         switch (label) {
             case socLabel:
-                return (
-                    label + ": " + formatNumber(value, locale, "1.0-0") + " %"
-                );
+                return label + ": " + formatNumber(value, locale, "1.0-0") + " %";
 
             case dischargeLabel:
             case chargeConsumptionLabel:
@@ -1110,36 +977,23 @@ export namespace TimeOfUseTariffUtils {
             case avoidGridSellLimitLabel:
             case dischargeConsumptionLabel:
                 return (
-                    label +
-                    ": " +
-                    formatNumber(
-                        value,
-                        locale,
-                        ChartConstants.NumberFormat.TWO,
-                    ) +
-                    " " +
-                    currencyLabel
+                    label + ": " + formatNumber(value, locale, ChartConstants.NumberFormat.TWO) + " " + currencyLabel
                 );
 
             default:
             case gridBuyLabel:
                 // Power values
-                return (
-                    label + ": " + formatNumber(value, locale, "1.0-2") + " kW"
-                );
+                return label + ": " + formatNumber(value, locale, "1.0-2") + " kW";
         }
     }
 
     /**
      * Retrieves the height for a chart based on the current resolution.
      *
-     * @param isSmartphoneResolution Indicates whether the current resolution is
-     *   considered to be smartphone resolution.
+     * @param isSmartphoneResolution Indicates whether the current resolution is considered to be smartphone resolution.
      * @returns The height of the chart.
      */
     export function getChartHeight(isSmartphoneResolution: boolean): number {
-        return isSmartphoneResolution
-            ? window.innerHeight / 3
-            : window.innerHeight / 4;
+        return isSmartphoneResolution ? window.innerHeight / 3 : window.innerHeight / 4;
     }
 }

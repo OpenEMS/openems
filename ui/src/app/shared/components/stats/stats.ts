@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "../../common-ui.module";
 import { ComponentsBaseModule } from "../components.module";
 import { OeFormlyField } from "../shared/oe-formly-component";
@@ -7,6 +7,7 @@ import { OeFormlyField } from "../shared/oe-formly-component";
     selector: "oe-stats-line",
     templateUrl: "./stats.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonUiModule, ComponentsBaseModule],
 })
 export class StatsComponent {

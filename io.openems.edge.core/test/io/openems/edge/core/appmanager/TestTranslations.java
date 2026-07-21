@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import io.openems.common.types.CurrencyConfig;
-import io.openems.edge.app.core.GridFeedInLimitationType;
-import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
-import io.openems.edge.common.meta.types.SubdivisionCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +16,9 @@ import com.google.gson.JsonObject;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.oem.DummyOpenemsEdgeOem;
 import io.openems.common.session.Language;
+import io.openems.common.types.CurrencyConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.core.GridFeedInLimitationType;
 import io.openems.edge.app.enums.Phase;
 import io.openems.edge.app.hardware.GpioHardwareType;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
@@ -32,6 +30,8 @@ import io.openems.edge.app.integratedsystem.TestFeneconHome30;
 import io.openems.edge.app.integratedsystem.TestFeneconHome6;
 import io.openems.edge.app.integratedsystem.TestFeneconIndustrialS;
 import io.openems.edge.app.timeofusetariff.AncillaryCostsProps.GermanDSO;
+import io.openems.edge.common.meta.ThirdPartyUsageAcceptance;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 
 class TestTranslations {

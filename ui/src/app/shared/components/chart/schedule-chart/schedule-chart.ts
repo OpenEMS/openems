@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { Component, ElementRef, inject, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -28,6 +28,7 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
 @Component({
     selector: "oe-schedule-chart",
     templateUrl: "../abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -214,6 +215,39 @@ export abstract class ScheduleChartComponent extends AbstractHistoryChart implem
             return NumberUtils.divideSafely(width, 2);
         }
         return NumberUtils.divideSafely(width, 6);
+    }
+
+    protected createDatasetPair(
+        color: string,
+        label: string,
+        historyData: (number | boolean | null)[],
+        predictionData: (number | boolean | null)[],
+    ): ScheduleChartComponent.Dataset[] {
+        const hasValues = (values: (number | boolean | null)[]): boolean => values.some((value) => value != null);
+
+        if (!hasValues(historyData) && !hasValues(predictionData)) {
+            return [];
+        }
+
+        return [
+            {
+                color,
+                data: historyData,
+                label,
+                stepped: true,
+                opacity: ScheduleChartComponent.OPACITY_NONE,
+                borderWidth: 0,
+            },
+            {
+                color,
+                data: predictionData,
+                label,
+                stepped: true,
+                opacity: ScheduleChartComponent.OPACITY_NONE,
+                pattern: "plus",
+                borderWidth: 0,
+            },
+        ];
     }
 }
 

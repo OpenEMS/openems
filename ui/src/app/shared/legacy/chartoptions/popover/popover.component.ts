@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Service } from "src/app/shared/shared";
@@ -6,10 +6,10 @@ import { Service } from "src/app/shared/shared";
 @Component({
     selector: "chartoptionspopover",
     templateUrl: "./popover.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartOptionsPopoverComponent {
-
     @Input() public showPhases: boolean | null = null;
     @Input() public showTotal: boolean | null = null;
 
@@ -17,7 +17,7 @@ export class ChartOptionsPopoverComponent {
         public service: Service,
         public popoverCtrl: PopoverController,
         public translate: TranslateService,
-    ) { }
+    ) {}
 
     public setPhases() {
         if (this.showPhases == true) {
@@ -36,5 +36,4 @@ export class ChartOptionsPopoverComponent {
         }
         this.popoverCtrl.dismiss(this.showTotal, "Total");
     }
-
 }

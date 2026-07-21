@@ -63,6 +63,8 @@ Export-Package: \
 	com.auth0.client.mgmt.organizations.members.effectiveroles.sources,\
 	com.auth0.client.mgmt.organizations.members.effectiveroles.sources.types,\
 	com.auth0.client.mgmt.organizations.members.types,\
+	com.auth0.client.mgmt.organizations.roles,\
+	com.auth0.client.mgmt.organizations.roles.types,\
 	com.auth0.client.mgmt.organizations.types,\
 	com.auth0.client.mgmt.prompts,\
 	com.auth0.client.mgmt.prompts.types,\

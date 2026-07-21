@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -11,6 +11,7 @@ import { Controller_Symmetric_PeakShavingModalComponent } from "./modal/modal.co
 @Component({
     selector: "Controller_Symmetric_PeakShaving",
     templateUrl: "./Symmetric.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_Symmetric_PeakShavingComponent extends AbstractFlatWidget {

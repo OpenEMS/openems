@@ -7,31 +7,22 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, Edge, EdgeConfig, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../../livedataservice";
 import { SharedIoChannelSingleThreshold } from "../shared/shared";
 
 @Component({
-    templateUrl:
-        "../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFormlyComponent {
     protected switchState: string | null = null;
     protected switchValue: string | null = null;
 
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
     private readonly websocket: Websocket = inject(Websocket);
@@ -44,23 +35,13 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
         websocket: Websocket,
     ): Promise<OeFormlyView> {
         const lines: OeFormlyField[] = [];
-        const outputChannel = component.getPropertyFromComponent<string>(
-            "outputChannelAddress",
-        );
-        const inputChannel = component.getPropertyFromComponent<string>(
-            "inputChannelAddress",
-        );
+        const outputChannel = component.getPropertyFromComponent<string[]>("outputChannelAddress");
+        const inputChannel = component.getPropertyFromComponent<string>("inputChannelAddress");
 
         if (outputChannel != null && inputChannel != null) {
             const inputChannelAddress = ChannelAddress.fromString(inputChannel);
-            const channelAddress =
-                inputChannelAddress != null ? [inputChannelAddress] : [];
-            const getUnit =
-                await SharedIoChannelSingleThreshold.createUnitResolver(
-                    edge,
-                    websocket,
-                    channelAddress,
-                );
+            const channelAddress = inputChannelAddress != null ? [inputChannelAddress] : [];
+            const getUnit = await SharedIoChannelSingleThreshold.createUnitResolver(edge, websocket, channelAddress);
             lines.push(
                 ...SharedIoChannelSingleThreshold.getFormlyHomeLines(
                     translate,
@@ -95,11 +76,7 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
         this.component ??= this.getComponent();
-        return SharedIoChannelSingleThreshold.getChannelAddresses(
-            this.service,
-            this.routeService,
-            this.component,
-        );
+        return SharedIoChannelSingleThreshold.getChannelAddresses(this.service, this.routeService, this.component);
     }
 
     private getComponent(): EdgeConfig.Component {
@@ -108,9 +85,7 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const component = config.getComponentSafely(
-            this.routeService.getRouteParam("componentId"),
-        );
+        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 
         return component;

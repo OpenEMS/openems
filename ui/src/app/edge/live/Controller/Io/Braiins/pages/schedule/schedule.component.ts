@@ -1,4 +1,4 @@
-import { Component, model } from "@angular/core";
+import { Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { filter, take } from "rxjs";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -15,11 +15,11 @@ import { ControllerBraiinsManualPayload } from "./js-calender-utils";
     templateUrl: "./schedule.component.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [ScheduleComponent, ComponentsBaseModule, CommonUiModule],
 })
 export class ControllerBraiinsScheduleComponent extends AbstractModal {
-    protected readonly CONVERT_TO_MODE_LABEL =
-        ControllerBraiinsShared.CONVERT_TO_MODE_LABEL(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL = ControllerBraiinsShared.CONVERT_TO_MODE_LABEL(this.translate);
     protected channel: ChannelAddress | null = null;
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected payload = model(new ControllerBraiinsManualPayload());
@@ -33,10 +33,7 @@ export class ControllerBraiinsScheduleComponent extends AbstractModal {
                 )
                 .subscribe((params) => {
                     this.component = config.getComponent(params.componentId);
-                    this.channel = new ChannelAddress(
-                        params.componentId,
-                        "_PropertyMode",
-                    );
+                    this.channel = new ChannelAddress(params.componentId, "_PropertyMode");
                     res();
                 });
         });

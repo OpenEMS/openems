@@ -4,7 +4,12 @@ import { Language } from "../../type/language";
 
 export namespace Formatter {
     // Changes the number format based on the language selected.
-    const locale: string = Language.geti18nLocale();
+    let locale: string = Language.geti18nLocale();
+
+    /** @internal Only for testing */
+    export function setLocale(lang: string): void {
+        locale = lang;
+    }
 
     export const FORMAT_WATT = (value: number) => {
         return formatNumber(value, locale, "1.0-0") + " W";

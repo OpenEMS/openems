@@ -79,6 +79,14 @@ export const OemMeta: BaseMeta = {
                 HEATING_ELEMENT: null,
             },
         },
+        INSTALLATION: {
+            COMMERCIAL: {
+                COMMERCIAL_100: {
+                    BATTERY_INPUT_1: null,
+                    BATTERY_INPUT_2: null,
+                },
+            },
+        },
     },
     links: {
         DATA_PROTECTION: null,
@@ -95,6 +103,13 @@ export const OemMeta: BaseMeta = {
             CONTROLLER_IO_HEAT_PUMP_SG_READY: "io.openems.edge.controller.io.heatpump.sgready/readme.adoc",
             CONTROLLER_IO_HEATING_ELEMENT: "io.openems.edge.controller.io.heatingelement/readme.adoc",
             CONTROLLER_ESS_TIME_OF_USE_TARIFF: "io.openems.edge.controller.ess.timeofusetariff/readme.adoc",
+            CONTROLLER_CHP_SOC: "io.openems.edge.controller.chp.soc/readme.adoc",
+            CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "io.openems.edge.controller.io.channelsinglethreshold/readme.adoc",
+            CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "io.openems.edge.controller.io.fixdigitaloutput/readme.adoc",
+            CONTROLLER_API_MODBUSTCP_READ: "io.openems.edge.controller.api.modbus/readme.adoc",
+            CONTROLLER_API_MODBUSTCP_READWRITE: "io.openems.edge.controller.api.modbus/readme.adoc",
+            CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
+            CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
             EVCS_KEBA: null,
             EVCS_HARDY_BARTH: null,
             EVCS_MENNEKES: null,
@@ -132,15 +147,6 @@ export const OemMeta: BaseMeta = {
         },
         FORGET_PASSWORD: "#",
         EVCS: null,
-        CONTROLLER_CHP_SOC: "io.openems.edge.controller.chp.soc/readme.adoc",
-        CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: "io.openems.edge.controller.io.channelsinglethreshold/readme.adoc",
-        CONTROLLER_IO_FIX_DIGITAL_OUTPUT: "io.openems.edge.controller.io.fixdigitaloutput/readme.adoc",
-
-        CONTROLLER_API_MODBUSTCP_READ: "io.openems.edge.controller.api.modbus/readme.adoc",
-        CONTROLLER_API_MODBUSTCP_READWRITE: "io.openems.edge.controller.api.modbus/readme.adoc",
-
-        CONTROLLER_API_REST_READ: "io.openems.edge.controller.api.rest/readme.adoc",
-        CONTROLLER_API_REST_READWRITE: "io.openems.edge.controller.api.rest/readme.adoc",
 
         EVCS_CLUSTER: "io.openems.edge.evcs.cluster/readme.adoc",
 

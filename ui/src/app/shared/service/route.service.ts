@@ -128,7 +128,7 @@ export class RouteService {
             return;
         }
 
-        const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl ?? null;
+        const initialUrl = this.router.lastSuccessfulNavigation()?.initialUrl ?? null;
         const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
         if (isAuthenticatedNavi && initialUrl != null) {
             this.router.navigate([initialUrl.toString()]);

@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -11,9 +11,8 @@ import { PropertyMode, SharedControllerHeat } from "../shared/shared";
     selector: "heat-modal",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerHeatModalComponent extends AbstractFormlyComponent {
     public static readonly formControlName = "mode";
@@ -21,7 +20,11 @@ export class ControllerHeatModalComponent extends AbstractFormlyComponent {
     @Input() public component: EdgeConfig.Component | null = null;
     @Input() public edge: Edge | null = null;
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ): OeFormlyView {
         return SharedControllerHeat.getFormlyModalView(translate, component, edge);
     }
 
@@ -48,9 +51,7 @@ export class ControllerHeatModalComponent extends AbstractFormlyComponent {
     protected override onCurrentData(currentData: CurrentData): void {
         const readOnly = this.isReadOnly();
         const channelAddress =
-            !readOnly && this.component != null
-                ? new ChannelAddress(this.component.id, "_PropertyMode")
-                : null;
+            !readOnly && this.component != null ? new ChannelAddress(this.component.id, "_PropertyMode") : null;
         this.setFormControlSafelyWithChannel<PropertyMode>(
             this.form,
             ControllerHeatModalComponent.formControlName,

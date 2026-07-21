@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -17,6 +17,7 @@ import { NumberUtils } from "src/app/shared/utils/number/number-utils";
     selector: "oe-controller-braiins-managed-consumption-chart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -37,12 +38,8 @@ export class ControllerBraiinsManagedConsumptionChartComponent extends ScheduleC
 
         for (const [index, entry] of this.data.data24h.entries()) {
             const managedConsumption =
-                entry.eshs.find((esh) => esh.id === this.componentId)
-                    ?.managedConsumption ?? null;
-            const valueInKw = NumberUtils.divideSafely(
-                managedConsumption,
-                1000,
-            );
+                entry.eshs.find((esh) => esh.id === this.componentId)?.managedConsumption ?? null;
+            const valueInKw = NumberUtils.divideSafely(managedConsumption, 1000);
 
             historyData.push(index <= lastHistoryIndex ? valueInKw : null);
             predictionData.push(index >= lastHistoryIndex ? valueInKw : null);
@@ -62,9 +59,7 @@ export class ControllerBraiinsManagedConsumptionChartComponent extends ScheduleC
         ];
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
         return (item) =>
             Converter.IF_NUMBER(item.dataset.data[item.dataIndex], (value) => {
                 return Converter.POWER_IN_KILO_WATT_AS_KW(value);

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -7,6 +7,7 @@ import { EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "DigitalOutputWidget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {

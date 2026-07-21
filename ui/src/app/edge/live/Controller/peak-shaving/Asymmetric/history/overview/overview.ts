@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID } from "@angular/core";
+import { Component, LOCALE_ID, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -22,6 +22,7 @@ import { PeakShavingAsymmetricChartComponent } from "../chart/chart";
         HistoryDataErrorModule,
         PeakShavingAsymmetricChartComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: LOCALE_ID,

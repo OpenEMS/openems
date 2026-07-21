@@ -5,7 +5,7 @@
         @for (child of items; track i; let i = $index) {
           @if (child?.children?.length === 0) {
             <ion-item button class="ion-no-padding ion-padding-left" (click)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)" (keydown.enter)="child?.children?.length > 0 ? '' : navigateAbsolutly(child)" detail="false">
-              <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''" size="small"></ion-icon>
+              <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"></ion-icon>
               <ion-label [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">
                 @for (line of child.label | labelToLines; track $index) {
                   <div>{{ line }}</div>
@@ -19,7 +19,7 @@
                   <ion-row class="ion-no-padding">
                     <ion-col class="ion-no-padding">
                       <ion-item class="ion-no-padding">
-                        <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''" size="small"></ion-icon>
+                        <ion-icon class="ion-padding-right" [name]="child?.icon?.name ?? ''" [color]="child.icon?.color ?? ''"></ion-icon>
                         <ion-label [style.font-weight]="(currentUrl | arrIncludes: child.routerLink.baseString) ? 'bolder' : 'inherit'">{{ child.label }}</ion-label>
                       </ion-item>
                     </ion-col>
@@ -41,12 +41,12 @@
   @if (absoluteChildren.length !== 0) {
     @if (isUserAllowedToSeeOverview) {
       <ion-item button lines="full" routerLinkActive="active" routerLink="/overview" [detail]="false">
-        <ion-icon class="ion-padding-right" name="chevron-back-outline" size="small"></ion-icon>
+        <ion-icon class="ion-padding-right" name="chevron-back-outline"></ion-icon>
         <ion-label>{{ "MENU.OVERVIEW" | translate }}</ion-label>
       </ion-item>
     }
     <ion-item button (click)="navigateToRoot()" (keydown.enter)="navigateToRoot()" [detail]="false">
-      <ion-icon class="ion-padding-right" name="home-outline" size="small"></ion-icon>
+      <ion-icon class="ion-padding-right" name="home-outline"></ion-icon>
       <ion-label [style.font-weight]="isLive() ? 'bolder' : 'inherit'">{{ "MENU.COCKPIT" | translate }}</ion-label>
     </ion-item>
   }
@@ -56,7 +56,7 @@
 @if (navigationService.position() === "bottom") {
   @for (child of children; track child) {
     <ion-button tabindex="0" (keydown.enter)="navigateTo(child)" (click)="navigateTo(child)" style="--border-radius: 1vh 1vh 1vh 1vh" size="small" color="light" [class.with-label]="child.mode === 'label'">
-      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img" [size]="child.icon?.size ?? 'medium'" style="font-size: x-large"></ion-icon>
+      <ion-icon [name]="child.icon?.name ?? 'help-outline'" [color]="child.icon?.color ?? 'medium'" [slot]="child.mode === 'label' ? 'start' : 'icon-only'" role="img"></ion-icon>
       <ion-label slot="end" style="text-transform: none">
         {{ child.mode === "label" ? child.label : "" }}
       </ion-label>

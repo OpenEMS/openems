@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject, ViewEncapsulation } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, ViewEncapsulation, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -16,15 +16,15 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     standalone: false,
     styles: [
         `
-       form {
-            align-content: center !important;
-        }
+            form {
+                align-content: center !important;
+            }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     encapsulation: ViewEncapsulation.None,
 })
 export class ModalComponent extends AbstractModal {
-
     protected showNewFooter: boolean = true;
     protected showStatusChart: boolean = false;
     protected label: string | null = null;
@@ -45,13 +45,21 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                this.meterId = this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id")?.id ?? null;
-                const timeOfUseCtrl = this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
-                this.showStatusChart = timeOfUseCtrl !== null;
-                res();
-            });
+            this.route.params
+                .pipe(
+                    filter((params) => params != null),
+                    take(1),
+                )
+                .subscribe((params) => {
+                    this.component = config.getComponent(params.componentId);
+                    this.meterId =
+                        this.config.getComponentFromOtherComponentsProperty(this.component.id, "chargePoint.id")?.id ??
+                        null;
+                    const timeOfUseCtrl =
+                        this.config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")?.[0] ?? null;
+                    this.showStatusChart = timeOfUseCtrl !== null;
+                    res();
+                });
         });
     }
 

@@ -44,4 +44,3 @@ public class CheckEvseNotInstalled implements Checkable {
 		return AbstractCheckable.getTranslation(language, COMPONENT_NAME + ".Message.Inverted");
 	}
 }
-

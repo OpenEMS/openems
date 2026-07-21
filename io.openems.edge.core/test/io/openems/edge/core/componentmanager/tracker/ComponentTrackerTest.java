@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.framework.Constants;
 
 import io.openems.edge.core.componentmanager.MyDummyComponent;

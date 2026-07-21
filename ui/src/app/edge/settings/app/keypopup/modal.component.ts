@@ -177,7 +177,7 @@ export class KeyModalComponent implements OnInit {
                     useMasterKey: this.model.useMasterKey,
                 });
                 // navigate to App install view and pass valid key
-                this.router.navigate(["../install"], {
+                this.router.navigate(["./install"], {
                     queryParams: { name: this.appName, appId: this.appId },
                     state: {
                         appKey: this.getRawAppKey(),
@@ -389,7 +389,7 @@ export class KeyModalComponent implements OnInit {
                 options: [],
             },
             expressions: {
-                "hide": () => this.registeredKeys.length === 0,
+                hide: () => this.registeredKeys.length === 0,
                 "props.disabled": (field) => !field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             wrappers: ["formly-select-extended-wrapper"],

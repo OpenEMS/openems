@@ -1134,7 +1134,7 @@ public final class Apps {
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
-		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+		return app(t, SocomecMeter::new, SocomecMeter.APP_METER_SOCOMEC);
 	}
 
 	/**

@@ -121,6 +121,7 @@
                 "CONTROLLER": "Applications",
                 "DATA_STORAGE": "Data Storage",
                 "EXECUTE_SIMULATOR": "Execute simulations",
+                "EXPORT": "Export",
                 "EXPORT_CHANNELS": "Export Channels",
                 "GENERAL_DATA": "General data",
                 "LIVE_LOG": "Live system log",
@@ -438,10 +439,12 @@
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+                    "CONTROL_NOT_ALLOWED": "Control not allowed",
+                    "ERROR": "Error",
                     "HEATING": "Heating is running",
                     "HEATING_ENERGY": "Heating energy",
                     "HEATING_OUTPUT": "Heating output",
-                    "NO_HEATING": "no Heating",
+                    "NO_HEATING": "No heating",
                     "TARGET_TEMPERATURE_REACHED": "Target temperature reached",
                     "TEMPERATURE": "Current temperature",
                     "TEMPERATURE_UNIT": "Temperature in °C"

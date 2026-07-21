@@ -587,7 +587,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
 		// fallback test (e.g. unsupported language should fallback to english)
 		var fallbackMissing = dummy.appToWebsiteUrl.keySet().stream()
-				.filter(appId -> oem.getAppWebsiteUrl(appId, Language.CZ) == null) //
+				.filter(appId -> oem.getAppWebsiteUrl(appId, Language.CS) == null) //
 				.toList();
 
 		if (!fallbackMissing.isEmpty()) {

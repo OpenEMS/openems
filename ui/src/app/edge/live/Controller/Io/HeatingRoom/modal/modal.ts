@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TZDate } from "@date-fns/tz";
@@ -15,10 +15,10 @@ import { GetOneTasks } from "./getOneTasks";
 @Component({
     selector: "heatingelement-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-
     protected oneTasks: GetOneTasks.OneTask[] = [];
 
     constructor(
@@ -35,10 +35,15 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                res();
-            });
+            this.route.params
+                .pipe(
+                    filter((params) => params != null),
+                    take(1),
+                )
+                .subscribe((params) => {
+                    this.component = config.getComponent(params.componentId);
+                    res();
+                });
         });
     }
 
@@ -53,18 +58,21 @@ export class ModalComponent extends AbstractModal {
             const from = new TZDate();
             const to = addDays(from, 2);
 
-            this.edge.sendRequest(this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: this.component.id,
-                    payload: new GetOneTasks.Request({
-                        from: from.toISOString(),
-                        to: to.toISOString(),
+            this.edge
+                .sendRequest(
+                    this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: this.component.id,
+                        payload: new GetOneTasks.Request({
+                            from: from.toISOString(),
+                            to: to.toISOString(),
+                        }),
                     }),
-                }))
-                .then(response => {
+                )
+                .then((response) => {
                     this.oneTasks = response.result["oneTasks"] as GetOneTasks.OneTask[];
                 })
-                .catch(reason => {
+                .catch((reason) => {
                     console.warn(reason);
                     this.oneTasks = [];
                 });

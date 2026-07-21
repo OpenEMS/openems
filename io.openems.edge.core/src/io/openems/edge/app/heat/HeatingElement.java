@@ -126,7 +126,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedDescriptionWithAppPrefix(".powerPerPhase.description") //
 				.setDefaultValue(2000) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field//
 						.setInputType(NUMBER)//
 						.setUnit(WATT, l)//
 						.setMin(0)//
@@ -136,7 +136,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setTranslatedDescriptionWithAppPrefix(".hysteresis.description") //
 				.setDefaultValue(60) //
 				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field//
 						.setInputType(NUMBER)//
 						.setUnit(SECONDS, l)//
 						.setMin(0))//
@@ -147,7 +147,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable)//
 				.setRequired(true))), //
-		HOW_MEASURED(howMeasured(IS_ELEMENT_MEASURED) //
+		HOW_MEASURED(howMeasured(IS_ELEMENT_MEASURED)//
 				.setDefaultValue(MeterIntegration.EXTERN)), //
 		METER_ID(externMeterIdsForMeterIntegration(IS_ELEMENT_MEASURED, HOW_MEASURED)), //
 		;
@@ -302,7 +302,7 @@ public class HeatingElement extends AbstractOpenemsAppWithProps<HeatingElement, 
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> heatingElementRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition, Nameable.of("OUTPUT_CHANNEL_PHASE_L1"), //
 				Nameable.of("OUTPUT_CHANNEL_PHASE_L2"), Nameable.of("OUTPUT_CHANNEL_PHASE_L3")),
 				b -> b //

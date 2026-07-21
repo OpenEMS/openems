@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChange, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { TFlattenKeys } from "src/app/shared/type/utility";
@@ -9,6 +9,7 @@ import { Environment, environment } from "src/environments";
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IonicModule],
 })
 export class HelpButtonComponent implements OnChanges {
@@ -33,9 +34,7 @@ export class HelpButtonComponent implements OnChanges {
         service: Service,
         useDefaultPrefix?: HelpButtonComponent["useDefaultPrefix"],
     ) {
-        const flattenedKeys = ObjectUtils.flattenObjectWithValues<
-            Environment["links"]
-        >(environment.links);
+        const flattenedKeys = ObjectUtils.flattenObjectWithValues<Environment["links"]>(environment.links);
 
         if (key == null || !(key in flattenedKeys)) {
             console.error("Key [" + key + "] not found in Environment Links");
@@ -48,21 +47,13 @@ export class HelpButtonComponent implements OnChanges {
         }
 
         if (useDefaultPrefix === true) {
-            return (
-                environment.docsUrlPrefix.replace(
-                    "{language}",
-                    service.getDocsLang(),
-                ) + link
-            );
+            return environment.docsUrlPrefix.replace("{language}", service.getDocsLang()) + link;
         }
 
-        return link;
+        return link.replace("{language}", service.getDocsLang());
     }
 
-    ngOnChanges(changes: {
-        key: SimpleChange;
-        useDefaultPrefix: SimpleChange;
-    }) {
+    ngOnChanges(changes: { key: SimpleChange; useDefaultPrefix: SimpleChange }) {
         if (changes["key"] || changes["useDefaultPrefix"]) {
             this.link = HelpButtonComponent.getLink(
                 changes.key?.currentValue ?? null,

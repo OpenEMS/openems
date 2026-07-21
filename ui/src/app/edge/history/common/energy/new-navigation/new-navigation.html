@@ -1,6 +1,5 @@
 @if (edge() !== null) {
   <oe-navigation-view>
-    <ngx-spinner [name]="spinnerId"></ngx-spinner>
     <ng-container header>
       <ion-toolbar>
         <ion-title>
@@ -10,10 +9,6 @@
             </ion-button>
           </ion-buttons>
         </ion-title>
-        <oe-flat-button button slot="end" class="ion-float-right" (click)="exportToXlxs()" [size]="'small'">
-          <ion-icon slot="start" [name]="'download-outline'"> </ion-icon>
-          {{ "GENERAL.REPORT" | translate | uppercase }}
-        </oe-flat-button>
       </ion-toolbar>
     </ng-container>
     <energychart [isOnlyChart]="true"></energychart>

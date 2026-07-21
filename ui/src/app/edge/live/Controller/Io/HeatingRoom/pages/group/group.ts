@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -10,14 +9,12 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: "oe-heating-room-group",
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    imports: [IonicModule, TranslateModule],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     templateUrl: "./group.html",
 })
 export class IoHeatingRoomGroupComponent implements OnInit {
-
     protected components: EdgeConfig.Component[] = [];
 
     private readonly service: Service = inject(Service);
@@ -26,13 +23,15 @@ export class IoHeatingRoomGroupComponent implements OnInit {
     public async ngOnInit(): Promise<void> {
         const edge = await this.service.getCurrentEdge();
         const config = edge.getCurrentConfig();
-        this.components = config?.getComponentIdsByFactory("Controller.IO.Heating.Room")
-            ?.map(id => config.getComponentSafely(id))
-            .filter((c): c is EdgeConfig.Component => !!c && c.isEnabled) ?? [];
+        this.components =
+            config
+                ?.getComponentIdsByFactory("Controller.IO.Heating.Room")
+                ?.map((id) => config.getComponentSafely(id))
+                .filter((c): c is EdgeConfig.Component => !!c && c.isEnabled) ?? [];
     }
 
     public navigateTo(componentId: string): void {
-        this.service.getCurrentEdge().then(async edge => {
+        this.service.getCurrentEdge().then(async (edge) => {
             this.router.navigate(["/device", edge.id, "live", "io-heating-room", componentId]);
         });
     }

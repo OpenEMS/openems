@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -11,9 +11,9 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 
 @Component({
     selector: "oe-controller-peakshaving-timeslot-chart",
-    templateUrl:
-        "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,

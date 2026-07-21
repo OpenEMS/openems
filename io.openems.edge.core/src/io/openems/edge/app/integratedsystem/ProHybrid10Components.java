@@ -26,7 +26,7 @@ public class ProHybrid10Components {
 	/**
 	 * Creates a default grid meter component for a FENECON Pro Hybrid.
 	 *
-	 * @param meterId    the id of the grid meter
+	 * @param meterId the id of the grid meter
 	 * @return the {@link Component}
 	 */
 	public static Component gridMeter(//

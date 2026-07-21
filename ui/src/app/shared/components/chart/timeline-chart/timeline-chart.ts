@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, Input } from "@angular/core";
+import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -11,7 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { UserService } from "src/app/shared/service/user.service";
 import { Language } from "src/app/shared/type/language";
-import { DateTimeFormats, DateTimeUtils, } from "src/app/shared/utils/datetime/datetime-utils";
+import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { GetSchedule } from "../../edge/config-components/energy/getSchedule";
 import { HistoryDataErrorModule } from "../../history-data-error/history-data-error.module";
 import { ChartConstants } from "../chart.constants";
@@ -21,8 +20,9 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
 
 @Component({
     selector: "oe-components-chart-single-xaxis",
-    templateUrl: "./single-xaxis.html",
+    templateUrl: "./timeline-chart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -31,10 +31,9 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
         ChartComponentsModule,
         HistoryDataErrorModule,
         NgxSpinnerModule,
-        CommonModule,
     ],
 })
-export class SingleXAxisComponent {
+export class TimeLineChartComponent {
     protected readonly userService: UserService = inject(UserService);
 
     protected _data: GetSchedule.Response | null = null;
@@ -66,10 +65,7 @@ export class SingleXAxisComponent {
         if (tooltipCallbacks != null) {
             tooltipCallbacks.title = (tooltipItems) => {
                 const label = this.labels[tooltipItems[0]?.dataIndex];
-                return (
-                    DateTimeUtils.format(label, DateTimeFormats.HOUR_MINUTE) ??
-                    ""
-                );
+                return DateTimeUtils.format(label, DateTimeFormats.HOUR_MINUTE) ?? "";
             };
             tooltipCallbacks.label = () => "";
         }
@@ -136,10 +132,7 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
                         const timestamp = new Date(tick.value);
                         if (isEqual(startOfDay(timestamp), timestamp)) {
                             // midnight
-                            tick.label = DateTimeUtils.formatWithLocale(
-                                timestamp,
-                                DateTimeFormats.WEEKDAY,
-                            );
+                            tick.label = DateTimeUtils.formatWithLocale(timestamp, DateTimeFormats.WEEKDAY);
                         }
                     }
                 },

@@ -1,4 +1,4 @@
-import { Component, model } from "@angular/core";
+import { ChangeDetectionStrategy, Component, model } from "@angular/core";
 import { TZDate } from "@date-fns/tz";
 import { filter, take } from "rxjs";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -9,7 +9,7 @@ import { JsCalendar } from "src/app/shared/components/schedule/js-calendar-task"
 import { ScheduleComponent } from "src/app/shared/components/schedule/schedule.component";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
-import { DateTimeFormats, DateTimeUtils, } from "src/app/shared/utils/datetime/datetime-utils";
+import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 import { ControllerEvseSingleShared } from "../../shared/shared";
 import { EvseManualPayload } from "./js-calender-utils";
 
@@ -29,15 +29,11 @@ interface SmartEventViewModel {
     templateUrl: "./schedule.component.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
-    imports: [
-        ScheduleComponent,
-        ComponentsBaseModule,
-        CommonUiModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ScheduleComponent, ComponentsBaseModule, CommonUiModule],
 })
 export class EvseScheduleComponent extends AbstractModal {
-    protected readonly CONVERT_TO_MODE_LABEL =
-        ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
+    protected readonly CONVERT_TO_MODE_LABEL = ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate);
     protected channel: ChannelAddress | null = null;
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
     protected payload = model(new EvseManualPayload());
@@ -53,18 +49,14 @@ export class EvseScheduleComponent extends AbstractModal {
                 )
                 .subscribe((params) => {
                     this.component = config.getComponent(params.componentId);
-                    this.channel = new ChannelAddress(
-                        params.componentId,
-                        "_PropertyMode",
-                    );
+                    this.channel = new ChannelAddress(params.componentId, "_PropertyMode");
                     res();
                 });
         });
     }
 
     protected readonly manualTaskFilter = (task: JsCalendar.Task): boolean =>
-        (task["openems.io:payload"] as Record<string, unknown>)?.["class"] !==
-            "Smart";
+        (task["openems.io:payload"] as Record<string, unknown>)?.["class"] !== "Smart";
 
     protected updateSmartEvents(tasks: JsCalendar.Task[]): void {
         this.smartEvents = tasks
@@ -72,25 +64,14 @@ export class EvseScheduleComponent extends AbstractModal {
             .filter((event): event is SmartEventViewModel => event !== null);
     }
 
-    private toSmartEventViewModel(
-        task: JsCalendar.Task,
-    ): SmartEventViewModel | null {
+    private toSmartEventViewModel(task: JsCalendar.Task): SmartEventViewModel | null {
         const payload = task["openems.io:payload"];
-        if (
-            !this.isSmartEventPayload(payload) ||
-            task.uid == null ||
-            task.duration == null
-        ) {
+        if (!this.isSmartEventPayload(payload) || task.uid == null || task.duration == null) {
             return null;
         }
 
-        const start = /^\d{2}:\d{2}(:\d{2})?$/.test(task.start)
-            ? `1970-01-01T${task.start}`
-            : task.start;
-        const end = JsCalendar.Utils.calculateEndTimeFromDuration(
-            start,
-            task.duration,
-        );
+        const start = /^\d{2}:\d{2}(:\d{2})?$/.test(task.start) ? `1970-01-01T${task.start}` : task.start;
+        const end = JsCalendar.Utils.calculateEndTimeFromDuration(start, task.duration);
         if (end == null) {
             return null;
         }
@@ -100,27 +81,17 @@ export class EvseScheduleComponent extends AbstractModal {
         return {
             uid: task.uid,
             sessionEnergyMinimum: payload.sessionEnergyMinimum,
-            endTime:
-                DateTimeUtils.format(endDate, DateTimeFormats.HOUR_MINUTE) ??
-                "",
-            recurrenceText: ScheduleComponent.translateRecurrence(
-                task.recurrenceRules ?? [],
-                this.translate,
-            ),
+            endTime: DateTimeUtils.format(endDate, DateTimeFormats.HOUR_MINUTE) ?? "",
+            recurrenceText: ScheduleComponent.translateRecurrence(task.recurrenceRules ?? [], this.translate),
         };
     }
 
-    private isSmartEventPayload(
-        payload: unknown,
-    ): payload is SmartEventPayload {
+    private isSmartEventPayload(payload: unknown): payload is SmartEventPayload {
         if (payload == null || typeof payload !== "object") {
             return false;
         }
 
         const value = payload as Record<string, unknown>;
-        return (
-            value["class"] === "Smart" &&
-            typeof value["sessionEnergyMinimum"] === "number"
-        );
+        return value["class"] === "Smart" && typeof value["sessionEnergyMinimum"] === "number";
     }
 }
