@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { HistoryExcelExportComponent } from "src/app/edge/history/common/energy/export/export";
 import { HistoryChartComponent } from "src/app/edge/history/common/energy/new-navigation/new-navigation";
 import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
@@ -465,6 +466,10 @@ export const newNavigationRoutes: Routes = [
     {
         path: "history",
         component: HistoryChartComponent,
+    },
+    {
+        path: "history/export",
+        component: HistoryExcelExportComponent,
     },
 ];
 

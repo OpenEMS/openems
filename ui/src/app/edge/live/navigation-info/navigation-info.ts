@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
-import { ModalController } from "@ionic/angular";
+import { IonIcon, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
@@ -21,9 +21,9 @@ type NavigationCardFooter = {
     linkText: string;
 };
 
-type NavigationCard = {
+export type NavigationCard = {
     infoText: string;
-    iconName: string;
+    iconName: IonIcon["name"];
     contentText: string;
     buttonText: string;
     buttonHref: string;

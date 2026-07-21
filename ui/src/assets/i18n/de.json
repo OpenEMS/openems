@@ -121,6 +121,7 @@
                 "CONTROLLER": "Anwendungen",
                 "DATA_STORAGE": "Datenspeicher",
                 "EXECUTE_SIMULATOR": "Simulationen ausführen",
+                "EXPORT": "Export",
                 "EXPORT_CHANNELS": "Export Kanäle",
                 "GENERAL_DATA": "Allgemeine Daten",
                 "LIVE_LOG": "Live Systemprotokoll",
