@@ -42,6 +42,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
             title: component.alias,
             icon: { name: "oe-heating-element", color: "normal", size: "normal" },
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
+            useDefaultPrefix: false,
             lines: ControllerHeatHomeComponent.getLines(translate, component, edge, energyScheduler),
             component: component,
             edge: edge,

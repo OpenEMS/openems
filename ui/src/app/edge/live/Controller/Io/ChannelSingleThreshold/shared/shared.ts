@@ -35,7 +35,7 @@ export namespace SharedIoChannelSingleThreshold {
     > => {
         return {
             title: component.alias,
-            helpKey: "CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD",
+            helpKey: "REDIRECT.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD",
             lines: [
                 ...getFormlySharedLines(translate, component),
                 ...(await getFormlyAutomaticView(translate, edge, websocket)),

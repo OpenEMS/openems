@@ -25,6 +25,7 @@ export namespace SharedControllerHeat {
         return {
             title: Name.METER_ALIAS_OR_ID(component),
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
+            useDefaultPrefix: false,
             lines: getLegacyViewLines(translate, component),
             component,
             edge,
