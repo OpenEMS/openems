@@ -28,6 +28,11 @@ import { AvailableScope, NavigationId, NavigationTree, PageFilterMode } from "..
                     margin-inline-end: calc(var(--ion-padding) / 2);
                 }
             }
+
+            ion-icon {
+                font-size: 26px !important;
+                flex-shrink: 0;
+            }
         `,
     ],
 })
