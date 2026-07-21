@@ -254,6 +254,10 @@ export class UserComponent implements OnInit {
 
         this.service.setLang(language);
         this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
+            this.userService.currentUser.update((user) => {
+                    user.language = language.key;
+                    return user;
+                });
             this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
         }).catch((reason) => {
             this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");

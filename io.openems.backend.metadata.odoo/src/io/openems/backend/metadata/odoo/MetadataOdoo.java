@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -41,7 +42,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -115,11 +115,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 
 	public static final String ID = "metadata0";
 
-	public static final String ODOO_MODULE_NAME = "openems";
-	public static final String ODOO_EDGE_NAME = "edge";
-	public static final String ODOO_SETUP_PROTOCOL_EDGE_FIELD = "device_id";
-	public static final int EXPECTED_NUMBER_OF_EDGES = 1_000;
-	
+	public static final String ODOO_MODULE_NAME = "fems";
+	public static final String ODOO_EDGE_NAME = "fems";
+	public static final String ODOO_SETUP_PROTOCOL_EDGE_FIELD = "fems_device_id";
+	public static final int EXPECTED_NUMBER_OF_EDGES = 50_000;
+
 	private final Logger log = LoggerFactory.getLogger(MetadataOdoo.class);
 	private final EdgeCache edgeCache;
 	private final OdooEdgeHandler edgeHandler = new OdooEdgeHandler(this);
@@ -707,21 +707,21 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 		});
 	}
 
+	private static final Set<String> freeApps = Set.of(//
+			"App.Hardware.KMtronic8Channel", //
+			"App.Cloud.Clever-PV", //
+			"App.Prediction.Weather", //
+			"App.Meter.Shelly", //
+			"App.Evse.ElectricVehicle.Generic", //
+			"App.Tariff.Manual.EEG2025.GridSell" //
+	);
+
 	@Override
 	public CompletableFuture<Boolean> isAppFree(//
 			final User user, //
 			final String appId //
 	) {
-		return this.requestExecutor.submit("isAppFree", () -> {
-			return Sets.newHashSet(//
-					"App.Hardware.KMtronic8Channel", //
-					"App.Cloud.Clever-PV", //
-					"App.Prediction.Weather", //
-					"App.Meter.Shelly", //
-					"App.Evse.ElectricVehicle.Generic", //
-					"App.Tariff.Manual.EEG2025.GridSell" //
-			).contains(appId);
-		});
+		return this.requestExecutor.submit("isAppFree", () -> freeApps.contains(appId));
 	}
 
 	@Override
