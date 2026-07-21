@@ -91,6 +91,7 @@ public final class FeneconCommercialComponents {
 	/**
 	 * Creates a battery inverter with extended GoodWe Settings.
 	 *
+	 * @param configTarget             the {@link ConfigurationTarget}
 	 * @param bundle                   the translation bundle
 	 * @param batteryInverterId        the id of the battery inverter
 	 * @param hasEmergencyReserve      the id of the modbus bridge
@@ -110,6 +111,7 @@ public final class FeneconCommercialComponents {
 	 * @return the {@link Component}
 	 */
 	public static <PROPERTY extends Nameable> EdgeConfig.Component batteryInverterWithExtendedSettings(
+			final ConfigurationTarget configTarget, //
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
 			final boolean hasEmergencyReserve, //
@@ -136,12 +138,13 @@ public final class FeneconCommercialComponents {
 
 			var valueForConfig = propAttributes.toConfigValue().apply(property);
 
-			batteryInverterConfig.add(propAttributes.configName(), valueForConfig);
+			batteryInverterConfig.onlyIf(propAttributes.includeInComponentConfig().test(configTarget),
+					b -> b.add(propAttributes.configName(), valueForConfig));
 		}
 
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
-				"GoodWe.BatteryInverter", batteryInverterConfig);
+				"GoodWe.BatteryInverter", batteryInverterConfig.build());
 	}
 
 	/**

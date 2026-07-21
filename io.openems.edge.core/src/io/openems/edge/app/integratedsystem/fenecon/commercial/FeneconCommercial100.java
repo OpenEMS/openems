@@ -287,7 +287,7 @@ public class FeneconCommercial100
 
 			final EdgeConfig.Component batteryInverter;
 			if (gridCode == GridCode.VDE_4110) {
-				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(bundle,
+				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(t, bundle,
 						batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal, shadowManagementDisabled,
 						safetyCountry, feedInSetting, naProtection, gridCode.name(), this.goodWeDefs, //
 						propertyParent -> this.getJsonElementOrNull(p, propertyParent));
