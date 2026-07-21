@@ -177,7 +177,7 @@ export class KeyModalComponent implements OnInit {
                     useMasterKey: this.model.useMasterKey,
                 });
                 // navigate to App install view and pass valid key
-                this.router.navigate(["../install"], {
+                this.router.navigate(["./install"], {
                     queryParams: { name: this.appName, appId: this.appId },
                     state: {
                         appKey: this.getRawAppKey(),
