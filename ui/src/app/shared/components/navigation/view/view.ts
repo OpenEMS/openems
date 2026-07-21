@@ -31,7 +31,7 @@ export enum Status {
             }
             .floating-btn {
                 position: fixed;
-                right: 10%;
+                right: 5%;
             }
         }
     `],
