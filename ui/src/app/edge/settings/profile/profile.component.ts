@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal, WritableSignal, } from "@angular/core";
+import { Component, effect, inject, OnInit, signal, WritableSignal, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { NavController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -20,7 +20,7 @@ import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { FileUtils } from "src/app/shared/utils/file/file-utils";
 import { environment } from "../../../../environments";
 import { CommonUiModule } from "../../../shared/common-ui.module";
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket, } from "../../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from "../../../shared/shared";
 import { ChannelExportXlsxRequest } from "./channelexport/channelExportXlsxRequest";
 import { LocationComponent } from "./location/location";
 import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtocolExportXlsxRequest";
@@ -29,6 +29,7 @@ import { GetModbusProtocolExportXlsxRequest } from "./modbusapi/getModbusProtoco
     selector: ProfileComponent.SELECTOR,
     templateUrl: "./profile.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         PipeComponentsModule,
@@ -49,9 +50,7 @@ export class ProfileComponent implements OnInit {
     public subscribedChannels: ChannelAddress[] = [];
     public components: CategorizedComponents[] | null = null;
 
-    protected latestSetupProtocolData:
-        | GetLatestSetupProtocolCoreInfoResponse["result"]
-        | null = null;
+    protected latestSetupProtocolData: GetLatestSetupProtocolCoreInfoResponse["result"] | null = null;
     protected spinnerId: string = ProfileComponent.SELECTOR;
     protected isLoading: WritableSignal<boolean> = signal(true);
     protected isAtLeastOwner: boolean = false;
@@ -78,12 +77,7 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    public static getModbusProtocol(
-        service: Service,
-        translate: TranslateService,
-        componentId: string,
-        type: string,
-    ) {
+    public static getModbusProtocol(service: Service, translate: TranslateService, componentId: string, type: string) {
         service.getCurrentEdge().then((edge) => {
             const request = new ComponentJsonApiRequest({
                 componentId: componentId,
@@ -91,16 +85,11 @@ export class ProfileComponent implements OnInit {
             });
             edge.sendRequest(service.websocket, request)
                 .then((response) => {
-                    FileUtils.downloadXlsx(
-                        response as Base64PayloadResponse,
-                        "Modbus-" + type + "-" + edge.id,
-                    );
+                    FileUtils.downloadXlsx(response as Base64PayloadResponse, "Modbus-" + type + "-" + edge.id);
                 })
                 .catch((reason) => {
                     service.toast(
-                        translate.instant(
-                            "EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL",
-                        ) +
+                        translate.instant("EDGE.CONFIG.PROFILE.ERROR_DOWNLOADING_MODBUS_PROTOCOL") +
                             ": " +
                             (reason as JsonrpcResponseError).error.message,
                         "danger",
@@ -125,8 +114,7 @@ export class ProfileComponent implements OnInit {
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
             this.service.getConfig().then(async (config) => {
-                this.isAtLeastOwner =
-                    EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
+                this.isAtLeastOwner = EdgePermission.isUserAllowedToSetupProtocolDownload(edge);
                 this.config = config;
                 const categorizedComponentIds: string[] = [
                     "_appManager",
@@ -140,14 +128,10 @@ export class ProfileComponent implements OnInit {
                     "_evcsSlowPowerIncreaseFilter",
                     "_serialNumber",
                 ];
-                this.components = config.listActiveComponents(
-                    categorizedComponentIds,
-                    this.translate,
-                );
+                this.components = config.listActiveComponents(categorizedComponentIds, this.translate);
                 await this.setLatestSetupProtocolData();
 
-                const metaProperties =
-                    this.config.getComponentProperties("_meta");
+                const metaProperties = this.config.getComponentProperties("_meta");
 
                 this.locationModel = {
                     street: "",
@@ -181,20 +165,10 @@ export class ProfileComponent implements OnInit {
     }
 
     protected getModbusProtocol = (componentId: string, type: string) =>
-        ProfileComponent.getModbusProtocol(
-            this.service,
-            this.translate,
-            componentId,
-            type,
-        );
+        ProfileComponent.getModbusProtocol(this.service, this.translate, componentId, type);
 
     protected onLocationUpdated() {
-        this.service.toast(
-            this.translate.instant(
-                "PROFILE.SYSTEM_LOCATION_VALIDATOR.SUCCESS_MESSAGE",
-            ),
-            "success",
-        );
+        this.service.toast(this.translate.instant("PROFILE.SYSTEM_LOCATION_VALIDATOR.SUCCESS_MESSAGE"), "success");
     }
 
     /** Downloads the lates setup protocol */
@@ -209,21 +183,18 @@ export class ProfileComponent implements OnInit {
         }
 
         this.isLoading.set(true);
-        const setupProtocol: Base64PayloadResponse | null =
-            await device.sendRequest(
-                new GetSetupProtocolRequest({
-                    setupProtocolId:
-                        this.latestSetupProtocolData.setupProtocolId.toString(),
-                }),
-                this.websocket,
-            );
+        const setupProtocol: Base64PayloadResponse | null = await device.sendRequest(
+            new GetSetupProtocolRequest({
+                setupProtocolId: this.latestSetupProtocolData.setupProtocolId.toString(),
+            }),
+            this.websocket,
+        );
         if (!setupProtocol) {
             this.isLoading.set(false);
             return;
         }
 
-        const blob: Blob | null =
-            this.platFormService.convertBase64ToBlob(setupProtocol);
+        const blob: Blob | null = this.platFormService.convertBase64ToBlob(setupProtocol);
 
         if (!blob) {
             this.isLoading.set(false);
@@ -246,23 +217,15 @@ export class ProfileComponent implements OnInit {
         const request = new GetSetupProtocolCoreInfoRequest({
             edgeId: edge.id,
         });
-        const setupProtocolsData: GetSetupProtocolCoreInfoResponse =
-            (await this.websocket.sendRequest(
-                request,
-            )) as GetSetupProtocolCoreInfoResponse;
-        const ibnProtocols:
-            | GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"]
-            | null =
-            setupProtocolsData?.result?.setupProtocols?.filter(
-                (el) => el.setupProtocolType === Type.SETUP_PROTOCOL,
-            ) ?? null;
-        const latestIbnProtocol:
-            | GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0]
-            | null =
+        const setupProtocolsData: GetSetupProtocolCoreInfoResponse = (await this.websocket.sendRequest(
+            request,
+        )) as GetSetupProtocolCoreInfoResponse;
+        const ibnProtocols: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"] | null =
+            setupProtocolsData?.result?.setupProtocols?.filter((el) => el.setupProtocolType === Type.SETUP_PROTOCOL) ??
+            null;
+        const latestIbnProtocol: GetSetupProtocolCoreInfoResponse["result"]["setupProtocols"][0] | null =
             ibnProtocols?.length > 0
-                ? ibnProtocols.reduce((a, b) =>
-                      DateUtils.maxDate(a.createDate, b.createDate) ? a : b,
-                  )
+                ? ibnProtocols.reduce((a, b) => (DateUtils.maxDate(a.createDate, b.createDate) ? a : b))
                 : null;
 
         if (latestIbnProtocol === null) {

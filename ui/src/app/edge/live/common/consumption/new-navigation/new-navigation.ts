@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
 
@@ -19,6 +19,7 @@ import { ConsumptionChartComponent } from "./chart/consumption-chart-component";
     selector: "oe-common-consumption",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class CommonConsumptionHomeComponent extends AbstractFormlyComponent {

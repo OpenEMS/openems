@@ -81,7 +81,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     ) {}
 
     @HostListener("window:resize", ["$event"])
-    private onResize(event) {
+    protected onResize(event) {
         this.updateIsXL();
     }
 

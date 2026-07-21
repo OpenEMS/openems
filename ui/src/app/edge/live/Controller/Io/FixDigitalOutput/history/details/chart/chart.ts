@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -19,10 +18,10 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     selector: "detailChart",
     templateUrl: "../../../../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
-        CommonModule,
         IonicModule,
         TranslateModule,
         ChartComponentsModule,

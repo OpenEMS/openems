@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -20,6 +20,7 @@ import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 @Component({
     selector: "oe-state-price-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnChanges {

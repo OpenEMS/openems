@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
+import { Component, Input, OnChanges, SimpleChange, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { TFlattenKeys } from "src/app/shared/type/utility";
@@ -9,6 +9,7 @@ import { Environment, environment } from "src/environments";
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [IonicModule],
 })
 export class HelpButtonComponent implements OnChanges {

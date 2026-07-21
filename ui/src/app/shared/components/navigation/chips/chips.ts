@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChange, WritableSignal, } from "@angular/core";
+import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChange, WritableSignal, ChangeDetectionStrategy, } from "@angular/core";
 import { filter, Subscription } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
@@ -13,6 +13,7 @@ import { AvailableScope, NavigationId, NavigationTree, PageFilterMode } from "..
     selector: "oe-navigation-chips",
     templateUrl: "./chips.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             .with-label {

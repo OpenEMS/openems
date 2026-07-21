@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -10,8 +9,9 @@ import { EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: "oe-controller-braiins-group",
     standalone: true,
-    imports: [CommonModule, IonicModule, TranslateModule],
+    imports: [IonicModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     templateUrl: "./group.html",
 })
 export class ControllerBraiinsGroupComponent implements OnInit {
@@ -29,26 +29,14 @@ export class ControllerBraiinsGroupComponent implements OnInit {
             return;
         }
 
-        const componentIds =
-            config.getComponentIdsByFactory("Controller.BraiinsOS.Single") ??
-            [];
+        const componentIds = config.getComponentIdsByFactory("Controller.BraiinsOS.Single") ?? [];
         this.components = componentIds
             .map((id) => config.getComponentSafely(id))
-            .filter(
-                (component): component is EdgeConfig.Component =>
-                    component != null && component.isEnabled,
-            );
+            .filter((component): component is EdgeConfig.Component => component != null && component.isEnabled);
     }
 
     public async navigateTo(componentId: string): Promise<void> {
         const edge = await this.service.getCurrentEdge();
-        await this.router.navigate([
-            "/device",
-            edge.id,
-            "live",
-            "controller",
-            "braiins",
-            componentId,
-        ]);
+        await this.router.navigate(["/device", edge.id, "live", "controller", "braiins", componentId]);
     }
 }

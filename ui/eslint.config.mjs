@@ -2,6 +2,7 @@ import angularTemplate from "@angular-eslint/eslint-plugin-template";
 import angularTemplateParser from "@angular-eslint/template-parser";
 import { FlatCompat } from "@eslint/eslintrc";
 import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
 import checkFile from "eslint-plugin-check-file";
 import importPlugin from "eslint-plugin-import";
@@ -9,6 +10,7 @@ import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import angular from "angular-eslint";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,12 +20,12 @@ const compat = new FlatCompat({
     allConfig: js.configs.all,
 });
 
-const recommendedHTMLChecks = compat
-    .extends("plugin:@angular-eslint/template/recommended")
-    .map((config) => ({
-        ...config,
-        files: ["**/*.html"],
-    }));
+// const recommendedHTMLChecks = compat
+//     .extends("plugin:@angular-eslint/template/recommended")
+//     .map((config) => ({
+//         ...config,
+//         files: ["**/*.html"],
+//     }));
 
 const allTsFiles = {
     files: ["**/*.ts"],
@@ -100,6 +102,7 @@ const allTsFiles = {
         "@stylistic/quote-props": ["warn", "consistent"],
         "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
+        "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": [
             "error",
             {
@@ -108,6 +111,7 @@ const allTsFiles = {
                 varsIgnorePattern: "^_",
             },
         ],
+
         "@typescript-eslint/no-explicit-any": 0,
         "@typescript-eslint/no-namespace": 0,
         "@typescript-eslint/no-restricted-types": 0,
@@ -139,6 +143,12 @@ const allTsFiles = {
         // TODO reapply this rule
         // "@angular-eslint/template/accessibility-interactive-supports-focus": "error"
         "@angular-eslint/prefer-inject": "off",
+
+        // Deactivated for angular migration pu
+        "@angular-eslint/prefer-on-push-component-change-detection": "off",
+        "no-redeclare": "off",
+        "@typescript-eslint/no-redeclare": "off",
+        "no-undef": "off",
     },
     settings: {
         "import/resolver": {
@@ -177,20 +187,17 @@ export default [
     {
         ignores: ["projects/**/*"],
     },
-    ...compat
-        .extends(
-            "eslint:recommended",
-            "plugin:@typescript-eslint/recommended",
-            "plugin:@angular-eslint/recommended",
-            "plugin:@angular-eslint/template/process-inline-templates",
-            "plugin:import/recommended",
-        )
-        .map((config) => ({
-            ...config,
-            files: ["**/*.ts"],
-        })),
+    ...tseslint.configs.recommended,
+    ...angular.configs.tsRecommended,
+    ...compat.extends(
+        "eslint:recommended",
+        "plugin:import/recommended",
+    ).map((config) => ({
+        ...config,
+        files: ["**/*.ts"],
+    })),
     allTsFiles,
     tsFileWithSpecificEndings,
-    ...recommendedHTMLChecks,
+    // ...recommendedHTMLChecks,
     allHTMLFiles,
 ];

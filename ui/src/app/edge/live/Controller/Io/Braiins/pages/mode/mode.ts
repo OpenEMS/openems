@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -6,16 +6,16 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ControllerBraiinsShared } from "../../shared/shared";
 
 @Component({
     selector: "oe-controller-braiins-mode",
-    templateUrl:
-        "../../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
     providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             ::ng-deep formly-form {
@@ -25,9 +25,7 @@ import { ControllerBraiinsShared } from "../../shared/shared";
     ],
 })
 export class ControllerBraiinsModeComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     protected component: EdgeConfig.Component | null = null;
     protected modeChannel: ChannelAddress | null = null;
     private readonly route: ActivatedRoute = inject(ActivatedRoute);
@@ -83,21 +81,12 @@ export class ControllerBraiinsModeComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<number>(
-            this.form,
-            "mode",
-            currentData,
-            this.modeChannel,
-        );
+        this.setFormControlSafelyWithChannel<number>(this.form, "mode", currentData, this.modeChannel);
     }
 
     protected override generateView(viewContext: ViewContext): OeFormlyView {
         this.component = viewContext.config.getComponent(this.componentId);
-        return ControllerBraiinsModeComponent.generateView(
-            viewContext.translate,
-            this.component,
-            viewContext.edge,
-        );
+        return ControllerBraiinsModeComponent.generateView(viewContext.translate, this.component, viewContext.edge);
     }
 
     protected override getFormGroup(): FormGroup {
@@ -113,10 +102,7 @@ export class ControllerBraiinsModeComponent extends AbstractFormlyComponent {
             return [];
         }
 
-        this.modeChannel = new ChannelAddress(
-            componentId,
-            ControllerBraiinsShared.PROPERTY_MODE,
-        );
+        this.modeChannel = new ChannelAddress(componentId, ControllerBraiinsShared.PROPERTY_MODE);
         return [this.modeChannel];
     }
 }

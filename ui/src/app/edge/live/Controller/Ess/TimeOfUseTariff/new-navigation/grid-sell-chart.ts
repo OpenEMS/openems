@@ -1,5 +1,5 @@
 import { formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -21,6 +21,7 @@ import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/ap
 @Component({
     selector: "oe-grid-sell-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ScheduleGridSellChartComponent extends AbstractHistoryChart implements OnChanges {

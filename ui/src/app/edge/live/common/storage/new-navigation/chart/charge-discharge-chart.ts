@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -16,6 +16,7 @@ import { ChartConstants } from "src/app/shared/shared";
     selector: "oe-common-storage-charge-discharge-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -29,13 +30,8 @@ import { ChartConstants } from "src/app/shared/shared";
 export class ChargeDischargeChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
         const data = this.data.summarizeData24hForChannel("EssDischargePower");
-        const history = ScheduleChartComponent.normalizePositiveNegativeLines(
-            data.history,
-        );
-        const prediction =
-            ScheduleChartComponent.normalizePositiveNegativeLines(
-                data.prediction,
-            );
+        const history = ScheduleChartComponent.normalizePositiveNegativeLines(data.history);
+        const prediction = ScheduleChartComponent.normalizePositiveNegativeLines(data.prediction);
 
         return [
             {
@@ -61,9 +57,7 @@ export class ChargeDischargeChartComponent extends ScheduleChartComponent {
         ];
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
         return (item) =>
             Converter.IF_NUMBER(item.dataset.data[item.dataIndex], (value) => {
                 const text =

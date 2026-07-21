@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -9,6 +9,7 @@ import { CONVERT_CHANNEL_MODE_TO_LABEL, HeatStatus } from "../shared/shared";
 @Component({
     selector: "oe-controller-heat",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ControllerHeatComponent extends AbstractFlatWidget {

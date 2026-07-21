@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -10,28 +10,20 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, ChannelRegister, CurrentData, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, ChannelRegister, CurrentData, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedControllerModbusTcpApiReadWrite } from "../shared/shared";
 
 @Component({
-    templateUrl:
-        "../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private readonly routeService = inject(RouteService);
 
     public static getFormlyGeneralView(
@@ -41,83 +33,56 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
     ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         const channel = new ChannelAddress(component.id, "OverrideStatus");
-        const writeChannelIds: string[] = (
-            component.properties.writeChannels ?? []
-        ).filter(
+        const writeChannelIds: string[] = (component.properties.writeChannels ?? []).filter(
             (channelId: string) => channelId !== "Ess0SetActivePowerEquals",
         );
-        const writeChannels = writeChannelIds.map(
-            (channelId) => new ChannelAddress(component.id, channelId),
-        );
+        const writeChannels = writeChannelIds.map((channelId) => new ChannelAddress(component.id, channelId));
         return {
             title: component.alias,
             lines: [
                 {
                     type: "value-from-channels-line",
                     channelsToSubscribe: [channel],
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.CURRENT_STATE",
-                    ),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.CURRENT_STATE"),
                     value: (currentData: CurrentData) =>
-                        SharedControllerModbusTcpApiReadWrite.TO_OVERRIDE_STATUS_LABEL(
-                            translate,
-                        )(currentData.allComponents[channel.toString()]),
+                        SharedControllerModbusTcpApiReadWrite.TO_OVERRIDE_STATUS_LABEL(translate)(
+                            currentData.allComponents[channel.toString()],
+                        ),
                 },
                 {
                     type: "horizontal-line",
                 },
                 {
                     type: "name-line",
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.ACTIVE_POWER_LIMITATIONS",
-                    ),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.ACTIVE_POWER_LIMITATIONS"),
                 },
                 {
                     type: "name-line",
-                    name:
-                        translate.instant(
-                            "MODBUS_TCP_API_READ_WRITE.REGISTER",
-                        ) + " (SetActivePowerEquals)",
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.REGISTER") + " (SetActivePowerEquals)",
                 },
                 {
                     type: "channel-line",
-                    channel: new ChannelAddress(
-                        component.id,
-                        "Ess0SetActivePowerEquals",
-                    ).toString(),
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.LIMITATION",
-                    ),
+                    channel: new ChannelAddress(component.id, "Ess0SetActivePowerEquals").toString(),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.LIMITATION"),
                     converter: Converter.POWER_IN_WATT,
                 },
                 {
                     type: "channel-line",
-                    channel: ChannelAddress.fromString(
-                        "_sum/EssActivePower",
-                    ).toString(),
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.ACTUAL_VALUE",
-                    ),
+                    channel: ChannelAddress.fromString("_sum/EssActivePower").toString(),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.ACTUAL_VALUE"),
                     converter: Converter.POWER_IN_WATT,
                 },
                 {
                     type: "name-line",
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS",
-                    ),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS"),
                 },
                 {
                     type: "horizontal-line",
                 },
-                ...ControllerModbusTcpApiDetailsComponent.getWriteChannelLines(
-                    writeChannels,
-                    translate,
-                ),
+                ...ControllerModbusTcpApiDetailsComponent.getWriteChannelLines(writeChannels, translate),
                 {
                     type: "info-line",
-                    name: translate.instant(
-                        "MODBUS_TCP_API_READ_WRITE.INFO_TEXT",
-                    ),
+                    name: translate.instant("MODBUS_TCP_API_READ_WRITE.INFO_TEXT"),
                     icon: {
                         name: "information-outline",
                         size: "large",
@@ -127,16 +92,8 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
                 {
                     type: "button-line",
                     button: {
-                        name: translate.instant(
-                            "MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL",
-                        ),
-                        callback: () =>
-                            ProfileComponent.getModbusProtocol(
-                                service,
-                                translate,
-                                component.id,
-                                "tcp",
-                            ),
+                        name: translate.instant("MODBUS_TCP_API_READ_WRITE.DOWNLOAD_PROTOCOL"),
+                        callback: () => ProfileComponent.getModbusProtocol(service, translate, component.id, "tcp"),
                         icon: {
                             name: "download-outline",
                             color: "medium",
@@ -150,16 +107,10 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
         };
     }
 
-    private static getWriteChannelLines(
-        writeChannels: ChannelAddress[],
-        translate: TranslateService,
-    ): OeFormlyField[] {
+    private static getWriteChannelLines(writeChannels: ChannelAddress[], translate: TranslateService): OeFormlyField[] {
         const formattedWriteChannels = writeChannels.map((channel) => {
             for (const registerName in ChannelRegister) {
-                if (
-                    channel.channelId.includes(registerName) &&
-                    channel.channelId.startsWith("Ess0")
-                ) {
+                if (channel.channelId.includes(registerName) && channel.channelId.startsWith("Ess0")) {
                     return `(${registerName}/${ChannelRegister[registerName]})`;
                 }
             }
@@ -167,26 +118,19 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
         });
 
         const translatedChannelNames = writeChannels.map((el) =>
-            SharedControllerModbusTcpApiReadWrite.TO_TRANSLATED_CHANNEL(
-                translate,
-            )(el),
+            SharedControllerModbusTcpApiReadWrite.TO_TRANSLATED_CHANNEL(translate)(el),
         );
         return writeChannels.flatMap(
             (el, i) =>
                 [
                     {
                         type: "name-line",
-                        name:
-                            translate.instant(
-                                "MODBUS_TCP_API_READ_WRITE.REGISTER",
-                            ) + formattedWriteChannels[i],
+                        name: translate.instant("MODBUS_TCP_API_READ_WRITE.REGISTER") + formattedWriteChannels[i],
                     },
                     {
                         type: "channel-line",
                         channel: el.toString(),
-                        name: translate.instant(
-                            "MODBUS_TCP_API_READ_WRITE.LIMITATION",
-                        ),
+                        name: translate.instant("MODBUS_TCP_API_READ_WRITE.LIMITATION"),
                         converter: Converter.POWER_IN_WATT,
                     },
                     ...(translatedChannelNames[i]
@@ -207,13 +151,7 @@ export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyCompon
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
-        const component = config.getComponentSafely(
-            this.routeService.getRouteParam<string>("componentId"),
-        );
-        return ControllerModbusTcpApiDetailsComponent.getFormlyGeneralView(
-            this.translate,
-            component,
-            this.service,
-        );
+        const component = config.getComponentSafely(this.routeService.getRouteParam<string>("componentId"));
+        return ControllerModbusTcpApiDetailsComponent.getFormlyGeneralView(this.translate, component, this.service);
     }
 }

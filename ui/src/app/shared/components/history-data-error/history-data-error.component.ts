@@ -1,29 +1,28 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 
 @Component({
     selector: "oe-history-data-error",
-    template: `
-    @if (type !== null) {
-      <ion-item lines="full" color="warning">
-        <ion-icon size="large" slot="start" name="oe-warning"></ion-icon>
-        <ion-label class="ion-text-wrap" style="text-align: center">
-          @switch (type) {
-            @case ('TOO_LONG') {
-              <span [innerHTML]="'EDGE.INDEX.ENERGYMONITOR.ERROR_TOO_LONG' | translate"></span>
-            }
-            @case ('TEMPORARY') {
-              <span translate>EDGE.INDEX.ENERGYMONITOR.ERROR_TEMPORARY</span>
-            }
-          }
-        </ion-label>
-      </ion-item>
+    template: ` @if (type !== null) {
+        <ion-item lines="full" color="warning">
+            <ion-icon size="large" slot="start" name="oe-warning"></ion-icon>
+            <ion-label class="ion-text-wrap" style="text-align: center">
+                @switch (type) {
+                    @case ("TOO_LONG") {
+                        <span [innerHTML]="'EDGE.INDEX.ENERGYMONITOR.ERROR_TOO_LONG' | translate"></span>
+                    }
+                    @case ("TEMPORARY") {
+                        <span translate>EDGE.INDEX.ENERGYMONITOR.ERROR_TEMPORARY</span>
+                    }
+                }
+            </ion-label>
+        </ion-item>
     }`,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class HistoryDataErrorComponent {
-
     protected type: ErrorType;
 
     @Input()

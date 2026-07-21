@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ViewChild } from "@angular/core";
+import { Component, ViewChild, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -18,9 +18,9 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "energychart",
-    templateUrl:
-        "../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         BaseChartDirective,
@@ -38,144 +38,88 @@ export class ChartComponent extends AbstractHistoryChart {
         chartType: "line" | "bar",
         translate: TranslateService,
     ): HistoryUtils.ChartData {
-        const input: HistoryUtils.InputChannel[] =
-            config?.widgets.classes.reduce(
-                (arr: HistoryUtils.InputChannel[], key) => {
-                    const newObj = [];
-                    switch (key) {
-                        case "Energymonitor":
-                        case "Consumption":
-                            newObj.push({
-                                name: "Consumption",
-                                powerChannel: new ChannelAddress(
-                                    "_sum",
-                                    "ConsumptionActivePower",
-                                ),
-                                energyChannel: new ChannelAddress(
-                                    "_sum",
-                                    "ConsumptionActiveEnergy",
-                                ),
-                            });
-                            break;
-                        case "Common_Autarchy":
-                        case "Grid":
-                            newObj.push(
-                                {
-                                    name: "GridBuy",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "GridActivePower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "GridBuyActiveEnergy",
-                                    ),
-                                    ...(chartType === "line" && {
-                                        converter:
-                                            HistoryUtils.ValueConverter
-                                                .NEGATIVE_AS_ZERO,
-                                    }),
-                                },
-                                {
-                                    name: "GridSell",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "GridActivePower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "GridSellActiveEnergy",
-                                    ),
-                                    ...(chartType === "line" && {
-                                        converter:
-                                            HistoryUtils.ValueConverter
-                                                .POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE,
-                                    }),
-                                },
-                            );
-                            break;
-                        case "Storage":
-                            newObj.push(
-                                {
-                                    name: "EssSoc",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "EssSoc",
-                                    ),
-                                },
-                                {
-                                    name: "EssCharge",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "EssActivePower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "EssDcChargeEnergy",
-                                    ),
-                                },
-                                {
-                                    name: "EssDischarge",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "EssActivePower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "EssDcDischargeEnergy",
-                                    ),
-                                },
-                            );
-                            break;
-                        case "Common_Selfconsumption":
-                        case "Common_Production":
-                            newObj.push(
-                                {
-                                    name: "ProductionActivePower",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "ProductionActivePower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "ProductionActiveEnergy",
-                                    ),
-                                },
-                                {
-                                    name: "ProductionDcActual",
-                                    powerChannel: new ChannelAddress(
-                                        "_sum",
-                                        "ProductionDcActualPower",
-                                    ),
-                                    energyChannel: new ChannelAddress(
-                                        "_sum",
-                                        "ProductionActiveEnergy",
-                                    ),
-                                },
-                            );
-                            break;
-                    }
+        const input: HistoryUtils.InputChannel[] = config?.widgets.classes.reduce(
+            (arr: HistoryUtils.InputChannel[], key) => {
+                const newObj = [];
+                switch (key) {
+                    case "Energymonitor":
+                    case "Consumption":
+                        newObj.push({
+                            name: "Consumption",
+                            powerChannel: new ChannelAddress("_sum", "ConsumptionActivePower"),
+                            energyChannel: new ChannelAddress("_sum", "ConsumptionActiveEnergy"),
+                        });
+                        break;
+                    case "Common_Autarchy":
+                    case "Grid":
+                        newObj.push(
+                            {
+                                name: "GridBuy",
+                                powerChannel: new ChannelAddress("_sum", "GridActivePower"),
+                                energyChannel: new ChannelAddress("_sum", "GridBuyActiveEnergy"),
+                                ...(chartType === "line" && {
+                                    converter: HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO,
+                                }),
+                            },
+                            {
+                                name: "GridSell",
+                                powerChannel: new ChannelAddress("_sum", "GridActivePower"),
+                                energyChannel: new ChannelAddress("_sum", "GridSellActiveEnergy"),
+                                ...(chartType === "line" && {
+                                    converter: HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE,
+                                }),
+                            },
+                        );
+                        break;
+                    case "Storage":
+                        newObj.push(
+                            {
+                                name: "EssSoc",
+                                powerChannel: new ChannelAddress("_sum", "EssSoc"),
+                            },
+                            {
+                                name: "EssCharge",
+                                powerChannel: new ChannelAddress("_sum", "EssActivePower"),
+                                energyChannel: new ChannelAddress("_sum", "EssDcChargeEnergy"),
+                            },
+                            {
+                                name: "EssDischarge",
+                                powerChannel: new ChannelAddress("_sum", "EssActivePower"),
+                                energyChannel: new ChannelAddress("_sum", "EssDcDischargeEnergy"),
+                            },
+                        );
+                        break;
+                    case "Common_Selfconsumption":
+                    case "Common_Production":
+                        newObj.push(
+                            {
+                                name: "ProductionActivePower",
+                                powerChannel: new ChannelAddress("_sum", "ProductionActivePower"),
+                                energyChannel: new ChannelAddress("_sum", "ProductionActiveEnergy"),
+                            },
+                            {
+                                name: "ProductionDcActual",
+                                powerChannel: new ChannelAddress("_sum", "ProductionDcActualPower"),
+                                energyChannel: new ChannelAddress("_sum", "ProductionActiveEnergy"),
+                            },
+                        );
+                        break;
+                }
 
-                    arr.push(...newObj);
-                    return arr;
-                },
-                [],
-            );
+                arr.push(...newObj);
+                return arr;
+            },
+            [],
+        );
 
         return {
             input: input,
-            output: (
-                data: HistoryUtils.ChannelData,
-            ): HistoryUtils.DisplayValue[] => {
+            output: (data: HistoryUtils.ChannelData): HistoryUtils.DisplayValue[] => {
                 return [
                     {
                         name: translate.instant("GENERAL.PRODUCTION"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) =>
-                            energyValues.result.data[
-                                "_sum/ProductionActiveEnergy"
-                            ],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/ProductionActiveEnergy"],
                         converter: () => data["ProductionActivePower"],
                         color: ChartConstants.Colors.BLUE,
                         stack: 0,
@@ -186,38 +130,20 @@ export class ChartComponent extends AbstractHistoryChart {
                     // DirectConsumption, displayed in stack 1 & 2, only one legenItem
                     ...[
                         chartType === "bar" && {
-                            name: translate.instant(
-                                "GENERAL.DIRECT_CONSUMPTION",
-                            ),
-                            nameSuffix: (
-                                energyValues: QueryHistoricTimeseriesEnergyResponse,
-                            ) => {
+                            name: translate.instant("GENERAL.DIRECT_CONSUMPTION"),
+                            nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {
                                 return Utils.subtractSafely(
-                                    energyValues.result.data[
-                                        "_sum/ProductionActiveEnergy"
-                                    ],
-                                    energyValues.result.data[
-                                        "_sum/GridSellActiveEnergy"
-                                    ],
-                                    energyValues.result.data[
-                                        "_sum/EssDcChargeEnergy"
-                                    ],
+                                    energyValues.result.data["_sum/ProductionActiveEnergy"],
+                                    energyValues.result.data["_sum/GridSellActiveEnergy"],
+                                    energyValues.result.data["_sum/EssDcChargeEnergy"],
                                 );
                             },
                             converter: () =>
                                 data["ProductionActivePower"]
                                     ?.map((value, index) =>
-                                        Utils.subtractSafely(
-                                            value,
-                                            data["GridSell"][index],
-                                            data["EssCharge"][index],
-                                        ),
+                                        Utils.subtractSafely(value, data["GridSell"][index], data["EssCharge"][index]),
                                     )
-                                    ?.map((value) =>
-                                        HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(
-                                            value,
-                                        ),
-                                    ),
+                                    ?.map((value) => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(value)),
                             color: ChartConstants.Colors.ORANGE,
                             stack: [1, 2],
                             order: 2,
@@ -227,19 +153,13 @@ export class ChartComponent extends AbstractHistoryChart {
                     // Charge Power
                     {
                         name: translate.instant("GENERAL.CHARGE"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) => energyValues.result.data["_sum/EssDcChargeEnergy"],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/EssDcChargeEnergy"],
                         converter: () =>
                             chartType === "line" //
                                 ? data["EssCharge"]?.map((value, index) => {
                                       return HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(
-                                          Utils.subtractSafely(
-                                              value,
-                                              data["ProductionDcActual"]?.[
-                                                  index
-                                              ],
-                                          ),
+                                          Utils.subtractSafely(value, data["ProductionDcActual"]?.[index]),
                                       );
                                   })
                                 : data["EssCharge"],
@@ -251,22 +171,13 @@ export class ChartComponent extends AbstractHistoryChart {
                     // Discharge Power
                     {
                         name: translate.instant("GENERAL.DISCHARGE"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) =>
-                            energyValues.result.data[
-                                "_sum/EssDcDischargeEnergy"
-                            ],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/EssDcDischargeEnergy"],
                         converter: () => {
                             return chartType === "line"
                                 ? data["EssDischarge"]?.map((value, index) => {
                                       return HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(
-                                          Utils.subtractSafely(
-                                              value,
-                                              data["ProductionDcActual"]?.[
-                                                  index
-                                              ],
-                                          ),
+                                          Utils.subtractSafely(value, data["ProductionDcActual"]?.[index]),
                                       );
                                   })
                                 : data["EssDischarge"];
@@ -279,12 +190,8 @@ export class ChartComponent extends AbstractHistoryChart {
                     // Sell to grid
                     {
                         name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) =>
-                            energyValues.result.data[
-                                "_sum/GridSellActiveEnergy"
-                            ],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/GridSellActiveEnergy"],
                         converter: () => data["GridSell"],
                         color: ChartConstants.Colors.PURPLE,
                         stack: 1,
@@ -294,12 +201,8 @@ export class ChartComponent extends AbstractHistoryChart {
                     // Buy from Grid
                     {
                         name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) =>
-                            energyValues.result.data[
-                                "_sum/GridBuyActiveEnergy"
-                            ],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/GridBuyActiveEnergy"],
                         converter: () => data["GridBuy"],
                         color: ChartConstants.Colors.BLUE_GREY,
                         stack: 2,
@@ -309,12 +212,8 @@ export class ChartComponent extends AbstractHistoryChart {
                     // Consumption
                     {
                         name: translate.instant("GENERAL.CONSUMPTION"),
-                        nameSuffix: (
-                            energyValues: QueryHistoricTimeseriesEnergyResponse,
-                        ) =>
-                            energyValues.result.data[
-                                "_sum/ConsumptionActiveEnergy"
-                            ],
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            energyValues.result.data["_sum/ConsumptionActiveEnergy"],
                         converter: () => data["Consumption"],
                         color: ChartConstants.Colors.YELLOW,
                         stack: 3,
@@ -325,10 +224,7 @@ export class ChartComponent extends AbstractHistoryChart {
                         ? [
                               {
                                   name: translate.instant("GENERAL.SOC"),
-                                  converter: () =>
-                                      data["EssSoc"]?.map((value) =>
-                                          Utils.multiplySafely(value, 1000),
-                                      ),
+                                  converter: () => data["EssSoc"]?.map((value) => Utils.multiplySafely(value, 1000)),
                                   color: "rgb(189, 195, 199)",
                                   borderDash: [10, 10],
                                   yAxisId: ChartAxis.RIGHT,
@@ -377,31 +273,18 @@ export class ChartComponent extends AbstractHistoryChart {
     }
 
     public override getChartData() {
-        return ChartComponent.getChartData(
-            this.config,
-            this.chartType,
-            this.translate,
-        );
+        return ChartComponent.getChartData(this.config, this.chartType, this.translate);
     }
 
     public override ngAfterViewInit(): void {
-        if (
-            StringUtils.isInArr(this.navigationService.position(), [
-                "bottom",
-                "left",
-            ])
-        ) {
+        if (StringUtils.isInArr(this.navigationService.position(), ["bottom", "left"])) {
             return;
         }
 
         setTimeout(() => {
             this.viewHeight =
-                NumberUtils.divideSafely(
-                    ViewUtils.getChartContentHeightInVh(
-                        this.navigationService.position(),
-                    ),
-                    2,
-                ) + "dvh";
+                NumberUtils.divideSafely(ViewUtils.getChartContentHeightInVh(this.navigationService.position()), 2) +
+                "dvh";
             this.chart?.chart?.resize();
             this.chart?.update();
         }, 100);

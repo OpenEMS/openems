@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -7,10 +7,10 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../../shared/shar
 @Component({
     selector: AdministrationComponent.SELECTOR,
     templateUrl: "./administration.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class AdministrationComponent implements OnInit {
-
     private static readonly SELECTOR = "administration";
 
     @Input({ required: true }) public evcsComponent!: EdgeConfig.Component;
@@ -25,7 +25,7 @@ export class AdministrationComponent implements OnInit {
         public service: Service,
         private websocket: Websocket,
         public translate: TranslateService,
-    ) { }
+    ) {}
 
     ngOnInit() {
         if (this.evcsComponent.properties["minHwCurrent"] == 6000) {
@@ -46,16 +46,19 @@ export class AdministrationComponent implements OnInit {
         }
 
         if (this.edge != null && oldValue != newValue) {
-            this.edge.updateComponentConfig(this.websocket, this.evcsComponent.id, [
-                { name: "minHwCurrent", value: newValue },
-            ]).then(() => {
-                this.evcsComponent.properties.minHwCurrent = newValue;
-                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-            }).catch(reason => {
-                this.evcsComponent.properties.minHwCurrent = oldValue;
-                this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
-                console.warn(reason);
-            });
+            this.edge
+                .updateComponentConfig(this.websocket, this.evcsComponent.id, [
+                    { name: "minHwCurrent", value: newValue },
+                ])
+                .then(() => {
+                    this.evcsComponent.properties.minHwCurrent = newValue;
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                })
+                .catch((reason) => {
+                    this.evcsComponent.properties.minHwCurrent = oldValue;
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
+                    console.warn(reason);
+                });
         }
     }
 }

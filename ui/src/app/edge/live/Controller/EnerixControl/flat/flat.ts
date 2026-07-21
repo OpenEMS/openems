@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -9,14 +9,14 @@ import { SharedControllerEnerixControl } from "../shared/shared";
 @Component({
     selector: "Controller_EnerixControl",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
-    protected readonly CONVERT_ENERIX_CONTROL_STATE =
-        SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
-            this.translate,
-        );
+    protected readonly CONVERT_ENERIX_CONTROL_STATE = SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
+        this.translate,
+    );
 
     protected controlMode: ControlMode | null = null;
     protected state: State | null = null;
@@ -44,10 +44,7 @@ export class FlatComponent extends AbstractFlatWidget {
         }
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(
-                this.component.id,
-                FlatComponent.PROPERTY_READ_ONLY,
-            ),
+            new ChannelAddress(this.component.id, FlatComponent.PROPERTY_READ_ONLY),
             new ChannelAddress(this.component.id, "RemoteControlMode"),
             new ChannelAddress(this.component.id, "UnableToSend"),
         ];
@@ -68,9 +65,7 @@ export class FlatComponent extends AbstractFlatWidget {
         this.unableToSend = data[`${id}/UnableToSend`];
 
         if (this.readOnly) {
-            this.state = this.unableToSend
-                ? State.DISCONNECTED
-                : State.CONNECTED;
+            this.state = this.unableToSend ? State.DISCONNECTED : State.CONNECTED;
             return;
         } else {
             if (this.controlMode === null) {
@@ -88,10 +83,7 @@ export class FlatComponent extends AbstractFlatWidget {
         }
         switch (mode) {
             case ControlMode.IDLE:
-                return this.component.properties.controlMode ===
-                    "REMOTE_CONTROL"
-                    ? State.ON
-                    : State.OFF;
+                return this.component.properties.controlMode === "REMOTE_CONTROL" ? State.ON : State.OFF;
             case ControlMode.NO_DISCHARGE:
                 return State.NO_DISCHARGE;
             case ControlMode.CHARGE_FROM_GRID:
@@ -103,17 +95,11 @@ export class FlatComponent extends AbstractFlatWidget {
 
     private getOverwriteLabel(mode: ControlMode): string {
         if (this.state === State.OFF || this.state === State.DISCONNECTED) {
-            return this.translate.instant(
-                "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE",
-            );
+            return this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
         }
         return mode !== ControlMode.IDLE
-            ? this.translate.instant(
-                  "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE",
-              )
-            : this.translate.instant(
-                  "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE",
-              );
+            ? this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE")
+            : this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
     }
 }
 

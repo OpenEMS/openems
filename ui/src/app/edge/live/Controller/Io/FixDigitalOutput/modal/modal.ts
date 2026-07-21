@@ -1,4 +1,4 @@
-import { Component, inject, Input } from "@angular/core";
+import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
@@ -12,12 +12,10 @@ import { SharedControllerIoFixDigitalOutput } from "../shared/shared";
 @Component({
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerFixDigitalOutputModalComponent extends AbstractFormlyComponent {
-
     @Input() public component: EdgeConfig.Component | null = null;
     @Input() public edge: Edge | null = null;
 
@@ -45,6 +43,11 @@ export class ControllerFixDigitalOutputModalComponent extends AbstractFormlyComp
         if (this.component == null) {
             return;
         }
-        this.setFormControlSafelyWithChannel(this.form, "isOn", currentData, new ChannelAddress(this.component.id, "_PropertyIsOn"));
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "isOn",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyIsOn"),
+        );
     }
 }

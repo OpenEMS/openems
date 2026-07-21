@@ -81,10 +81,12 @@
       }
     }
 
-    <ion-fab *ngIf="form?.dirty" vertical="bottom" style="position: fixed" [horizontal]="this.service.getIsSmartphoneResolution() ? 'end' : 'center'">
-      <ion-fab-button (click)="onSubmit()">
-        <ion-icon size="large" name="oe-checkmark"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
+    @if (form?.dirty) {
+      <ion-fab vertical="bottom" style="position: fixed" [horizontal]="this.service.getIsSmartphoneResolution() ? 'end' : 'center'">
+        <ion-fab-button (click)="onSubmit()">
+          <ion-icon size="large" name="oe-checkmark"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
   </oe-modal>
 }

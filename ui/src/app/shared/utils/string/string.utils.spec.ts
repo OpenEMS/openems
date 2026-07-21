@@ -2,7 +2,6 @@ import { ArrayUtils } from "../array/array.utils";
 import { StringUtils } from "./string.utils";
 
 describe("StringUtils", () => {
-
     describe("+getSubstringInBetween", () => {
         it("valid", () => {
             const msg = "(valid)";
@@ -17,11 +16,15 @@ describe("StringUtils", () => {
             expect(StringUtils.getSubstringInBetween("(", ")", msg)).toEqual(null);
         });
         it("invalid input string, start and end character", () => {
-            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("valid string, invalid start and end character", () => {
             const msg = "(valid)";
-            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(new Error(StringUtils.INVALID_STRING));;
+            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
     });
 
@@ -33,7 +36,9 @@ describe("StringUtils", () => {
             expect(StringUtils.isNotInArr("test3", ["test", "test2"])).toBeTrue();
         });
         it("value is null", () => {
-            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("arr is empty", () => {
             expect(StringUtils.isNotInArr("test", [])).toBeTrue();
@@ -64,6 +69,47 @@ describe("StringUtils", () => {
         });
         it("should correctly handle zero", () => {
             expect(StringUtils.getTrailingNumber("Index0")).toBe(0);
+        });
+    });
+
+    describe("toScreamingSnakeCase", () => {
+        const testCases = [
+            {
+                description: "a standard camelCase string",
+                input: "apmOutputActivePower",
+                expected: "APM_OUTPUT_ACTIVE_POWER",
+            },
+            {
+                description: "a property with a number in it",
+                input: "rpmQuV1Voltage",
+                expected: "RPM_QU_V1_VOLTAGE",
+            },
+            {
+                description: "a single lowercase word",
+                input: "mode",
+                expected: "MODE",
+            },
+            {
+                description: "a word that is already fully capitalized",
+                input: "POWER",
+                expected: "POWER",
+            },
+            {
+                description: "an empty string (safety check)",
+                input: "",
+                expected: "",
+            },
+            {
+                description: "a null value (safety check)",
+                input: null,
+                expected: null,
+            },
+        ];
+
+        testCases.forEach(({ description, input, expected }) => {
+            it(`should correctly handle ${description}`, () => {
+                expect(StringUtils.toScreamingSnakeCase(input)).toEqual(expected);
+            });
         });
     });
 });

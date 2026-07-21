@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 
 import { OeFormlyField } from "../../shared/oe-formly-component";
@@ -8,10 +8,10 @@ import { AbstractModalLine } from "../abstract-modal-line";
 @Component({
     selector: "oe-modal-value-line",
     templateUrl: "./modal-value-line.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalValueLineComponent extends AbstractModalLine {
-
     // Width of Left Column, Right Column is (100% - leftColumn)
     @Input({ required: true }) public leftColumnWidth!: number;
 
@@ -36,13 +36,13 @@ export class ModalValueLineComponent extends AbstractModalLine {
         this._filters = self;
     }
 
-
     protected override getChannelAddresses(): ChannelAddress[] {
         return this.channels;
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.shouldShow = this._filters !== null && typeof this._filters === "function" ? this._filters(currentData) : true;
+        this.shouldShow =
+            this._filters !== null && typeof this._filters === "function" ? this._filters(currentData) : true;
         this.displayValue = this.valueCallback(currentData);
 
         if (this.nameCallback != null) {

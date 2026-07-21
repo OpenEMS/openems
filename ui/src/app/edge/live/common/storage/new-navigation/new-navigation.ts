@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -24,6 +24,7 @@ import { CommonStoragePercentagebarComponent } from "./percentagebar/percentageb
     selector: "oe-common-storage",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class CommonStorageHomeComponent extends AbstractFormlyComponent {

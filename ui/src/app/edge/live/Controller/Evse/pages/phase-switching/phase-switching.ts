@@ -1,11 +1,11 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -14,16 +14,16 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     selector: "oe-controller-evse-pages-phase-switching",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
-
 export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
     public static formControlName: string = "phaseSwitching";
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
@@ -38,7 +38,11 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
         super();
     }
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
@@ -58,7 +62,14 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
             {
                 type: "info-line",
                 name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING_INFO"),
-                style: { name: { fontWeight: "bold", textAlign: "center", fontSize: "1rem", paddingBottom: "calc(var(--ion-padding) * 4)" } },
+                style: {
+                    name: {
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        fontSize: "1rem",
+                        paddingBottom: "calc(var(--ion-padding) * 4)",
+                    },
+                },
             },
             {
                 type: "radio-buttons-from-form-control-line",
@@ -69,8 +80,8 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
                         name: translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_SINGLE_PHASE"),
                         value: PhaseSwitching.FORCE_SINGLE_PHASE,
                         style: {
-                            "color": "red",
-                            "fontWeight": "bold",
+                            color: "red",
+                            fontWeight: "bold",
                         },
                     },
                     {
@@ -95,7 +106,12 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<number>(this.form, EvsePhaseSwitchingComponent.formControlName, currentData, this.phaseSwitchingChannel);
+        this.setFormControlSafelyWithChannel<number>(
+            this.form,
+            EvsePhaseSwitchingComponent.formControlName,
+            currentData,
+            this.phaseSwitchingChannel,
+        );
     }
 
     protected override generateView(viewContext: ViewContext): OeFormlyView {
@@ -121,20 +137,12 @@ export class EvsePhaseSwitchingComponent extends AbstractFormlyComponent {
 }
 
 export enum PhaseSwitching {
-    /**
-     * Phase-Switching is disabled.
-     */
+    /** Phase-Switching is disabled. */
     DISABLE = "DISABLE", //
-    /**
-     * Phase-Switching forced to SINGLE_PHASE.
-     */
+    /** Phase-Switching forced to SINGLE_PHASE. */
     FORCE_SINGLE_PHASE = "FORCE_SINGLE_PHASE", //
-    /**
-     * Phase-Switching force to THREE_PHASE.
-     */
+    /** Phase-Switching force to THREE_PHASE. */
     FORCE_THREE_PHASE = "FORCE_THREE_PHASE", //
-    /**
-     * Phase-Switching in AUTOMATIC mode. (not implemented!).
-     */
+    /** Phase-Switching in AUTOMATIC mode. (not implemented!). */
     AUTOMATIC_SWITCHING = "AUTOMATIC_SWITCHING", //
 }

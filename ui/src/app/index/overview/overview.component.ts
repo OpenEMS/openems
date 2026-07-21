@@ -1,14 +1,14 @@
 // @ts-strict-ignore
-import { Component, effect, model, OnDestroy, signal } from "@angular/core";
+import { Component, effect, model, OnDestroy, signal, ChangeDetectionStrategy, untracked } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { InfiniteScrollCustomEvent, Platform, ViewWillEnter, } from "@ionic/angular";
+import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, Service, UserPermission, Utils, Websocket, } from "src/app/shared/shared";
+import { Edge, Service, UserPermission, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { environment } from "src/environments";
 import { ChosenFilter, FilterComponent } from "../filter/filter.component";
@@ -18,6 +18,7 @@ import { SUM_STATES } from "../shared/sumState";
 @Component({
     selector: "overview",
     templateUrl: "./overview.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class OverViewComponent implements ViewWillEnter, OnDestroy {
@@ -26,7 +27,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     public noEdges: boolean = false;
 
     /** True, if the logged in user is allowed to install new edges. */
-    public loggedInUserCanInstall: boolean = false;
+    public loggedInUserCanInstall = model<boolean>(false);
 
     public form: FormGroup;
     public filteredEdges = model<Edge[]>([]);
@@ -34,7 +35,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
     protected loading = signal(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
     protected isAtLeastOwner: boolean = false;
-    protected filters: FilterComponent["allFilters"] | null = null;
+    protected filters = model<FilterComponent["allFilters"] | null>(null);
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private page = 0;
@@ -61,21 +62,21 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
         effect(async () => {
             const user = this.userService.currentUser();
             if (user) {
-                this.loggedInUserCanInstall = user.isAtLeast(Role.INSTALLER);
+                this.loggedInUserCanInstall.set(user.isAtLeast(Role.INSTALLER));
                 this.isAtLeastOwner = user.isAtLeast(Role.OWNER);
 
-                this.filters = [
-                    ...(this.isAtLeastOwner
-                        ? [ORDER_STATES(this.translate)]
+                this.filters.set([
+                    ...(this.isAtLeastOwner ? [ORDER_STATES(this.translate)] : []),
+                    ...(this.loggedInUserCanInstall()
+                        ? [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)]
                         : []),
-                    ...(this.loggedInUserCanInstall
-                        ? [
-                              environment.PRODUCT_TYPES(this.translate),
-                              SUM_STATES(this.translate),
-                          ]
-                        : []),
-                ];
-                this.filteredEdges.set(await this.loadNextPage());
+                ]);
+                untracked(() => {
+                    this.loadNextPage().then((edges) => {
+                        this.filteredEdges.set(edges);
+                    });
+                });
+                // this.filteredEdges.set(await this.loadNextPage());
             }
         });
     }
@@ -153,10 +154,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                     this.limitReached = edges.length < this.limit;
                     const user = this.userService.currentUser();
                     // TODO could be applied before calling getEdges
-                    if (
-                        !UserPermission.isUserAllowedToSeeOverview(user) &&
-                        edges.length > 0
-                    ) {
+                    if (!UserPermission.isUserAllowedToSeeOverview(user) && edges.length > 0) {
                         const edge = edges[0];
                         setTimeout(() => {
                             this.router.navigate(["/device", edge.id]);
@@ -179,9 +177,7 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
      *
      * @param event From template passed event
      */
-    protected searchOnChange(
-        searchParams?: Map<string, ChosenFilter["value"]>,
-    ) {
+    protected searchOnChange(searchParams?: Map<string, ChosenFilter["value"]>) {
         if (searchParams) {
             this.searchParams = searchParams;
         }

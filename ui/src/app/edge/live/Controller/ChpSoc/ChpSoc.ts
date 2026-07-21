@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { Icon } from "src/app/shared/type/widget";
@@ -10,10 +10,10 @@ import { Controller_ChpSocModalComponent } from "./modal/modal.component";
 @Component({
     selector: "Controller_ChpSocComponent",
     templateUrl: "./ChpSoc.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_ChpSocComponent extends AbstractFlatWidget {
-
     private static PROPERTY_MODE: string = "_PropertyMode";
     public inputChannel: ChannelAddress | null = null;
     public outputChannel: ChannelAddress | null = null;
@@ -64,13 +64,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 inputChannel: this.inputChannel,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses() {
-        this.outputChannel = ChannelAddress.fromString(
-            this.component.properties["outputChannelAddress"]);
-        this.inputChannel = ChannelAddress.fromString(
-            this.component.properties["inputChannelAddress"]);
+        this.outputChannel = ChannelAddress.fromString(this.component.properties["outputChannelAddress"]);
+        this.inputChannel = ChannelAddress.fromString(this.component.properties["inputChannelAddress"]);
         this.propertyModeChannel = new ChannelAddress(this.component.id, Controller_ChpSocComponent.PROPERTY_MODE);
         return [
             this.outputChannel,
@@ -82,7 +80,6 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-
         // Mode
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
         switch (this.modeChannelValue) {
@@ -112,5 +109,4 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
         this.highThresholdValue = currentData.allComponents[this.component.id + "/_PropertyHighThreshold"];
         this.lowThresholdValue = currentData.allComponents[this.component.id + "/_PropertyLowThreshold"];
     }
-
 }

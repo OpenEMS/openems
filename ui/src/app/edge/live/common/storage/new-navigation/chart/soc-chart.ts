@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -16,6 +16,7 @@ import { ChartConstants } from "src/app/shared/shared";
     selector: "oe-common-storage-soc-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -44,11 +45,8 @@ export class SocChartComponent extends ScheduleChartComponent {
         ];
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
-        return (item: TooltipItem<any>) =>
-            Converter.STATE_IN_PERCENT(item.dataset.data[item.dataIndex]);
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
+        return (item: TooltipItem<any>) => Converter.STATE_IN_PERCENT(item.dataset.data[item.dataIndex]);
     }
 
     protected override getLeftAxisBounds(): Partial<{

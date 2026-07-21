@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -11,11 +11,16 @@ import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/
 @Component({
     selector: "sellToGridLimitChart",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class SellToGridLimitChartComponent extends AbstractHistoryChart {
-
-    public static getChartData(gridmeterId: string, componentId: string, translate: TranslateService, edge: Edge): HistoryUtils.ChartData {
+    public static getChartData(
+        gridmeterId: string,
+        componentId: string,
+        translate: TranslateService,
+        edge: Edge,
+    ): HistoryUtils.ChartData {
         return {
             input: [
                 {
@@ -23,24 +28,25 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
                     powerChannel: new ChannelAddress(gridmeterId, "ActivePower"),
                     converter: HistoryUtils.ValueConverter.ONLY_NEGATIVE_AND_NEGATIVE_AS_POSITIVE,
                 },
-                ...(hasMaximumGridFeedInLimitInMeta(edge) ? [
-                    {
-                        name: "_PropertyMaximumGridFeedInLimit",
-                        powerChannel: new ChannelAddress("_meta", "_PropertyMaximumGridFeedInLimit"),
-                    },
-                ] :
-                    [
-                        {
-                            name: "_PropertyMaximumSellToGridPower",
-                            powerChannel: new ChannelAddress(componentId, "_PropertyMaximumSellToGridPower"),
-                        },
-                    ]),
+                ...(hasMaximumGridFeedInLimitInMeta(edge)
+                    ? [
+                          {
+                              name: "_PropertyMaximumGridFeedInLimit",
+                              powerChannel: new ChannelAddress("_meta", "_PropertyMaximumGridFeedInLimit"),
+                          },
+                      ]
+                    : [
+                          {
+                              name: "_PropertyMaximumSellToGridPower",
+                              powerChannel: new ChannelAddress(componentId, "_PropertyMaximumSellToGridPower"),
+                          },
+                      ]),
                 {
                     name: "ProductionActivePower",
                     powerChannel: new ChannelAddress("_sum", "ProductionActivePower"),
                 },
             ],
-            output: (data: HistoryUtils.ChannelData) => ([
+            output: (data: HistoryUtils.ChannelData) => [
                 {
                     name: translate.instant("GENERAL.GRID_SELL"),
                     converter: () => data["ActivePower"],
@@ -48,15 +54,18 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
                 },
                 {
                     name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRID_FEED_IN"),
-                    converter: hasMaximumGridFeedInLimitInMeta(edge) ? () => data["_PropertyMaximumGridFeedInLimit"] : () => data["_PropertyMaximumSellToGridPower"],
+                    converter: hasMaximumGridFeedInLimitInMeta(edge)
+                        ? () => data["_PropertyMaximumGridFeedInLimit"]
+                        : () => data["_PropertyMaximumSellToGridPower"],
                     color: ChartConstants.Colors.YELLOW,
                     hideShadow: true,
                     borderDash: [3, 3],
                 },
                 {
                     name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.MAXIMUM_GRIDSELL_WITH_CHARGE"),
-                    converter: hasMaximumGridFeedInLimitInMeta(edge) ? () => data["_PropertyMaximumGridFeedInLimit"].map(el => Utils.multiplySafely(el, 0.95))
-                        : () => data["_PropertyMaximumSellToGridPower"].map(el => Utils.multiplySafely(el, 0.95)),
+                    converter: hasMaximumGridFeedInLimitInMeta(edge)
+                        ? () => data["_PropertyMaximumGridFeedInLimit"].map((el) => Utils.multiplySafely(el, 0.95))
+                        : () => data["_PropertyMaximumSellToGridPower"].map((el) => Utils.multiplySafely(el, 0.95)),
                     color: ChartConstants.Colors.RED,
                     hideShadow: true,
                     borderDash: [3, 3],
@@ -66,15 +75,17 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
                     converter: () => data["ProductionActivePower"],
                     color: "rgb(45,143,171)",
                 },
-            ]),
+            ],
             tooltip: {
                 formatNumber: "1.0-2",
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+            ],
         };
     }
 
@@ -94,5 +105,4 @@ export class SellToGridLimitChartComponent extends AbstractHistoryChart {
         const gridMeterId = gridMeterComponent.id;
         return SellToGridLimitChartComponent.getChartData(gridMeterId, component.id, this.translate, edge);
     }
-
 }

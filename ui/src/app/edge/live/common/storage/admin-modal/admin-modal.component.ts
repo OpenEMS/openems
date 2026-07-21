@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AlertController, ModalController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -27,6 +27,7 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
     selector: "storage-modal",
     templateUrl: "./admin-modal.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         StorageSystemComponent,

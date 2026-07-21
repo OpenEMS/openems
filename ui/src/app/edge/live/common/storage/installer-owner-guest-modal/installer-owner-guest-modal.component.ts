@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -22,6 +22,7 @@ import { environment, Environment } from "src/environments";
     selector: "storage-modal",
     templateUrl: "./installer-owner-guest-modal.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         HelpButtonComponent,

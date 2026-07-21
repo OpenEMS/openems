@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -15,9 +15,9 @@ import { PeakShavingChartDataBuilder } from "./peak-shaving-chart-data";
 
 @Component({
     selector: "oe-controller-peakshaving-timeslot-chart",
-    templateUrl:
-        "../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../shared/components/chart/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -41,11 +41,7 @@ export abstract class SharedPeakShavingChartComponent extends AbstractHistoryCha
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
-        return SharedPeakShavingChartComponent.getChartData(
-            this.config,
-            this.component,
-            this.translate,
-        );
+        return SharedPeakShavingChartComponent.getChartData(this.config, this.component, this.translate);
     }
 
     protected override loadChart(): Promise<void> {

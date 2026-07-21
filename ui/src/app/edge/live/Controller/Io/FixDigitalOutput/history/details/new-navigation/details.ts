@@ -1,4 +1,4 @@
-import { Component, LOCALE_ID } from "@angular/core";
+import { Component, LOCALE_ID, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -24,8 +24,7 @@ import { ChartComponent } from "../chart/chart";
         ChartComponent,
         ComponentsBaseModule,
     ],
-    providers: [
-        { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key }],
 })
-export class FixDigitalDetailsComponent extends AbstractHistoryChartOverview { }
+export class FixDigitalDetailsComponent extends AbstractHistoryChartOverview {}

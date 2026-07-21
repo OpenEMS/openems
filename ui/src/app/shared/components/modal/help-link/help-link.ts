@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { Service } from "src/app/shared/shared";
 
 /** Represents an inline link */
 @Component({
     selector: "oe-help-link",
     templateUrl: "./help-link.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class HelpLinkComponent {

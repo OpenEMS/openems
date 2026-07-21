@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FieldType } from "@ngx-formly/core";
@@ -9,7 +8,8 @@ import { TranslateModule } from "@ngx-translate/core";
     selector: "oe-weekday-checkbox",
     templateUrl: "./formly-weekday-checkbox.html",
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, IonicModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ReactiveFormsModule, IonicModule, TranslateModule],
 })
 export class FormlyFieldWeekdaysComponent extends FieldType {
     /** FormGroup */
