@@ -125,7 +125,7 @@ export const newNavigationRoutes: Routes = [
         component: NavigationInfoComponent,
     },
     {
-        path: "evse/:componentId/car/update/:appId",
+        path: "evse/:componentId/car/update",
         component: UpdateAppConfigComponent,
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
