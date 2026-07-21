@@ -12,7 +12,7 @@ import { Service, Utils, Websocket } from "../../../shared/shared";
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction } = {
-    "ping": (ip: string) => `ping -c4 ${ip}`,
+    ping: (ip: string) => `ping -c4 ${ip}`,
     "openems-restart": () =>
         "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };

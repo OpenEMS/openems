@@ -30,7 +30,7 @@ describe("Utils", () => {
     );
 
     const channelData: HistoryUtils.ChannelData = {
-        "ConsumptionActivePower": [null, null, null, 565, 560, 561, 573],
+        ConsumptionActivePower: [null, null, null, 565, 560, 561, 573],
         "evcs0/ChargePower": [null, null, null, 0, 0, 0, 100],
         "evcs1/ChargePower": [null, null, null, 0, 0, 0, 0],
         "meter0/ActivePower": [124, 0, null, 0, 173, 0, 100],

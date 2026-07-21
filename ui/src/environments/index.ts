@@ -99,6 +99,14 @@ export interface Environment {
                 readonly HEATING_ELEMENT: string | null;
             };
         };
+        readonly INSTALLATION: {
+            readonly COMMERCIAL: {
+                readonly COMMERCIAL_100: {
+                    readonly BATTERY_INPUT_1: string | null;
+                    readonly BATTERY_INPUT_2: string | null;
+                };
+            };
+        };
     };
     readonly links: {
         readonly REDIRECT: {

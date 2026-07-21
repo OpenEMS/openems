@@ -12,8 +12,7 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 	BATTERY_52(52, "Fenecon Home Battery 52Ah", //
 			2200, 42, 49, 14, 3, //
 			alwaysReturn("519100001009"), //
-			alwaysReturn("519110001210")//
-	), //
+			alwaysReturn("519110001210")), //
 	BATTERY_64(64, "Fenecon Home Battery 64,4Ah", //
 			2800, 40.6f, 49.7f, 14, 5, //
 			alwaysReturn("519100001254"), //
@@ -23,8 +22,7 @@ public enum BatteryFeneconHomeHardwareType implements OptionsEnum {
 					return "519110001918";
 				}
 				return "519110002567";
-			}//
-	); //
+			}); //
 
 	/**
 	 * Defaults to {@link #BATTERY_52} to avoid detection failure with old firmware

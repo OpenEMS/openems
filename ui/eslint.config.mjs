@@ -61,14 +61,7 @@ const allTsFiles = {
         "import/order": [
             "error",
             {
-                groups: [
-                    "builtin",
-                    "external",
-                    "internal",
-                    "parent",
-                    "sibling",
-                    "index",
-                ],
+                groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
                 alphabetize: {
                     order: "asc",
                     caseInsensitive: true,
@@ -99,7 +92,7 @@ const allTsFiles = {
             },
         ],
         "@stylistic/semi": "error",
-        "@stylistic/quote-props": ["warn", "consistent"],
+        "@stylistic/quote-props": ["warn", "as-needed"],
         "@stylistic/eol-last": "error",
         "@stylistic/no-trailing-spaces": "error",
         "no-unused-vars": "off",
@@ -118,10 +111,7 @@ const allTsFiles = {
         "@typescript-eslint/member-ordering": "error",
         "@typescript-eslint/no-unused-expressions": "off",
         "@typescript-eslint/no-empty-object-type": "off",
-        "@stylistic/no-multiple-empty-lines": [
-            "error",
-            { max: 2, maxEOF: 1, maxBOF: 0 },
-        ],
+        "@stylistic/no-multiple-empty-lines": ["error", { max: 2, maxEOF: 1, maxBOF: 0 }],
         "@stylistic/quotes": [
             "error",
             "double",
@@ -189,10 +179,7 @@ export default [
     },
     ...tseslint.configs.recommended,
     ...angular.configs.tsRecommended,
-    ...compat.extends(
-        "eslint:recommended",
-        "plugin:import/recommended",
-    ).map((config) => ({
+    ...compat.extends("eslint:recommended", "plugin:import/recommended").map((config) => ({
         ...config,
         files: ["**/*.ts"],
     })),

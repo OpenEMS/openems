@@ -390,10 +390,10 @@ export namespace DummyConfig {
             alias: alias,
             factory: Factory.CHARGER_GOODWE_MPPT_TWO_STRING,
             properties: {
-                "alias": "MPPT 1",
-                "enabled": true,
+                alias: "MPPT 1",
+                enabled: true,
                 "essOrBatteryInverter.id": "batteryInverter0",
-                "mpptPort": "MPPT_1",
+                mpptPort: "MPPT_1",
             },
             channels: {},
         });
@@ -534,9 +534,9 @@ export namespace DummyConfig {
             factory: Factory.CONTROLLER_ESS_EMERGENCY_CAPACITY_RESERVE,
             isEnabled: true,
             properties: {
-                "modbusUnitId": 5,
+                modbusUnitId: 5,
                 "ess.id": essId,
-                "isReserveSocEnabled": isReserveSocEnabled,
+                isReserveSocEnabled: isReserveSocEnabled,
             },
             channels: {},
         });
@@ -546,8 +546,8 @@ export namespace DummyConfig {
             alias: alias ?? id,
             factory: Factory.HEAT_PUMP_SG_READY,
             properties: {
-                "enabled": true,
-                "mode": "AUTOMATIC",
+                enabled: true,
+                mode: "AUTOMATIC",
                 "meter.id": "meter3",
             },
             channels: {},

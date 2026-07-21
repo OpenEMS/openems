@@ -79,6 +79,14 @@ export const OemMeta: BaseMeta = {
                 HEATING_ELEMENT: null,
             },
         },
+        INSTALLATION: {
+            COMMERCIAL: {
+                COMMERCIAL_100: {
+                    BATTERY_INPUT_1: null,
+                    BATTERY_INPUT_2: null,
+                },
+            },
+        },
     },
     links: {
         DATA_PROTECTION: null,

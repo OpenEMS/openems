@@ -389,7 +389,7 @@ export class KeyModalComponent implements OnInit {
                 options: [],
             },
             expressions: {
-                "hide": () => this.registeredKeys.length === 0,
+                hide: () => this.registeredKeys.length === 0,
                 "props.disabled": (field) => !field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             wrappers: ["formly-select-extended-wrapper"],

@@ -132,9 +132,9 @@ export class EditTaskComponent extends JsCalendarEditTaskComponent {
         const recurrenceRuleByDay = this.recurrenceRuleByDay();
         const task: JsCalendar.Types.UpdateTask = {
             "@type": "Task",
-            "uid": this.uid ?? "",
-            "start": start,
-            "recurrenceRules": recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
+            uid: this.uid ?? "",
+            start: start,
+            recurrenceRules: recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
             ...duration,
             ...this.payload()?.toOpenEMSPayload(),
         };

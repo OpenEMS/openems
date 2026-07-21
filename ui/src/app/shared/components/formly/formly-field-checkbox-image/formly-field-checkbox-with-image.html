@@ -84,7 +84,7 @@
       @if (showContent()) {
         <ion-row class="ion-justify-content-center ion-padding-top">
           <ion-item lines="none">
-            <img class="resize-image" [src]="props.url" />
+            <img [class]="props['shouldSizeImageToMaxWidth'] ? 'max-width-image' : 'resize-image'" [src]="props.url" />
           </ion-item>
         </ion-row>
       }

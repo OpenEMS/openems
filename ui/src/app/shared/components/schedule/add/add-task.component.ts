@@ -58,8 +58,8 @@ export class AddTaskComponent extends JsCalendarAddTaskComponent {
 
         const task: JsCalendar.Task = {
             "@type": "Task",
-            "start": localDateTime,
-            "recurrenceRules": recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
+            start: localDateTime,
+            recurrenceRules: recurrenceRuleByDay != null ? [recurrenceRuleByDay] : [],
             ...JsCalendar.Utils.computeIsoDuration(startDate, endDate),
             ...this.payload().toOpenEMSPayload(),
         };
