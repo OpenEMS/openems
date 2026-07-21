@@ -7,8 +7,8 @@ import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -19,8 +19,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import io.openems.common.utils.CancellationToken;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -41,6 +39,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.CancellationToken;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.DummyHost;
@@ -56,6 +55,7 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
@@ -372,6 +372,21 @@ public class AppManagerTestBundle {
 		for (var component : components) {
 			this.assertComponentExist(component);
 		}
+	}
+
+	/**
+	 * Creates assertions for the given {@link AbstractOpenemsAppWithProps}.
+	 *
+	 * @param <APP>       the app type
+	 * @param <PROPERTY>  the property type
+	 * @param <PARAMETER> the parameter type
+	 * @param app         the app under test
+	 * @return the app assertions
+	 */
+	public <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
+			PROPERTY extends Type<PROPERTY, APP, PARAMETER>, //
+			PARAMETER> AppAssertions<APP, PROPERTY, PARAMETER> withApp(APP app) {
+		return new AppAssertions<>(app);
 	}
 
 	/**

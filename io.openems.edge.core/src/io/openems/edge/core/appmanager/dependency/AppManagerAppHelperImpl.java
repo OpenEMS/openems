@@ -1539,7 +1539,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			String removeKey = null;
 			for (var entry : copy.entrySet()) {
 				var id = JsonUtils.getAsOptionalString(entry.getValue()).orElse(null);
-				if (id != null && component.id().startsWith(id)) {
+				if (id != null && component.id().startsWith(id + entry.getKey() + ":")) {
 					removeKey = entry.getKey();
 					propertyKeyToCurrentId.put(entry.getKey(), id);
 					break;
