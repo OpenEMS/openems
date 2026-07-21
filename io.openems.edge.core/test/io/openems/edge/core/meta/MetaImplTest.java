@@ -322,7 +322,6 @@ class MetaImplTest {
 						.setMaximumGridFeedInLimit(12345) //
 						.build());
 
-		assertEquals(0,
-				sut.getEssDischargeToGridLimit());
+		assertEquals(0, sut.getEssDischargeToGridLimit());
 	}
 }

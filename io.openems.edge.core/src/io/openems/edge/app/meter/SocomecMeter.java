@@ -176,7 +176,6 @@ public class SocomecMeter extends AbstractOpenemsAppWithProps<SocomecMeter, Prop
 			}
 			};
 
-
 			components.add(new ComponentDef(meterId, alias, "Meter.Socomec.Threephase", //
 					ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
 							.addProperty("modbus.id", modbusId) //

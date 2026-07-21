@@ -7,8 +7,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
@@ -44,7 +44,7 @@ public class TestHeatPump {
 	private ModbusTcpApiReadOnly modbusTcpApiReadOnly;
 	private RestJsonApiReadOnly restJsonApiReadOnly;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		final var componentFactory = new AppManagerTestBundle.PseudoComponentManagerFactory();
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {

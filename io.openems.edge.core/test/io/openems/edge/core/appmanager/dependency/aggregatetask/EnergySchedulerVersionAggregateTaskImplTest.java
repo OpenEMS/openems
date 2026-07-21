@@ -75,8 +75,8 @@ class EnergySchedulerVersionAggregateTaskImplTest {
 	@Test
 	void testGetHighestRequiredVersionUsesOwnAndOtherConfigurations() {
 		final var requiredVersions = EnumSet.of(Version.V1_ESS_ONLY);
-		final var otherConfigurations = List.of(AppConfiguration.create()
-				.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)).build());
+		final var otherConfigurations = List.of(
+				AppConfiguration.create().addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE)).build());
 
 		final var highestRequiredVersion = EnergySchedulerVersionAggregateTaskImpl
 				.getHighestRequiredVersion(requiredVersions, otherConfigurations);

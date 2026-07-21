@@ -69,7 +69,8 @@ public final class PropertyAssertions<//
 				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId()
 						+ "] has no default value");
 
-		final var actualValue = defaultValueSupplier.get(this.app, this.property, Language.DEFAULT, this.parameter);
+		final JsonElement actualValue = getFieldValue(defaultValueSupplier, this.app, this.property, Language.DEFAULT,
+				this.parameter);
 		assertEquals(toJsonElement(expectedValue), actualValue, //
 				() -> "Unexpected default value for property [" + this.property.name() + "] of app ["
 						+ this.app.getAppId() + "]");
@@ -82,7 +83,8 @@ public final class PropertyAssertions<//
 		assertNotNull(fieldSupplier, //
 				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId() + "] has no field");
 
-		final var field = fieldSupplier.get(this.app, this.property, Language.DEFAULT, this.parameter).build();
+		final var field = getFieldValue(fieldSupplier, this.app, this.property, Language.DEFAULT, this.parameter)
+				.build();
 		final var expressionProperties = field.getAsJsonObject("expressionProperties");
 		assertNotNull(expressionProperties, //
 				() -> "Property [" + this.property.name() + "] of app [" + this.app.getAppId()
@@ -105,6 +107,13 @@ public final class PropertyAssertions<//
 			assertFalse(actualVisible, message);
 		}
 		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <O> O getFieldValue(AppDef.FieldValuesSupplier<?, ?, ?, O> supplier, Object app, Object property,
+			Language language, Object parameter) {
+		final var typedSupplier = (AppDef.FieldValuesSupplier<Object, Object, Object, O>) supplier;
+		return typedSupplier.get(app, property, language, parameter);
 	}
 
 	private static JsonElement toJsonElement(Object value) {

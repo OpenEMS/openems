@@ -476,7 +476,8 @@ public class AppManagerTestBundle {
 	}
 
 	/**
-	 * Adds a {@link EnergySchedulerVersionAggregateTaskImpl} to the current active tasks.
+	 * Adds a {@link EnergySchedulerVersionAggregateTaskImpl} to the current active
+	 * tasks.
 	 *
 	 * @return the created {@link EnergySchedulerVersionAggregateTaskImpl}
 	 */

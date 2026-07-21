@@ -30,7 +30,6 @@ class TestSocomecMeter {
 		this.appManagerTestBundle.addComponentAggregateTask();
 	}
 
-
 	@Test
 	void testIntegrationTypeDefaultsToRtu() {
 		this.appManagerTestBundle //
