@@ -31,28 +31,41 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
     ],
 })
 export class ChartComponent extends AbstractHistoryChart {
-
-    public static getChartData(config: EdgeConfig, chartType: "line" | "bar", routeService: RouteService, translate: TranslateService): HistoryUtils.ChartData {
-        const controller: EdgeConfig.Component | null = config.getComponentSafely(routeService.getRouteParam("componentId"));
+    public static getChartData(
+        config: EdgeConfig,
+        chartType: "line" | "bar",
+        routeService: RouteService,
+        translate: TranslateService,
+    ): HistoryUtils.ChartData {
+        const controller: EdgeConfig.Component | null = config.getComponentSafely(
+            routeService.getRouteParam("componentId"),
+        );
         if (controller == null) {
             return HistoryUtils.ChartData.EMPTY;
         }
 
         const input: HistoryUtils.InputChannel[] = [];
         let inputChannel: ChannelAddress | null = null;
-        const outputChannel = ChannelAddress.fromString(Array.isArray(config.getComponentProperties(controller.id)["outputChannelAddress"])
-            ? config.getComponentProperties(controller.id)["outputChannelAddress"][0]
-            : config.getComponentProperties(controller.id)["outputChannelAddress"]);
+        const outputChannel = ChannelAddress.fromString(
+            Array.isArray(config.getComponentProperties(controller.id)["outputChannelAddress"])
+                ? config.getComponentProperties(controller.id)["outputChannelAddress"][0]
+                : config.getComponentProperties(controller.id)["outputChannelAddress"],
+        );
 
         if (controller.factoryId === "Controller.IO.ChannelSingleThreshold") {
-            inputChannel = ChannelAddress.fromString(config.getComponentProperties(controller.id)["inputChannelAddress"]);
+            inputChannel = ChannelAddress.fromString(
+                config.getComponentProperties(controller.id)["inputChannelAddress"],
+            );
             input.push({
-                name: inputChannel.toString(), powerChannel: inputChannel,
+                name: inputChannel.toString(),
+                powerChannel: inputChannel,
             });
         }
 
         input.push({
-            name: controller.id + "output", powerChannel: outputChannel, energyChannel: new ChannelAddress(controller.id, "CumulatedActiveTime"),
+            name: controller.id + "output",
+            powerChannel: outputChannel,
+            energyChannel: new ChannelAddress(controller.id, "CumulatedActiveTime"),
         });
 
         return {
@@ -66,14 +79,15 @@ export class ChartComponent extends AbstractHistoryChart {
                         return energyQueryResponse?.result.data[controller.id + "/CumulatedActiveTime"] ?? null;
                     },
                     converter: () => {
-
                         if (chartType == "line") {
-                            return data[controller.id + "output"]?.map(val => NumberUtils.multiplySafely(1000, val));
+                            return data[controller.id + "output"]?.map((val) => NumberUtils.multiplySafely(1000, val));
                         }
 
-                        return data[controller.id + "output"]
-                            // TODO add logic to not have to adjust non power data manually
-                            ?.map(val => NumberUtils.multiplySafely(val, 1000));
+                        return (
+                            data[controller.id + "output"]
+                                // TODO add logic to not have to adjust non power data manually
+                                ?.map((val) => NumberUtils.multiplySafely(val, 1000))
+                        );
                     },
                     color: ChartConstants.Colors.YELLOW,
                     stack: 0,
@@ -163,12 +177,17 @@ export class ChartComponent extends AbstractHistoryChart {
             return () => data[inputChannel.toString()];
         }
 
-        return () => data[inputChannel.toString()]
-            // TODO add logic to not have to adjust non power data manually
-            ?.map((val: number) => NumberUtils.multiplySafely(val, 1000));
+        return () =>
+            data[inputChannel.toString()]
+                // TODO add logic to not have to adjust non power data manually
+                ?.map((val: number | null) => NumberUtils.multiplySafely(val, 1000));
     }
 
-    private static getDisplayValue(data: HistoryUtils.ChannelData, inputChannel: ChannelAddress, translate: TranslateService): HistoryUtils.DisplayValue {
+    private static getDisplayValue(
+        data: HistoryUtils.ChannelData,
+        inputChannel: ChannelAddress,
+        translate: TranslateService,
+    ): HistoryUtils.DisplayValue {
         return {
             name: ChartComponent.getInputChannelLabel(translate, inputChannel),
             converter: ChartComponent.getConverter(inputChannel, data),

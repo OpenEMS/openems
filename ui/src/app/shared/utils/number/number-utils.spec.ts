@@ -45,12 +45,8 @@ describe("NumberUtils", () => {
         });
 
         it("should return false for infinity values", () => {
-            expect(
-                NumberUtils.isPresentNumber(Number.POSITIVE_INFINITY),
-            ).toBeFalse();
-            expect(
-                NumberUtils.isPresentNumber(Number.NEGATIVE_INFINITY),
-            ).toBeFalse();
+            expect(NumberUtils.isPresentNumber(Number.POSITIVE_INFINITY)).toBeFalse();
+            expect(NumberUtils.isPresentNumber(Number.NEGATIVE_INFINITY)).toBeFalse();
         });
 
         it("should return false for null and undefined", () => {
@@ -95,6 +91,21 @@ describe("NumberUtils", () => {
         it("should return null for null and zero combination", () => {
             const result = NumberUtils.multiplySafely(null, 0);
             expect(result).toBeNull();
+        });
+    });
+
+    describe("numberToBooleanOrElse", () => {
+        it("should return false for 0", () => {
+            expect(NumberUtils.numberToBooleanOrElse(0, true)).toBeFalse();
+        });
+
+        it("should return true for 1", () => {
+            expect(NumberUtils.numberToBooleanOrElse(1, false)).toBeTrue();
+        });
+
+        it("should return orElse for values other than 0 or 1", () => {
+            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, false)).toBeFalse();
+            expect(NumberUtils.numberToBooleanOrElse(2 as 0 | 1, true)).toBeTrue();
         });
     });
 });
