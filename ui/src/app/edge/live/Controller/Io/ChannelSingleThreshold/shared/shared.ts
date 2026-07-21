@@ -197,7 +197,7 @@ export namespace SharedIoChannelSingleThreshold {
                         },
                     },
                 ],
-                hide: HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDSELL,
+                hide: HIDE_ON_NOT_AUTOMATIC_OR_IS_GRIDSELL,
             },
             // invert behaviour for invert if GridSell is selected
             {
@@ -224,7 +224,7 @@ export namespace SharedIoChannelSingleThreshold {
                         },
                     },
                 ],
-                hide: HIDE_ON_NOT_AUTOMATIC_OR_IS_GRIDSELL,
+                hide: HIDE_ON_NOT_AUTOMATIC_OR_NOT_GRIDSELL,
             },
             {
                 type: "horizontal-line",
@@ -249,13 +249,13 @@ export namespace SharedIoChannelSingleThreshold {
         component: EdgeConfig.Component,
     ): OeFormlyView["lines"] => {
         const lines: OeFormlyView["lines"] = [];
-        const outputChannelAddress = component.getPropertyFromComponent<string>("outputChannelAddress");
+        const outputChannelAddress = component.getPropertyFromComponent<string[]>("outputChannelAddress");
 
-        if (outputChannelAddress != null) {
+        if (outputChannelAddress != null && outputChannelAddress.length > 0) {
             lines.push({
                 type: "channel-line",
                 name: translate.instant("GENERAL.STATE"),
-                channel: new ChannelAddress(component.id, outputChannelAddress).toString(),
+                channel: outputChannelAddress[0],
                 converter: Converter.ON_OFF(translate),
             });
         }
@@ -309,20 +309,20 @@ export namespace SharedIoChannelSingleThreshold {
     export const getFormlyHomeLines = (
         translate: TranslateService,
         component: EdgeConfig.Component,
-        outputChannel: string,
+        outputChannel: string[],
         inputChannel: string,
         getUnit: (channelAddress: ChannelAddress) => string | null,
     ): OeFormlyView["lines"] => {
         const lines: OeFormlyView["lines"] = [];
 
-        if (outputChannel == null || inputChannel == null) {
+        if (outputChannel == null || inputChannel == null || outputChannel.length == 0) {
             return lines;
         }
 
         lines.push({
             type: "channel-line",
             name: translate.instant("GENERAL.STATE"),
-            channel: new ChannelAddress(component.id, outputChannel).toString(),
+            channel: outputChannel[0],
             converter: Converter.ON_OFF(translate),
         });
 
@@ -393,7 +393,7 @@ export namespace SharedIoChannelSingleThreshold {
 
                         return label == null ? "" : translate.instant(label);
                     }),
-                channel: new ChannelAddress(component.id, outputChannel),
+                channel: new ChannelAddress(component.id, outputChannel[0]),
             },
             channelsToSubscribe: [ChannelAddress.fromString(inputChannel)],
             value: (currentData: CurrentData) => {

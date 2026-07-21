@@ -8,6 +8,7 @@ import { NgxSpinnerModule } from "ngx-spinner";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
@@ -46,7 +47,7 @@ export class SingleChartComponent extends AbstractHistoryChart {
             ],
             output: (data: HistoryUtils.ChannelData) => {
                 const output: HistoryUtils.DisplayValue[] = [{
-                    name: powerChannel.channelId ?? controllerId,
+                    name: Name.METER_ALIAS_OR_ID(component),
                     nameSuffix: (energyQueryResponse: QueryHistoricTimeseriesEnergyResponse) => {
                         return energyQueryResponse?.result.data[controllerId + "/CumulatedActiveTime"] ?? null;
                     },

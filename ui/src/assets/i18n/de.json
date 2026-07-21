@@ -531,8 +531,8 @@
                     "SWITCH_ON_BELOW": "Einschalten unter",
                     "SWITCHED_LOAD_POWER": "Geschaltete Last",
                     "THRESHOLD": "Schwellenwert",
-                    "SWITCH_ON_ABOVE_THRESHOLD": "Switch on above threshold",
-                    "SWITCH_ON_BELOW_THRESHOLD": "Switch on below threshold"
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Einschalten über Schwellenwert",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Einschalten unter Schwellenwert"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
