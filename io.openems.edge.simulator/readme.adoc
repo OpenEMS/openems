@@ -159,6 +159,7 @@ It provides typical charge-point and metering channels, accepts a charging curre
 
 Simulates a charge-point with configurable parameters and channels for testing and development purposes.
 Key features include:
+
 * Simulates vehicle connection status via `vehicleConnected`
 * Define min and max charging current (`ApplySetPoint`) in milliampere
 * Calculates per-phase active power from `voltage * current`

@@ -50,6 +50,7 @@ Meter implementations extend the `ElectricityMeter` interface to provide:
 * Specific protocol implementations (Modbus, M-Bus, REST, etc.)
 
 Example implementations include:
+
 * `io.openems.edge.meter.abb` - ABB B23 M-Bus meter
 * `io.openems.edge.meter.janitza` - Janitza energy meters
 * `io.openems.edge.meter.eastron` - Eastron SDM meters

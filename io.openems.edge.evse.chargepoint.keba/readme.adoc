@@ -44,6 +44,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for KEBA P40 charging station. Provides charging point functionality with real-time power measurement. Supports single-phase or three-phase wiring configurations with phase rotation support.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -74,6 +75,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: UDP interface for KEBA P30 charging station. Provides charging point functionality with UDP-based communication for simpler network setups.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -104,6 +106,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVCS interface for KEBA P40 via Modbus. Manages dynamic charging control for energy management system integration.
 
 .*Configuration*:
+
 * `id` (String): Component ID
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -131,6 +134,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVCS interface for KEBA P30 via UDP. Manages dynamic charging control and integration with energy management systems.
 
 .*Configuration*:
+
 * `id` (String): Component ID
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
