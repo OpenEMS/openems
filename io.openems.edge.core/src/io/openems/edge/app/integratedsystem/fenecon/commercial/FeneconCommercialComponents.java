@@ -2,10 +2,13 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
+import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 
@@ -14,15 +17,16 @@ import io.openems.common.function.ThrowingFunction;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.EnableDisable;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.MeterType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.meter.KdkMeter;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
@@ -30,6 +34,134 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentPropert
 import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 
 public final class FeneconCommercialComponents {
+
+	/**
+	 * Creates a cluster battery {@link ComponentDef}.
+	 *
+	 * @param bundle          the translation bundle
+	 * @param batteryId       the id of the battery
+	 * @param slaveBatteryIds the id of the slave batteries
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBattery(//
+			ResourceBundle bundle, //
+			String batteryId, //
+			List<String> slaveBatteryIds //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.battery0.alias"),
+				"GoodWe.BatteryCluster.FeneconHome",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("battery.ids") //
+						.withValue(slaveBatteryIds),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig()); //
+	}
+
+	/**
+	 * Creates a slave cluster battery {@link ComponentDef}. Battery is connected to
+	 * port 1.
+	 *
+	 * @param bundle    the translation bundle
+	 * @param batteryId the id of the battery
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBatterySlave1(//
+			ResourceBundle bundle, //
+			String batteryId //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", 1),
+				"Battery.Fenecon.Home",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("batteryStartUpRelay") //
+						.withValue("io0/Relay4"),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("inverterPort") //
+								.withValue("PORT_1"),
+						ComponentProperties.Property.of("modbus.id") //
+								.withValue("modbus0"),
+						ComponentProperties.Property.of("modbusUnitId") //
+								.withValue(1),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig()); //
+	}
+
+	/**
+	 * Creates a slave cluster battery {@link ComponentDef}. Battery is connected to
+	 * port 2.
+	 *
+	 * @param bundle    the translation bundle
+	 * @param batteryId the id of the battery
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef clusterBatterySlave2(//
+			ResourceBundle bundle, //
+			String batteryId //
+	) {
+		return new ComponentDef(batteryId, translate(bundle, "App.IntegratedSystem.batteryN.alias", 2),
+				"Battery.Fenecon.Home",
+				new ComponentProperties(List.of(ComponentProperties.Property.of("batteryStartUpRelay") //
+						.withValue("io2/Relay1"),
+						ComponentProperties.Property.of("enabled") //
+								.withValue(true),
+						ComponentProperties.Property.of("inverterPort") //
+								.withValue("PORT_2"),
+						ComponentProperties.Property.of("modbus.id") //
+								.withValue("modbus2"),
+						ComponentProperties.Property.of("modbusUnitId") //
+								.withValue(1),
+						ComponentProperties.Property.of("startStop") //
+								.withValue("AUTO"))),
+				ComponentDef.Configuration.defaultConfig());
+	}
+
+	/**
+	 * Creates a modbus bridge for the second battery relay.
+	 *
+	 * @param bundle           the translation bundle
+	 * @param t                the {@link ConfigurationTarget}
+	 * @param modbusIdExternal the id of the modbus
+	 * @param deviceHardware   the device hardware type
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef modbusForClusterSlaveBattery2(//
+			final ResourceBundle bundle, //
+			final ConfigurationTarget t, //
+			final String modbusIdExternal, //
+			final OpenemsAppInstance deviceHardware //
+	) {
+		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
+				? "/dev/bus0"
+				: "/dev/busUSB3";
+
+		final var properties = Lists.newArrayList(//
+				ComponentProperties.Property.of("enabled") //
+						.withValue(true),
+				ComponentProperties.Property.of("baudRate") //
+						.withValue(19200),
+				ComponentProperties.Property.of("databits") //
+						.withValue(8),
+				ComponentProperties.Property.of("parity") //
+						.withValue(Parity.NONE.name()),
+				ComponentProperties.Property.of("portName") //
+						.withValue(portName),
+				ComponentProperties.Property.of("stopbits") //
+						.withValue("ONE") //
+		);
+
+		if (t == ConfigurationTarget.ADD) {
+			properties.add(ComponentProperties.Property.of("invalidateElementsAfterReadErrors") //
+					.withValue(1));
+			properties.add(ComponentProperties.Property.of("logVerbosity") //
+					.withValue("NONE"));
+		}
+
+		return new ComponentDef(modbusIdExternal, translate(bundle, "App.IntegratedSystem.modbus2.alias"),
+				"Bridge.Modbus.Serial", new ComponentProperties(properties),
+				ComponentDef.Configuration.defaultConfig());
+	}
 
 	/**
 	 * Creates a default battery inverter component for a FENECON Commercial 92.
@@ -64,6 +196,7 @@ public final class FeneconCommercialComponents {
 	 * @param bundle            the translation bundle
 	 * @param batteryInverterId the id of the battery inverter
 	 * @param modbusId          the id of the modbus bridge
+	 * @param dcMinVoltage      the minimum DC voltage
 	 * @param gridCode          the gridCode
 	 * @return the {@link Component}
 	 */
@@ -71,26 +204,31 @@ public final class FeneconCommercialComponents {
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
 			final String modbusId, //
+			final int dcMinVoltage, //
 			final String gridCode //
 	) {
 		return ComponentDef
 				.from(FeneconCommercialComponents.batteryInverter(bundle, batteryInverterId, modbusId, gridCode))
-				.withAdditionalProperties(
-						new ComponentProperties(List.of(ComponentProperties.Property.of("errorBehaviour") //
+				.withAdditionalProperties(new ComponentProperties(List.of(
+						ComponentProperties.Property.of("errorBehaviour") //
 								.withValue("ALWAYS_RESTART") //
+								.withForceUpdate(true),
+						ComponentProperties.Property.of("dcMinVoltage") //
+								.withValue(dcMinVoltage) //
 								.withForceUpdate(true))));
 	}
 
 	/**
 	 * Creates a battery inverter with extended GoodWe Settings.
-	 * 
+	 *
+	 * @param configTarget             the {@link ConfigurationTarget}
 	 * @param bundle                   the translation bundle
 	 * @param batteryInverterId        the id of the battery inverter
 	 * @param hasEmergencyReserve      the id of the modbus bridge
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
@@ -103,13 +241,14 @@ public final class FeneconCommercialComponents {
 	 * @return the {@link Component}
 	 */
 	public static <PROPERTY extends Nameable> EdgeConfig.Component batteryInverterWithExtendedSettings(
+			final ConfigurationTarget configTarget, //
 			final ResourceBundle bundle, //
 			final String batteryInverterId, //
 			final boolean hasEmergencyReserve, //
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode, //
@@ -129,12 +268,13 @@ public final class FeneconCommercialComponents {
 
 			var valueForConfig = propAttributes.toConfigValue().apply(property);
 
-			batteryInverterConfig.add(propAttributes.configName(), valueForConfig);
+			batteryInverterConfig.onlyIf(propAttributes.includeInComponentConfig().test(configTarget),
+					b -> b.add(propAttributes.configName(), valueForConfig));
 		}
 
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
-				"GoodWe.BatteryInverter", batteryInverterConfig);
+				"GoodWe.BatteryInverter", batteryInverterConfig.build());
 	}
 
 	/**
@@ -305,19 +445,36 @@ public final class FeneconCommercialComponents {
 	 * @param essId             the id of the ess
 	 * @param batteryId         the id of the battery
 	 * @param batteryInverterId the id of the battery inverter
+	 * @param essProtection     the ESS protection mode
 	 * @return the {@link Component}
 	 */
 	public static ComponentDef essWithForceEssFaultBehaviour(//
 			final ResourceBundle bundle, //
 			final String essId, //
 			final String batteryId, //
-			final String batteryInverterId //
+			final String batteryInverterId, //
+			final String essProtection //
 	) {
 		return ComponentDef.from(FeneconHomeComponents.ess(bundle, essId, batteryId, batteryInverterId))
-				.withAdditionalProperties(
-						new ComponentProperties(List.of(ComponentProperties.Property.of("essFaultBehaviour") //
+				.withAdditionalProperties(new ComponentProperties(List.of(//
+						ComponentProperties.Property.of("essFaultBehaviour") //
 								.withValue("IGNORE_BATTERY_INVERTER_ERRORS") //
+								.withForceUpdate(true), //
+						ComponentProperties.Property.of("essProtection") //
+								.withValue(essProtection) //
 								.withForceUpdate(true))));
+	}
+
+	/**
+	 * Creates a default gridMeter dependency for a FENECON Commercial 92.
+	 *
+	 * @param bundle the translation bundle
+	 * @return the {@link DependencyDeclaration}
+	 */
+	public static DependencyDeclaration gridMeter(//
+			final ResourceBundle bundle //
+	) {
+		return gridMeterBase(bundle);
 	}
 
 	/**
@@ -328,17 +485,13 @@ public final class FeneconCommercialComponents {
 	 * @param modbusId    the id of the modbus bridge
 	 * @return the {@link DependencyDeclaration}
 	 */
-	public static DependencyDeclaration gridMeter(//
+	public static DependencyDeclaration gridMeterWithOldDependency(//
 			final ResourceBundle bundle, //
 			final String gridMeterId, //
 			final String modbusId //
 	) {
-		return new DependencyDeclaration("GRID_METER", //
-				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
-				DependencyDeclaration.UpdatePolicy.ALWAYS, //
-				DependencyDeclaration.DeletePolicy.IF_MINE, //
-				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
-				DependencyDeclaration.DependencyDeletePolicy.NOT_ALLOWED, //
+		return gridMeterBase(//
+				bundle, //
 				DependencyDeclaration.AppDependencyConfig.create() //
 						.setAppId("App.Meter.Kdk") //
 						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
@@ -347,8 +500,45 @@ public final class FeneconCommercialComponents {
 								.addProperty(KdkMeter.Property.MODBUS_ID.name(), modbusId) //
 								.addProperty(KdkMeter.Property.MODBUS_UNIT_ID.name(), 5) //
 								.addProperty(KdkMeter.Property.TYPE.name(), MeterType.GRID) //
-								.build())
+								.build()) //
 						.build());
+	}
+
+	private static DependencyDeclaration gridMeterBase(//
+			final ResourceBundle bundle, //
+			final DependencyDeclaration.AppDependencyConfig... extraAppConfigs //
+	) {
+		var configs = Stream.concat(//
+				Arrays.stream(getGridMeterAppConfigs(bundle)), //
+				Arrays.stream(extraAppConfigs)) //
+				.toArray(DependencyDeclaration.AppDependencyConfig[]::new);
+
+		return new DependencyDeclaration("GRID_METER", //
+				DependencyDeclaration.CreatePolicy.IF_NOT_EXISTING, //
+				DependencyDeclaration.UpdatePolicy.ALWAYS, //
+				DependencyDeclaration.DeletePolicy.IF_MINE, //
+				DependencyDeclaration.DependencyUpdatePolicy.ALLOW_ONLY_UNCONFIGURED_PROPERTIES, //
+				DependencyDeclaration.DependencyDeletePolicy.ALLOWED, //
+				configs);
+	}
+
+	private static DependencyDeclaration.AppDependencyConfig[] getGridMeterAppConfigs(//
+			final ResourceBundle bundle //
+	) {
+		return new DependencyDeclaration.AppDependencyConfig[] { //
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.GridMeter.Kdk") //
+						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.build()) //
+						.build(),
+				DependencyDeclaration.AppDependencyConfig.create() //
+						.setAppId("App.GridMeter.Janitza") //
+						.setAlias(translate(bundle, "App.Meter.gridMeter")) //
+						.setProperties(JsonUtils.buildJsonObject() //
+								.build()) //
+						.build() //
+		};
 	}
 
 	private FeneconCommercialComponents() {

@@ -186,11 +186,15 @@ NOTE: Values will differ slightly for you, but note how the Controller now tells
 
 == Run OpenEMS UI
 
-NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI or xref:ui/deploy.adoc[deploy the OpenEMS UI as docker image].
+NOTE: If you plan to actively develop on OpenEMS UI, you can now also setup a development environment for it using xref:ui/setup-ide.adoc[this guide]. Otherwise you can use the prebuilt UI as described below, or xref:ui/deploy/docker.adoc[deploy the OpenEMS UI as docker image].
 
-. Make sure OpenEMS Edge is running locally and the websocket is running on port `8085`.
+. To use the prebuilt UI, go to the https://github.com/OpenEMS/openems/releases/[OpenEMS release page] on GitHub and download the latest `openems-ui.tar.xz`. Extract it to a local directory.
 
-. Open the UI URL
+. Set up a web server serving this directory on port 4200 and start it. Any web server can be used. You can find information on how to set up the nginx webserver xref:ui/deploy/nginx.adoc[here].
+
+. Make sure OpenEMS Edge is running locally, and the port of the websocket matches the port the UI is expecting. For the prebuilt UI it is port `8075`.
+
+. Open the UI URL, e.g. http://localhost:4200. If the UI is running on a remote machine, replace `localhost` by the IP address of that machine.
 
 . You should see OpenEMS UI. Log in as user "guest" by leaving the standard password and clicking the login button. Alternatively type "admin" in the password field to log in with extended permissions.
 +

@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from "@angular/core";
 import { FormControl } from "@angular/forms";
 import { FieldWrapper } from "@ngx-formly/core";
 import { Subject, takeUntil } from "rxjs";
-import { FormlyUtils } from "../formly-utils";
 
 @Component({
     selector: "formly-field-checkbox-with-image",
@@ -18,6 +17,10 @@ import { FormlyUtils } from "../formly-utils";
         }
         .resize-image {
             max-width: 20rem;
+            height: auto;
+        }
+        .max-width-image {
+            max-width: 100%;
             height: auto;
         }
         .input-box {
@@ -50,7 +53,6 @@ import { FormlyUtils } from "../formly-utils";
     standalone: false,
 })
 export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implements OnInit, OnDestroy {
-
     protected value: any;
 
     // Properties for the nested serial number field
@@ -60,32 +62,78 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
     //  Subject for subscription cleanup
     private destroy = new Subject<void>();
 
+    constructor(private cdr: ChangeDetectorRef) {
+        super();
+    }
+
+    protected get shouldShowError(): boolean {
+        // Is there actually an error?
+        if (!this.formControl.hasError("serialNumberRequired")) {
+            return false;
+        }
+
+        // nested input
+        if (this.serialNumberFormControl.touched || this.serialNumberFormControl.dirty) {
+            return true;
+        }
+
+        // form submission state
+        if (this.options?.parentForm?.submitted) {
+            return true;
+        }
+
+        return false;
+    }
+
     protected get borderColor(): { [key: string]: string } {
         // If the checkbox is unchecked, always use default color
         if (this.value !== true) {
             return { "border-color": "var(--ion-color-dark)" };
         }
 
-        return FormlyUtils.getControlStyle(
-            this.serialNumberFormControl,
-            this.isSerialNumberFocused,
-            "border-color"
-        );
+        if (this.shouldShowError) {
+            return { "border-color": "var(--ion-color-danger)" };
+        }
+
+        const hasSerialError = this.formControl.hasError("serialNumberRequired");
+        const isDirty = this.serialNumberFormControl.dirty;
+        const hasValue = !!this.serialNumberFormControl.value;
+        const isValid = !hasSerialError && (this.serialNumberFormControl.touched || isDirty || hasValue);
+
+        if (isValid) {
+            return { "border-color": "var(--ion-color-success)" };
+        }
+
+        if (this.isSerialNumberFocused) {
+            return { "border-color": "var(--ion-color-primary)" };
+        }
+
+        return { "border-color": "var(--ion-color-dark)" };
     }
 
     public ngOnInit() {
-        this.value = this.formControl.value ?? this.field.defaultValue;
+        this.value = this.formControl.value ?? this.field.defaultValue ?? false;
 
         // Listen to form control status changes (e.g., from parent form)
-        this.formControl.statusChanges.pipe(takeUntil(this.destroy)).subscribe(status => {
+        this.formControl.statusChanges.pipe(takeUntil(this.destroy)).subscribe((status) => {
             if (status === "DISABLED" && this.value !== false) {
                 this.value = false;
                 this.formControl.setValue(this.value);
+                this.cdr.markForCheck();
+            }
+        });
+
+        // Keep the rendered checkbox in sync when the control's value is changed
+        // programmatically (e.g. from another field's hook), not just via user click.
+        this.formControl.valueChanges.pipe(takeUntil(this.destroy)).subscribe((value) => {
+            if (this.value !== value) {
+                this.value = value;
+                this.cdr.markForCheck();
             }
         });
 
         // Initialize the nested serial number field if it's configured
-        if ("serialNumberField" in this.props) {
+        if (this.props && "serialNumberField" in this.props) {
             this.initializeSerialNumberField();
         }
     }
@@ -95,21 +143,20 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
         this.destroy.complete();
     }
 
-    /**
-     * Needs to be updated manually, because @Angular Formly-Form doesnt do it on its own
-     */
+    /** Needs to be updated manually, because @Angular Formly-Form doesnt do it on its own */
     protected updateFormControl(event: CustomEvent) {
         this.value = event.detail.checked;
         this.formControl.setValue(this.value);
+        this.cdr.markForCheck();
     }
 
     /**
      * Returns the show/hide value based on the properties.
      *
-     * @returns boolean value representing "show" or "hide".
+     * @returns Boolean value representing "show" or "hide".
      */
     protected showContent() {
-        return (!this.field.props?.disabled && !this.value) && this.field.props?.url !== undefined;
+        return !this.props?.disabled && !this.value && this.props?.["url"] !== undefined;
     }
 
     private initializeSerialNumberField(): void {
@@ -123,19 +170,25 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
 
         this.serialNumberFormControl = new FormControl();
 
-        this.serialNumberFormControl.setValue(this.model[snKey], { emitEvent: false });
-        this.serialNumberFormControl.valueChanges.pipe(takeUntil(this.destroy)).subscribe(value => {
+        this.serialNumberFormControl.setValue(this.model[snKey], {
+            emitEvent: false,
+        });
+        this.serialNumberFormControl.valueChanges.pipe(takeUntil(this.destroy)).subscribe((value) => {
             this.model[snKey] = value;
             this.formControl.updateValueAndValidity();
+            this.cdr.markForCheck();
         });
 
-        this.formControl.valueChanges.pipe(takeUntil(this.destroy)).subscribe(isChecked => {
+        this.formControl.valueChanges.pipe(takeUntil(this.destroy)).subscribe((isChecked) => {
             if (isChecked) {
                 this.serialNumberFormControl.enable({ emitEvent: false });
             } else {
                 this.serialNumberFormControl.disable({ emitEvent: false });
-                this.serialNumberFormControl.reset(undefined, { emitEvent: false }); // Clear value when disabled
+                this.serialNumberFormControl.reset(undefined, {
+                    emitEvent: false,
+                }); // Clear value when disabled
             }
+            this.cdr.markForCheck();
         });
 
         if (this.formControl.value === true) {
@@ -144,5 +197,4 @@ export class FormlyFieldCheckboxWithImageComponent extends FieldWrapper implemen
             this.serialNumberFormControl.disable();
         }
     }
-
 }

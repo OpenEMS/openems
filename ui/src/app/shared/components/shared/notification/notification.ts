@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ToastController } from "@ionic/angular";
 import { isAfter } from "date-fns";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
@@ -7,10 +7,10 @@ import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 @Component({
     selector: "oe-notification",
     template: "",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class NotificationComponent implements OnInit {
-
     private static readonly PREFIX = "hide-notification-";
     private static readonly MAX_SHOW_DATE = new Date(2025, 9, 8);
     private static THREE_DAYS_IN_S: number = 60 * 60 * 24 * 3;
@@ -20,7 +20,7 @@ export class NotificationComponent implements OnInit {
 
     private hideMessage: boolean = true;
 
-    constructor(private toastCtrl: ToastController) { }
+    constructor(private toastCtrl: ToastController) {}
 
     ngOnInit() {
         const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);
@@ -31,16 +31,18 @@ export class NotificationComponent implements OnInit {
             return;
         }
 
-        const hasNotBeenShown = DateTimeUtils.isDifferenceInSecondsGreaterThan(
-            NotificationComponent.THREE_DAYS_IN_S, new Date(), DateUtils.stringToDate(note)) == false;
+        const hasNotBeenShown =
+            DateTimeUtils.isDifferenceInSecondsGreaterThan(
+                NotificationComponent.THREE_DAYS_IN_S,
+                new Date(),
+                DateUtils.stringToDate(note),
+            ) == false;
 
         this.hideMessage = hasMaxShowDateBeenReached === true ? true : hasNotBeenShown;
         this.createToast();
     }
 
-    /**
-   * Creates a toast and hides it, if it has been seen.
-   */
+    /** Creates a toast and hides it, if it has been seen. */
     async createToast(): Promise<void> {
         if (!this.text) {
             return;
@@ -61,7 +63,9 @@ export class NotificationComponent implements OnInit {
             position: "bottom",
             buttons: [
                 {
-                    icon: "close-outline", role: "cancel", side: "end",
+                    icon: "close-outline",
+                    role: "cancel",
+                    side: "end",
                 },
             ],
             color: "primary",
@@ -77,10 +81,10 @@ export class NotificationComponent implements OnInit {
     }
 
     /**
-   * Styles the toast notification.
-   *
-   * Needed due to shadow DOM not directly accessible.
-   */
+     * Styles the toast notification.
+     *
+     * Needed due to shadow DOM not directly accessible.
+     */
     private styleToast() {
         const toastEl = document.querySelector("ion-toast");
 

@@ -1,28 +1,8 @@
-<ion-button (keydown.enter)="presentSingleStatusModal()" class="ion-toolbar-button" (click)="presentSingleStatusModal()"
-  fill="solid" shape="round">
-  @switch (sumState) {
-    @case ("UNDEFINED") {
-      <ion-icon color="warning" name="oe-info"
-        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"
-        size="medium"></ion-icon>
-    }
-    @case ("OK") {
-      <ion-icon color="success"
-        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-        name="oe-checkmark"></ion-icon>
-    }
-    @case ("INFO") {
-      <ion-icon color="success"
-        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-success));"
-        [name]="edge.roleIsAtLeast('admin') ? 'oe-info' : 'oe-checkmark'" size="medium"></ion-icon>
-    }
-    @case ("WARNING") {
-      <ion-icon color="warning" name="oe-warning"
-        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-warning));"></ion-icon>
-    }
-    @case ("FAULT") {
-      <ion-icon color="danger" name="oe-error"
-        style="font-size: 1.438rem; filter: drop-shadow(0 0.063rem 0.063rem var(--ion-color-danger));"></ion-icon>
-    }
-  }
-</ion-button>
+@if(icon !== null){
+  <ion-button (keydown.enter)="presentSingleStatusModal()"
+    class="ion-toolbar-button ion-no-padding-top ion-no-padding-end ion-no-margin-right"
+    (click)="presentSingleStatusModal()" fill="solid" style="--border-radius: 1vh 0 0 1vh;">
+    <ion-icon [color]="icon.color" [name]="icon.name" size="medium"
+      [style]="'transform: scale(1.3); filter: drop-shadow(0 0.063rem 0.063rem var(' + icon.style + '));'"></ion-icon>
+  </ion-button>
+}

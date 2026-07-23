@@ -266,7 +266,9 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 				.map(TimeOfUseTariffController::getStateMachine) //
 				.map(s -> switch (s) {
 				case BALANCING, DELAY_DISCHARGE -> true; // allow NO_DISCHARGE
-				case CHARGE_GRID, DISCHARGE_GRID, PEAK_SHAVING -> false; // no available modes in these cases
+				case CHARGE_GRID, DISCHARGE_GRID, PEAK_SHAVING, DELAY_CHARGE, LIMIT_CHARGE, AVOID_GRID_SELL_LIMIT,
+						DISCHARGE_CONSUMPTION ->
+					false; // no available modes in these cases
 				}) //
 				.orElse(true); // No ToU-Ctrl -> allow NO_DISCHARGE
 	}

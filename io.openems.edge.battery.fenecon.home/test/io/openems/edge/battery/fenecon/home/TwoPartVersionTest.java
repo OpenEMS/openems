@@ -1,11 +1,11 @@
 package io.openems.edge.battery.fenecon.home;
 
 import static io.openems.edge.battery.fenecon.home.TwoPartVersion.fromString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TwoPartVersionTest {
 
@@ -43,6 +43,9 @@ public class TwoPartVersionTest {
 		assertEquals("1.2", TwoPartVersion.fromString("1.2").toString());
 		assertEquals("2.0", TwoPartVersion.fromString("2").toString());
 		assertEquals("1.9", TwoPartVersion.fromRegisterValue(0x109).toString());
+
+		assertEquals(TwoPartVersion.fromString("1.5"),
+				TwoPartVersion.fromRegisterValue(TwoPartVersion.fromString("1.5").toRegisterValue()));
 	}
 
 }

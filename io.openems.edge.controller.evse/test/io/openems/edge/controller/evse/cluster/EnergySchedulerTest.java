@@ -12,10 +12,10 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.test.TestUtils;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class EnergySchedulerTest {
 
@@ -30,16 +30,16 @@ public class EnergySchedulerTest {
 		final var clock = TestUtils.createDummyClock();
 
 		var ctrl0 = createSingleCtrl() //
-				.setId(CTRL_FORCE) //
+				.setCtrlSingleId(CTRL_FORCE) //
 				.setMode(Mode.FORCE) //
 				.setSessionEnergyLimit(10000) //
 				.build();
 		var ctrl1 = createSingleCtrl() //
-				.setId(CTRL_SURPLUS0) //
+				.setCtrlSingleId(CTRL_SURPLUS0) //
 				.setMode(Mode.SURPLUS) //
 				.build();
 		var ctrl2 = createSingleCtrl() //
-				.setId(CTRL_SURPLUS1) //
+				.setCtrlSingleId(CTRL_SURPLUS1) //
 				.setMode(Mode.SURPLUS) //
 				.setTasks(JSCalendar.Tasks.<Payload>create(clock) //
 						.add(t -> t //
@@ -51,12 +51,12 @@ public class EnergySchedulerTest {
 						.build()) //
 				.build();
 		var ctrl3 = createSingleCtrl() //
-				.setId(CTRL_MINIMUM) //
+				.setCtrlSingleId(CTRL_MINIMUM) //
 				.setMode(Mode.MINIMUM) //
 				.setSessionEnergyLimit(2000) //
 				.build();
 		var ctrl4 = createSingleCtrl() //
-				.setId(CTRL_NOT_READY) //
+				.setCtrlSingleId(CTRL_NOT_READY) //
 				.setMode(Mode.MINIMUM) //
 				.setCombinedAbilities(ca -> ca. //
 						setIsReadyForCharging(false)) //

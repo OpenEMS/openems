@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper } from "@ngx-formly/core";
 import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.component";
@@ -6,26 +6,21 @@ import { FormlySelectFieldModalComponent } from "./formly-select-field-modal.com
 @Component({
     selector: "formly-select-extended-wrapper",
     templateUrl: "./formly-select-field.extended.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
-
     // this wrapper is used to display a select which has more
     // detailed information about an item when selecting them
-    constructor(
-        private modalController: ModalController,
-    ) {
+    constructor(private modalController: ModalController) {
         super();
-
     }
 
     protected onSelectItem() {
         this.openModal();
     }
 
-    /**
-     * Opens the model to select the option.
-     */
+    /** Opens the model to select the option. */
     private async openModal() {
         const modal = await this.modalController.create({
             component: FormlySelectFieldModalComponent,
@@ -36,7 +31,7 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
             },
             cssClass: ["auto-height", "full-width"],
         });
-        modal.onDidDismiss().then(event => {
+        modal.onDidDismiss().then((event) => {
             if (!event.data) {
                 // nothing selected
                 return;
@@ -49,5 +44,4 @@ export class FormlySelectFieldExtendedWrapperComponent extends FieldWrapper {
         });
         return await modal.present();
     }
-
 }

@@ -17,6 +17,16 @@ export namespace Name {
             return name;
         };
 
+    export const SUFFIX_FOR_ESS_CHARGE_OR_DISCHARGE = (translate: TranslateService, name: string): Converter =>
+        (raw): string =>
+            Converter.IF_NUMBER(raw, (value) => {
+                if (value > 0) {
+                    return name + " " + translate.instant("GENERAL.DISCHARGE");
+                } else {
+                    return name + " " + translate.instant("GENERAL.CHARGE");
+                }
+            });
+
     /**
    * Even though every meter should have set the alias, it still occurrs, that it is not set
    *

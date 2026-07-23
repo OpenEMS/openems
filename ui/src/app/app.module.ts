@@ -20,7 +20,9 @@ import { SystemOutageInfoComponent } from "./edge/live/system-outage-info/oe-sys
 import { SettingsModule as EdgeSettingsModule } from "./edge/settings/settings.module";
 import { IndexModule } from "./index/index.module";
 import { PlatFormService } from "./platform.service";
+import { FooterContentComponent } from "./shared/components/footer/content/content";
 import { NavigationComponent } from "./shared/components/navigation/action-sheet-modal";
+import { NavigationBackButtonComponent } from "./shared/components/navigation/back-button/back-button";
 import { NavigationService } from "./shared/components/navigation/service/navigation.service";
 import { ChartOptionsPopoverComponent } from "./shared/legacy/chartoptions/popover/popover.component";
 import { AppStateTracker } from "./shared/ngrx-store/app-state-tracker";
@@ -34,12 +36,10 @@ import { UserModule } from "./user/user.module";
 provideTranslateLoader(MyTranslateLoader);
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        ChartOptionsPopoverComponent,
-        NavigationComponent,
-    ],
+    declarations: [AppComponent, ChartOptionsPopoverComponent, NavigationComponent],
     imports: [
+        NavigationBackButtonComponent,
+        FooterContentComponent,
         SystemOutageInfoComponent,
         AngularMyDatePickerModule,
         AppRoutingModule,
@@ -51,16 +51,27 @@ provideTranslateLoader(MyTranslateLoader);
         IonicModule.forRoot({ innerHTMLTemplatesEnabled: true }),
         HttpClientModule,
         SharedModule,
-        TranslateModule.forRoot({ loader: { provide: TranslateLoader, useClass: MyTranslateLoader } }),
+        TranslateModule.forRoot({
+            loader: { provide: TranslateLoader, useClass: MyTranslateLoader },
+            fallbackLang: Language.EN.key,
+        }),
         UserModule,
     ],
     providers: [
         { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
         CookieService,
         { provide: ErrorHandler, useClass: MyErrorHandler },
-        { provide: LOCALE_ID, useFactory: () => Language.getCurrentLanguage().key },
+        {
+            provide: LOCALE_ID,
+            useFactory: () => Language.getCurrentLanguage().key,
+        },
         // Use factory for formly. This allows us to use translations in validationMessages.
-        { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+        {
+            provide: FORMLY_CONFIG,
+            multi: true,
+            useFactory: registerTranslateExtension,
+            deps: [TranslateService],
+        },
         DeviceDetectorService,
         Pagination,
         CheckForUpdateService,
@@ -82,5 +93,5 @@ export class AppModule {
 }
 
 export function initializeService(): () => Promise<void> {
-    return async () => { };
+    return async () => {};
 }

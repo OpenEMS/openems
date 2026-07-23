@@ -2,10 +2,10 @@ package io.openems.edge.energy.optimizer;
 
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EshCodecTest {
 

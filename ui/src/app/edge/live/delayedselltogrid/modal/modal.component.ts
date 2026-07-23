@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,14 +8,13 @@ import { Edge, EdgeConfig, Service, Websocket } from "../../../../shared/shared"
 @Component({
     selector: DelayedSellToGridModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DelayedSellToGridModalComponent implements OnInit {
-
     private static readonly SELECTOR = "delayedselltogrid-modal";
     @Input({ required: true }) protected component!: EdgeConfig.Component;
     @Input({ required: true }) protected edge!: Edge;
-
 
     public formGroup: FormGroup;
     public loading: boolean = false;
@@ -26,18 +25,18 @@ export class DelayedSellToGridModalComponent implements OnInit {
         public service: Service,
         public translate: TranslateService,
         public websocket: Websocket,
-    ) { }
+    ) {}
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
-            continuousSellToGridPower: new FormControl(this.component.properties.continuousSellToGridPower, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
-            ])),
-            sellToGridPowerLimit: new FormControl(this.component.properties.sellToGridPowerLimit, Validators.compose([
-                Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                Validators.required,
-            ])),
+            continuousSellToGridPower: new FormControl(
+                this.component.properties.continuousSellToGridPower,
+                Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
+            ),
+            sellToGridPowerLimit: new FormControl(
+                this.component.properties.sellToGridPowerLimit,
+                Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
+            ),
         });
     }
 
@@ -51,25 +50,37 @@ export class DelayedSellToGridModalComponent implements OnInit {
                         const updateComponentArray = [];
                         Object.keys(this.formGroup.controls).forEach((element, index) => {
                             if (this.formGroup.controls[element].dirty) {
-                                updateComponentArray.push({ name: Object.keys(this.formGroup.controls)[index], value: this.formGroup.controls[element].value });
+                                updateComponentArray.push({
+                                    name: Object.keys(this.formGroup.controls)[index],
+                                    value: this.formGroup.controls[element].value,
+                                });
                             }
                         });
                         this.loading = true;
-                        this.edge.updateComponentConfig(this.websocket, this.component.id, updateComponentArray).then(() => {
-                            this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
-                            this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-                        }).catch(reason => {
-                            continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
-                            sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
-                            this.loading = false;
-                            this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-                            console.warn(reason);
-                        });
+                        this.edge
+                            .updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
+                            .then(() => {
+                                this.component.properties.continuousSellToGridPower = continuousSellToGridPower.value;
+                                this.component.properties.sellToGridPowerLimit = sellToGridPowerLimit.value;
+                                this.loading = false;
+                                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                            })
+                            .catch((reason) => {
+                                continuousSellToGridPower.setValue(this.component.properties.continuousSellToGridPower);
+                                sellToGridPowerLimit.setValue(this.component.properties.sellToGridPowerLimit);
+                                this.loading = false;
+                                this.service.toast(
+                                    this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                                    "danger",
+                                );
+                                console.warn(reason);
+                            });
                         this.formGroup.markAsPristine();
                     } else {
-                        this.service.toast(this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.RELATION_ERROR"), "danger");
+                        this.service.toast(
+                            this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.RELATION_ERROR"),
+                            "danger",
+                        );
                     }
                 } else {
                     this.service.toast(this.translate.instant("GENERAL.INPUT_NOT_VALID"), "danger");

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
@@ -44,7 +44,7 @@ public class AppManagerImplJsonApiTest {
 
 	private JsonApiBuilder routes;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		final var appManager = new AppManagerImpl();
 		this.routes = new JsonApiBuilder();

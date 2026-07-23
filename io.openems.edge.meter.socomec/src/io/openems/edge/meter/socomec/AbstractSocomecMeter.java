@@ -79,6 +79,13 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 	 */
 	protected abstract void identifiedCountisE14() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E47, E48.
+	 *
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void identifiedCountisE47_E48() throws OpenemsException;
+
 	protected final void identifySocomecMeter() {
 		this.getSocomecIdentifier().thenAccept(name -> {
 			try {
@@ -122,6 +129,14 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 				} else if (name.startsWith("countis e14")) {
 					this.logError(this.log, "Identified Socomec [" + name + "] meter");
 					this.identifiedCountisE14();
+
+				} else if (name.startsWith("countis e47")) {
+					this.logInfo(this.log, "Identified Socomec Countis E47 meter");
+					this.identifiedCountisE47_E48();
+
+				} else if (name.startsWith("countis e48")) {
+					this.logInfo(this.log, "Identified Socomec Countis E48 meter");
+					this.identifiedCountisE47_E48();
 
 				} else {
 					this.logError(this.log, "Unable to identify Socomec [" + name + "] meter!");

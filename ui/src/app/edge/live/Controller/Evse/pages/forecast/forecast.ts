@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -12,22 +12,22 @@ import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
     selector: "oe-controller-evse-forecast",
     templateUrl: "./forecast.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
-        .ion-justify-with-space-between{
-            ion-row > ion-col:nth-child(2){
-                text-align: right;
+            .ion-justify-with-space-between {
+                ion-row > ion-col:nth-child(2) {
+                    text-align: right;
+                }
             }
-        }
 
-         form {
-            align-content: center !important;
-        }
+            form {
+                align-content: center !important;
+            }
         `,
     ],
 })
 export class ModalComponent extends AbstractModal {
-
     constructor(
         @Inject(Websocket) protected override websocket: Websocket,
         @Inject(ActivatedRoute) protected override route: ActivatedRoute,
@@ -42,10 +42,15 @@ export class ModalComponent extends AbstractModal {
 
     override async updateComponent(config: EdgeConfig) {
         return new Promise<void>((res) => {
-            this.route.params.pipe(filter(params => params != null), take(1)).subscribe((params) => {
-                this.component = config.getComponent(params.componentId);
-                res();
-            });
+            this.route.params
+                .pipe(
+                    filter((params) => params != null),
+                    take(1),
+                )
+                .subscribe((params) => {
+                    this.component = config.getComponent(params.componentId);
+                    res();
+                });
         });
     }
 }

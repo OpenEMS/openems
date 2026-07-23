@@ -5,6 +5,7 @@ import static io.openems.common.utils.IntUtils.maxInt;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -30,6 +31,7 @@ public abstract class AbstractMaxCurrentHandler {
 		protected PolyLine socToPercent = PolyLine.empty();
 		protected Double maxIncreasePerSecond = null;
 		protected IntSupplier forceChargeDischargeCurrent = BatteryProtectionDefinition.DEFAULT_FORCE_CHARGE_DISCHARGE_CURRENT;
+		protected BooleanSupplier isCurrentFlowAllowed = () -> true;
 
 		/**
 		 * Creates a {@link Builder} for {@link AbstractMaxCurrentHandler}.
@@ -101,6 +103,19 @@ public abstract class AbstractMaxCurrentHandler {
 			return this.self();
 		}
 
+		/**
+		 * Sets the BooleanSupplier to provide a boolean state whetever current may or
+		 * may not flow.
+		 *
+		 * @param isCurrentFlowAllowed true if current may flow. false if current may
+		 *                             not flow and is restricted to zero.
+		 * @return a {@link Builder}
+		 */
+		public T setCurrentFlowAllowed(BooleanSupplier isCurrentFlowAllowed) {
+			this.isCurrentFlowAllowed = isCurrentFlowAllowed;
+			return this.self();
+		}
+
 		protected abstract T self();
 	}
 
@@ -110,6 +125,7 @@ public abstract class AbstractMaxCurrentHandler {
 	protected final PolyLine socToPercent;
 	protected final AbstractForceChargeDischarge forceChargeDischarge;
 	protected final IntSupplier forceChargeDischargeCurrent;
+	protected final BooleanSupplier isCurrentFlowAllowed;
 
 	protected int bmsMaxEverCurrent;
 
@@ -121,7 +137,7 @@ public abstract class AbstractMaxCurrentHandler {
 	protected AbstractMaxCurrentHandler(ClockProvider clockProvider, int initialBmsMaxEverCurrent,
 			PolyLine voltageToPercent, PolyLine temperatureToPercent, PolyLine socToPercent,
 			Double maxIncreasePerSecond, AbstractForceChargeDischarge forceChargeDischarge,
-			IntSupplier forceChargeDischargeCurrent) {
+			IntSupplier forceChargeDischargeCurrent, BooleanSupplier isCurrentFlowAllowed) {
 		this.clockProvider = clockProvider;
 		this.bmsMaxEverCurrent = initialBmsMaxEverCurrent;
 		this.voltageToPercent = voltageToPercent;
@@ -130,6 +146,7 @@ public abstract class AbstractMaxCurrentHandler {
 		this.maxIncreasePerSecond = maxIncreasePerSecond;
 		this.forceChargeDischarge = forceChargeDischarge;
 		this.forceChargeDischargeCurrent = forceChargeDischargeCurrent;
+		this.isCurrentFlowAllowed = isCurrentFlowAllowed;
 	}
 
 	/**
@@ -306,20 +323,25 @@ public abstract class AbstractMaxCurrentHandler {
 				minCellTemperatureLimit, maxCellTemperatureLimit, maxSocLimit, maxIncreaseAmpereLimit, forceCurrent);
 
 		// Set '0' to block charge/discharge?
-		if (
-		// Battery not started?
-		!battery.isStarted()
-				// No limit?
-				|| limit == null
-				// No value from BMS and no force charge/discharge?
-				|| limit > 0 && bpBms == null //
-		) {
+		if (!this.isCurrentFlowAllowed(battery, limit, bpBms)) {
 			limit = 0.;
 		}
 
 		this.lastCurrentLimit = limit;
 
 		return (int) Math.round(limit);
+	}
+
+	private boolean isCurrentFlowAllowed(Battery battery, Double limit, Integer bpBms) {
+		if (limit == null) {
+			return false;
+		}
+
+		final var hasBmsValue = bpBms != null;
+		final var isForceChargeDischarge = limit <= 0;
+
+		return battery.isStarted() && this.isCurrentFlowAllowed.getAsBoolean()
+				&& (hasBmsValue || isForceChargeDischarge);
 	}
 
 	/**

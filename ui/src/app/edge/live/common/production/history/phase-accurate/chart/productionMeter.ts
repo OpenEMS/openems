@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -10,22 +10,28 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 @Component({
     selector: "oe-common-production-history-meter",
     templateUrl: "../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
-
-    public static getChartData(config: EdgeConfig, route: ActivatedRoute, translate: TranslateService): HistoryUtils.ChartData {
+    public static getChartData(
+        config: EdgeConfig,
+        route: ActivatedRoute,
+        translate: TranslateService,
+    ): HistoryUtils.ChartData {
         const component = config.getComponent(route.snapshot.params.componentId);
         return {
-            input: [{
-                name: component.id,
-                powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
-                energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
-            },
-            ...Phase.THREE_PHASE.map(phase => ({
-                name: "ProductionAcActivePower" + phase,
-                powerChannel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
-            }))],
+            input: [
+                {
+                    name: component.id,
+                    powerChannel: ChannelAddress.fromString(component.id + "/ActivePower"),
+                    energyChannel: ChannelAddress.fromString(component.id + "/ActiveProductionEnergy"),
+                },
+                ...Phase.THREE_PHASE.map((phase) => ({
+                    name: "ProductionAcActivePower" + phase,
+                    powerChannel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
+                })),
+            ],
 
             output: (data: HistoryUtils.ChannelData) => {
                 const datasets: HistoryUtils.DisplayValue[] = [];
@@ -42,13 +48,14 @@ export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
                     stack: 2,
                 });
 
-                datasets.push(...Phase.THREE_PHASE.map((phase, i) => ({
-                    name: "Phase " + phase,
-                    converter: () =>
-                        data["ProductionAcActivePower" + phase],
-                    color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
-                    stack: 3,
-                })));
+                datasets.push(
+                    ...Phase.THREE_PHASE.map((phase, i) => ({
+                        name: "Phase " + phase,
+                        converter: () => data["ProductionAcActivePower" + phase],
+                        color: "rgb(" + AbstractHistoryChart.phaseColors[i] + ")",
+                        stack: 3,
+                    })),
+                );
 
                 return datasets;
             },
@@ -56,11 +63,13 @@ export class ProductionMeterChartDetailsComponent extends AbstractHistoryChart {
                 formatNumber: "1.1-2",
                 afterTitle: translate.instant("GENERAL.TOTAL"),
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+            ],
         };
     }
 

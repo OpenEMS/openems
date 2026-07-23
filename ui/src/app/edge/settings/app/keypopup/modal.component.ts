@@ -1,7 +1,7 @@
 // @ts-strict-ignore
 import { Component, Input, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -22,26 +22,27 @@ import { Key } from "./key";
     standalone: false,
 })
 export class KeyModalComponent implements OnInit {
-
     private static readonly SELECTOR = "key-modal";
 
     @Input({ required: true }) public edge!: Edge;
     @Input() public appId: string | null = null;
     @Input() public appName: string | null = null;
+    @Input({ required: true }) public route!: ActivatedRoute;
     @Input({ required: true }) public behaviour!: KeyValidationBehaviour;
-
     @Input() public knownApps: GetApps.App[] | null = null;
+
     public readonly spinnerId: string = KeyModalComponent.SELECTOR;
 
     protected form: FormGroup;
     protected fields: FormlyFieldConfig[];
     protected model: {
-        useRegisteredKeys: boolean,
-        registeredKey: string,
-        key: string,
-        useMasterKey?: boolean,
+        useRegisteredKeys: boolean;
+        registeredKey: string;
+        key: string;
+        useMasterKey?: boolean;
     };
     protected options: FormlyFormOptions;
+
     private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
     private registeredKeys: Key[] = [];
 
@@ -51,17 +52,16 @@ export class KeyModalComponent implements OnInit {
         private router: Router,
         private websocket: Websocket,
         private translate: TranslateService,
-    ) { }
+    ) {}
 
     /**
- * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.
- *
- * Prevents the user from typing in an invalid key.
- * Gets automatically called when the user types something in.
- *
- * @param value the value to transform
- * @returns the transformed value or null if there was no change to the given value
- */
+     * Transformes the input so that the input matches the pattern 'XXXX-XXXX-XXXX-XXXX'.
+     *
+     * Prevents the user from typing in an invalid key. Gets automatically called when the user types something in.
+     *
+     * @param value The value to transform
+     * @returns The transformed value or null if there was no change to the given value
+     */
     private static transformInput(value: string): string {
         // remove spaces
         let trimmed = value.replace(/\s+/g, "");
@@ -123,68 +123,87 @@ export class KeyModalComponent implements OnInit {
             return;
         }
         this.service.startSpinner(this.spinnerId);
-        this.edge.sendRequest(this.websocket, new AppCenter.Request({
-            payload: new AppCenterGetRegisteredKeys.Request({
-                ...(this.appId && { appId: this.appId }),
-            }),
-        })).then(response => {
-            const result = (response as AppCenterGetRegisteredKeys.Response).result;
-            this.registeredKeys = result.keys;
-            this.fields = this.getFields();
-            if (this.registeredKeys.length > 0) {
-                this.model.useRegisteredKeys = true;
-                this.model.registeredKey = this.registeredKeys[0].keyId;
-            }
-            const selectRegisteredKey = this.fields.find(f => f.key === "registeredKey");
-            this.registeredKeys.forEach(key => {
-                const desc = this.getDescription(key);
-                (selectRegisteredKey.props.options as any[]).push({
-                    value: key.keyId,
-                    label: key.keyId,
-                    description: desc,
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new AppCenter.Request({
+                    payload: new AppCenterGetRegisteredKeys.Request({
+                        ...(this.appId && { appId: this.appId }),
+                    }),
+                }),
+            )
+            .then((response) => {
+                const result = (response as AppCenterGetRegisteredKeys.Response).result;
+                this.registeredKeys = result.keys;
+                this.fields = this.getFields();
+                if (this.registeredKeys.length > 0) {
+                    this.model.useRegisteredKeys = true;
+                    this.model.registeredKey = this.registeredKeys[0].keyId;
+                }
+                const selectRegisteredKey = this.fields.find((f) => f.key === "registeredKey");
+                this.registeredKeys.forEach((key) => {
+                    const desc = this.getDescription(key);
+                    (selectRegisteredKey.props.options as any[]).push({
+                        value: key.keyId,
+                        label: key.keyId,
+                        description: desc,
+                    });
                 });
+            })
+            .catch((reason) => {
+                this.fields = this.getFields();
+                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.FAILED_LOADING_REGISTER_KEY"), "danger");
+            })
+            .finally(() => {
+                this.service.stopSpinner(this.spinnerId);
             });
-        }).catch(reason => {
-            this.fields = this.getFields();
-            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.FAILED_LOADING_REGISTER_KEY"), "danger");
-        }).finally(() => {
-            this.service.stopSpinner(this.spinnerId);
-        });
     }
 
     /**
- * Depending on the behaviour:
- *
- * KeyValidationBehaviour.NAVIGATE:
- *  navigates to the install page of the app and passes the key
- *
- * KeyValidationBehaviour.REGISTER:
- *  registers the entered key for the passed app
- *
- * KeyValidationBehaviour.SELECT:
- *  if a valid key gets selected it gets returned
- */
-    protected onClickCreateApp(): void {
+     * Depending on the behaviour:
+     *
+     * KeyValidationBehaviour.NAVIGATE: navigates to the install page of the app and passes the key
+     *
+     * KeyValidationBehaviour.REGISTER: registers the entered key for the passed app
+     *
+     * KeyValidationBehaviour.SELECT: if a valid key gets selected it gets returned
+     */
+    protected onClickCreateApp(route: ActivatedRoute): void {
         switch (this.behaviour) {
             case KeyValidationBehaviour.NAVIGATE:
                 this.service.startSpinner(this.spinnerId);
-                this.modalCtrl.dismiss({ key: this.getSelectedKey(), useMasterKey: this.model.useMasterKey });
+                this.modalCtrl.dismiss({
+                    key: this.getSelectedKey(),
+                    useMasterKey: this.model.useMasterKey,
+                });
                 // navigate to App install view and pass valid key
-                this.router.navigate(["device/" + (this.edge.id) + "/settings/app/install/" + this.appId]
-                    , { queryParams: { name: this.appName }, state: { appKey: this.getRawAppKey(), useMasterKey: this.model.useMasterKey } });
+                this.router.navigate(["./install"], {
+                    queryParams: { name: this.appName, appId: this.appId },
+                    state: {
+                        appKey: this.getRawAppKey(),
+                        useMasterKey: this.model.useMasterKey,
+                    },
+                    relativeTo: route,
+                });
                 this.service.stopSpinner(this.spinnerId);
                 break;
             case KeyValidationBehaviour.REGISTER:
                 this.service.startSpinner(this.spinnerId);
                 // only register key for this app
-                this.registerKey().then(() => {
-                    this.modalCtrl.dismiss({ key: this.getSelectedKey() });
-                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.SUCCESS_REGISTER_KEY"), "success");
-                }).catch(() => {
-                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.FAILED_REGISTER_KEY"), "danger");
-                }).finally(() => {
-                    this.service.stopSpinner(this.spinnerId);
-                });
+                this.registerKey()
+                    .then(() => {
+                        this.modalCtrl.dismiss({ key: this.getSelectedKey() });
+                        this.service.toast(
+                            this.translate.instant("EDGE.CONFIG.APP.KEY.SUCCESS_REGISTER_KEY"),
+                            "success",
+                        );
+                    })
+                    .catch(() => {
+                        this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.FAILED_REGISTER_KEY"), "danger");
+                    })
+                    .finally(() => {
+                        this.service.stopSpinner(this.spinnerId);
+                    });
                 break;
             case KeyValidationBehaviour.SELECT:
                 if (this.model.useMasterKey) {
@@ -195,39 +214,49 @@ export class KeyModalComponent implements OnInit {
         }
     }
 
-    /**
-     * Validates the currently entered key.
-    */
+    /** Validates the currently entered key. */
     protected validateKey(): void {
         if (this.form.invalid) {
             return;
         }
         const appKey = this.getRawAppKey();
         const request = new AppCenter.Request({
-            payload: new AppCenterIsKeyApplicable.Request({ key: appKey, appId: this.appId }),
+            payload: new AppCenterIsKeyApplicable.Request({
+                key: appKey,
+                appId: this.appId,
+            }),
         });
 
         this.service.startSpinner(this.spinnerId);
-        this.edge.sendRequest(this.websocket, request)
+        this.edge
+            .sendRequest(this.websocket, request)
             .then((response) => {
                 const result = (response as AppCenterIsKeyApplicable.Response).result;
                 if (result.isKeyApplicable) {
-                    this.lastValidKey = (response as AppCenterIsKeyApplicable.Response);
+                    this.lastValidKey = response as AppCenterIsKeyApplicable.Response;
 
-                    if (result.additionalInfo.registrations.length !== 0
-                        && this.behaviour === KeyValidationBehaviour.REGISTER) {
-                        const differentEdge = result.additionalInfo.registrations.some(registration => {
+                    if (
+                        result.additionalInfo.registrations.length !== 0 &&
+                        this.behaviour === KeyValidationBehaviour.REGISTER
+                    ) {
+                        const differentEdge = result.additionalInfo.registrations.some((registration) => {
                             return registration.edgeId !== this.edge.id;
                         });
                         if (differentEdge) {
-                            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_SYSTEM"), "warning");
+                            this.service.toast(
+                                this.translate.instant("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_SYSTEM"),
+                                "warning",
+                            );
                             return;
                         }
-                        const sameApp = result.additionalInfo.registrations.some(registration => {
+                        const sameApp = result.additionalInfo.registrations.some((registration) => {
                             return registration.appId === this.appId && registration.edgeId === this.edge.id;
                         });
                         if (!sameApp) {
-                            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_APP"), "warning");
+                            this.service.toast(
+                                this.translate.instant("EDGE.CONFIG.APP.KEY.ALREADY_REGISTERED_DIFFERENT_APP"),
+                                "warning",
+                            );
                             return;
                         }
                     }
@@ -236,26 +265,27 @@ export class KeyModalComponent implements OnInit {
                 } else {
                     this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.INVALID"), "danger");
                 }
-            }).catch(reason => {
+            })
+            .catch((reason) => {
                 // this may happen if the key is not stored in the database
                 this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.INVALID"), "danger");
                 this.options.formState.gotInvalidKeyResponse = true;
                 if (environment.debugMode) {
                     console.log("Failed to validate Key", reason);
                 }
-            }).finally(() => {
+            })
+            .finally(() => {
                 this.service.stopSpinner(this.spinnerId);
             });
     }
 
     /**
      * Determines if the current selected key is valid.
-    *
-    * @returns true if the current selected key is valid
-    */
+     *
+     * @returns True if the current selected key is valid
+     */
     protected isKeyValid(): boolean {
-        if (this.model.useRegisteredKeys
-            || this.model.useMasterKey) {
+        if (this.model.useRegisteredKeys || this.model.useMasterKey) {
             return true;
         }
         return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
@@ -269,7 +299,7 @@ export class KeyModalComponent implements OnInit {
         if (!bundles) {
             return null;
         }
-        if (!bundles.some(bundle => bundle.length != 0)) {
+        if (!bundles.some((bundle) => bundle.length != 0)) {
             return null;
         }
 
@@ -281,18 +311,20 @@ export class KeyModalComponent implements OnInit {
             // if multiple apps are in bundle find category which has all the apps
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
-                if (apps.every(app => {
-                    if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
-                        return true;
-                    }
-                    for (const appFromBundle of bundle) {
-                        if (appFromBundle.appId === app.appId) {
+                if (
+                    apps.every((app) => {
+                        if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
                             return true;
                         }
-                    }
-                    return false;
-                })) {
-                    const category = apps[0].categorys.find(c => c.name === catName);
+                        for (const appFromBundle of bundle) {
+                            if (appFromBundle.appId === app.appId) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                ) {
+                    const category = apps[0].categorys.find((c) => c.name === catName);
                     descriptionFields.push(category.readableName);
                     isCategorySet = true;
                 }
@@ -302,18 +334,18 @@ export class KeyModalComponent implements OnInit {
             }
             // if apps are not directly of a category, list them
             for (const appOfBundle of bundle) {
-                const app = this.knownApps.find(app => app.appId === appOfBundle.appId);
+                const app = this.knownApps.find((app) => app.appId === appOfBundle.appId);
                 if (app == null) {
                     continue;
                 }
                 descriptionFields.push(app.name);
             }
         }
-        return descriptionFields.length === 0 ? null : descriptionFields.map(e => appPrefix + " " + e).join(", ");
+        return descriptionFields.length === 0 ? null : descriptionFields.map((e) => appPrefix + " " + e).join(", ");
     }
 
-    private getAppsByCategory(): { [key: string]: GetApps.App[]; } {
-        const map: { [key: string]: GetApps.App[]; } = {};
+    private getAppsByCategory(): { [key: string]: GetApps.App[] } {
+        const map: { [key: string]: GetApps.App[] } = {};
         for (const app of this.knownApps) {
             for (const category of app.categorys) {
                 let appList: GetApps.App[];
@@ -332,7 +364,7 @@ export class KeyModalComponent implements OnInit {
     /**
      * Gets the input fields.
      *
-     * @returns the input fields
+     * @returns The input fields
      */
     private getFields(): FormlyFieldConfig[] {
         const fields: FormlyFieldConfig[] = [];
@@ -344,7 +376,7 @@ export class KeyModalComponent implements OnInit {
             },
             hide: this.registeredKeys.length === 0,
             expressions: {
-                "props.disabled": field => field.model.useMasterKey,
+                "props.disabled": (field) => field.model.useMasterKey,
             },
         });
 
@@ -357,8 +389,8 @@ export class KeyModalComponent implements OnInit {
                 options: [],
             },
             expressions: {
-                "hide": () => this.registeredKeys.length === 0,
-                "props.disabled": field => !field.model.useRegisteredKeys || field.model.useMasterKey,
+                hide: () => this.registeredKeys.length === 0,
+                "props.disabled": (field) => !field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             wrappers: ["formly-select-extended-wrapper"],
         });
@@ -372,7 +404,7 @@ export class KeyModalComponent implements OnInit {
                 placeholder: "XXXX-XXXX-XXXX-XXXX",
             },
             expressions: {
-                "props.disabled": field => field.model.useRegisteredKeys || field.model.useMasterKey,
+                "props.disabled": (field) => field.model.useRegisteredKeys || field.model.useMasterKey,
             },
             validators: {
                 validation: ["key"],
@@ -390,8 +422,10 @@ export class KeyModalComponent implements OnInit {
             },
         });
 
-        if (this.behaviour !== KeyValidationBehaviour.REGISTER
-            && hasPredefinedKey(this.edge, this.service.metadata.value.user)) {
+        if (
+            this.behaviour !== KeyValidationBehaviour.REGISTER &&
+            hasPredefinedKey(this.edge, this.service.metadata.value.user)
+        ) {
             this.model.useMasterKey = true;
             fields.push(
                 {
@@ -427,35 +461,43 @@ export class KeyModalComponent implements OnInit {
     private registerKey(): Promise<void> {
         return new Promise((resolve, reject) => {
             // key already registered
-            if (this.lastValidKey?.result.additionalInfo.keyId === this.getRawAppKey()
-                && this.lastValidKey.result.additionalInfo.registrations.some(registration => {
+            if (
+                this.lastValidKey?.result.additionalInfo.keyId === this.getRawAppKey() &&
+                this.lastValidKey.result.additionalInfo.registrations.some((registration) => {
                     return registration.edgeId === this.edge.id && registration.appId === this.appId;
-                })) {
+                })
+            ) {
                 resolve();
                 return;
             }
             // only register key for this app
-            this.edge.sendRequest(this.websocket, new AppCenter.Request({
-                payload: new AppCenterAddRegisterKeyHistory.Request({
-                    key: this.getRawAppKey(),
-                    ...(this.appId && { appId: this.appId }),
-                }),
-            })).then(() => {
-                resolve();
-            }).catch(reason => {
-                reject(reason);
-            });
+            this.edge
+                .sendRequest(
+                    this.websocket,
+                    new AppCenter.Request({
+                        payload: new AppCenterAddRegisterKeyHistory.Request({
+                            key: this.getRawAppKey(),
+                            ...(this.appId && { appId: this.appId }),
+                        }),
+                    }),
+                )
+                .then(() => {
+                    resolve();
+                })
+                .catch((reason) => {
+                    reject(reason);
+                });
         });
     }
 
     /**
      * Gets the selected key.
      *
-     * @returns the selected key
+     * @returns The selected key
      */
     private getSelectedKey() {
         if (this.model.useRegisteredKeys) {
-            return this.registeredKeys.find(k => k.keyId === this.getRawAppKey());
+            return this.registeredKeys.find((k) => k.keyId === this.getRawAppKey());
         }
         return { keyId: this.getRawAppKey() };
     }
@@ -463,7 +505,7 @@ export class KeyModalComponent implements OnInit {
     /**
      * Gets the currently entered key.
      *
-     * @returns the entered key
+     * @returns The entered key
      */
     private getRawAppKey(): string {
         if (this.model.useRegisteredKeys) {
@@ -472,7 +514,6 @@ export class KeyModalComponent implements OnInit {
             return this.model.key;
         }
     }
-
 }
 
 export enum KeyValidationBehaviour {

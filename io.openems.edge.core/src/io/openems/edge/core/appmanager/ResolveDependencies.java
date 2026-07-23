@@ -108,7 +108,7 @@ public class ResolveDependencies implements Runnable {
 								new AddAppInstance.Request(//
 										config.appId, "key", //
 										config.alias, //
-										config.initialProperties),
+										config.getPropertiesForInstanceCreation().toJson()),
 								true);
 						resolveDependencies(user, appManagerImpl, appManagerUtil);
 						return;

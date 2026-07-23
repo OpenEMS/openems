@@ -30,6 +30,7 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.energy.api.LogVerbosity;
 import io.openems.edge.energy.api.handler.OneMode;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.api.simulation.periods.PeriodData.Price;
 
 public class Optimizer {
 
@@ -86,8 +87,10 @@ public class Optimizer {
 				simulationsPerQuarterChannel, //
 				generationsPerQuarterChannel, //
 				Clock.systemDefaultZone(), //
-				Executors::newSingleThreadExecutor, //
-				Executors::newSingleThreadScheduledExecutor, //
+				() -> Executors.newSingleThreadExecutor(new OptimizerThreadFactory(
+						OptimizerThreadFactory.KEY_OPTIMIZER_EXECUTOR, Thread.NORM_PRIORITY)), //
+				() -> Executors.newSingleThreadScheduledExecutor(new OptimizerThreadFactory(
+						OptimizerThreadFactory.KEY_OPTIMIZER_SCHEDULER, Thread.NORM_PRIORITY)), //
 				Simulator::new);
 	}
 
@@ -329,12 +332,15 @@ public class Optimizer {
 						ZonedDateTime::compareTo, //
 						Entry::getKey, //
 						e -> {
-							var p = e.getValue();
-							var price = switch (p.period()) {
-							case GlobalOptimizationContext.Period.WithPrice wp -> wp.price().actual();
-							default -> null;
-							};
-							return new OneMode.Period.Transition(p.period().duration(), price, p.energyFlow());
+							final var p = e.getValue();
+							final var gridBuyPrice = p.period().data().gridBuyPrice()//
+									.map(Price::actual)//
+									.orElse(null);
+							final var gridSellPrice = p.period().data().gridSellPrice()//
+									.map(Price::actual)//
+									.orElse(null);
+							return new OneMode.Period.Transition(p.period().duration(), gridBuyPrice, gridSellPrice,
+									p.energyFlow());
 						}));
 
 		simulationResult.eshsWithOnlyOneMode().forEach(esh -> esh.applySchedule(schedule));

@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.bridge.http.metric.HttpBridgeMetricService;
 import io.openems.common.bridge.http.metric.HttpBridgeMetricServiceDefinition;
 import io.openems.common.types.DebugMode;
@@ -53,6 +55,8 @@ public abstract class IoGen2ShellyBaseImpl extends AbstractOpenemsComponent
 		if (debugMode == DebugMode.DETAILED) {
 			this.metricService = this.httpBridge.createService(HttpBridgeMetricServiceDefinition.byUrl());
 		}
+		this.httpBridge.createService(
+				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.DEFAULT.withContextId(id)));
 
 		this.cycleService = this.httpBridge.createService(this.getHttpBridgeCycleServiceDefinition());
 

@@ -4,23 +4,21 @@
       <ion-row class="ion-align-items-center">
         <ion-col size="auto">
           <ion-item lines="none">
-            <img class="center-image" [src]="props.url">
+            <img class="center-image" [src]="props.url" />
           </ion-item>
         </ion-col>
         <ion-col>
           <ion-row>
             <ion-col>
               <ion-item lines="none">
-                <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
-                  (ionChange)="updateFormControl($event)">
-                  <span style="white-space:pre-wrap;">{{props.label}}</span>
+                <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled" (ionChange)="updateFormControl($event)">
+                  <span style="white-space: pre-wrap">{{ props.label }}</span>
                 </ion-checkbox>
               </ion-item>
             </ion-col>
           </ion-row>
           @if (props.serialNumberField) {
-            <ion-row class="ion-padding-top"
-              [ngClass]="{'disabled-sub-field': serialNumberFormControl?.disabled}">
+            <ion-row class="ion-padding-top" [ngClass]="{ 'disabled-sub-field': serialNumberFormControl?.disabled }">
               <ion-col>
                 <ion-item lines="none">
                   <ion-label>
@@ -29,13 +27,10 @@
                       <span>*</span>
                     }
                     @if (props.serialNumberField.helpText) {
-                      <ion-icon name="help-circle" id="sn-help-icon" class="help-icon">
-                      </ion-icon>
-                      <ion-popover trigger="sn-help-icon" triggerAction="hover" size="auto"
-                        [dismissOnSelect]="true">
+                      <ion-icon name="help-circle" id="sn-help-icon" class="help-icon"></ion-icon>
+                      <ion-popover trigger="sn-help-icon" triggerAction="hover" size="auto" [dismissOnSelect]="true">
                         <ng-template>
-                          <ion-content class="ion-padding">{{ props.serialNumberField.helpText
-                          }}</ion-content>
+                          <ion-content class="ion-padding">{{ props.serialNumberField.helpText }}</ion-content>
                         </ng-template>
                       </ion-popover>
                     }
@@ -45,22 +40,17 @@
               <ion-col>
                 <ion-item lines="none" class="ion-no-padding input-box" [ngStyle]="borderColor">
                   @if (props.serialNumberField.prefix) {
-                    <span class="ion-padding-start">{{
-                    props.serialNumberField.prefix }}</span>
+                    <span class="ion-padding-start">{{ props.serialNumberField.prefix }}</span>
                   }
-                  <ion-input [formControl]="serialNumberFormControl" (ionFocus)="isSerialNumberFocused = true"
-                    (ionBlur)="isSerialNumberFocused = false"
-                    [placeholder]="props.serialNumberField.placeholder">
-                  </ion-input>
+                  <ion-input [formControl]="serialNumberFormControl" (ionFocus)="isSerialNumberFocused = true" (ionBlur)="isSerialNumberFocused = false" [placeholder]="props.serialNumberField.placeholder"></ion-input>
                 </ion-item>
               </ion-col>
             </ion-row>
           }
           <ion-row>
             <ion-col>
-              @if (formControl.hasError('serialNumberRequired')) {
-                <ion-item lines="none"
-                  class="ion-no-padding">
+              @if (shouldShowError) {
+                <ion-item lines="none" class="ion-no-padding">
                   <ion-text class="ion-font-size-smaller" color="danger">
                     <formly-validation-message [field]="field"></formly-validation-message>
                   </ion-text>
@@ -76,9 +66,8 @@
       <ion-row>
         <ion-col>
           <ion-item>
-            <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled"
-              (ionChange)="updateFormControl($event)" justify="space-between">
-              <span style="white-space:pre-wrap;">{{props.label}}</span>
+            <ion-checkbox [checked]="value" [value]="props.value" [disabled]="props.disabled" (ionChange)="updateFormControl($event)" justify="space-between">
+              <span style="white-space: pre-wrap">{{ props.label }}</span>
             </ion-checkbox>
           </ion-item>
         </ion-col>
@@ -87,7 +76,7 @@
         <ion-row>
           <ion-col>
             <ion-item [class.disabled]="props.disabled" lines="none" class="ion-padding-top">
-              <ion-text style="white-space: pre-line;" [innerHTML]="props.description"></ion-text>
+              <ion-text style="white-space: pre-line" [innerHTML]="props.description"></ion-text>
             </ion-item>
           </ion-col>
         </ion-row>
@@ -95,7 +84,7 @@
       @if (showContent()) {
         <ion-row class="ion-justify-content-center ion-padding-top">
           <ion-item lines="none">
-            <img class="resize-image" [src]="props.url">
+            <img [class]="props['shouldSizeImageToMaxWidth'] ? 'max-width-image' : 'resize-image'" [src]="props.url" />
           </ion-item>
         </ion-row>
       }

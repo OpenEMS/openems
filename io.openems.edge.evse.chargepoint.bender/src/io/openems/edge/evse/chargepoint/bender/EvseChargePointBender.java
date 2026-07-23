@@ -1,6 +1,7 @@
 package io.openems.edge.evse.chargepoint.bender;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.PersistencePriority.LOW;
 import static io.openems.common.channel.Unit.AMPERE;
 import static io.openems.common.channel.Unit.NONE;
 import static io.openems.common.channel.Unit.SECONDS;
@@ -8,8 +9,10 @@ import static io.openems.common.types.OpenemsType.INTEGER;
 import static io.openems.common.types.OpenemsType.STRING;
 
 import io.openems.common.channel.Level;
+import io.openems.common.types.SemanticVersion;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
+import io.openems.edge.common.channel.IntegerDoc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
 import io.openems.edge.common.channel.value.Value;
@@ -80,17 +83,21 @@ public interface EvseChargePointBender extends OpenemsComponent {
 				.unit(AMPERE)), //
 		CHARGE_DURATION(Doc.of(INTEGER)//
 				.unit(SECONDS)), //
+		RAW_DEVICE_ID(new IntegerDoc()//
+				.onChannelChange(AbstractEvseChargePointBender::onDeviceIdUpdate)), //
+		CHARGE_POINT_MODEL(Doc.of(STRING)//
+				.persistencePriority(LOW)//
+				.text("Charge point model string")), //
 		SOFTWARE_VERSION_MAJOR(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_MINOR(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_PATCH(Doc.of(INTEGER)//
-				.<AbstractEvseChargePointBender>onChannelChange(t -> t.updateSoftwareVersionOutdated())), //
+				.<AbstractEvseChargePointBender>onChannelChange(
+						AbstractEvseChargePointBender::updateSoftwareVersionOutdated)), //
 		SOFTWARE_VERSION_BUILD(Doc.of(INTEGER)), //
-		MAX_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), //
-		MIN_CURRENT(Doc.of(INTEGER)//
-				.persistencePriority(HIGH)), //
 		;
 
 		private final Doc doc;
@@ -107,7 +114,7 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link ChannelId#READABLE_FIRMWARE_VERSION}.
+	 * Gets the Channel for {@link ChannelId#FIRMWARE_OUTDATED}.
 	 *
 	 * @return the Channel
 	 */
@@ -149,42 +156,6 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	 */
 	public default VehicleState getVehicleState() {
 		return this.getVehicleStatusChannel().value().asEnum();
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MAX_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getMaxCurrentChannel() {
-		return this.channel(ChannelId.MAX_CURRENT);
-	}
-
-	/**
-	 * Gets the Value for {@link ChannelId#MAX_CURRENT}.
-	 * 
-	 * @return the Value
-	 */
-	public default Integer getMaxCurrent() {
-		return this.getMaxCurrentChannel().value().orElse(null);
-	}
-
-	/**
-	 * Gets the Channel for {@link ChannelId#MIN_CURRENT}.
-	 *
-	 * @return the Channel
-	 */
-	public default IntegerReadChannel getMinCurrentChannel() {
-		return this.channel(ChannelId.MIN_CURRENT);
-	}
-
-	/**
-	 * Gets the Value for {@link ChannelId#MIN_CURRENT}.
-	 * 
-	 * @return the Value
-	 */
-	public default Integer getMinCurrent() {
-		return this.getMinCurrentChannel().value().orElse(null);
 	}
 
 	/**
@@ -240,5 +211,32 @@ public interface EvseChargePointBender extends OpenemsComponent {
 	public default Value<Integer> getSoftwareVersionPatch() {
 		return this.getSoftwareVersionPatchChannel().value();
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#RAW_DEVICE_ID}.
+	 *
+	 * @return the Channel
+	 */
+	public default IntegerReadChannel getDeviceIdChannel() {
+		return this.channel(ChannelId.RAW_DEVICE_ID);
+	}
+
+	/**
+	 * Gets the Value for {@link ChannelId#RAW_DEVICE_ID}.
+	 *
+	 * @return the Value
+	 */
+	public default Value<Integer> getDeviceId() {
+		return this.getDeviceIdChannel().value();
+	}
+
+	/**
+	 * Gets the outdated version to compare the provided Software Version with. If
+	 * the provided Software Version is smaller than the returned version, the
+	 * Channel {@link ChannelId#FIRMWARE_OUTDATED} will be set to true.
+	 *
+	 * @return outdated version
+	 */
+	public abstract SemanticVersion getOutdatedVersion();
 
 }

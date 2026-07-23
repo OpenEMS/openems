@@ -4,9 +4,9 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.ADD;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIVIDE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.MULTIPLY;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SUBTRACT;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConversionTest {
 

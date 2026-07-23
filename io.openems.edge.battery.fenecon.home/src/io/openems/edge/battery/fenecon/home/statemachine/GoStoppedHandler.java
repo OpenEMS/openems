@@ -6,9 +6,8 @@ import java.time.Instant;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
-import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoStoppedHandler extends StateHandler<State, Context> {
+public class GoStoppedHandler extends StateMachine.BatteryStateHandler {
 
 	private static int TIMEOUT = 2100; // [35 minutes in seconds]
 	private Instant timeAtEntry = Instant.MIN;
@@ -59,5 +58,15 @@ public class GoStoppedHandler extends StateHandler<State, Context> {
 		final var modbus = battery.getModbus();
 		this.isProtocolAdded = false;
 		modbus.removeProtocol(battery.id());
+	}
+
+	@Override
+	public boolean isChargeAllowed(Context context) {
+		return false;
+	}
+
+	@Override
+	public boolean isDischargeAllowed(Context context) {
+		return false;
 	}
 }

@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
@@ -127,17 +127,19 @@ public class ComponentUtilTest {
 	public void testEqualsListOfNetworkInterface() throws Exception {
 		var expectedInet4Addresses = new HashSet<Inet4AddressWithSubnetmask>();
 		expectedInet4Addresses.add(Inet4AddressWithSubnetmask.fromString("foo", "192.168.178.2/24"));
-		List<NetworkInterface<?>> expected = Lists
-				.newArrayList(new NetworkInterface<Void>("eth0", ConfigurationProperty.of(false),
-						ConfigurationProperty.of(false), ConfigurationProperty.asNull(), ConfigurationProperty.asNull(),
-						ConfigurationProperty.of(expectedInet4Addresses), ConfigurationProperty.of(145),
-						ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), null));
+		List<NetworkInterface<?>> expected = Lists.newArrayList(new NetworkInterface<Void>("eth0",
+				ConfigurationProperty.of(false), ConfigurationProperty.of(false), ConfigurationProperty.asNull(),
+				ConfigurationProperty.asNull(), ConfigurationProperty.of(expectedInet4Addresses),
+				ConfigurationProperty.of(145), ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(),
+				ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(),
+				null));
 
 		var actualInet4Addresses = new HashSet<Inet4AddressWithSubnetmask>();
 		actualInet4Addresses.add(Inet4AddressWithSubnetmask.fromString("foo", "192.168.178.2/24"));
 		var networkInterface = new NetworkInterface<Void>("eth0", ConfigurationProperty.of(false),
 				ConfigurationProperty.of(false), ConfigurationProperty.asNull(), ConfigurationProperty.asNull(),
 				ConfigurationProperty.of(actualInet4Addresses), ConfigurationProperty.of(145),
+				ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(),
 				ConfigurationProperty.asNotSet(), ConfigurationProperty.asNotSet(), null);
 
 		List<NetworkInterface<?>> actual = Lists.newArrayList(networkInterface);

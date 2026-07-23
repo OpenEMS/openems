@@ -6,22 +6,23 @@ import localFR from "@angular/common/locales/fr";
 import localJA from "@angular/common/locales/ja";
 import localNL from "@angular/common/locales/nl";
 import { TranslateLoader } from "@ngx-translate/core";
+import { Locale } from "date-fns";
+import { cs as dateFnsLocaleCs, de as dateFnsLocaleDe, enUS as dateFnsLocaleEn, es as dateFnsLocaleEs, fr as dateFnsLocaleFr, ja as dateFnsLocaleJa, nl as dateFnsLocaleNl, } from "date-fns/locale";
 import { Observable, of } from "rxjs";
 import cz from "src/assets/i18n/cz.json";
 import de from "src/assets/i18n/de.json";
+
 import en from "src/assets/i18n/en.json";
 import es from "src/assets/i18n/es.json";
 import fr from "src/assets/i18n/fr.json";
 import ja from "src/assets/i18n/ja.json";
 import nl from "src/assets/i18n/nl.json";
-import { environment } from "src/environments";
 
 export interface Translation {
     [key: string]: string | Translation;
 }
 
 export class MyTranslateLoader implements TranslateLoader {
-
     public getTranslation(key: string): Observable<Translation> {
         const language = Language.getByKey(key);
         if (language) {
@@ -33,17 +34,31 @@ export class MyTranslateLoader implements TranslateLoader {
 export type LanguageKeyUnion = (typeof Language.ALL)[number]["key"];
 
 export class Language {
+    public static readonly DE: Language = new Language("German", "de", "de", de, localDE, dateFnsLocaleDe);
+    public static readonly EN: Language = new Language("English", "en", "en", en, localEN, dateFnsLocaleEn);
+    public static readonly CS: Language = new Language(
+        "Czech",
+        "cs",
+        "de",
+        cz,
+        localCS /* NOTE: there is no locale in @angular/common for Czech */,
+        dateFnsLocaleCs,
+    );
+    public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL, dateFnsLocaleNl);
+    public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES, dateFnsLocaleEs);
+    public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR, dateFnsLocaleFr);
+    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA, dateFnsLocaleJa);
 
-    public static readonly DE: Language = new Language("German", "de", "de", de, localDE);
-    public static readonly EN: Language = new Language("English", "en", "en", en, localEN);
-    public static readonly CS: Language = new Language("Czech", "cs", "de", cz, localCS /* NOTE: there is no locale in @angular/common for Czech */);
-    public static readonly NL: Language = new Language("Dutch", "nl", "nl", nl, localNL);
-    public static readonly ES: Language = new Language("Spanish", "es", "es", es, localES);
-    public static readonly FR: Language = new Language("French", "fr", "fr", fr, localFR);
-    public static readonly JA: Language = new Language("Japanese", "ja", "ja", ja, localJA);
-
-    public static readonly ALL = [Language.DE, Language.EN, Language.CS, Language.NL, Language.ES, Language.FR, Language.JA];
-    public static readonly DEFAULT = Language.getByKey(environment.defaultLanguage) as Language;
+    public static readonly ALL = [
+        Language.DE,
+        Language.EN,
+        Language.CS,
+        Language.NL,
+        Language.ES,
+        Language.FR,
+        Language.JA,
+    ];
+    public static readonly DEFAULT = Language.EN;
 
     constructor(
         public readonly title: string,
@@ -54,8 +69,8 @@ export class Language {
         // https://github.com/angular/angular/issues/30506
 
         public readonly locale: any,
-    ) {
-    }
+        public readonly dateFnsLocale: Locale,
+    ) {}
 
     public static get SYSTEM(): Language | null {
         // navigator.userLanguage is a non-standard property (IE) and not defined
@@ -68,10 +83,11 @@ export class Language {
         return Language.getByKey(localStorage.LANGUAGE);
     }
 
-
-    public static getByKey(key: string): Language | null {
+    public static getByKey(key: string | null): Language | null {
+        if (key === null) {
+            return null;
+        }
         for (const language of Language.ALL) {
-
             if (language.key == key) {
                 return language;
             }
@@ -81,43 +97,58 @@ export class Language {
 
     public static getByBrowserLang(browserLang: string): Language | null {
         switch (browserLang) {
-            case "de": return Language.DE;
+            case "de":
+                return Language.DE;
             case "en":
             case "en-US":
                 return Language.EN;
-            case "es": return Language.ES;
-            case "nl": return Language.NL;
-            case "cs": return Language.CS;
-            case "fr": return Language.FR;
-            case "ja": return Language.JA;
-            default: return null;
+            case "es":
+                return Language.ES;
+            case "nl":
+                return Language.NL;
+            case "cs":
+                return Language.CS;
+            case "fr":
+                return Language.FR;
+            case "ja":
+                return Language.JA;
+            default:
+                return null;
         }
     }
 
     public static getLocale(language: string) {
         switch (language) {
-            case Language.DE.key: return Language.DE.locale;
-            case Language.EN.key: return Language.EN.locale;
-            case Language.ES.key: return Language.ES.locale;
-            case Language.NL.key: return Language.NL.locale;
-            case Language.CS.key: return Language.CS.locale;
-            case Language.FR.key: return Language.FR.locale;
-            case Language.JA.key: return Language.JA.locale;
-            default: return Language.DEFAULT.locale;
+            case Language.DE.key:
+                return Language.DE.locale;
+            case Language.EN.key:
+                return Language.EN.locale;
+            case Language.ES.key:
+                return Language.ES.locale;
+            case Language.NL.key:
+                return Language.NL.locale;
+            case Language.CS.key:
+                return Language.CS.locale;
+            case Language.FR.key:
+                return Language.FR.locale;
+            case Language.JA.key:
+                return Language.JA.locale;
+            default:
+                return Language.DEFAULT.locale;
         }
     }
 
     /**
      * Gets the i18n locale with passed key
      *
-     * @param language the language
-     * @returns the i18n locale
+     * @param language The language
+     * @returns The i18n locale
      */
     public static geti18nLocaleByKey(language: string) {
         const lang = this.getByBrowserLang(language?.toLowerCase());
 
         if (!lang) {
-            console.warn(`Key ${language} not part of ${Language.ALL.map(lang => lang.title + ":" + lang.key)}`);
+            console.warn(`Key ${language} not part of ${Language.ALL.map((lang) => lang.title + ":" + lang.key)}`);
         }
 
         return lang?.i18nLocaleKey ?? Language.DEFAULT.i18nLocaleKey;
@@ -126,7 +157,7 @@ export class Language {
     /**
      * Gets the i18n locale key without passed key
      *
-     * @returns the i18n locale key
+     * @returns The i18n locale key
      */
     public static geti18nLocale() {
         return Language.getCurrentLanguage().i18nLocaleKey;
@@ -135,25 +166,27 @@ export class Language {
     /**
      * Sets a additional translation file
      *
-     * e.g. AdvertismentModule
+     * E.g. AdvertismentModule
      *
-     *  IMPORTANT: Translation keys will overwrite each other.
-     *  Make sure to use a unique top level key.
+     * IMPORTANT: Translation keys will overwrite each other. Make sure to use a unique top level key.
      *
-     * @param translations the translation files
-     * @returns translations params
+     * @param translations The translation files
+     * @returns Translations params
      */
     public static async normalizeAdditionalTranslationFiles(translations: Record<LanguageKeyUnion, any>) {
-        return Object.entries(translations).map(([key, value]) => ({ lang: key, translation: value, shouldMerge: true }));
+        return Object.entries(translations).map(([key, value]) => ({
+            lang: key,
+            translation: value,
+            shouldMerge: true,
+        }));
     }
-
 
     /**
      * Gets the i18n locale key without passed key
      *
-     * @returns the i18n locale key
+     * @returns The i18n locale key
      */
-    public static getCurrentLanguage() {
+    public static getCurrentLanguage(): Language {
         return Language.LOCAL_STORAGE ?? Language.SYSTEM ?? Language.DEFAULT;
     }
 }

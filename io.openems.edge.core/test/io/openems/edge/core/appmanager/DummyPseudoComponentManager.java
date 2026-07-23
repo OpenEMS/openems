@@ -401,6 +401,29 @@ public class DummyPseudoComponentManager implements ComponentManager {
 
 	}
 
+	/**
+	 * Updates the configuration of the internal <code>_host</code> component. This
+	 * method removes any existing <code>_host</code> component and recreates it
+	 * with the provided network and USB configuration values.
+	 *
+	 * @param newNetworkConfig the serialized network configuration JSON string to
+	 *                         apply to the <code>_host</code> component
+	 */
+	public void updateHostConfiguration(String newNetworkConfig) {
+		this.components.removeIf(c -> c.id().equals("_host"));
+		var newProperties = JsonUtils.buildJsonObject()//
+				.addProperty("networkConfiguration", newNetworkConfig)//
+				.addProperty("usbConfiguration", "")//
+				.build();
+		var newHostComponent = new EdgeConfig.Component(//
+				"_host", //
+				"Core Host", //
+				"Core.Host", //
+				newProperties//
+		);
+		this.components.add(new DummyOpenemsComponent(newHostComponent));
+	}
+
 	@Override
 	public Map<String, Object> getComponentProperties(String componentId) {
 		try {

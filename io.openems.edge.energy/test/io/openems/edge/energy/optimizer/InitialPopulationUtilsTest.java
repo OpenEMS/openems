@@ -1,13 +1,13 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.energy.api.simulation.GocUtils.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
 import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 
@@ -19,18 +19,10 @@ public class InitialPopulationUtilsTest {
 		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
 		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> false);
 		var schedules = generateInitialPopulation(codec).population();
-		assertEquals(6, schedules.size());
+		assertEquals(2, schedules.size());
 
 		assertTrue(schedules.get(0).toString().startsWith("[[[0],[0],[0],[0],"));
 		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
-
-		assertTrue(schedules.get(2).toString()
-				.startsWith("[[[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[5],"));
-		assertTrue(schedules.get(3).toString()
-				.startsWith("[[[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[3],"));
-
-		assertTrue(schedules.get(4).toString().startsWith("[[[1],[0],[0],[5],"));
-		assertTrue(schedules.get(5).toString().startsWith("[[[1],[0],[0],[3],"));
 	}
 
 	@Test
@@ -39,21 +31,13 @@ public class InitialPopulationUtilsTest {
 		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
 		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> true);
 		var schedules = generateInitialPopulation(codec).population();
-		assertEquals(6, schedules.size());
+		assertEquals(2, schedules.size());
 
 		assertTrue(schedules.get(0).toString().startsWith("[[[3],[0],[0],[0],"));
 		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
-
-		assertTrue(schedules.get(2).toString()
-				.startsWith("[[[3],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[5],"));
-		assertTrue(schedules.get(3).toString()
-				.startsWith("[[[3],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[1],[0],[0],[3],"));
-
-		assertTrue(schedules.get(4).toString().startsWith("[[[3],[0],[0],[5],"));
-		assertTrue(schedules.get(5).toString().startsWith("[[[3],[0],[0],[3],"));
 	}
 
 	protected static Transition mode(int mode) {
-		return new Transition(QUARTER, mode, 0., null, 0);
+		return new Transition(QUARTER, mode, 0., 0., null, 0);
 	}
 }

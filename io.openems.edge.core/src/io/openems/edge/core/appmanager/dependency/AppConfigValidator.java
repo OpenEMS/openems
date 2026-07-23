@@ -16,6 +16,7 @@ import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.CancellationToken;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppManagerUtil;
@@ -47,12 +48,14 @@ public class AppConfigValidator {
 	 * Validates the expected configuration of an app the actual configuration on
 	 * the system.
 	 * 
+	 * @param cancellationToken to cancel the current execution
 	 * @param instance          the instance to validate
 	 * @param configuration     the configuration of the instance
 	 * @param allConfigurations all configurations of all existing instances
 	 * @throws OpenemsNamedException on error
 	 */
 	public void validate(//
+			CancellationToken cancellationToken, //
 			OpenemsAppInstance instance, //
 			AppConfiguration configuration, //
 			Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
@@ -60,6 +63,7 @@ public class AppConfigValidator {
 
 		final var errors = new ArrayList<String>();
 		for (var task : configuration.tasks()) {
+			cancellationToken.throwIfCancelled();
 			final var aggregateTask = this.findTaskByClass(task.aggregateTaskClass());
 			if (aggregateTask == null) {
 				errors.add("Missing AggregateTask to validate " + task.aggregateTaskClass().getCanonicalName());
@@ -202,16 +206,16 @@ public class AppConfigValidator {
 			return;
 		}
 
-		for (var property : appDependencyConfig.properties.entrySet()) {
-			var actualValue = actualAppProperties.get(property.getKey());
+		for (var property : appDependencyConfig.getProperties().values()) {
+			var actualValue = actualAppProperties.get(property.name());
 			if (actualValue == null) {
-				errors.add("Value for Key[" + property.getKey() + "] not found!");
+				errors.add("Value for Key[" + property.name() + "] not found!");
 				continue;
 			}
 			var actual = actualValue.toString().replace("\"", "");
-			var needed = property.getValue().toString().replace("\"", "");
+			var needed = property.value().toString().replace("\"", "");
 			if (!actual.equals(needed)) {
-				errors.add("Value for Key[" + property.getKey() + "] does not match: expected[" + needed + "] actual["
+				errors.add("Value for Key[" + property.name() + "] does not match: expected[" + needed + "] actual["
 						+ actual + "]  !");
 			}
 		}

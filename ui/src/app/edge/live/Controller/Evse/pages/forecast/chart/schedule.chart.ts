@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { filter, take } from "rxjs/operators";
@@ -11,17 +11,17 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
-import { GetScheduleRequest } from "../../../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../../../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../../../../../shared/jsonrpc/request/getScheduleRequest";
+import { GetScheduleResponse } from "../../../../../../../shared/jsonrpc/response/getScheduleResponse";
 import { ControllerEvseSingleShared } from "../../../shared/shared";
 
 @Component({
     selector: "scheduleChart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
-
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
@@ -38,16 +38,22 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     public async ngOnChanges() {
-        this.edge.getConfig(this.websocket).pipe(filter(config => !!config), take(1)).subscribe(config => {
-            const meta: EdgeConfig.Component = config?.getComponent("_meta");
-            const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
-            this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
-            this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
-        });
+        this.edge
+            .getConfig(this.websocket)
+            .pipe(
+                filter((config) => !!config),
+                take(1),
+            )
+            .subscribe((config) => {
+                const meta: EdgeConfig.Component = config?.getComponent("_meta");
+                const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+                this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
+                this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
+            });
         this.updateChart();
     }
 
@@ -64,44 +70,53 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
 
-        this.edge.sendRequest(
-            this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: "ctrlEvseCluster0",
-                payload: new GetScheduleRequest({ componentId: this.component.id }),
-            }),
-        ).then(response => {
-            const result = (response as GetScheduleResponse).result;
-            const schedule = result.schedule;
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "ctrlEvseCluster0",
+                    payload: new GetScheduleRequest({
+                        componentId: this.component.id,
+                    }),
+                }),
+            )
+            .then((response) => {
+                const result = (response as GetScheduleResponse).result;
+                const schedule = result.schedule;
 
-            // Extracting prices, states, timestamps from the schedule array
-            const { priceArray, modeArray, timestampArray } = {
-                priceArray: schedule.map(entry => entry.price === null ? 10 : entry.price), // TODO: Use different chart type when no prices
-                modeArray: schedule.map(entry => entry.mode),
-                timestampArray: schedule.map(entry => entry.timestamp),
-            };
+                // Extracting prices, states, timestamps from the schedule array
+                const { priceArray, modeArray, timestampArray } = {
+                    priceArray: schedule.map((entry) => (entry.price === null ? 10 : entry.price)), // TODO: Use different chart type when no prices
+                    modeArray: schedule.map((entry) => entry.mode),
+                    timestampArray: schedule.map((entry) => entry.timestamp),
+                };
 
-            const scheduleChartData = ControllerEvseSingleShared.getScheduleChartData(schedule.length, priceArray,
-                modeArray, timestampArray, this.translate);
+                const scheduleChartData = ControllerEvseSingleShared.getScheduleChartData(
+                    schedule.length,
+                    priceArray,
+                    modeArray,
+                    timestampArray,
+                    this.translate,
+                );
 
-            this.colors = scheduleChartData.colors;
-            this.labels = scheduleChartData.labels;
+                this.colors = scheduleChartData.colors;
+                this.labels = scheduleChartData.labels;
 
-            this.datasets = scheduleChartData.datasets;
-            this.loading = false;
-            this.setLabel();
-            this.stopSpinner();
-
-        }).catch((reason) => {
-            console.error(reason);
-            this.initializeChart();
-            return;
-
-        }).finally(async () => {
-            this.unit = YAxisType.CURRENCY;
-            await this.setOptions(this.options);
-            this.applyControllerSpecificOptions();
-        });
+                this.datasets = scheduleChartData.datasets;
+                this.loading = false;
+                this.setLabel();
+                this.stopSpinner();
+            })
+            .catch((reason) => {
+                console.error(reason);
+                this.initializeChart();
+                return;
+            })
+            .finally(async () => {
+                this.unit = YAxisType.CURRENCY;
+                await this.setOptions(this.options);
+                this.applyControllerSpecificOptions();
+            });
     }
 
     protected setLabel() {
@@ -109,12 +124,17 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
+        return new Promise(() => {
+            [];
+        });
     }
 
     private applyControllerSpecificOptions() {
-
-        this.options.scales.x["time"].unit = calculateResolution(this.service, this.service.historyPeriod.value.from, this.service.historyPeriod.value.to).timeFormat;
+        this.options.scales.x["time"].unit = calculateResolution(
+            this.service,
+            this.service.historyPeriod.value.from,
+            this.service.historyPeriod.value.to,
+        ).timeFormat;
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
         this.options.scales.x.ticks.maxTicksLimit = 30;
         this.options.scales.x["offset"] = false;
@@ -138,7 +158,6 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
         };
 
         this.options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
-
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
@@ -155,11 +174,23 @@ export class ScheduleChartComponent extends AbstractHistoryChart implements OnIn
             return el;
         });
 
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: this.unit, yAxisId: ChartAxis.LEFT, customTitle: this.currencyUnit, scale: { dynamicScale: true } };
+        const leftYAxis: HistoryUtils.yAxes = {
+            position: "left",
+            unit: this.unit,
+            yAxisId: ChartAxis.LEFT,
+            customTitle: this.currencyUnit,
+            scale: { dynamicScale: true },
+        };
 
         this.options.scales[ChartAxis.LEFT] = {
             ...this.options.scales[ChartAxis.LEFT],
-            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(leftYAxis, this.translate, "bar", this.datasets.filter(el => el["yAxisID"] === ChartAxis.LEFT), true),
+            ...ChartConstants.DEFAULT_Y_SCALE_OPTIONS(
+                leftYAxis,
+                this.translate,
+                "bar",
+                this.datasets.filter((el) => el["yAxisID"] === ChartAxis.LEFT),
+                true,
+            ),
         };
     }
 }

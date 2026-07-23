@@ -10,7 +10,7 @@ import { StatusSingleComponent } from "./status.component";
 
 describe("StatusComponent", () => {
     const testComponent = new EdgeConfig.Component("component0", "", true, false, "test", {}, {
-        "testChannel": {
+        testChannel: {
             accessMode: "RO",
             category: "STATE",
             type: "BOOLEAN",

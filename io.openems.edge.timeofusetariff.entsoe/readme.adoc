@@ -36,7 +36,7 @@ Configuration example:
 * `biddingZone`: `GERMANY`
 * `ancillaryCosts`: `{"dso":"BAYERNWERK"}`
 
-For a list of predefined DSOs see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.entsoe/src/io/openems/edge/timeofusetariff/entsoe/GermanDSO.java[`GermanDSO.java`].
+For a list of predefined DSOs see https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.timeofusetariff.api/src/io/openems/edge/timeofusetariff/api/GermanDSO.java[`GermanDSO.java`].
 
 '''
 

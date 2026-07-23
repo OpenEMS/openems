@@ -9,8 +9,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -36,7 +36,7 @@ public class SchedulerByCentralOrderAggregateTaskImplTest {
 	private DummyPseudoComponentManager componentManager;
 	private ComponentAggregateTask componentTask;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		final var componentManagerFactory = new PseudoComponentManagerFactory();
 		this.testBundle = new AppManagerTestBundle(null, null, tb -> {

@@ -381,7 +381,7 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 	 * @return The cvcs should await or not
 	 */
 	private static boolean awaitLastChanges(ChargeState chargeState) {
-		if (chargeState.equals(ChargeState.INCREASING) || chargeState.equals(ChargeState.INCREASING)) {
+		if (chargeState.equals(ChargeState.INCREASING) || chargeState.equals(ChargeState.DECREASING)) {
 			// Still waiting for increasing, decreasing the power
 			return true;
 		}

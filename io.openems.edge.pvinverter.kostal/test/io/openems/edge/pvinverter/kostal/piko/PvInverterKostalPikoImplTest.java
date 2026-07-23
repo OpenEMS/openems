@@ -1,6 +1,6 @@
 package io.openems.edge.pvinverter.kostal.piko;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
@@ -103,7 +103,7 @@ public class PvInverterKostalPikoImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		new ComponentTest(new PvInverterKostalPikoImpl()) //
@@ -140,7 +140,7 @@ public class PvInverterKostalPikoImplTest {
 
 	@Test
 	public void testWithNoData() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		final String noDataHtml = """
@@ -195,7 +195,7 @@ public class PvInverterKostalPikoImplTest {
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING2_POWER, 0) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING3_VOLTAGE, 0) //
 						.output(PvInverterKostalPiko.ChannelId.DC_STRING3_CURRENT, 0) //
-						.output(PvInverterKostalPiko.ChannelId.DC_STRING3_POWER, 0) //
-				);
+						.output(PvInverterKostalPiko.ChannelId.DC_STRING3_POWER, 0)) //
+				.deactivate();
 	}
 }

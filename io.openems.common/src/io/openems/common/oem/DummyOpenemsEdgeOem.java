@@ -262,6 +262,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Core.Meta", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Timedata.InfluxDb", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -322,6 +326,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Hardware.MasterBox2v0", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Evse.ElectricVehicle.Generic", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -362,6 +370,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.Heat.MyPv", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.Heat.MyPv.ReadOnly", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -391,6 +403,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.EN) //
 			) //
 			.put("App.Meter.Socomec", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
+			.put("App.Meter.Siemens", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
@@ -462,6 +478,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+			.put("App.OpenemsHardware.CM4S.Gen3", AppLink.create() //
+					.emptyLink(Language.DE) //
+					.emptyLink(Language.EN) //
+			) //
 			.put("App.PvInverter.Fronius", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -498,6 +518,10 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
 			) //
+            .put("App.Ess.FixReactivePower", AppLink.create() //
+                    .emptyLink(Language.DE) //
+                    .emptyLink(Language.EN) //
+            ) //
 			.put("App.Ess.FixStateOfCharge", AppLink.create() //
 					.emptyLink(Language.DE) //
 					.emptyLink(Language.EN) //
@@ -563,7 +587,7 @@ public class DummyOpenemsEdgeOem implements OpenemsEdgeOem {
 
 		// fallback test (e.g. unsupported language should fallback to english)
 		var fallbackMissing = dummy.appToWebsiteUrl.keySet().stream()
-				.filter(appId -> oem.getAppWebsiteUrl(appId, Language.CZ) == null) //
+				.filter(appId -> oem.getAppWebsiteUrl(appId, Language.CS) == null) //
 				.toList();
 
 		if (!fallbackMissing.isEmpty()) {

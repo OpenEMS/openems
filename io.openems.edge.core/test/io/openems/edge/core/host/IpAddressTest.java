@@ -1,8 +1,8 @@
 package io.openems.edge.core.host;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 
@@ -36,17 +36,17 @@ public class IpAddressTest {
 
 	@Test
 	public void testShow() throws OpenemsNamedException {
-		assertEquals("2 NetworkInterfaces", 2, OperatingSystemDebianSystemd.parseShowJson(this.jsonInput).size());
+		assertEquals(2, OperatingSystemDebianSystemd.parseShowJson(this.jsonInput).size());
 
-		assertEquals("0 NetworkInterfaces", 0, OperatingSystemDebianSystemd.parseShowJson(this.emptyInput).size());
+		assertEquals(0, OperatingSystemDebianSystemd.parseShowJson(this.emptyInput).size());
 
-		assertEquals("0 NetworkInterfaces", 0, OperatingSystemDebianSystemd.parseShowJson(this.failedInput).size());
+		assertEquals(0, OperatingSystemDebianSystemd.parseShowJson(this.failedInput).size());
 
-		assertEquals("0 NetworkInterfaces", 0, OperatingSystemDebianSystemd.parseShowJson(this.stderr).size());
+		assertEquals(0, OperatingSystemDebianSystemd.parseShowJson(this.stderr).size());
 	}
 
 	@Test
 	public void testRoute() throws OpenemsNamedException {
-		assertEquals("6 Routing Infos", 6, OperatingSystemDebianSystemd.parseRouteJson(this.routeInput).size());
+		assertEquals(6, OperatingSystemDebianSystemd.parseRouteJson(this.routeInput).size());
 	}
 }

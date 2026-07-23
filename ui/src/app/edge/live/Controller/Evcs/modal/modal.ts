@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
@@ -17,10 +17,10 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 @Component({
     selector: "oe-controller-evcs-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-
     public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
     protected controller: EdgeConfig.Component | null = null;
@@ -29,7 +29,7 @@ export class ModalComponent extends AbstractModal {
     protected readonly emptyValue: string = "-";
     protected status: string | null = null;
     protected chargePowerLimit: string | null = null;
-    protected chargePower: { name: string; value: number; } | null = null;
+    protected chargePower: { name: string; value: number } | null = null;
     protected state: string = "";
     protected energySession: string | null = null;
     protected minChargePower: number | null = null;
@@ -56,10 +56,9 @@ export class ModalComponent extends AbstractModal {
         @Inject(PopoverController) public popoverctrl: PopoverController,
         @Inject(TranslateService) protected override translate: TranslateService,
         @Inject(FormBuilder) public override formBuilder: FormBuilder,
-        public override ref: ChangeDetectorRef) {
-        super(
-            websocket, route, service, modalController, translate,
-            formBuilder, ref);
+        public override ref: ChangeDetectorRef,
+    ) {
+        super(websocket, route, service, modalController, translate, formBuilder, ref);
         ref.detach();
         setInterval(() => {
             this.ref.detectChanges(); // manually trigger change detection
@@ -81,8 +80,8 @@ export class ModalComponent extends AbstractModal {
         return key ? `REDIRECT.${key}` : null;
     }
 
-
-    protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.TO_KILO_WATT_HOURS(val);
+    protected readonly KILO_WATT_HOURS_PIN_FORMATTER: IonRange["pinFormatter"] = (val) =>
+        this.Converter.TO_KILO_WATT_HOURS(val);
     protected readonly WATT_PIN_FORMATTER: IonRange["pinFormatter"] = (val) => this.Converter.POWER_IN_WATT(val);
 
     protected async presentPopover() {
@@ -114,8 +113,12 @@ export class ModalComponent extends AbstractModal {
             return [];
         }
         this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
-        this.controller = this.config.getComponentsByFactory("Controller.Evcs")
-            .find(element => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component?.id) || null;
+        this.controller =
+            this.config
+                .getComponentsByFactory("Controller.Evcs")
+                .find(
+                    (element) => "evcs.id" in element.properties && element.properties["evcs.id"] == this.component?.id,
+                ) || null;
 
         this.evcsComponent = this.config.getComponent(this.component.id);
 
@@ -159,9 +162,16 @@ export class ModalComponent extends AbstractModal {
 
         this.isReadWrite = this.component.hasPropertyValue<boolean>("readOnly", true) === false;
         this.isConnectionSuccessful = currentData.allComponents[this.component.id + "/State"] !== 3 ? true : false; // 0 !== 3 -> true
-        this.status = this.getState(this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false, currentData.allComponents[this.component.id + "/Status"], currentData.allComponents[this.component.id + "/Plug"]);
+        this.status = this.getState(
+            this.controller ? currentData.allComponents[this.controller.id + "/_PropertyEnabledCharging"] === 1 : false,
+            currentData.allComponents[this.component.id + "/Status"],
+            currentData.allComponents[this.component.id + "/Plug"],
+        );
         if (this.chargePoint != null) {
-            this.chargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.chargePoint.powerChannel.toString()]);
+            this.chargePower = Utils.convertChargeDischargePower(
+                this.translate,
+                currentData.allComponents[this.chargePoint.powerChannel.toString()],
+            );
         }
 
         if (this.controller != null) {
@@ -171,11 +181,17 @@ export class ModalComponent extends AbstractModal {
             return;
         }
         this.state = currentData.allComponents[this.component.id + "/Status"];
-        this.energySession = Utils.CONVERT_TO_WATTHOURS(currentData.allComponents[this.component.id + "/EnergySession"]);
+        this.energySession = Utils.CONVERT_TO_WATTHOURS(
+            currentData.allComponents[this.component.id + "/EnergySession"],
+        );
         this.minChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MinimumHardwarePower"]);
         this.maxChargePower = this.formatNumber(currentData.allComponents[this.component.id + "/MaximumHardwarePower"]);
-        this.numberOfPhases = currentData.allComponents[this.component.id + "/Phases"] ? currentData.allComponents[this.component.id + "/Phases"] : 3;
-        this.chargePowerLimit = Utils.CONVERT_TO_WATT(this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]));
+        this.numberOfPhases = currentData.allComponents[this.component.id + "/Phases"]
+            ? currentData.allComponents[this.component.id + "/Phases"]
+            : 3;
+        this.chargePowerLimit = Utils.CONVERT_TO_WATT(
+            this.formatNumber(currentData.allComponents[this.component.id + "/SetChargePowerLimit"]),
+        );
     }
 
     protected setControllerChannelValues(currentData: CurrentData, isDirty: boolean): void {
@@ -194,15 +210,44 @@ export class ModalComponent extends AbstractModal {
 
         this.chargePoint = EvcsComponent.from(this.component, this.edge.getCurrentConfig(), this.edge);
 
-        const energyLimitCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "energyLimit") as FormControl;
-        const energySessionLimitCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "energySessionLimit") as FormControl;
-        const energySessionLimitKwhCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "energySessionLimitKwh") as FormControl;
-        const chargeModeCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "chargeMode") as FormControl;
-        const enabledChargingCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "enabledCharging") as FormControl;
-        const minGuaranteeCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "minGuarantee") as FormControl;
-        const defaultChargeMinPowerCtrl = FormUtils.findFormControlSafely(this.formGroup as FormGroup, "defaultChargeMinPower") as FormControl;
+        const energyLimitCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "energyLimit",
+        ) as FormControl;
+        const energySessionLimitCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "energySessionLimit",
+        ) as FormControl;
+        const energySessionLimitKwhCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "energySessionLimitKwh",
+        ) as FormControl;
+        const chargeModeCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "chargeMode",
+        ) as FormControl;
+        const enabledChargingCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "enabledCharging",
+        ) as FormControl;
+        const minGuaranteeCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "minGuarantee",
+        ) as FormControl;
+        const defaultChargeMinPowerCtrl = FormUtils.findFormControlSafely(
+            this.formGroup as FormGroup,
+            "defaultChargeMinPower",
+        ) as FormControl;
 
-        if (energyLimitCtrl == null || energySessionLimitCtrl == null || energySessionLimitKwhCtrl == null || chargeModeCtrl == null || enabledChargingCtrl == null || minGuaranteeCtrl == null || defaultChargeMinPowerCtrl == null) {
+        if (
+            energyLimitCtrl == null ||
+            energySessionLimitCtrl == null ||
+            energySessionLimitKwhCtrl == null ||
+            chargeModeCtrl == null ||
+            enabledChargingCtrl == null ||
+            minGuaranteeCtrl == null ||
+            defaultChargeMinPowerCtrl == null
+        ) {
             return;
         }
 
@@ -211,14 +256,14 @@ export class ModalComponent extends AbstractModal {
         this.subscription.add(
             energyLimitCtrl.valueChanges.subscribe((isEnergyLimit: boolean) => {
                 const newValue = isEnergyLimit
-                    ? (energySessionLimitCtrl.value === 0
+                    ? energySessionLimitCtrl.value === 0
                         ? DEFAULT_ENERGY_SESSION_LIMIT
-                        : energySessionLimitCtrl.value)
+                        : energySessionLimitCtrl.value
                     : 0;
 
                 energySessionLimitCtrl.setValue(newValue);
                 energySessionLimitCtrl.markAsDirty();
-            })
+            }),
         );
 
         this.subscription.add(
@@ -230,7 +275,7 @@ export class ModalComponent extends AbstractModal {
                     enabledChargingCtrl.setValue(true);
                 }
                 enabledChargingCtrl.markAsDirty();
-            })
+            }),
         );
 
         if (this.subscription == null) {
@@ -242,7 +287,7 @@ export class ModalComponent extends AbstractModal {
                 const minPerPhase = 1400;
                 defaultChargeMinPowerCtrl.setValue(minGuarantee ? minPerPhase * this.numberOfPhases : 0);
                 defaultChargeMinPowerCtrl.markAsDirty();
-            })
+            }),
         );
 
         this.subscription.add(
@@ -250,7 +295,7 @@ export class ModalComponent extends AbstractModal {
                 energySessionLimitCtrl.setValue(newValue * 1000);
                 energySessionLimitCtrl.markAsDirty();
                 energySessionLimitKwhCtrl.markAsPristine();
-            })
+            }),
         );
 
         this.helpKey = ModalComponent.getHelpKey(this.component.factoryId);
@@ -258,7 +303,9 @@ export class ModalComponent extends AbstractModal {
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
-            chargeMode: new FormControl(this.controller?.properties.enabledCharging == false ? "OFF" : this.controller?.properties.chargeMode),
+            chargeMode: new FormControl(
+                this.controller?.properties.enabledCharging == false ? "OFF" : this.controller?.properties.chargeMode,
+            ),
             energyLimit: new FormControl(this.controller?.properties.energySessionLimit > 0),
             minGuarantee: new FormControl(this.controller?.properties.defaultChargeMinPower > 0),
             defaultChargeMinPower: new FormControl(this.controller?.properties.defaultChargeMinPower),
@@ -275,18 +322,18 @@ export class ModalComponent extends AbstractModal {
     /**
      * Formats the pin value
      *
-     * @param value the value
-     * @returns a formatted value
+     * @param value The value
+     * @returns A formatted value
      */
     protected pinFormatter(value: number): string {
         return Formatter.FORMAT_WATT(value);
     }
 
     /**
-       * Updates the Min-Power of force charging
-       *
-       * @param event
-       */
+     * Updates the Min-Power of force charging
+     *
+     * @param event
+     */
     protected updateForceMinPower(event: CustomEvent, currentController: EdgeConfig.Component, numberOfPhases: number) {
         if (this.formGroup == null) {
             return;
@@ -302,12 +349,9 @@ export class ModalComponent extends AbstractModal {
         forceChargeMinPowerCtrl.setValue(newMinChargePower);
     }
 
-    /**
-   * Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component
-   */
+    /** Updates the MinChargePower for Renault Zoe Charging Mode if activated in administration component */
     protected updateRenaultZoeConfig() {
         if (this.controller && this.evcsComponent?.properties["minHwCurrent"] == 10000) {
-
             const oldMinChargePower = this.controller.properties.forceChargeMinPower;
             const maxAllowedChargePower = 10 /* Ampere */ * 230; /* Volt */
 
@@ -321,19 +365,26 @@ export class ModalComponent extends AbstractModal {
                 return;
             }
 
-            this.edge.updateComponentConfig(this.websocket, this.controller.id, [
-                { name: "forceChargeMinPower", value: newMinChargePower },
-            ]).then(() => {
-                this.setProperties(newMinChargePower);
-            }).catch(reason => {
-                this.setProperties(oldMinChargePower);
-                console.warn(reason);
-            });
+            this.edge
+                .updateComponentConfig(this.websocket, this.controller.id, [
+                    { name: "forceChargeMinPower", value: newMinChargePower },
+                ])
+                .then(() => {
+                    this.setProperties(newMinChargePower);
+                })
+                .catch((reason) => {
+                    this.setProperties(oldMinChargePower);
+                    console.warn(reason);
+                });
         }
     }
 
     protected setProperties(value: number) {
-        if (this.controller != null && this.controller.properties != null && this.controller.properties.forceChargeMinPower != null) {
+        if (
+            this.controller != null &&
+            this.controller.properties != null &&
+            this.controller.properties.forceChargeMinPower != null
+        ) {
             this.controller.properties.forceChargeMinPower = value;
         }
     }
@@ -344,14 +395,12 @@ export class ModalComponent extends AbstractModal {
     }
 
     /**
-    * Returns the state of the EVCS
-    *
-    * @param state the state
-    * @param plug the plug
-    *
-    */
+     * Returns the state of the EVCS
+     *
+     * @param state The state
+     * @param plug The plug
+     */
     private getState(enabledCharging: boolean, state: number, plug: number): string {
-
         if (this.isReadWrite === true && enabledCharging === false) {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CHARGING_STATION_DEACTIVATED");
         }
@@ -360,7 +409,11 @@ export class ModalComponent extends AbstractModal {
             if (state == null) {
                 return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.NOT_CHARGING");
             }
-        } else if (plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED && this.chargePower != null && this.chargePower?.value > 450) {
+        } else if (
+            plug != ChargePlug.PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED &&
+            this.chargePower != null &&
+            this.chargePower?.value > 450
+        ) {
             return this.translate.instant("EDGE.INDEX.WIDGETS.EVCS.CABLE_NOT_CONNECTED");
         }
         switch (state) {
@@ -387,24 +440,23 @@ export class ModalComponent extends AbstractModal {
     }
 }
 
-
 enum ChargeState {
-    UNDEFINED = -1,           //Undefined
-    STARTING,                 //Starting
-    NOT_READY_FOR_CHARGING,   //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
-    READY_FOR_CHARGING,       //Ready for Charging waiting for EV charging request
-    CHARGING,                 //Charging
-    ERROR,                    //Error
-    AUTHORIZATION_REJECTED,   //Authorization rejected
-    ENERGY_LIMIT_REACHED,     //Energy limit reached
-    CHARGING_FINISHED,        //Charging has finished
+    UNDEFINED = -1, //Undefined
+    STARTING, //Starting
+    NOT_READY_FOR_CHARGING, //Not ready for Charging e.g. unplugged, X1 or "ena" not enabled, RFID not enabled,...
+    READY_FOR_CHARGING, //Ready for Charging waiting for EV charging request
+    CHARGING, //Charging
+    ERROR, //Error
+    AUTHORIZATION_REJECTED, //Authorization rejected
+    ENERGY_LIMIT_REACHED, //Energy limit reached
+    CHARGING_FINISHED, //Charging has finished
 }
 
 enum ChargePlug {
-    UNDEFINED = -1,                           //Undefined
-    UNPLUGGED,                                //Unplugged
-    PLUGGED_ON_EVCS,                          //Plugged on EVCS
-    PLUGGED_ON_EVCS_AND_LOCKED = 3,           //Plugged on EVCS and locked
-    PLUGGED_ON_EVCS_AND_ON_EV = 5,            //Plugged on EVCS and on EV
+    UNDEFINED = -1, //Undefined
+    UNPLUGGED, //Unplugged
+    PLUGGED_ON_EVCS, //Plugged on EVCS
+    PLUGGED_ON_EVCS_AND_LOCKED = 3, //Plugged on EVCS and locked
+    PLUGGED_ON_EVCS_AND_ON_EV = 5, //Plugged on EVCS and on EV
     PLUGGED_ON_EVCS_AND_ON_EV_AND_LOCKED = 7, //Plugged on EVCS and on EV and locked
 }

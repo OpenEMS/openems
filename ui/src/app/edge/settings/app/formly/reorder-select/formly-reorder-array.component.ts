@@ -1,18 +1,25 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ItemReorderEventDetail } from "@ionic/angular";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig, FormlyFieldProps } from "@ngx-formly/core";
 
 @Component({
     selector: "reorder-array",
     templateUrl: "./formly-reorder-array.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<FormlyFieldProps & {
-    allowDuplicates?: boolean,
-    selectOptions?: SelectOptionConfig[]
-}>> implements OnInit {
-
+export class FormlyReorderArrayComponent
+    extends FieldType<
+        FieldTypeConfig<
+            FormlyFieldProps & {
+                allowDuplicates?: boolean;
+                selectOptions?: SelectOptionConfig[];
+            }
+        >
+    >
+    implements OnInit
+{
     protected selectedItems: SelectOption[] = [];
     protected availableItems: SelectOption[];
 
@@ -23,15 +30,17 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
     }
 
     private get selectOptions(): SelectOption[] {
-        return this.props.selectOptions.map<SelectOption>(optionConfig => {
-            return {
-                label: optionConfig.label,
-                value: optionConfig.value,
-                expressions: {
-                    locked: optionConfig.expressions?.locked?.(this.field) ?? false,
-                },
-            };
-        }) ?? [];
+        return (
+            this.props.selectOptions.map<SelectOption>((optionConfig) => {
+                return {
+                    label: optionConfig.label,
+                    value: optionConfig.value,
+                    expressions: {
+                        locked: optionConfig.expressions?.locked?.(this.field) ?? false,
+                    },
+                };
+            }) ?? []
+        );
     }
 
     public ngOnInit(): void {
@@ -40,7 +49,7 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
         this.availableItems = this.selectOptions;
         if (oldValues) {
             for (const v of oldValues) {
-                const foundItemIndex = this.availableItems.findIndex(e => e.value === v);
+                const foundItemIndex = this.availableItems.findIndex((e) => e.value === v);
                 if (foundItemIndex === -1) {
                     // item not found
                     continue;
@@ -94,35 +103,34 @@ export class FormlyReorderArrayComponent extends FieldType<FieldTypeConfig<Forml
     }
 
     private updateValue() {
-        this.formControl.setValue(this.selectedItems.map(i => i.value));
+        this.formControl.setValue(this.selectedItems.map((i) => i.value));
         this.invalidateSelectOptions();
     }
 
     private invalidateSelectOptions() {
         const newOptions = this.selectOptions;
-        this.selectedItems.forEach(option => {
-            const validatedOption = newOptions.find(o => o.value === option.value);
+        this.selectedItems.forEach((option) => {
+            const validatedOption = newOptions.find((o) => o.value === option.value);
             if (!validatedOption) {
                 return;
             }
             option.expressions.locked = validatedOption.expressions.locked;
         });
     }
-
 }
 
 export type SelectOptionConfig = {
-    label: string,
-    value: string,
+    label: string;
+    value: string;
     expressions?: {
-        locked?: (field: FormlyFieldConfig) => boolean,
-    }
+        locked?: (field: FormlyFieldConfig) => boolean;
+    };
 };
 
 type SelectOption = {
-    label: string,
-    value: string,
+    label: string;
+    value: string;
     expressions: {
-        locked: boolean,
-    }
+        locked: boolean;
+    };
 };
