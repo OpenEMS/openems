@@ -39,9 +39,12 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     private Power power;
 
     @Override
-    @Reference(//
-            policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
-            target = "(&(id={config.modbus_id})(enabled=true))")
+    @Reference(
+            name = "Modbus",
+            policy = STATIC,
+            policyOption = GREEDY,
+            cardinality = MANDATORY
+    )
     protected void setModbus(BridgeModbus modbus) {
         super.setModbus(modbus);
     }
