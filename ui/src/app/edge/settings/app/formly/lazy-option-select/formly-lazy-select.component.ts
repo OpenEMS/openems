@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, Signal, signal, WritableSignal } from "@angular/core";
+import { Component, computed, effect, inject, Signal, signal, WritableSignal, ChangeDetectionStrategy, } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldType } from "@ngx-formly/core";
 import { FormlyFieldProps } from "@ngx-formly/ionic/form-field";
@@ -14,27 +14,29 @@ import { GetOptions, Option } from "./jsonrpc/getOptions";
 @Component({
     selector: FormlyLazySelectComponent.SELECTOR,
     templateUrl: "./formly-lazy-select.component.html",
-    imports: [
-        CommonUiModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule],
 })
-export class FormlyLazySelectComponent extends FieldType<FormlyFieldConfigWithInitialModel<FormlyFieldProps & {
-    componentId?: string,
-    method?: string,
-    loadingText?: string,
-    retryLoadingText?: string,
-    missingOptionsText?: string,
-}>> {
-
+export class FormlyLazySelectComponent extends FieldType<
+    FormlyFieldConfigWithInitialModel<
+        FormlyFieldProps & {
+            componentId?: string;
+            method?: string;
+            loadingText?: string;
+            retryLoadingText?: string;
+            missingOptionsText?: string;
+        }
+    >
+> {
     public static readonly SELECTOR = "formly-lazy-select";
 
     protected loading: boolean = false;
     protected selectionOpen = signal(false);
-    protected currentOptions: { name: string, value: string }[] = [];
+    protected currentOptions: { name: string; value: string }[] = [];
     protected displayValue = computed(() => {
         this.valueChange();
         const value = this.formControl.value;
-        const selectedOption = this.optionLoader.state$().options.find(e => compareOption(e.value, value));
+        const selectedOption = this.optionLoader.state$().options.find((e) => compareOption(e.value, value));
         return selectedOption?.name ?? value?.name ?? "";
     });
 
@@ -90,7 +92,7 @@ export class FormlyLazySelectComponent extends FieldType<FormlyFieldConfigWithIn
             },
             cssClass: "auto-height",
         });
-        modal.onDidDismiss().then(event => {
+        modal.onDidDismiss().then((event) => {
             this.selectionOpen.set(false);
             if (event.data == null) {
                 return;
@@ -113,12 +115,17 @@ export class FormlyLazySelectComponent extends FieldType<FormlyFieldConfigWithIn
             return [];
         }
 
-        const [error, response] = await JsonRpcUtils.handle<GetOptions.Response>(edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-            componentId: componentId,
-            payload: new GetOptions.Request(method, {
-                ...(this.field.instanceId && { forInstance: this.field.instanceId }),
-            }),
-        })));
+        const [error, response] = await JsonRpcUtils.handle<GetOptions.Response>(
+            edge.sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: componentId,
+                    payload: new GetOptions.Request(method, {
+                        ...(this.field.instanceId && { forInstance: this.field.instanceId }),
+                    }),
+                }),
+            ),
+        );
 
         if (error != null || response == null) {
             return [];
@@ -126,7 +133,6 @@ export class FormlyLazySelectComponent extends FieldType<FormlyFieldConfigWithIn
 
         return response.result.options;
     }
-
 }
 
 export function compareOption(o1: Option["value"], o2: Option["value"]): boolean {
@@ -134,8 +140,8 @@ export function compareOption(o1: Option["value"], o2: Option["value"]): boolean
 }
 
 export type OptionLoaderState = {
-    loading: boolean,
-    options: Option[],
+    loading: boolean;
+    options: Option[];
 };
 
 export class OptionLoader {
@@ -147,41 +153,40 @@ export class OptionLoader {
     private readonly unsubscribe = new Subject();
     private readonly state: WritableSignal<OptionLoaderState> = signal({ loading: false, options: [] });
 
-    constructor(
-        private loadOptions: () => Promise<Option[]>,
-    ) {
+    constructor(private loadOptions: () => Promise<Option[]>) {
         this.state$ = this.state.asReadonly();
     }
 
     public triggerLoad() {
         const source = timer(0, OptionLoader.WAIT_BETWEEN_REFRESHES);
-        source.pipe(
-            take(OptionLoader.NUMBER_OF_REFRESHES),
-            takeUntil(this.unsubscribe),
-            tap(() => {
-                this.state.update(state => {
-                    return { ...state, loading: true };
-                });
-            }),
-            concatMap(_ => {
-                return this.loadOptions();
-            }),
-            tap(options => {
-                this.state.update(state => {
-                    return { ...state, options: options };
-                });
-            }),
-            finalize(() => {
-                this.state.update(state => {
-                    return { ...state, loading: false };
-                });
-            }),
-        ).subscribe();
+        source
+            .pipe(
+                take(OptionLoader.NUMBER_OF_REFRESHES),
+                takeUntil(this.unsubscribe),
+                tap(() => {
+                    this.state.update((state) => {
+                        return { ...state, loading: true };
+                    });
+                }),
+                concatMap((_) => {
+                    return this.loadOptions();
+                }),
+                tap((options) => {
+                    this.state.update((state) => {
+                        return { ...state, options: options };
+                    });
+                }),
+                finalize(() => {
+                    this.state.update((state) => {
+                        return { ...state, loading: false };
+                    });
+                }),
+            )
+            .subscribe();
     }
 
     public destroy() {
         this.unsubscribe.next(null);
         this.unsubscribe.complete();
     }
-
 }

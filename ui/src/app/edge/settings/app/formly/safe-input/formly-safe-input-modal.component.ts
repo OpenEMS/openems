@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -7,10 +7,10 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 @Component({
     selector: "formly-safe-input-modal",
     templateUrl: "./formly-safe-input-modal.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlySafeInputModalComponent implements OnInit {
-
     @Input({ required: true })
     protected title!: string;
     @Input()
@@ -21,9 +21,7 @@ export class FormlySafeInputModalComponent implements OnInit {
     protected form: FormGroup = new FormGroup({});
     protected myModel: {};
 
-    constructor(
-        protected modalCtrl: ModalController,
-    ) { }
+    constructor(protected modalCtrl: ModalController) {}
 
     ngOnInit(): void {
         this.myModel = Object.assign({}, this.model);
@@ -32,5 +30,4 @@ export class FormlySafeInputModalComponent implements OnInit {
     protected onSelected() {
         this.modalCtrl.dismiss(this.myModel);
     }
-
 }

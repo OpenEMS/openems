@@ -20,6 +20,8 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		STOPPED(22), //
 
 		ERROR(30), //
+
+		MAINTENANCE(40), //
 		;
 
 		private final int value;
@@ -64,6 +66,7 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		case STOP_BATTERY -> new StopBatteryHandler();
 		case STOPPED -> new StoppedHandler();
 		case ERROR -> new ErrorHandler();
+		case MAINTENANCE -> new MaintenanceHandler();
 		};
 	}
 }

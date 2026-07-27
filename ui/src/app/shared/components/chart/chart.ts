@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, Renderer2 } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, Renderer2, ChangeDetectionStrategy, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -14,10 +14,10 @@ import { NavigationService } from "../navigation/service/navigation.service";
 @Component({
     selector: "oe-chart",
     templateUrl: "./chart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartComponent implements OnInit, OnChanges {
-
     @Input() public title: string = "";
     @Input() public showPhases: boolean | null = null;
     @Input() public showTotal: boolean | null = null;
@@ -41,16 +41,17 @@ export class ChartComponent implements OnInit, OnChanges {
         protected modalCtr: ModalController,
         private ref: ChangeDetectorRef,
         private navigationService: NavigationService,
-        private el: ElementRef, private renderer: Renderer2,
+        private el: ElementRef,
+        private renderer: Renderer2,
         private layoutRefresh: LayoutRefreshService,
     ) {
-        this.service.getCurrentEdge().then(edge => this.edge = edge);
+        this.service.getCurrentEdge().then((edge) => (this.edge = edge));
         const hostElement = el.nativeElement;
         this.renderer.addClass(hostElement, "ion-page");
     }
 
     ngOnInit() {
-        this.service.getCurrentEdge().then(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
         });
 
@@ -59,7 +60,7 @@ export class ChartComponent implements OnInit, OnChanges {
         this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
     }
 
-    /** Run change detection explicitly after the change, to avoid expression changed after it was checked*/
+    /** Run change detection explicitly after the change, to avoid expression changed after it was checked */
     ngOnChanges() {
         this.ref.detectChanges();
         this.checkIfPopoverNeeded();
@@ -79,7 +80,6 @@ export class ChartComponent implements OnInit, OnChanges {
             },
         });
 
-        await popover.present();
         popover.onDidDismiss().then((data) => {
             this.showPhases = data.role == "Phases" ? data.data : this.showPhases;
             this.showTotal = data.role == "Total" ? data.data : this.showTotal;
@@ -91,7 +91,10 @@ export class ChartComponent implements OnInit, OnChanges {
 
     private checkIfPopoverNeeded() {
         if (this.isPopoverNeeded) {
-            if (this.service.periodString == DefaultTypes.PeriodString.MONTH || (this.service.periodString == DefaultTypes.PeriodString.YEAR)) {
+            if (
+                this.service.periodString == DefaultTypes.PeriodString.MONTH ||
+                this.service.periodString == DefaultTypes.PeriodString.YEAR
+            ) {
                 this.showPopover = false;
                 this.setShowPhases.emit(false);
                 this.setShowTotal.emit(true);
@@ -100,5 +103,4 @@ export class ChartComponent implements OnInit, OnChanges {
             }
         }
     }
-
 }

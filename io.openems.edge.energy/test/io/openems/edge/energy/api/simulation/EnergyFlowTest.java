@@ -4,9 +4,9 @@ import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.app
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyChargeGrid;
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDelayDischarge;
 import static io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.applyDischargeGrid;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class EnergyFlowTest {
 

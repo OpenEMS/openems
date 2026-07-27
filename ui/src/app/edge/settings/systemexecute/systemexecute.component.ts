@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { AbstractControl, FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { FormlyFieldConfig, FormlyFormOptions } from "@ngx-formly/core";
@@ -14,16 +14,17 @@ type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction; } = {
     "ping": (host: string) => `ping -c4 ${host}`,
-    "openems-restart": () => "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
+    "openems-restart": () => 
+        "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };
 
 @Component({
     selector: SystemExecuteComponent.SELECTOR,
     templateUrl: "./systemexecute.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class SystemExecuteComponent implements OnInit {
-
     private static readonly SELECTOR = "systemExecute";
 
     public loading: boolean = false;
@@ -46,76 +47,91 @@ export class SystemExecuteComponent implements OnInit {
             key: "host",
             type: "input",
             templateOptions: {
-                label: "Host", placeholder: "127.0.0.1 / localhost", required: true,
+                label: "Host", 
+                placeholder: "127.0.0.1 / localhost", 
+                required: true,
             },
             validators: {
                 host: {
                     expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
-                    message: (error, field) => `${field.formControl?.value} is not a valid IP-Address or Hostname`,
+                    message: (error, field: FormlyFieldConfig) => 
+                        `${field.formControl?.value} is not a valid IP-Address or Hostname`,
                 },
-            },
-        }],
-    }, {
-        key: "predefined",
-        type: "radio",
-        templateOptions: {
-            options: [
-                { value: "branch", label: "Update system from branch" },
             ],
         },
-    }, {
-        key: "branch",
-        fieldGroup: [{
-            key: "name",
-            type: "select",
-            hideExpression: (model: any, formState: any) => this.model["predefined"] !== "branch",
+        {
+            key: "predefined",
+            type: "radio",
             templateOptions: {
-                label: "Branch Predefined", placeholder: "main", required: true,
+                options: [{ value: "branch", label: "Update system from branch" }],
+            },
+        },
+        {
+            key: "branch",
+            fieldGroup: [
+                {
+                    key: "name",
+                    type: "select",
+                    hideExpression: (model: any, formState: any) => this.model["predefined"] !== "branch",
+                    templateOptions: {
+                        label: "Branch Predefined",
+                        placeholder: "main",
+                        required: true,
+                        options: [
+                            { label: "main", value: "main" },
+                            { label: "develop", value: "develop" },
+                            { label: "Other branch...", value: "other" },
+                        ],
+                    },
+                },
+                {
+                    key: "free",
+                    type: "input",
+                    hideExpression: (model: any, formState: any) =>
+                        this.model["predefined"] !== "branch" || this.model?.branch?.name !== "other",
+                    templateOptions: {
+                        label: "Branch",
+                        placeholder: "main",
+                        required: false,
+                    },
+                    validation: {
+                        messages: {
+                            pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is too short.`,
+                        },
+                    },
+                },
+                {
+                    key: "force",
+                    type: "toggle",
+                    hideExpression: (model: any, formState: any) => this.model["predefined"] !== "branch",
+                    templateOptions: {
+                        label: "Force update?",
+                        placeholder: "main",
+                        required: false,
+                        default: false,
+                    },
+                },
+            ],
+        },
+        {
+            key: "predefined",
+            type: "radio",
+            templateOptions: {
+                options: [{ value: "query-status", label: "Status Systemupdate abfragen" }],
+            },
+        },
+        {
+            key: "predefined",
+            type: "radio",
+            templateOptions: {
                 options: [
-                    { label: "main", value: "main" },
-                    { label: "develop", value: "develop" },
-                    { label: "Other branch...", value: "other" },
+                    { value: "openems-restart", label: "Restart OpenEMS Edge service" },
+                    { value: "pagekite-log", label: "Show Pagekite log" },
+                    { value: "pagekite-restart", label: "Restart Pagekite" },
                 ],
             },
-        }, {
-            key: "free",
-            type: "input",
-            hideExpression: (model: any, formState: any) => this.model["predefined"] !== "branch" || this.model?.branch?.name !== "other",
-            templateOptions: {
-                label: "Branch", placeholder: "main", required: false,
-            },
-            validation: {
-                messages: {
-                    pattern: (error, field: FormlyFieldConfig) => `"${field.formControl.value}" is too short.`,
-                },
-            },
-        }, {
-            key: "force",
-            type: "toggle",
-            hideExpression: (model: any, formState: any) => this.model["predefined"] !== "branch",
-            templateOptions: {
-                label: "Force update?", placeholder: "main", required: false, default: false,
-            },
-        }],
-    }, {
-        key: "predefined",
-        type: "radio",
-        templateOptions: {
-            options: [
-                { value: "query-status", label: "Status Systemupdate abfragen" },
-            ],
         },
-    }, {
-        key: "predefined",
-        type: "radio",
-        templateOptions: {
-            options: [
-                { value: "openems-restart", label: "Restart OpenEMS Edge service" },
-                { value: "pagekite-log", label: "Show Pagekite log" },
-                { value: "pagekite-restart", label: "Restart Pagekite" },
-            ],
-        },
-    }];
+    ];
 
     constructor(
         private route: ActivatedRoute,
@@ -124,8 +140,7 @@ export class SystemExecuteComponent implements OnInit {
         private service: Service,
         private translate: TranslateService,
         private formBuilder: FormBuilder,
-    ) {
-    }
+    ) {}
 
     ngOnInit() {
         this.form = this.formBuilder.group({
@@ -163,7 +178,7 @@ export class SystemExecuteComponent implements OnInit {
         const runInBackground = this.form.controls["runInBackground"];
         const command = this.form.controls["command"];
 
-        this.service.getCurrentEdge().then(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.loading = true;
             this.stdout = [];
             this.stderr = [];
@@ -190,12 +205,12 @@ export class SystemExecuteComponent implements OnInit {
                     }
                     this.stderr = result.stderr;
 
-                }).catch(reason => {
+                })
+                .catch(reason => {
                     this.loading = false;
                     this.stderr = ["Error executing system command:", reason.error.message];
                 });
             this.commandLogs.unshift(executeSystemCommandRequest);
         });
     }
-
 }

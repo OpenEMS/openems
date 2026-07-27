@@ -3,12 +3,14 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.deinstallableSelfConsumptionOptimization;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14aToHardware;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.externalLimitationType;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.feedInLink;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssLimiter14a;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.maxFeedInPower;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialUtils.isOldGridMeterAppUsedByCommercialApp;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -150,31 +152,48 @@ public class FeneconCommercial92
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+			final var dcMinVoltage = GridCode.VDE_4110.name().equals(gridCode) ? 653 : 650;
+			final var essProtection = GridCode.VDE_4110.name().equals(gridCode) //
+					? "RAMP"
+					: "VOLTAGE_REGULATION";
 
 			final var components = Lists.newArrayList(//
-					ComponentDef
-							.from(FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget)), //
+					ComponentDef.from(FeneconHomeComponents.battery(deviceHardware, bundle, batteryId,
+							modbusToBatteryId, batteryTarget)), //
 					FeneconCommercialComponents.batteryInverterWithForceErrorBehaviour(bundle, batteryInverterId,
-							modbusToBatteryInverterId, gridCode), //
+							modbusToBatteryInverterId, dcMinVoltage, gridCode), //
 					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
-							batteryInverterId), //
+							batteryInverterId, essProtection), //
 					ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)), //
 					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
 					ComponentDef.from(
 							FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId)), //
-					ComponentDef.from(FeneconCommercialComponents.modbusToGridMeter(bundle, t, modbusToGridMeterId)), //
 					ComponentDef.from(FeneconHomeComponents.modbusForExternalMeters(bundle, t,
 							modbusToExternalDevicesId, deviceHardware)) //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(//
+						ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)) //
+				);
+			}
 
 			final var dependencies = Lists.newArrayList(//
 					deinstallableSelfConsumptionOptimization(t, essId, gridMeterId), //
 					FeneconHomeComponents.gridOptimizedCharge(t), //
 					FeneconHomeComponents.prepareBatteryExtension(), //
-					FeneconCommercialComponents.gridMeter(bundle, gridMeterId, modbusToGridMeterId), //
 					FeneconHomeComponents.predictionDefault(), //
 					FeneconHomeComponents.predictionUnmanagedConsumption()//
 			);
+
+			if (isOldGridMeterAppUsedByCommercialApp(this.appManagerUtil, this.getAppId())) {
+				dependencies.add(//
+						FeneconCommercialComponents.gridMeterWithOldDependency(bundle, gridMeterId,
+								modbusToGridMeterId));
+			} else {
+				dependencies.add(//
+						FeneconCommercialComponents.gridMeter(bundle));
+			}
 
 			if (hasEssLimiter14a) {
 				dependencies.add(essLimiter14aToHardware(this.appManagerUtil, deviceHardware));

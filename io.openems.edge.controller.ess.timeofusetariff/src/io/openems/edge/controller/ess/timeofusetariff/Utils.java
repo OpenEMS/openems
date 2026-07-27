@@ -1,12 +1,18 @@
 package io.openems.edge.controller.ess.timeofusetariff;
 
 import static com.google.common.math.Quantiles.percentiles;
+import static io.openems.common.utils.DateUtils.durationUntilNextQuarter;
+import static io.openems.common.utils.DateUtils.roundDownToQuarter;
 import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.IntUtils.maxInt;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.AVOID_GRID_SELL_LIMIT;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_CONSUMPTION;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DISCHARGE_GRID;
+import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.LIMIT_CHARGE;
 import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.PEAK_SHAVING;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstPeakIndex;
 import static io.openems.edge.energy.api.EnergyUtils.findFirstValleyIndex;
@@ -14,6 +20,10 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.round;
 import static java.util.Arrays.stream;
+
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import com.google.common.primitives.ImmutableIntArray;
 
@@ -23,8 +33,7 @@ import io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Optimizati
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.handler.DifferentModes;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period;
-import io.openems.edge.energy.api.simulation.GlobalOptimizationContext.Period.Price;
+import io.openems.edge.energy.api.simulation.periods.PeriodData.Price;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 
@@ -56,54 +65,41 @@ public final class Utils {
 	public static final ChannelAddress SUM_ESS_DISCHARGE_POWER = new ChannelAddress("_sum", "EssDischargePower");
 	public static final ChannelAddress SUM_ESS_SOC = new ChannelAddress("_sum", "EssSoc");
 
-	public static record ApplyMode(StateMachine actualMode, Integer setPoint) {
-	}
+	static ApplyMode calculateApplyMode(//
+			Sum sum, ManagedSymmetricEss ess, Integer gridBuySoftLimit, int gridSellHardLimit,
+			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode, Clock clock) {
+		final Integer gridActivePower = sum.getGridActivePower().get();
+		final Integer essActivePower = ess.getActivePower().get();
+		final Integer productionActivePower = sum.getProductionActivePower().get();
 
-	/**
-	 * Calculate Automatic Mode.
-	 * 
-	 * @param sum           the {@link Sum}
-	 * @param ess           the {@link ManagedSymmetricEss}
-	 * @param gridSoftLimit the configured Soft-Limit from Grid (or null)
-	 * @param period        the scheduled {@link Period}
-	 * @param forceMode     force a target {@link StateMachine}
-	 * @return {@link ApplyMode}
-	 */
-	public static ApplyMode calculateAutomaticMode(Sum sum, ManagedSymmetricEss ess, Integer gridSoftLimit,
-			DifferentModes.Period<StateMachine, OptimizationContext> period, StateMachine forceMode) {
-		var gridActivePower = sum.getGridActivePower().get(); // current buy-from/sell-to grid
-		var essActivePower = ess.getActivePower().get(); // current charge/discharge ESS
-		if ((period == null && forceMode == null) || gridActivePower == null || essActivePower == null) {
-			// undefined state
+		if (gridActivePower == null || essActivePower == null || productionActivePower == null || period == null) {
 			return new ApplyMode(BALANCING, null);
 		}
 
-		final var mode = forceMode != null //
-				? forceMode //
-				: period.mode();
-		final var pwrBalancing = gridActivePower + essActivePower;
-		return switch (mode) {
-		case BALANCING -> new ApplyMode(BALANCING, pwrBalancing);
-		case DELAY_DISCHARGE ->
-			calculateDelayDischarge(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit);
-		case CHARGE_GRID, PEAK_SHAVING ->
-			calculateChargeGrid(ess, essActivePower, gridActivePower, pwrBalancing, gridSoftLimit, period.coc());
-		case DISCHARGE_GRID -> calculateDischargeGrid(ess, essActivePower, gridActivePower);
+		final var mode = forceMode != null ? forceMode : period.mode();
+		final var optimizationContext = period.coc();
+
+		final int balancingSetpoint = gridActivePower + essActivePower;
+
+		final var applyMode = switch (mode) {
+		case BALANCING -> new ApplyMode(BALANCING, balancingSetpoint);
+		case DELAY_DISCHARGE -> calculateDelayDischarge(ess, essActivePower, balancingSetpoint);
+		case CHARGE_GRID, PEAK_SHAVING -> calculateChargeGrid(ess, essActivePower, gridActivePower, balancingSetpoint,
+				gridBuySoftLimit, optimizationContext);
+		case DISCHARGE_GRID -> calculateDischargeGrid(essActivePower, gridActivePower);
+		case DELAY_CHARGE -> calculateLimitCharge(ess, essActivePower, 0, balancingSetpoint);
+		case LIMIT_CHARGE -> {
+			final var limitChargePower = calculateLimitChargePower(ess, optimizationContext, clock);
+			yield calculateLimitCharge(ess, essActivePower, limitChargePower, balancingSetpoint);
+		}
+		case DISCHARGE_CONSUMPTION, AVOID_GRID_SELL_LIMIT ->
+			calculateDischargeConsumption(balancingSetpoint, productionActivePower);
 		};
+
+		return postProcessApplyMode(applyMode, balancingSetpoint, gridBuySoftLimit, gridSellHardLimit);
 	}
 
-	/**
-	 * Calculates the {@link ApplyMode} for {@link StateMachine#CHARGE_GRID}.
-	 * 
-	 * @param coc             the {@link OptimizationContext}
-	 * @param ess             the {@link ManagedSymmetricEss}
-	 * @param essActivePower  the ESS ActivePower
-	 * @param gridActivePower the Grid ActivePower
-	 * @param pwrBalancing    the set-point in {@link StateMachine#BALANCING}
-	 * @param gridSoftLimit   the configured Soft-Limit from Grid (or null)
-	 * @return the {@link ApplyMode}
-	 */
-	private static ApplyMode calculateChargeGrid(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
+	static ApplyMode calculateChargeGrid(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
 			int pwrBalancing, Integer gridSoftLimit, OptimizationContext coc) {
 		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
 		var targetChargePower = -coc.essChargePowerInChargeGrid() //
@@ -137,15 +133,7 @@ public final class Utils {
 		}
 	}
 
-	/**
-	 * Calculates the {@link ApplyMode} for {@link StateMachine#DISCHARGE_GRID}.
-	 * 
-	 * @param ess             the {@link ManagedSymmetricEss}
-	 * @param essActivePower  the ESS ActivePower
-	 * @param gridActivePower the Grid ActivePower
-	 * @return the {@link ApplyMode}
-	 */
-	private static ApplyMode calculateDischargeGrid(ManagedSymmetricEss ess, int essActivePower, int gridActivePower) {
+	static ApplyMode calculateDischargeGrid(int essActivePower, int gridActivePower) {
 		var realGridPower = gridActivePower + essActivePower; // 'real', without current ESS charge/discharge
 		var essDischargeInDischargeGrid = ESS_DISCHARGE_TO_GRID_POWER; // [W]
 		var targetDischargePower = essDischargeInDischargeGrid + max(0, realGridPower);
@@ -157,45 +145,69 @@ public final class Utils {
 		return new ApplyMode(DISCHARGE_GRID, targetDischargePower);
 	}
 
-	/**
-	 * Calculates the {@link ApplyMode} for {@link StateMachine#DELAY_DISCHARGE}.
-	 * 
-	 * <p>
-	 * This mode stops discharging the battery, but allows charging. (i.e.
-	 * ESS::DcDischargePower <= 0); unless peak-shaving to "gridSoftLimit" is
-	 * required, then it also allows discharging.
-	 * 
-	 * @param ess             the {@link ManagedSymmetricEss}
-	 * @param essActivePower  the ESS ActivePower
-	 * @param gridActivePower the Grid ActivePower
-	 * @param pwrBalancing    the set-point in {@link StateMachine#BALANCING}
-	 * @param gridSoftLimit   the configured Soft-Limit from Grid (or null)
-	 * @return the {@link ApplyMode}
-	 */
-	private static ApplyMode calculateDelayDischarge(ManagedSymmetricEss ess, int essActivePower, int gridActivePower,
-			int pwrBalancing, Integer gridSoftLimit) {
-		var pwrDelayDischarge = switch (ess) {
-		case HybridEss e ->
-			// Limit discharge to DC-PV power
-			max(0, essActivePower - e.getDcDischargePower().orElse(0));
-		default ->
-			// Limit discharge to 0
-			0;
+	static ApplyMode calculateDelayDischarge(//
+			ManagedSymmetricEss ess, int essActivePower, int balancingSetpoint) {
+		final int delayDischargeSetpoint = switch (ess) {
+		case HybridEss e -> max(0, essActivePower - e.getDcDischargePower().orElse(0));
+		default -> 0;
 		};
 
-		// DELAY_DISCHARGE...
-		var peakShavingPower = calculatePeakShavingPower(essActivePower, gridActivePower, gridSoftLimit);
-		if (peakShavingPower != null && peakShavingPower > 0) {
-			// ...but discharging is required for peak-shaving to gridSoftLimit
-			return new ApplyMode(PEAK_SHAVING, peakShavingPower);
-
-		} else if (pwrDelayDischarge >= pwrBalancing) {
-			// ...but actually charging
-			return new ApplyMode(BALANCING, pwrBalancing);
-
-		} else {
-			return new ApplyMode(DELAY_DISCHARGE, pwrDelayDischarge);
+		if (delayDischargeSetpoint >= balancingSetpoint) {
+			// But actually charging
+			return new ApplyMode(BALANCING, balancingSetpoint);
 		}
+
+		return new ApplyMode(DELAY_DISCHARGE, delayDischargeSetpoint);
+	}
+
+	static ApplyMode calculateLimitCharge(//
+			ManagedSymmetricEss ess, int essActivePower, Integer limitChargePower, int balancingSetpoint) {
+		if (limitChargePower == null) {
+			// No limit charge power is set
+			return new ApplyMode(BALANCING, balancingSetpoint);
+		}
+
+		final int limitChargeSetpoint = switch (ess) {
+		case HybridEss e -> max(0, essActivePower - e.getDcDischargePower().orElse(0)) - limitChargePower;
+		default -> -limitChargePower;
+		};
+
+		if (limitChargeSetpoint <= balancingSetpoint) {
+			// But actually charging less or discharging
+			return new ApplyMode(BALANCING, balancingSetpoint);
+		}
+
+		if (limitChargePower == 0) {
+			// Delay charging since the target limit charge power is zero
+			return new ApplyMode(DELAY_CHARGE, limitChargeSetpoint);
+		}
+
+		return new ApplyMode(LIMIT_CHARGE, limitChargeSetpoint);
+	}
+
+	static ApplyMode calculateDischargeConsumption(//
+			int balancingSetpoint, int productionActivePower) {
+		final int dischargeConsumptionSetpoint = balancingSetpoint + productionActivePower;
+		return new ApplyMode(DISCHARGE_CONSUMPTION, dischargeConsumptionSetpoint);
+	}
+
+	static ApplyMode postProcessApplyMode(//
+			ApplyMode applyMode, int balancingSetpoint, Integer gridBuySoftLimit, int gridSellHardLimit) {
+		final int setPoint = applyMode.setPoint();
+
+		if (gridBuySoftLimit != null) {
+			final int minSetpoint = balancingSetpoint - gridBuySoftLimit;
+			if (setPoint < minSetpoint) {
+				return new ApplyMode(PEAK_SHAVING, minSetpoint);
+			}
+		}
+
+		final int maxSetpoint = balancingSetpoint + gridSellHardLimit;
+		if (setPoint > maxSetpoint) {
+			return new ApplyMode(AVOID_GRID_SELL_LIMIT, maxSetpoint);
+		}
+
+		return applyMode;
 	}
 
 	/**
@@ -210,43 +222,50 @@ public final class Utils {
 	 * @param maxEnergyInChargeGrid the Max-Energy in [Wh] in CHARGE_GRID
 	 * @return the value in [W]
 	 */
-	public static int calculateChargePowerInChargeGrid(GlobalOptimizationContext goc, int maxEnergyInChargeGrid) {
+	static int calculateChargePowerInChargeGrid(GlobalOptimizationContext goc, int maxEnergyInChargeGrid) {
 		var refs = ImmutableIntArray.builder();
 
 		// Uses the total available energy as reference (= fallback)
 		add(refs, maxEnergyInChargeGrid);
 
 		// Uses the total excess consumption as reference
-		add(refs, goc.streamPeriodsWithPrediction() //
+		add(refs, goc.periods().stream() //
 				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+				.mapToInt(p -> p.data().consumption() //
+						.map(c -> p.duration() //
+								.convertEnergyToPower(c.actual() - p.data().production())) //
+						.orElse(0)) //
 				.sum());
 
-		add(refs, goc.streamPeriodsWithPrediction() //
-				.takeWhile(p -> p.prediction().excessConsumption() >= 0) // take only first Periods
-				// calculates excess Consumption Power per Period
-				.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+		add(refs, goc.periods().stream() //
+				.map(p -> p.data().consumption() //
+						// Calculate excess consumption
+						.map(c -> p.duration().convertEnergyToPower(c.actual() - p.data().production()))) //
+				.takeWhile(opt -> opt.map(v -> v >= 0).orElse(false)) // Take only first periods
+				.mapToInt(opt -> opt.orElse(0)) //
 				.sum());
 
-		// Uses the excess consumption during high price periods as reference
+		// Uses the excess consumption during high grid-buy price periods as reference
 		{
-			var ps = goc.streamCompletePeriods() //
-					.toList();
-			var prices = ps.stream() //
-					.map(Period.Complete::price) //
+			var gridBuyPrices = goc.periods().stream() //
+					.map(p -> p.data().gridBuyPrice()) //
+					.flatMap(Optional::stream) //
 					.mapToDouble(Price::actual) //
 					.toArray();
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
-			var firstPrices = stream(prices) //
+			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, gridBuyPrices), gridBuyPrices);
+			var firstPrices = stream(gridBuyPrices) //
 					.limit(peakIndex) //
 					.toArray();
 			if (firstPrices.length > 0) {
 				var percentilePrice = percentiles().index(95).compute(firstPrices);
-				add(refs, ps.stream() //
+				add(refs, goc.periods().stream() //
+						.filter(p -> p.data().gridBuyPrice().isPresent() && p.data().consumption().isPresent()) //
 						.limit(peakIndex) //
-						.filter(p -> p.price().actual() >= percentilePrice) // takes only prices > percentile
-						// excess Consumption Power per Period
-						.mapToInt(p -> p.duration().convertEnergyToPower(p.prediction().excessConsumption())) //
+						// Take only prices > percentile
+						.filter(p -> p.data().gridBuyPrice().get().actual() >= percentilePrice)
+						// Excess consumption power
+						.mapToInt(p -> p.duration()
+								.convertEnergyToPower(p.data().consumption().get().actual() - p.data().production())) //
 						.sum());
 			}
 		}
@@ -274,15 +293,44 @@ public final class Utils {
 		}
 	}
 
-	protected static int calculateMaxSocForEnvironment(Environment environment) {
+	private static Integer calculateLimitChargePower(//
+			ManagedSymmetricEss ess, OptimizationContext coc, Clock clock) {
+		final var now = ZonedDateTime.now(clock);
+		final int numFutureQuartersWithSurplus = Optional.ofNullable(//
+				coc.futureQuarterlyPeriodsWithSurplusByQuarter()//
+						.get(roundDownToQuarter(now).toLocalDateTime()))
+				.orElse(0);
+		if (numFutureQuartersWithSurplus <= 0) {
+			return null;
+		}
+
+		final var soc = ess.getSoc().get();
+		final var capacity = ess.getCapacity().get();
+		if (soc == null || capacity == null) {
+			return null;
+		}
+
+		final double socPerc = soc / 100.0;
+		if (socPerc >= 1.0) {
+			return null;
+		}
+
+		return GridOptimizedChargeUtils.calculateLimitChargePower(//
+				numFutureQuartersWithSurplus, socPerc, capacity, durationUntilNextQuarter(clock));
+	}
+
+	static int calculateMaxSocForEnvironment(Environment environment) {
 		return switch (environment) {
 		case PRODUCTION, BETA, TEST -> 99;
 		};
 	}
 
-	protected static int calculateMinSocForEnvironment(Environment environment) {
+	static int calculateMinSocForEnvironment(Environment environment) {
 		return switch (environment) {
 		case PRODUCTION, BETA, TEST -> 1;
 		};
+	}
+
+	public record ApplyMode(StateMachine actualMode, Integer setPoint) {
 	}
 }

@@ -243,6 +243,10 @@ public class PowerDistribution {
 						.append("..").append(this.limitActivePowerMax).append("]") //
 						.append(" own=[").append(this.ownActiveMin()) //
 						.append("..").append(this.ownActiveMax()).append("]") //
+						.append(" Q=[").append(this.limitReactivePowerMin) //
+						.append("..").append(this.limitReactivePowerMax).append("]") //
+						.append(" own=[").append(this.ownReactiveMin()) //
+						.append("..").append(this.ownReactiveMax()).append("]") //
 						.append("\n");
 				for (var child : this.children) {
 					sb.append(child.toString(indent + "  "));
@@ -311,6 +315,11 @@ public class PowerDistribution {
 						.append(" get=[").append(this.getActiveMin()) //
 						.append("..").append(this.getActiveMax()).append("]") //
 						.append(" -> ").append(this.activePowerSetPoint).append("W") //
+						.append(" Q=[").append(this.limitReactivePowerMin) //
+						.append("..").append(this.limitReactivePowerMax).append("]") //
+						.append(" own=[").append(this.ownReactiveMin()) //
+						.append("..").append(this.ownReactiveMax()).append("]") //
+						.append(" -> ").append(this.reactivePowerSetPoint).append("var") //
 						.append("\n") //
 						.toString();
 			}
@@ -327,12 +336,12 @@ public class PowerDistribution {
 
 			@Override
 			public int ownReactiveMax() {
-				return this.limitReactivePowerMax != null ? this.limitReactivePowerMax : 0;
+				return this.limitReactivePowerMax != null ? this.limitReactivePowerMax : this.maxApparentPower;
 			}
 
 			@Override
 			public int ownReactiveMin() {
-				return this.limitReactivePowerMin != null ? this.limitReactivePowerMin : 0;
+				return this.limitReactivePowerMin != null ? this.limitReactivePowerMin : -this.maxApparentPower;
 			}
 		}
 	}

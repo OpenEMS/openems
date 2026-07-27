@@ -31,12 +31,12 @@ import static io.openems.edge.energy.v1.optimizer.UtilsV1.paramsAreValid;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.toEnergy;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.toPower;
 import static io.openems.edge.energy.v1.optimizer.UtilsV1.updateSchedule;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.IntStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSortedMap;
 

@@ -1,6 +1,6 @@
 package io.openems.edge.sma.ess.stpxx3se.dccharger;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.sma.ess.enums.PvString;

@@ -2,16 +2,16 @@ package io.openems.edge.goodwe.common;
 
 import static io.openems.edge.goodwe.common.ApplyPowerHandler.checkControlModeRequiresSmartMeter;
 import static io.openems.edge.goodwe.common.ApplyPowerHandler.checkControlModeWithActiveFilter;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.channel.value.Value;
@@ -43,7 +43,9 @@ public class ApplyPowerHandlerTest {
 					smartModeNotWorkingWithPidFilter::set, //
 					noSmartMeterDetected::set, //
 					emsPowerSet::set, //
-					emsPowerMode::set //
+					emsPowerMode::set, //
+					/* maxBatChargeP */ null, //
+					/* maxBatDischargeP */ null //
 			);
 		}
 		assertTrue(smartModeNotWorkingWithPidFilter.get());
@@ -186,7 +188,9 @@ public class ApplyPowerHandlerTest {
 					smartModeNotWorkingWithPidFilter::set, //
 					noSmartMeterDetected::set, //
 					emsPowerSet::set, //
-					emsPowerMode::set //
+					emsPowerMode::set, //
+					/* maxBatChargeP */ null, //
+					/* maxBatDischargeP */ null //
 			);
 		}
 
@@ -211,7 +215,9 @@ public class ApplyPowerHandlerTest {
 					smartModeNotWorkingWithPidFilter::set, //
 					noSmartMeterDetected::set, //
 					emsPowerSet::set, //
-					emsPowerMode::set //
+					emsPowerMode::set, //
+					/* maxBatChargeP */ null, //
+					/* maxBatDischargeP */ null //
 			);
 		}
 		assertTrue(smartModeNotWorkingWithPidFilter.get());
@@ -222,53 +228,48 @@ public class ApplyPowerHandlerTest {
 
 	@Test
 	public void testApplyInternalFilter_NullLimits() {
-		final var applyPowerHandler = new ApplyPowerHandler(null);
-
-		// Test non-AUTO mode with null maxAcImport
+		// Test DISCHARGE_BAT with null maxBatDischargeP → no upper clamp, passes
+		// through
 		var resultNullImport = new ApplyPowerHandler.Result(EmsPowerMode.DISCHARGE_BAT, 3000L);
-		var filteredNullImport = applyPowerHandler.applyInternalFilter(//
+		var filteredNullImport = new ApplyPowerHandler(null).applyInternalFilter(//
 				false, //
-				new Value<>(null, 1000), //
-				null, //
-				5000, //
-				resultNullImport);
+				resultNullImport, //
+				/* maxBatChargeP */ null, //
+				/* maxBatDischargeP */ 5000);
 		assertEquals(3000L, filteredNullImport);
 
-		// Test non-AUTO mode with null maxAcExport
+		// Test CHARGE_BAT with null maxBatChargeP → no upper clamp, passes through
 		var resultNullExport = new ApplyPowerHandler.Result(EmsPowerMode.CHARGE_BAT, 2500L);
-		var filteredNullExport = applyPowerHandler.applyInternalFilter(//
+		var filteredNullExport = new ApplyPowerHandler(null).applyInternalFilter(//
 				false, //
-				new Value<>(null, 500), //
-				5000, //
-				null, //
-				resultNullExport);
+				resultNullExport, //
+				/* maxBatChargeP */ 5000, //
+				/* maxBatDischargeP */ null);
 		assertEquals(2500L, filteredNullExport);
 
-		// Test non-AUTO mode with both null
+		// Test DISCHARGE_BAT with both null → no clamping, passes through
 		var resultBothNull = new ApplyPowerHandler.Result(EmsPowerMode.DISCHARGE_BAT, 4000L);
-		var filteredBothNull = applyPowerHandler.applyInternalFilter(//
+		var filteredBothNull = new ApplyPowerHandler(null).applyInternalFilter(//
 				false, //
-				new Value<>(null, 1000), //
-				null, //
-				null, //
-				resultBothNull);
+				resultBothNull, //
+				/* maxBatChargeP */ null, //
+				/* maxBatDischargeP */ null);
 		assertEquals(4000L, filteredBothNull);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testApplyInternalFilter_WithValidLimits() {
 		final var applyPowerHandler = new ApplyPowerHandler(null);
 
-		// Test DISCHARGE_BAT mode with valid limits - PID filter should be applied
+		// Test DISCHARGE_BAT mode with valid limits - PT1 filter should be applied
 		var resultDischarge = new ApplyPowerHandler.Result(EmsPowerMode.DISCHARGE_BAT, 1000);
 		var filteredDischarge = applyPowerHandler.applyInternalFilter(//
 				false, //
-				new Value<>(null, 0), //
-				-5000, //
-				5000, //
-				resultDischarge);
-		// PID filter should smooth the transition, so result should be < target
+				resultDischarge, //
+				/* maxBatChargeP */ null, //
+				/* maxBatDischargeP */ 5000);
+		// PT1 filter should smooth the transition, so result should be < target
 		assertTrue(filteredDischarge > 0);
 		assertTrue(filteredDischarge <= 1000);
 
@@ -276,66 +277,61 @@ public class ApplyPowerHandlerTest {
 		var resultCharge = new ApplyPowerHandler.Result(EmsPowerMode.CHARGE_BAT, 2000);
 		var filteredCharge = applyPowerHandler.applyInternalFilter(//
 				false, //
-				new Value<>(null, 500), //
-				-10000, //
-				10000, //
-				resultCharge);
-		// PID should smooth the transition from 500 to 2000
-		assertTrue(filteredCharge > 500);
+				resultCharge, //
+				/* maxBatChargeP */ 10000, //
+				/* maxBatDischargeP */ null);
+		// PT1 should smooth the transition
+		assertTrue(filteredCharge > 0);
 		assertTrue(filteredCharge <= 2000);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testApplyInternalFilter_PidConvergence() {
 		final var applyPowerHandler = new ApplyPowerHandler(null);
 
-		// Test that PID filter converges over multiple iterations
+		// Test that PT1 filter converges over multiple iterations
 		long lastFiltered = 0;
 		for (int i = 0; i < 10; i++) {
 			var result = new ApplyPowerHandler.Result(EmsPowerMode.DISCHARGE_BAT, 1000);
 			lastFiltered = applyPowerHandler.applyInternalFilter(//
 					false, //
-					new Value<>(null, (int) lastFiltered), //
-					-5000, //
-					5000, //
-					result);
+					result, //
+					/* maxBatChargeP */ null, //
+					/* maxBatDischargeP */ 5000);
 		}
 		// After 10 iterations, should be close to target (within reasonable tolerance)
 		assertTrue(lastFiltered >= 900); // Should converge close to 1000
 		assertTrue(lastFiltered <= 1000); // Should not exceed target
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testApplyInternalFilter_RespectLimits() {
 		final var applyPowerHandler = new ApplyPowerHandler(null);
 
-		// Test that PID filter respects export limit
+		// Test that PT1 filter respects discharge limit
 		var resultHighExport = new ApplyPowerHandler.Result(EmsPowerMode.DISCHARGE_BAT, 10000);
 		var filteredHighExport = applyPowerHandler.applyInternalFilter(//
 				false, //
-				new Value<>(null, 0), //
-				2000, //
-				3000, // Max export limit
-				resultHighExport);
-		// Should be limited to maxAcExport
+				resultHighExport, //
+				/* maxBatChargeP */ null, //
+				/* maxBatDischargeP */ 3000);
+		// Should be limited to maxBatDischargeP
 		assertTrue(filteredHighExport <= 3000);
 
-		// Test that PID filter respects import limit (negative values)
+		// Test that PT1 filter respects charge limit
 		var resultHighImport = new ApplyPowerHandler.Result(EmsPowerMode.CHARGE_BAT, 10000);
 		var filteredHighImport = applyPowerHandler.applyInternalFilter(//
 				false, //
-				new Value<>(null, 0), //
-				2500, // Max import limit
-				5000, //
-				resultHighImport);
-		// Should respect the limits set by setLimits(-maxAcImport, maxAcExport)
-		assertTrue(filteredHighImport >= -2500);
-		assertTrue(filteredHighImport <= 5000);
+				resultHighImport, //
+				/* maxBatChargeP */ 2500, //
+				/* maxBatDischargeP */ null);
+		// Should be limited to maxBatChargeP
+		assertTrue(filteredHighImport <= 2500);
 	}
 
-	@Ignore
+	@Disabled
 	@Test
 	public void testApplyInternalFilter_AllEmsPowerModes() {
 		// Test various EmsPowerMode values to ensure they all work with PID filter
@@ -360,13 +356,12 @@ public class ApplyPowerHandlerTest {
 			var result = new ApplyPowerHandler.Result(mode, 1000);
 			var filtered = handler.applyInternalFilter(//
 					false, //
-					new Value<>(null, 0), //
-					-5000, //
-					5000, //
-					result);
-			// All non-AUTO modes should apply PID filter
-			assertTrue("Mode " + mode + " should apply PID filter", filtered > 0);
-			assertTrue("Mode " + mode + " should not exceed target", filtered <= 1000);
+					result, //
+					/* maxBatChargeP */ 5000, //
+					/* maxBatDischargeP */ 5000);
+			// All non-AUTO modes should apply PT1 filter
+			assertTrue(filtered > 0, "Mode " + mode + " should apply PT1 filter");
+			assertTrue(filtered <= 1000, "Mode " + mode + " should not exceed target");
 		}
 	}
 }

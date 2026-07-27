@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ItemReorderCustomEvent } from "@ionic/angular";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
@@ -9,6 +9,7 @@ import { FormUtils } from "src/app/shared/utils/form/form.utils";
 @Component({
     selector: "oe-multiple-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
@@ -28,8 +29,8 @@ export class ModalComponent extends AbstractModal {
             return;
         }
 
-        this.service.getConfig().then(config => {
-            evcsIds.forEach(evcsId => {
+        this.service.getConfig().then((config) => {
+            evcsIds.forEach((evcsId) => {
                 const component = config.getComponent(evcsId);
                 if (component == null) {
                     return;
@@ -41,7 +42,8 @@ export class ModalComponent extends AbstractModal {
 
     /**
      * Handles the reorder event on a {@link ItemReorderCustomEvent} for the EVCS priorization list.
-     * @param event the reorder event
+     *
+     * @param event The reorder event
      * @returns
      */
     protected onReorder(event: ItemReorderCustomEvent) {
@@ -55,9 +57,12 @@ export class ModalComponent extends AbstractModal {
 
         control.setValue(evcsIds);
         control.markAsDirty();
-        this.evcss = evcsIds.reduce((obj, evcsId) => {
-            obj[evcsId] = this.evcss[evcsId];
-            return obj;
-        }, {} as { [evcsId: string]: EdgeConfig.Component });
+        this.evcss = evcsIds.reduce(
+            (obj, evcsId) => {
+                obj[evcsId] = this.evcss[evcsId];
+                return obj;
+            },
+            {} as { [evcsId: string]: EdgeConfig.Component },
+        );
     }
 }

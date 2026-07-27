@@ -5,6 +5,8 @@
 _get_version() {
     SRC_OPENEMS_CONSTANTS="${SRC_OPENEMS_CONSTANTS:-io.openems.common/src/io/openems/common/OpenemsConstants.java}"
     SRC_PACKAGE_JSON="${SRC_PACKAGE_JSON:-ui/package.json}"
+    SRC_PACKAGE_LOCK_JSON="${SRC_PACKAGE_LOCK_JSON:-ui/package-lock.json}"
+    SRC_CHANGELOG_CONSTANTS="{SRC_CHANGELOG_CONSTANTS:-ui/src/app/changelog/view/component/changelog.constants.ts}"
 
     if [ -f "${SRC_PACKAGE_JSON}" ]; then
         UI_VERSION="$(grep '"version": '  ${SRC_PACKAGE_JSON} | head -n1 | sed 's/.*"version":[[:space:]]*"\([^"]*\)".*/\1/')"
@@ -65,11 +67,10 @@ common_build_snapshot_version() {
             VERSION_DEV_BRANCH="$(git branch --show-current)"
         fi
         VERSION_DEV_COMMIT=""
-        git diff --exit-code --quiet
-        if [ $? -ne 0 ]; then
-            VERSION_DEV_COMMIT="dirty"
-        else
+        if git diff --exit-code --quiet; then
             VERSION_DEV_COMMIT="$(git rev-parse --short HEAD)"
+        else
+            VERSION_DEV_COMMIT="dirty"
         fi
         VERSION_DEV_BUILD_TIME=$(date "+%Y%m%d.%H%M")
         # Compliant with https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-version
@@ -94,12 +95,12 @@ common_update_version_in_code() {
     
     if [[ -f "$SRC_PACKAGE_JSON" ]]; then
         echo "## Update $SRC_PACKAGE_JSON"
-        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+        sed --in-place "s#\(^.*\"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
     fi
     
     if [[ -f "$SRC_PACKAGE_LOCK_JSON" ]]; then
         echo "## Update $SRC_PACKAGE_LOCK_JSON"
-        sed --in-place "s#^\(  \"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+        sed --in-place "s#\(^.*\"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
     fi
 
     if [[ -f "$SRC_CHANGELOG_CONSTANTS" ]]; then

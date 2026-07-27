@@ -32,6 +32,7 @@ This bundle implements the following OpenEMS Component:
 *Description*: Bidirectional three-phase electricity meter for consumption and production measurement via Modbus protocol.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

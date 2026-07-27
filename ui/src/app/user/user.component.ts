@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { KeyValue } from "@angular/common";
-import { Component, effect, OnInit, untracked } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, OnInit, untracked } from "@angular/core";
 import { FormGroup, Validators } from "@angular/forms";
 import { NavController } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
@@ -9,6 +9,7 @@ import { environment, Theme as SystemTheme } from "../../environments";
 import { Changelog } from "../changelog/view/component/changelog.constants";
 import { Theme as UserTheme } from "../edge/history/shared";
 import { NavigationService } from "../shared/components/navigation/service/navigation.service";
+import { NavigationTree } from "../shared/components/navigation/shared";
 import { GetUserInformationRequest } from "../shared/jsonrpc/request/getUserInformationRequest";
 import { SetUserInformationRequest } from "../shared/jsonrpc/request/setUserInformationRequest";
 import { UpdateUserLanguageRequest } from "../shared/jsonrpc/request/updateUserLanguageRequest";
@@ -25,25 +26,24 @@ import { Role } from "../shared/type/role";
 type CompanyUserInformation = UserInformation & { companyName: string };
 
 type UserInformation = {
-    firstname: string,
-    lastname: string,
-    email: string,
-    phone: string,
-    street: string,
-    zip: string,
-    city: string,
-    country: string
+    firstname: string;
+    lastname: string;
+    email: string;
+    phone: string;
+    street: string;
+    zip: string;
+    city: string;
+    country: string;
 };
 
 @Component({
     templateUrl: "./user.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class UserComponent implements OnInit {
-
-    private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT; // Theme as of "Light","Dark" or "System" Themes.
-    protected userTheme: UserTheme; // Theme as of "Light","Dark" or "System" Themes.
-    protected systemTheme: SystemTheme; // SystemTheme as of "OpenEMS" Themes.
+    protected userTheme: UserTheme;
+    protected systemTheme: SystemTheme; // SystemTheme as of "FENECON","Heckert" or "OpenEMS" Themes.
 
     protected readonly themes: KeyValue<string, string>[] = [
         { key: "Light", value: "light" },
@@ -55,30 +55,32 @@ export class UserComponent implements OnInit {
     protected readonly languages: Language[] = Language.ALL;
     protected currentLanguage: Language;
     protected isEditModeDisabled: boolean = true;
-    protected form: { formGroup: FormGroup, model: UserInformation | CompanyUserInformation };
+    protected form: { formGroup: FormGroup; model: UserInformation | CompanyUserInformation };
     protected showInformation: boolean = false;
-    protected userInformationFields: FormlyFieldConfig[] = [{
-        key: "firstname",
-        type: "input",
-        props: {
-            label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
-            disabled: true,
+    protected userInformationFields: FormlyFieldConfig[] = [
+        {
+            key: "firstname",
+            type: "input",
+            props: {
+                label: this.translate.instant("REGISTER.FORM.FIRSTNAME"),
+                disabled: true,
+            },
+            validators: {
+                validation: ["person-name-prohibited-characters"],
+            },
         },
-        validators: {
-            validation: ["person-name-prohibited-characters"],
+        {
+            key: "lastname",
+            type: "input",
+            props: {
+                label: this.translate.instant("REGISTER.FORM.LASTNAME"),
+                disabled: true,
+            },
+            validators: {
+                validation: ["person-name-prohibited-characters"],
+            },
         },
-    },
-    {
-        key: "lastname",
-        type: "input",
-        props: {
-            label: this.translate.instant("REGISTER.FORM.LASTNAME"),
-            disabled: true,
-        },
-        validators: {
-            validation: ["person-name-prohibited-characters"],
-        },
-    }];
+    ];
     protected companyInformationFields: FormlyFieldConfig[] = [];
 
     protected isAtLeastAdmin: boolean = false;
@@ -106,10 +108,36 @@ export class UserComponent implements OnInit {
                 this.showInformation = this.form != null;
                 this.userTheme = user.getThemeFromSettings() ?? UserComponent.DEFAULT_THEME;
                 this.useNewUi = user.getUseNewUIFromSettings();
-                const config = await untracked(() => this.service.currentEdge().getFirstValidConfig(service.websocket));
-                this.newNavigationForced = NavigationService.forceNewNavigation(config);
+
+                if (this.service.currentEdge() != null) {
+                    const config = await untracked(() =>
+                        this.service.currentEdge().getFirstValidConfig(service.websocket),
+                    );
+                    this.newNavigationForced = NavigationService.forceNewNavigation(config);
+                }
             }
         });
+    }
+
+    public static get DEFAULT_THEME(): UserTheme {
+        return UserTheme.LIGHT;
+    } // Theme as of "Light","Dark" or "System" Themes.
+
+    public static getNavigationTree(
+        service: Service,
+        translate: TranslateService,
+        customLink?: NavigationTree["customLink"],
+    ): NavigationTree {
+        return new NavigationTree(
+            "user",
+            { baseString: "user" },
+            { name: "person-outline" },
+            service.metadata.value.user.name,
+            "label",
+            [],
+            null,
+            { showOrder: "LOW" },
+        );
     }
 
     ngOnInit() {
@@ -137,11 +165,17 @@ export class UserComponent implements OnInit {
             },
         };
 
-        this.service.websocket.sendRequest(new SetUserInformationRequest(params)).then(() => {
-            this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-        }).catch((reason) => {
-            this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-        });
+        this.service.websocket
+            .sendRequest(new SetUserInformationRequest(params))
+            .then(() => {
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+            })
+            .catch((reason) => {
+                this.service.toast(
+                    this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                    "danger",
+                );
+            });
         this.enableAndDisableFormFields();
         this.form.formGroup.markAsPristine();
     }
@@ -154,51 +188,52 @@ export class UserComponent implements OnInit {
     }
 
     public enableAndDisableFormFields(): boolean {
-        this.userInformationFields = this.userInformationFields.map(field => {
+        this.userInformationFields = this.userInformationFields.map((field) => {
             field.props.disabled = !field.props.disabled;
             return field;
         });
-        return this.isEditModeDisabled = !this.isEditModeDisabled;
+        return (this.isEditModeDisabled = !this.isEditModeDisabled);
     }
 
     public getUserInformation(): Promise<UserInformation | CompanyUserInformation> {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const interval = setInterval(() => {
                 if (States.isAtLeast(this.websocket.state(), States.AUTHENTICATED)) {
-                    this.service.websocket.sendRequest(new GetUserInformationRequest()).then((response: GetUserInformationResponse) => {
-                        const user = response.result.user;
-                        resolve({
-                            lastname: user.lastname,
-                            firstname: user.firstname,
-                            email: user.email,
-                            phone: user.phone,
-                            street: user.address.street,
-                            zip: user.address.zip,
-                            city: user.address.city,
-                            country: user.address.country,
-                            ...(user.company?.name ? { companyName: user.company.name } : {}),
+                    this.service.websocket
+                        .sendRequest(new GetUserInformationRequest())
+                        .then((response: GetUserInformationResponse) => {
+                            const user = response.result.user;
+                            resolve({
+                                lastname: user.lastname,
+                                firstname: user.firstname,
+                                email: user.email,
+                                phone: user.phone,
+                                street: user.address.street,
+                                zip: user.address.zip,
+                                city: user.address.city,
+                                country: user.address.country,
+                                ...(user.company?.name ? { companyName: user.company.name } : {}),
+                            });
+                        })
+                        .catch(() => {
+                            resolve({
+                                lastname: "",
+                                firstname: "",
+                                email: "",
+                                phone: "",
+                                street: "",
+                                zip: "",
+                                city: "",
+                                country: "",
+                            });
                         });
-                    }).catch(() => {
-                        resolve({
-                            lastname: "",
-                            firstname: "",
-                            email: "",
-                            phone: "",
-                            street: "",
-                            zip: "",
-                            city: "",
-                            country: "",
-                        });
-                    });
                     clearInterval(interval);
                 }
             }, 1000);
         });
     }
 
-    /**
-     * Logout from OpenEMS Edge or Backend.
-     */
+    /** Logout from OpenEMS Edge or Backend. */
     public doLogout() {
         this.userService.currentUser.set(null);
         this.websocket.logout();
@@ -242,11 +277,21 @@ export class UserComponent implements OnInit {
         localStorage.LANGUAGE = language.key;
 
         this.service.setLang(language);
-        this.websocket.sendRequest(new UpdateUserLanguageRequest({ language: language.key })).then(() => {
-            this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-        }).catch((reason) => {
-            this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-        });
+        this.websocket
+            .sendRequest(new UpdateUserLanguageRequest({ language: language.key }))
+            .then(() => {
+                this.userService.currentUser.update((user) => {
+                    user.language = language.key;
+                    return user;
+                });
+                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+            })
+            .catch((reason) => {
+                this.service.toast(
+                    this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                    "danger",
+                );
+            });
 
         this.currentLanguage = language;
         this.translate.use(language.key);
@@ -259,70 +304,72 @@ export class UserComponent implements OnInit {
                 model: userInformation,
             };
 
-            const baseInformationFields: FormlyFieldConfig[] = [{
-                key: "street",
-                type: "input",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.STREET"),
-                    disabled: true,
-                },
-            },
-            {
-                key: "zip",
-                type: "input",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.ZIP"),
-                    disabled: true,
-                },
-            },
-            {
-                key: "city",
-                type: "input",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.CITY"),
-                    disabled: true,
-                },
-            },
-            {
-                key: "country",
-                type: "select",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.COUNTRY"),
-                    options: COUNTRY_OPTIONS(this.translate),
-                    disabled: true,
-                },
-            },
-            {
-                key: "email",
-                type: "input",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.EMAIL"),
-                    disabled: true,
-                },
-                validators: {
-                    validation: [Validators.email],
-                },
-            },
-            {
-                key: "phone",
-                type: "input",
-                props: {
-                    label: this.translate.instant("REGISTER.FORM.PHONE"),
-                    disabled: true,
-                },
-
-            }];
-
-            if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
-                this.companyInformationFields = [{
-                    key: "companyName",
+            const baseInformationFields: FormlyFieldConfig[] = [
+                {
+                    key: "street",
                     type: "input",
                     props: {
-                        label: this.translate.instant("REGISTER.FORM.COMPANY_NAME"),
+                        label: this.translate.instant("REGISTER.FORM.STREET"),
                         disabled: true,
                     },
                 },
-                ...baseInformationFields,
+                {
+                    key: "zip",
+                    type: "input",
+                    props: {
+                        label: this.translate.instant("REGISTER.FORM.ZIP"),
+                        disabled: true,
+                    },
+                },
+                {
+                    key: "city",
+                    type: "input",
+                    props: {
+                        label: this.translate.instant("REGISTER.FORM.CITY"),
+                        disabled: true,
+                    },
+                },
+                {
+                    key: "country",
+                    type: "select",
+                    props: {
+                        label: this.translate.instant("REGISTER.FORM.COUNTRY"),
+                        options: COUNTRY_OPTIONS(this.translate),
+                        disabled: true,
+                    },
+                },
+                {
+                    key: "email",
+                    type: "input",
+                    props: {
+                        label: this.translate.instant("REGISTER.FORM.EMAIL"),
+                        disabled: true,
+                    },
+                    validators: {
+                        validation: [Validators.email],
+                    },
+                },
+                {
+                    key: "phone",
+                    type: "input",
+                    props: {
+                        label: this.translate.instant("REGISTER.FORM.PHONE"),
+                        disabled: true,
+                    },
+                },
+            ];
+
+            if (Object.prototype.hasOwnProperty.call(userInformation, "companyName")) {
+                this.companyInformationFields = [
+                    {
+                        key: "companyName",
+                        type: "input",
+                        props: {
+                            label: this.translate.instant("REGISTER.FORM.COMPANY_NAME"),
+                            disabled: true,
+                        },
+                    },
+                    ...baseInformationFields,
                 ];
             } else {
                 this.userInformationFields = baseInformationFields;
@@ -333,11 +380,10 @@ export class UserComponent implements OnInit {
     /**
      * Checks if user is allowed to see contact details
      *
-     * @param id the user id
-     * @returns true, if user is allowed to see contact details
+     * @param id The user id
+     * @returns True, if user is allowed to see contact details
      */
     private isUserAllowedToSeeContactDetails(id: string): boolean {
         return true;
     }
 }
-

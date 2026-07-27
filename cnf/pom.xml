@@ -29,9 +29,21 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.2.3</version>
+			<version>7.3.0</version>
 		</dependency>
 		<!-- com -->
+		<dependency>
+			<!--
+			Javaluator is a simple, but powerful, infix expression evaluator for Java
+			Changelog: https://github.com/fathzer/javaluator/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
+			-->
+			<groupId>com.fathzer</groupId>
+			<artifactId>javaluator</artifactId>
+			<version>3.0.6</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
@@ -44,7 +56,7 @@
 			-->
 			<groupId>com.fasterxml</groupId>
 			<artifactId>aalto-xml</artifactId>
-			<version>1.3.4</version>
+			<version>1.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -54,7 +66,7 @@
 			-->
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.21</version>
+			<version>2.22</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
@@ -62,9 +74,15 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Gson: A Java serialization/deserialization library to convert Java Objects into JSON and back
+			Changelog: https://github.com/google/gson/releases
+			Wrapper: io.openems.wrapper/gson.bnd
+			Keep in sync with default buildpath in cnf/build.bnd
+			-->
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.13.2</version>
+			<version>2.14.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -93,7 +111,43 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.34.1</version>
+			<version>4.35.1</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java client library for the Auth0 platform
+			Changelog: https://github.com/auth0/auth0-java/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-auth0.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>auth0</artifactId>
+			<version>4.1.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java implementation of JSON Web Token (JWT)
+			Changelog: https://github.com/auth0/java-jwt/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-java-jwt.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.6.0</version>
+		</dependency>
+		<dependency>
+			<!--
+			Java library to retrieve RSA public keys from a JWKS (JSON Web Key Set) endpoint
+			Changelog: https://github.com/auth0/jwks-rsa-java/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/auth0-jwks-rsa.bnd
+			-->
+			<groupId>com.auth0</groupId>
+			<artifactId>jwks-rsa</artifactId>
+			<version>0.24.1</version>
 		</dependency>
 		<dependency>
 			<!-- Used by org.tribuo -->
@@ -108,16 +162,23 @@
 			<version>5.3.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: Logging Interceptor
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.2</version>
+			<version>5.4.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: OkHttp
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			- io.openems.wrapper/bnd.bnd
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.3.2</version>
+			<version>5.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -126,7 +187,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.17.0</version>
+			<version>3.18.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -159,11 +220,13 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<!-- HikariCP A solid, high-performance, JDBC connection pool at
-			last. -->
+			<!--
+			HikariCP A solid, high-performance, JDBC connection pool
+			Changelog: https://github.com/brettwooldridge/HikariCP/blob/dev/CHANGES
+			-->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>7.0.2</version>
+			<version>7.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -251,10 +314,13 @@
 		</dependency>
 		<!-- net -->
 		<dependency>
-			<!-- Used by SDNotify -->
+			<!--
+			Java Native Access
+			Changelog: https://github.com/java-native-access/jna/blob/master/CHANGES.md
+			-->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.18.1</version>
+			<version>5.19.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -327,7 +393,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.8</version>
+			<version>2.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -396,7 +462,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -405,27 +471,31 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
 			Fastexcel Writer
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.20.0</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!--
 			Fastexcel Reader
 			Changelog: https://github.com/dhatim/fastexcel/releases
-			Wrapper: io.openems.wrapper/fastexcel.bnd
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/fastexcel.bnd
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.20.0</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
@@ -466,7 +536,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.11</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -476,28 +546,48 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.11</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
+			<!--
+			InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-java.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-java</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			InfluxDB Java Client Core
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-core.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-core</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			InfluxDB Java Client Utilities
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-client-utils.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>influxdb-client-utils</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
+			<!--
+			Flux DSL for InfluxDB Java Client
+			Changelog: https://github.com/influxdata/influxdb-client-java/releases
+			Wrapper: io.openems.wrapper/influxdb-flux-dsl.bnd
+			-->
 			<groupId>com.influxdb</groupId>
 			<artifactId>flux-dsl</artifactId>
-			<version>7.5.0</version>
+			<version>8.0.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -508,12 +598,19 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.3.20</version>
+			<version>2.4.10</version>
 		</dependency>
 		<dependency>
+			<!--
+			Kotlinx Coroutines Core
+			Changelog: https://github.com/Kotlin/kotlinx.coroutines/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/kotlinx-coroutines-core-jvm.bnd
+			-->
 			<groupId>org.jetbrains.kotlinx</groupId>
 			<artifactId>kotlinx-coroutines-core-jvm</artifactId>
-			<version>1.10.2</version>
+			<version>1.11.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -526,55 +623,90 @@
 			<version>1.5.6</version>
 		</dependency>
 		<dependency>
-			<!-- HTML processing -->
+			<!-- 
+			Jsoup Java HTML Parser
+			Changelog: https://github.com/jhy/jsoup/releases
+			-->
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.22.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.0.3</version>
+			<version>1.22.2</version>
 		</dependency>
 		<dependency>
 			<!--
-			Core package for the JUnit Jupiter test engine
+			JUnit Jupiter API
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>6.1.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Jupiter Engine
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
-			Public API for configuring and launching test plans
+			JUnit Jupiter Params
 			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			A thin layer on top of JUnit 4 to allow running vintage tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
-			-->
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.0.3</version>
-		</dependency>
-		<dependency>
-			<!--
-			JUnit Jupiter extension for running parameterized tests
-			Changelog: https://github.com/junit-team/junit-framework/releases
-			Keep in sync with openems.junit.version in cnf/build.bnd
+			Update files:
+			- cnf/build.bnd
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.0.3</version>
+			<version>6.1.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Commons
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-commons</artifactId>
+			<version>6.1.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Engine API
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-engine</artifactId>
+			<version>6.1.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Platform Launcher
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>6.1.2</version>
+		</dependency>
+		<dependency>
+			<!--
+			JUnit Vintage Engine
+			Changelog: https://github.com/junit-team/junit-framework/releases
+			Update files:
+			- cnf/build.bnd
+			-->
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -643,7 +775,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-api</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -652,7 +784,7 @@
 			-->
 			<groupId>org.ops4j.pax.logging</groupId>
 			<artifactId>pax-logging-log4j2</artifactId>
-			<version>2.3.3</version>
+			<version>2.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -757,32 +889,6 @@
 			<groupId>org.objenesis</groupId>
 			<artifactId>objenesis</artifactId>
 			<version>3.5</version>
-		</dependency>
-		<dependency>
-			<!--
-			Java client library for the Auth0 platform
-			Changelog: https://github.com/auth0/auth0-java/releases
-			Wrapper: io.openems.wrapper.auth0-auth0.bnd
-			-->
-			<groupId>com.auth0</groupId>
-			<artifactId>auth0</artifactId>
-			<version>3.4.0</version>
-		</dependency>
-		<dependency>
-			<!--
-			Java implementation of JSON Web Token (JWT)
-			Changelog: https://github.com/auth0/java-jwt/releases
-			Wrapper: io.openems.wrapper/auth0-java-jwt.bnd
-			-->
-			<groupId>com.auth0</groupId>
-			<artifactId>java-jwt</artifactId>
-			<version>4.5.1</version>
-		</dependency>
-		<dependency>
-			<!-- used by io.openems.backend.authentication.oauth -->
-			<groupId>com.auth0</groupId>
-			<artifactId>jwks-rsa</artifactId>
-			<version>0.23.0</version>
 		</dependency>
 	</dependencies>
 </project>

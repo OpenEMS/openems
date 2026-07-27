@@ -17,7 +17,7 @@ describe("Language", () => {
 
     it("#setAdditionalTranslationFile - translation de found", async () => {
         const json = {
-            "KEY": "VALUE",
+            KEY: "VALUE",
         };
         TEST_CONTEXT.translate.use("de");
         expect(await Language.normalizeAdditionalTranslationFiles({ de: json })).toEqual([{ lang: "de", translation: { KEY: "VALUE" }, shouldMerge: true }]);

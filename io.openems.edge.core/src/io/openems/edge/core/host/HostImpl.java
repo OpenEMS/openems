@@ -110,7 +110,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	}
 
 	@Activate
-	private void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
+	protected void activate(ComponentContext componentContext, BundleContext bundleContext, Config config)
 			throws OpenemsException {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
@@ -132,7 +132,7 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 	}
 
 	@Modified
-	private void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
+	protected void modified(ComponentContext componentContext, BundleContext bundleContext, Config config) {
 		super.modified(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.config = config;
 
@@ -346,6 +346,17 @@ public class HostImpl extends AbstractOpenemsComponent implements Host, OpenemsC
 		}
 
 		return new OperatingSystemDebianSystemd();
+	}
+
+	/**
+	 * Deletes network interface configuration files.
+	 * 
+	 * @param user           the user performing the operation
+	 * @param interfaceNames the list of interface names to delete
+	 * @throws OpenemsNamedException on error
+	 */
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		this.operatingSystem.deleteNetworkInterfaces(user, interfaceNames);
 	}
 
 }

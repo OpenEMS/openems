@@ -1,0 +1,16 @@
+@if (edge() !== null) {
+  <oe-navigation-view>
+    <ng-container header>
+      <ion-toolbar>
+        <ion-title>
+          <ion-buttons class="ion-justify-content-center">
+            <ion-button>
+              <pickdate></pickdate>
+            </ion-button>
+          </ion-buttons>
+        </ion-title>
+      </ion-toolbar>
+    </ng-container>
+    <energychart [isOnlyChart]="true"></energychart>
+  </oe-navigation-view>
+}

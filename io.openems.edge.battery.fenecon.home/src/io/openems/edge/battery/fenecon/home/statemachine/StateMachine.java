@@ -12,6 +12,8 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		GO_RUNNING(10), //
 		RUNNING(11), //
 
+		FIRMWARE_UPDATE(12), //
+
 		GO_STOPPED(20), //
 		STOPPED(21), //
 
@@ -45,19 +47,61 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		}
 	}
 
+	/**
+	 * Abstract StateHandler base class for fenecon home battery.
+	 */
+	public abstract static class BatteryStateHandler extends StateHandler<State, Context> {
+		/**
+		 * Returns whether charge is allowed in the current state. Called every cycle by
+		 * battery protection.
+		 *
+		 * @param context the Context object
+		 * @return true if charge is allowed, false if not.
+		 */
+		public abstract boolean isChargeAllowed(Context context);
+
+		/**
+		 * Returns whether discharge is allowed in the current state. Called every cycle
+		 * by battery protection.
+		 *
+		 * @param context the Context object
+		 * @return true if discharge is allowed, false if not.
+		 */
+		public abstract boolean isDischargeAllowed(Context context);
+	}
+
+	private volatile boolean isChargeAllowed = false;
+	private volatile boolean isDischargeAllowed = false;
+
 	public StateMachine(State initialState) {
 		super(initialState);
 	}
 
 	@Override
-	public StateHandler<State, Context> getStateHandler(State state) {
+	public BatteryStateHandler getStateHandler(State state) {
 		return switch (state) {
 		case UNDEFINED -> new UndefinedHandler();
 		case GO_RUNNING -> new GoRunningHandler();
 		case RUNNING -> new RunningHandler();
+		case FIRMWARE_UPDATE -> new FirmwareUpdateHandler();
 		case GO_STOPPED -> new GoStoppedHandler();
 		case STOPPED -> new StoppedHandler();
 		case ERROR -> new ErrorHandler();
 		};
+	}
+
+	@Override
+	protected void applyStateData(Context context) {
+		var currentState = this.getStateHandler(this.getCurrentState());
+		this.isChargeAllowed = currentState.isChargeAllowed(context);
+		this.isDischargeAllowed = currentState.isDischargeAllowed(context);
+	}
+
+	public boolean isChargeAllowed() {
+		return this.isChargeAllowed;
+	}
+
+	public boolean isDischargeAllowed() {
+		return this.isDischargeAllowed;
 	}
 }

@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
@@ -8,10 +8,10 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "Controller_Api_ModbusTcp",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     protected overrideStatus: OverrideStatus | null = null;
     protected modalComponent: Modal | null = null;
 
@@ -25,16 +25,14 @@ export class FlatComponent extends AbstractFlatWidget {
                 component: this.component,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         if (this.component == null) {
             return [];
         }
 
-        return [
-            new ChannelAddress(this.component.id, "OverrideStatus"),
-        ];
+        return [new ChannelAddress(this.component.id, "OverrideStatus")];
     }
 
     protected override onCurrentData(currentData: CurrentData) {
@@ -54,5 +52,4 @@ export class FlatComponent extends AbstractFlatWidget {
                 return this.translate.instant("MODBUS_TCP_API_READ_WRITE.NOT_OVERRIDING");
         }
     }
-
 }

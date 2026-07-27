@@ -15,6 +15,15 @@ public final class ReferenceCycleUtils {
 	/** Reference cycle pause duration in milliseconds (30 minutes). */
 	public static final long REFERENCE_CYCLE_PAUSE_MS = 30 * 60 * 1000L;
 
+	/**
+	 * Fallback timeout in milliseconds (30 minutes).
+	 *
+	 * <p>
+	 * Must be equal to {@link #REFERENCE_CYCLE_PAUSE_MS} so the fallback path
+	 * enters the same pause duration as a normal target-reached event.
+	 */
+	public static final long FALLBACK_TIMEOUT_MS = 30 * 60 * 1000L;
+
 	private ReferenceCycleUtils() {
 		// Utility class - prevent instantiation
 	}

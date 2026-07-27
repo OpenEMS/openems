@@ -22,6 +22,18 @@
     padding-right: 0;
 }
 
+.ion-padding-half {
+    padding: calc(var(--ion-padding) / 2);
+}
+
+.ion-padding-top-half {
+    padding-top: calc(var(--ion-padding) / 2);
+}
+
+.ion-padding-top-double {
+    padding-top: calc(var(--ion-padding) * 2);
+}
+
 .ion-padding-top-triple {
     padding-top: calc(var(--ion-padding) * 3);
 }
@@ -45,6 +57,14 @@
 
 .ion-font-size-large {
     font-size: large !important;
+}
+
+.ion-font-size-xxx-large {
+    font-size: xxx-large !important;
+}
+
+.ion-font-size-xx-large {
+    font-size: xx-large !important;
 }
 
 .ion-font-size-smaller {
@@ -86,6 +106,10 @@
 
 .ion-text-align-right {
     text-align: right;
+}
+
+.ion-text-align-left {
+    text-align: left;
 }
 
 /** Others */
@@ -197,4 +221,8 @@
 
 .ion-margin-right {
     margin-right: var(--ion-margin);
+}
+
+.ion-no-margin-right {
+    margin-right: 0;
 }

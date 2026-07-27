@@ -1,15 +1,12 @@
 import { NgModule } from "@angular/core";
-import { DigitalOutput } from "./DigitalOutput/digitalOutput.module";
-import { HeatingElement } from "./heatingelement/heatingelement.module";
+import { FixDigitalOutputHistory } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/fix-digital-output-history.module";
 
 @NgModule({
     imports: [
-        DigitalOutput,
-        HeatingElement,
+        FixDigitalOutputHistory,
     ],
     exports: [
-        DigitalOutput,
-        HeatingElement,
+        FixDigitalOutputHistory,
     ],
 })
 export class ControllerIo { }

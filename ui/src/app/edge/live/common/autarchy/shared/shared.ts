@@ -5,7 +5,6 @@ import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
 export namespace SharedAutarchy {
-
     export const COMMON_NOTE = (translate: TranslateService): OeFormlyField.InfoLine => ({
         type: "info-line",
         name: translate.instant("EDGE.INDEX.WIDGETS.AUTARCHY_INFO"),
@@ -14,6 +13,7 @@ export namespace SharedAutarchy {
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
         title: translate.instant("GENERAL.AUTARCHY"),
         helpKey: "REDIRECT.COMMON_AUTARCHY",
+        useDefaultPrefix: false,
         lines: [
             {
                 type: "percentage-bar-line",
@@ -22,14 +22,11 @@ export namespace SharedAutarchy {
             COMMON_NOTE(translate),
         ],
         component: new EdgeConfig.Component(),
-        isCommonWidget: "true",
+        isCommonWidget: true,
     });
 
     export function getChannelAddresses(): ChannelAddress[] {
-        return [
-            new ChannelAddress("_sum", "GridActivePower"),
-            new ChannelAddress("_sum", "ConsumptionActivePower"),
-        ];
+        return [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "ConsumptionActivePower")];
     }
 
     export function getAutarchyValue(currentData: CurrentData) {
@@ -46,8 +43,24 @@ export namespace SharedAutarchy {
     }
 
     export function getNavigationTree(translate: TranslateService): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree("autarchy", { baseString: "common/autarchy" }, { name: "oe-grid", color: "normal" }, translate.instant("GENERAL.AUTARCHY"), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-        ], null, "LOW").toConstructorParams();
+        return new NavigationTree(
+            "autarchy",
+            { baseString: "common/autarchy" },
+            { name: "oe-grid", color: "normal" },
+            translate.instant("GENERAL.AUTARCHY"),
+            "label",
+            [
+                new NavigationTree(
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    "label",
+                    [],
+                    null,
+                ),
+            ],
+            null,
+        ).toConstructorParams();
     }
 }

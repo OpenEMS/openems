@@ -74,4 +74,9 @@ public class OperatingSystemWindows implements OperatingSystem {
 		return null;
 	}
 
+	@Override
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		throw new NotImplementedException("deleteNetworkInterfaces is not implemented for Windows");
+	}
+
 }

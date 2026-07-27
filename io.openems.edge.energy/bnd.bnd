@@ -8,6 +8,7 @@ Bundle-Version: 1.0.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.edge.braiinsos,\
 	io.openems.edge.common,\
 	io.openems.edge.controller.api,\
 	io.openems.edge.controller.ess.emergencycapacityreserve,\
@@ -16,6 +17,7 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.ess.timeofusetariff,\
 	io.openems.edge.energy.api,\
 	io.openems.edge.ess.api,\
+	io.openems.edge.heat.askoma,\
 	io.openems.edge.predictor.api,\
 	io.openems.edge.scheduler.api,\
 	io.openems.edge.timedata.api,\
@@ -32,4 +34,5 @@ Bundle-Version: 1.0.0.${tstamp}
 	io.openems.edge.controller.ess.timeofusetariff,\
 	io.openems.edge.controller.evse,\
 	io.openems.edge.evse.api,\
+	io.openems.edge.heat.askoma,\
 	io.openems.edge.meter.api,\

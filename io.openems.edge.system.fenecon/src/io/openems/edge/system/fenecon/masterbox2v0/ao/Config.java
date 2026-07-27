@@ -1,0 +1,24 @@
+package io.openems.edge.system.fenecon.masterbox2v0.ao;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+@ObjectClassDefinition(//
+		name = "IO MasterBox2V0 AO", //
+		description = "Implements the Analog-Output of the MasterBox2V0.")
+@interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "analogOutput0";
+
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+
+	@AttributeDefinition(name = "The id of the Master Box", description = "The id of the Master box component")
+	String ioc_id() default "ioc0";
+
+	String webconsole_configurationFactory_nameHint() default "IO Fenecon MasterBox2V0 AO [{id}]";
+}

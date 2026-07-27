@@ -6,9 +6,8 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.EnumUtils;
 import io.openems.edge.battery.fenecon.home.statemachine.StateMachine.State;
-import io.openems.edge.common.statemachine.StateHandler;
 
-public class GoRunningHandler extends StateHandler<State, Context> {
+public class GoRunningHandler extends StateMachine.BatteryStateHandler {
 
 	private static final int TIMEOUT = 120; // [s], per SubState
 	private static final int INTERNAL_TIMEOUT = 60; // [s], must be less than TIMEOUT
@@ -167,6 +166,16 @@ public class GoRunningHandler extends StateHandler<State, Context> {
 	@Override
 	protected String debugLog() {
 		return State.GO_RUNNING.asCamelCase() + "-" + EnumUtils.nameAsCamelCase(this.grs.subState);
+	}
+
+	@Override
+	public boolean isChargeAllowed(Context context) {
+		return false;
+	}
+
+	@Override
+	public boolean isDischargeAllowed(Context context) {
+		return false;
 	}
 
 }

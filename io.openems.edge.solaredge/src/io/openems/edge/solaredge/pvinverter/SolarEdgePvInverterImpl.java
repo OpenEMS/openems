@@ -1,17 +1,18 @@
 package io.openems.edge.solaredge.pvinverter;
 
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -21,14 +22,15 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
+import io.openems.edge.bridge.modbus.sunspec.FilteredSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.AbstractSunSpecPvInverter;
 import io.openems.edge.bridge.modbus.sunspec.pvinverter.SunSpecPvInverter;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -45,38 +47,41 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+		TOPIC_CYCLE_EXECUTE_WRITE //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 		implements SolarEdgePvInverter, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
+
+	private static final SunSpecModel S_101_WITHOUT_EVENTS = FilteredSunSpecModel.withoutPoints(
+			DefaultSunSpecModel.S_101, //
+			DefaultSunSpecModel.S101.EVT1, DefaultSunSpecModel.S101.EVT2, DefaultSunSpecModel.S101.EVT_VND1,
+			DefaultSunSpecModel.S101.EVT_VND2, DefaultSunSpecModel.S101.EVT_VND3, DefaultSunSpecModel.S101.EVT_VND4);
+
+	private static final SunSpecModel S_102_WITHOUT_EVENTS = FilteredSunSpecModel.withoutPoints(
+			DefaultSunSpecModel.S_102, //
+			DefaultSunSpecModel.S102.EVT1, DefaultSunSpecModel.S102.EVT2, DefaultSunSpecModel.S102.EVT_VND1,
+			DefaultSunSpecModel.S102.EVT_VND2, DefaultSunSpecModel.S102.EVT_VND3, DefaultSunSpecModel.S102.EVT_VND4);
+
+	private static final SunSpecModel S_103_WITHOUT_EVENTS = FilteredSunSpecModel.withoutPoints(
+			DefaultSunSpecModel.S_103, //
+			DefaultSunSpecModel.S103.EVT1, DefaultSunSpecModel.S103.EVT2, DefaultSunSpecModel.S103.EVT_VND1,
+			DefaultSunSpecModel.S103.EVT_VND2, DefaultSunSpecModel.S103.EVT_VND3, DefaultSunSpecModel.S103.EVT_VND4);
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
 	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
 			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_101, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_102, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_103, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_111, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_112, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_113, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_125, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_127, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_128, Priority.LOW) //
-			.put(DefaultSunSpecModel.S_145, Priority.LOW) //
+			.put(S_101_WITHOUT_EVENTS, Priority.LOW) //
+			.put(S_102_WITHOUT_EVENTS, Priority.LOW) //
+			.put(S_103_WITHOUT_EVENTS, Priority.LOW) //
 			.build();
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -95,10 +100,8 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(),
-				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.phase())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK, config.phase());
 	}
 
 	@Override
@@ -121,5 +124,4 @@ public class SolarEdgePvInverterImpl extends AbstractSunSpecPvInverter
 				ModbusSlaveNatureTable.of(SolarEdgePvInverterImpl.class, accessMode, 100) //
 						.build());
 	}
-
 }

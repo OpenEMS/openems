@@ -8,7 +8,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 
 import java.util.Map;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -45,7 +45,9 @@ import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 				"type=PRODUCTION" //
 		})
 @EventTopics({ //
-		TOPIC_CYCLE_EXECUTE_WRITE })
+		TOPIC_CYCLE_EXECUTE_WRITE //
+})
+@GenerateTargetsFromReferences("Modbus")
 public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 		implements PvInverterSmaSunnyTripower, SunSpecPvInverter, ManagedSymmetricPvInverter, ElectricityMeter,
 		ModbusComponent, OpenemsComponent, EventHandler, ModbusSlave {
@@ -91,11 +93,10 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -114,10 +115,8 @@ public class PvInverterSmaSunnyTripowerImpl extends AbstractSunSpecPvInverter
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(),
-				config.modbusUnitId(), this.cm, "Modbus", config.modbus_id(), READ_FROM_MODBUS_BLOCK, config.phase())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.readOnly(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK, config.phase());
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -7,23 +7,24 @@ import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 @Component({
     selector: "oe-controller-ess-fix-active-power-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-
-    public chargeDischargePower: { name: string, value: number };
+    public chargeDischargePower: { name: string; value: number };
 
     public readonly CONVERT_TO_WATT = Utils.CONVERT_TO_WATT;
     public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        return [
-            new ChannelAddress(this.component.id, "_PropertyPower"),
-        ];
+        return [new ChannelAddress(this.component.id, "_PropertyPower")];
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.chargeDischargePower = Utils.convertChargeDischargePower(this.translate, currentData.allComponents[this.component.id + "/_PropertyPower"]);
+        this.chargeDischargePower = Utils.convertChargeDischargePower(
+            this.translate,
+            currentData.allComponents[this.component.id + "/_PropertyPower"],
+        );
     }
 
     protected override getFormGroup(): FormGroup {

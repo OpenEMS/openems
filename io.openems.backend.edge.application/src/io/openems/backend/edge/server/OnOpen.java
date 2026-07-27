@@ -1,10 +1,7 @@
 package io.openems.backend.edge.server;
 
-import static io.openems.common.websocket.WebsocketUtils.getAsString;
 import static io.openems.common.websocket.WebsocketUtils.parseRemoteIdentifier;
 import static org.java_websocket.framing.CloseFrame.REFUSE;
-
-import java.util.function.Function;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.Handshakedata;
@@ -16,50 +13,34 @@ import io.openems.common.exceptions.OpenemsError;
 public class OnOpen implements io.openems.common.websocket.OnOpen {
 
 	private final Logger log = LoggerFactory.getLogger(OnOpen.class);
-
-	private final Function<String, String> authenticateApikey;
 	private final Runnable connectedEdgesChanged;
 
-	public OnOpen(//
-			Function<String, String> authenticateApikey, //
-			Runnable connectedEdgesChanged) {
-		this.authenticateApikey = authenticateApikey;
+	public OnOpen(Runnable connectedEdgesChanged) {
 		this.connectedEdgesChanged = connectedEdgesChanged;
 	}
 
 	@Override
 	public OpenemsError apply(WebSocket ws, Handshakedata handshakedata) {
-		// get apikey from handshake
-		final var apikey = getAsString(handshakedata, "apikey");
-
-		var error = this._apply(ws, apikey);
+		var error = this._apply(ws);
 		if (error != null) {
-			ws.closeConnection(REFUSE, new StringBuilder() //
-					.append("Connection to backend failed. Apikey [") //
-					.append(apikey).append("]. Remote [") //
-					.append(parseRemoteIdentifier(ws, handshakedata)) //
-					.append("] Error: ").append(error.name()) //
-					.toString());
+			ws.closeConnection(REFUSE, "Connection to backend failed. Remote [" //
+					+ parseRemoteIdentifier(ws, handshakedata) //
+					+ "] Error: " + error.name() //
+			);
 		}
 		return error;
 	}
 
-	private OpenemsError _apply(WebSocket ws, String apikey) {
+	private OpenemsError _apply(WebSocket ws) {
 		// get websocket attachment
-		final WsData wsData = ws.getAttachment();
-
-		if (apikey == null) {
-			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
-		}
+		WsData wsData = ws.getAttachment();
 
 		// authenticate apikey
-		var edgeId = this.authenticateApikey.apply(apikey);
+		var edgeId = wsData.getEdgeId();
 		if (edgeId == null) {
 			return OpenemsError.COMMON_AUTHENTICATION_FAILED;
 		}
 
-		// announce Edge as online
-		wsData.setEdgeId(edgeId);
 		wsData.debugLog(this.log, () -> "OPEN " + edgeId);
 
 		this.connectedEdgesChanged.run();

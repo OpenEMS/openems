@@ -4,6 +4,7 @@ export class MetaComponent extends EdgeConfig.Component {
 
     private longitude: number | null = null;
     private latitude: number | null = null;
+    private currency: string | null = null;
 
     constructor(
         config: EdgeConfig | null,
@@ -12,6 +13,7 @@ export class MetaComponent extends EdgeConfig.Component {
         super(component.id, component.alias, component.isEnabled, false, component.factoryId, component.properties, component.channels);
         this.longitude = this.getPropertyFromComponent<number>("longitude");
         this.latitude = this.getPropertyFromComponent<number>("latitude");
+        this.currency = this.getPropertyFromComponent<string>("currency");
     }
 
     public getCoordinates(): { longitude: number | null, latitude: number | null } {
@@ -22,5 +24,9 @@ export class MetaComponent extends EdgeConfig.Component {
         return this.latitude != null && this.longitude != null &&
             this.latitude >= -90 && this.latitude <= 90 &&
             this.longitude >= -180 && this.longitude <= 180;
+    }
+
+    public getCurrency(): string | null {
+        return this.currency;
     }
 }

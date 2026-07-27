@@ -1,18 +1,17 @@
 package io.openems.edge.bridge.modbus.sunspec;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent.SunSpecModelEntry;
+import io.openems.edge.bridge.modbus.sunspec.dummy.DummySunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.dummy.MyConfig;
-import io.openems.edge.bridge.modbus.sunspec.dummy.MySunSpecComponentImpl;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.common.test.ComponentTest;
@@ -21,7 +20,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testDefaultStartBehaviour() throws Exception {
-		final var sut = new MySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -43,7 +42,6 @@ public class SunSpecStartTest {
 				.withRegisters(40349, 0xFFFF, 0); // END_OF_MAP
 
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", bridge) //
 				.activate(MyConfig.create() //
 						.setId("cmp0") //
@@ -83,7 +81,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testNotAllRequiredModelsRead() throws Exception {
-		final var sut = new MySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -104,7 +102,6 @@ public class SunSpecStartTest {
 				.withRegisters(40226, 0xFFFF, 0); // END_OF_MAP
 
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", bridge) //
 				.activate(MyConfig.create() //
 						.setId("cmp0") //
@@ -144,7 +141,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testReinitializeSunSpecChannels() throws Exception {
-		final var sut = new MySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -167,7 +164,6 @@ public class SunSpecStartTest {
 		final var initialNumberOfChannels = sut.channels().size();
 
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", bridge) //
 				.activate(MyConfig.create() //
 						.setId("cmp0") //
@@ -246,7 +242,7 @@ public class SunSpecStartTest {
 
 	@Test
 	public void testReinitializeSunSpecChannelsDuplicatedModels() throws Exception {
-		final var sut = new MySunSpecComponentImpl(List.of(//
+		final var sut = new DummySunSpecComponent(List.of(//
 				SunSpecModelEntry.create(DefaultSunSpecModel.S_1) //
 						.setRequired(true) //
 						.build(), //
@@ -267,7 +263,6 @@ public class SunSpecStartTest {
 				.withRegisters(40278, 0xFFFF, 0); // END_OF_MAP
 
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", bridge) //
 				.activate(MyConfig.create() //
 						.setId("cmp0") //

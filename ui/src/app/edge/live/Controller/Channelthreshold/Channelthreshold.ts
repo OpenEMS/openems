@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Icon } from "src/app/shared/type/widget";
 
@@ -8,10 +8,10 @@ import { ChannelAddress, CurrentData } from "../../../../shared/shared";
 @Component({
     selector: "Controller_Channelthreshold",
     templateUrl: "./Channelthreshold.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_ChannelthresholdComponent extends AbstractFlatWidget {
-
     public outputChannel: ChannelAddress;
     public icon: Icon = {
         name: "",
