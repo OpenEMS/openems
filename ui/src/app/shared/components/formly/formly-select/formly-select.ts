@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation, } from "@angular/core";
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation, ChangeDetectionStrategy, } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldType } from "@ngx-formly/core";
 import { Subscription } from "rxjs";
@@ -9,6 +9,7 @@ import { FormlySelectOptionsWithImageModalComponent } from "./formly-select-with
     encapsulation: ViewEncapsulation.None,
     templateUrl: "./formly-select.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             :host {
@@ -78,10 +79,7 @@ import { FormlySelectOptionsWithImageModalComponent } from "./formly-select-with
         `,
     ],
 })
-export class FormlySelectComponent
-    extends FieldType
-    implements OnInit, OnChanges, OnDestroy
-{
+export class FormlySelectComponent extends FieldType implements OnInit, OnChanges, OnDestroy {
     protected hasImageOptions = false;
     protected selectOptions: any[] = [];
     protected selectedLabel: string | null = null;
@@ -95,11 +93,7 @@ export class FormlySelectComponent
         this.initializeOptions();
         this.getSelectedLabel();
 
-        this.subscription.add(
-            this.formControl.valueChanges.subscribe(() =>
-                this.getSelectedLabel(),
-            ),
-        );
+        this.subscription.add(this.formControl.valueChanges.subscribe(() => this.getSelectedLabel()));
     }
 
     public ngOnChanges(changes: SimpleChanges) {

@@ -9,6 +9,7 @@ export enum Mode {
     MANUAL_OFF = "MANUAL_OFF",
     AUTOMATIC = "AUTOMATIC",
     MANUAL = "MANUAL",
+    ON = "ON",
     OFF = "OFF",
     CHARGE_ONCE = "CHARGE_ONCE",
     DISCHARGE_ONCE = "DISCHARGE_ONCE",

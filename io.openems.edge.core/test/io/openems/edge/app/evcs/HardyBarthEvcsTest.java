@@ -1,6 +1,6 @@
 package io.openems.edge.app.evcs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 

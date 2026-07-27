@@ -10,10 +10,11 @@ Use this skill when writing or fixing Java Edge/Backend tests.
 ## Framework Choice
 
 - Inspect nearby tests in the same class, bundle, or feature first.
-- Match the existing framework and style when editing a test class.
-- Many existing tests use JUnit 4 (`org.junit.Test`, `org.junit.Assert.*`); keep that style in those files.
-- Use JUnit Jupiter (`org.junit.jupiter.api.*`) for brand-new test classes when it fits the surrounding bundle.
-- Do not mix JUnit 4 and Jupiter imports in the same test class.
+- Follow their testing style and conventions where applicable, but do not retain JUnit 4 solely for consistency.
+- Prefer JUnit Jupiter. When modifying a JUnit 4 test class, migrate the entire class to Jupiter whenever the migration is feasible and within the scope of the requested change.
+- Retain JUnit 4 only when migration would be disproportionately complex or risky, or when dependencies or test-runtime constraints require it.
+- Never mix JUnit 4 and Jupiter within one test class.
+- Use JUnit Jupiter (`org.junit.jupiter.api.*`) for brand-new test classes unless a technical constraint requires JUnit 4.
 - Do not add unnecessary test dependencies.
 
 ## Project Patterns

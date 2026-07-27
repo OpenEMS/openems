@@ -1,5 +1,5 @@
 import { EdgeConfig } from "src/app/shared/components/edge/edgeconfig";
-import { NavigationTree, PartialedIcon, } from "src/app/shared/components/navigation/shared";
+import { NavigationTree, PartialedIcon } from "src/app/shared/components/navigation/shared";
 import { OeImageComponent } from "src/app/shared/components/oe-img/oe-img";
 import { environment } from "src/environments";
 
@@ -19,9 +19,7 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
         );
     }
 
-    public static getEvseChargepoint(
-        chargePoint: EdgeConfig.Component | null,
-    ): EvseChargepoint | null {
+    public static getEvseChargepoint(chargePoint: EdgeConfig.Component | null): EvseChargepoint | null {
         if (chargePoint == null) {
             return null;
         }
@@ -37,7 +35,7 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
                 return new Mennekes(chargePoint);
-            case "Evse.ChargePoint.Dummy":
+            case "Simulator.Evse.ChargePoint":
                 return new Simulator(chargePoint);
             case null:
             default:
@@ -45,15 +43,12 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
         }
     }
     /**
-     * Gets the navigation tree for phase switching if the evse chargepoint
-     * supports phase switching.
+     * Gets the navigation tree for phase switching if the evse chargepoint supports phase switching.
      *
      * @param controller The evse controller
      * @returns A navigation tree, if phase switching is allowed, else null
      */
-    public getPhaseSwitchingNavigationTree(
-        controller: EdgeConfig.Component,
-    ): NavigationTree | null {
+    public getPhaseSwitchingNavigationTree(controller: EdgeConfig.Component): NavigationTree | null {
         if (this.hasPhaseSwitchingAbility() == false) {
             return null;
         }
@@ -78,10 +73,7 @@ export class P30KebaUdp extends EvseChargepoint {
     };
 
     public override hasPhaseSwitchingAbility(): boolean {
-        return (
-            this.hasPropertyValue("wiring", "THREE_PHASE") &&
-            this.hasPropertyValue("p30hasS10PhaseSwitching", true)
-        );
+        return this.hasPropertyValue("wiring", "THREE_PHASE") && this.hasPropertyValue("p30hasS10PhaseSwitching", true);
     }
 }
 
@@ -126,11 +118,13 @@ export class Mennekes extends EvseChargepoint {
 
 export class Simulator extends EvseChargepoint {
     public img = {
-        // TODO add image for simulated ChargePoint
-        url: environment.images.EVSE.KEBA_P40,
+        url: environment.images.EVSE.SIMULATOR,
     };
 
     public override hasPhaseSwitchingAbility(): boolean {
-        return this.hasPropertyValue("wiring", "THREE_PHASE");
+        return (
+            this.hasPropertyValue("wiring", "THREE_PHASE") && //
+            this.hasPropertyValue("supportsPhaseSwitching", true)
+        );
     }
 }

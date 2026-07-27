@@ -82,7 +82,7 @@ public class EnergyScheduler {
 
 				.setModes(() -> new SingleModes<>(//
 						new Modes.Channels(//
-								new ChannelAddress(parent.id(), HeatAskoma.ChannelId.STATE_MACHINE.id()),
+								new ChannelAddress(parent.id(), HeatAskoma.ChannelId.MODE.id()),
 								new ChannelAddress(parent.id(), ElectricityMeter.ChannelId.ACTIVE_POWER.id())),
 						Arrays.stream(Mode.values()) //
 								.map(mode -> new SingleMode<>(mode, false, null)) //

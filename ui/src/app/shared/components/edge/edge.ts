@@ -688,7 +688,17 @@ export class Edge {
                 { name: "stats-chart-outline" },
                 translate.instant("GENERAL.HISTORY"),
                 "label",
-                [],
+                [
+                    new NavigationTree(
+                        "export",
+                        { baseString: "export" },
+                        { name: "download-outline" },
+                        translate.instant("EDGE.CONFIG.INDEX.EXPORT"),
+                        "label",
+                        [],
+                        null,
+                    ),
+                ],
                 null,
                 { showOrder: "LOW" },
             ),

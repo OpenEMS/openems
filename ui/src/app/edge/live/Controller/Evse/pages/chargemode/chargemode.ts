@@ -1,11 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -13,16 +13,16 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     selector: "oe-evse-charge-mode",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
-
 export class ChargeModeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     protected component: EdgeConfig.Component | null = null;
@@ -35,7 +35,11 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
         super();
     }
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
@@ -43,7 +47,14 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
             {
                 type: "info-line",
                 name: translate.instant("EVSE_SINGLE.SETTINGS.CHARGE_MODE"),
-                style: { name: { fontWeight: "bold", textAlign: "center", fontSize: "1rem", paddingBottom: "calc(var(--ion-padding) * 4)" } },
+                style: {
+                    name: {
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        fontSize: "1rem",
+                        paddingBottom: "calc(var(--ion-padding) * 4)",
+                    },
+                },
             },
             {
                 type: "radio-buttons-from-form-control-line",
@@ -67,7 +78,8 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
                         value: Mode.FORCE,
                     },
                 ],
-            }];
+            },
+        ];
 
         return {
             title: Name.METER_ALIAS_OR_ID(component),
@@ -94,7 +106,6 @@ export class ChargeModeComponent extends AbstractFormlyComponent {
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-
         const config = await this.service.getConfig();
         const component = config.getComponent(this.route.snapshot.params.componentId);
 

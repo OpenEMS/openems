@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 
@@ -9,6 +9,7 @@ import { ChannelAddress } from "src/app/shared/shared";
     selector: "modbusTcpApiWidget",
     templateUrl: "./flat.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonUiModule, ComponentsBaseModule],
 })
 export class ModbusTcpApiHistoryFlatComponent extends AbstractFlatWidget {

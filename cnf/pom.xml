@@ -33,6 +33,18 @@
 		</dependency>
 		<!-- com -->
 		<dependency>
+			<!--
+			Javaluator is a simple, but powerful, infix expression evaluator for Java
+			Changelog: https://github.com/fathzer/javaluator/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
+			-->
+			<groupId>com.fathzer</groupId>
+			<artifactId>javaluator</artifactId>
+			<version>3.0.6</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
 			<version>2.11.4</version>
@@ -111,7 +123,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.10.0</version>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -123,7 +135,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.5.2</version>
+			<version>4.6.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -175,7 +187,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.17.0</version>
+			<version>3.18.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -381,7 +393,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>2.0.0</version>
+			<version>2.0.2</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -450,7 +462,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -459,7 +471,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -586,7 +598,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.4.0</version>
+			<version>2.4.10</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -628,7 +640,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -639,7 +651,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -650,7 +662,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -661,7 +673,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -672,7 +684,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -683,7 +695,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -694,7 +706,7 @@
 			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.1.1</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--

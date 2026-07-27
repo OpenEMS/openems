@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { EdgeConfig, Utils } from "src/app/shared/shared";
@@ -7,10 +7,10 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "oe-common-production",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     public productionMeterComponents: EdgeConfig.Component[] = [];
     public chargerComponents: EdgeConfig.Component[] = [];
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
@@ -22,23 +22,22 @@ export class FlatComponent extends AbstractFlatWidget {
     }
     protected getModalComponent(): Modal {
         return { component: ModalComponent };
-    };
+    }
 
     protected override getChannelAddresses() {
         if (this.config == null) {
             return [];
         }
         // Get Chargers
-        this.chargerComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-                .filter(component => component.isEnabled);
+        this.chargerComponents = this.config
+            .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
+            .filter((component) => component.isEnabled);
 
         // Get productionMeters
-        this.productionMeterComponents =
-            this.config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-                .filter(component => component.isEnabled && this.config?.isProducer(component));
+        this.productionMeterComponents = this.config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => component.isEnabled && this.config?.isProducer(component));
 
         return [];
     }
-
 }

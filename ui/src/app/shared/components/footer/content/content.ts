@@ -1,4 +1,4 @@
-import { Component, effect, ViewEncapsulation } from "@angular/core";
+import { Component, effect, ViewEncapsulation, ChangeDetectionStrategy } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
@@ -12,18 +12,14 @@ import { environment } from "src/environments";
 @Component({
     selector: "oe-footer-content",
     templateUrl: "./content.html",
-    imports: [
-        CommonUiModule,
-        PipeComponentsModule,
-        RouterModule,
-    ],
+    imports: [CommonUiModule, PipeComponentsModule, RouterModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class FooterContentComponent {
-
     protected user: User | null = null;
     protected edge: Edge | null = null;
-    protected displayValues: { comment: string, id: string, version: string } | null = null;
+    protected displayValues: { comment: string; id: string; version: string } | null = null;
     protected isAtLeastOwner: boolean | null = null;
 
     constructor(
@@ -43,7 +39,7 @@ export class FooterContentComponent {
         });
     }
 
-    private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
+    private static getDisplayValues(user: User, edge: Edge): { comment: string; id: string; version: string } {
         const result = {
             comment: "",
             id: "",
@@ -67,8 +63,7 @@ export class FooterContentComponent {
     }
 
     private setDisplayValues(edge: Edge) {
-
-        this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+        this.service.metadata.pipe(filter((metadata) => !!metadata)).subscribe((metadata) => {
             this.user = metadata.user;
 
             let title = environment.edgeShortName;

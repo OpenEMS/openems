@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonObject;
 
@@ -25,7 +25,7 @@ public class EvcsPropsArchitectureTypeTest {
 	private OpenemsApp kebaEvcs;
 	private OpenemsApp mennekesEvse;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		this.testBundle = new AppManagerTestBundle(null, null, t -> List.of(//
 				this.hardyBarthEvcs = Apps.hardyBarthEvcs(t), //

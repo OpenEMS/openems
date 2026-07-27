@@ -942,7 +942,10 @@ public enum DefaultSunSpecModel implements SunSpecModel {
 		THROTTLED(5, "THROTTLED"), //
 		SHUTTING_DOWN(6, "SHUTTING_DOWN"), //
 		FAULT(7, "FAULT"), //
-		STANDBY(8, "STANDBY");
+		STANDBY(8, "STANDBY"), //
+		// TODO: verify whether STARTED (9) is part of the SunSpec standard.
+		// If not standard, move this to a REFU-specific enum to avoid conflicts
+		STARTED(9, "STARTED");// Added manually for Refu inverter.
 
 		private final int value;
 		private final String name;

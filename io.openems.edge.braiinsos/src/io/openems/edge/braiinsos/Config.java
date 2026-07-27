@@ -4,7 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.common.types.MeterType;
-import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @ObjectClassDefinition(//
 		name = "Braiins OS Controller Single", //
@@ -39,7 +39,7 @@ import io.openems.edge.common.type.Phase.SinglePhase;
 	String password() default "";
 
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Miner connected to?")
-	SinglePhase phase() default SinglePhase.L1;
+	SingleOrAllPhase phase() default SingleOrAllPhase.L1;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;

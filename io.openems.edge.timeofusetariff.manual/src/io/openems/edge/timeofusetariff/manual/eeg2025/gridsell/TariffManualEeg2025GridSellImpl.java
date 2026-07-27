@@ -75,7 +75,7 @@ public class TariffManualEeg2025GridSellImpl extends AbstractOpenemsComponent
 			return;
 		}
 
-		this.fixedGridSellPrice = config.fixedGridSellPrice();
+		this.fixedGridSellPrice = config.fixedGridSellPrice() * 10; // Config is in Cent/kWh, channel unit is in Euro/MWh
 		this.marketPriceProvider = this.marketPriceProviderPool
 				.get(new EntsoeConfiguration(EntsoeBiddingZone.GERMANY, config.securityToken()));
 

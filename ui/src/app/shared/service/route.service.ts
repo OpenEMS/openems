@@ -111,6 +111,15 @@ export class RouteService {
         return value as T;
     }
 
+    /**
+     * Gets the query params signal.
+     *
+     * @returns The query params signal
+     */
+    public getQueryParams() {
+        return this.queryParams.asReadonly();
+    }
+
     public navigateAfterAuthentication() {
         const oauthredirectstate = this.cookieService.get("oauthredirectstate");
         const oauthRedirectStateHref = ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
@@ -119,7 +128,7 @@ export class RouteService {
             return;
         }
 
-        const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl ?? null;
+        const initialUrl = this.router.lastSuccessfulNavigation()?.initialUrl ?? null;
         const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
         if (isAuthenticatedNavi && initialUrl != null) {
             this.router.navigate([initialUrl.toString()]);

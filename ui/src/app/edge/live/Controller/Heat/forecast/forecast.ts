@@ -1,6 +1,6 @@
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
-import { ChangeDetectorRef, Component, Inject } from "@angular/core";
+
+import { ChangeDetectorRef, Component, Inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule, ModalController } from "@ionic/angular";
@@ -29,14 +29,8 @@ import { ScheduleChartComponent } from "./chart/schedule.chart";
             }
         `,
     ],
-    imports: [
-        CommonModule,
-        IonicModule,
-        TranslateModule,
-        ComponentsBaseModule,
-        SchedulePowerChartComponent,
-        ScheduleChartComponent,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [IonicModule, TranslateModule, ComponentsBaseModule, SchedulePowerChartComponent, ScheduleChartComponent],
 })
 export class HeatForecastComponent extends AbstractModal {
     constructor(

@@ -64,7 +64,7 @@ export class Controller_Io_ChannelSingleThresholdComponent extends AbstractFlatW
      * @returns a the switch state label
      */
     private static createSwitchStateLabel(invert: boolean, outputChannelValue: number | null, threshold: number | null, translate: TranslateService) {
-        const isThresholdPositive = threshold !== null && threshold > 0;;
+        const isThresholdPositive = threshold !== null && threshold > 0;
         const label = SwitchStateLabel.find(el =>
             el.invert === invert
             && (el.outputChannelValue === outputChannelValue)

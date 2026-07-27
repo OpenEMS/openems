@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { NumberFormatPipe } from "../pipes/number-format.pipe";
 import { WeatherCodeDescriptionPipe } from "../pipes/weather-code-description.pipe";
@@ -54,12 +54,8 @@ import { AbstractWeatherWidget } from "../shared/abstract-weather-widget";
         }
     `,
     standalone: true,
-    imports: [
-        CommonUiModule,
-        WeatherCodeIconPipe,
-        WeatherCodeDescriptionPipe,
-        NumberFormatPipe,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, WeatherCodeIconPipe, WeatherCodeDescriptionPipe, NumberFormatPipe],
 })
 export class MiniWeatherComponent extends AbstractWeatherWidget {
     protected static readonly SELECTOR = "mini-weather";

@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -10,13 +9,7 @@ import { EnerixControlChartComponent } from "../chart/chart";
 @Component({
     templateUrl: "./new-navigation.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        ComponentsBaseModule,
-        CommonModule,
-        IonicModule,
-        EnerixControlChartComponent,
-        PickdateComponentModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, ComponentsBaseModule, IonicModule, EnerixControlChartComponent, PickdateComponentModule],
 })
 export class ControllerEnerixControlHistoryComponent extends AbstractModal {}

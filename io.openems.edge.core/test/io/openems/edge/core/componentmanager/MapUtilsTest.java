@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class MapUtilsTest {
 

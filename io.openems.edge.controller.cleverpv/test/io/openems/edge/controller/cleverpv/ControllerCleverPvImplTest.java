@@ -13,11 +13,11 @@ import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.R
 import static io.openems.edge.controller.cleverpv.ControllerCleverPv.ChannelId.UNABLE_TO_SEND;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.NO_DISCHARGE;
 import static io.openems.edge.controller.cleverpv.RemoteControlMode.OFF;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Objects;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonNull;
 
@@ -39,7 +39,7 @@ public class ControllerCleverPvImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var sut = new ControllerCleverPvImpl();
 		final var sum = new DummySum();
 		final var host = new DummyHost();

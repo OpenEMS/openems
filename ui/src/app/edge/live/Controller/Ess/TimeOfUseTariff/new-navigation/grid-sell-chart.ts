@@ -1,5 +1,5 @@
 import { formatNumber } from "@angular/common";
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -10,23 +10,21 @@ import { NavigationService } from "src/app/shared/components/navigation/service/
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetScheduleRequest } from "src/app/shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "src/app/shared/jsonrpc/response/getScheduleResponse";
-import { Currency, Edge, EdgeConfig, Logger, Service, Websocket, } from "src/app/shared/shared";
+import { Currency, Edge, EdgeConfig, Logger, Service, Websocket } from "src/app/shared/shared";
 import { Language } from "src/app/shared/type/language";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType, } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-grid-sell-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class ScheduleGridSellChartComponent
-    extends AbstractHistoryChart
-    implements OnChanges
-{
+export class ScheduleGridSellChartComponent extends AbstractHistoryChart implements OnChanges {
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public override component!: EdgeConfig.Component;
@@ -102,17 +100,11 @@ export class ScheduleGridSellChartComponent
     }
 
     protected override getChartHeight(): number | null {
-        return TimeOfUseTariffUtils.getChartHeight(
-            this.service.getIsSmartphoneResolution(),
-        );
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected override async loadChart(): Promise<void> {
-        if (
-            this.edge == null ||
-            this.component == null ||
-            this.config == null
-        ) {
+        if (this.edge == null || this.component == null || this.config == null) {
             return;
         }
 
@@ -122,14 +114,9 @@ export class ScheduleGridSellChartComponent
         this.chartType = "line";
 
         const meta: EdgeConfig.Component = this.config.getComponent("_meta");
-        const currency = this.config.getPropertyFromComponent<string>(
-            meta,
-            "currency",
-        );
+        const currency = this.config.getPropertyFromComponent<string>(meta, "currency");
         this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
-        this.currencyUnit = Currency.getChartCurrencyUnitLabel(
-            currency ?? "EUR",
-        );
+        this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency ?? "EUR");
         this.chartObject = this.getChartData();
 
         try {
@@ -151,30 +138,19 @@ export class ScheduleGridSellChartComponent
             this.labels = schedule.map((entry) => new Date(entry.timestamp));
 
             const channelData: HistoryUtils.ChannelData = {
-                gridSellPrice: schedule.map(
-                    (entry) => entry.gridSellPrice ?? null,
-                ),
+                gridSellPrice: schedule.map((entry) => NumberUtils.divideSafely(entry.gridSellPrice, 10)),
                 gridSell: schedule.map(
                     (entry) =>
                         NumberUtils.divideSafely(
-                            HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(
-                                entry.grid,
-                            ),
+                            HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid),
                             1000,
                         ) ?? 0,
                 ),
             };
 
-            this.datasets = this.buildDatasetsFromChartData(
-                channelData,
-                this.labels as Date[],
-            );
+            this.datasets = this.buildDatasetsFromChartData(channelData, this.labels as Date[]);
             this.legendOptions = this.datasets
-                .filter(
-                    (dataset, index, arr) =>
-                        arr.findIndex((d) => d.label === dataset.label) ===
-                        index,
-                )
+                .filter((dataset, index, arr) => arr.findIndex((d) => d.label === dataset.label) === index)
                 .map((dataset) => ({
                     label: dataset.label?.toString() ?? "",
                     strokeThroughHidingStyle: false,
@@ -199,10 +175,7 @@ export class ScheduleGridSellChartComponent
         }
     }
 
-    private buildDatasetsFromChartData(
-        data: HistoryUtils.ChannelData,
-        labels: Date[],
-    ): Chart.ChartDataset[] {
+    private buildDatasetsFromChartData(data: HistoryUtils.ChannelData, labels: Date[]): Chart.ChartDataset[] {
         AssertionUtils.assertIsDefined(this.chartObject);
 
         const displayValues = this.chartObject.output(data, labels);
@@ -244,8 +217,7 @@ export class ScheduleGridSellChartComponent
             });
 
             if (lastPastDatasetEntryIndex != null) {
-                futureData[lastPastDatasetEntryIndex] =
-                    (dataset.data[lastPastDatasetEntryIndex] as number) ?? null;
+                futureData[lastPastDatasetEntryIndex] = (dataset.data[lastPastDatasetEntryIndex] as number) ?? null;
             }
 
             return [
@@ -257,8 +229,7 @@ export class ScheduleGridSellChartComponent
                 {
                     ...dataset,
                     data: futureData,
-                    borderDash:
-                        ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
+                    borderDash: ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
                 },
             ];
         });
@@ -267,11 +238,7 @@ export class ScheduleGridSellChartComponent
     private createScheduleChartOptions(): Chart.ChartOptions {
         AssertionUtils.assertIsDefined(this.chartObject);
 
-        let options = AbstractHistoryChart.getDefaultXAxisOptions(
-            this.xAxisScalingType,
-            this.service,
-            this.labels,
-        );
+        let options = AbstractHistoryChart.getDefaultXAxisOptions(this.xAxisScalingType, this.service, this.labels);
 
         options = AbstractHistoryChart.getYAxisOptions(
             options,
@@ -308,16 +275,10 @@ export class ScheduleGridSellChartComponent
                     return `${label}: ${formatNumber(Number(value ?? 0), Language.geti18nLocale(), ChartConstants.NumberFormat.ONE_TO_TWO)} ${this.currencyLabel}`;
                 }
 
-                return TimeOfUseTariffUtils.getLabel(
-                    value,
-                    label,
-                    this.translate,
-                );
+                return TimeOfUseTariffUtils.getLabel(value, label, this.translate);
             };
 
-            tooltipCallbacks.labelColor = (
-                item: Chart.TooltipItem<any>,
-            ): Chart.TooltipLabelStyle => {
+            tooltipCallbacks.labelColor = (item: Chart.TooltipItem<any>): Chart.TooltipLabelStyle => {
                 let backgroundColor = item.dataset.backgroundColor;
 
                 if (Array.isArray(backgroundColor)) {
@@ -325,43 +286,30 @@ export class ScheduleGridSellChartComponent
                 }
 
                 if (!backgroundColor) {
-                    backgroundColor =
-                        item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
+                    backgroundColor = item.dataset.borderColor || "rgba(0, 0, 0, 0.5)";
                 }
 
                 return {
                     borderColor:
-                        ColorUtils.changeOpacityFromRGBA(
-                            backgroundColor.toString(),
-                            1,
-                        ) ?? backgroundColor.toString(),
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
                     backgroundColor:
-                        ColorUtils.changeOpacityFromRGBA(
-                            backgroundColor.toString(),
-                            1,
-                        ) ?? backgroundColor.toString(),
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
                 };
             };
         }
 
         if (legendLabels != null) {
-            legendLabels.generateLabels = (
-                chart: Chart.Chart,
-            ): Chart.LegendItem[] => {
+            legendLabels.generateLabels = (chart: Chart.Chart): Chart.LegendItem[] => {
                 const legendItems: Chart.LegendItem[] = [];
 
                 chart.data.datasets.forEach((dataset, index) => {
                     const typedDataset = dataset as GridSellChartDataset;
-                    const existingItem = legendItems.find(
-                        (item) => item.text === dataset.label,
-                    );
+                    const existingItem = legendItems.find((item) => item.text === dataset.label);
 
                     const borderColor = Array.isArray(typedDataset.borderColor)
                         ? typedDataset.borderColor[0]
                         : dataset.borderColor;
-                    const backgroundColor = Array.isArray(
-                        typedDataset.backgroundColor,
-                    )
+                    const backgroundColor = Array.isArray(typedDataset.backgroundColor)
                         ? typedDataset.backgroundColor[0]
                         : typedDataset.backgroundColor;
 
@@ -381,9 +329,7 @@ export class ScheduleGridSellChartComponent
                         text: typedDataset.label?.toString() ?? "",
                         datasetIndex: index,
                         fillStyle: backgroundColor as string,
-                        fontColor: getComputedStyle(
-                            document.documentElement,
-                        ).getPropertyValue("--ion-color-text"),
+                        fontColor: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-text"),
                         hidden: !chart.isDatasetVisible(index),
                         lineWidth: 2,
                         ...(typedDataset.borderDash && {
@@ -399,10 +345,7 @@ export class ScheduleGridSellChartComponent
         }
 
         if (options.plugins?.legend != null) {
-            options.plugins.legend.onClick = function (
-                event: Chart.ChartEvent,
-                legendItem: Chart.LegendItem,
-            ) {
+            options.plugins.legend.onClick = function (event: Chart.ChartEvent, legendItem: Chart.LegendItem) {
                 const chart: Chart.Chart = this.chart;
 
                 const legendItems = chart.data.datasets.reduce(
@@ -416,9 +359,7 @@ export class ScheduleGridSellChartComponent
                 );
 
                 legendItems.forEach((item) => {
-                    const visible = chart.isDatasetVisible(
-                        legendItem.datasetIndex ?? 0,
-                    );
+                    const visible = chart.isDatasetVisible(legendItem.datasetIndex ?? 0);
                     const meta = chart.getDatasetMeta(item.index);
                     meta.hidden = visible;
                 });
@@ -429,20 +370,15 @@ export class ScheduleGridSellChartComponent
                     return;
                 }
 
-                for (const key of Object.keys(scales).filter(
-                    (key) => key !== "x",
-                )) {
+                for (const key of Object.keys(scales).filter((key) => key !== "x")) {
                     const axisDatasets = chart.data.datasets
                         .map((d, i) => ({ dataset: d, index: i }))
                         .filter((d) => {
-                            const typedDataset =
-                                d.dataset as GridSellChartDataset;
+                            const typedDataset = d.dataset as GridSellChartDataset;
                             return typedDataset.yAxisID === key;
                         });
 
-                    chart.scales[key].options.display = axisDatasets.some((d) =>
-                        chart.isDatasetVisible(d.index),
-                    );
+                    chart.scales[key].options.display = axisDatasets.some((d) => chart.isDatasetVisible(d.index));
                 }
 
                 chart.update();
@@ -453,14 +389,10 @@ export class ScheduleGridSellChartComponent
             xScale.ticks = {
                 source: "auto",
                 autoSkip: false,
-                color: getComputedStyle(
-                    document.documentElement,
-                ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
+                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks"),
                 callback: (value) => {
                     const date = new Date(value);
-                    return date.getMinutes() === 0
-                        ? `${date.getHours()}:00`
-                        : "";
+                    return date.getMinutes() === 0 ? `${date.getHours()}:00` : "";
                 },
             };
         }

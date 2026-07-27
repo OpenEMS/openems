@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, inject, OnDestroy } from "@angular/core";
+import { Component, effect, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ViewWillLeave } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -27,6 +27,7 @@ import { OAuthService } from "./oauth.service";
             </ion-row>
         </ion-grid>
     </ion-content>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [NgxSpinnerModule, CommonUiModule, TranslateModule],
 })
 export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
@@ -39,22 +40,17 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
         private service: Service,
         private translate: TranslateService,
     ) {
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
 
         effect(async () => {
             const status = this.service.websocket.state();
             this.service.startSpinner(this.spinnerId, { fullScreen: true });
             if (States.isAtLeast(status, States.WEBSOCKET_CONNECTED)) {
-                await OAuthCallBackComponent.processQueryParams(
-                    this.route,
-                    this.oauthService,
-                );
+                await OAuthCallBackComponent.processQueryParams(this.route, this.oauthService);
             }
         });
     }
@@ -66,10 +62,7 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
      * @param oAuthService The oauth service
      * @returns
      */
-    public static async processQueryParams(
-        route: ActivatedRoute,
-        oAuthService: OAuthService,
-    ): Promise<void> {
+    public static async processQueryParams(route: ActivatedRoute, oAuthService: OAuthService): Promise<void> {
         const code = route.snapshot.queryParams["code"];
 
         const oauthState = oAuthService.getOAuthState();

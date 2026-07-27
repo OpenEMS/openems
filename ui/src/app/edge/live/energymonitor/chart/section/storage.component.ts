@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
@@ -9,17 +9,17 @@ import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
-import { AbstractSection, EnergyFlow, Ratio, SubValueProperties, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AbstractSection, EnergyFlow, Ratio, SubValueProperties, SvgEnergyFlow, SvgSquare, SvgSquarePosition, } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[storagesection]",
     templateUrl: "./storage.component.html",
     styleUrls: ["../animation.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class StorageSectionComponent extends AbstractSection implements OnInit, OnDestroy {
-
     public chargeAnimationTrigger: boolean = false;
     public dischargeAnimationTrigger: boolean = false;
     public svgStyle: string;
@@ -39,7 +39,18 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("EDGE.INDEX.ENERGYMONITOR.STORAGE", "down", "var(--ion-color-success)", translate, service, navigationService, router, route, "Storage", ["common", "storage"]);
+        super(
+            "EDGE.INDEX.ENERGYMONITOR.STORAGE",
+            "down",
+            "var(--ion-color-success)",
+            translate,
+            service,
+            navigationService,
+            router,
+            route,
+            "Storage",
+            ["common", "storage"],
+        );
         this.unitpipe = unitpipe;
     }
 
@@ -66,64 +77,63 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
-        this.service.getCurrentEdge()
-            .then(async edge => {
-                edge.currentData.subscribe(curr => {
-                    const maxApparentPower = edge.isVersionAtLeast("2024.2.2")
-                        ? curr.channel["_sum/EssMaxDischargePower"]
-                        : curr.channel["_sum/EssMaxApparentPower"];
-                    const minDischargePower = edge.isVersionAtLeast("2024.2.2")
-                        ? curr.channel["_sum/EssMinDischargePower"]
-                        : curr.channel["_sum/EssMaxApparentPower"];
+        this.service.getCurrentEdge().then(async (edge) => {
+            edge.currentData.subscribe((curr) => {
+                const maxApparentPower = edge.isVersionAtLeast("2024.2.2")
+                    ? curr.channel["_sum/EssMaxDischargePower"]
+                    : curr.channel["_sum/EssMaxApparentPower"];
+                const minDischargePower = edge.isVersionAtLeast("2024.2.2")
+                    ? curr.channel["_sum/EssMinDischargePower"]
+                    : curr.channel["_sum/EssMaxApparentPower"];
 
-                    sum.storage.powerRatio = CurrentData.getEssPowerRatio(maxApparentPower, minDischargePower, sum.storage.effectivePower);
+                sum.storage.powerRatio = CurrentData.getEssPowerRatio(
+                    maxApparentPower,
+                    minDischargePower,
+                    sum.storage.effectivePower,
+                );
 
-                    if (sum.storage.effectiveChargePower != null) {
-                        let arrowIndicate: number;
-                        // only reacts to kW values (50 W => 0.1 kW rounded)
-                        if (sum.storage.effectiveChargePower > 49) {
-                            if (!this.chargeAnimationTrigger) {
-                                this.toggleCharge();
-                            }
-                            arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
-                        } else {
-                            arrowIndicate = 0;
+                if (sum.storage.effectiveChargePower != null) {
+                    let arrowIndicate: number;
+                    // only reacts to kW values (50 W => 0.1 kW rounded)
+                    if (sum.storage.effectiveChargePower > 49) {
+                        if (!this.chargeAnimationTrigger) {
+                            this.toggleCharge();
                         }
-
-                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_CHARGE");
-                        super.updateSectionData(
-                            sum.storage.effectiveChargePower,
-                            sum.storage.powerRatio,
-                            arrowIndicate);
-                    } else if (sum.storage.effectiveDischargePower != null) {
-                        let arrowIndicate: number;
-                        if (sum.storage.effectiveDischargePower > 49) {
-                            if (!this.dischargeAnimationTrigger) {
-                                this.toggleDischarge();
-                            }
-                            arrowIndicate = Utils.multiplySafely(
-                                Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower), -1);
-                        } else {
-                            arrowIndicate = 0;
-                        }
-                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_DISCHARGE");
-                        super.updateSectionData(
-                            sum.storage.effectiveDischargePower,
-                            sum.storage.powerRatio,
-                            arrowIndicate);
+                        arrowIndicate = Utils.divideSafely(sum.storage.effectiveChargePower, sum.system.totalPower);
                     } else {
-                        this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE");
-                        super.updateSectionData(null, null, null);
+                        arrowIndicate = 0;
                     }
 
-                    this.socPercentage = this.calculateSubValueProperties(sum.storage.soc);
-
-                    if (this.square) {
-                        this.square.image.image = this.getImagePath();
-                        this.svgStyle = "storage-" + Utils.getStorageSocSegment(sum.storage.soc);
+                    this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_CHARGE");
+                    super.updateSectionData(sum.storage.effectiveChargePower, sum.storage.powerRatio, arrowIndicate);
+                } else if (sum.storage.effectiveDischargePower != null) {
+                    let arrowIndicate: number;
+                    if (sum.storage.effectiveDischargePower > 49) {
+                        if (!this.dischargeAnimationTrigger) {
+                            this.toggleDischarge();
+                        }
+                        arrowIndicate = Utils.multiplySafely(
+                            Utils.divideSafely(sum.storage.effectiveDischargePower, sum.system.totalPower),
+                            -1,
+                        );
+                    } else {
+                        arrowIndicate = 0;
                     }
-                });
+                    this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE_DISCHARGE");
+                    super.updateSectionData(sum.storage.effectiveDischargePower, sum.storage.powerRatio, arrowIndicate);
+                } else {
+                    this.name = this.translate.instant("EDGE.INDEX.ENERGYMONITOR.STORAGE");
+                    super.updateSectionData(null, null, null);
+                }
+
+                this.socPercentage = this.calculateSubValueProperties(sum.storage.soc);
+
+                if (this.square) {
+                    this.square.image.image = this.getImagePath();
+                    this.svgStyle = "storage-" + Utils.getStorageSocSegment(sum.storage.soc);
+                }
             });
+        });
     }
 
     protected getStartAngle(): number {
@@ -139,7 +149,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        const x = (square.length / 2) * (-1);
+        const x = (square.length / 2) * -1;
         const y = innerRadius - 5 - square.length;
         return new SvgSquarePosition(x, y);
     }
@@ -160,7 +170,7 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     }
 
     // no adjustments needed
-    protected setElementHeight() { }
+    protected setElementHeight() {}
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
         const v = Math.abs(ratio);
@@ -211,5 +221,4 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
         }
         return p;
     }
-
 }

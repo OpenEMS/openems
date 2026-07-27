@@ -301,7 +301,7 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled() || this.config.readOnly()) {
+		if (!this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {

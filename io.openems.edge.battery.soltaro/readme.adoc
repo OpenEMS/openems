@@ -38,6 +38,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Soltaro single-rack battery system Version A. Manages charging and discharging, monitors state of charge, temperature, and cell health.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -65,6 +66,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Soltaro single-rack battery system Version B. Mid-generation hardware with improved battery management and monitoring capabilities.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -92,6 +94,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Soltaro single-rack battery system Version C. Latest generation hardware with advanced thermal management and cell monitoring.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -119,6 +122,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Soltaro multi-rack clustered battery system Version B. Coordinates multiple battery racks as single logical system for larger energy storage deployments.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)
@@ -146,6 +150,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Soltaro multi-rack clustered battery system Version C. Latest generation clustered configuration with advanced inter-rack coordination and thermal management.
 
 .*Configuration*:
+
 * `id` (String): Component ID (default: "battery0")
 * `alias` (String): Human-readable alias
 * `enabled` (Boolean): Enable/disable (default: true)

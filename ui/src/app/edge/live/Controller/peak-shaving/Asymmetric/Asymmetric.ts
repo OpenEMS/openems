@@ -1,20 +1,20 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { BehaviorSubject } from "rxjs";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
-import { ChannelAddress, CurrentData, Utils, } from "../../../../../shared/shared";
+import { ChannelAddress, CurrentData, Utils } from "../../../../../shared/shared";
 import { Controller_Asymmetric_PeakShavingModalComponent } from "./modal/modal.component";
 
 @Component({
     selector: "Controller_Asymmetric_PeakShaving",
     templateUrl: "./Asymmetric.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidget {
-    public mostStressedPhase: BehaviorSubject<{ name: string; value: number }> =
-        new BehaviorSubject(null);
+    public mostStressedPhase: BehaviorSubject<{ name: string; value: number }> = new BehaviorSubject(null);
     public meterId: string;
     public peakShavingPower: number;
     public rechargePower: number;
@@ -61,9 +61,7 @@ export class Controller_Asymmetric_PeakShavingComponent extends AbstractFlatWidg
             value: Math.max(...activePowerArray, 0),
         });
 
-        this.peakShavingPower =
-            this.component.getPropertyFromComponent<number>("peakShavingPower");
-        this.rechargePower =
-            this.component.getPropertyFromComponent<number>("rechargePower");
+        this.peakShavingPower = this.component.getPropertyFromComponent<number>("peakShavingPower");
+        this.rechargePower = this.component.getPropertyFromComponent<number>("rechargePower");
     }
 }

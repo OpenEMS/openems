@@ -34,9 +34,7 @@ export namespace ControllerEvseSingleShared {
                     "forecast",
                     { baseString: "forecast" },
                     { name: "stats-chart-outline", color: "success" },
-                    translate.instant(
-                        "INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS",
-                    ),
+                    translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"),
                     baseMode,
                     [],
                     null,
@@ -63,27 +61,19 @@ export namespace ControllerEvseSingleShared {
                     "phase-switching",
                     { baseString: "phase-switching" },
                     { name: "menu-outline", color: "warning" },
-                    translate.instant(
-                        "EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING",
-                    ),
+                    translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
                     "label",
                     [],
                     null,
                     {
-                        showOrder: getPhaseSwitchingShowOrder(
-                            componentId,
-                            edge,
-                            config,
-                        ),
+                        showOrder: getPhaseSwitchingShowOrder(componentId, edge, config),
                     },
                 ),
                 new NavigationTree(
                     "schedule",
                     { baseString: "schedule" },
                     { name: "calendar-outline", color: "warning" },
-                    translate.instant(
-                        "EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE",
-                    ),
+                    translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"),
                     baseMode,
                     [
                         new NavigationTree(
@@ -123,8 +113,8 @@ export namespace ControllerEvseSingleShared {
                           new NavigationTree(
                               "car",
                               {
-                                  baseString:
-                                      "car/update/App.Evse.ElectricVehicle.Generic",
+                                  baseString: "car/update",
+                                  queryParams: { appId: "App.Evse.ElectricVehicle.Generic" },
                               },
                               { name: "car-sport-outline", color: "success" },
                               translate.instant("EVSE_SINGLE.HOME.VEHICLES"),
@@ -156,18 +146,13 @@ export namespace ControllerEvseSingleShared {
             return "HIDE";
         }
 
-        const component =
-            config.getComponentFromOtherComponentsProperty(
-                componentId,
-                "chargePoint.id",
-            ) ?? null;
+        const component = config.getComponentFromOtherComponentsProperty(componentId, "chargePoint.id") ?? null;
 
         if (component == null) {
             return "HIDE";
         }
 
-        const chargePointComponent =
-            EvseChargepoint.getEvseChargepoint(component);
+        const chargePointComponent = EvseChargepoint.getEvseChargepoint(component);
         if (!chargePointComponent?.hasPhaseSwitchingAbility()) {
             return "HIDE";
         }
@@ -188,13 +173,9 @@ export namespace ControllerEvseSingleShared {
                     case Mode.ZERO:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case Mode.SURPLUS:
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.MODE.SURPLUS",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
                     case Mode.MINIMUM:
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.MODE.MINIMUM",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case Mode.FORCE:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
@@ -210,22 +191,16 @@ export namespace ControllerEvseSingleShared {
      * @param raw The raw value
      * @returns The value for chosen mode
      */
-    export const CONVERT_TO_PHASE_SWITCH_LABEL = (
-        translate: TranslateService,
-    ) => {
+    export const CONVERT_TO_PHASE_SWITCH_LABEL = (translate: TranslateService) => {
         return (raw: string | null): string => {
             return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case "DISABLE":
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case "FORCE_SINGLE_PHASE":
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
                     case "FORCE_THREE_PHASE":
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
                     default:
                         return Converter.HIDE_VALUE(value);
                 }
@@ -239,22 +214,16 @@ export namespace ControllerEvseSingleShared {
      * @param raw The raw value
      * @returns The value for chosen mode
      */
-    export const CONVERT_TO_ACTUAL_MODE_LABEL = (
-        translate: TranslateService,
-    ) => {
+    export const CONVERT_TO_ACTUAL_MODE_LABEL = (translate: TranslateService) => {
         return (raw: number | null): string => {
             return Converter.IF_NUMBER(raw, (value) => {
                 switch (value) {
                     case 0:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
                     case 1:
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.MODE.MINIMUM",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case 2:
-                        return translate.instant(
-                            "EVSE_SINGLE.HOME.MODE.SURPLUS",
-                        );
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
                     case 3:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
@@ -287,39 +256,23 @@ export namespace ControllerEvseSingleShared {
      * @param raw The raw value
      * @returns The value for chosen mode
      */
-    export const CONVERT_TO_STATE_MACHINE_LABEL = (
-        translate: TranslateService,
-    ) => {
+    export const CONVERT_TO_STATE_MACHINE_LABEL = (translate: TranslateService) => {
         return (value: any): string => {
             switch (value) {
                 case StateMachine.EV_NOT_CONNECTED:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_NOT_CONNECTED");
                 case StateMachine.EV_CONNECTED:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.EV_CONNECTED");
                 case StateMachine.CHARGING:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.CHARGING");
                 case StateMachine.FINISHED_EV_STOP:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_EV_STOP",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_EV_STOP");
                 case StateMachine.FINISHED_ENERGY_SESSION_LIMIT:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_ENERGY_SESSION_LIMIT",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.FINISHED_ENERGY_SESSION_LIMIT");
                 case StateMachine.PHASE_SWITCH_TO_THREE_PHASE:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_THREE_PHASE");
                 case StateMachine.PHASE_SWITCH_TO_SINGLE_PHASE:
-                    return translate.instant(
-                        "EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE",
-                    );
+                    return translate.instant("EVSE_SINGLE.HOME.STATE_MACHINE.PHASE_SWITCH_TO_SINGLE_PHASE");
                 default:
                     return "-";
             }
@@ -391,9 +344,7 @@ export namespace ControllerEvseSingleShared {
         const barForce = Array(size).fill(null);
 
         for (let index = 0; index < size; index++) {
-            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(
-                prices[index],
-            );
+            const quarterlyPrice = TimeOfUseTariffUtils.formatPrice(prices[index]);
             const mode = modes[index];
             labels.push(new Date(timestamps[index]));
 
@@ -401,24 +352,16 @@ export namespace ControllerEvseSingleShared {
 
             if (mode !== null) {
                 switch (mode) {
-                    case modeStates.indexOf(
-                        ControllerEvseSingleShared.Mode.ZERO,
-                    ):
+                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.ZERO):
                         barZero[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(
-                        ControllerEvseSingleShared.Mode.MINIMUM,
-                    ):
+                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.MINIMUM):
                         barMinimum[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(
-                        ControllerEvseSingleShared.Mode.SURPLUS,
-                    ):
+                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.SURPLUS):
                         barSurplus[index] = quarterlyPrice;
                         break;
-                    case modeStates.indexOf(
-                        ControllerEvseSingleShared.Mode.FORCE,
-                    ):
+                    case modeStates.indexOf(ControllerEvseSingleShared.Mode.FORCE):
                         barForce[index] = quarterlyPrice;
                         break;
                 }
@@ -470,12 +413,11 @@ export namespace ControllerEvseSingleShared {
             borderColor: "rgba(0, 204, 204,0.7)",
         });
 
-        const scheduleChartData: ControllerEvseSingleShared.ScheduleChartData =
-            {
-                colors: colors,
-                datasets: datasets,
-                labels: labels,
-            };
+        const scheduleChartData: ControllerEvseSingleShared.ScheduleChartData = {
+            colors: colors,
+            datasets: datasets,
+            labels: labels,
+        };
 
         return scheduleChartData;
     }

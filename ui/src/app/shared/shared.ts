@@ -17,7 +17,6 @@ import { isBefore, subDays, subYears } from "date-fns";
 import { addIcons } from "ionicons";
 import { environment } from "src/environments";
 import { Edge } from "./components/edge/edge";
-import { EdgeConfig } from "./components/edge/edgeconfig";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
@@ -26,6 +25,7 @@ import { StringUtils } from "./utils/string/string.utils";
 addIcons({
     "oe-consumption": environment.icons.COMMON.CONSUMPTION,
     "oe-heatpump": environment.icons.COMPONENT.HEATPUMP,
+    "oe-heating-element": environment.icons.COMPONENT.HEATING_ELEMENT,
     "oe-selfconsumption": environment.icons.COMMON.SELFCONSUMPTION,
     "oe-evcs": environment.icons.COMPONENT.EVCS,
     "oe-grid": environment.icons.COMMON.GRID,
@@ -41,8 +41,7 @@ addIcons({
     "oe-info": environment.icons.STATUS.INFO,
     "oe-offline": environment.icons.COMMON.OFFLINE.CLOUD_OFFLINE_OUTLINE,
     "oe-time-of-use": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE,
-    "oe-time-of-use-thin":
-        environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
+    "oe-time-of-use-thin": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
     "oe-generator": environment.icons.COMMON.GENERATOR,
     "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
     "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
@@ -53,38 +52,17 @@ export class Permission {}
 
 export class EdgePermission {
     /**
-     * Checks if the edge has phase switching ability.
-     *
-     * @param edge The edge to check
-     * @returns True if the edge supports switching ability, false otherwise
-     */
-    public static hasPhaseSwitchingAbility(
-        edge: Edge,
-        component: EdgeConfig.Component,
-    ): boolean {
-        return (
-            EdgePermission.hasSwitchArchitecture(edge) &&
-            StringUtils.isInArr(component.factoryId, [
-                "Evse.ChargePoint.Keba.Modbus",
-                "Evse.ChargePoint.Keba.UDP",
-            ])
-        );
-    }
-
-    /**
      * Checks if the edge has the switchArchitecture jsonRpc logic.
      *
      * @param edge The edge to check
-     * @returns True if the edge has the switchArchitecture jsonRpc logic, false
-     *   otherwise
+     * @returns True if the edge has the switchArchitecture jsonRpc logic, false otherwise
      */
     public static hasSwitchArchitecture(edge: Edge): boolean {
         return edge.isVersionAtLeast("2025.12.4");
     }
 
     /**
-     * Checks if user is allowed to see {@link ProfileComponent} setup protocol
-     * download
+     * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
      *
      * @param edge The edge
      * @returns True, if user is at least {@link Role.OWNER}
@@ -94,46 +72,34 @@ export class EdgePermission {
     }
 
     /**
-     * Checks if the {@link EnergyJourneyComponent energy journey} is allowed to
-     * be seen
+     * Checks if the {@link EnergyJourneyComponent energy journey} is allowed to be seen
      *
      * @param ibnDate The ibn date - first setup protocol date
-     * @returns True, if ibnDate is at least one year ago and edge producttype
-     *   is 'Home 10'
+     * @returns True, if ibnDate is at least one year ago and edge producttype is 'Home 10'
      */
     public static isEnergyJourneyAllowed(edge: Edge): boolean {
-        const isDateAtLeastOneYearAgo = isBefore(
-            edge.firstSetupProtocol,
-            subDays(subYears(new Date(), 1), 1),
-        );
+        const isDateAtLeastOneYearAgo = isBefore(edge.firstSetupProtocol, subDays(subYears(new Date(), 1), 1));
         return (
             isDateAtLeastOneYearAgo && StringUtils.isInArr(edge.producttype, [])
         );
     }
 
     /**
-     * Gets the allowed history periods for this edge, used in
-     * {@link PickDatePopoverComponent} and if histroyPeriods exist, it gets the
-     * correspondent periods accordingly
+     * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent} and if histroyPeriods
+     * exist, it gets the correspondent periods accordingly
      *
      * @param edge The edge
      * @param historyPeriods The historyPeriods i.e 'day', 'week' or 'custom'
      * @returns The list of allowed periods for this edge
      */
-    public static getAllowedHistoryPeriods(
-        edge: Edge,
-        historyPeriods?: DefaultTypes.PeriodStringValues[],
-    ) {
+    public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
         if (historyPeriods?.length > 0) {
             return historyPeriods;
         }
 
         return Object.values(DefaultTypes.PeriodString).reduce((arr, el) => {
             // hide total, if no first ibn date
-            if (
-                el === DefaultTypes.PeriodString.TOTAL &&
-                edge?.firstSetupProtocol === null
-            ) {
+            if (el === DefaultTypes.PeriodString.TOTAL && edge?.firstSetupProtocol === null) {
                 return arr;
             }
 
@@ -147,11 +113,10 @@ export class EdgePermission {
     }
 
     /**
-     * Determines if the edge has its channels in the edgeconfig or if they
-     * should be obtained with a separate request.
+     * Determines if the edge has its channels in the edgeconfig or if they should be obtained with a separate request.
      *
-     * The reason this was introduced is to reduce the size of the EdgeConfig
-     * and therefore improve performance in network, backend, ui, edge.
+     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
+     * network, backend, ui, edge.
      *
      * @returns True if the channels are included in the edgeconfig
      */
@@ -160,22 +125,20 @@ export class EdgePermission {
     }
 
     /**
-     * Determines if the edge has only the factories which are used by the
-     * active components in the edgeconfig or if all factories are inlcuded.
+     * Determines if the edge has only the factories which are used by the active components in the edgeconfig or if all
+     * factories are inlcuded.
      *
-     * The reason this was introduced is to reduce the size of the EdgeConfig
-     * and therefore improve performance in network, backend, ui, edge.
+     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
+     * network, backend, ui, edge.
      *
-     * @returns True if only the factories of the used components are in the
-     *   edgeconfig
+     * @returns True if only the factories of the used components are in the edgeconfig
      */
     public static hasReducedFactories(edge: Edge): boolean {
         return edge.isVersionAtLeast("2024.6.1");
     }
 
     /**
-     * Checks if the edge version is at least 2025.12.1 to cover
-     * systemErrorAcknowledge JSON-RPC request.
+     * Checks if the edge version is at least 2025.12.1 to cover systemErrorAcknowledge JSON-RPC request.
      *
      * @param edge The edge to check
      * @returns True if the edge is 2025.12.1
@@ -219,8 +182,7 @@ export class UserPermission {
      * Checks if user is allowed to see {@link SystemRestartComponent}
      *
      * @param user The current user
-     * @returns True, if user is at least {@link Role.ADMIN} and edge version is
-     *   at least 2024.2.2
+     * @returns True, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
      */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
         const isAllowed = edge?.isVersionAtLeast("2024.2.2");
@@ -234,9 +196,7 @@ export class UserPermission {
      * @returns True, if user has access to see additional updates
      */
     public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
-        return (
-            edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN)
-        );
+        return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
     }
 }
 
@@ -244,8 +204,7 @@ export enum Producttype {}
 
 export namespace Currency {
     /**
-     * This method returns the corresponding label based on the user-selected
-     * currency in "core.meta."
+     * This method returns the corresponding label based on the user-selected currency in "core.meta."
      *
      * @param currency The currency enum.
      * @returns The Currencylabel
@@ -263,8 +222,7 @@ export namespace Currency {
     }
 
     /**
-     * This method returns the corresponding label for the chart based on the
-     * user-selected currency.
+     * This method returns the corresponding label for the chart based on the user-selected currency.
      *
      * @param currency The currency enum.
      * @returns The Currency Unit label
@@ -294,12 +252,12 @@ export namespace Currency {
 }
 
 export enum ChannelRegister {
-    "SetActivePowerEquals" = 706,
-    "SetReactivePowerEquals" = 708,
-    "SetActivePowerLessOrEquals" = 710,
-    "SetReactivePowerLessOrEquals" = 712,
-    "SetActivePowerGreaterOrEquals" = 714,
-    "SetReactivePowerGreaterOrEquals" = 716,
+    SetActivePowerEquals = 706,
+    SetReactivePowerEquals = 708,
+    SetActivePowerLessOrEquals = 710,
+    SetReactivePowerLessOrEquals = 712,
+    SetActivePowerGreaterOrEquals = 714,
+    SetReactivePowerGreaterOrEquals = 716,
 }
 
 export enum RippleControlReceiverRestrictionLevel {

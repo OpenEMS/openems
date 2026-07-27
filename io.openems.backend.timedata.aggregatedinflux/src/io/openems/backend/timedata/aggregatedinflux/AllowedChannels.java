@@ -60,6 +60,7 @@ public final class AllowedChannels {
 				.put("_sum/ConsumptionActivePowerL2", DataType.LONG) //
 				.put("_sum/ConsumptionActivePowerL3", DataType.LONG) //
 				.put("_sum/GridBuyPrice", DataType.DOUBLE) //
+				.put("_sum/GridSellPrice", DataType.DOUBLE) //
 				.put("_sum/UnmanagedConsumptionActivePower", DataType.LONG) //
 				.putAll(multiChannels(ctrlIoHeatPump, "Status", DataType.LONG)) //
 				.putAll(multiChannels(ess, "Soc", DataType.LONG)) //

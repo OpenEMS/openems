@@ -1,4 +1,4 @@
-import { Component, effect, inject } from "@angular/core";
+import { Component, effect, inject, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { v4 as uuidv4 } from "uuid";
 
@@ -21,15 +21,12 @@ import en from "./i18n/en.json";
 
 @Component({
     selector: "oe-header-message",
-    imports: [
-        CommonUiModule,
-        SystemStatusComponent,
-    ],
+    imports: [CommonUiModule, SystemStatusComponent],
     templateUrl: "./header-content.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [LiveDataServiceProvider],
 })
 export class AppHeaderContentComponent {
-
     protected message: string | null = null;
     protected isSmartphone: boolean = false;
     protected image: OeImageComponent["img"] | null = null;
@@ -56,9 +53,10 @@ export class AppHeaderContentComponent {
                 return;
             }
 
-            const imageUrl = this.userService.getValidBrowserTheme(currentUser.getThemeFromSettings()) === "dark"
-                ? environment.images.LOGO.DARK
-                : environment.images.LOGO.LIGHT;
+            const imageUrl =
+                this.userService.getValidBrowserTheme(currentUser.getThemeFromSettings()) === "dark"
+                    ? environment.images.LOGO.DARK
+                    : environment.images.LOGO.LIGHT;
             this.image = { url: imageUrl };
         });
 
@@ -66,9 +64,11 @@ export class AppHeaderContentComponent {
             const currentEdge = this.service.currentEdge();
 
             if (currentEdge != null) {
-                this.liveDataService.subscribeChannels([
-                    SystemStatusComponent.SUM_STATE_CHANNEL,
-                ], currentEdge, uuidv4());
+                this.liveDataService.subscribeChannels(
+                    [SystemStatusComponent.SUM_STATE_CHANNEL],
+                    currentEdge,
+                    uuidv4(),
+                );
             }
         });
 
@@ -80,13 +80,16 @@ export class AppHeaderContentComponent {
             if (currentUrl?.split("/")?.reverse()?.[0] === "live") {
                 this.setChannelValueToSumState(currentValue, showMessage);
                 return;
-            };
+            }
 
             this.setChannelValueToSumState(null, showMessage);
         });
     }
 
-    private setChannelValueToSumState(channelValue: TSignalValue<DataService["currentValue"]> | null, show: boolean = true) {
+    private setChannelValueToSumState(
+        channelValue: TSignalValue<DataService["currentValue"]> | null,
+        show: boolean = true,
+    ) {
         if (!show) {
             this.message = null;
             return;
@@ -94,18 +97,21 @@ export class AppHeaderContentComponent {
 
         const key = (function (): string | null {
             switch (channelValue?.allComponents[SystemStatusComponent.SUM_STATE_CHANNEL.toString()]) {
-                case 0: return "SYSTEM_STATUS_MESSAGE.OK";
-                case 1: return "SYSTEM_STATUS_MESSAGE.INFO";
-                case 2: return "SYSTEM_STATUS_MESSAGE.WARNING";
-                case 3: return "SYSTEM_STATUS_MESSAGE.FAULT";
-                default: return null;
+                case 0:
+                    return "SYSTEM_STATUS_MESSAGE.OK";
+                case 1:
+                    return "SYSTEM_STATUS_MESSAGE.INFO";
+                case 2:
+                    return "SYSTEM_STATUS_MESSAGE.WARNING";
+                case 3:
+                    return "SYSTEM_STATUS_MESSAGE.FAULT";
+                default:
+                    return null;
             }
-        }());
+        })();
 
         const message = key ? this.translate.instant(key) : null;
 
-        this.message = message != null && this.isSmartphone
-            ? message.replace("\n", "<br/>")
-            : message;
+        this.message = message != null && this.isSmartphone ? message.replace("\n", "<br/>") : message;
     }
 }

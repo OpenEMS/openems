@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { ComponentsModule } from "src/app/shared/components/components.module";
@@ -15,15 +14,10 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
     selector: "oe-controller-io-heatpump",
     templateUrl: "./flat.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        TranslateModule,
-        ComponentsModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [IonicModule, TranslateModule, ComponentsModule],
 })
 export class ControllerIoHeatpumpComponent extends AbstractFlatWidget {
-
     private static PROPERTY_MODE = "_PropertyMode";
     private static STATE_DISCONNECTED = 3;
 
@@ -69,16 +63,20 @@ export class ControllerIoHeatpumpComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-
         AssertionUtils.assertIsDefined(this.config);
         AssertionUtils.assertIsDefined(this.component);
-        this.isConnectionSuccessful = currentData.allComponents[this.componentId + "/State"] !== ControllerIoHeatpumpComponent.STATE_DISCONNECTED;
+        this.isConnectionSuccessful =
+            currentData.allComponents[this.componentId + "/State"] !== ControllerIoHeatpumpComponent.STATE_DISCONNECTED;
 
         // Status
-        this.statusValue = Converter.HEAT_PUMP_STATES(this.translate)(currentData.allComponents[this.componentId + "/Status"]);
+        this.statusValue = Converter.HEAT_PUMP_STATES(this.translate)(
+            currentData.allComponents[this.componentId + "/Status"],
+        );
 
         // Mode
-        this.mode = Converter.CONTROLLER_PROPERTY_MODES(this.translate)(currentData.allComponents[this.componentId + "/" + ControllerIoHeatpumpComponent.PROPERTY_MODE]);
+        this.mode = Converter.CONTROLLER_PROPERTY_MODES(this.translate)(
+            currentData.allComponents[this.componentId + "/" + ControllerIoHeatpumpComponent.PROPERTY_MODE],
+        );
 
         if (this.consumptionMeter) {
             this.activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];

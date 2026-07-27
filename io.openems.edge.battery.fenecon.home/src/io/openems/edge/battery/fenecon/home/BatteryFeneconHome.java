@@ -842,6 +842,13 @@ public interface BatteryFeneconHome extends Battery, ModbusComponent, OpenemsCom
 	}
 
 	/**
+	 * Gets the port of the battery inverter that is used.
+	 * 
+	 * @return {@link BatteryInverterPort}
+	 */
+	public BatteryInverterPort getBatteryInverterPort();
+
+	/**
 	 * Gets the Channel for {@link ChannelId#RACK_NUMBER_OF_BATTERY_BCU}.
 	 *
 	 * @return the Channel

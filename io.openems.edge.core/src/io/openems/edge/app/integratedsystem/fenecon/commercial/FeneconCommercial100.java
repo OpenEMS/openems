@@ -2,7 +2,6 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
@@ -47,9 +46,11 @@ import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCom
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.getExtendedGoodWeProperties;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.isGensetInstalled;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.vde4110Settings;
+import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
@@ -76,6 +77,8 @@ import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
+import io.openems.edge.app.enums.OptionsFactory;
+import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
@@ -106,6 +109,24 @@ public class FeneconCommercial100
 		extends AbstractOpenemsAppWithProps<FeneconCommercial100, FeneconCommercial100.PropertyParent, BundleParameter>
 		implements OpenemsApp, AppManagerUtilSupplier {
 
+	private enum ConnectedBatterySystems implements TranslatableEnum {
+		ONE("App.FENECON.Commercial.100.ConnectedBatterySystems.one"), //
+		TWO("App.FENECON.Commercial.100.ConnectedBatterySystems.two"), //
+		;
+
+		private final String translationKey;
+
+		ConnectedBatterySystems(String translationKey) {
+			this.translationKey = translationKey;
+		}
+
+		@Override
+		public String getTranslation(Language language) {
+			return translate(AbstractOpenemsApp.getTranslationBundle(language), this.translationKey);
+		}
+
+	}
+
 	public enum Property implements PropertyParent {
 		ALIAS(alias()), //
 
@@ -116,6 +137,13 @@ public class FeneconCommercial100
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
 							.equal(Exp.staticValue(AppSafetyCountry.GERMANY)));
+				}))),
+
+		CONNECTED_BATTERY_SYSTEMS(AppDef.copyOfGeneric(defaultDef(), appDef -> appDef//
+				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
+				.setDefaultValue(ConnectedBatterySystems.ONE) //
+				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
+					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -258,6 +286,9 @@ public class FeneconCommercial100
 				gridCode = null;
 			}
 
+			final var connectedBatterySystems = this.getEnum(p, ConnectedBatterySystems.class,
+					Property.CONNECTED_BATTERY_SYSTEMS);
+
 			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 
@@ -287,7 +318,7 @@ public class FeneconCommercial100
 
 			final EdgeConfig.Component batteryInverter;
 			if (gridCode == GridCode.VDE_4110) {
-				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(bundle,
+				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(t, bundle,
 						batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal, shadowManagementDisabled,
 						safetyCountry, feedInSetting, naProtection, gridCode.name(), this.goodWeDefs, //
 						propertyParent -> this.getJsonElementOrNull(p, propertyParent));
@@ -301,22 +332,37 @@ public class FeneconCommercial100
 			}
 
 			final var components = Lists.newArrayList(//
-					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
 					ComponentDef.from(batteryInverter), //
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
 					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
-					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
-					ComponentDef.from(power())); //
-
-			components.addAll(//
-					batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal).stream() //
-							.map(ComponentDef::from) //
-							.toList() //
+					ComponentDef.from(power()) //
 			);
+
+			switch (connectedBatterySystems) {
+			case ONE -> {
+				components.addAll(//
+						batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal).stream() //
+								.map(ComponentDef::from) //
+								.toList() //
+				);
+				components.add(
+						ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)));
+			}
+			case TWO -> {
+				final var battery1Id = "battery1";
+				final var battery2Id = "battery2";
+				components.add(
+						FeneconCommercialComponents.clusterBattery(bundle, batteryId, List.of(battery1Id, battery2Id)));
+				components.add(FeneconCommercialComponents.clusterBatterySlave1(bundle, battery1Id));
+				components.add(FeneconCommercialComponents.clusterBatterySlave2(bundle, battery2Id));
+				components.add(FeneconCommercialComponents.modbusForClusterSlaveBattery2(bundle, t,
+						modbusIdExternalMeters, deviceHardware));
+			}
+			}
 
 			if (hasEmergencyReserve) {
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));

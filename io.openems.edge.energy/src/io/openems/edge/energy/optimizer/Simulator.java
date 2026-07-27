@@ -11,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -282,7 +283,8 @@ public class Simulator {
 		final var availableCores = Runtime.getRuntime().availableProcessors() - 1;
 		if (availableCores > 1) {
 			// Executor is a Thread-Pool with CPU-Cores minus one
-			executor = new ForkJoinPool(availableCores);
+			var threadFactory = new OptimizerThreadFactory(OptimizerThreadFactory.KEY_JENETICS, Thread.MIN_PRIORITY);
+			executor = Executors.newFixedThreadPool(availableCores, threadFactory);
 			System.out.println("OPTIMIZER Executor runs on " + availableCores + " cores");
 		} else {
 			// Executor is the current thread
@@ -312,56 +314,62 @@ public class Simulator {
 			engine = engineInterceptor.apply(engine);
 		}
 
-		var stream = engine.build() //
-				.stream(initialPopulation) //
-				.limit(result -> !Thread.currentThread().isInterrupted());
-		if (evolutionStreamInterceptor != null) {
-			stream = evolutionStreamInterceptor.apply(stream);
-		}
+		try {
+			var stream = engine.build() //
+					.stream(initialPopulation) //
+					.limit(result -> !Thread.currentThread().isInterrupted());
+			if (evolutionStreamInterceptor != null) {
+				stream = evolutionStreamInterceptor.apply(stream);
+			}
 
-		final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
-		final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
+			final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
+			final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
 
-		// Start the evaluation
-		stream.forEach(er -> {
-			this.generationsCounter.set(er.generation());
-			var currentBest = er.bestPhenotype();
+			// Start the evaluation
+			stream.forEach(er -> {
+				this.generationsCounter.set(er.generation());
+				var currentBest = er.bestPhenotype();
 
-			// Update best phenotype
-			bestPt.updateAndGet(prev -> {
-				if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
-					return currentBest;
+				// Update best phenotype
+				bestPt.updateAndGet(prev -> {
+					if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
+						return currentBest;
+					}
+					return prev;
+				});
+
+				// Apply current best result
+				if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+					if (bestPt.get() == null) {
+						onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+					} else {
+						onBestResult.accept(SimulationResult.fromQuarters(//
+								this.goc, //
+								codec.decode(bestPt.get().genotype()), //
+								this.getTotalNumberOfSimulations(), //
+								this.getTotalNumberOfGenerations()));
+					}
+					// Fix current period form now on
+					isCurrentPeriodFixed.set(true);
 				}
-				return prev;
 			});
 
-			// Apply current best result
-			if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+			// Apply final best result
+			if (Instant.now().isAfter(earliestCallback)) {
 				if (bestPt.get() == null) {
 					onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
-				} else {
-					onBestResult.accept(SimulationResult.fromQuarters(//
-							this.goc, //
-							codec.decode(bestPt.get().genotype()), //
-							this.getTotalNumberOfSimulations(), //
-							this.getTotalNumberOfGenerations()));
+					return;
 				}
-				// Fix current period form now on
-				isCurrentPeriodFixed.set(true);
+				onBestResult.accept(SimulationResult.fromQuarters(//
+						this.goc, //
+						codec.decode(bestPt.get().genotype()), //
+						this.getTotalNumberOfSimulations(), //
+						this.getTotalNumberOfGenerations()));
 			}
-		});
-
-		// Apply final best result
-		if (Instant.now().isAfter(earliestCallback)) {
-			if (bestPt.get() == null) {
-				onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
-				return;
+		} finally {
+			if (executor instanceof ThreadPoolExecutor poolExecutor) {
+				poolExecutor.shutdownNow();
 			}
-			onBestResult.accept(SimulationResult.fromQuarters(//
-					this.goc, //
-					codec.decode(bestPt.get().genotype()), //
-					this.getTotalNumberOfSimulations(), //
-					this.getTotalNumberOfGenerations()));
 		}
 	}
 

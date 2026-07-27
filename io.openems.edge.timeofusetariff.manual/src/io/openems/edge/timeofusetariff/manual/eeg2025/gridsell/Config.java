@@ -18,7 +18,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Fixed Grid-Sell Price", description = "Fixed price for electricity sold to the grid")
+	@AttributeDefinition(name = "Fixed Grid-Sell Price in [Cent/kWh]", description = "Fixed price for electricity sold to the grid")
 	double fixedGridSellPrice() default 0.0;
 
 	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD, required = false)

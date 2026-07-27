@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -12,6 +12,7 @@ import en from "./i18n/en.json";
 @Component({
     selector: "enerixControl-overview",
     templateUrl: "./overview.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ControllerEnerixOverviewComponent extends AbstractHistoryChartOverview {
@@ -30,13 +31,11 @@ export class ControllerEnerixOverviewComponent extends AbstractHistoryChartOverv
         private translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
-        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then(
-            (translations) => {
-                for (const { lang, translation, shouldMerge } of translations) {
-                    translate.setTranslation(lang, translation, shouldMerge);
-                }
-            },
-        );
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
     }
 
     protected setChartConfig(event: ChartTypes.ChartConfig) {

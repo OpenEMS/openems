@@ -4,13 +4,14 @@ import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -37,7 +38,7 @@ public class AppManagerAppHelperImplTest {
 	private TestBDependencyToC testBApp;
 	private TestC testCApp;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -301,7 +302,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(1, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testDependencyDeletePolicyNotAllowed() throws OpenemsNamedException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
@@ -315,8 +316,8 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var instance = this.getAppByAppId(this.testCApp.getAppId());
-		this.appManagerTestBundle.sut.handleDeleteAppInstanceRequest(DUMMY_ADMIN,
-				new DeleteAppInstance.Request(instance.instanceId));
+		assertThrows(OpenemsNamedException.class, () -> this.appManagerTestBundle.sut
+				.handleDeleteAppInstanceRequest(DUMMY_ADMIN, new DeleteAppInstance.Request(instance.instanceId)));
 	}
 
 	@Test
@@ -348,7 +349,7 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, instance.properties.get("NUMBER").getAsInt());
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testDependencyUpdatePolicyAllowNone()
 			throws OpenemsNamedException, InterruptedException, ExecutionException {
 		assertEquals(0, this.appManagerTestBundle.sut.getInstantiatedApps().size());
@@ -364,11 +365,12 @@ public class AppManagerAppHelperImplTest {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		var newAlias = "newAppAlias";
-		this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
-				new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
-						JsonUtils.buildJsonObject() //
-								.addProperty("NUMBER", 2) //
-								.build()));
+		assertThrows(OpenemsNamedException.class,
+				() -> this.appManagerTestBundle.sut.handleUpdateAppInstanceRequest(DUMMY_ADMIN,
+						new UpdateAppInstance.Request(this.getAppByAppId(this.testCApp.getAppId()).instanceId, newAlias,
+								JsonUtils.buildJsonObject() //
+										.addProperty("NUMBER", 2) //
+										.build())));
 	}
 
 	@Test

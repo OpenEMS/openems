@@ -6,9 +6,7 @@ export namespace NumberUtils {
      * @param value The value
      * @returns The casted value if parsable, else null
      */
-    export function parseNumberSafely(
-        value: number | string | null,
-    ): number | null {
+    export function parseNumberSafely(value: number | string | null): number | null {
         if (value == null || value == "") {
             return null;
         }
@@ -27,10 +25,7 @@ export namespace NumberUtils {
      * @param orElse The orElse if value is not parsable
      * @returns The casted value if parsable, else null
      */
-    export function parseNumberSafelyOrElse(
-        value: number | string | null,
-        orElse: number,
-    ): number {
+    export function parseNumberSafelyOrElse(value: number | string | null, orElse: number): number {
         if (value == null) {
             return orElse;
         }
@@ -70,9 +65,7 @@ export namespace NumberUtils {
      * @param values The values
      * @returns A number, if at least one value is not null, else null
      */
-    export function subtractSafely(
-        ...values: (number | null)[]
-    ): number | null {
+    export function subtractSafely(...values: (number | null)[]): number | null {
         return values
             .filter((value) => value !== null && value !== undefined)
             .reduce((sum: number | null, curr: number) => {
@@ -91,13 +84,9 @@ export namespace NumberUtils {
      *
      * @param dividend The dividend value
      * @param divisor The divisor value
-     * @returns The quotient, if both values are not null and divisor is not
-     *   zero, else null
+     * @returns The quotient, if both values are not null and divisor is not zero, else null
      */
-    export function divideSafely(
-        dividend: number | null,
-        divisor: number | null,
-    ): number | null {
+    export function divideSafely(dividend: number | null, divisor: number | null): number | null {
         if (dividend == null || divisor == null) {
             return null;
         } else if (divisor == 0) {
@@ -113,9 +102,7 @@ export namespace NumberUtils {
      * @param values The values
      * @returns A number, if at least one value is not null, else null
      */
-    export function multiplySafely(
-        ...values: (number | null)[]
-    ): number | null {
+    export function multiplySafely(...values: (number | null)[]): number | null {
         const [firstFactor, ...furtherFactors] = values;
         if (firstFactor == null) {
             return null;
@@ -135,8 +122,7 @@ export namespace NumberUtils {
      * Ceils a value safely.
      *
      * @param value The value
-     * @returns The smallest integer greater than or equal to its numeric
-     *   argument, if valid, else null
+     * @returns The smallest integer greater than or equal to its numeric argument, if valid, else null
      */
     export function ceilSafely(value: number | null): number | null {
         if (value === null) {
@@ -149,8 +135,7 @@ export namespace NumberUtils {
      * Floors a value safely.
      *
      * @param value The value
-     * @returns The greatest integer less than or equal to its numeric argument,
-     *   if valid, else null
+     * @returns The greatest integer less than or equal to its numeric argument, if valid, else null
      */
     export function floorSafely(value: number | null): number | null {
         if (value === null) {
@@ -166,10 +151,7 @@ export namespace NumberUtils {
      * @param atMost The max number to be allowed
      * @returns The value
      */
-    export function convertNumberToBeAtMost(
-        value: number | null,
-        atMost: number,
-    ): number | null {
+    export function convertNumberToBeAtMost(value: number | null, atMost: number): number | null {
         if (value == null) {
             return value;
         }
@@ -186,5 +168,22 @@ export namespace NumberUtils {
      */
     export function isPresentNumber(value: unknown): value is number {
         return typeof value === "number" && Number.isFinite(value);
+    }
+
+    /**
+     * Converts a number to a boolean.
+     *
+     * @param value The value to convert
+     * @param orElse The value to return if the input is not 0 or 1
+     * @returns False for 0, true for 1, else orElse
+     */
+    export function numberToBooleanOrElse(value: 0 | 1, orElse: boolean): boolean {
+        if (value === 0) {
+            return false;
+        }
+        if (value === 1) {
+            return true;
+        }
+        return orElse;
     }
 }

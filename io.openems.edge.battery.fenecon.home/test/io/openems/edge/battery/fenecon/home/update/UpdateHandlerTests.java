@@ -24,7 +24,6 @@ import io.openems.edge.battery.fenecon.home.update.j2mod.BatteryUpdateModbusRtuT
 import io.openems.edge.bridge.modbus.test.ModbusSlaveMock;
 import io.openems.edge.bridge.modbus.test.SerialConnectionMock;
 import io.openems.edge.common.update.ProgressPublisher;
-import io.openems.edge.common.update.Updateable;
 
 public class UpdateHandlerTests {
 	static final int BATTERY_UNIT_ID = 1;
@@ -39,7 +38,7 @@ public class UpdateHandlerTests {
 		var ports = SerialConnectionMock.create(serialParams);
 		var transport = new BatteryUpdateModbusRtuTransport();
 		var clientConn = ports.createClientConnection();
-		var batterySlave = ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
+		ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
 				() -> new BatterySerialListenerMock(clientConn), transport);
 
 		try {
@@ -51,7 +50,7 @@ public class UpdateHandlerTests {
 			var updateParamsProvider = new MockUpdateParamsProvider();
 			var updateParams = updateParamsProvider.getParams(BATTERY_TYPE);
 
-			var updateable = new BatteryFeneconHomeUpdateable(null, BATTERY_UNIT_ID, updateParamsProvider,
+			var updateable = new BatteryFeneconHomeUpdateable(null, "battery", BATTERY_UNIT_ID, updateParamsProvider,
 					new MockBatteryData(), LoggerFactory.getLogger(BatteryFeneconHomeUpdateable.class)) {
 			};
 
@@ -108,9 +107,8 @@ public class UpdateHandlerTests {
 	private static class MockUpdateParamsProvider implements BatteryFeneconHomeUpdateParams {
 
 		@Override
-		public Updateable.UpdateableMetaInfo getMetaInfo() {
-			return new Updateable.UpdateableMetaInfo("Fenecon Home Battery", "Update for Fenecon Home Battery",
-					Role.ADMIN);
+		public UpdateInfo getMetaInfo() {
+			return new UpdateInfo("Fenecon Home Battery", Role.ADMIN);
 		}
 
 		@Override

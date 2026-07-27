@@ -1,29 +1,39 @@
+import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormBuilder } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { Service } from "src/app/shared/service/service";
+import { UserService } from "src/app/shared/service/user.service";
+import { Websocket } from "src/app/shared/service/websocket";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
-import { ControllerHeatComponent, Status, State } from "./flat";
+import { HeatStatus } from "../shared/shared";
+import { ControllerHeatComponent } from "./flat";
 
 /**
  * Minimal unit tests for {@link ControllerHeatComponent}.
  *
- * The component extends {@link AbstractFlatWidget}, which has a heavy DI graph
- * (Websocket, Service, ModalController, ...). To keep these tests minimal we
- * exercise the two pieces of pure logic directly via the prototype, supplying
- * a stub `this` context with only the fields the methods read.
+ * The component extends {@link AbstractFlatWidget}, which has a heavy DI graph (Websocket, Service, ModalController,
+ * ...). To keep these tests minimal we exercise the two pieces of pure logic directly via the prototype, supplying a
+ * stub `this` context with only the fields the methods read.
  */
 describe("ControllerHeatComponent", () => {
-
     function callGetChannelAddresses(component: EdgeConfig.Component | null): ChannelAddress[] {
         const stub = { component } as ControllerHeatComponent;
         return (ControllerHeatComponent.prototype as any).getChannelAddresses.call(stub);
     }
 
-    function callOnCurrentData(component: EdgeConfig.Component, currentData: CurrentData): { statusNumber: number | null, state: State | null } {
-        const stub: any = { component, statusNumber: null, state: null };
+    function callOnCurrentData(component: EdgeConfig.Component, currentData: CurrentData): HeatStatus | null {
+        const stub: any = Object.create(ControllerHeatComponent.prototype);
+        stub.component = component;
+        stub.displayStatus = null;
         (ControllerHeatComponent.prototype as any).onCurrentData.call(stub, currentData);
-        return { statusNumber: stub.statusNumber, state: stub.status };
+        return stub.displayStatus;
     }
 
     describe("#getChannelAddresses()", () => {
-
         it("returns an empty list when component is null", () => {
             expect(callGetChannelAddresses(null)).toEqual([]);
         });
@@ -63,56 +73,104 @@ describe("ControllerHeatComponent", () => {
             return { allComponents: values } as CurrentData;
         }
 
-        it("maps standby / excess / ControlNotAllowed to heating", () => {
-            for (const status of [Status.standby, Status.excess, Status.ControlNotAllowed]) {
+        it("maps heating-like backend states to EXCESS for the legacy heat display converter", () => {
+            for (const status of [HeatStatus.STANDBY, HeatStatus.EXCESS, HeatStatus.CONTROL_NOT_ALLOWED]) {
                 const result = callOnCurrentData(component, dataWith({ "heat0/Status": status }));
 
-                expect(result.statusNumber).toBe(status);
-                expect(result.state).toBe(State.heating);
+                expect(result).toBe(HeatStatus.EXCESS);
             }
         });
 
-        it("maps temperatureReached to temperatureReached", () => {
-            const result = callOnCurrentData(component, dataWith({ "heat0/Status": Status.temperatureReached }));
+        it("keeps TEMPERATURE_REACHED as the display status", () => {
+            const result = callOnCurrentData(component, dataWith({ "heat0/Status": HeatStatus.TEMPERATURE_REACHED }));
 
-            expect(result.state).toBe(State.temperatureReached);
+            expect(result).toBe(HeatStatus.TEMPERATURE_REACHED);
         });
 
-        it("maps noControlSignal with positive ActivePower to heating", () => {
-            const result = callOnCurrentData(component, dataWith({
-                "heat0/Status": Status.noControlSignal,
-                "heat0/ActivePower": 500,
-            }));
+        it("maps NO_CONTROL_SIGNAL with positive ActivePower to EXCESS for display", () => {
+            const result = callOnCurrentData(
+                component,
+                dataWith({
+                    "heat0/Status": HeatStatus.NO_CONTROL_SIGNAL,
+                    "heat0/ActivePower": 500,
+                }),
+            );
 
-            expect(result.state).toBe(State.heating);
+            expect(result).toBe(HeatStatus.EXCESS);
         });
 
-        it("maps noControlSignal without ActivePower to noHeating", () => {
-            const result = callOnCurrentData(component, dataWith({
-                "heat0/Status": Status.noControlSignal,
-                "heat0/ActivePower": 0,
-            }));
+        it("keeps NO_CONTROL_SIGNAL as the display status when ActivePower is zero", () => {
+            const result = callOnCurrentData(
+                component,
+                dataWith({
+                    "heat0/Status": HeatStatus.NO_CONTROL_SIGNAL,
+                    "heat0/ActivePower": 0,
+                }),
+            );
 
-            expect(result.state).toBe(State.noHeating);
+            expect(result).toBe(HeatStatus.NO_CONTROL_SIGNAL);
         });
 
-        it("maps error to noHeating", () => {
-            const result = callOnCurrentData(component, dataWith({ "heat0/Status": Status.error }));
+        it("maps ERROR to NO_CONTROL_SIGNAL for display", () => {
+            const result = callOnCurrentData(component, dataWith({ "heat0/Status": HeatStatus.ERROR }));
 
-            expect(result.state).toBe(State.noHeating);
+            expect(result).toBe(HeatStatus.NO_CONTROL_SIGNAL);
         });
 
-        it("falls back to error/noHeating when Status channel is missing", () => {
+        it("maps a missing Status channel to NO_CONTROL_SIGNAL for display", () => {
             const result = callOnCurrentData(component, dataWith({}));
 
-            expect(result.statusNumber).toBe(Status.error);
-            expect(result.state).toBe(State.noHeating);
+            expect(result).toBe(HeatStatus.NO_CONTROL_SIGNAL);
         });
 
-        it("maps unknown status numbers to noHeating", () => {
+        it("maps unknown status numbers to NO_CONTROL_SIGNAL for display", () => {
             const result = callOnCurrentData(component, dataWith({ "heat0/Status": 99 }));
 
-            expect(result.state).toBe(State.noHeating);
+            expect(result).toBe(HeatStatus.NO_CONTROL_SIGNAL);
+        });
+    });
+
+    describe("template", () => {
+        let fixture: ComponentFixture<ControllerHeatComponent>;
+
+        beforeEach(async () => {
+            await TestBed.configureTestingModule({
+                declarations: [ControllerHeatComponent],
+                imports: [TranslateModule.forRoot()],
+                providers: [
+                    FormBuilder,
+                    { provide: ActivatedRoute, useValue: {} },
+                    {
+                        provide: DataService,
+                        useValue: {
+                            currentValue: signal({ allComponents: {} }),
+                            subscribeChannels: () => {},
+                            unsubscribeFromChannels: () => {},
+                        },
+                    },
+                    { provide: ModalController, useValue: {} },
+                    { provide: Router, useValue: {} },
+                    { provide: Service, useValue: { getCurrentEdge: () => new Promise(() => {}) } },
+                    { provide: UserService, useValue: { isNewNavigation: signal(false) } },
+                    { provide: Websocket, useValue: {} },
+                ],
+                schemas: [NO_ERRORS_SCHEMA],
+            }).compileComponents();
+        });
+
+        it("binds the display status to the status line instead of the raw backend status", () => {
+            fixture = TestBed.createComponent(ControllerHeatComponent);
+            const component = fixture.componentInstance as any;
+            component.ngOnInit = () => {};
+            component.isInitialized = true;
+            component.component = new EdgeConfig.Component("heat0", "Heat", true, false, "Heat.MyPv.AcThor9s", {});
+            component.modalComponent = null;
+            component.displayStatus = HeatStatus.EXCESS;
+
+            fixture.detectChanges();
+
+            const statusLine = fixture.nativeElement.querySelector("oe-flat-widget-line");
+            expect(statusLine.value).toBe(HeatStatus.EXCESS);
         });
     });
 });

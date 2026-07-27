@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { v4 as uuidv4 } from "uuid";
 
@@ -6,15 +6,12 @@ import { v4 as uuidv4 } from "uuid";
     selector: "oe-help-popover-button",
     templateUrl: "./help-popover.html",
     standalone: true,
-    imports: [
-        IonicModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [IonicModule],
 })
 export class HelpPopoverButtonComponent {
-
     @Input({ required: true }) public helpMsg: string | null = null;
     @Output() public didPopoverDismiss: EventEmitter<any> = new EventEmitter();
 
     protected uuid: string = uuidv4();
-
-};
+}

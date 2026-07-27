@@ -27,8 +27,7 @@ public enum Wrappers {
 	/**
 	 * Checkbox with hint.
 	 */
-	CHECKBOX_WITH_HINT("checkbox-with-hint")
-	;
+	CHECKBOX_WITH_HINT("checkbox-with-hint");
 
 	private final String wrapperClass;
 

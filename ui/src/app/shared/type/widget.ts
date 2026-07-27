@@ -5,15 +5,15 @@ import { EdgePermission } from "../shared";
 import { TEnumKeys } from "./utility";
 
 export enum WidgetClass {
-    "Energymonitor",
-    "Common_Autarchy",
-    "Common_Selfconsumption",
-    "Storage",
-    "Grid",
-    "Common_Production",
-    "Consumption",
-    "Controller_ChannelThreshold",
-    "Controller_Io_Digital_Outputs",
+    Energymonitor,
+    Common_Autarchy,
+    Common_Selfconsumption,
+    Storage,
+    Grid,
+    Common_Production,
+    Consumption,
+    Controller_ChannelThreshold,
+    Controller_Io_Digital_Outputs,
 }
 
 export enum WidgetNature {

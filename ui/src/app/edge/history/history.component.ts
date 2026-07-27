@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, OnInit } from "@angular/core";
+import { Component, effect, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
@@ -14,10 +14,10 @@ import { environment } from "src/environments";
 @Component({
     selector: "history",
     templateUrl: "./history.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class HistoryComponent implements OnInit {
-
     // is a Timedata service available, i.e. can historic data be queried.
     public isTimedataAvailable: boolean = true;
 
@@ -44,7 +44,6 @@ export class HistoryComponent implements OnInit {
         protected navigationService: NavigationService,
         private layoutRefresh: LayoutRefreshService,
     ) {
-
         effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
@@ -53,13 +52,21 @@ export class HistoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.service.getConfig().then(async config => {
+        this.service.getConfig().then(async (config) => {
             this.config = config;
             config.hasStorage();
-            this.widgets = await this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge);
+            this.widgets = await this.navigationService.getWidgets(
+                config.widgets,
+                this.userService.currentUser(),
+                this.edge,
+            );
             // Are we connected to OpenEMS Edge and is a timedata service available?
-            if (environment.backend == "OpenEMS Edge"
-                && config.getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata").filter(c => c.isEnabled).length == 0) {
+            if (
+                environment.backend == "OpenEMS Edge" &&
+                config
+                    .getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata")
+                    .filter((c) => c.isEnabled).length == 0
+            ) {
                 this.isTimedataAvailable = false;
             }
         });
@@ -70,16 +77,12 @@ export class HistoryComponent implements OnInit {
     }
 
     updateOnWindowResize() {
-        const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
-            /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
-        this.socChartHeight =
-            /* minimum size */ Math.max(150,
-                /* maximum size */ Math.min(200, ref),
-            ) + "px";
-        this.energyChartHeight =
-            /* minimum size */ Math.max(300,
-                /* maximum size */ Math.min(600, ref),
-            ) + "px";
+        const ref = /* fix proportions */ Math.min(
+            window.innerHeight - 150,
+            /* handle grid breakpoints */ window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400,
+        );
+        this.socChartHeight = /* minimum size */ Math.max(150, /* maximum size */ Math.min(200, ref)) + "px";
+        this.energyChartHeight = /* minimum size */ Math.max(300, /* maximum size */ Math.min(600, ref)) + "px";
     }
 
     onDomChange(event: CustomEvent) {
@@ -91,5 +94,4 @@ export class HistoryComponent implements OnInit {
     protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
         this.errorResponse = errorResponse;
     }
-
 }

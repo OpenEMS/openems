@@ -226,16 +226,17 @@ export class NavigationService {
             return null;
         }
 
-        if (NavigationService.matchesNavigationUrl(navigationTree, url)) {
-            return navigationTree;
-        }
-
         const childMatch = NavigationService.findNavigationIdInCandidates(
             navigationTree.getChildren(),
             url,
         );
         if (childMatch != null) {
             return childMatch;
+        }
+
+        // Prefer the deepest matching node over a parent/group match.
+        if (NavigationService.matchesNavigationUrl(navigationTree, url)) {
+            return navigationTree;
         }
 
         if (!searchParent || navigationTree.parent == null) {

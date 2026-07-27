@@ -8,6 +8,8 @@
         "ENERGY_MANAGEMENT": "Energiemanagementsystem",
         "FAQ": "Häufig gestellte Fragen (FAQ)",
         "LANGUAGE": "Sprache wählen:",
+        "THEME": "Theme",
+        "NEW_UI": "Neues UI",
         "OPEN_EMS": "Mehr zu OpenEMS",
         "PATCHNOTES": "Änderungen im Monitoring zu diesem Build"
     },
@@ -40,6 +42,7 @@
                 "WARNING": "Warnungs Benachrichtigung"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Verfügbar",
                 "BUY_APP": "Lizenzschlüssel kaufen",
                 "CARDINALITY": "Kardinalität",
@@ -118,6 +121,7 @@
                 "CONTROLLER": "Anwendungen",
                 "DATA_STORAGE": "Datenspeicher",
                 "EXECUTE_SIMULATOR": "Simulationen ausführen",
+                "EXPORT": "Export",
                 "EXPORT_CHANNELS": "Export Kanäle",
                 "GENERAL_DATA": "Allgemeine Daten",
                 "LIVE_LOG": "Live Systemprotokoll",
@@ -436,10 +440,12 @@
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen deines AC-Thor Heizstabes kannst du in der MyPV-App vornehmen.",
-                    "HEATING": "heizt",
+                    "CONTROL_NOT_ALLOWED": "Steuerung nicht erlaubt",
+                    "ERROR": "Fehler",
+                    "HEATING": "Heizt",
                     "HEATING_ENERGY": "Heizenergie",
                     "HEATING_OUTPUT": "Heizleistung",
-                    "NO_HEATING": "heizt nicht",
+                    "NO_HEATING": "Heizt nicht",
                     "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht",
                     "TEMPERATURE": "Wassertemperatur",
                     "TEMPERATURE_UNIT": "Wassertemperatur in °C"
@@ -525,7 +531,9 @@
                     "SWITCH_ON_ABOVE": "Einschalten über",
                     "SWITCH_ON_BELOW": "Einschalten unter",
                     "SWITCHED_LOAD_POWER": "Geschaltete Last",
-                    "THRESHOLD": "Schwellenwert"
+                    "THRESHOLD": "Schwellenwert",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Einschalten über Schwellenwert",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Einschalten unter Schwellenwert"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
@@ -858,6 +866,7 @@
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
+            "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
             "HEATING_ROOM": "Heizung",
             "BRAIINS": "Bitcoin Miner"
         },

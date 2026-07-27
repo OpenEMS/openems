@@ -8,7 +8,6 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-
 /* Core CSS required for Ionic components to work properly */
 @use "node_modules/@ionic/angular/css/core.css" as *;
 @use "node_modules/@ionic/angular/css/display.css" as *;
@@ -61,6 +60,7 @@ input:-webkit-autofill:focus {
 }
 
 .hide-empty-list-header {
+
     // Guarantees evenly space between list-items
     ion-list {
         padding: 0;
@@ -211,8 +211,9 @@ ion-select::part(icon) {
 }
 
 .line-break {
-    formly-wrapper-ion-form-field > ion-item > ion-label > span > small,
-    formly-field-ion-radio > ion-list > ion-radio-group > ion-item > ion-label {
+
+    formly-wrapper-ion-form-field>ion-item>ion-label>span>small,
+    formly-field-ion-radio>ion-list>ion-radio-group>ion-item>ion-label {
         white-space: pre-line !important;
         line-height: 1.6 !important;
     }
@@ -422,6 +423,7 @@ formly-input-section {
     }
 
     ion-card {
+
         ion-card-title,
         ion-card-subtitle {
             color: var(--ion-text-color);

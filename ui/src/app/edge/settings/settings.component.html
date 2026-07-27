@@ -97,22 +97,6 @@
               </ion-card>
             </ion-col>
           }
-          @if (showEnergyJourney()) {
-            <ion-col size="12" size-sm="4">
-              <ion-card>
-                <ion-item lines="full" color="light">
-                  <ion-icon slot="start" size="large" color="primary" name="analytics"></ion-icon>
-                  <ion-label>Energy Journey</ion-label>
-                </ion-item>
-                <ion-card-content>
-                  <oe-flat-button [link]="{ text: '/device/' + edge.id + '/settings/energyJourney' }">
-                    {{ "GENERAL.OPEN" | translate | uppercase }}
-                    <ion-icon name="arrow-forward-outline"></ion-icon>
-                  </oe-flat-button>
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
-          }
         </ion-row>
         @if (isAtLeastAdmin) {
           <ion-row justify-content-left>

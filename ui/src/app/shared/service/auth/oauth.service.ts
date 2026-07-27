@@ -11,9 +11,10 @@ import { States } from "../../ngrx-store/states";
 import { Language } from "../../type/language";
 import { TSignalValue } from "../../type/utility";
 import { StringUtils } from "../../utils/string/string.utils";
+import { RouteService } from "../route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
-import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse, } from "./jsonrpc";
+import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
 
 export enum AUTHENTICATION_STATE {
     NOT_AUTHENTICATED,
@@ -25,14 +26,13 @@ export enum AUTHENTICATION_STATE {
 export class OAuthService {
     public static readonly REFRESH_TOKEN: string = "refresh_token";
 
-    private state: WritableSignal<AUTHENTICATION_STATE> = signal(
-        AUTHENTICATION_STATE.NOT_AUTHENTICATED,
-    );
+    private state: WritableSignal<AUTHENTICATION_STATE> = signal(AUTHENTICATION_STATE.NOT_AUTHENTICATED);
     private service: Service = inject(Service);
     private cookieService: CookieService = inject(CookieService);
     private router: Router = inject(Router);
     private userService: UserService = inject(UserService);
     private platformService: PlatFormService = inject(PlatFormService);
+    private readonly routeService: RouteService = inject(RouteService);
 
     constructor() {
         App.addListener("appUrlOpen", (data: URLOpenListenerEvent) => {
@@ -48,10 +48,7 @@ export class OAuthService {
     }
 
     public static isOAuth(cookieService: CookieService) {
-        return (
-            cookieService.check(OAuthService.REFRESH_TOKEN) &&
-            environment.backend === "OpenEMS Backend"
-        );
+        return cookieService.check(OAuthService.REFRESH_TOKEN) && environment.backend === "OpenEMS Backend";
     }
 
     public static getRedirectUri(plaformService: PlatFormService) {
@@ -92,8 +89,7 @@ export class OAuthService {
             return null;
         }
 
-        const indexOfFragment =
-            code.indexOf("#") > 0 ? code.indexOf("#") : null;
+        const indexOfFragment = code.indexOf("#") > 0 ? code.indexOf("#") : null;
         return code.substring(0, indexOfFragment ?? code.length);
     }
 
@@ -130,17 +126,13 @@ export class OAuthService {
     }
 
     /**
-     * Executes after redirecting from external authentication service back to
-     * UI
+     * Executes after redirecting from external authentication service back to UI
      *
      * @param code The current code
      * @param oauthState The current oauth state
      * @returns
      */
-    public getTokenByCode(
-        code: string,
-        oauthState: { state: string; identifier: string } | null,
-    ) {
+    public getTokenByCode(code: string, oauthState: { state: string; identifier: string } | null) {
         if (oauthState == null) {
             return;
         }
@@ -168,9 +160,7 @@ export class OAuthService {
      *
      * @param tokenResponse The token response from authentication
      */
-    public completeAuthentication(
-        tokenResponse: AuthenticateWithOAuthResponse,
-    ): Promise<void> {
+    public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse): Promise<void> {
         return new Promise<void>((res) => {
             const user = User.from(tokenResponse.result.user);
             if (user == null) {
@@ -190,32 +180,22 @@ export class OAuthService {
 
             const language =
                 Language.getByKey(
-                    localStorage.DEMO_LANGUAGE ??
-                        this?.userService
-                            ?.currentUser()
-                            ?.language?.toLocaleLowerCase(),
+                    localStorage.DEMO_LANGUAGE ?? this?.userService?.currentUser()?.language?.toLocaleLowerCase(),
                 ) ?? Language.DEFAULT;
             localStorage.LANGUAGE = language.key;
             this.service.setLang(language);
 
-            const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
-            if (initialUrl == null) {
-                this.router.navigate(["/overview"]);
+            const currentUrl = this.routeService.currentUrl();
+            const isAuthenticatedNavi = (currentUrl?.split("/")?.length ?? 0) > 2;
+
+            if (isAuthenticatedNavi && currentUrl != null) {
+                this.router.navigateByUrl(currentUrl);
                 res();
                 return;
             }
 
-            const isAuthenticatedNavi =
-                initialUrl?.toString()?.split("/")?.length > 2;
-            if (isAuthenticatedNavi && initialUrl != null) {
-                this.router.navigate([initialUrl.toString()], {
-                    queryParams: initialUrl.queryParams,
-                });
-                res();
-                return;
-            }
-
-            this.router.navigate(["/overview"]);
+            // Fallback
+            this.router.navigateByUrl("/overview");
             res();
         });
     }
@@ -247,17 +227,16 @@ export class OAuthService {
             return null;
         }
 
-        const [err, response] =
-            await JsonRpcUtils.handleResponse<AuthenticateWithOAuthResponse>(
-                this.service.websocket.sendRequest(
-                    new AuthenticateWithOAuthRequest({
-                        payload: new JsonrpcRequest("getTokenByRefreshToken", {
-                            refreshToken: refreshToken,
-                            ...OAuthService.getOem(),
-                        }),
+        const [err, response] = await JsonRpcUtils.handleResponse<AuthenticateWithOAuthResponse>(
+            this.service.websocket.sendRequest(
+                new AuthenticateWithOAuthRequest({
+                    payload: new JsonrpcRequest("getTokenByRefreshToken", {
+                        refreshToken: refreshToken,
+                        ...OAuthService.getOem(),
                     }),
-                ),
-            );
+                }),
+            ),
+        );
 
         if (err || response == null) {
             this.service.websocket.logout();
@@ -278,11 +257,6 @@ export class OAuthService {
      * @param result The authentication response result
      */
     private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
-        this.cookieService.set(
-            OAuthService.REFRESH_TOKEN,
-            JSON.stringify(result.refreshToken),
-            14,
-            "/",
-        );
+        this.cookieService.set(OAuthService.REFRESH_TOKEN, JSON.stringify(result.refreshToken), 14, "/");
     }
 }

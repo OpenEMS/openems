@@ -1,4 +1,4 @@
-import { Component, effect } from "@angular/core";
+import { Component, effect, ChangeDetectionStrategy } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { FormlyModule } from "@ngx-formly/core";
@@ -11,22 +11,16 @@ import { environment } from "src/environments";
 import { CommonUiModule } from "../../../../shared/common-ui.module";
 import { Connect } from "./jsonrpc/connect";
 import { DisconnectOAuthConnection } from "./jsonrpc/disconnectOAuthConnection";
-import { GetAllOAuthProvider, OAuthMetaInfo, } from "./jsonrpc/getAllOAuthProvider";
-import { ConnectionState, GetOAuthConnectionState, } from "./jsonrpc/getOAuthConnectionState";
+import { GetAllOAuthProvider, OAuthMetaInfo } from "./jsonrpc/getAllOAuthProvider";
+import { ConnectionState, GetOAuthConnectionState } from "./jsonrpc/getOAuthConnectionState";
 import { InitiateConnect } from "./jsonrpc/initiateConnect";
 
 @Component({
     selector: OAuthIndexComponent.SELECTOR,
     templateUrl: "./oauth.component.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        PipeComponentsModule,
-        RouterModule,
-        FormsModule,
-        FormlyModule,
-        ReactiveFormsModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, PipeComponentsModule, RouterModule, FormsModule, FormlyModule, ReactiveFormsModule],
 })
 export class OAuthIndexComponent {
     public static readonly OAUTH_CORE_COMPONENT_ID = "_oauth2";
@@ -50,27 +44,18 @@ export class OAuthIndexComponent {
 
             let response: GetAllOAuthProvider.Response;
             try {
-                response =
-                    await this.edge.sendRequest<GetAllOAuthProvider.Response>(
-                        this.websocket,
-                        new ComponentJsonApiRequest({
-                            componentId:
-                                OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
-                            payload: new GetAllOAuthProvider.Request(),
-                        }),
-                    );
+                response = await this.edge.sendRequest<GetAllOAuthProvider.Response>(
+                    this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
+                        payload: new GetAllOAuthProvider.Request(),
+                    }),
+                );
             } catch (e) {
                 if (e instanceof JsonrpcResponseError) {
-                    this.service.toast(
-                        "Failed to get OAuth provider: " + e.error.message,
-                        "danger",
-                    );
+                    this.service.toast("Failed to get OAuth provider: " + e.error.message, "danger");
                 } else {
-                    this.service.toast(
-                        "Failed to get OAuth provider: " +
-                            (e ? e.toString() : ""),
-                        "danger",
-                    );
+                    this.service.toast("Failed to get OAuth provider: " + (e ? e.toString() : ""), "danger");
                 }
                 return;
             }
@@ -97,14 +82,14 @@ export class OAuthIndexComponent {
             }
             debugLog("State", state);
             const code = this.route.snapshot.queryParams["code"];
-            const oauthRedirectState = JSON.parse(
-                this.cookieService.get("oauthredirectstate"),
-            ) as { href: string; state: string; oauthprovider: string };
+            const oauthRedirectState = JSON.parse(this.cookieService.get("oauthredirectstate")) as {
+                href: string;
+                state: string;
+                oauthprovider: string;
+            };
 
             // remove query params in url
-            this.router.navigate([
-                "device/" + this.edge.id + "/settings/app/oauth",
-            ]);
+            this.router.navigate(["device/" + this.edge.id + "/settings/app/oauth"]);
 
             if (state !== oauthRedirectState.state) {
                 this.service.toast("states do not match. try again", "warning");
@@ -115,14 +100,10 @@ export class OAuthIndexComponent {
                 return;
             }
             debugLog("Code", code);
-            const metaInfo = this.metaInfos.find(
-                (e) => e.identifier === oauthRedirectState.oauthprovider,
-            );
+            const metaInfo = this.metaInfos.find((e) => e.identifier === oauthRedirectState.oauthprovider);
             if (!metaInfo) {
                 this.service.toast(
-                    "Unable to find oauth provider with name '" +
-                        oauthRedirectState.oauthprovider +
-                        "'",
+                    "Unable to find oauth provider with name '" + oauthRedirectState.oauthprovider + "'",
                     "warning",
                 );
                 return;
@@ -132,8 +113,7 @@ export class OAuthIndexComponent {
                 .sendRequest(
                     this.websocket,
                     new ComponentJsonApiRequest({
-                        componentId:
-                            OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
+                        componentId: OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
                         payload: new Connect.Request({
                             identifier: metaInfo.identifier,
                             code: code,
@@ -146,10 +126,7 @@ export class OAuthIndexComponent {
                     metaInfo.connectionState = "CONNECTED";
                 })
                 .catch((error) => {
-                    this.service.toast(
-                        "Unable to connect: " + error.error?.message,
-                        "danger",
-                    );
+                    this.service.toast("Unable to connect: " + error.error?.message, "danger");
                 });
         });
     }
@@ -211,15 +188,9 @@ export class OAuthIndexComponent {
             window.open(fullUrl, "_self");
         } catch (e) {
             if (e instanceof JsonrpcResponseError) {
-                this.service.toast(
-                    "Unable to initiate connect: " + e.error.message,
-                    "danger",
-                );
+                this.service.toast("Unable to initiate connect: " + e.error.message, "danger");
             } else {
-                this.service.toast(
-                    "Unable to initiate connect: " + e,
-                    "danger",
-                );
+                this.service.toast("Unable to initiate connect: " + e, "danger");
             }
         }
     }
@@ -235,32 +206,27 @@ export class OAuthIndexComponent {
             }),
         );
 
-        const metaInfo = this.metaInfos.find(
-            (e) => e.identifier === identifier,
-        );
+        const metaInfo = this.metaInfos.find((e) => e.identifier === identifier);
         if (metaInfo) {
             metaInfo.connectionState = "NOT_CONNECTED";
         }
     }
 
-    private async getConnectionState(
-        identifier: string,
-    ): Promise<ConnectionState> {
+    private async getConnectionState(identifier: string): Promise<ConnectionState> {
         const edge = this.edge;
         if (!edge) {
             throw Error();
         }
 
-        const response =
-            await edge.sendRequest<GetOAuthConnectionState.Response>(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
-                    payload: new GetOAuthConnectionState.Request({
-                        identifier: identifier,
-                    }),
+        const response = await edge.sendRequest<GetOAuthConnectionState.Response>(
+            this.websocket,
+            new ComponentJsonApiRequest({
+                componentId: OAuthIndexComponent.OAUTH_CORE_COMPONENT_ID,
+                payload: new GetOAuthConnectionState.Request({
+                    identifier: identifier,
                 }),
-            );
+            }),
+        );
 
         return response.result.connectionState;
     }

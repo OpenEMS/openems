@@ -18,7 +18,7 @@ import { FormlySafeInputWrapperComponent } from "./formly/safe-input/formly-safe
 import { KeyModalComponent } from "./keypopup/modal.component";
 
 export function KeyValidator(control: FormControl): ValidationErrors {
-    return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { "key": true };
+    return /^(.{4}-){3}.{4}$/.test(control.value) ? null : { key: true };
 }
 
 export function registerTranslateExtension(translate: TranslateService) {

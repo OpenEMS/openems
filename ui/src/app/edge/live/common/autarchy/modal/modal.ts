@@ -1,8 +1,8 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedAutarchy } from "../shared/shared";
@@ -11,12 +11,10 @@ import { SharedAutarchy } from "../shared/shared";
     selector: "oe-common-autarchy-modal",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ModalComponent extends AbstractFormlyComponent {
-
     public static generateView(translate: TranslateService): OeFormlyView {
         return SharedAutarchy.getFormlyView(translate);
     }
@@ -36,5 +34,4 @@ export class ModalComponent extends AbstractFormlyComponent {
     protected override getFormGroup(): FormGroup {
         return SharedAutarchy.getFormGroup();
     }
-
 }
