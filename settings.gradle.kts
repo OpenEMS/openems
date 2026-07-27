@@ -44,4 +44,3 @@ include(
     ":io.openems.backend.edge.application",
     ":doc"
 )
-include("io.openems.edge.ess.saxpower")
