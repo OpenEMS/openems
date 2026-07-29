@@ -1,4 +1,4 @@
-package io.openems.edge.ess.saxpower;
+package io.openems.edge.ess.saxpower.ess;
 
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;

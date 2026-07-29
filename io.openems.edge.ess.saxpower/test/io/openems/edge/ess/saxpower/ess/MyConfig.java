@@ -1,4 +1,4 @@
-package io.openems.edge.ess.saxpower;
+package io.openems.edge.ess.saxpower.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
