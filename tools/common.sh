@@ -95,12 +95,12 @@ common_update_version_in_code() {
     
     if [[ -f "$SRC_PACKAGE_JSON" ]]; then
         echo "## Update $SRC_PACKAGE_JSON"
-        sed --in-place "s#\(^.*\"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_JSON
+        sed --in-place '/"name": "openems-ui"/{n;s#\(^.*"version": "\)[^"]*\(".*\)#\1'"$VERSION"'\2#;}' $SRC_PACKAGE_JSON
     fi
     
     if [[ -f "$SRC_PACKAGE_LOCK_JSON" ]]; then
         echo "## Update $SRC_PACKAGE_LOCK_JSON"
-        sed --in-place "s#\(^.*\"version\": \"\).*\(\".*$\)#\1$VERSION\2#" $SRC_PACKAGE_LOCK_JSON
+        sed --in-place '/"name": "openems-ui"/{n;s#\(^.*"version": "\)[^"]*\(".*\)#\1'"$VERSION"'\2#;}' $SRC_PACKAGE_LOCK_JSON
     fi
 
     if [[ -f "$SRC_CHANGELOG_CONSTANTS" ]]; then

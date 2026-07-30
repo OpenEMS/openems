@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { Channel } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from "../../../../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "../../../../../shared/shared";
 
 @Component({
     selector: "Io_Api_DigitalInputModal",
@@ -43,31 +43,6 @@ export class Io_Api_DigitalInput_ModalComponent implements OnInit, OnDestroy {
     private async getDigitalInputChannels(): Promise<
         { componentId: string; componentAlias: string; channels: Channel[] }[]
     > {
-        if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-            return this.ioComponents.map((e) => {
-                return {
-                    componentId: e.id,
-                    componentAlias: e.alias,
-                    channels: Object.entries(e.channels)
-                        .filter(([key, value]) => {
-                            if (value.accessMode !== "RO") {
-                                return false;
-                            }
-                            if (value.type !== "BOOLEAN") {
-                                return false;
-                            }
-                            if (key === "_PropertyEnabled") {
-                                return false;
-                            }
-                            return true;
-                        })
-                        .map(([key, value]) => {
-                            return { id: key, ...value };
-                        }),
-                };
-            });
-        }
-
         const response = await this.edge.sendRequest<GetDigitalInputChannelsOfComponentsResponse>(
             this.websocket,
             new ComponentJsonApiRequest({
