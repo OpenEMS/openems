@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, HostListener, inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, inject, OnDestroy, OnInit, signal, } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
@@ -39,12 +39,13 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
         RouterModule,
         NavigationBackButtonComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush, // ChangeDetectionStrategy.Default
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "app-single";
     public readonly spinnerId: string = SingleAppComponent.SELECTOR;
 
-    public form: FormGroup | null = null;
+    public form = signal<FormGroup | null>(null);
     public model: any | null = null;
 
     protected canEnterKey: boolean | undefined;
@@ -66,8 +67,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private useMasterKey: boolean = false;
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    private routeService: RouteService = inject(RouteService);
-    private navigationService: NavigationService = inject(NavigationService);
+    private readonly routeService: RouteService = inject(RouteService);
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -219,6 +221,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 )
                 .finally(() => {
                     this.increaseReceivedResponse();
+                    this.cdRef.markForCheck();
                 });
         });
     }
@@ -268,7 +271,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
     private setApp(app: GetApps.App) {
         this.app = app;
-        this.form = new FormGroup({});
+        this.form.set(new FormGroup({}));
         this.increaseReceivedResponse();
     }
 

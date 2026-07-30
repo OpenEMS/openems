@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -17,20 +17,22 @@ export class FlatComponent extends AbstractFlatWidget {
     protected activeSecondsOverPeriod: number | null = null;
     protected FORMAT_SECONDS_TO_DURATION = Converter.FORMAT_SECONDS_TO_DURATION(this.translate.getCurrentLang());
 
-    protected controllers: EdgeConfig.Component[] | null = [];
+    protected controllers = signal<EdgeConfig.Component[]>([]);
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        this.controllers = this.config
-            .getComponentsByFactory("Controller.ChannelThreshold")
-            .concat(
-                this.config.getComponentsImplementingNature(
-                    "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+        this.controllers.set(
+            this.config
+                .getComponentsByFactory("Controller.ChannelThreshold")
+                .concat(
+                    this.config.getComponentsImplementingNature(
+                        "io.openems.impl.controller.channelthreshold.ChannelThresholdController",
+                    ),
                 ),
-            );
+        );
 
         const channelAddresses: ChannelAddress[] = [];
 
-        for (const controller of this.controllers) {
+        for (const controller of this.controllers()) {
             const output: ChannelAddress | null = ChannelAddress.fromString(
                 controller.properties["outputChannelAddress"],
             );

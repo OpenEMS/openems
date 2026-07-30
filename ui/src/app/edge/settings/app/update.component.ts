@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnInit, signal } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { AlertController } from "@ionic/angular";
@@ -38,6 +38,7 @@ interface MyInstance {
     selector: UpdateAppComponent.SELECTOR,
     templateUrl: "./update.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonUiModule,
         PipeComponentsModule,
@@ -55,7 +56,7 @@ export class UpdateAppComponent implements OnInit {
 
     protected showSwitchArchitecture = false;
     protected currentArchitecture: string | null = null;
-    protected instances: MyInstance[] = [];
+    protected instances = signal<MyInstance[]>([]);
     protected appName: string | null = null;
     protected isAppCenter: boolean = false;
 
@@ -67,6 +68,8 @@ export class UpdateAppComponent implements OnInit {
     private handlerId: string | null = null;
     private translateService = inject(TranslateService);
     private isRunning: boolean = false;
+
+    private readonly cdRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -203,6 +206,7 @@ export class UpdateAppComponent implements OnInit {
                 )
                 .finally(() => {
                     this.isRunning = false;
+                    this.cdRef.markForCheck();
                 });
         });
     }
@@ -243,7 +247,7 @@ export class UpdateAppComponent implements OnInit {
         if (currentEdge == null) {
             return;
         }
-        this.instances.forEach((instance) => {
+        this.instances().forEach((instance) => {
             this.service.startSpinnerTransparentBackground(instance.instanceId);
             instance.isUpdating = true;
         });
@@ -271,7 +275,7 @@ export class UpdateAppComponent implements OnInit {
                 this.service.toast(errorMessage, "danger");
             })
             .finally(() => {
-                this.instances.forEach((instance) => {
+                this.instances().forEach((instance) => {
                     this.service.stopSpinner(instance.instanceId);
                     instance.isUpdating = false;
                 });
@@ -326,6 +330,7 @@ export class UpdateAppComponent implements OnInit {
             .finally(() => {
                 instance.isUpdating = false;
                 this.service.stopSpinner(instance.instanceId);
+                this.cdRef.markForCheck();
             });
     }
 
@@ -368,7 +373,7 @@ export class UpdateAppComponent implements OnInit {
                 }),
             )
             .then((response) => {
-                this.instances.splice(this.instances.indexOf(instance), 1);
+                this.instances().splice(this.instances().indexOf(instance), 1);
                 this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
                 const navigationExtras = {
                     state: { appInstanceChange: true },
@@ -387,6 +392,7 @@ export class UpdateAppComponent implements OnInit {
             .finally(() => {
                 instance.isDeleting = false;
                 this.service.stopSpinner(instance.instanceId);
+                this.cdRef.markForCheck();
             });
     }
 
@@ -398,7 +404,7 @@ export class UpdateAppComponent implements OnInit {
         appId: string,
     ) {
         this.appName = appAssistant.name;
-        this.instances = [];
+        this.instances.set([]);
 
         const first = queryedAppInstance?.[0];
         const instanceId = first?.instanceId ?? first?.["instanceId"];
@@ -441,18 +447,21 @@ export class UpdateAppComponent implements OnInit {
                 ...(appAssistant.steps ?? []),
             ];
 
-            this.instances.push({
-                instanceId: instance.instanceId,
-                form,
-                isDeleting: false,
-                isUpdating: false,
-                fields: GetAppAssistant.getInitialFields(
-                    GetAppAssistant.postprocess(structuredClone(appAssistant)).fields,
-                    structuredClone(model),
-                    instance.instanceId,
-                ),
-                properties: model,
-                steps,
+            this.instances.update((el) => {
+                el.push({
+                    instanceId: instance.instanceId,
+                    form,
+                    isDeleting: false,
+                    isUpdating: false,
+                    fields: GetAppAssistant.getInitialFields(
+                        GetAppAssistant.postprocess(structuredClone(appAssistant)).fields,
+                        structuredClone(model),
+                        instance.instanceId,
+                    ),
+                    properties: model,
+                    steps,
+                });
+                return el;
             });
         }
         this.service.stopSpinner(this.spinnerId);

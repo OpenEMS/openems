@@ -1,4 +1,4 @@
-import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -22,7 +22,6 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
     selector: "oe-components-chart-single-xaxis",
     templateUrl: "./timeline-chart.html",
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -40,7 +39,6 @@ export class TimeLineChartComponent {
     protected datasets: ChartDataset[] = [];
     protected labels: Date[] = [];
     protected options: ChartOptions = ONLY_X_AXIS();
-    protected loading = false;
     protected chartType: ChartType = "line";
     protected spinnerId: string = uuidv4();
 

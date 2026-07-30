@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, model, OnDestroy, OnInit, viewChild, } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router, RouterModule } from "@angular/router";
 import { IonPopover, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -42,12 +42,12 @@ import { canEnterKey } from "./permissions";
         DomChangeDirective,
         FilterComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndexComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "app-index";
     /** E. g. if more than 4 apps are in a list the apps are displayed in their categories */
     private static readonly MAX_APPS_IN_LIST: number = 4;
-    @ViewChild("hasKeyPopover") private hasKeyPopover: IonPopover;
     public readonly spinnerId: string = IndexComponent.SELECTOR;
 
     public apps: GetApps.App[] = [];
@@ -79,15 +79,17 @@ export class IndexComponent implements OnInit, OnDestroy {
     protected isUpdateAvailable: boolean = false;
     protected canEnterKey: boolean = false;
     protected numberOfUnusedRegisteredKeys: number = 0;
-    protected showPopover: boolean = false;
+    protected showPopover = model<boolean>(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
+    protected hasKeyPopover = viewChild<IonPopover>("hasKeyPopover");
 
     private useMasterKey: boolean = false;
     private hasSeenPopover: boolean = false;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private inputValue: string;
 
-    private navigationService: NavigationService = inject(NavigationService);
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -357,12 +359,17 @@ export class IndexComponent implements OnInit, OnDestroy {
         }
 
         this.hasSeenPopover = true;
+        const popover = this.hasKeyPopover();
 
-        this.hasKeyPopover.event = {
+        if (popover == null) {
+            return;
+        }
+
+        popover.event = {
             type: "willPresent",
             target: document.querySelector("#redeemKeyCard"),
         };
-        this.showPopover = true;
+        this.showPopover.set(true);
     }
 
     private pushIntoCategory(app: GetApps.App, list: AppList): void {
@@ -502,7 +509,10 @@ export class IndexComponent implements OnInit, OnDestroy {
                             this.service,
                             (error) => "Error while receiving available apps: " + error,
                         ),
-                    );
+                    )
+                    .finally(() => {
+                        this.cdRef.markForCheck();
+                    });
 
                 const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
                 systemUpdate.systemUpdateStateChange = (updateState) => {
