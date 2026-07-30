@@ -123,7 +123,8 @@ public class MasterBox2v0 extends AbstractOpenemsAppWithProps<MasterBox2v0, Mast
 					HardwareComponents.masterBoxMeter(bundle, meterId, iocId), //
 					HardwareComponents.masterBoxIo(bundle, ioId, iocId), //
 					HardwareComponents.masterBoxAnalogOutput(bundle, analogOutputId, iocId), //
-					ComponentDef.from(modbusInternal(bundle, t, internalModbusId)) //
+					ComponentDef.from(modbusInternal(bundle, t, internalModbusId),
+							ComponentDef.Configuration.defaultConfig().withForceUpdateOrCreate(true)) //
 			);
 
 			return AppConfiguration.create() //

@@ -326,7 +326,7 @@ public class FeneconCommercial50Gen3 extends
 			);
 
 			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
-				ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal));
+				components.add(ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)));
 			}
 
 			if (hasEmergencyReserve) {

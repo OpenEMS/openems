@@ -61,7 +61,6 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 
 @Component(name = "App.FENECON.Home15")
@@ -198,7 +197,7 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
 
 			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
-				ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal));
+				components.add(modbusInternal(bundle, t, modbusIdInternal));
 			}
 
 			for (int i = 0; i < 3; i++) {

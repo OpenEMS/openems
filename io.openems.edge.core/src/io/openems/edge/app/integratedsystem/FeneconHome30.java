@@ -87,7 +87,6 @@ import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
-import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -340,7 +339,7 @@ public class FeneconHome30 extends AbstractOpenemsAppWithProps<FeneconHome30, Pr
 			components.addAll(batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal));
 
 			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
-				ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal));
+				components.add(modbusInternal(bundle, t, modbusIdInternal));
 			}
 
 			if (hasEmergencyReserve) {

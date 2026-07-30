@@ -279,6 +279,34 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a battery depending on the deviceHardware with different startup
+	 * relay and an io if the installed hardware isn't a TechbaseCm4sGen3.
+	 *
+	 * @param bundle           the translation bundle
+	 * @param deviceHardware   the device hardware; used to determine the correct
+	 *                         startup relay for the battery component and if the io
+	 *                         should be installed
+	 * @param batteryId        the battery id
+	 * @param modbusIdInternal the internal modbus id
+	 * @param batteryStartStop the startStop target of the bridge
+	 * @return a {@link List} of {@link Component}
+	 */
+	public static List<Component> batteryAndIo(//
+			final ResourceBundle bundle, //
+			final OpenemsAppInstance deviceHardware, //
+			final String batteryId, //
+			final String modbusIdInternal, //
+			final String batteryStartStop //
+	) {
+		var result = new ArrayList<Component>();
+		result.add(battery(deviceHardware, bundle, batteryId, modbusIdInternal, batteryStartStop));
+		if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+			result.add(io(bundle, modbusIdInternal));
+		}
+		return result;
+	}
+
+	/**
 	 * Creates a default grid meter component for a FENECON Home.
 	 *
 	 * @param bundle            the translation bundle
