@@ -17,12 +17,11 @@ import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/Hea
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { NavigationTree } from "../components/navigation/shared";
-import { EdgePermission } from "../shared";
 import { TEnumKeys } from "./utility";
 import { Widget, WidgetClass, WidgetFactory, WidgetNature } from "./widget";
 
 export class Widgets {
-    private static readonly GROUPED_FACTORIES: Partial<
+    public static readonly GROUPED_FACTORIES: Partial<
         Record<
             Widget["name"],
             {
@@ -30,7 +29,8 @@ export class Widgets {
                     translate: TranslateService,
                     componentIds: Widget["componentId"][],
                     config: EdgeConfig,
-                ) => ConstructorParameters<typeof NavigationTree> | null;
+                    factoryId: EdgeConfig.Factory["id"],
+                ) => NavigationTree | null;
                 single: (
                     translate: TranslateService,
                     componentId: Widget["componentId"],
@@ -161,7 +161,7 @@ export class Widgets {
                         )?.length > 0
                     );
                 case "Controller.Api.ModbusTcp.ReadWrite":
-                    return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+                    return true;
                 default:
                     return false;
             }
@@ -281,9 +281,9 @@ export class Widgets {
                 continue;
             }
 
-            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config);
+            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config, groupedWidgetName);
             if (groupedNavigationTree != null) {
-                navigationTrees.push(groupedNavigationTree);
+                navigationTrees.push(groupedNavigationTree.toConstructorParams());
             }
         }
 

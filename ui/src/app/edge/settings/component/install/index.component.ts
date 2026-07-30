@@ -1,10 +1,10 @@
 // @ts-strict-ignore
-import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents, CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../../shared/shared";
+import { Edge, EdgeConfig, Service, Utils, Websocket } from "../../../../shared/shared";
 
 interface MyCategorizedFactories extends CategorizedFactories {
     isClicked?: boolean;
@@ -66,23 +66,18 @@ export class IndexComponent implements OnInit {
     }
 
     private async getCategorizedFactories(): Promise<MyCategorizedFactories[]> {
-        if (EdgePermission.hasReducedFactories(this.edge)) {
-            const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(
-                this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_componentManager",
-                    payload: new GetAllComponentFactoriesRequest(),
-                }),
-            );
-            for (const [factoryId, factory] of Object.entries(response.result.factories)) {
-                factory.id = factoryId;
-            }
-
-            return EdgeConfig.listAvailableFactories(response.result.factories, this.translate);
+        const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(
+            this.websocket,
+            new ComponentJsonApiRequest({
+                componentId: "_componentManager",
+                payload: new GetAllComponentFactoriesRequest(),
+            }),
+        );
+        for (const [factoryId, factory] of Object.entries(response.result.factories)) {
+            factory.id = factoryId;
         }
 
-        const config = await this.service.getConfig();
-        return config.listAvailableFactories(this.translate);
+        return EdgeConfig.listAvailableFactories(response.result.factories, this.translate);
     }
 }
 

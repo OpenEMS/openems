@@ -1,6 +1,6 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { GroupedNavigationTreeUtility, NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
+import { GroupedNavigationTreeUtility, NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -8,8 +8,11 @@ import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 export namespace SharedControllerIoFixDigitalOutput {
-
-    export function getFormlyView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView {
+    export function getFormlyView(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+    ): OeFormlyView {
         return {
             title: Name.METER_ALIAS_OR_ID(component),
             lines: [
@@ -41,12 +44,17 @@ export namespace SharedControllerIoFixDigitalOutput {
         };
     }
 
-    export async function getChannelAddresses(service: Service, routeService: RouteService, component: EdgeConfig.Component | null = null): Promise<ChannelAddress[]> {
+    export async function getChannelAddresses(
+        service: Service,
+        routeService: RouteService,
+        component: EdgeConfig.Component | null = null,
+    ): Promise<ChannelAddress[]> {
         const edge = service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const fixDigitalOutputComponent = component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
+        const fixDigitalOutputComponent =
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
 
         AssertionUtils.assertIsDefined(fixDigitalOutputComponent);
         const outputChannel = fixDigitalOutputComponent.getPropertyFromComponent<string>("outputChannelAddress");
@@ -65,27 +73,31 @@ export namespace SharedControllerIoFixDigitalOutput {
         });
     }
 
-    export function getNavigationTree(translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getNavigationTree(
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const component = config.getComponentSafely(componentId);
         if (component == null) {
             return null;
         }
 
         const label = component.alias?.trim() || component.id;
-        return createComponentNavigationTree(componentId, label, "controller/io-fix-digital-output/" + componentId, translate).toConstructorParams();
+        return createComponentNavigationTree(
+            componentId,
+            label,
+            "controller/io-fix-digital-output/" + componentId,
+            translate,
+        ).toConstructorParams();
     }
 
-    export function getNavigationTreeAsChild(translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): NavigationTree | null {
-        const component = config.getComponentSafely(componentId);
-        if (component == null) {
-            return null;
-        }
-
-        const label = component.alias?.trim() || component.id;
-        return createComponentNavigationTree(componentId, label, componentId, translate);
-    }
-
-    export function getGroupedNavigationTree(translate: TranslateService, componentIds: EdgeConfig.Component["id"][], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getGroupedNavigationTree(
+        translate: TranslateService,
+        componentIds: EdgeConfig.Component["id"][],
+        config: EdgeConfig,
+        factoryId: EdgeConfig.Factory["id"],
+    ): NavigationTree | null {
         return GroupedNavigationTreeUtility.createGroupedNavigationTree(
             "fix-digital-output-controllers",
             { name: "power-outline", color: "normal" },
@@ -94,14 +106,31 @@ export namespace SharedControllerIoFixDigitalOutput {
             translate,
             componentIds,
             config,
-            (componentId) => getNavigationTreeAsChild(translate, componentId, config),
+            factoryId,
+            (componentId) =>
+                GroupedNavigationTreeUtility.getNavigationTreeAsChild(
+                    translate,
+                    componentId,
+                    config,
+                    createComponentNavigationTree,
+                ),
         );
     }
 
-    function createComponentNavigationTree(id: string, label: string, baseString: string, translate: TranslateService): NavigationTree {
-        return new NavigationTree(id, { baseString }, { name: "power-outline", color: "normal" }, label, "label", [
-            NavigationConstants.CommonNodes.HISTORY(translate),
-        ], null);
+    function createComponentNavigationTree(
+        id: string,
+        label: string,
+        baseString: string,
+        translate: TranslateService,
+    ): NavigationTree {
+        return new NavigationTree(
+            id,
+            { baseString },
+            { name: "power-outline", color: "normal" },
+            label,
+            "label",
+            [NavigationConstants.CommonNodes.HISTORY(translate)],
+            null,
+        );
     }
 }
-

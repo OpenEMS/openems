@@ -94,4 +94,20 @@ public record ComponentDef(String id, String alias, String factoryId, ComponentP
 		return new ComponentDef(comp.getId(), comp.getAlias(), comp.getFactoryId(),
 				ComponentProperties.fromMap(comp.getProperties()), Configuration.defaultConfig());
 	}
+
+	/**
+	 * Creates a {@link ComponentDef} from a {@link EdgeConfig.Component} with
+	 * additional {@link Configuration}.
+	 *
+	 * @param comp             the {@link EdgeConfig.Component}
+	 * @param additionalConfig the {@link Configuration}
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef from(EdgeConfig.Component comp, Configuration additionalConfig) {
+		if (comp == null) {
+			return null;
+		}
+		return new ComponentDef(comp.getId(), comp.getAlias(), comp.getFactoryId(),
+				ComponentProperties.fromMap(comp.getProperties()), additionalConfig);
+	}
 }

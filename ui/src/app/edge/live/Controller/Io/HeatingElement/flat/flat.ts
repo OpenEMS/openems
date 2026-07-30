@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
@@ -82,14 +82,11 @@ export class FlatComponent extends AbstractFlatWidget {
         }
 
         this.level = currentData.allComponents[this.component.id + "/" + "Level"];
+        this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
 
-        if (this.edge.isVersionAtLeast("2022.8")) {
-            this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
-
-            if (this.consumptionMeter) {
-                const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
-                this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
-            }
+        if (this.consumptionMeter) {
+            const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
+            this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
         }
     }
 }

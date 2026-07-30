@@ -98,6 +98,8 @@ public interface HardyBarth extends OpenemsComponent, ElectricityMeter {
 				"secc", "port0", "metering", "meter", "type"), //
 		METER_NOT_AVAILABLE(Doc.of(WARNING)//
 				.translationKey(HardyBarth.class, "noMeterAvailable")), //
+		TARGET_WRITE_FAILED(Doc.of(WARNING)//
+				.translationKey(HardyBarth.class, "targetWriteFailed")), //
 		RAW_METER_AVAILABLE(new BooleanDoc()//
 				.onChannelSetNextValue((hb, value) -> {
 					var notAvailable = value.get() == null ? null : !value.get();

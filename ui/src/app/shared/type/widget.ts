@@ -1,7 +1,6 @@
 // @ts-strict-ignore
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
-import { EdgePermission } from "../shared";
 import { TEnumKeys } from "./utility";
 
 export enum WidgetClass {
@@ -99,21 +98,13 @@ export class Widgets {
         const classes: string[] = Object.values(WidgetClass) //
             .filter((v) => typeof v === "string")
             .filter((clazz) => {
-                if (!edge.isVersionAtLeast("2018.8")) {
-                    // no filter for deprecated versions
-                    return true;
-                }
                 switch (clazz) {
                     case "Common_Autarchy":
                     case "Grid":
                         return config.hasMeter();
                     case "Energymonitor":
                     case "Consumption":
-                        if (
-                            config.hasMeter() == true ||
-                            config.hasProducer() == true ||
-                            config.hasStorage() == true
-                        ) {
+                        if (config.hasMeter() == true || config.hasProducer() == true || config.hasStorage() == true) {
                             return true;
                         } else {
                             return false;
@@ -124,11 +115,7 @@ export class Widgets {
                     case "Common_Selfconsumption":
                         return config.hasProducer();
                     case "Controller_ChannelThreshold":
-                        return (
-                            config.getComponentIdsByFactory(
-                                "Controller.ChannelThreshold",
-                            )?.length > 0
-                        );
+                        return config.getComponentIdsByFactory("Controller.ChannelThreshold")?.length > 0;
                     case "Controller_Io_Digital_Outputs":
                         return (
                             config.getComponentIdsByFactories(
@@ -137,7 +124,7 @@ export class Widgets {
                             )?.length > 0
                         );
                     case "Controller.Api.ModbusTcp.ReadWrite":
-                        return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+                        return true;
                     default:
                         return false;
                 }
@@ -145,17 +132,11 @@ export class Widgets {
             .map((clazz) => clazz.toString());
         const list: Widget[] = [];
 
-        for (const nature of Object.values(WidgetNature).filter(
-            (v) => typeof v === "string",
-        )) {
-            for (const componentId of config.getComponentIdsImplementingNature(
-                nature.toString(),
-            )) {
+        for (const nature of Object.values(WidgetNature).filter((v) => typeof v === "string")) {
+            for (const componentId of config.getComponentIdsImplementingNature(nature.toString())) {
                 if (
                     nature === "io.openems.edge.io.api.DigitalInput" &&
-                    list.some(
-                        (e) => e.name === "io.openems.edge.io.api.DigitalInput",
-                    )
+                    list.some((e) => e.name === "io.openems.edge.io.api.DigitalInput")
                 ) {
                     continue;
                 }
@@ -169,19 +150,12 @@ export class Widgets {
                 }
             }
         }
-        for (const factory of Object.values(WidgetFactory).filter(
-            (v) => typeof v === "string",
-        )) {
-            for (const componentId of config.getComponentIdsByFactory(
-                factory.toString(),
-            )) {
+        for (const factory of Object.values(WidgetFactory).filter((v) => typeof v === "string")) {
+            for (const componentId of config.getComponentIdsByFactory(factory.toString())) {
                 const component = config.getComponent(componentId);
                 if (factory === "Controller.Clever-PV") {
                     // Clever-PV Widget should be shown only if readOnly property is explicitely set to false
-                    const readOnly = config.getPropertyFromComponent<boolean>(
-                        component,
-                        "readOnly",
-                    );
+                    const readOnly = config.getPropertyFromComponent<boolean>(component, "readOnly");
                     if (readOnly !== false) {
                         continue;
                     }
@@ -202,26 +176,22 @@ export class Widgets {
                 w1.name === "Controller.IO.ChannelSingleThreshold" &&
                 w2.name === "Controller.IO.ChannelSingleThreshold"
             ) {
-                let outputChannelAddress1: string | string[] =
-                    config.getComponentProperties(w1.componentId)[
-                        "outputChannelAddress"
-                    ];
+                let outputChannelAddress1: string | string[] = config.getComponentProperties(w1.componentId)[
+                    "outputChannelAddress"
+                ];
                 if (typeof outputChannelAddress1 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress1 = outputChannelAddress1[0];
                 }
-                let outputChannelAddress2: string | string[] =
-                    config.getComponentProperties(w2.componentId)[
-                        "outputChannelAddress"
-                    ];
+                let outputChannelAddress2: string | string[] = config.getComponentProperties(w2.componentId)[
+                    "outputChannelAddress"
+                ];
                 if (typeof outputChannelAddress2 !== "string") {
                     // Takes only the first output for simplicity reasons
                     outputChannelAddress2 = outputChannelAddress2[0];
                 }
                 if (outputChannelAddress1 && outputChannelAddress2) {
-                    return outputChannelAddress1.localeCompare(
-                        outputChannelAddress2,
-                    );
+                    return outputChannelAddress1.localeCompare(outputChannelAddress2);
                 }
             }
 
@@ -231,5 +201,4 @@ export class Widgets {
     }
 }
 
-export enum ProductType {
-}
+export enum ProductType {}

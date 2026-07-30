@@ -2,17 +2,17 @@ package io.openems.edge.goodwe.common.enums;
 
 import io.openems.common.types.OptionsEnum;
 
-public enum GridWaveCheckLevel implements OptionsEnum {
+public enum WaveformDetection implements OptionsEnum {
 	UNDEFINED(-1, "Undefined"), //
-	HIGH_SENSITIVTY(0, "MPPT shadow scan enable"), //
-	LOW_SENSITIVITY(1, "MPPT shadow scan disable"), //
-	CLOSE(2, "MPPT shadow scan disable")//
-	;//
+	HIGH_PRECISION(0, "Off-Grid operation is prioritized with high precision"), //
+	LOW_PRECISION(1, "Off-Grid operation is prioritized with low precision"), //
+	DETECTION_DISABLED(2, "VDE 4110 Ride Through operation is prioritized") //
+	;
 
 	private final int value;
 	private final String option;
 
-	private GridWaveCheckLevel(int value, String option) {
+	private WaveformDetection(int value, String option) {
 		this.value = value;
 		this.option = option;
 	}

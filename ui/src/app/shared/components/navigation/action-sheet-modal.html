@@ -1,4 +1,4 @@
-@if (isVisible) {
+@if (isVisible()) {
   <ion-modal class="action-sheet-modal" #modal [isOpen]="true" [initialBreakpoint]="initialBreakPoint" [breakpoints]="[initialBreakPoint, upperMostBreakPoint]" showBackdrop="true" [backdropDismiss]="false" [backdropBreakpoint]="initialBreakPoint" focusTrap="false" style="--box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.7)" (ionBreakpointDidChange)="onBreakpointDidChange($event)" [animated]="true">
     <ng-template>
       <ion-content class="ion-padding ion-padding-top-double">
