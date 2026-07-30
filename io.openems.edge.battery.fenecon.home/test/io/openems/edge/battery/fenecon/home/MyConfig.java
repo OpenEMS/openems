@@ -13,6 +13,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String batteryStartUpRelay;
 		private int modbusUnitId;
 		private StartStopConfig startStop;
+		private BatteryInverterPort inverterPort = BatteryInverterPort.PORT_1;
 
 		private Builder() {
 		}
@@ -39,6 +40,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setBatteryStartUpRelay(String batteryStartUpRelay) {
 			this.batteryStartUpRelay = batteryStartUpRelay;
+			return this;
+		}
+
+		public Builder setInverterPort(BatteryInverterPort inverterPort) {
+			this.inverterPort = inverterPort;
 			return this;
 		}
 
@@ -86,6 +92,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String batteryStartUpRelay() {
 		return this.builder.batteryStartUpRelay;
+	}
+
+	@Override
+	public BatteryInverterPort inverterPort() {
+		return this.builder.inverterPort;
 	}
 
 }

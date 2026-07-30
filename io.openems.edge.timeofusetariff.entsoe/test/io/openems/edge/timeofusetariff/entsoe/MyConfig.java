@@ -11,6 +11,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String securityToken;
 		private EntsoeBiddingZone biddingZone;
 		private String ancillaryCosts;
+		private String calculateExpression;
 
 		private Builder() {
 		}
@@ -32,6 +33,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setAncillaryCosts(String ancillaryCosts) {
 			this.ancillaryCosts = ancillaryCosts;
+			return this;
+		}
+		
+		public Builder setCalculateExpression(String calculateExpression) {
+			this.calculateExpression = calculateExpression;
 			return this;
 		}
 
@@ -69,6 +75,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ancillaryCosts() {
 		return this.builder.ancillaryCosts;
+	}
+
+	@Override
+	public String calculateExpression() {
+		return this.builder.calculateExpression;
 	}
 
 }

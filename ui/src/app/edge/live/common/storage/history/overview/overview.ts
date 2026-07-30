@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -17,6 +17,7 @@ import { StorageTotalChartComponent } from "../chart/totalchart";
     selector: "storage-chart-overview",
     templateUrl: "./overview.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         LocaleProvider,
@@ -29,7 +30,6 @@ import { StorageTotalChartComponent } from "../chart/totalchart";
     ],
 })
 export class CommonStorageOverviewComponent extends AbstractHistoryChartOverview {
-
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected navigationButtons: NavigationOption[] = [];
 
@@ -44,16 +44,20 @@ export class CommonStorageOverviewComponent extends AbstractHistoryChartOverview
 
     protected override afterIsInitialized() {
         // Get Ess
-        this.essComponents =
-            this.config?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-                .filter(component => component.isEnabled && !component.factoryId.includes("Ess.Cluster"));
+        this.essComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+            .filter((component) => component.isEnabled && !component.factoryId.includes("Ess.Cluster"));
 
         if (!this.essComponents || this.essComponents.length <= 1) {
             return;
         }
 
-        this.navigationButtons = this.essComponents.map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
-        ));
+        this.navigationButtons = this.essComponents.map((el) => ({
+            id: el.id,
+            alias: el.alias,
+            callback: () => {
+                this.router.navigate(["./" + el.id], { relativeTo: this.route });
+            },
+        }));
     }
 }

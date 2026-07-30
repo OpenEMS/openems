@@ -1,4 +1,4 @@
-import { Component, effect, inject, Input } from "@angular/core";
+import { Component, effect, inject, Input, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CookieService } from "ngx-cookie-service";
@@ -13,7 +13,7 @@ import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { JsonRpcUtils } from "src/app/shared/jsonrpc/jsonrpcutils";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, Edge, Service, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
@@ -28,11 +28,8 @@ import { mapChannelValueToConnectionState } from "./configuration-oauth-utils";
     selector: ConfigurationOAuthComponent.SELECTOR,
     templateUrl: "./configuration-oauth.component.html",
     standalone: true,
-    imports: [
-        CommonUiModule,
-        FlatWidgetButtonComponent,
-        HelpPopoverButtonComponent,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, FlatWidgetButtonComponent, HelpPopoverButtonComponent],
 })
 export class ConfigurationOAuthComponent {
     private static readonly SELECTOR = "configuration-oauth";
@@ -76,31 +73,19 @@ export class ConfigurationOAuthComponent {
                 return;
             }
 
-            const channel = new ChannelAddress(
-                oauthProviderName,
-                "OauthConnectionState",
-            );
-            currentEdge.subscribeChannels(
-                this.websocket,
-                this.channelSubscriptionId,
-                [channel],
-            );
+            const channel = new ChannelAddress(oauthProviderName, "OauthConnectionState");
+            currentEdge.subscribeChannels(this.websocket, this.channelSubscriptionId, [channel]);
 
             const subscription: Subscription = currentEdge.currentData
                 .pipe(filter((currentData) => currentData !== null))
                 .subscribe((currentData) => {
-                    const channelValue: number =
-                        currentData.channel[channel.toString()];
-                    this.connectionState =
-                        mapChannelValueToConnectionState(channelValue);
+                    const channelValue: number = currentData.channel[channel.toString()];
+                    this.connectionState = mapChannelValueToConnectionState(channelValue);
                 });
 
             onCleanup(() => {
                 subscription.unsubscribe();
-                currentEdge.unsubscribeChannels(
-                    this.websocket,
-                    this.channelSubscriptionId,
-                );
+                currentEdge.unsubscribeChannels(this.websocket, this.channelSubscriptionId);
             });
 
             this.connectCode();
@@ -160,15 +145,9 @@ export class ConfigurationOAuthComponent {
             window.open(fullUrl, "_self");
         } catch (e) {
             if (e instanceof JsonrpcResponseError) {
-                this.service.toast(
-                    "Unable to initiate connect: " + e.error.message,
-                    "danger",
-                );
+                this.service.toast("Unable to initiate connect: " + e.error.message, "danger");
             } else {
-                this.service.toast(
-                    "Unable to initiate connect: " + e,
-                    "danger",
-                );
+                this.service.toast("Unable to initiate connect: " + e, "danger");
             }
         }
     }
@@ -190,15 +169,8 @@ export class ConfigurationOAuthComponent {
     }
 
     protected getOAuthProvider(): string | null {
-        const result =
-            this.instanceProperties?.[
-                this.step.params.componentIdPropertyPath as string
-            ];
-        if (
-            result !== null &&
-            result !== undefined &&
-            typeof result === "string"
-        ) {
+        const result = this.instanceProperties?.[this.step.params.componentIdPropertyPath as string];
+        if (result !== null && result !== undefined && typeof result === "string") {
             return result;
         }
         return null;
@@ -216,10 +188,7 @@ export class ConfigurationOAuthComponent {
         }>(this.cookieService.get("oauthredirectstate"));
         const code = this.routeService.getQueryParam<string>("code");
 
-        if (
-            oauthRedirectState == null ||
-            oauthRedirectState.oauthprovider !== this.getOAuthProvider()
-        ) {
+        if (oauthRedirectState == null || oauthRedirectState.oauthprovider !== this.getOAuthProvider()) {
             return;
         }
 
@@ -235,12 +204,7 @@ export class ConfigurationOAuthComponent {
         }
 
         if (state !== oauthRedirectState.state) {
-            this.service.toast(
-                this.translateService.instant(
-                    "EDGE.CONFIG.APP.OAUTH.STATES_MISMATCH",
-                ),
-                "warning",
-            );
+            this.service.toast(this.translateService.instant("EDGE.CONFIG.APP.OAUTH.STATES_MISMATCH"), "warning");
             return;
         }
 
@@ -259,10 +223,9 @@ export class ConfigurationOAuthComponent {
         )
             .catch((err) => {
                 this.service.toast(
-                    this.translateService.instant(
-                        "EDGE.CONFIG.APP.OAUTH.UNABLE_TO_CONNECT_CODE",
-                        { error: err.error?.message },
-                    ),
+                    this.translateService.instant("EDGE.CONFIG.APP.OAUTH.UNABLE_TO_CONNECT_CODE", {
+                        error: err.error?.message,
+                    }),
                     "danger",
                 );
             })

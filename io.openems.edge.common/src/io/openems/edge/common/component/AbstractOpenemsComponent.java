@@ -1,5 +1,7 @@
 package io.openems.edge.common.component;
 
+import static io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel;
+
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Dictionary;
@@ -324,8 +326,7 @@ public abstract class AbstractOpenemsComponent implements OpenemsComponent {
 		final var methodName = propertyIdToMethodName(property.getId());
 		final var channelName = PROPERTY_CHANNEL_ID_PREFIX
 				+ CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, methodName);
-		final var channel = this.channels
-				.get(io.openems.edge.common.channel.ChannelId.channelIdUpperToCamel(channelName));
+		final var channel = this.channels.get(channelIdUpperToCamel(channelName));
 		if (channel != null) {
 			return channel;
 		}

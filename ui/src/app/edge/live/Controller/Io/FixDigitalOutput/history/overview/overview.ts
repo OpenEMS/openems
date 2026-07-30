@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
@@ -9,10 +9,10 @@ import { ChannelAddress, EdgeConfig, Service } from "src/app/shared/shared";
 @Component({
     selector: "overview",
     templateUrl: "./overview.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ControllerIoDigitalOutputOverviewComponent extends AbstractHistoryChartOverview {
-
     protected navigationButtons: NavigationOption[] = [];
 
     constructor(
@@ -25,13 +25,21 @@ export class ControllerIoDigitalOutputOverviewComponent extends AbstractHistoryC
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
-        const fixDigitalOutputControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory("Controller.Io.FixDigitalOutput");
-        const singleThresholdControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory("Controller.IO.ChannelSingleThreshold");
+        const fixDigitalOutputControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory(
+            "Controller.Io.FixDigitalOutput",
+        );
+        const singleThresholdControllers: EdgeConfig.Component[] = this.config.getComponentsByFactory(
+            "Controller.IO.ChannelSingleThreshold",
+        );
         const controllers = [...fixDigitalOutputControllers, ...singleThresholdControllers];
 
-        this.navigationButtons = controllers.map(el => (
-            { id: el.id, alias: el.alias, callback: () => { this.router.navigate(["./" + el.id], { relativeTo: this.route }); } }
-        ));
+        this.navigationButtons = controllers.map((el) => ({
+            id: el.id,
+            alias: el.alias,
+            callback: () => {
+                this.router.navigate(["./" + el.id], { relativeTo: this.route });
+            },
+        }));
         return [];
     }
 }

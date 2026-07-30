@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 
@@ -29,8 +29,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
         </ion-range>
 
         <ion-text class="range-current-value">
-            {{ "GENERAL.CURRENT_VALUE" | translate }}:
-            {{ getCurrentValueLabel() }}%
+            {{ "GENERAL.CURRENT_VALUE" | translate }}: {{ getCurrentValueLabel() }}%
         </ion-text>
 
         @if (to.description) {
@@ -42,9 +41,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
         @if (props.info) {
             <div class="info-inline ion-padding-top">
                 <ion-icon color="success" name="oe-info"></ion-icon>
-                <span class="description-text ion-padding-start">{{
-                    props.info
-                }}</span>
+                <span class="description-text ion-padding-start">{{ props.info }}</span>
             </div>
         }
 
@@ -53,13 +50,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
             <ion-text color="danger">
                 @if (formControl.errors?.required) {
                     <p>
-                        {{
-                            props.required
-                                ? props.label +
-                                  " " +
-                                  ("GENERAL.FORMLY.REQUIRED" | translate)
-                                : ""
-                        }}
+                        {{ props.required ? props.label + " " + ("GENERAL.FORMLY.REQUIRED" | translate) : "" }}
                     </p>
                 }
             </ion-text>
@@ -78,6 +69,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
             }
         `,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlyRangeTypeComponent extends FieldType {

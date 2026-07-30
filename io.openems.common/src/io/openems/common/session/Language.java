@@ -11,10 +11,11 @@ import io.openems.common.exceptions.OpenemsException;
 public enum Language {
 	EN(Locale.ENGLISH), //
 	DE(Locale.GERMAN), //
-	CZ(Locale.forLanguageTag("cs")), //
+	CS(Locale.forLanguageTag("cs")), //
 	NL(Locale.forLanguageTag("nl")), //
 	ES(Locale.forLanguageTag("es")), //
-	FR(Locale.FRENCH);
+	FR(Locale.FRENCH), //
+	JA(Locale.forLanguageTag("ja"));
 
 	public static final Language DEFAULT = Language.DE;
 

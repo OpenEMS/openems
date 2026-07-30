@@ -40,6 +40,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Core battery management component for the Samsung ESS. Controls charge/discharge operations, monitors state of charge and battery health. Single-phase operation with configurable capacity and phase selection.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "ess0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -63,6 +64,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Grid power monitoring component for Samsung ESS. Reads grid power consumption/production and monitors grid connection status. Provides visibility into net power flow between grid and home.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "gridmeter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -87,6 +89,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: DC PV charger component for Samsung ESS. Manages DC power input from solar panels and controls battery charging. Monitors PV production power and provides PV inverter functionality.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "charger0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

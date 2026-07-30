@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -7,21 +7,19 @@ import { AbstractHistoryChart } from "src/app/edge/history/abstracthistorychart"
 import { AbstractHistoryChart as NewAbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType, } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../../shared/jsonrpc/response/getScheduleResponse";
 
 @Component({
     selector: "powerChart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class SchedulePowerChartComponent
-    extends AbstractHistoryChart
-    implements OnInit, OnChanges, OnDestroy
-{
+export class SchedulePowerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
@@ -48,9 +46,7 @@ export class SchedulePowerChartComponent
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(
-            this.service.getIsSmartphoneResolution(),
-        );
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected setLabel() {
@@ -63,11 +59,7 @@ export class SchedulePowerChartComponent
                         const label = item.dataset.label;
                         const value = item.dataset.data[item.dataIndex];
 
-                        return TimeOfUseTariffUtils.getLabel(
-                            value,
-                            label,
-                            translate,
-                        );
+                        return TimeOfUseTariffUtils.getLabel(value, label, translate);
                     },
                 },
             },
@@ -110,31 +102,16 @@ export class SchedulePowerChartComponent
                     labels,
                 } = {
                     gridBuyArray: schedule.map(
-                        (entry) =>
-                            HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(
-                                entry.grid,
-                            ),
+                        (entry) => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid),
                         1000,
                     ),
                     gridSellArray: schedule.map(
-                        (entry) =>
-                            HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(
-                                entry.grid,
-                            ),
+                        (entry) => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid),
                         1000,
                     ),
-                    productionArray: schedule.map(
-                        (entry) => entry.production,
-                        1000,
-                    ),
-                    consumptionArray: schedule.map(
-                        (entry) => entry.consumption,
-                        1000,
-                    ),
-                    managedConsumptionArray: schedule.map(
-                        (entry) => entry.managedConsumption,
-                        1000,
-                    ),
+                    productionArray: schedule.map((entry) => entry.production, 1000),
+                    consumptionArray: schedule.map((entry) => entry.consumption, 1000),
+                    managedConsumptionArray: schedule.map((entry) => entry.managedConsumption, 1000),
                     labels: schedule.map((entry) => new Date(entry.timestamp)),
                 };
 
@@ -146,10 +123,7 @@ export class SchedulePowerChartComponent
                     order: 1,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRgba(
-                        ChartConstants.Colors.BLUE_GREY,
-                        0.2,
-                    ),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
                     borderColor: ChartConstants.Colors.BLUE_GREY,
                 });
 
@@ -161,60 +135,42 @@ export class SchedulePowerChartComponent
                     order: 1,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRgba(
-                        ChartConstants.Colors.PURPLE,
-                        0.2,
-                    ),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
                     borderColor: ChartConstants.Colors.PURPLE,
                 });
 
                 datasets.push({
                     type: "line",
                     label: this.translate.instant("GENERAL.PRODUCTION"),
-                    data: productionArray.map((v) =>
-                        Utils.divideSafely(v, 1000),
-                    ), // [W] to [kW]
+                    data: productionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
                     hidden: false,
                     order: 1,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRgba(
-                        ChartConstants.Colors.BLUE,
-                        0.2,
-                    ),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
                     borderColor: ChartConstants.Colors.BLUE,
                 });
 
                 datasets.push({
                     type: "line",
                     label: "Consumption",
-                    data: consumptionArray.map((v) =>
-                        Utils.divideSafely(v, 1000),
-                    ), // [W] to [kW]
+                    data: consumptionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
                     hidden: true,
                     order: 1,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRgba(
-                        ChartConstants.Colors.YELLOW,
-                        0.2,
-                    ),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                     borderColor: ChartConstants.Colors.YELLOW,
                 });
                 datasets.push({
                     type: "line",
                     label: "Managed Consumption",
-                    data: managedConsumptionArray.map((v) =>
-                        Utils.divideSafely(v, 1000),
-                    ), // [W] to [kW]
+                    data: managedConsumptionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
                     hidden: false,
                     order: 1,
                 });
                 this.colors.push({
-                    backgroundColor: ColorUtils.rgbStringToRgba(
-                        ChartConstants.Colors.YELLOW,
-                        0.2,
-                    ),
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
                     borderColor: ChartConstants.Colors.ORANGE,
                 });
 
@@ -251,9 +207,9 @@ export class SchedulePowerChartComponent
         );
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
-        this.options.scales.x.ticks.color = getComputedStyle(
-            document.documentElement,
-        ).getPropertyValue("--ion-color-chart-xAxis-ticks");
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
+            "--ion-color-chart-xAxis-ticks",
+        );
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 

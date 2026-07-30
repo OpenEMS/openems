@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, Validators, } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { v4 as uuidv4 } from "uuid";
@@ -49,10 +49,7 @@ export class RegistrationModalComponent implements OnInit {
     /** Validate the current form and sends the registration request. */
     onSubmit() {
         if (!this.formGroup.valid) {
-            this.service.toast(
-                this.translate.instant("REGISTER.ERRORS.REQUIRED_FIELDS"),
-                "danger",
-            );
+            this.service.toast(this.translate.instant("REGISTER.ERRORS.REQUIRED_FIELDS"), "danger");
             return;
         }
 
@@ -60,10 +57,7 @@ export class RegistrationModalComponent implements OnInit {
         const confirmPassword = this.formGroup.value.confirmPassword;
 
         if (password != confirmPassword) {
-            this.service.toast(
-                this.translate.instant("REGISTER.ERRORS.PASSWORD_NOT_EQUAL"),
-                "danger",
-            );
+            this.service.toast(this.translate.instant("REGISTER.ERRORS.PASSWORD_NOT_EQUAL"), "danger");
             return;
         }
 
@@ -71,10 +65,7 @@ export class RegistrationModalComponent implements OnInit {
         const confirmEmail = this.formGroup.value.confirmEmail;
 
         if (email != confirmEmail) {
-            this.service.toast(
-                this.translate.instant("REGISTER.ERRORS.EMAIL_NOT_EQUAL"),
-                "danger",
-            );
+            this.service.toast(this.translate.instant("REGISTER.ERRORS.EMAIL_NOT_EQUAL"), "danger");
             return;
         }
 
@@ -107,10 +98,7 @@ export class RegistrationModalComponent implements OnInit {
         this.websocket
             .sendRequest(request)
             .then(() => {
-                this.service.toast(
-                    this.translate.instant("REGISTER.SUCCESS"),
-                    "success",
-                );
+                this.service.toast(this.translate.instant("REGISTER.SUCCESS"), "success");
                 this.modalCtrl.dismiss();
             })
             .catch((reason) => {
@@ -119,46 +107,25 @@ export class RegistrationModalComponent implements OnInit {
             .finally(() => this.service.stopSpinner(this.spinnerId));
     }
 
-    /**
-     * Get from depending on given role. If no role matches then the default
-     * (owner) from will be returnd.
-     */
+    /** Get from depending on given role. If no role matches then the default (owner) from will be returnd. */
     private getForm(role: string): FormGroup {
         if (role === "installer") {
             return this.formBuilder.group(
                 {
                     companyName: new FormControl("", Validators.required),
-                    firstname: new FormControl("", [
-                        Validators.required,
-                        PersonNameProhibitedCharactersValidator,
-                    ]),
-                    lastname: new FormControl("", [
-                        Validators.required,
-                        PersonNameProhibitedCharactersValidator,
-                    ]),
+                    firstname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
+                    lastname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
                     street: new FormControl("", Validators.required),
                     zip: new FormControl("", Validators.required),
                     city: new FormControl("", Validators.required),
                     country: new FormControl("", Validators.required),
                     phone: new FormControl("", Validators.required),
-                    email: new FormControl("", [
-                        Validators.required,
-                        Validators.email,
-                    ]),
-                    confirmEmail: new FormControl("", [
-                        Validators.required,
-                        Validators.email,
-                    ]),
+                    email: new FormControl("", [Validators.required, Validators.email]),
+                    confirmEmail: new FormControl("", [Validators.required, Validators.email]),
                     password: new FormControl("", Validators.required),
                     confirmPassword: new FormControl("", Validators.required),
-                    isElectrician: new FormControl(
-                        false,
-                        Validators.requiredTrue,
-                    ),
-                    acceptPrivacyPolicy: new FormControl(
-                        false,
-                        Validators.requiredTrue,
-                    ),
+                    isElectrician: new FormControl(false, Validators.requiredTrue),
+                    acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
                     acceptAgb: new FormControl(false, Validators.requiredTrue),
                     subscribeNewsletter: new FormControl(false),
                 },
@@ -166,33 +133,18 @@ export class RegistrationModalComponent implements OnInit {
             );
         } else {
             return this.formBuilder.group({
-                firstname: new FormControl("", [
-                    Validators.required,
-                    PersonNameProhibitedCharactersValidator,
-                ]),
-                lastname: new FormControl("", [
-                    Validators.required,
-                    PersonNameProhibitedCharactersValidator,
-                ]),
+                firstname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
+                lastname: new FormControl("", [Validators.required, PersonNameProhibitedCharactersValidator]),
                 street: new FormControl("", Validators.required),
                 zip: new FormControl("", Validators.required),
                 city: new FormControl("", Validators.required),
                 country: new FormControl("", Validators.required),
                 phone: new FormControl("", Validators.required),
-                email: new FormControl("", [
-                    Validators.required,
-                    Validators.email,
-                ]),
-                confirmEmail: new FormControl("", [
-                    Validators.required,
-                    Validators.email,
-                ]),
+                email: new FormControl("", [Validators.required, Validators.email]),
+                confirmEmail: new FormControl("", [Validators.required, Validators.email]),
                 password: new FormControl("", Validators.required),
                 confirmPassword: new FormControl("", Validators.required),
-                acceptPrivacyPolicy: new FormControl(
-                    false,
-                    Validators.requiredTrue,
-                ),
+                acceptPrivacyPolicy: new FormControl(false, Validators.requiredTrue),
                 acceptAgb: new FormControl(false, Validators.requiredTrue),
             });
         }

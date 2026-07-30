@@ -26,6 +26,10 @@
     padding: calc(var(--ion-padding) / 2);
 }
 
+.ion-padding-top-half {
+    padding-top: calc(var(--ion-padding) / 2);
+}
+
 .ion-padding-top-double {
     padding-top: calc(var(--ion-padding) * 2);
 }

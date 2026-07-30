@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Inject, Input, ViewChild, effect, } from "@angular/core";
+import { ChangeDetectorRef, Component, Inject, Input, ViewChild, effect, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { ChartOptions } from "chart.js";
@@ -7,13 +7,13 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { ChartBaseModule } from "src/app/shared/chart-base.module";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
-import { ChartConstants, XAxisType, } from "src/app/shared/components/chart/chart.constants";
+import { ChartConstants, XAxisType } from "src/app/shared/components/chart/chart.constants";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { QueryHistoricTimeseriesEnergyPerPeriodResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyPerPeriodResponse";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
-import { ChannelAddress, EdgeConfig, Logger, Service, } from "src/app/shared/shared";
+import { ChannelAddress, EdgeConfig, Logger, Service } from "src/app/shared/shared";
 import { TSignalValue } from "src/app/shared/type/utility";
 import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
@@ -21,9 +21,9 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-multiple-evcs-api-cluster-chart",
-    templateUrl:
-        "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
     imports: [LiveDataServiceProvider, ChartBaseModule, CommonUiModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [
         {
             provide: DataService,
@@ -52,32 +52,21 @@ export class ChartComponent extends AbstractHistoryChart {
 
         effect(() => {
             const currentValue = dataService.currentValue();
-            const _datasets: typeof this.datasets = this.datasets.map(
-                (dataset) => ({
-                    ...dataset,
-                    data: this.getData(currentValue, this.evcss), // Example transformation
-                }),
-            );
+            const _datasets: typeof this.datasets = this.datasets.map((dataset) => ({
+                ...dataset,
+                data: this.getData(currentValue, this.evcss), // Example transformation
+            }));
 
-            previousMax = this.updateYAxisScaling(
-                _datasets,
-                previousMax,
-                translate,
-            );
+            previousMax = this.updateYAxisScaling(_datasets, previousMax, translate);
         });
     }
 
-    public static getChartData(
-        component: EdgeConfig.Component,
-        data: number[],
-    ): HistoryUtils.ChartData {
+    public static getChartData(component: EdgeConfig.Component, data: number[]): HistoryUtils.ChartData {
         return {
             input: [],
             output: (_data: HistoryUtils.ChannelData) => {
                 return [
-                    <
-                        HistoryUtils.DisplayValue<HistoryUtils.DataLabelsCustomOptions>
-                    >{
+                    <HistoryUtils.DisplayValue<HistoryUtils.DataLabelsCustomOptions>>{
                         name: Name.METER_ALIAS_OR_ID(component),
                         converter: () => data,
                         color: ChartConstants.Colors.GREEN,
@@ -109,27 +98,18 @@ export class ChartComponent extends AbstractHistoryChart {
         this.chartType = "bar";
         this.xAxisScalingType = XAxisType.NUMBER;
 
-        if (
-            this.component == null ||
-            this.dataService == null ||
-            this.edge == null
-        ) {
+        if (this.component == null || this.dataService == null || this.edge == null) {
             return this.chartObject;
         }
 
         this.dataService?.subscribeChannels(
-            Object.entries(this.evcss).map(
-                ([k, v]) => new ChannelAddress(k, "ChargePower"),
-            ),
+            Object.entries(this.evcss).map(([k, v]) => new ChannelAddress(k, "ChargePower")),
             this.edge,
         );
         return ChartComponent.getChartData(this.component, this.data);
     }
 
-    protected getChannelData(
-        currentData: CurrentValue,
-        evcss: typeof this.evcss,
-    ): typeof this.channelData {
+    protected getChannelData(currentData: CurrentValue, evcss: typeof this.evcss): typeof this.channelData {
         return {
             data: Object.entries(evcss).reduce(
                 (obj, [k, v]) => {
@@ -141,13 +121,8 @@ export class ChartComponent extends AbstractHistoryChart {
         };
     }
 
-    protected getData(
-        currentData: CurrentValue,
-        evcss: typeof this.evcss,
-    ): number[] {
-        return Object.entries(evcss).map(
-            ([k, v]) => currentData.allComponents[k + "/ChargePower"],
-        );
+    protected getData(currentData: CurrentValue, evcss: typeof this.evcss): number[] {
+        return Object.entries(evcss).map(([k, v]) => currentData.allComponents[k + "/ChargePower"]);
     }
 
     protected getLabels() {
@@ -170,10 +145,7 @@ export class ChartComponent extends AbstractHistoryChart {
                 res();
                 return;
             }
-            this.channelData = this.getChannelData(
-                this.dataService.currentValue(),
-                this.evcss,
-            );
+            this.channelData = this.getChannelData(this.dataService.currentValue(), this.evcss);
 
             const displayValues = AbstractHistoryChart.fillChart(
                 this.chartType,
@@ -194,10 +166,7 @@ export class ChartComponent extends AbstractHistoryChart {
 
     protected override getChartHeight(): number | null {
         return NumberUtils.multiplySafely(
-            NumberUtils.divideSafely(
-                NumberUtils.divideSafely(window.innerHeight, 2),
-                window.innerHeight,
-            ),
+            NumberUtils.divideSafely(NumberUtils.divideSafely(window.innerHeight, 2), window.innerHeight),
             100,
         );
     }
@@ -207,12 +176,7 @@ export class ChartComponent extends AbstractHistoryChart {
         previousMax: number | null,
         translate: TranslateService,
     ) {
-        if (
-            this == null ||
-            this.chartObject == null ||
-            this.options == null ||
-            this.options.scales == null
-        ) {
+        if (this == null || this.chartObject == null || this.options == null || this.options.scales == null) {
             return null;
         }
 
@@ -224,21 +188,13 @@ export class ChartComponent extends AbstractHistoryChart {
             chartObject.yAxes
                 .filter((el) => el satisfies HistoryUtils.yAxes)
                 .forEach((element) => {
-                    const scaleOptions: ReturnType<
-                        typeof ChartConstants.getScaleOptions
-                    > = ChartConstants.getScaleOptions(
-                        _datasets,
-                        element,
-                        this.chartType,
-                    );
+                    const scaleOptions: ReturnType<typeof ChartConstants.getScaleOptions> =
+                        ChartConstants.getScaleOptions(_datasets, element, this.chartType);
                     if (scaleOptions == null || optionScales == null) {
                         return null;
                     }
 
-                    if (
-                        previousMax === null ||
-                        scaleOptions.max > previousMax
-                    ) {
+                    if (previousMax === null || scaleOptions.max > previousMax) {
                         optionScales[ChartAxis.LEFT] = {
                             ...optionScales[ChartAxis.LEFT],
                             ...scaleOptions,
@@ -253,10 +209,7 @@ export class ChartComponent extends AbstractHistoryChart {
                             chartObject.tooltip.formatNumber,
                         );
                     }
-                    previousMax = ObjectUtils.getValueByKeySafely(
-                        optionScales,
-                        ChartAxis.LEFT,
-                    )?.max as number;
+                    previousMax = ObjectUtils.getValueByKeySafely(optionScales, ChartAxis.LEFT)?.max as number;
                 });
             this.chart.chart.update("none"); // Update without animation
         }

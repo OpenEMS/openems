@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { IonInput, IonRange } from "@ionic/angular";
 import { Converter } from "../../shared/converter";
 import { AbstractModalLine } from "../abstract-modal-line";
@@ -7,6 +7,7 @@ import { ButtonLabel } from "../modal-button/modal-button";
 @Component({
     selector: "oe-modal-line",
     templateUrl: "./modal-line.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalLineComponent extends AbstractModalLine {
@@ -42,9 +43,7 @@ export class ModalLineComponent extends AbstractModalLine {
     @Input() protected textIndent: TextIndentation = TextIndentation.NONE;
 
     /** Range */
-    protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (
-        val: number,
-    ) => val;
+    protected readonly DEFAULT_PIN_FORMATTER: IonRange["pinFormatter"] = (val: number) => val;
 
     /** Toggle */
     protected toggleOnEnter(event: KeyboardEvent, controlName: string) {

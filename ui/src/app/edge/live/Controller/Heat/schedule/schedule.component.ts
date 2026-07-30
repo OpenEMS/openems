@@ -1,4 +1,4 @@
-import { Component, inject, model } from "@angular/core";
+import { Component, inject, model, ChangeDetectionStrategy } from "@angular/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -15,12 +15,8 @@ import { HeatManualPayload } from "./js-calendar-utils";
     templateUrl: "./schedule.component.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
-    imports: [
-        ScheduleComponent,
-        ComponentsBaseModule,
-        CommonUiModule,
-        FlatWidgetButtonComponent,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [ScheduleComponent, ComponentsBaseModule, CommonUiModule, FlatWidgetButtonComponent],
 })
 export class HeatScheduleComponent extends AbstractModal {
     protected schedule = model<JsCalendar.ScheduleVM[]>([]);
@@ -31,14 +27,11 @@ export class HeatScheduleComponent extends AbstractModal {
     private readonly routeService: RouteService = inject(RouteService);
 
     protected override updateComponent(config: EdgeConfig): void {
-        this.component = config.getComponentSafely(
-            this.routeService.getRouteParam("componentId"),
-        );
+        this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
     }
 
     protected override onIsInitialized(): void {
         this.isAskomaReadOnly =
-            this.component?.factoryId === "Heat.Askoma" &&
-            this.component.properties?.readOnly === true;
+            this.component?.factoryId === "Heat.Askoma" && this.component.properties?.readOnly === true;
     }
 }

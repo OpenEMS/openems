@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -10,6 +10,7 @@ import { Controller_Symmetric_TimeSlot_PeakShavingModalComponent } from "./modal
 @Component({
     selector: "Controller_Symmetric_TimeSlot_PeakShaving",
     templateUrl: "./Symmetric_TimeSlot.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends AbstractFlatWidget {
@@ -41,11 +42,8 @@ export class Controller_Symmetric_TimeSlot_PeakShavingComponent extends Abstract
         const values = SharedControllerPeakShaving.getWidgetValues(
             currentData,
             this.component.getPropertyFromComponent<string>("meter.id"),
-            this.component.getPropertyFromComponent<number>(
-                "peakShavingPower",
-            ) ?? 0,
-            this.component.getPropertyFromComponent<number>("rechargePower") ??
-                0,
+            this.component.getPropertyFromComponent<number>("peakShavingPower") ?? 0,
+            this.component.getPropertyFromComponent<number>("rechargePower") ?? 0,
         );
 
         this.activePower = values.activePower;

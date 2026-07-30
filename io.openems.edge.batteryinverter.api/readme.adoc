@@ -7,6 +7,7 @@ Defines interfaces for battery inverter implementations in OpenEMS.
 This API bundle defines the core interfaces and contracts for battery inverter components. A battery inverter is a critical component that converts between DC power from a battery and AC power for the grid or loads. Together with a battery component, a battery inverter builds an Energy Storage System (ESS).
 
 The bundle provides interfaces for:
+
 * Symmetric battery inverters for three-phase systems
 * Managed battery inverters that can be controlled
 * Hybrid battery inverters that can also handle PV input
@@ -39,6 +40,7 @@ Controllable battery inverter interface extending `SymmetricBatteryInverter`.
 *Purpose*: Control and manage battery inverter charging/discharging operations.
 
 *Key Methods*:
+
 * `run(Battery battery, int setActivePower, int setReactivePower)` - Apply power setpoints
 * `getStaticConstraints()` - Get power constraints for the inverter
 * `getPowerPrecision()` - Get minimum power step resolution
@@ -54,6 +56,7 @@ Extended interface for hybrid inverters that manage both battery and PV.
 *Purpose*: Control inverters that can simultaneously handle battery and photovoltaic inputs.
 
 *Additional Capabilities*:
+
 * Manages DC side with battery input and PV input
 * Coordinates charging from both sources
 * Handles PV feed-to-grid scenarios
@@ -66,6 +69,7 @@ Interface for off-grid battery inverter systems.
 *Purpose*: Support for island/microgrid mode where battery inverter operates independently from the main grid.
 
 *Use Cases*:
+
 * Backup power systems
 * Island installations
 * Microgrids
@@ -90,7 +94,7 @@ Device-specific battery inverter implementations:
 
 .Implemented In
 * `io.openems.edge.batteryinverter.kaco.blueplanetgridsave` - KACO blueplanet gridsave 50/80
-* `io.openems.edge.batteryinverter.refu88k` - REFU 88K hybrid inverter
+* `io.openems.edge.batteryinverter.refu` - REFU battery inverter (SunSpec)
 * `io.openems.edge.batteryinverter.sinexcel` - Sinexcel inverter
 
 Test implementations:
@@ -104,6 +108,7 @@ Test implementations:
 
 .ESS (Energy Storage System)
 Battery Inverter + Battery component together provide ESS functionality:
+
 * Charge/discharge coordination
 * Reactive power support
 * Grid support services

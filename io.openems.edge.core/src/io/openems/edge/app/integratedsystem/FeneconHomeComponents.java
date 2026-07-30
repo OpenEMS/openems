@@ -19,6 +19,7 @@ import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.hardware.IoGpio;
 import io.openems.edge.app.hardware.MasterBox2v0;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
 import io.openems.edge.app.openemshardware.TechbaseCm4sGen3;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
@@ -203,7 +204,7 @@ public final class FeneconHomeComponents {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
 				"GoodWe.BatteryInverter", getBatteryInverterConfig(hasEmergencyReserve, feedInType, modbusIdExternal,
-						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode));
+						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode).build());
 	}
 
 	/**
@@ -397,9 +398,9 @@ public final class FeneconHomeComponents {
 			final String modbusIdExternal, //
 			final OpenemsAppInstance deviceHardware //
 	) {
-		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
-				? "/dev/bus0"
-				: "/dev/busUSB3";
+		final var portName = isHardwareGen2OrGen3(deviceHardware) //
+				? "/dev/busUSB3" //
+				: "/dev/bus0";
 
 		return new EdgeConfig.Component(modbusIdExternal,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.modbus2.alias"), "Bridge.Modbus.Serial", //
@@ -957,9 +958,9 @@ public final class FeneconHomeComponents {
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
-	 * @return the {@link JsonObject}
+	 * @return the {@link JsonUtils.JsonObjectBuilder}
 	 */
-	public static JsonObject getBatteryInverterConfig(final boolean hasEmergencyReserve, //
+	public static JsonUtils.JsonObjectBuilder getBatteryInverterConfig(final boolean hasEmergencyReserve, //
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
@@ -984,11 +985,18 @@ public final class FeneconHomeComponents {
 								|| feedInType == ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION ? "ENABLE"
 										: "DISABLE") //
 				.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
-				.addPropertyIfNotNull("gridCode", gridCode) //
-				.build();
+				.addPropertyIfNotNull("gridCode", gridCode);
 	}
 
 	private FeneconHomeComponents() {
+	}
+
+	private static boolean isHardwareGen2OrGen3(OpenemsAppInstance deviceHardware) {
+		if (deviceHardware == null) {
+			return false;
+		}
+		return deviceHardware.appId.equals(TechbaseCm4sGen2.APPID)
+				|| deviceHardware.appId.equals(TechbaseCm4sGen3.APPID);
 	}
 
 }

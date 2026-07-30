@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, Output, signal, WritableSignal, } from "@angular/core";
+import { Component, effect, EventEmitter, Output, signal, WritableSignal } from "@angular/core";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { RouteService } from "src/app/shared/service/route.service";
 import { NavigationService } from "../service/navigation.service";
@@ -19,16 +19,22 @@ type BreadcrumbItem = {
     styleUrl: "./breadcrumbs.scss",
 })
 export class NavigationBreadCrumbsComponent {
-    @Output() public navigate: EventEmitter<NavigationTree> =
-        new EventEmitter();
+    @Output() public navigate: EventEmitter<NavigationTree> = new EventEmitter();
 
     protected breadCrumbs: WritableSignal<BreadcrumbItem[]> = signal([]);
+    protected commonChildren: NavigationTree[] = [];
 
     constructor(
         protected navigationService: NavigationService,
         protected routeService: RouteService,
         private readonly layoutRefresh: LayoutRefreshService,
     ) {
+        effect(() => {
+            this.commonChildren = NavigationBreadCrumbsComponent.getCommonChildren(
+                navigationService.currentNode()?.getChildren() ?? [],
+            );
+        });
+
         effect(() => {
             const currentNode = this.navigationService.currentNode();
             if (currentNode == null) {
@@ -72,12 +78,12 @@ export class NavigationBreadCrumbsComponent {
         });
     }
 
+    private static getCommonChildren(children: NavigationTree[] = []): NavigationTree[] {
+        return children.filter((el) => el.isCommonWidget);
+    }
+
     /** Navigates to passed link */
-    protected handleNavigate(
-        event: MouseEvent,
-        parent: NavigationTree,
-        isLast: boolean,
-    ) {
+    protected handleNavigate(event: MouseEvent, parent: NavigationTree, isLast: boolean) {
         // Skip navigation for last breadcrumb
         if (isLast) {
             return;

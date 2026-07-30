@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -42,7 +43,7 @@ public class TestTibber {
 	private AppManagerTestBundle appManagerTestBundle;
 	private Tibber tibber;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -96,7 +97,7 @@ public class TestTibber {
 		this.assertChannelsInPredictor("_sum/UnmanagedConsumptionActivePower");
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testOnlyCompatibleWithHomeOrCommercial() throws Exception {
 		this.appManagerTestBundle.addCheckable(CheckHome.COMPONENT_NAME,
 				t -> new CheckHome(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
@@ -120,8 +121,9 @@ public class TestTibber {
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
+		assertThrows(OpenemsNamedException.class,
+				() -> this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+						new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)));
 	}
 
 	@Test

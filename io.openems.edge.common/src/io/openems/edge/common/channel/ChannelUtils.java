@@ -2,14 +2,22 @@ package io.openems.edge.common.channel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.google.common.base.CaseFormat;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.function.Disposable;
 import io.openems.common.types.OptionsEnum;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -17,6 +25,205 @@ import io.openems.edge.common.component.OpenemsComponent;
 public final class ChannelUtils {
 
 	private ChannelUtils() {
+	}
+
+	public record ChangedValue<C extends OpenemsComponent, T>(//
+			C component, //
+			ChannelId channelId, //
+			Value<T> prevValue, //
+			Value<T> newValue //
+	) {
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every update by
+	 * nextProcessImage() call of the Channel.
+	 *
+	 * @param <T>        the type of the Component
+	 * @param <V1>       the type of the first Channel Value
+	 * @param <V2>       the type of the second Channel Value
+	 * @param components the {@link OpenemsComponent OpenemsComponents}
+	 * @param channelId1 the first {@link ChannelId}
+	 * @param channelId2 the second {@link ChannelId}
+	 * @param onUpdate   the callback {@link BiConsumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnUpdate(//
+			final List<T> components, //
+			final ChannelId channelId1, //
+			final ChannelId channelId2, //
+			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
+	) {
+		final var currentValues = new ConcurrentHashMap<T, Tuple2<Value<V1>, Value<V2>>>();
+		final var subscription1 = ChannelUtils.<T, V1>subscribeOnUpdate(components, channelId1,
+				(current, changedValue) -> {
+
+					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
+								: valueValueTuple) //
+								.withA(changedValue.newValue());
+					});
+
+					onUpdate.accept(currentValues);
+				});
+		final var subscription2 = ChannelUtils.<T, V2>subscribeOnUpdate(components, channelId2,
+				(tValueMap, changedValue) -> {
+
+					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
+								: valueValueTuple) //
+								.withB(changedValue.newValue());
+					});
+
+					onUpdate.accept(currentValues);
+				});
+
+		return () -> {
+			subscription1.dispose();
+			subscription2.dispose();
+		};
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every update by
+	 * nextProcessImage() call of the Channel.
+	 *
+	 * @param <T>        the type of the Component
+	 * @param <V>        the type of the Channel Value
+	 * @param components the {@link OpenemsComponent OpenemsComponents}
+	 * @param channelId  the {@link ChannelId}
+	 * @param onUpdate   the callback {@link BiConsumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V> Disposable subscribeOnUpdate(//
+			final List<T> components, //
+			final ChannelId channelId, //
+			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
+	) {
+		final var currentValues = new ConcurrentHashMap<T, Value<V>>();
+		final var subscriptions = components.stream() //
+				.map(component -> ChannelUtils.<T, V>subscribeOnUpdate(component, channelId, value -> {
+					final var prev = currentValues.put(component, value);
+					onUpdate.accept(currentValues, new ChangedValue<>(component, channelId, prev, value));
+				})) //
+				.toList();
+		return () -> subscriptions.forEach(Disposable::dispose);
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every update by
+	 * nextProcessImage() call of the Channel.
+	 *
+	 * @param <T>          the type of the Component
+	 * @param <V>          the type of the Channel Value
+	 * @param component    the {@link OpenemsComponent}
+	 * @param channelId    the {@link ChannelId}
+	 * @param subscription the callback {@link Consumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V> Disposable subscribeOnUpdate(T component, ChannelId channelId,
+			Consumer<Value<V>> subscription) {
+		final Channel<V> channel = component.channel(channelId);
+		channel.onUpdate(subscription);
+
+		return () -> channel.removeOnUpdateCallback(subscription);
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every setNextValue() call
+	 * of the Channel.
+	 *
+	 * @param <T>        the type of the Component
+	 * @param <V1>       the type of the first Channel Value
+	 * @param <V2>       the type of the second Channel Value
+	 * @param components the {@link OpenemsComponent OpenemsComponents}
+	 * @param channelId1 the first {@link ChannelId}
+	 * @param channelId2 the second {@link ChannelId}
+	 * @param onUpdate   the callback {@link BiConsumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V1, V2> Disposable subscribeOnSetNextValue(//
+			final List<T> components, //
+			final ChannelId channelId1, //
+			final ChannelId channelId2, //
+			final Consumer<Map<T, Tuple2<Value<V1>, Value<V2>>>> onUpdate //
+	) {
+		final var currentValues = new ConcurrentHashMap<T, Tuple2<Value<V1>, Value<V2>>>();
+
+		final var subscription1 = ChannelUtils.<T, V1>subscribeOnSetNextValue(components, channelId1,
+				(current, changedValue) -> {
+
+					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
+								: valueValueTuple) //
+								.withA(changedValue.newValue());
+					});
+
+					onUpdate.accept(new HashMap<>(currentValues));
+				});
+		final var subscription2 = ChannelUtils.<T, V2>subscribeOnSetNextValue(components, channelId2,
+				(tValueMap, changedValue) -> {
+
+					currentValues.compute(changedValue.component(), (t, valueValueTuple) -> {
+						return (valueValueTuple == null ? new Tuple2<Value<V1>, Value<V2>>(null, null)
+								: valueValueTuple) //
+								.withB(changedValue.newValue());
+					});
+
+					onUpdate.accept(new HashMap<>(currentValues));
+				});
+
+		return () -> {
+			subscription1.dispose();
+			subscription2.dispose();
+		};
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every setNextValue() call
+	 * of the Channel.
+	 *
+	 * @param <T>        the type of the Component
+	 * @param <V>        the type of the Channel Value
+	 * @param components the {@link OpenemsComponent OpenemsComponents}
+	 * @param channelId  the {@link ChannelId}
+	 * @param onUpdate   the callback {@link BiConsumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V> Disposable subscribeOnSetNextValue(//
+			final List<T> components, //
+			final ChannelId channelId, //
+			final BiConsumer<Map<T, Value<V>>, ChangedValue<T, V>> onUpdate //
+	) {
+		final var currentValues = new ConcurrentHashMap<T, Value<V>>();
+		final var subscriptions = components.stream() //
+				.map(component -> ChannelUtils.<T, V>subscribeOnSetNextValue(component, channelId, value -> {
+					final var prev = currentValues.put(component, value);
+					onUpdate.accept(currentValues, new ChangedValue<>(component, channelId, prev, value));
+				})) //
+				.toList();
+		return () -> subscriptions.forEach(Disposable::dispose);
+	}
+
+	/**
+	 * Adds a callback to the Channel, which is called on every setNextValue() call
+	 * of the Channel.
+	 * 
+	 * @param <T>          the type of the Component
+	 * @param <V>          the type of the Channel Value
+	 * @param component    the {@link OpenemsComponent}
+	 * @param channelId    the {@link ChannelId}
+	 * @param subscription the callback {@link Consumer}
+	 * @return a {@link Disposable} to remove the callback
+	 */
+	public static <T extends OpenemsComponent, V> Disposable subscribeOnSetNextValue(T component, ChannelId channelId,
+			Consumer<Value<V>> subscription) {
+		final Channel<V> channel = component.channel(channelId);
+		channel.onSetNextValue(subscription);
+
+		subscription.accept(channel.getNextValue());
+
+		return () -> channel.removeOnSetNextValueCallback(subscription);
 	}
 
 	/**

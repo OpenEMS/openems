@@ -1,0 +1,6 @@
+@if (parentNode !== null && navigationService.position() === "left") {
+  <ion-item [routerLink]="parentNode.routerLink.baseString" button lines="none" [detail]="false">
+    <ion-icon color="primary" name="chevron-back"></ion-icon>
+    <ion-label color="primary">{{ parentNode?.label }}</ion-label>
+  </ion-item>
+}

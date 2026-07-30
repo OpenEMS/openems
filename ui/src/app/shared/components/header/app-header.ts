@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, untracked, ViewChild, } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, untracked, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -17,6 +17,7 @@ import { StatusSingleComponent } from "../status/single/status.component";
     selector: "app-header",
     templateUrl: "./header.component.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             ion-title::part(native) {
@@ -34,11 +35,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     public environment = environment;
     public backUrl: string | boolean = "/";
     public enableSideMenu: boolean = false;
-    public currentPage:
-        | "EdgeSettings"
-        | "Other"
-        | "IndexLive"
-        | "IndexHistory" = "Other";
+    public currentPage: "EdgeSettings" | "Other" | "IndexLive" | "IndexHistory" = "Other";
     public isSystemLogEnabled: boolean = false;
 
     protected isHeaderAllowed: boolean = false;
@@ -166,21 +163,13 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     public segmentChanged(event) {
         if (event.detail.value == "IndexLive") {
-            this.router.navigate(
-                ["/device/" + this.service.currentEdge().id + "/live"],
-                { replaceUrl: true },
-            );
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/live"], { replaceUrl: true });
             // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/live", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-            this.router.navigate([
-                "/device/" + this.service.currentEdge().id + "/history",
-            ]);
-            /**
-             * Creates bug of being infinite forwarded betweeen live and
-             * history, if not relatively routed
-             */
+            this.router.navigate(["/device/" + this.service.currentEdge().id + "/history"]);
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed */
             // this.router.navigateByUrl("/device/" + this.service.currentEdge().id + "/history", { replaceUrl: true });
             this.cdRef.detectChanges();
         }
@@ -225,11 +214,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
 
         // disable backUrl to first 'index' page from Edge index if there is only one Edge in the system
-        if (
-            file === "live" &&
-            urlArray.length == 3 &&
-            this.environment.backend === "OpenEMS Edge"
-        ) {
+        if (file === "live" && urlArray.length == 3 && this.environment.backend === "OpenEMS Edge") {
             this.backUrl = false;
             return;
         }

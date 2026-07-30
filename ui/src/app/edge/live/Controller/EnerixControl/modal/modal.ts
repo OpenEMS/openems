@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
@@ -7,16 +7,16 @@ import { SharedControllerEnerixControl } from "../shared/shared";
 @Component({
     selector: "oe-controller-enerix-control-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
     private static PROPERTY_CONTROL_MODE: string = "_PropertyControlMode";
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
 
-    protected readonly CONVERT_ENERIX_CONTROL_STATE =
-        SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
-            this.translate,
-        );
+    protected readonly CONVERT_ENERIX_CONTROL_STATE = SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
+        this.translate,
+    );
     protected propertyMode: string | null = null;
     protected controlMode: ControlMode | null = null;
     protected state: State | null = null;
@@ -31,14 +31,8 @@ export class ModalComponent extends AbstractModal {
         }
 
         const channelAddresses: ChannelAddress[] = [
-            new ChannelAddress(
-                this.component.id,
-                ModalComponent.PROPERTY_CONTROL_MODE,
-            ),
-            new ChannelAddress(
-                this.component.id,
-                ModalComponent.PROPERTY_READ_ONLY,
-            ),
+            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_CONTROL_MODE),
+            new ChannelAddress(this.component.id, ModalComponent.PROPERTY_READ_ONLY),
             new ChannelAddress(this.component.id, "RemoteControlMode"),
             new ChannelAddress(this.component.id, "UnableToSend"),
             new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"),
@@ -52,25 +46,14 @@ export class ModalComponent extends AbstractModal {
             return [];
         }
 
-        this.propertyMode =
-            currentData.allComponents[
-                this.component.id + "/" + ModalComponent.PROPERTY_CONTROL_MODE
-            ];
-        this.controlMode =
-            currentData.allComponents[this.component.id + "/RemoteControlMode"];
-        this.readOnly =
-            currentData.allComponents[
-                this.component.id + "/" + ModalComponent.PROPERTY_READ_ONLY
-            ];
-        this.unableToSend =
-            currentData.allComponents[this.component.id + "/UnableToSend"];
-        this.isEssChargeFromGridAllowed =
-            currentData.allComponents["_meta" + "/IsEssChargeFromGridAllowed"];
+        this.propertyMode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_CONTROL_MODE];
+        this.controlMode = currentData.allComponents[this.component.id + "/RemoteControlMode"];
+        this.readOnly = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_READ_ONLY];
+        this.unableToSend = currentData.allComponents[this.component.id + "/UnableToSend"];
+        this.isEssChargeFromGridAllowed = currentData.allComponents["_meta" + "/IsEssChargeFromGridAllowed"];
 
         if (this.readOnly) {
-            this.state = this.unableToSend
-                ? State.disconnected
-                : State.connected;
+            this.state = this.unableToSend ? State.disconnected : State.connected;
             return;
         } else {
             if (this.controlMode === null) {
@@ -78,11 +61,7 @@ export class ModalComponent extends AbstractModal {
             }
             switch (this.controlMode) {
                 case ControlMode.idle:
-                    this.state =
-                        this.component.properties.controlMode ===
-                        "REMOTE_CONTROL"
-                            ? State.on
-                            : State.off;
+                    this.state = this.component.properties.controlMode === "REMOTE_CONTROL" ? State.on : State.off;
                     break;
                 case ControlMode.noDischarge:
                     this.state = State.noDischarge;
@@ -96,22 +75,16 @@ export class ModalComponent extends AbstractModal {
             }
 
             if (this.controlMode != ControlMode.idle) {
-                this.overwriteLabel = this.translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE",
-                );
+                this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE");
             } else {
-                this.overwriteLabel = this.translate.instant(
-                    "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE",
-                );
+                this.overwriteLabel = this.translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
             }
         }
     }
 
     protected override getFormGroup(): FormGroup {
         return this.formBuilder.group({
-            controlMode: new FormControl(
-                this.component?.properties.controlMode,
-            ),
+            controlMode: new FormControl(this.component?.properties.controlMode),
         });
     }
 
@@ -125,16 +98,11 @@ export class ModalComponent extends AbstractModal {
                     },
                 ])
                 .then(() => {
-                    this.service.toast(
-                        this.translate.instant("GENERAL.CHANGE_ACCEPTED"),
-                        "success",
-                    );
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 })
                 .catch((reason) => {
                     this.service.toast(
-                        this.translate.instant("GENERAL.CHANGE_FAILED") +
-                            "\n" +
-                            reason.error.message,
+                        this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
                         "danger",
                     );
                 }),

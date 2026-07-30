@@ -1,34 +1,26 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { SharedControllerTimeslotPeakshaving } from "../shared/shared";
 
 @Component({
-    templateUrl:
-        "../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
     private readonly routeService: RouteService = inject(RouteService);
@@ -41,11 +33,7 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
         return {
             title: component.alias,
             icon: SharedControllerTimeslotPeakshaving.SHARED_ICON,
-            lines: SharedControllerTimeslotPeakshaving.getFormlySettingsLines(
-                translate,
-                component,
-                edge,
-            ),
+            lines: SharedControllerTimeslotPeakshaving.getFormlySettingsLines(translate, component, edge),
             component: component,
             edge: edge,
         };
@@ -57,9 +45,7 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        this.component = config.getComponentSafely(
-            this.routeService.getRouteParam("componentId"),
-        );
+        this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(this.component);
         return ControllerPeakShavingSymmetricTimeSlotSettingsComponent.getFormlyGeneralView(
             this.translate,
@@ -87,10 +73,7 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
             this.form,
             "slowChargeStartTime",
             currentData,
-            new ChannelAddress(
-                this.component.id,
-                "_PropertySlowChargeStartTime",
-            ),
+            new ChannelAddress(this.component.id, "_PropertySlowChargeStartTime"),
         );
         this.setFormControlSafelyWithChannel(
             this.form,
@@ -179,9 +162,7 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
 
     protected override getChannelAddresses(): Promise<ChannelAddress[]> {
         this.component ??= this.getComponent();
-        return SharedControllerTimeslotPeakshaving.getChannelAddresses(
-            this.component,
-        );
+        return SharedControllerTimeslotPeakshaving.getChannelAddresses(this.component);
     }
 
     private getComponent(): EdgeConfig.Component {
@@ -189,9 +170,7 @@ export class ControllerPeakShavingSymmetricTimeSlotSettingsComponent extends Abs
         AssertionUtils.assertIsDefined(edge);
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
-        const component = config.getComponentSafely(
-            this.routeService.getRouteParam("componentId"),
-        );
+        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 
         return component;

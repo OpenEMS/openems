@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { CategorizedComponents, CategorizedFactories } from "src/app/shared/components/edge/edgeconfig";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
@@ -7,17 +7,17 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "../../../../shared/shared";
 
 interface MyCategorizedFactories extends CategorizedFactories {
-    isClicked?: boolean,
-    filteredFactories?: EdgeConfig.Factory[],
+    isClicked?: boolean;
+    filteredFactories?: EdgeConfig.Factory[];
 }
 
 @Component({
     selector: IndexComponent.SELECTOR,
     templateUrl: "./index.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class IndexComponent implements OnInit {
-
     private static readonly SELECTOR = "indexComponentInstall";
 
     public components: CategorizedComponents[] | null = null;
@@ -30,8 +30,7 @@ export class IndexComponent implements OnInit {
         private translate: TranslateService,
         private service: Service,
         private websocket: Websocket,
-    ) {
-    }
+    ) {}
 
     async ngOnInit() {
         this.edge = await this.service.getCurrentEdge();
@@ -48,7 +47,7 @@ export class IndexComponent implements OnInit {
         const filters = completeFilter.toLowerCase().split(" ");
         let countFilteredEntries = 0;
         for (const entry of this.list) {
-            entry.filteredFactories = entry.factories.filter(entry =>
+            entry.filteredFactories = entry.factories.filter((entry) =>
                 // Search for filter strings in Factory-ID, -Name and Description
                 Utils.matchAll(filters, [
                     entry.id.toLowerCase(),
@@ -68,10 +67,13 @@ export class IndexComponent implements OnInit {
 
     private async getCategorizedFactories(): Promise<MyCategorizedFactories[]> {
         if (EdgePermission.hasReducedFactories(this.edge)) {
-            const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(this.websocket, new ComponentJsonApiRequest({
-                componentId: "_componentManager",
-                payload: new GetAllComponentFactoriesRequest(),
-            }));
+            const response = await this.edge.sendRequest<GetAllComponentFactoriesResponse>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_componentManager",
+                    payload: new GetAllComponentFactoriesRequest(),
+                }),
+            );
             for (const [factoryId, factory] of Object.entries(response.result.factories)) {
                 factory.id = factoryId;
             }
@@ -84,27 +86,21 @@ export class IndexComponent implements OnInit {
     }
 }
 
-
 class GetAllComponentFactoriesRequest extends JsonrpcRequest {
-
     private static METHOD: string = "getAllComponentFactories";
 
     public constructor() {
         super(GetAllComponentFactoriesRequest.METHOD, {});
     }
-
 }
 
 class GetAllComponentFactoriesResponse extends JsonrpcResponseSuccess {
-
     public constructor(
         public override readonly id: string,
         public override readonly result: {
-            factories: { [factoryId: string]: EdgeConfig.Factory },
+            factories: { [factoryId: string]: EdgeConfig.Factory };
         },
     ) {
         super(id, result);
     }
-
 }
-

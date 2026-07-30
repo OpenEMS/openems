@@ -2,9 +2,9 @@ package io.openems.edge.battery.fenecon.home.update;
 
 import com.google.common.hash.HashCode;
 
+import io.openems.common.session.Role;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType;
 import io.openems.edge.battery.fenecon.home.TwoPartVersion;
-import io.openems.edge.common.update.Updateable;
 
 public interface BatteryFeneconHomeUpdateParams {
 
@@ -13,7 +13,7 @@ public interface BatteryFeneconHomeUpdateParams {
 	 *
 	 * @return the meta information
 	 */
-	Updateable.UpdateableMetaInfo getMetaInfo();
+	UpdateInfo getMetaInfo();
 
 	/**
 	 * Gets the arm download location.
@@ -33,6 +33,9 @@ public interface BatteryFeneconHomeUpdateParams {
 	UpdateParams getParams(BatteryFeneconHomeHardwareType hardwareType);
 
 	record UpdateParams(String storageName, TwoPartVersion version, HashCode sha256) {
-
 	}
+
+	record UpdateInfo(String name, Role requiredMinRole) {
+	}
+
 }

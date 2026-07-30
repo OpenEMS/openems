@@ -8,6 +8,8 @@
         "ENERGY_MANAGEMENT": "Energy management system",
         "FAQ": "Frequently asked questions (FAQ)",
         "LANGUAGE": "Select language:",
+        "THEME": "Theme",
+        "NEW_UI": "New UI",
         "OPEN_EMS": "More about OpenEMS",
         "PATCHNOTES": "Changes in the monitoring for this build"
     },
@@ -40,6 +42,7 @@
                 "WARNING": "Warning Notifications"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Available",
                 "BUY_APP": "Buy licence key",
                 "CARDINALITY": "Cardinality",
@@ -118,6 +121,7 @@
                 "CONTROLLER": "Applications",
                 "DATA_STORAGE": "Data Storage",
                 "EXECUTE_SIMULATOR": "Execute simulations",
+                "EXPORT": "Export",
                 "EXPORT_CHANNELS": "Export Channels",
                 "GENERAL_DATA": "General data",
                 "LIVE_LOG": "Live system log",
@@ -435,10 +439,12 @@
                 },
                 "HEAT": {
                     "CHANGES_MY_PV_INFO": "You can make changes to the settings of your AC-Thor heating element in your MyPV app.",
+                    "CONTROL_NOT_ALLOWED": "Control not allowed",
+                    "ERROR": "Error",
                     "HEATING": "Heating is running",
                     "HEATING_ENERGY": "Heating energy",
                     "HEATING_OUTPUT": "Heating output",
-                    "NO_HEATING": "no Heating",
+                    "NO_HEATING": "No heating",
                     "TARGET_TEMPERATURE_REACHED": "Target temperature reached",
                     "TEMPERATURE": "Current temperature",
                     "TEMPERATURE_UNIT": "Temperature in °C"
@@ -525,7 +531,9 @@
                     "SWITCH_ON_ABOVE": "Switch on above",
                     "SWITCH_ON_BELOW": "Switch on below",
                     "SWITCHED_LOAD_POWER": "Switched load power",
-                    "THRESHOLD": "Threshold"
+                    "THRESHOLD": "Threshold",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Switch on above threshold",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Switch on below threshold"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Ambient temperature",
@@ -876,6 +884,7 @@
         "GENERAL_SETTINGS": "General Settings",
         "GROUPS": {
             "FIX_DIGITAL_OUTPUT": "Manual Relay Control",
+            "CHANNEL_SINGLE_THRESHOLD": "Threshold Control",
             "HEATING_ROOM": "Heating",
             "BRAIINS": "Bitcoin Miner"
         },

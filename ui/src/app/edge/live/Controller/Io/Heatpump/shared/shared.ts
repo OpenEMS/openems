@@ -1,19 +1,18 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 export namespace SharedControllerIoHeatpump {
     const PROPERTY_MODE: string = "_PropertyMode";
     // hide manual elements when mode is AUTOMATIC
-    const HIDE_ON_MODE_AUTOMATIC = (el: { mode: Mode }) =>
-        el.mode === Mode.AUTOMATIC;
+    const HIDE_ON_MODE_AUTOMATIC = (el: { mode: Mode }) => el.mode === Mode.AUTOMATIC;
     // hide automatic elements when mode is manual
     const HIDE_ON_MODE_MANUAL = (el: { mode: Mode }) => el.mode === Mode.MANUAL;
 
@@ -27,13 +26,10 @@ export namespace SharedControllerIoHeatpump {
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEAT_PUMP_SG_READY",
+            useDefaultPrefix: true,
             lines: [
                 ...getFormlySharedLines(translate, component, config),
-                ...getFormlyAutomaticView(
-                    translate,
-                    component,
-                    HIDE_ON_MODE_MANUAL,
-                ),
+                ...getFormlyAutomaticView(translate, component, HIDE_ON_MODE_MANUAL),
                 ...getFormlyManualView(translate, HIDE_ON_MODE_AUTOMATIC),
             ],
             component: component,
@@ -50,16 +46,12 @@ export namespace SharedControllerIoHeatpump {
             {
                 type: "toggle-line",
                 controlName: "automaticRecommendationCtrlEnabled",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
             },
             {
                 type: "input-line",
                 controlName: "automaticRecommendationSurplusPower",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
                 properties: { unit: "W" },
             },
             {
@@ -68,27 +60,18 @@ export namespace SharedControllerIoHeatpump {
             {
                 type: "toggle-line",
                 controlName: "automaticForceOnCtrlEnabled",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
             },
             {
                 type: "input-line",
                 controlName: "automaticForceOnSurplusPower",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_SELL"),
                 properties: { unit: "W" },
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress(
-                    component.id,
-                    "_PropertyAutomaticForceOnSoc",
-                ).toString(),
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.ABOVE_SOC",
-                ),
+                channel: new ChannelAddress(component.id, "_PropertyAutomaticForceOnSoc").toString(),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.ABOVE_SOC"),
                 converter: Converter.STATE_IN_PERCENT,
             },
             {
@@ -112,20 +95,13 @@ export namespace SharedControllerIoHeatpump {
             {
                 type: "input-line",
                 controlName: "automaticLockGridBuyPower",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_BUY",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.GRID_BUY"),
                 properties: { unit: "W" },
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress(
-                    component.id,
-                    "_PropertyAutomaticLockSoc",
-                ).toString(),
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.BELOW_SOC",
-                ),
+                channel: new ChannelAddress(component.id, "_PropertyAutomaticLockSoc").toString(),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.BELOW_SOC"),
                 converter: Converter.STATE_IN_PERCENT,
             },
             {
@@ -144,9 +120,7 @@ export namespace SharedControllerIoHeatpump {
             {
                 type: "input-line",
                 controlName: "minimumSwitchingTime",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME"),
                 properties: { unit: "s" },
             },
         ];
@@ -164,9 +138,7 @@ export namespace SharedControllerIoHeatpump {
         {
             type: "select-line",
             controlName: "manualState",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.HEAT_PUMP.OPERATING_STATUS",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.OPERATING_STATUS"),
             options: getManualOptions(translate),
             hide: hideCondition,
         },
@@ -182,9 +154,7 @@ export namespace SharedControllerIoHeatpump {
         if (consumptionMeter) {
             lines.push({
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT"),
                 channel: consumptionMeter.id + "/ActivePower",
                 converter: Converter.POWER_IN_KILO_WATT,
             });
@@ -248,61 +218,27 @@ export namespace SharedControllerIoHeatpump {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const heatpumpComponent =
-            component ??
-            config.getComponentSafely(route.snapshot.params.componentId);
+        const heatpumpComponent = component ?? config.getComponentSafely(route.snapshot.params.componentId);
 
         AssertionUtils.assertIsDefined(heatpumpComponent);
 
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(heatpumpComponent.id, PROPERTY_MODE),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticRecommendationCtrlEnabled",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticForceOnCtrlEnabled",
-            ),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticRecommendationCtrlEnabled"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticForceOnCtrlEnabled"),
             new ChannelAddress(heatpumpComponent.id, "_PropertyManualState"),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticRecommendationSurplusPower",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticForceOnSurplusPower",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticForceOnSoc",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticLockCtrlEnabled",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticLockGridBuyPower",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyAutomaticLockSoc",
-            ),
-            new ChannelAddress(
-                heatpumpComponent.id,
-                "_PropertyMinimumSwitchingTime",
-            ),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticRecommendationSurplusPower"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticForceOnSurplusPower"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticForceOnSoc"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticLockCtrlEnabled"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticLockGridBuyPower"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticLockSoc"),
+            new ChannelAddress(heatpumpComponent.id, "_PropertyMinimumSwitchingTime"),
         ];
 
-        const consumptionMeter = config.getComponentFromOtherComponentsProperty(
-            heatpumpComponent.id,
-            "meter.id",
-        );
+        const consumptionMeter = config.getComponentFromOtherComponentsProperty(heatpumpComponent.id, "meter.id");
         if (consumptionMeter) {
-            channelAddresses.push(
-                new ChannelAddress(consumptionMeter.id, "ActivePower"),
-            );
+            channelAddresses.push(new ChannelAddress(consumptionMeter.id, "ActivePower"));
         }
 
         return Promise.resolve(channelAddresses);
@@ -366,32 +302,21 @@ export namespace SharedControllerIoHeatpump {
         config: EdgeConfig,
         heatpump: EdgeConfig.Component,
     ): EdgeConfig.Component | null {
-        return config.getComponentFromOtherComponentsProperty(
-            heatpump.id,
-            "meter.id",
-        );
+        return config.getComponentFromOtherComponentsProperty(heatpump.id, "meter.id");
     }
 
-    function getManualOptions(
-        translate: TranslateService,
-    ): { value: string; name: string }[] {
+    function getManualOptions(translate: TranslateService): { value: string; name: string }[] {
         return [
             {
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
                 value: "FORCE_ON",
             },
             {
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
                 value: "RECOMMENDATION",
             },
             {
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"),
                 value: "REGULAR",
             },
             {

@@ -1,9 +1,9 @@
 package io.openems.edge.io.shelly.shellypro3em;
 
 import static io.openems.common.types.MeterType.GRID;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -23,7 +23,7 @@ public class IoShellyPro3EmImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new IoShellyPro3EmImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
@@ -214,7 +214,7 @@ public class IoShellyPro3EmImplTest {
 	@Test
 	public void testInvert() throws Exception {
 		final var sut = new IoShellyPro3EmImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //

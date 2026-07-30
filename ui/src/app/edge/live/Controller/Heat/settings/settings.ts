@@ -7,30 +7,24 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { RouteService } from "../../../../../shared/service/route.service";
-import { SharedControllerHeat } from "../shared/shared";
+import { PropertyMode, SharedControllerHeat } from "../shared/shared";
 
 @Component({
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }
-    `],
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
     public static readonly FORM_CONTROL_NAME = "mode";
@@ -39,7 +33,11 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
 
     private readonly routeService: RouteService = inject(RouteService);
 
-    public static generateView(component: EdgeConfig.Component | null, edge: Edge | null, translate: TranslateService): OeFormlyView {
+    public static generateView(
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+        translate: TranslateService,
+    ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
@@ -48,7 +46,7 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
         const isWritable = component.properties?.readOnly !== true;
         return {
             title: Name.METER_ALIAS_OR_ID(component),
-            icon: { name: "flame", color: "normal", size: "normal" },
+            icon: { name: "oe-heating-element", color: "normal", size: "normal" },
             lines: [
                 ...(isAskoma ? SharedControllerHeat.getAskomaIcon() : []),
                 ...(isMyPv ? SharedControllerHeat.getMyPvIcon() : []),
@@ -64,8 +62,11 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
             return;
         }
 
-        this.setFormControlSafelyWithChannel<Mode>(this.form, ControllerHeatSettingsComponent.FORM_CONTROL_NAME, currentData,
-            new ChannelAddress(this.component.id, "_PropertyMode")
+        this.setFormControlSafelyWithChannel<PropertyMode>(
+            this.form,
+            ControllerHeatSettingsComponent.FORM_CONTROL_NAME,
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyMode"),
         );
     }
 

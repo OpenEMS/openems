@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
+import { HistoryExcelExportComponent } from "src/app/edge/history/common/energy/export/export";
 import { HistoryChartComponent } from "src/app/edge/history/common/energy/new-navigation/new-navigation";
 import { CommonConsumptionDetailsComponent } from "src/app/edge/live/common/consumption/details/details";
 import { CommonConsumptionHistoryComponent } from "src/app/edge/live/common/consumption/history/new-navigation/new-navigation";
@@ -22,7 +23,7 @@ import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Chan
 import { ControllerEnerixControlHistoryComponent } from "src/app/edge/live/Controller/EnerixControl/history/new-navigation/new-navigation";
 import { ControllerEnerixControlHomeComponent } from "src/app/edge/live/Controller/EnerixControl/new-navigation/new-navigation";
 import { ControllerEnerixControlSettingsComponent } from "src/app/edge/live/Controller/EnerixControl/settings/settings";
-import { ControllerEssFixActivePowerHomeComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
+import { ControllerEssFixActivePowerComponent } from "src/app/edge/live/Controller/Ess/FixActivePower/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHistoryComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/history/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeHomeComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/new-navigation/new-navigation";
 import { ControllerEssGridOptimizedChargeSettingsComponent } from "src/app/edge/live/Controller/Ess/GridOptimizedCharge/settings/settings";
@@ -37,7 +38,6 @@ import { EvseAddTaskComponent } from "src/app/edge/live/Controller/Evse/pages/sc
 import { EvseEditTaskComponent } from "src/app/edge/live/Controller/Evse/pages/schedule/task/edit/edit";
 import { HeatForecastComponent } from "src/app/edge/live/Controller/Heat/forecast/forecast";
 import { ControllerHeatHistoryComponent } from "src/app/edge/live/Controller/Heat/history/new-navigation/new-navigation";
-import { ControllerHeatHomeComponent } from "src/app/edge/live/Controller/Heat/new-navigation/new-navigation";
 import { HeatScheduleComponent } from "src/app/edge/live/Controller/Heat/schedule/schedule.component";
 import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/add/add";
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
@@ -48,6 +48,10 @@ import { ControllerBraiinsModeComponent } from "src/app/edge/live/Controller/Io/
 import { ControllerBraiinsScheduleComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/schedule.component";
 import { ControllerBraiinsAddTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/add/add";
 import { ControllerBraiinsEditTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/edit/edit";
+import { ControllerIoChannelSingleThresholdHistoryComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/history/new-navigation/new-navigation";
+import { ControllerIoChannelSingleThresholdHomeComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/new-navigation/new-navigation";
+import { ControllerChannelSingleThresholdGroupComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/pages/group/group";
+import { ControllerIoChannelSingleThresholdSettingsComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/settings/settings";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
@@ -68,6 +72,7 @@ import { ControllerPeakShavingSymmetricSettingsComponent } from "src/app/edge/li
 import { ControllerPeakShavingSymmetricTimeSlotHistoryComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/history/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricTimeSlotHomeComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/new-navigation/new-navigation";
 import { ControllerPeakShavingSymmetricTimeSlotSettingsComponent } from "src/app/edge/live/Controller/peak-shaving/Symmetric_TimeSlot/settings/settings";
+import { ControllerEssFixReactivePowerComponent } from "src/app/edge/live/Controller/symmetric/FixReactivePower/new-navigation/new-navigation";
 import { NavigationInfoComponent } from "src/app/edge/live/navigation-info/navigation-info";
 import { SchedulerJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/new-navigation";
 import { ScheduleJsCalendarComponent } from "src/app/edge/live/scheduler/js-calendar/schedule/schedule.component";
@@ -86,6 +91,7 @@ import { ModalComponent as EvseForecastComponent } from "../../../edge/live/Cont
 import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Controller/Evse/pages/history/history";
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
+import { ControllerHeatHomeComponent } from "../../../edge/live/Controller/Heat/new-navigation/heat-home";
 import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
 import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
 import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
@@ -120,7 +126,7 @@ export const newNavigationRoutes: Routes = [
         component: NavigationInfoComponent,
     },
     {
-        path: "evse/:componentId/car/update/:appId",
+        path: "evse/:componentId/car/update",
         component: UpdateAppConfigComponent,
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
@@ -251,7 +257,11 @@ export const newNavigationRoutes: Routes = [
     },
     {
         path: "common/storage/controller/ess-fix-active-power/:componentId",
-        component: ControllerEssFixActivePowerHomeComponent,
+        component: ControllerEssFixActivePowerComponent,
+    },
+    {
+        path: "common/storage/controller/ess-fix-reactive-power/:componentId",
+        component: ControllerEssFixReactivePowerComponent,
     },
     {
         path: "common/weather/:componentId",
@@ -354,6 +364,22 @@ export const newNavigationRoutes: Routes = [
         component: ControllerPeakShavingAsymmetricHistoryComponent,
     },
     {
+        path: "controller/io-channel-single-threshold",
+        component: ControllerChannelSingleThresholdGroupComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId",
+        component: ControllerIoChannelSingleThresholdHomeComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/settings",
+        component: ControllerIoChannelSingleThresholdSettingsComponent,
+    },
+    {
+        path: "controller/io-channel-single-threshold/:componentId/history",
+        component: ControllerIoChannelSingleThresholdHistoryComponent,
+    },
+    {
         path: "controller/enerix-control/:componentId",
         component: ControllerEnerixControlHomeComponent,
     },
@@ -388,6 +414,14 @@ export const newNavigationRoutes: Routes = [
     {
         path: "controller/heatingelement/:componentId/history",
         component: ControllerHeatingElementHistoryComponent,
+    },
+    {
+        path: "controller/ess-fix-active-power/:componentId",
+        component: ControllerEssFixActivePowerComponent,
+    },
+    {
+        path: "controller/ess-fix-reactive-power/:componentId",
+        component: ControllerEssFixReactivePowerComponent,
     },
     {
         path: "controller/heat/:componentId/settings",
@@ -432,6 +466,10 @@ export const newNavigationRoutes: Routes = [
     {
         path: "history",
         component: HistoryChartComponent,
+    },
+    {
+        path: "history/export",
+        component: HistoryExcelExportComponent,
     },
 ];
 

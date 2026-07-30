@@ -1,7 +1,7 @@
-import { Component, effect, signal, untracked, ViewChild, WritableSignal } from "@angular/core";
+import { Component, effect, inject, model, signal, untracked, ViewChild, WritableSignal } from "@angular/core";
 import { IonModal } from "@ionic/angular/common";
 import { ModalBreakpointChangeEventDetail } from "@ionic/core";
-import { NumberUtils } from "../../utils/number/number-utils";
+import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "./service/navigation.service";
 import { AvailableScope, NavigationTree } from "./shared";
 
@@ -30,10 +30,12 @@ export class NavigationComponent {
 
     protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
     protected upperMostBreakPoint: number = NavigationComponent.UPPERMOST_BREAKPOINT;
+    protected isActionSheetOpened = model<boolean>(false);
     protected isVisible: boolean = false;
-    protected childrenPerRow: (typeof this.children)[] = [];
-    protected absoluteChildrenPerRow: (typeof this.children)[] = [];
+    protected displayChildren: NavigationTree[] = [];
     protected children: NavigationTree[] = [];
+
+    private readonly translate = inject(TranslateService);
 
     constructor(public navigationService: NavigationService) {
         effect(() => {
@@ -44,34 +46,45 @@ export class NavigationComponent {
 
             this.isVisible = this.computeIsVisible(currentNode);
             this.children = [...currentNode.getChildren().filter((el) => el.availableScope === AvailableScope.LOCAL)];
-            this.absoluteChildrenPerRow = NavigationComponent.splitChildrenByItemsPerRow(this.children);
-            this.childrenPerRow = NavigationComponent.splitChildrenByItemsPerRow([...this.children]);
+            this.displayChildren = NavigationComponent.getNonCommonChildren(this.children, this.translate);
         });
     }
 
     /**
-     * Splits navigation tree children by number of items per row.
+     * Filters out navigation tree children that are not common.
      *
-     * @param children the children
-     * @param numberOfItemsPerRow the number of items per row
-     *
-     * @example rowCount = 2
-     *          [item1, item2, item3, item4, item5] -> [[item1,item2], [item3, item4], [item5]]
-     * @returns the navigationtree children split into number of items per row.
+     * @param children The children
+     * @returns The non common children
      */
-    private static splitChildrenByItemsPerRow(children: NavigationTree[] = [], numberOfItemsPerRow: number | null = 1): NavigationTree[][] {
-        const splitIndex = NumberUtils.ceilSafely(NumberUtils.divideSafely(Math.max(children.length, 0), numberOfItemsPerRow));
-        if (numberOfItemsPerRow == null || splitIndex == null) {
-            return [children];
+    private static getNonCommonChildren(
+        children: NavigationTree[] = [],
+        translate: TranslateService,
+    ): NavigationTree[] {
+        const nonCommonChildren = children.filter((el) => !el.isCommonWidget);
+
+        if (nonCommonChildren.length == 0) {
+            return [];
         }
 
-        return [children.slice(0, splitIndex), children.slice(splitIndex) ?? []];
+        return [
+            ...nonCommonChildren,
+            new NavigationTree(
+                "system-overview",
+                { baseString: "overview" },
+                { name: "menu-outline" },
+                translate.instant("MENU.OVERVIEW"),
+                "label",
+                [],
+                null,
+                { customLink: "/overview" },
+            ),
+        ];
     }
 
     /**
      * Navigates to passed link
      *
-     * @param link the link segment to navigate to
+     * @param link The link segment to navigate to
      * @returns
      */
     public async navigateTo(node: NavigationTree, shouldNavigate: boolean): Promise<void> {
@@ -89,19 +102,19 @@ export class NavigationComponent {
     /**
      * Executed on ion-modals breakpoint change.
      *
-     * @param event the event on the IonModals breakpoint change
+     * @param event The event on the IonModals breakpoint change
      */
     protected onBreakpointDidChange(event: CustomEvent<ModalBreakpointChangeEventDetail>) {
         NavigationComponent.breakPoint.set(event.detail.breakpoint);
-        const numberOfRows = event.detail.breakpoint > NavigationComponent.INITIAL_BREAKPOINT ? null : 1;
-        this.childrenPerRow = NavigationComponent.splitChildrenByItemsPerRow(...this.childrenPerRow, numberOfRows);
+        this.isActionSheetOpened.set(event.detail.breakpoint > NavigationComponent.INITIAL_BREAKPOINT);
+        this.displayChildren = NavigationComponent.getNonCommonChildren(this.children, this.translate);
     }
 
     /**
      * Checks if action sheet should be shown.
      *
-     * @param currentNode the current node
-     * @returns true, if at least one parent or child exists
+     * @param currentNode The current node
+     * @returns True, if at least one parent or child exists
      */
     private computeIsVisible(currentNode: NavigationTree): boolean {
         const hasBreadCrumbs = currentNode.getBreadCrumbs()?.length > 0;

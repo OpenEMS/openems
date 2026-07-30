@@ -366,6 +366,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			int reactivePowerTargetL2, int activePowerTargetL3, int reactivePowerTargetL3)
 			throws OpenemsNamedException {
 
+		if (this.config.readOnlyMode()) {
+			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
+			return;
+		}
+
 		if (!this.operationalValuesOk) {
 			this.logWarn(this.log, "ESS is not ready for operation. Canceling ApplyPower(p1,p2,p3,q1,q2,q3");
 			return;
@@ -419,11 +424,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			activePowerTargetL3 -= this.batteryInverter.getAcConsumptionPowerL3().orElse(0);
 		}
 
-		if (this.config.readOnlyMode()) {
-			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
-			return;
-		}
-
 		// Falls 1p: die nicht genutzten Phasen auf 0 setzen
 		if (this.singlePhase != null) {
 			switch (this.singlePhase) {
@@ -471,6 +471,11 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 	 */
 	@Override
 	public void applyPower(int activePowerTarget, int reactivePower) throws OpenemsNamedException {
+
+		if (this.config.readOnlyMode()) {
+			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
+			return;
+		}
 
 		if (!this.operationalValuesOk) {
 			this.logWarn(this.log, "ESS is not ready for operation. Canceling ApplyPower(p1,q1)");
@@ -528,11 +533,6 @@ public class VictronEssImpl extends AbstractOpenemsModbusComponent
 			if (Math.abs(activePowerTarget) > 10) {
 				powerPerPhase = (int) Math.round(activePowerTarget / 3.0);
 			}
-		}
-
-		if (this.config.readOnlyMode()) {
-			this.logDebug(this.log, "Read Only Mode is active. Power is not applied");
-			return;
 		}
 
 		this.batteryInverter.run(this.battery, activePowerTarget, reactivePower); //

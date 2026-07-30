@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -16,19 +16,11 @@ import { SharedControllerIoFixDigitalOutput } from "../shared/shared";
     selector: "oe-controller-io-fix-digital-output",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class ControllerFixDigitalOutputHomeComponent extends AbstractFormlyComponent {
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private component: EdgeConfig.Component | null = null;
 
@@ -56,7 +48,12 @@ export class ControllerFixDigitalOutputHomeComponent extends AbstractFormlyCompo
         AssertionUtils.assertIsDefined(fixDigitalOutputComponent);
         fixDigitalOutputComponent.getPropertyFromComponent("outputChannelAddress");
 
-        this.setFormControlSafelyWithChannel(this.form, "isOn", currentData, new ChannelAddress(fixDigitalOutputComponent.id, "_PropertyIsOn"));
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "isOn",
+            currentData,
+            new ChannelAddress(fixDigitalOutputComponent.id, "_PropertyIsOn"),
+        );
     }
 
     protected override getFormGroup(): FormGroup {

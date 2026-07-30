@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -13,8 +13,8 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
     selector: "oe-controller-modbus-tcp-api-chart",
-    templateUrl:
-        "../../../../../../shared/components/chart/abstracthistorychart.html",
+    templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         BaseChartDirective,
@@ -32,8 +32,7 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
         translate: TranslateService,
         showPhases: boolean,
     ): HistoryUtils.ChartData {
-        let writeChannels: string[] | null =
-            component.getPropertyFromComponent<string[]>("writeChannels");
+        let writeChannels: string[] | null = component.getPropertyFromComponent<string[]>("writeChannels");
 
         const colors: string[] = [
             "rgb(191, 144, 33)",
@@ -46,22 +45,16 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
         const input: HistoryUtils.InputChannel[] = [
             {
                 name: "SetActivePowerEquals",
-                powerChannel: ChannelAddress.fromString(
-                    component.id + "/Ess0SetActivePowerEquals",
-                ),
+                powerChannel: ChannelAddress.fromString(component.id + "/Ess0SetActivePowerEquals"),
             },
         ];
 
         if (writeChannels != null) {
-            writeChannels = writeChannels.filter(
-                (c) => !c.includes("Ess0SetActivePowerEquals"),
-            );
+            writeChannels = writeChannels.filter((c) => !c.includes("Ess0SetActivePowerEquals"));
             writeChannels.forEach((c) => {
                 input.push({
                     name: c,
-                    powerChannel: ChannelAddress.fromString(
-                        component.id + `/${c}`,
-                    ),
+                    powerChannel: ChannelAddress.fromString(component.id + `/${c}`),
                 });
             });
         }
@@ -71,9 +64,7 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
             output: (data: HistoryUtils.ChannelData) => {
                 const values: HistoryUtils.DisplayValue[] = [
                     {
-                        name: translate.instant(
-                            "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS",
-                        ),
+                        name: translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS"),
                         converter: () => data["SetActivePowerEquals"],
                         color: "rgb(214, 28, 28)",
                     },
@@ -86,9 +77,7 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
                             const channelName = c.replace("Ess0", "");
                             switch (channelName) {
                                 case "SetActivePowerEquals":
-                                    return translate.instant(
-                                        "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS",
-                                    );
+                                    return translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS");
                                 case "SetActivePowerGreaterOrEquals":
                                     return translate.instant(
                                         "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_GREATER_OR_EQUALS",
@@ -123,9 +112,7 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
     }
 
     public override getChartData() {
-        const component = this.config.getComponentSafely(
-            this.routeService.getRouteParam<string>("componentId"),
-        );
+        const component = this.config.getComponentSafely(this.routeService.getRouteParam<string>("componentId"));
         AssertionUtils.assertIsDefined(component);
         return ControllerModbusTcpApiChartComponent.getChartData(
             component,
