@@ -1,18 +1,19 @@
 package io.openems.core.logger;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Annotation;
+import java.util.Dictionary;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.osgi.service.cm.Configuration;
 
 import io.openems.common.test.DummyConfigurationAdmin.DummyConfiguration;
 import io.openems.common.utils.DictionaryUtils;
 
-public class ConfigUpdateTest {
+class LoggerConfiguratorTest {
 
 	private static Config testConfig(String path) {
 		return new Config() {
@@ -29,7 +30,7 @@ public class ConfigUpdateTest {
 	}
 
 	@Test
-	public void currentConfigDefault() throws Exception {
+	void currentConfigDefault() throws Exception {
 		Configuration config = new DummyConfiguration();
 
 		var result = LoggerConfigurator.getCurrentConfiguration(config, testConfig(""));
@@ -42,7 +43,7 @@ public class ConfigUpdateTest {
 	}
 
 	@Test
-	public void currentConfigDefaultNoOverride() throws Exception {
+	void currentConfigDefaultNoOverride() throws Exception {
 		Configuration config = new DummyConfiguration() //
 				.addProperty("log4j2.rootLogger.level", "DEBUG");
 
@@ -51,7 +52,7 @@ public class ConfigUpdateTest {
 	}
 
 	@Test
-	public void currentConfigFile() throws Exception {
+	void currentConfigFile() throws Exception {
 		Configuration config = new DummyConfiguration();
 
 		var result = LoggerConfigurator.getCurrentConfiguration(config, testConfig("/path/to/log4j2.xml"));
@@ -63,12 +64,28 @@ public class ConfigUpdateTest {
 	}
 
 	@Test
-	public void currentConfigFileNoOverride() throws Exception {
+	void currentConfigFileNoOverride() throws Exception {
 		Configuration config = new DummyConfiguration() //
 				.addProperty("org.ops4j.pax.logging.log4j2.config.file", "/path/to/log4j2.xml");
 
 		var result = LoggerConfigurator.getCurrentConfiguration(config, testConfig("/path/to/log4j2.xml"));
 		assertTrue(result.isEmpty());
+	}
+
+	@Test
+	void currentConfigFileWithNullProperties() {
+		Configuration config = new DummyConfiguration() {
+			@Override
+			public Dictionary<String, Object> getProperties() {
+				return null;
+			}
+		};
+
+		var result = LoggerConfigurator.getCurrentConfiguration(config, testConfig("/path/to/log4j2.xml"));
+
+		assertTrue(result.isPresent());
+		assertEquals("/path/to/log4j2.xml",
+				DictionaryUtils.getAsString(result.get(), "org.ops4j.pax.logging.log4j2.config.file"));
 	}
 
 }
