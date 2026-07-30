@@ -1,7 +1,7 @@
-package io.openems.edge.ess.saxpower;
+package io.openems.edge.ess.saxpower.ess;
 
 import io.openems.common.channel.AccessMode;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.*;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
@@ -18,12 +18,15 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.*;
 import org.osgi.service.metatype.annotations.Designate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import io.openems.edge.common.sum.GridMode;
 
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
-@Designate(ocd = Config.class, factory = true)
+@Designate(ocd = io.openems.edge.ess.saxpower.ess.Config.class, factory = true)
 @Component(//
     name = "Ess.SaxPower", //
     immediate = true, //
@@ -39,19 +42,21 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     private Power power;
 
     @Override
-    @Reference(
-            name = "Modbus",
-            policy = STATIC,
-            policyOption = GREEDY,
-            cardinality = MANDATORY
+    @Reference(//
+            name = "Modbus", //
+            policy = STATIC, //
+            policyOption = GREEDY, //
+            cardinality = MANDATORY //
     )
     protected void setModbus(BridgeModbus modbus) {
         super.setModbus(modbus);
     }
 
-    private Config config = null;
-
     private final UnsignedWordElement activePowerElement = new UnsignedWordElement(41);
+    private final UnsignedWordElement cosPhiElement = new UnsignedWordElement(42);
+    private final UnsignedWordElement maxDischargePowerElement = new UnsignedWordElement(43);
+    private final UnsignedWordElement maxChargePowerElement = new UnsignedWordElement(44);
+    private final UnsignedWordElement operatingStateElement = new UnsignedWordElement(45);
 
     public SaxPowerImpl() {
         super(//
@@ -59,61 +64,76 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
                 ModbusComponent.ChannelId.values(), //
                 SymmetricEss.ChannelId.values(), //
                 ManagedSymmetricEss.ChannelId.values(), //
-                SaxPower.ChannelId.values()
+                SaxPower.ChannelId.values() //
         );
     }
 
+    private final Logger log = LoggerFactory.getLogger(SaxPowerImpl.class);
+
     @Activate
-    private void activate(ComponentContext context, Config config) throws OpenemsException {
-        if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
+    private void activate(ComponentContext context, Config config) throws OpenemsError.OpenemsNamedException {
+        if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, //
                 "Modbus", config.modbus_id())) {
             return;
         }
-        this.config = config;
+
+        this.getGridModeChannel().setNextValue(GridMode.ON_GRID);
+
+        try {
+            this.setOperatingState(2);
+            this.cosPhiElement.setNextWriteValue(1000);
+        } catch (OpenemsError.OpenemsNamedException e) {
+            this.log.error("Failed to set SAX Power state to ON: {}", e.getMessage());
+        }
     }
 
 
     @Override
     @Deactivate
     protected void deactivate() {
+        try {
+            this.setOperatingState(1);
+            this.activePowerElement.setNextWriteValue(16384);
+        } catch (OpenemsError.OpenemsNamedException e) {
+            throw new RuntimeException(e);
+        }
+
         super.deactivate();
     }
 
     @Override
     protected ModbusProtocol defineModbusProtocol() {
-        return new ModbusProtocol(this, //
-                new FC3ReadRegistersTask(41, Priority.HIGH, //
-                        m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, this.activePowerElement),
 
-                        m(SaxPower.ChannelId.COS_PHI_SET_POINT, new UnsignedWordElement(42)),
+        return new ModbusProtocol(this,
+                new FC3ReadRegistersTask(45, Priority.HIGH,
 
-                        m(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, new UnsignedWordElement(43)),
-
-                        m(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, new UnsignedWordElement(44)),
-
-                        m(SaxPower.ChannelId.OPERATING_STATE, new UnsignedWordElement(45)),
-
+                        m(SaxPower.ChannelId.OPERATING_STATE, operatingStateElement),
                         m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(46)),
 
                         m(SymmetricEss.ChannelId.ACTIVE_POWER, new UnsignedWordElement(47),
                                 new ElementToChannelConverter(val -> {
                                     if (val == null) return null;
                                     return ((Number) val).intValue() - 16384;
-                                })),
-
-                        m(SaxPower.ChannelId.METER_POWER, new UnsignedWordElement(48),
-                                new ElementToChannelConverter(val -> {
-                                    if (val == null) return null;
-                                    return ((Number) val).intValue() - 16384;
-                                }))
+                                })
+                        )
                 ),
 
-                new FC6WriteRegisterTask(41, this.activePowerElement)
+                new FC6WriteRegisterTask(41, m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, activePowerElement)),
+                new FC6WriteRegisterTask(42, m(SaxPower.ChannelId.COS_PHI_SET_POINT, cosPhiElement)),
+                new FC6WriteRegisterTask(43, m(SaxPower.ChannelId.MAX_DISCHARGE_POWER, maxDischargePowerElement)),
+                new FC6WriteRegisterTask(44, m(SaxPower.ChannelId.MAX_CHARGE_POWER, maxChargePowerElement)),
+                new FC6WriteRegisterTask(45, m(SaxPower.ChannelId.OPERATING_STATE, operatingStateElement))
         );
     }
 
     @Override
-    public void applyPower(int activePower, int reactivePower) throws OpenemsException {
+    public void applyPower(int activePower, int reactivePower) throws OpenemsError.OpenemsNamedException {
+        this.getAllowedChargePowerChannel().setNextValue(-4600);
+        this._setAllowedDischargePower(4600);
+
+        this.getSetActivePowerEqualsChannel().setNextWriteValue(activePower);
+        this.getSetReactivePowerEqualsChannel().setNextWriteValue(reactivePower);
+
         int rawValue = activePower + 16384;
 
         if (rawValue < 0) {
@@ -121,8 +141,20 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         } else if (rawValue > 65535) {
             rawValue = 65535;
         }
-
         this.activePowerElement.setNextWriteValue(rawValue);
+
+        if (activePower > 0) {
+            this.maxDischargePowerElement.setNextWriteValue(activePower);
+            this.maxChargePowerElement.setNextWriteValue(4600);
+        } else if (activePower < 0) {
+            this.maxChargePowerElement.setNextWriteValue(Math.abs(activePower));
+            this.maxDischargePowerElement.setNextWriteValue(4600);
+            this.logInfo(log, "Updating max power 1 b 2 max set to: " + activePower);
+        } else {
+            this.maxDischargePowerElement.setNextWriteValue(4600);
+            this.maxChargePowerElement.setNextWriteValue(4600);
+            this.logInfo(log, "Updating max power max set to: " + activePower);
+        }
     }
 
     @Override
