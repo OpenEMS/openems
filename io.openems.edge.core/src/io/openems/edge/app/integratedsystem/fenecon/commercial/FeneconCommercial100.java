@@ -14,6 +14,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -336,11 +337,14 @@ public class FeneconCommercial100
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
-					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
 					ComponentDef.from(power()) //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal));
+			}
 
 			switch (connectedBatterySystems) {
 			case ONE -> {

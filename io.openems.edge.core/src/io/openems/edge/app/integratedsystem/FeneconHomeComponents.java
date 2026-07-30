@@ -255,7 +255,7 @@ public final class FeneconHomeComponents {
 	/**
 	 * Creates a battery depending on the deviceHardware with different startup
 	 * relay and an io if the installed hardware isn't a TechbaseCm4sGen3.
-	 * 
+	 *
 	 * @param bundle           the translation bundle
 	 * @param deviceHardware   the device hardware; used to determine the correct
 	 *                         startup relay for the battery component and if the io

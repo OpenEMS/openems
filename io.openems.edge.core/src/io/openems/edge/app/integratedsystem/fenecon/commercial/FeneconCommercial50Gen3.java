@@ -15,6 +15,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -308,7 +309,6 @@ public class FeneconCommercial50Gen3 extends
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
-					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
@@ -324,6 +324,10 @@ public class FeneconCommercial50Gen3 extends
 							.map(ComponentDef::from) //
 							.toList() //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal));
+			}
 
 			if (hasEmergencyReserve) {
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
