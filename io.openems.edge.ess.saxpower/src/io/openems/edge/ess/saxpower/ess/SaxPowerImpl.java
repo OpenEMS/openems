@@ -128,7 +128,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 
     @Override
     public void applyPower(int activePower, int reactivePower) throws OpenemsError.OpenemsNamedException {
-        this.getAllowedChargePowerChannel().setNextValue(-4600);
+        this.getAllowedChargePowerChannel().setNextValue(-3500); //5,8 Version: 2,5kW, 7,7: 3,5 kW
         this._setAllowedDischargePower(4600);
 
         this.getSetActivePowerEqualsChannel().setNextWriteValue(activePower);
@@ -145,15 +145,13 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 
         if (activePower > 0) {
             this.maxDischargePowerElement.setNextWriteValue(activePower);
-            this.maxChargePowerElement.setNextWriteValue(4600);
+            this.maxChargePowerElement.setNextWriteValue(3500);
         } else if (activePower < 0) {
             this.maxChargePowerElement.setNextWriteValue(Math.abs(activePower));
             this.maxDischargePowerElement.setNextWriteValue(4600);
-            this.logInfo(log, "Updating max power 1 b 2 max set to: " + activePower);
         } else {
             this.maxDischargePowerElement.setNextWriteValue(4600);
             this.maxChargePowerElement.setNextWriteValue(4600);
-            this.logInfo(log, "Updating max power max set to: " + activePower);
         }
     }
 

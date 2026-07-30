@@ -1,8 +1,7 @@
-package io.openems.edge.ess.saxpower;
+package io.openems.edge.ess.saxpower.ess;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @ObjectClassDefinition(//

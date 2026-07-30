@@ -19,7 +19,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-        name = "Meter.SaxPower.Grid", //
+        name = "Ess.SaxPower.Grid-Meter", //
         immediate = true, //
         configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
@@ -31,11 +31,11 @@ public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
     private ConfigurationAdmin cm;
 
     @Override
-    @Reference(
-            name = "Modbus",
-            policy = ReferencePolicy.STATIC,
-            policyOption = ReferencePolicyOption.GREEDY,
-            cardinality = ReferenceCardinality.MANDATORY
+    @Reference(//
+            name = "Modbus", //
+            policy = ReferencePolicy.STATIC, //
+            policyOption = ReferencePolicyOption.GREEDY, //
+            cardinality = ReferenceCardinality.MANDATORY //
     )
     protected void setModbus(BridgeModbus modbus) {
         super.setModbus(modbus);
@@ -75,7 +75,6 @@ public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
                         m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(48),
                                 new ElementToChannelConverter(val -> {
                                     if (val == null) return null;
-                                    // Subtract offset 16384 to convert unsigned raw register value to signed Watts
                                     return ((Number) val).intValue() - 16384;
                                 })
                         )
