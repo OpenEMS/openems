@@ -1,0 +1,74 @@
+= SAX Power ESS
+
+Battery storage system with integrated grid meter.
+
+== Overview
+
+This bundle provides integration with the SAX Power Home Plus ESS (Energy Storage System), a compact residential battery storage solution. The bundle consists of two components that work together to manage battery storage and grid monitoring.
+
+SAX Power Home Plus ESS is suitable for residential solar storage, peak shaving, and home energy management applications.
+
+== Supported Devices
+
+.SAX Power Home Plus
+* **Type**: Residential lfp battery storage
+* **Capacity**: 5,8kWh/7,7kWh
+* **Communication**: Direct IP communication
+* **Typical Use**: Residential solar storage, peak shaving
+* **Grid Connection**: Single-phase
+* **Battery Chemistry**: Lithium iron phosphate battery
+* **Documentation**: https://sax-power.net/download/Handbuch_SAX_Home_Plus_7,7_DE.pdf[SAX Power manual icon:external-link[]]
+
+== Components
+
+This bundle implements the following OpenEMS Components:
+
+=== <<_saxpower_ess,SAX Power ESS>>
+
+*Name*: SAX Power ESS
+
+*Factory-PID*: `Ess.SaxPower`
+
+.Implemented Natures/Interfaces
+* SaxPower
+* ManagedSymmetricEss
+* SymmetricEss
+* OpenemsComponent
+* ModbusComponent
+* ModbusSlave
+
+*Description*: Core battery management component for the SAX Power ESS. Controls charge/discharge operations, monitors state of charge and battery health. Single-phase operation with configurable capacity and phase selection.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "ess0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 64)
+* `phase` (SingleOrAllPhase): Phase connection - L1, L2, L3, or ALL (default: L1)
+* `capacity` (Integer): Battery capacity in Wh (default: 7700)
+* `Modbus_target` (String): Modbus target filter - auto-generated
+
+=== <<_saxpower_grid_meter,SAX Power ESS Grid-Meter>>
+
+*Name*: SAX Power ESS Grid-Meter
+
+*Factory-PID*: `Ess.SaxPower.Grid-Meter`
+
+.Implemented Natures/Interfaces
+* SaxPowerEssGridMeter
+* ElectricityMeter
+* OpenemsComponent
+* ModbusComponent
+* ModbusSlave
+
+*Description*: Grid power monitoring component for SAX Power ESS. Reads grid power consumption/production and monitors grid connection status. Provides visibility into net power flow between grid and home.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: GRID)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 64)
+* `Modbus_target` (String): Modbus target filter - auto-generated
