@@ -8,13 +8,12 @@ import io.openems.edge.meter.api.ElectricityMeter;
 
 public interface SaxPowerEssGridMeter extends ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
-    public static enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-        // Define any custom/vendor-specific channels here if needed in the future
+    enum ChannelId implements io.openems.edge.common.channel.ChannelId {
         ;
 
         private final Doc doc;
 
-        private ChannelId(Doc doc) {
+        ChannelId(Doc doc) {
             this.doc = doc;
         }
 
