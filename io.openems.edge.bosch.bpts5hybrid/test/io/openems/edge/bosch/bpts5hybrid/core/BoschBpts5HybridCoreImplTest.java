@@ -28,7 +28,7 @@ public class BoschBpts5HybridCoreImplTest {
 
 	@Test
 	public void testEnabled() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 
 		// Provide the initial connect response with WUI_SID
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse //

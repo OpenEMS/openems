@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
@@ -15,6 +15,7 @@ import { JsonrpcTestPermission } from "./jsonrpctest/jsonrpctest.permission";
     selector: "settings",
     templateUrl: "./settings.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonUiModule, RouterModule, FlatWidgetButtonComponent, ComponentsBaseModule],
 })
 export class SettingsComponent implements OnInit {
@@ -26,6 +27,8 @@ export class SettingsComponent implements OnInit {
     public isAtLeastAdmin: boolean = false;
     public isNewNavigation = signal(false);
     public canSeeJsonrpcTest: boolean = false;
+
+    protected isEdgeBackend = signal(environment.backend === "OpenEMS Edge");
 
     constructor(
         protected utils: Utils,

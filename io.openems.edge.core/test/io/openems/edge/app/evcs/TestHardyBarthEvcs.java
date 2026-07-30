@@ -6,8 +6,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -23,7 +23,7 @@ public class TestHardyBarthEvcs {
 
 	private HardyBarthEvcs hardyBarthEvcs;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

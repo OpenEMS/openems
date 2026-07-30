@@ -33,8 +33,8 @@ describe("HeatManualPayload", () => {
 
         payload.update(payload, {
             "@type": "Task",
-            "start": "2026-04-22T08:00:00",
-            "recurrenceRules": [],
+            start: "2026-04-22T08:00:00",
+            recurrenceRules: [],
             "openems.io:payload": {
                 mode: Mode.FAST_HEAT,
             },
@@ -49,8 +49,8 @@ describe("HeatManualPayload", () => {
         const parser = payload.toPayloadText(translate);
         const text = parser({
             "@type": "Task",
-            "start": "2026-04-22T08:00:00",
-            "recurrenceRules": [],
+            start: "2026-04-22T08:00:00",
+            recurrenceRules: [],
             "openems.io:payload": {
                 mode: Mode.OFF,
             },

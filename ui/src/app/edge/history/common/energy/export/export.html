@@ -1,0 +1,44 @@
+@if (isInitialized()) {
+  <oe-navigation-view>
+    <ng-container header>
+      <ion-toolbar>
+        <ion-title>
+          <ion-buttons class="ion-justify-content-center">
+            <ion-button>
+              <pickdate></pickdate>
+            </ion-button>
+          </ion-buttons>
+        </ion-title>
+      </ion-toolbar>
+    </ng-container>
+    <ion-grid class="ion-full-width">
+      <ion-row class="ion-full-width ion-justify-content-center">
+        @for (card of cards(); track card.buttonText) {
+          <ion-col size-lg="6" size-md="8" size-sm="12">
+            <ion-card style="border-radius: 1em; opacity: 0.9">
+              <ngx-spinner [name]="spinnerId"></ngx-spinner>
+              <ion-icon [name]="card.iconName" style="font-size: 8rem; display: block; margin: 2% auto 0; color: var(--ion-color-primary)"></ion-icon>
+              <ion-card-content>
+                <div style="color: var(--ion-card-content)" class="ion-padding-top">
+                  {{ card.contentText }}
+                  <ion-row class="full_width align_right">
+                    <ion-col class="align_right full_width">
+                      <ion-item lines="none" class="ion-float-right">
+                        <ion-button fill="solid" style="text-transform: none" (click)="card.buttonCallback ? card.buttonCallback() : null" target="_blank">
+                          @if (card.buttonIconName) {
+                            <ion-icon [name]="card.buttonIconName"></ion-icon>
+                          }
+                          <ion-label style="margin-left: 1em">{{ card.buttonText }}</ion-label>
+                        </ion-button>
+                      </ion-item>
+                    </ion-col>
+                  </ion-row>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        }
+      </ion-row>
+    </ion-grid>
+  </oe-navigation-view>
+}

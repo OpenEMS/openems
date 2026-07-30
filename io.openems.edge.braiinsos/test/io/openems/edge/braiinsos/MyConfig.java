@@ -2,7 +2,7 @@ package io.openems.edge.braiinsos;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;
-import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -16,7 +16,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private String ip;
 		private String username = "root";
 		private String password = "";
-		private SinglePhase phase = SinglePhase.L1;
+		private SingleOrAllPhase phase = SingleOrAllPhase.L1;
 		private MeterType type = MeterType.CONSUMPTION_METERED;
 		private String jsCalendar = "[]";
 
@@ -63,7 +63,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(SinglePhase phase) {
+		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -135,7 +135,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public SinglePhase phase() {
+	public SingleOrAllPhase phase() {
 		return this.builder.phase;
 	}
 

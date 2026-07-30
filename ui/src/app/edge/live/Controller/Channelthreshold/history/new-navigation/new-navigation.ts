@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -13,9 +12,9 @@ import { SingleChartComponent } from "../chart/singlechart.component";
     selector: "oe-controller-channelthreshold-overview",
     templateUrl: "./new-navigation.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         ReactiveFormsModule,
-        CommonModule,
         IonicModule,
         TranslateModule,
         ChartComponentsModule,

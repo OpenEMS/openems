@@ -60,7 +60,7 @@ public class EvseProps {
 	 * @return the {@link AppDef}
 	 */
 	public static final <APP extends OpenemsApp & AppManagerUtilSupplier, T extends OpenemsAppInstance> //
-	AppDef<APP, Nameable, BundleProvider> configureVehicle() {
+			AppDef<APP, Nameable, BundleProvider> configureVehicle() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.Evse.vehicle.label") //
 				.setField(JsonFormlyUtil::buildLink, (app, property, l, parameter, field) -> {

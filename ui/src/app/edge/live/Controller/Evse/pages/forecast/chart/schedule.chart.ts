@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 import { filter, take } from "rxjs/operators";
@@ -8,9 +8,9 @@ import { calculateResolution } from "src/app/edge/history/shared";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
-import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket, } from "src/app/shared/shared";
+import { ChannelAddress, Currency, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
-import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType, } from "src/app/shared/utils/utils";
+import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, YAxisType } from "src/app/shared/utils/utils";
 import { GetScheduleRequest } from "../../../../../../../shared/jsonrpc/request/getScheduleRequest";
 import { GetScheduleResponse } from "../../../../../../../shared/jsonrpc/response/getScheduleResponse";
 import { ControllerEvseSingleShared } from "../../../shared/shared";
@@ -18,12 +18,10 @@ import { ControllerEvseSingleShared } from "../../../shared/shared";
 @Component({
     selector: "scheduleChart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class ScheduleChartComponent
-    extends AbstractHistoryChart
-    implements OnInit, OnChanges, OnDestroy
-{
+export class ScheduleChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
@@ -40,9 +38,7 @@ export class ScheduleChartComponent
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(
-            this.service.getIsSmartphoneResolution(),
-        );
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     public async ngOnChanges() {
@@ -53,14 +49,10 @@ export class ScheduleChartComponent
                 take(1),
             )
             .subscribe((config) => {
-                const meta: EdgeConfig.Component =
-                    config?.getComponent("_meta");
-                const currency: string =
-                    config?.getPropertyFromComponent<string>(meta, "currency");
-                this.currencyLabel =
-                    Currency.getCurrencyLabelByCurrency(currency);
-                this.currencyUnit =
-                    Currency.getChartCurrencyUnitLabel(currency);
+                const meta: EdgeConfig.Component = config?.getComponent("_meta");
+                const currency: string = config?.getPropertyFromComponent<string>(meta, "currency");
+                this.currencyLabel = Currency.getCurrencyLabelByCurrency(currency);
+                this.currencyUnit = Currency.getChartCurrencyUnitLabel(currency);
             });
         this.updateChart();
     }
@@ -94,21 +86,18 @@ export class ScheduleChartComponent
 
                 // Extracting prices, states, timestamps from the schedule array
                 const { priceArray, modeArray, timestampArray } = {
-                    priceArray: schedule.map((entry) =>
-                        entry.price === null ? 10 : entry.price,
-                    ), // TODO: Use different chart type when no prices
+                    priceArray: schedule.map((entry) => (entry.price === null ? 10 : entry.price)), // TODO: Use different chart type when no prices
                     modeArray: schedule.map((entry) => entry.mode),
                     timestampArray: schedule.map((entry) => entry.timestamp),
                 };
 
-                const scheduleChartData =
-                    ControllerEvseSingleShared.getScheduleChartData(
-                        schedule.length,
-                        priceArray,
-                        modeArray,
-                        timestampArray,
-                        this.translate,
-                    );
+                const scheduleChartData = ControllerEvseSingleShared.getScheduleChartData(
+                    schedule.length,
+                    priceArray,
+                    modeArray,
+                    timestampArray,
+                    this.translate,
+                );
 
                 this.colors = scheduleChartData.colors;
                 this.labels = scheduleChartData.labels;
@@ -158,46 +147,29 @@ export class ScheduleChartComponent
 
         // options.plugins.
         this.options.plugins.tooltip.mode = "index";
-        this.options.plugins.tooltip.callbacks.labelColor = (
-            item: Chart.TooltipItem<any>,
-        ) => {
+        this.options.plugins.tooltip.callbacks.labelColor = (item: Chart.TooltipItem<any>) => {
             if (!item) {
                 return;
             }
             return {
-                borderColor: ColorUtils.changeOpacityFromRGBA(
-                    item.dataset.borderColor,
-                    1,
-                ),
+                borderColor: ColorUtils.changeOpacityFromRGBA(item.dataset.borderColor, 1),
                 backgroundColor: item.dataset.backgroundColor,
             };
         };
 
-        this.options.plugins.tooltip.callbacks.label = (
-            item: Chart.TooltipItem<any>,
-        ) => {
+        this.options.plugins.tooltip.callbacks.label = (item: Chart.TooltipItem<any>) => {
             const label = item.dataset.label;
             const value = item.dataset.data[item.dataIndex];
 
-            return (
-                label +
-                ": " +
-                Formatter.FORMAT_CURRENCY_PER_KWH(value, this.currencyLabel)
-            );
+            return label + ": " + Formatter.FORMAT_CURRENCY_PER_KWH(value, this.currencyLabel);
         };
 
         this.datasets = this.datasets.map((el) => {
             const opacity = el.type === "line" ? 0.2 : 0.5;
 
             if (el.backgroundColor && el.borderColor) {
-                el.backgroundColor = ColorUtils.changeOpacityFromRGBA(
-                    el.backgroundColor.toString(),
-                    opacity,
-                );
-                el.borderColor = ColorUtils.changeOpacityFromRGBA(
-                    el.borderColor.toString(),
-                    1,
-                );
+                el.backgroundColor = ColorUtils.changeOpacityFromRGBA(el.backgroundColor.toString(), opacity);
+                el.borderColor = ColorUtils.changeOpacityFromRGBA(el.borderColor.toString(), 1);
             }
             return el;
         });

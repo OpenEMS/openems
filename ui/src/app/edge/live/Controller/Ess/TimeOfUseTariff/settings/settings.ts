@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -17,33 +17,35 @@ import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 @Component({
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractFormlyComponent<AutomaticViewModel> {
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private lastSelectedMode: Controller_Ess_TimeOfUseTariffUtils.ControlMode | null = null;
     private component: EdgeConfig.Component | null = null;
 
     private routeService: RouteService = inject(RouteService);
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge, service: Service): OeFormlyView<AutomaticViewModel> {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+        service: Service,
+    ): OeFormlyView<AutomaticViewModel> {
         return SharedControllerEssTimeOfUseTariff.getFormlyView(translate, component, edge, service);
     }
 
     protected override generateView(): OeFormlyView<AutomaticViewModel> {
         const edge = this.service.currentEdge();
         this.component = this.getComponent();
-        return ControllerEssTimeOfUseTariffSettingsComponent.generateView(this.translate, this.component, edge, this.service);
+        return ControllerEssTimeOfUseTariffSettingsComponent.generateView(
+            this.translate,
+            this.component,
+            edge,
+            this.service,
+        );
     }
 
     protected override getFormGroup(): FormGroup {
@@ -62,21 +64,38 @@ export class ControllerEssTimeOfUseTariffSettingsComponent extends AbstractForml
             this.component = this.getComponent();
         }
 
-        this.setFormControlSafelyWithChannel(this.form, "mode", currentData, new ChannelAddress(this.component.id, "_PropertyMode"));
-        this.setFormControlSafelyWithChannel(this.form, "controlMode", currentData, new ChannelAddress(this.component.id, "_PropertyControlMode"));
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "mode",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyMode"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "controlMode",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyControlMode"),
+        );
 
         if (this.lastSelectedMode === currentData.allComponents[this.component.id + "/_PropertyControlMode"]) {
             return;
         }
 
-        this.setFormControlSafelyWithValue(this.form, "chargeConsumptionIsActive", currentData.allComponents[this.component.id + "/_PropertyControlMode"] === Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION ? true : false);
+        this.setFormControlSafelyWithValue(
+            this.form,
+            "chargeConsumptionIsActive",
+            currentData.allComponents[this.component.id + "/_PropertyControlMode"] ===
+                Controller_Ess_TimeOfUseTariffUtils.ControlMode.CHARGE_CONSUMPTION
+                ? true
+                : false,
+        );
         this.lastSelectedMode = currentData.allComponents[this.component.id + "/_PropertyControlMode"];
         this.subscribeToggle(this.component, this.form);
     }
 
     private subscribeToggle(component: EdgeConfig.Component, fg: FormGroup<any>) {
-        FormUtils.findFormControlSafely(fg, "chargeConsumptionIsActive")?.valueChanges
-            .pipe()
+        FormUtils.findFormControlSafely(fg, "chargeConsumptionIsActive")
+            ?.valueChanges.pipe()
             .subscribe((chargeConsumptionIsActive: boolean) => {
                 const lastControlMode = component.properties["controlMode"];
                 const controlMode: Controller_Ess_TimeOfUseTariffUtils.ControlMode = chargeConsumptionIsActive

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -18,6 +18,7 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ChannelthresholdHomeComponent extends AbstractFormlyComponent {

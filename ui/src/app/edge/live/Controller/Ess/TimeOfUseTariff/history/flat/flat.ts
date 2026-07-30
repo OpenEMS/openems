@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
@@ -7,10 +7,10 @@ import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 @Component({
     selector: "timeOfUseTariffWidget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
 
     protected delayedActiveTimeOverPeriod: number | null = null;

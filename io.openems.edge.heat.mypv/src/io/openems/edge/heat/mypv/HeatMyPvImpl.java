@@ -2,6 +2,7 @@ package io.openems.edge.heat.mypv;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.channel.ChannelUtils.setWriteValueIfNotRead;
+import static io.openems.edge.energy.api.handler.RescheduleMode.OPTIMIZE_CURRENT_PERIOD;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateAverageVoltageFromPhases;
 import static io.openems.edge.meter.api.ElectricityMeter.calculateSumCurrentFromPhases;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
@@ -44,6 +45,9 @@ import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.energy.api.handler.EshWithDifferentModes;
 import io.openems.edge.heat.api.Heat;
 import io.openems.edge.heat.api.ManagedHeatElement;
 import io.openems.edge.heat.mypv.statemachine.Context;
@@ -55,7 +59,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
-		name = "Heat.MyPv", //
+		name = HeatMyPvImpl.FACTORY_ID, //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE, //
 		property = { //
@@ -63,7 +67,9 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		})
 @GenerateTargetsFromReferences("Modbus")
 public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements HeatMyPv, ModbusComponent, OpenemsComponent,
-		Heat, ElectricityMeter, ManagedHeatElement, TimedataProvider, Controller, ComponentJsonApi {
+		Heat, ElectricityMeter, ManagedHeatElement, TimedataProvider, Controller, ComponentJsonApi, EnergySchedulable {
+
+	public static final String FACTORY_ID = "Heat.MyPv";
 
 	// gets the total energy consumption in kWh
 	private final CalculateEnergyFromPower totalEnergy = new CalculateEnergyFromPower(this,
@@ -76,6 +82,8 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 	private final CalculateEnergyFromPower phaseEnergyL3 = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3);
 	private final StateMachine stateMachine;
+
+	private EshWithDifferentModes<Mode, EnergyScheduler.OptimizationContext, Void> energyScheduleHandler;
 
 	private volatile Config config = null;
 	private volatile JSCalendar.Tasks<HeatMyPvPayload> tasks = JSCalendar.Tasks.empty();
@@ -121,12 +129,18 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 	private void activate(ComponentContext context, Config config) {
 		this.applyConfig(config);
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(this, this.componentManager,
+				() -> this.config == null ? null
+						: new EnergyScheduler.Config(this.config.mode(), this.config.maxHeatPower(), this.tasks));
 	}
 
 	@Modified
 	private void modified(ComponentContext context, Config config) {
 		this.applyConfig(config);
 		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+		if (this.energyScheduleHandler != null) {
+			this.energyScheduleHandler.triggerReschedule("HeatMyPvImpl::modified()", OPTIMIZE_CURRENT_PERIOD);
+		}
 	}
 
 	private synchronized void applyConfig(Config config) {
@@ -239,5 +253,10 @@ public class HeatMyPvImpl extends AbstractOpenemsModbusComponent implements Heat
 				() -> this.tasks, //
 				() -> new UpdateJsCalendarRecord(this.configurationAdmin, this.componentManager, this.servicePid(),
 						"jsCalendar"));
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

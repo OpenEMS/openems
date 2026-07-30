@@ -1,10 +1,11 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { EdgeConfig } from "src/app/shared/shared";
 
 @Component({
     selector: "controller-io-heatingelement-widget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ControllerHeatingElementChartComponent extends AbstractFlatWidget {
@@ -16,6 +17,7 @@ export class ControllerHeatingElementChartComponent extends AbstractFlatWidget {
             return;
         }
 
-        this.consumptionMeter = this.config?.getComponent(this.component.properties["meter.id"]) ?? new EdgeConfig.Component();
+        this.consumptionMeter =
+            this.config?.getComponent(this.component.properties["meter.id"]) ?? new EdgeConfig.Component();
     }
 }

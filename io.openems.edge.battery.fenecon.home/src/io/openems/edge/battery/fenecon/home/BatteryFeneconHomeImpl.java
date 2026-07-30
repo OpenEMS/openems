@@ -126,8 +126,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					return null;
 				}
 
-				return new BatteryFeneconHomeUpdateable(bridge, this.config.modbusUnitId(), updateParams,
-						BatteryData.byBattery(this), this::handleBatteryUpdateEvent,
+				return new BatteryFeneconHomeUpdateable(bridge, this.config.alias(), this.config.modbusUnitId(),
+						updateParams, BatteryData.byBattery(this), this::handleBatteryUpdateEvent,
 						OpenemsComponent.getComponentLogger(BatteryFeneconHomeUpdateable.class, this));
 			}, BatteryFeneconHomeUpdateable::deactivate);
 	// Null-safety for deactivate() is guaranteed by deactivateBindService() null
@@ -1307,6 +1307,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		ABOVE_LIMIT, //
 		BELOW_LIMIT, //
 		BELOW_LIMIT_CHARGING; //
+	}
+
+	@Override
+	public BatteryInverterPort getBatteryInverterPort() {
+		return this.config.inverterPort();
 	}
 
 	protected static final ElementToChannelConverter MAJ_VERSION_CONVERTER = new ElementToChannelConverter(v -> {

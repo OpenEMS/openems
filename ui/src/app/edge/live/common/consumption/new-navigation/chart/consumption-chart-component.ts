@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -15,6 +15,7 @@ import { ChartConstants } from "src/app/shared/shared";
     selector: "oe-consumption-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -27,9 +28,7 @@ import { ChartConstants } from "src/app/shared/shared";
 })
 export class ConsumptionChartComponent extends ScheduleChartComponent {
     protected override buildDatasets(): ScheduleChartComponent.Dataset[] {
-        const data = this.data.summarizeData24hForChannel(
-            "ConsumptionActivePower",
-        );
+        const data = this.data.summarizeData24hForChannel("ConsumptionActivePower");
 
         return [
             {
@@ -45,9 +44,7 @@ export class ConsumptionChartComponent extends ScheduleChartComponent {
         ];
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
         return (item) => ScheduleChartComponent.tooltipkW()(item);
     }
 }

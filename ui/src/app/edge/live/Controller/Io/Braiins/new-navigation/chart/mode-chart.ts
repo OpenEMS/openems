@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
@@ -15,6 +15,7 @@ import { ControllerBraiinsShared } from "../../shared/shared";
     selector: "oe-controller-braiins-mode-chart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -40,9 +41,7 @@ export class ControllerBraiinsModeChartComponent extends ScheduleChartComponent 
         };
 
         const modes = this.data.data24h.map((entry) => {
-            const rawMode =
-                entry.eshs.find((esh) => esh.id === this.componentId)?.mode ??
-                null;
+            const rawMode = entry.eshs.find((esh) => esh.id === this.componentId)?.mode ?? null;
             return valueToModes(rawMode);
         });
 
@@ -59,8 +58,7 @@ export class ControllerBraiinsModeChartComponent extends ScheduleChartComponent 
             };
         });
 
-        const hasValues = (values: (number | boolean | null)[]): boolean =>
-            values.some((value) => value != null);
+        const hasValues = (values: (number | boolean | null)[]): boolean => values.some((value) => value != null);
 
         const datasets: ScheduleChartComponent.Dataset[] = [];
 
@@ -146,26 +144,17 @@ export class ControllerBraiinsModeChartComponent extends ScheduleChartComponent 
         return chartLegendLabelItems;
     }
 
-    protected override getTooltipLabelCallback(): (
-        item: TooltipItem<any>,
-    ) => string {
+    protected override getTooltipLabelCallback(): (item: TooltipItem<any>) => string {
         return (item: TooltipItem<any>) => item.dataset.label ?? "";
     }
 
     private toModeState(rawMode: unknown): { isOn: boolean; isOff: boolean } {
-        const normalizedMode =
-            rawMode == null ? null : String(rawMode).toUpperCase();
+        const normalizedMode = rawMode == null ? null : String(rawMode).toUpperCase();
         const numericMode = rawMode == null ? null : Number(rawMode);
 
         return {
-            isOn:
-                normalizedMode === ControllerBraiinsShared.Mode.ON ||
-                rawMode === 1 ||
-                numericMode === 1,
-            isOff:
-                normalizedMode === ControllerBraiinsShared.Mode.OFF ||
-                rawMode === 0 ||
-                numericMode === 0,
+            isOn: normalizedMode === ControllerBraiinsShared.Mode.ON || rawMode === 1 || numericMode === 1,
+            isOff: normalizedMode === ControllerBraiinsShared.Mode.OFF || rawMode === 0 || numericMode === 0,
         };
     }
 }

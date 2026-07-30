@@ -1,46 +1,32 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { SharedControllerPeakShaving } from "../../shared/shared";
 
 @Component({
-    templateUrl:
-        "../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerPeakShavingSymmetricHomeComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private readonly routeService: RouteService = inject(RouteService);
 
-    public static getFormlyGeneralView(
-        translate: TranslateService,
-        component: EdgeConfig.Component,
-    ): OeFormlyView {
+    public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component): OeFormlyView {
         return {
             title: component.alias,
-            lines: SharedControllerPeakShaving.getFormlyFlatLines(
-                translate,
-                component,
-            ),
+            lines: SharedControllerPeakShaving.getFormlyFlatLines(translate, component),
             component: component,
         };
     }
@@ -50,14 +36,9 @@ export class ControllerPeakShavingSymmetricHomeComponent extends AbstractFormlyC
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const component = config.getComponentSafely(
-            this.routeService.getRouteParam("componentId"),
-        );
+        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(component);
 
-        return ControllerPeakShavingSymmetricHomeComponent.getFormlyGeneralView(
-            this.translate,
-            component,
-        );
+        return ControllerPeakShavingSymmetricHomeComponent.getFormlyGeneralView(this.translate, component);
     }
 }

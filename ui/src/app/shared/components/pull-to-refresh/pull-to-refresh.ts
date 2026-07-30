@@ -1,4 +1,4 @@
-import { Component, effect, ElementRef, inject, Input, Renderer2, } from "@angular/core";
+import { Component, effect, ElementRef, inject, Input, Renderer2, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 import { RefresherCustomEvent } from "@ionic/angular";
@@ -13,12 +13,8 @@ import { CommonUiModule } from "src/app/shared/common-ui.module";
     selector: "oe-refresh-view",
     templateUrl: "./pull-to-refresh.html",
     styleUrl: "./pull-to-refresh.scss",
-    imports: [
-        CommonUiModule,
-        BrowserModule,
-        NgxSpinnerModule,
-        ReactiveFormsModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, BrowserModule, NgxSpinnerModule, ReactiveFormsModule],
 })
 export class PullToRefreshComponent {
     @Input({ required: true }) public show: boolean = false;
@@ -46,7 +42,5 @@ export class PullToRefreshComponent {
         this.renderer.addClass(hostElement, "ion-page");
     }
 
-    @Input({ required: true }) public refresh: (
-        ev: RefresherCustomEvent,
-    ) => void = (ev: RefresherCustomEvent) => {};
+    @Input({ required: true }) public refresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {};
 }

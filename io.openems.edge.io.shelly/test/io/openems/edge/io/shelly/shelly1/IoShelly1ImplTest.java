@@ -1,8 +1,8 @@
 package io.openems.edge.io.shelly.shelly1;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -17,7 +17,7 @@ public class IoShelly1ImplTest {
 	@Test
 	public void test() throws Exception {
 		final var sut = new IoShelly1Impl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 		new ComponentTest(sut) //
 				.addReference("httpBridgeFactory", httpTestBundle.factory()) //

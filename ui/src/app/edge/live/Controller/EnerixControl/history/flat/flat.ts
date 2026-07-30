@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress } from "src/app/shared/shared";
@@ -6,6 +6,7 @@ import { ChannelAddress } from "src/app/shared/shared";
 @Component({
     selector: "enerixControlWidget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
@@ -19,10 +20,7 @@ export class FlatComponent extends AbstractFlatWidget {
         return [
             new ChannelAddress(this.component.id, "CumulatedInactiveTime"),
             new ChannelAddress(this.component.id, "CumulatedNoDischargeTime"),
-            new ChannelAddress(
-                this.component.id,
-                "CumulatedChargeFromGridTime",
-            ),
+            new ChannelAddress(this.component.id, "CumulatedChargeFromGridTime"),
         ];
     }
 }

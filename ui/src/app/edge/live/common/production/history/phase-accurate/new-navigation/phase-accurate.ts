@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,10 +8,11 @@ import { Service } from "src/app/shared/shared";
 @Component({
     selector: "oe-common-production-single-history-overview",
     templateUrl: "./phase-accurate.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonProductionSingleHistoryOverviewComponent extends AbstractHistoryChartOverview {
-    protected componentType: { type: "sum" | "productionMeter" | "charger", displayName: string } | null = null;
+    protected componentType: { type: "sum" | "productionMeter" | "charger"; displayName: string } | null = null;
 
     constructor(
         public override service: Service,
@@ -31,7 +32,10 @@ export class CommonProductionSingleHistoryOverviewComponent extends AbstractHist
             return null;
         }
 
-        if (this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) && this.component.isEnabled) {
+        if (
+            this.config.hasComponentNature("io.openems.edge.ess.dccharger.api.EssDcCharger", this.component.id) &&
+            this.component.isEnabled
+        ) {
             return { type: "charger", displayName: this.component.alias };
         }
 

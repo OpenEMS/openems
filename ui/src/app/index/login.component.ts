@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterContentChecked, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, } from "@angular/core";
+import { AfterContentChecked, ChangeDetectorRef, Component, computed, effect, inject, OnDestroy, ChangeDetectionStrategy, } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Capacitor } from "@capacitor/core";
@@ -21,11 +21,10 @@ import { Edge, Service, Utils, Websocket } from "../shared/shared";
 @Component({
     selector: "login",
     templateUrl: "./login.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
-export class LoginComponent
-    implements ViewWillEnter, AfterContentChecked, OnDestroy
-{
+export class LoginComponent implements ViewWillEnter, AfterContentChecked, OnDestroy {
     private static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
     public currentThemeMode: UserTheme;
     public environment = environment;
@@ -53,22 +52,17 @@ export class LoginComponent
         private userService: UserService,
         private cookieService: CookieService,
     ) {
-        this.operatingSystem = this.platFormService
-            .getDevice()
-            .getDeviceInfo().os;
+        this.operatingSystem = this.platFormService.getDevice().getDeviceInfo().os;
         effect(() => {
             const user = this.userService.currentUser();
             this.currentThemeMode = userService.getValidBrowserTheme(
-                user?.getThemeFromSettings() ??
-                    (localStorage.getItem("THEME") as UserTheme),
+                user?.getThemeFromSettings() ?? (localStorage.getItem("THEME") as UserTheme),
             );
         });
     }
 
     public static getCurrentTheme(user: User): UserTheme {
-        return (user?.settings[UserSettings.THEME] ??
-            localStorage.getItem("THEME") ??
-            this.DEFAULT_THEME) as UserTheme;
+        return (user?.settings[UserSettings.THEME] ?? localStorage.getItem("THEME") ?? this.DEFAULT_THEME) as UserTheme;
     }
 
     /**
@@ -78,10 +72,7 @@ export class LoginComponent
      * @param username The username
      * @returns Trimmed credentials
      */
-    public static preprocessCredentials(
-        password: string,
-        username?: string,
-    ): { password: string; username?: string } {
+    public static preprocessCredentials(password: string, username?: string): { password: string; username?: string } {
         return {
             password: password?.trim(),
             ...(username && { username: username?.trim().toLowerCase() }),
@@ -98,16 +89,9 @@ export class LoginComponent
             await new Promise((resolve) =>
                 setTimeout(() => {
                     // Wait for Websocket
-                    if (
-                        States.isAtLeast(
-                            this.websocket.state(),
-                            States.WEBSOCKET_CONNECTED,
-                        )
-                    ) {
+                    if (States.isAtLeast(this.websocket.state(), States.WEBSOCKET_CONNECTED)) {
                         this.service.startSpinner("loginspinner");
-                        const lang =
-                            this.route.snapshot.queryParamMap.get("lang") ??
-                            null;
+                        const lang = this.route.snapshot.queryParamMap.get("lang") ?? null;
                         if (lang) {
                             localStorage.DEMO_LANGUAGE = lang;
                         }
@@ -131,10 +115,7 @@ export class LoginComponent
      * @param param Data provided in login form
      */
     public doLogin(param: { username?: string; password: string }) {
-        param = LoginComponent.preprocessCredentials(
-            param.password,
-            param.username,
-        );
+        param = LoginComponent.preprocessCredentials(param.password, param.username);
 
         // Prevent that user submits via keyevent 'enter' multiple times
         if (this.formIsDisabled) {
@@ -142,12 +123,10 @@ export class LoginComponent
         }
 
         this.formIsDisabled = true;
-        this.websocket
-            .login(new AuthenticateWithPasswordRequest(param))
-            .finally(() => {
-                this.ionViewWillEnter();
-                this.formIsDisabled = false;
-            });
+        this.websocket.login(new AuthenticateWithPasswordRequest(param)).finally(() => {
+            this.ionViewWillEnter();
+            this.formIsDisabled = false;
+        });
     }
 
     /**
@@ -156,11 +135,9 @@ export class LoginComponent
      * @param param Data provided in login form
      */
     public doDemoLogin(param: { username?: string; password: string }) {
-        this.websocket
-            .login(new AuthenticateWithPasswordRequest(param))
-            .then(() => {
-                this.service.stopSpinner("loginspinner");
-            });
+        this.websocket.login(new AuthenticateWithPasswordRequest(param)).then(() => {
+            this.service.stopSpinner("loginspinner");
+        });
 
         return new Promise<Edge[]>((resolve, reject) => {
             const req = new GetEdgesRequest({ page: this.page });
@@ -186,9 +163,7 @@ export class LoginComponent
         this.stopOnDestroy.complete();
     }
 
-    protected async showPopoverOrRedirectToStore(
-        operatingSystem: "android" | "ios",
-    ) {
+    protected async showPopoverOrRedirectToStore(operatingSystem: "android" | "ios") {
         const device = this.platFormService.getDevice();
         const link: string | null = device.getAppStoreLink();
         if (link) {

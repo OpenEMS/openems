@@ -1,6 +1,5 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
-import { SingleXAxisComponent } from "src/app/shared/components/chart/single-xaxis/single-xaxis";
 import { EnergySchedulerV2 } from "src/app/shared/components/edge/config-components/energy/energy";
 import { GetSchedule } from "src/app/shared/components/edge/config-components/energy/getSchedule";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -8,6 +7,7 @@ import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, ChartConstants, Currency, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
 import { LiveDataService } from "../../../livedataservice";
 import { SharedGrid } from "../shared/shared";
 import { GridBuySellChartComponent } from "./chart/buy-sell-chart";
@@ -18,9 +18,8 @@ import { GridSellPriceChartComponent } from "./chart/price-sell-price-chart";
     selector: "oe-common-grid",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class CommonGridHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
@@ -38,7 +37,7 @@ export class CommonGridHomeComponent extends AbstractFormlyComponent {
             lines.push(
                 {
                     type: "component-line",
-                    component: SingleXAxisComponent,
+                    component: TimeLineChartComponent,
                     inputs: {
                         data: energyScheduler.schedule,
                     },

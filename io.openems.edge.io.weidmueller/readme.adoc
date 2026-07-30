@@ -25,10 +25,12 @@ This bundle implements the following OpenEMS Component with individual configura
 *Factory-PID*: `io.openems.edge.io.weidmueller.ur20`
 
 *Implemented Natures/Interfaces*:
+
 * DigitalInput
 * DigitalOutput
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "io0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -41,6 +43,7 @@ This bundle implements the following OpenEMS Component with individual configura
 The UR20 fieldbus coupler dynamically creates channels based on connected modules. Channel names follow this pattern: `\{component-id\}/\{channel-type\}M\{module-position\}C\{channel-number\}`
 
 Assumptions for all examples below:
+
 * Component-ID is `io0`
 * Modules are in the first extension (M1)
 * For extensions 2, 3, etc., increment the number behind `M`

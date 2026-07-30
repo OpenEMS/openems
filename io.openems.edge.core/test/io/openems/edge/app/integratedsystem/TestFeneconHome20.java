@@ -10,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -38,7 +38,7 @@ public class TestFeneconHome20 {
 
 	private SocomecMeter meterApp;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return List.of(//

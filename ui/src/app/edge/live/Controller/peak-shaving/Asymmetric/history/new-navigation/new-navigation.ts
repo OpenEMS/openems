@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChartOverview } from "src/app/shared/components/chart/abstractHistoryChartOverview";
@@ -12,6 +12,7 @@ import { PeakShavingAsymmetricChartComponent } from "../chart/chart";
 @Component({
     templateUrl: "./new-navigation.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         LocaleProvider,

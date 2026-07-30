@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig } from "@ngx-formly/core";
 import { GetAppAssistant } from "../../jsonrpc/getAppAssistant";
@@ -9,10 +9,10 @@ import { FormlySafeInputModalComponent } from "./formly-safe-input-modal.compone
 @Component({
     selector: "formly-safe-input-wrapper",
     templateUrl: "./formly-safe-input.extended.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnInit {
-
     protected pathToDisplayValue: string;
     protected displayType: "string" | "boolean" | "number" | "optionGroup";
 
@@ -29,9 +29,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
     }
 
     public getValue() {
-        if (this.displayType === "boolean"
-            || this.displayType === "number"
-            || this.displayType === "string") {
+        if (this.displayType === "boolean" || this.displayType === "number" || this.displayType === "string") {
             return this.model[this.pathToDisplayValue];
         }
 
@@ -51,9 +49,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         this.openModal();
     }
 
-    /**
-     * Opens the model to select the option.
-     */
+    /** Opens the model to select the option. */
     private async openModal() {
         const modal = await this.modalController.create({
             component: FormlySafeInputModalComponent,
@@ -64,7 +60,7 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             },
             cssClass: ["auto-height"],
         });
-        modal.onDidDismiss().then(event => {
+        modal.onDidDismiss().then((event) => {
             if (!event.data) {
                 // nothing selected
                 return;
@@ -110,21 +106,22 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
             return null;
         }
         const value = this.model[this.pathToDisplayValue];
-        const options = ((field.templateOptions ?? field.props).options as OptionGroupConfig[]).map(optionGroup => optionGroup.options)
+        const options = ((field.templateOptions ?? field.props).options as OptionGroupConfig[])
+            .map((optionGroup) => optionGroup.options)
             .reduce((acc, val) => acc.concat(val), []);
         if (Array.isArray(value)) {
-            return (value as []).map(e => options.find(option => option.value === e))
-                .map(option => getTitleFromOptionConfig(option, this.field))
+            return (value as [])
+                .map((e) => options.find((option) => option.value === e))
+                .map((option) => getTitleFromOptionConfig(option, this.field))
                 .join(", ");
         } else {
-            const option = options.find(option => option.value === value);
+            const option = options.find((option) => option.value === value);
             if (!option) {
                 return null;
             }
             return getTitleFromOptionConfig(option, this.field);
         }
     }
-
 
     private getFields(): FormlyFieldConfig[] {
         // @Deprecated rather set this#props.fields
@@ -136,5 +133,4 @@ export class FormlySafeInputWrapperComponent extends FieldWrapper implements OnI
         }
         return [];
     }
-
 }

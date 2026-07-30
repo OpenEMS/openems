@@ -1,13 +1,14 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, FormGroup, Validators, } from "@angular/forms";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, Validators } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
-import { Edge, EdgeConfig, Service, Websocket, } from "../../../../../../shared/shared";
+import { Edge, EdgeConfig, Service, Websocket } from "../../../../../../shared/shared";
 
 @Component({
     selector: "symmetricpeakshaving-modal",
     templateUrl: "./modal.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
@@ -22,24 +23,18 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
         public modalCtrl: ModalController,
         public service: Service,
         public translate: TranslateService,
-        public websocket: Websocket
+        public websocket: Websocket,
     ) {}
 
     ngOnInit() {
         this.formGroup = this.formBuilder.group({
             peakShavingPower: new FormControl(
                 this.component.properties.peakShavingPower,
-                Validators.compose([
-                    Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                    Validators.required,
-                ])
+                Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
             ),
             rechargePower: new FormControl(
                 this.component.properties.rechargePower,
-                Validators.compose([
-                    Validators.pattern("^(?:[1-9][0-9]*|0)$"),
-                    Validators.required,
-                ])
+                Validators.compose([Validators.pattern("^(?:[1-9][0-9]*|0)$"), Validators.required]),
             ),
         });
     }
@@ -47,83 +42,50 @@ export class Controller_Symmetric_PeakShavingModalComponent implements OnInit {
     applyChanges() {
         if (this.edge != null) {
             if (this.edge.roleIsAtLeast("owner")) {
-                const peakShavingPower =
-                    this.formGroup.controls["peakShavingPower"];
+                const peakShavingPower = this.formGroup.controls["peakShavingPower"];
                 const rechargePower = this.formGroup.controls["rechargePower"];
                 if (peakShavingPower.valid && rechargePower.valid) {
                     if (peakShavingPower.value >= rechargePower.value) {
                         const updateComponentArray = [];
-                        Object.keys(this.formGroup.controls).forEach(
-                            (element, index) => {
-                                if (this.formGroup.controls[element].dirty) {
-                                    updateComponentArray.push({
-                                        name: Object.keys(
-                                            this.formGroup.controls
-                                        )[index],
-                                        value: this.formGroup.controls[element]
-                                            .value,
-                                    });
-                                }
+                        Object.keys(this.formGroup.controls).forEach((element, index) => {
+                            if (this.formGroup.controls[element].dirty) {
+                                updateComponentArray.push({
+                                    name: Object.keys(this.formGroup.controls)[index],
+                                    value: this.formGroup.controls[element].value,
+                                });
                             }
-                        );
+                        });
                         this.loading = true;
                         this.edge
-                            .updateComponentConfig(
-                                this.websocket,
-                                this.component.id,
-                                updateComponentArray
-                            )
+                            .updateComponentConfig(this.websocket, this.component.id, updateComponentArray)
                             .then(() => {
-                                this.component.properties.peakShavingPower =
-                                    peakShavingPower.value;
-                                this.component.properties.rechargePower =
-                                    rechargePower.value;
+                                this.component.properties.peakShavingPower = peakShavingPower.value;
+                                this.component.properties.rechargePower = rechargePower.value;
                                 this.loading = false;
-                                this.service.toast(
-                                    this.translate.instant(
-                                        "GENERAL.CHANGE_ACCEPTED"
-                                    ),
-                                    "success"
-                                );
+                                this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                             })
                             .catch((reason) => {
-                                peakShavingPower.setValue(
-                                    this.component.properties.peakShavingPower
-                                );
-                                rechargePower.setValue(
-                                    this.component.properties.rechargePower
-                                );
+                                peakShavingPower.setValue(this.component.properties.peakShavingPower);
+                                rechargePower.setValue(this.component.properties.rechargePower);
                                 this.loading = false;
                                 this.service.toast(
-                                    this.translate.instant(
-                                        "GENERAL.CHANGE_FAILED"
-                                    ) +
-                                        "\n" +
-                                        reason.error.message,
-                                    "danger"
+                                    this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                                    "danger",
                                 );
                                 console.warn(reason);
                             });
                         this.formGroup.markAsPristine();
                     } else {
                         this.service.toast(
-                            this.translate.instant(
-                                "EDGE.INDEX.WIDGETS.PEAKSHAVING.RELATION_ERROR"
-                            ),
-                            "danger"
+                            this.translate.instant("EDGE.INDEX.WIDGETS.PEAKSHAVING.RELATION_ERROR"),
+                            "danger",
                         );
                     }
                 } else {
-                    this.service.toast(
-                        this.translate.instant("GENERAL.INPUT_NOT_VALID"),
-                        "danger"
-                    );
+                    this.service.toast(this.translate.instant("GENERAL.INPUT_NOT_VALID"), "danger");
                 }
             } else {
-                this.service.toast(
-                    this.translate.instant("GENERAL.INSUFFICIENT_RIGHTS"),
-                    "danger"
-                );
+                this.service.toast(this.translate.instant("GENERAL.INSUFFICIENT_RIGHTS"), "danger");
             }
         }
     }

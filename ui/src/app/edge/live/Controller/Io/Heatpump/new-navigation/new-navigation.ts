@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -15,22 +15,14 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
 
 @Component({
     selector: "oe-controller-io-heatpump-home",
-    templateUrl:
-        "../../../../../../shared/components/formly/formly-field-modal/template.html",
+    templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoHeatpumpHomeComponent extends AbstractFormlyComponent {
-    protected override formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation" = "formly-field-navigation";
+    protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private route: ActivatedRoute = inject(ActivatedRoute);
 
     public static getFormlyGeneralView(
@@ -39,17 +31,12 @@ export class ControllerIoHeatpumpHomeComponent extends AbstractFormlyComponent {
         config: EdgeConfig,
     ): OeFormlyView {
         const lines: OeFormlyField[] = [];
-        const consumptionMeter = SharedControllerIoHeatpump.getConsumptionMeter(
-            config,
-            component,
-        );
+        const consumptionMeter = SharedControllerIoHeatpump.getConsumptionMeter(config, component);
 
         if (consumptionMeter) {
             lines.push({
                 type: "channel-line",
-                name: translate.instant(
-                    "EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT",
-                ),
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT"),
                 channel: consumptionMeter.id + "/ActivePower",
                 converter: Converter.POWER_IN_KILO_WATT,
             });
@@ -82,15 +69,9 @@ export class ControllerIoHeatpumpHomeComponent extends AbstractFormlyComponent {
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
 
-        const component = config.getComponentSafely(
-            this.route.snapshot.params.componentId,
-        );
+        const component = config.getComponentSafely(this.route.snapshot.params.componentId);
         AssertionUtils.assertIsDefined(component);
 
-        return ControllerIoHeatpumpHomeComponent.getFormlyGeneralView(
-            this.translate,
-            component,
-            config,
-        );
+        return ControllerIoHeatpumpHomeComponent.getFormlyGeneralView(this.translate, component, config);
     }
 }

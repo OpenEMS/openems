@@ -1,11 +1,16 @@
-@if (edge) {
+@if (edge() !== null) {
   <oe-navigation-view>
-    <ion-buttons header class="ion-justify-content-center">
-      <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-      @if (!ref.children.length) {
-        <pickdate></pickdate>
-      }
-    </ion-buttons>
+    <ng-container header>
+      <ion-toolbar>
+        <ion-title>
+          <ion-buttons class="ion-justify-content-center">
+            <ion-button>
+              <pickdate></pickdate>
+            </ion-button>
+          </ion-buttons>
+        </ion-title>
+      </ion-toolbar>
+    </ng-container>
     <energychart [isOnlyChart]="true"></energychart>
   </oe-navigation-view>
 }

@@ -15,7 +15,7 @@ public class SamsungEssImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new SamsungEssImpl()) //
-				.addReference("httpBridgeFactory", new DummyBridgeHttpBundle().factory()) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpBundle.of().factory()) //
 				.addReference("httpBridgeCycleServiceDefinition",
 						new HttpBridgeCycleServiceDefinition(new DummyCycleSubscriber())) //
 				.activate(MyConfig.create() //

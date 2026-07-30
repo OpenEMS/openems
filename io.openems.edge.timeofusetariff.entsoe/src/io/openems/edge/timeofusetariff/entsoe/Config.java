@@ -25,8 +25,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Bidding Zone", description = "Zone corresponding to the customer's location")
 	EntsoeBiddingZone biddingZone();
 
-	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format")
+	@AttributeDefinition(name = "Ancillary Costs JSON", description = "Ancillary Costs in JSON format [Currency/MWh]")
 	String ancillaryCosts();
+
+	@AttributeDefinition(name = "Mathematical expression to calculate gross price", description = "[x] is the EPEX price in [Currency/MWh], [y] the ancillary cost per period; defaults to \"x + y\"")
+	String calculateExpression() default "";
 
 	String webconsole_configurationFactory_nameHint() default "Time-Of-Use Tariff ENTSO-E [{id}]";
 }

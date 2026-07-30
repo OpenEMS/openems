@@ -61,6 +61,10 @@ public class ExpressionEvaluator {
 	private static boolean evaluateSimpleExpression(String expr) {
 		final var trimmed = expr.trim();
 
+		if (trimmed.startsWith("(") && trimmed.endsWith(")")) {
+			return evaluateSimpleExpression(trimmed.substring(1, trimmed.length() - 1));
+		}
+
 		if (trimmed.contains("||")) {
 			final var parts = trimmed.split("\\|\\|");
 			for (final var part : parts) {
@@ -82,11 +86,11 @@ public class ExpressionEvaluator {
 		}
 
 		if (trimmed.startsWith("!!")) {
-			return isTruthy(parseValue(trimmed.substring(2)));
+			return evaluateSimpleExpression(trimmed.substring(2));
 		}
 
 		if (trimmed.startsWith("!")) {
-			return !isTruthy(parseValue(trimmed.substring(1)));
+			return !evaluateSimpleExpression(trimmed.substring(1));
 		}
 
 		if (trimmed.contains("==")) {

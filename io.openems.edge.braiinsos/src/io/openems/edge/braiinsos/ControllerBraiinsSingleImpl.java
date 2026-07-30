@@ -39,7 +39,6 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.jsonapi.ComponentJsonApi;
 import io.openems.edge.common.jsonapi.JSCalendarApi;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
-import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.energy.api.EnergySchedulable;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
@@ -59,9 +58,8 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
-public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
-		implements Controller, SinglePhaseMeter, ElectricityMeter, ControllerBraiinsSingle, OpenemsComponent,
-		EventHandler, TimedataProvider, ComponentJsonApi, EnergySchedulable {
+public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent implements Controller, ElectricityMeter,
+		ControllerBraiinsSingle, OpenemsComponent, EventHandler, TimedataProvider, ComponentJsonApi, EnergySchedulable {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerBraiinsSingleImpl.class);
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
@@ -105,7 +103,7 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
 				: () -> new BraiinsApi(this.httpBridgeFactory, this.config.ip(), this.config.username(),
 						this.config.password(), this::applyMinerStats);
 
-		SinglePhaseMeter.calculateSinglePhaseFromActivePower(this);
+		SinglePhaseMeter.calculateSingleOrAllPhaseFromActivePower(this, () -> this.config.phase());
 	}
 
 	@Activate
@@ -267,11 +265,6 @@ public class ControllerBraiinsSingleImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
-	}
-
-	@Override
-	public SinglePhase getPhase() {
-		return this.config.phase();
 	}
 
 	@Override
