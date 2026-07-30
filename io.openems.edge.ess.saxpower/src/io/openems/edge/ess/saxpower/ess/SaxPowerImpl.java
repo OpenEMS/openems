@@ -136,23 +136,10 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
 
         int rawValue = activePower + 16384;
 
-        if (rawValue < 0) {
-            rawValue = 0;
-        } else if (rawValue > 65535) {
-            rawValue = 65535;
-        }
         this.activePowerElement.setNextWriteValue(rawValue);
 
-        if (activePower > 0) {
-            this.maxDischargePowerElement.setNextWriteValue(activePower);
-            this.maxChargePowerElement.setNextWriteValue(3500);
-        } else if (activePower < 0) {
-            this.maxChargePowerElement.setNextWriteValue(Math.abs(activePower));
-            this.maxDischargePowerElement.setNextWriteValue(4600);
-        } else {
-            this.maxDischargePowerElement.setNextWriteValue(4600);
-            this.maxChargePowerElement.setNextWriteValue(4600);
-        }
+        this.maxDischargePowerElement.setNextWriteValue(4600);
+        this.maxChargePowerElement.setNextWriteValue(3500);
     }
 
     @Override
