@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation, ChangeDetectionStrategy, } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewEncapsulation, } from "@angular/core";
 import { ModalController } from "@ionic/angular";
 import { FieldType } from "@ngx-formly/core";
 import { Subscription } from "rxjs";
