@@ -5,6 +5,7 @@ import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { Edge } from "../edge/edge";
 import { EdgeConfig } from "../edge/edgeconfig";
+import { Name } from "../shared/name";
 
 export enum NavigationId {
     LIVE = "live",
@@ -642,8 +643,9 @@ export namespace GroupedNavigationTreeUtility {
         translate: TranslateService,
         componentIds: EdgeConfig.Component["id"][],
         config: EdgeConfig,
+        factoryId: EdgeConfig.Factory["id"],
         getChildTreeFn: (componentId: EdgeConfig.Component["id"]) => NavigationTree | null,
-    ): ConstructorParameters<typeof NavigationTree> | null {
+    ): NavigationTree | null {
         const children = componentIds
             .slice()
             .sort((left, right) => compareByAliasThenComponentId(config, left, right))
@@ -656,13 +658,13 @@ export namespace GroupedNavigationTreeUtility {
 
         return new NavigationTree(
             groupId,
-            { baseString: groupBaseString },
+            { baseString: groupBaseString, queryParams: { factoryId: factoryId } },
             groupIcon,
             translate.instant(groupLabelKey),
             "label",
             children,
             null,
-        ).toConstructorParams();
+        );
     }
 
     /**
@@ -687,5 +689,25 @@ export namespace GroupedNavigationTreeUtility {
         }
 
         return leftComponentId.localeCompare(rightComponentId);
+    }
+
+    export function getNavigationTreeAsChild(
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+        createComponentNavigationTree: (
+            componentId: EdgeConfig.Component["id"],
+            label: string,
+            baseString: string,
+            translate: TranslateService,
+        ) => NavigationTree,
+    ): NavigationTree | null {
+        const component = config.getComponentSafely(componentId);
+        if (component == null) {
+            return null;
+        }
+
+        const label = Name.METER_ALIAS_OR_ID(component);
+        return createComponentNavigationTree(componentId, label, componentId, translate);
     }
 }

@@ -20,9 +20,6 @@ import { SharedIoChannelSingleThreshold } from "../shared/shared";
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFormlyComponent {
-    protected switchState: string | null = null;
-    protected switchValue: string | null = null;
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
