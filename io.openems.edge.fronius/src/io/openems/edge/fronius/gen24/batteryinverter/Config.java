@@ -6,7 +6,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 @ObjectClassDefinition(//
 		name = "ESS Fronius Gen24 Hybrid", //
 		description = "Implements the Fronius Gen24 hybrid inverter."
-		+ "ONLY WORKS with MODBUS Server ENABLED AND INT+SF Setting.")
+				+ "ONLY WORKS with MODBUS Server ENABLED AND INT+SF Setting.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -27,5 +27,6 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 	@AttributeDefinition(name = "Control mode", description = "Sets the Control mode. \"Internal\" allows no power setpoints, "
 			+ "\"Remote\" allows full control by OpenEMS")
 	ControlMode controlMode() default ControlMode.INTERNAL;
-	String webconsole_configurationFactory_nameHint() default "ESS Hybrid Fronius Inverter [{id}]";
+
+	String webconsole_configurationFactory_nameHint() default "ESS Fronius Gen24 Hybrid [{id}]";
 }

@@ -3,14 +3,8 @@ package io.openems.edge.fronius.enums;
 import io.openems.common.types.OptionsEnum;
 
 public enum BatteryState implements OptionsEnum {
-	UNDEFINED(-1, "Undefiniert"), 
-	OFF(1, "Aus"), 
-	EMPTY(2, "Leer"),
-	DISCHARGING(3, "Entladen"), 
-	CHARGING(4, "Laden"), 
-	FULL(5, "Voll"),
-	STANDBY(6, "Standby / Holding"),
-	TESTING(7, "Testmodus");
+	UNDEFINED(-1, "Undefined"), OFF(1, "Off"), EMPTY(2, "Empty"), DISCHARGING(3, "Discharging"), CHARGING(4, "Charging"),
+	FULL(5, "Full"), STANDBY(6, "Standby / Holding"), TESTING(7, "Test mode");
 
 	private final int value;
 	private final String name;
@@ -21,11 +15,17 @@ public enum BatteryState implements OptionsEnum {
 	}
 
 	@Override
-	public int getValue() { return this.value; }
+	public int getValue() {
+		return this.value;
+	}
 
 	@Override
-	public String getName() { return this.name; }
+	public String getName() {
+		return this.name;
+	}
 
 	@Override
-	public OptionsEnum getUndefined() { return UNDEFINED; }
+	public OptionsEnum getUndefined() {
+		return UNDEFINED;
+	}
 }

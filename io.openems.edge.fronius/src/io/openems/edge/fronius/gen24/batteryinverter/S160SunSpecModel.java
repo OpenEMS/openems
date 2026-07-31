@@ -16,11 +16,11 @@ import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModelType;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecPoint;
 
-//TODO same as FroniusSunspecModel - merge together 
+//TODO same as FroniusSunspecModel - merge together
 public enum S160SunSpecModel implements SunSpecModel {
 	S_160(//
-			"Mutliple MPPT Inverter Extension Model", //
-			"Mutliple MPPT Inverter Extension Model", //
+			"Multiple MPPT Inverter Extension Model", //
+			"Multiple MPPT Inverter Extension Model", //
 			"", //
 			88, //
 			S160SunSpecModel.S160.values(), //

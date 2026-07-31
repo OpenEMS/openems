@@ -12,10 +12,6 @@ public enum ControlMode implements OptionsEnum {
 	 * Disables remote storage control setpoints.
 	 */
 	INTERNAL(2, "Internal");
-	/**
-	 * Uses internal mode while the requested setpoint would not change the current
-	 * grid balancing, otherwise switches to remote control.
-	 */
 
 	private final int value;
 	private final String name;

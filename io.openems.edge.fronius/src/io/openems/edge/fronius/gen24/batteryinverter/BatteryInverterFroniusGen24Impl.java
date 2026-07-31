@@ -4,7 +4,9 @@ import static org.osgi.service.component.annotations.ReferenceCardinality.MANDAT
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 import org.osgi.service.component.ComponentContext;
@@ -36,644 +38,497 @@ import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.SunSpecModel;
 import io.openems.edge.bridge.modbus.sunspec.batteryinverter.AbstractSunSpecBatteryInverter;
 import io.openems.edge.common.channel.Channel;
+import io.openems.edge.common.channel.EnumWriteChannel;
+import io.openems.edge.common.channel.FloatWriteChannel;
+import io.openems.edge.common.channel.IntegerReadChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.taskmanager.Priority;
-import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.ess.power.api.Power;
-import io.openems.edge.fronius.gen24.battery.FroniusGen24;
+import io.openems.edge.fronius.gen24.battery.FroniusGen24Battery;
+import io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcCharger;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
-@Component(
-        name = "Ess.Fronius.Gen24.Inverter",
-        immediate = true,
-        configurationPolicy = ConfigurationPolicy.REQUIRE,
-        service = {
-                BatteryInverterFroniusGen24.class,
-                HybridManagedSymmetricBatteryInverter.class,
-                ManagedSymmetricBatteryInverter.class,
-                SymmetricBatteryInverter.class,
-                StartStoppable.class,
-                ModbusComponent.class,
-                ManagedSymmetricPvInverter.class,
-                OpenemsComponent.class
-        }
-)
+@Component(name = "Ess.Fronius.Gen24.Inverter", //
+		immediate = true, //
+		configurationPolicy = ConfigurationPolicy.REQUIRE, //
+		service = { BatteryInverterFroniusGen24.class, //
+				HybridManagedSymmetricBatteryInverter.class, //
+				ManagedSymmetricBatteryInverter.class, //
+				SymmetricBatteryInverter.class, //
+				StartStoppable.class, //
+				ModbusComponent.class, //
+				ManagedSymmetricPvInverter.class, //
+				OpenemsComponent.class //
+		})
 @GenerateTargetsFromReferences("Modbus")
 public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInverter
-        implements BatteryInverterFroniusGen24,
-        HybridManagedSymmetricBatteryInverter,
-        ManagedSymmetricBatteryInverter,
-        SymmetricBatteryInverter,
-        StartStoppable,
-        ModbusComponent,
-        TimedataProvider,
-        OpenemsComponent {
-
-    private final Logger log =
-            LoggerFactory.getLogger(BatteryInverterFroniusGen24Impl.class);
-
-    private static final int READ_FROM_MODBUS_BLOCK = 1;
-
-    private static final Map<SunSpecModel, Priority> ACTIVE_MODELS =
-            ImmutableMap.<SunSpecModel, Priority>builder()
-                    .put(DefaultSunSpecModel.S_1, Priority.LOW)
-                    .put(DefaultSunSpecModel.S_103, Priority.HIGH)
-                    .put(DefaultSunSpecModel.S_120, Priority.LOW)
-                    .put(DefaultSunSpecModel.S_121, Priority.LOW)
-                    .put(DefaultSunSpecModel.S_122, Priority.LOW)
-                    .put(DefaultSunSpecModel.S_123, Priority.LOW)
-                    .put(DefaultSunSpecModel.S_124, Priority.LOW)
-                    .put(S160SunSpecModel.S_160, Priority.HIGH)
-                    .build();
-
-    @Reference
-    protected Power power;
-
-    @Reference(
-            policy = ReferencePolicy.DYNAMIC,
-            policyOption = ReferencePolicyOption.GREEDY,
-            cardinality = ReferenceCardinality.OPTIONAL
-    )
-    private volatile Timedata timedata = null;
-
-    private final CalculateEnergyFromPower calculateActiveChargeEnergy =
-            new CalculateEnergyFromPower(
-                    this,
-                    SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
-
-    private final CalculateEnergyFromPower calculateActiveDischargeEnergy =
-            new CalculateEnergyFromPower(
-                    this,
-                    SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
-
-    private final CalculateEnergyFromPower calculateDcChargeEnergy =
-            new CalculateEnergyFromPower(
-                    this,
-                    HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY);
-
-    private final CalculateEnergyFromPower calculateDcDischargeEnergy =
-            new CalculateEnergyFromPower(
-                    this,
-                    HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY);
-
-    private final ApplyPowerHandler applyPowerHandler =
-            new ApplyPowerHandler(this);
-
-    private Config config;
-
-    public BatteryInverterFroniusGen24Impl() throws OpenemsException {
-
-        super(
-                ACTIVE_MODELS,
-                OpenemsComponent.ChannelId.values(),
-                ModbusComponent.ChannelId.values(),
-                SymmetricBatteryInverter.ChannelId.values(),
-                ManagedSymmetricBatteryInverter.ChannelId.values(),
-                HybridManagedSymmetricBatteryInverter.ChannelId.values(),
-                StartStoppable.ChannelId.values(),
-                new io.openems.edge.common.channel.ChannelId[] {
-                        ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT
-                },
-                BatteryInverterFroniusGen24.ChannelId.values()
-        );
-    }
-
-    @Override
-    @Reference(
-            policy = STATIC,
-            policyOption = GREEDY,
-            cardinality = MANDATORY,
-            target = "(&(id=${config.modbus_id})(enabled=true))"
-    )
-    protected void setModbus(BridgeModbus modbus) {
-        super.setModbus(modbus);
-    }
-
-    @Activate
-    private void activate(ComponentContext context, Config config)
-            throws OpenemsException {
-
-        this.config = config;
-
-        super.activate(
-                context,
-                config.id(),
-                config.alias(),
-                config.enabled(),
-                config.modbusUnitId(),
-                READ_FROM_MODBUS_BLOCK
-        );
-
-        this._setGridMode(GridMode.ON_GRID);
-        this._setConfiguredControlMode(config.controlMode());
-        this._setInitializing(true);
-    }
-
-    @Override
-    @Deactivate
-    protected void deactivate() {
-        super.deactivate();
-    }
-
-    @Override
-    protected void onSunSpecInitializationCompleted() {
-
-        this.logInfo(
-                this.log,
-                "SunSpec initialization finished. "
-                        + this.channels().size()
-                        + " Channels available."
-        );
-
-        this.mapFirstPointToChannel(
-                SymmetricBatteryInverter.ChannelId.ACTIVE_POWER,
-                ElementToChannelConverter.DIRECT_1_TO_1,
-                DefaultSunSpecModel.S103.W
-        );
-
-        this.mapFirstPointToChannel(
-                SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
-                ElementToChannelConverter.DIRECT_1_TO_1,
-                DefaultSunSpecModel.S103.V_AR
-        );
-
-        this.mapFirstPointToChannel(
-                SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
-                ElementToChannelConverter.DIRECT_1_TO_1,
-                DefaultSunSpecModel.S121.W_MAX
-        );
-
-        this.installListeners();
-
-        this._setInitializing(false);
-    }
-
-    @Override
-    public void run(
-            Battery battery,
-            int setActivePower,
-            int setReactivePower
-    ) throws OpenemsNamedException {
-
-        this.calculateEnergy();
-
-        if (!(battery instanceof FroniusGen24 froniusBattery)) {
-
-            this.log.warn(
-                    "Unsupported battery type: {}",
-                    battery.getClass().getSimpleName()
-            );
-
-            return;
-        }
-
-        this.applyPowerHandler.apply(
-                froniusBattery,
-                setActivePower,
-                setReactivePower,
-                this.config.controlMode()
-        );
-    }
+		implements BatteryInverterFroniusGen24, HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter,
+		SymmetricBatteryInverter, StartStoppable, ModbusComponent, TimedataProvider, OpenemsComponent {
 
-    private void recalculateDcDischargePower() {
+	private final Logger log = LoggerFactory.getLogger(BatteryInverterFroniusGen24Impl.class);
 
-        try {
+	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
-            int chargePower =
-                    this.getModule3DcwChannel()
-                            .getNextValue()
-                            .orElse(0F)
-                            .intValue();
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
+			.put(DefaultSunSpecModel.S_1, Priority.LOW).put(DefaultSunSpecModel.S_103, Priority.HIGH)
+			.put(DefaultSunSpecModel.S_120, Priority.LOW).put(DefaultSunSpecModel.S_121, Priority.LOW)
+			.put(DefaultSunSpecModel.S_122, Priority.LOW).put(DefaultSunSpecModel.S_123, Priority.LOW)
+			.put(DefaultSunSpecModel.S_124, Priority.LOW).put(S160SunSpecModel.S_160, Priority.HIGH).build();
 
-            int dischargePower =
-                    this.getModule4DcwChannel()
-                            .getNextValue()
-                            .orElse(0F)
-                            .intValue();
+	@Reference
+	protected Power power;
 
-            int batteryPower = dischargePower - chargePower;
+	@Reference(policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			cardinality = ReferenceCardinality.OPTIONAL)
+	private volatile Timedata timedata = null;
+
+	private final CalculateEnergyFromPower calculateActiveChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY);
+
+	private final CalculateEnergyFromPower calculateActiveDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY);
+
+	private final CalculateEnergyFromPower calculateDcChargeEnergy = new CalculateEnergyFromPower(this,
+			HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY);
+
+	private final CalculateEnergyFromPower calculateDcDischargeEnergy = new CalculateEnergyFromPower(this,
+			HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY);
+
+	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler(this);
+
+	/**
+	 * Registered {@link FroniusGen24DcCharger}s, bound dynamically via
+	 * {@link #addCharger}/{@link #removeCharger} (OSGi dynamic multiple
+	 * Reference). Chargers hold no reference back to this BatteryInverter -
+	 * matches the pattern used by GoodWe ({@code AbstractGoodWe.chargers}) and
+	 * FENECON Commercial40 ({@code EssFeneconCommercial40Impl.chargers}).
+	 */
+	private final List<FroniusGen24DcCharger> chargers = new CopyOnWriteArrayList<>();
+
+	private Config config;
+
+	public BatteryInverterFroniusGen24Impl() throws OpenemsException {
+
+		super(ACTIVE_MODELS, OpenemsComponent.ChannelId.values(), ModbusComponent.ChannelId.values(),
+				SymmetricBatteryInverter.ChannelId.values(), ManagedSymmetricBatteryInverter.ChannelId.values(),
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), StartStoppable.ChannelId.values(),
+				new io.openems.edge.common.channel.ChannelId[] {
+						ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT },
+				BatteryInverterFroniusGen24.ChannelId.values());
+	}
+
+	@Override
+	@Reference(policy = STATIC, //
+			policyOption = GREEDY, //
+			cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))" //
+	)
+	protected void setModbus(BridgeModbus modbus) {
+		super.setModbus(modbus);
+	}
 
-            this._setDcDischargePower(batteryPower);
+	@Activate
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 
-            if (batteryPower > 0) {
+		this.config = config;
 
-                this.log.info(
-                        "Battery DISCHARGING with {} W "
-                                + "[charge={} W, discharge={} W]",
-                        batteryPower,
-                        chargePower,
-                        dischargePower
-                );
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK);
 
-            } else if (batteryPower < 0) {
+		this._setGridMode(GridMode.ON_GRID);
+		this._setConfiguredControlMode(config.controlMode());
+		this._setInitializing(true);
+	}
 
-                this.log.info(
-                        "Battery CHARGING with {} W "
-                                + "[charge={} W, discharge={} W]",
-                        Math.abs(batteryPower),
-                        chargePower,
-                        dischargePower
-                );
+	@Override
+	@Deactivate
+	protected void deactivate() {
+		super.deactivate();
+	}
 
-            } else {
+	@Override
+	protected void onSunSpecInitializationCompleted() {
 
-                this.log.info(
-                        "Battery IDLE "
-                                + "[charge={} W, discharge={} W]",
-                        chargePower,
-                        dischargePower
-                );
-            }
+		this.logInfo(this.log, "SunSpec initialization finished. " + this.channels().size() + " Channels available.");
 
-        } catch (OpenemsException e) {
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER,
+				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.W);
 
-            this.log.warn(
-                    "Failed to calculate DC battery power",
-                    e
-            );
-        }
-    }
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER,
+				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S103.V_AR);
 
-    private void installListeners() {
+		this.mapFirstPointToChannel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER,
+				ElementToChannelConverter.DIRECT_1_TO_1, DefaultSunSpecModel.S121.W_MAX);
 
-        final Consumer<Value<Float>> calculateFloat = ignore -> {
-            this.recalculateDcDischargePower();
-        };
+		this.mapFirstPointToChannel(BatteryInverterFroniusGen24.ChannelId.OPERATING_STATE,
+				enumConverter(DefaultSunSpecModel.S103_St.values()), DefaultSunSpecModel.S103.ST);
 
-        try {
+		this.installListeners();
 
-            this.getModule1DcwChannel()
-                    .onSetNextValue(calculateFloat);
+		this._setInitializing(false);
+	}
 
-            this.getModule2DcwChannel()
-                    .onSetNextValue(calculateFloat);
+	/**
+	 * Builds a converter that resolves a raw Modbus/SunSpec integer value to the
+	 * matching {@link io.openems.common.types.OptionsEnum} constant.
+	 *
+	 * <p>
+	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
+	 * passes the raw value through unchanged, so the target Channel would end up
+	 * holding a plain {@code Integer} instead of the declared enum constant -
+	 * causing a {@link ClassCastException} the moment anything reads the Channel
+	 * as its declared enum type.
+	 *
+	 * @param values the target enum's {@code values()}
+	 * @return the converter
+	 */
+	private static ElementToChannelConverter enumConverter(io.openems.common.types.OptionsEnum[] values) {
+		return new ElementToChannelConverter(value -> {
+			if (value == null) {
+				return null;
+			}
+			int intValue = ((Number) value).intValue();
+			for (var option : values) {
+				if (option.getValue() == intValue) {
+					return option;
+				}
+			}
+			return values.length > 0 ? values[0].getUndefined() : null;
+		});
+	}
 
-            this.getModule3DcwChannel()
-                    .onSetNextValue(calculateFloat);
+	@Override
+	public void run(Battery battery, int setActivePower, int setReactivePower) throws OpenemsNamedException {
 
-            this.getModule4DcwChannel()
-                    .onSetNextValue(calculateFloat);
+		this.calculateEnergy();
 
-        } catch (OpenemsException e) {
+		if (!(battery instanceof FroniusGen24Battery froniusBattery)) {
 
-            this.log.warn(
-                    "Failed to install listeners",
-                    e
-            );
-        }
-    }
+			this.log.warn("Unsupported battery type: {}", battery.getClass().getSimpleName());
 
-    private void calculateEnergy() {
+			return;
+		}
 
-        var activePower = this.getActivePower().get();
+		this.applyPowerHandler.apply(froniusBattery, setActivePower, setReactivePower, this.config.controlMode());
+	}
 
-        if (activePower == null) {
+	private void recalculateDcDischargePower() {
 
-            this.calculateActiveChargeEnergy.update(null);
-            this.calculateActiveDischargeEnergy.update(null);
+		try {
 
-        } else if (activePower > 0) {
+			int chargePower = this.getModule3DcwChannel().getNextValue().orElse(0F).intValue();
 
-            this.calculateActiveChargeEnergy.update(0);
-            this.calculateActiveDischargeEnergy.update(activePower);
+			int dischargePower = this.getModule4DcwChannel().getNextValue().orElse(0F).intValue();
 
-        } else {
+			int batteryPower = dischargePower - chargePower;
 
-            this.calculateActiveChargeEnergy.update(activePower * -1);
-            this.calculateActiveDischargeEnergy.update(0);
-        }
+			this._setDcDischargePower(batteryPower);
 
-        var dcPower = this.getDcDischargePower().get();
+			if (batteryPower > 0) {
 
-        if (dcPower == null) {
+				this.log.info("Battery DISCHARGING with {} W " + "[charge={} W, discharge={} W]", batteryPower,
+						chargePower, dischargePower);
 
-            this.calculateDcChargeEnergy.update(null);
-            this.calculateDcDischargeEnergy.update(null);
+			} else if (batteryPower < 0) {
 
-        } else if (dcPower > 0) {
+				this.log.info("Battery CHARGING with {} W " + "[charge={} W, discharge={} W]", Math.abs(batteryPower),
+						chargePower, dischargePower);
 
-            this.calculateDcChargeEnergy.update(0);
-            this.calculateDcDischargeEnergy.update(dcPower);
+			} else {
 
-        } else {
+				this.log.info("Battery IDLE " + "[charge={} W, discharge={} W]", chargePower, dischargePower);
+			}
 
-            this.calculateDcChargeEnergy.update(dcPower * -1);
-            this.calculateDcDischargeEnergy.update(0);
-        }
-    }
+		} catch (OpenemsException e) {
 
-    @Override
-    public Integer getSurplusPower() {
-        return 0;
-    }
+			this.log.warn("Failed to calculate DC battery power", e);
+		}
+	}
 
-    @Override
-    public String debugLog() {
-        return "|L:" + this.getActivePower().asString();
-    }
+	private void installListeners() {
 
-    @Override
-    public int getPowerPrecision() {
-        return 1;
-    }
+		final Consumer<Value<Float>> calculateFloat = ignore -> {
+			this.recalculateDcDischargePower();
+		};
 
-    @Override
-    public void setStartStop(StartStop value)
-            throws OpenemsNamedException {
+		try {
 
-        this._setStartStop(value);
-    }
+			this.getModule1DcwChannel().onSetNextValue(calculateFloat);
 
-    @Override
-    public Integer getDcPvPower() {
+			this.getModule2DcwChannel().onSetNextValue(calculateFloat);
 
-        try {
+			this.getModule3DcwChannel().onSetNextValue(calculateFloat);
 
-            return this.getModule1DcwChannel()
-                    .value()
-                    .orElse(0F)
-                    .intValue()
-                    + this.getModule2DcwChannel()
-                            .value()
-                            .orElse(0F)
-                            .intValue();
+			this.getModule4DcwChannel().onSetNextValue(calculateFloat);
 
-        } catch (OpenemsException e) {
+		} catch (OpenemsException e) {
 
-            return null;
-        }
-    }
+			this.log.warn("Failed to install listeners", e);
+		}
+	}
 
-    @Override
-    public Timedata getTimedata() {
-        return this.timedata;
-    }
+	private void calculateEnergy() {
 
-    @Override
-    public Channel<Float> getModuleSOC()
-            throws OpenemsException {
+		var activePower = this.getActivePower().get();
 
-        return this.getSunSpecChannelOrError(
-                DefaultSunSpecModel.S124.CHA_STATE
-        );
-    }
+		if (activePower == null) {
 
-    @Override
-    public Channel<Float> getModule1DcwChannel()
-            throws OpenemsException {
+			this.calculateActiveChargeEnergy.update(null);
+			this.calculateActiveDischargeEnergy.update(null);
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_1_D_C_W
-        );
-    }
+		} else if (activePower > 0) {
 
-    @Override
-    public Channel<Float> getModule1DcaChannel()
-            throws OpenemsException {
+			this.calculateActiveChargeEnergy.update(0);
+			this.calculateActiveDischargeEnergy.update(activePower);
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_1_D_C_A
-        );
-    }
+		} else {
 
-    @Override
-    public Channel<Float> getModule1DcvChannel()
-            throws OpenemsException {
+			this.calculateActiveChargeEnergy.update(activePower * -1);
+			this.calculateActiveDischargeEnergy.update(0);
+		}
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_1_D_C_V
-        );
-    }
+		var dcPower = this.getDcDischargePower().get();
 
-    @Override
-    public Channel<Float> getModule2DcwChannel()
-            throws OpenemsException {
+		if (dcPower == null) {
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_2_D_C_W
-        );
-    }
+			this.calculateDcChargeEnergy.update(null);
+			this.calculateDcDischargeEnergy.update(null);
 
-    @Override
-    public Channel<Float> getModule2DcaChannel()
-            throws OpenemsException {
+		} else if (dcPower > 0) {
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_2_D_C_A
-        );
-    }
+			this.calculateDcChargeEnergy.update(0);
+			this.calculateDcDischargeEnergy.update(dcPower);
 
-    @Override
-    public Channel<Float> getModule2DcvChannel()
-            throws OpenemsException {
+		} else {
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_2_D_C_V
-        );
-    }
+			this.calculateDcChargeEnergy.update(dcPower * -1);
+			this.calculateDcDischargeEnergy.update(0);
+		}
+	}
 
-    public Channel<Float> getModule3DcwChannel()
-            throws OpenemsException {
+	@Override
+	public Integer getSurplusPower() {
+		return 0;
+	}
 
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_3_D_C_W
-        );
-    }
+	@Override
+	public String debugLog() {
+		return "|L:" + this.getActivePower().asString();
+	}
 
-    public Channel<Float> getModule4DcwChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_4_D_C_W
-        );
-    }
-
-    public Channel<Float> getModule3DcaChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_3_D_C_A
-        );
-    }
-
-    public Channel<Float> getModule4DcaChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_4_D_C_A
-        );
-    }
-
-    public Channel<Float> getModule3DcVChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_3_D_C_V
-        );
-    }
-
-    public Channel<Float> getModule4DcVChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_4_D_C_V
-        );
-    }
-
-    public Channel<Float> getModule3DcWChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_3_D_C_W
-        );
-    }
-
-    public Channel<Float> getModule4DcWChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_4_D_C_W
-        );
-    }
-
-    public Channel<Float> getModule3DcWHChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_3_D_C_W_H
-        );
-    }
-
-    public Channel<Float> getModule4DcWHChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                S160SunSpecModel.S160.MODULE_4_D_C_W_H
-        );
-    }
-
-    public Channel<Float> getModuleCapacity()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                DefaultSunSpecModel.S120.W_H_RTG
-        );
-    }
-
-    public Channel<Float> getStorageWChaMaxChannel()
-            throws OpenemsException {
-
-        return this.getSunSpecChannelOrError(
-                DefaultSunSpecModel.S124.W_CHA_MAX
-        );
-    }
-
-    @Override
-    public boolean isInitialized() {
-        return this.isSunSpecInitializationCompleted();
-    }
-
-    @Override
-    public io.openems.edge.common.channel.IntegerReadChannel getActivePowerChannel() {
-        return this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER);
-    }
-
-    @Override
-    public io.openems.edge.common.channel.IntegerReadChannel getReactivePowerChannel() {
-        return this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER);
-    }
-
-    @Override
-    public io.openems.edge.common.channel.IntegerReadChannel getMaxApparentPowerChannel() {
-        return this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
-    }
-
-    @Override
-    public boolean isManaged() {
-        return true;
-    }
-
-    @Override
-    public void _setActivePower(Integer value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).setNextValue(value);
-    }
-
-    @Override
-    public void _setActivePower(int value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).setNextValue(value);
-    }
-
-    @Override
-    public void _setReactivePower(Integer value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).setNextValue(value);
-    }
-
-    @Override
-    public void _setReactivePower(int value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).setNextValue(value);
-    }
-
-    @Override
-    public void _setMaxApparentPower(Integer value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).setNextValue(value);
-    }
-
-    @Override
-    public void _setMaxApparentPower(int value) {
-        this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).setNextValue(value);
-    }
-
-    @Override
-    public io.openems.edge.common.channel.value.Value<Integer> getActivePower() {
-        return (io.openems.edge.common.channel.value.Value<Integer>)
-                this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).value();
-    }
-
-    @Override
-    public io.openems.edge.common.channel.value.Value<Integer> getReactivePower() {
-        return (io.openems.edge.common.channel.value.Value<Integer>)
-                this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).value();
-    }
-
-    @Override
-    public io.openems.edge.common.channel.value.Value<Integer> getMaxApparentPower() {
-        return (io.openems.edge.common.channel.value.Value<Integer>)
-                this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).value();
-    }
-
-    // -------------------------------------------------------------------------
-    // Package-sichtbare Hilfsmethoden fuer ApplyPowerHandler (WMaxLim S123)
-    // -------------------------------------------------------------------------
-
-    /** S121.WMax - Nennleistung des Wechselrichters. */
-    Channel<Float> getWMaxChannel() throws OpenemsException {
-        return this.getSunSpecChannelOrError(DefaultSunSpecModel.S121.W_MAX);
-    }
-
-    /** S123.WMaxLimPct schreiben. Wert 0..100 %, wird als FloatWriteChannel geschrieben. */
-    @SuppressWarnings("unchecked")
-    void writeWMaxLimPct(int value) throws OpenemsNamedException {
-        int pct = Math.max(0, Math.min(100, value));
-
-        ((io.openems.edge.common.channel.FloatWriteChannel)
-                this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT))
-                .setNextWriteValue((float) pct);
-    }
-
-    /** S123.WMaxLim_Ena schreiben. Erwartet enum 0/1. */
-    @SuppressWarnings("unchecked")
-    void writeWMaxLimEna(int value) throws OpenemsNamedException {
-        int ena = value == 0 ? 0 : 1;
-
-        ((io.openems.edge.common.channel.EnumWriteChannel)
-                this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA))
-                .setNextWriteValue(ena);
-    }
+	@Override
+	public int getPowerPrecision() {
+		return 1;
+	}
+
+	@Override
+	public void setStartStop(StartStop value) throws OpenemsNamedException {
+
+		this._setStartStop(value);
+	}
+
+	@Override
+	@Reference(cardinality = ReferenceCardinality.MULTIPLE, //
+			policy = ReferencePolicy.DYNAMIC, //
+			policyOption = ReferencePolicyOption.GREEDY, //
+			unbind = "removeCharger")
+	public void addCharger(FroniusGen24DcCharger charger) {
+		this.chargers.add(charger);
+	}
+
+	@Override
+	public void removeCharger(FroniusGen24DcCharger charger) {
+		this.chargers.remove(charger);
+	}
+
+	@Override
+	public Integer getDcPvPower() {
+
+		return this.chargers.stream()
+				.map(charger -> charger.getActualPower().get())
+				.filter(java.util.Objects::nonNull)
+				.reduce(Integer::sum)
+				.orElse(null);
+	}
+
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
+
+	@Override
+	public Channel<Float> getModule1DcwChannel() throws OpenemsException {
+
+		return this.getSunSpecChannelOrError(S160SunSpecModel.S160.MODULE_1_D_C_W);
+	}
+
+	@Override
+	public Channel<Float> getModule2DcwChannel() throws OpenemsException {
+
+		return this.getSunSpecChannelOrError(S160SunSpecModel.S160.MODULE_2_D_C_W);
+	}
+
+	/**
+	 * Gets the DC power channel for module 3.
+	 *
+	 * @return the channel
+	 * @throws OpenemsException on error
+	 */
+	public Channel<Float> getModule3DcwChannel() throws OpenemsException {
+
+		return this.getSunSpecChannelOrError(S160SunSpecModel.S160.MODULE_3_D_C_W);
+	}
+
+	/**
+	 * Gets the DC power channel for module 4.
+	 *
+	 * @return the channel
+	 * @throws OpenemsException on error
+	 */
+	public Channel<Float> getModule4DcwChannel() throws OpenemsException {
+
+		return this.getSunSpecChannelOrError(S160SunSpecModel.S160.MODULE_4_D_C_W);
+	}
+
+	/**
+	 * Gets the maximum charge power channel.
+	 *
+	 * <p>
+	 * Package-private: only used internally by {@link ApplyPowerHandler}, which
+	 * holds a reference to this concrete class (not the public
+	 * {@link BatteryInverterFroniusGen24} interface), so this doesn't need to be
+	 * public/interface-exposed.
+	 *
+	 * @return the channel
+	 * @throws OpenemsException on error
+	 */
+	Channel<Float> getStorageWChaMaxChannel() throws OpenemsException {
+
+		return this.getSunSpecChannelOrError(DefaultSunSpecModel.S124.W_CHA_MAX);
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return this.isSunSpecInitializationCompleted();
+	}
+
+	@Override
+	public IntegerReadChannel getActivePowerChannel() {
+		return this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER);
+	}
+
+	@Override
+	public IntegerReadChannel getReactivePowerChannel() {
+		return this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER);
+	}
+
+	@Override
+	public IntegerReadChannel getMaxApparentPowerChannel() {
+		return this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER);
+	}
+
+	@Override
+	public boolean isManaged() {
+		return true;
+	}
+
+	@Override
+	public void _setActivePower(Integer value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).setNextValue(value);
+	}
+
+	@Override
+	public void _setActivePower(int value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).setNextValue(value);
+	}
+
+	@Override
+	public void _setReactivePower(Integer value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).setNextValue(value);
+	}
+
+	@Override
+	public void _setReactivePower(int value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).setNextValue(value);
+	}
+
+	@Override
+	public void _setMaxApparentPower(Integer value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).setNextValue(value);
+	}
+
+	@Override
+	public void _setMaxApparentPower(int value) {
+		this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).setNextValue(value);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Value<Integer> getActivePower() {
+		return (Value<Integer>) this
+				.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).value();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Value<Integer> getReactivePower() {
+		return (Value<Integer>) this
+				.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).value();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Value<Integer> getMaxApparentPower() {
+		return (Value<Integer>) this
+				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).value();
+	}
+
+	// -------------------------------------------------------------------------
+	// Package-visible helper methods for ApplyPowerHandler (WMaxLim S123)
+	// -------------------------------------------------------------------------
+
+	/**
+	 * S121.WMax - Rated power of the inverter.
+	 *
+	 * @return the channel
+	 * @throws OpenemsException on error
+	 */
+	Channel<Float> getWMaxChannel() throws OpenemsException {
+		return this.getSunSpecChannelOrError(DefaultSunSpecModel.S121.W_MAX);
+	}
+
+	/**
+	 * Write S123.WMaxLimPct. Value 0..100%, written as FloatWriteChannel.
+	 *
+	 * @param value the percentage value (0..100)
+	 * @throws OpenemsNamedException on error
+	 */
+	void writeWMaxLimPct(int value) throws OpenemsNamedException {
+		int pct = Math.max(0, Math.min(100, value));
+
+		((FloatWriteChannel) this
+				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT)).setNextWriteValue((float) pct);
+	}
+
+	/**
+	 * Write S123.WMaxLim_Ena. Expects enum 0/1.
+	 *
+	 * @param value 0 to disable, 1 to enable
+	 * @throws OpenemsNamedException on error
+	 */
+	void writeWMaxLimEna(int value) throws OpenemsNamedException {
+		int ena = value == 0 ? 0 : 1;
+
+		((EnumWriteChannel) this
+				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA)).setNextWriteValue(ena);
+	}
 }

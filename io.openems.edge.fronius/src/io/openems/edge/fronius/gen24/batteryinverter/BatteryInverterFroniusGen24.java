@@ -3,20 +3,26 @@ package io.openems.edge.fronius.gen24.batteryinverter;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.OpenemsType;
 import io.openems.edge.batteryinverter.api.HybridManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.StateChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.fronius.enums.SetControlMode;
+import io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcCharger;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 
-public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, StartStoppable, ModbusComponent, ManagedSymmetricPvInverter, OpenemsComponent {
+public interface BatteryInverterFroniusGen24
+		extends HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
+		StartStoppable, ModbusComponent, ManagedSymmetricPvInverter, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -29,11 +35,21 @@ public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatte
 		CONFIGURED_CONTROL_MODE(Doc.of(ControlMode.values())//
 				.persistencePriority(PersistencePriority.HIGH)), //
 
-		DEBUG_W_MAX_LIM_PCT(Doc.of(io.openems.common.types.OpenemsType.INTEGER)//
-				.text("Zuletzt geschriebener WMaxLimPct-Wert (SunSpec S123, Skala 0-10000)")), //
+		DEBUG_W_MAX_LIM_PCT(Doc.of(OpenemsType.INTEGER)//
+				.text("Last written WMaxLimPct value (SunSpec S123, scale 0-100)")), //
 
-		DEBUG_W_MAX_LIM_ENA(Doc.of(io.openems.common.types.OpenemsType.INTEGER)//
-				.text("WMaxLim_Ena: 1=aktiv, 0=deaktiviert")), //
+		DEBUG_W_MAX_LIM_ENA(Doc.of(OpenemsType.INTEGER)//
+				.text("WMaxLim_Ena: 1=active, 0=disabled")), //
+
+		/**
+		 * Inverter Operating State.
+		 *
+		 * <p>
+		 * SunSpec Model S103 {@code St} point - e.g.
+		 * Off/Sleeping/Starting/MPPT/Throttled/Shutting Down/Fault/Standby.
+		 */
+		OPERATING_STATE(Doc.of(DefaultSunSpecModel.S103_St.values())//
+				.persistencePriority(PersistencePriority.HIGH)), //
 		;
 
 		private final Doc doc;
@@ -66,6 +82,33 @@ public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatte
 	 */
 	public default void _setInitializing(boolean value) {
 		this.getInitializingChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#OPERATING_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<DefaultSunSpecModel.S103_St> getOperatingStateChannel() {
+		return this.channel(ChannelId.OPERATING_STATE);
+	}
+
+	/**
+	 * Gets the Inverter Operating State. See {@link ChannelId#OPERATING_STATE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<DefaultSunSpecModel.S103_St> getOperatingState() {
+		return this.getOperatingStateChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OPERATING_STATE} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setOperatingState(DefaultSunSpecModel.S103_St value) {
+		this.getOperatingStateChannel().setNextValue(value);
 	}
 
 	/**
@@ -134,22 +177,6 @@ public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatte
 	public Channel<Float> getModule1DcwChannel() throws OpenemsException;
 
 	/**
-	 * Gets the SunSpec Channel S160Module1DCA.
-	 * 
-	 * @return the Channel
-	 * @throws OpenemsException if the Channel is not present
-	 */
-	public Channel<Float> getModule1DcaChannel() throws OpenemsException;
-
-	/**
-	 * Gets the SunSpec Channel S160Module1DCV.
-	 * 
-	 * @return the Channel
-	 * @throws OpenemsException if the Channel is not present
-	 */
-	public Channel<Float> getModule1DcvChannel() throws OpenemsException;
-
-	/**
 	 * Gets the SunSpec Channel S160Module2DCW.
 	 * 
 	 * @return the Channel
@@ -158,60 +185,45 @@ public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatte
 	public Channel<Float> getModule2DcwChannel() throws OpenemsException;
 
 	/**
-	 * Gets the SunSpec Channel S160Module2DCA.
-	 * 
-	 * @return the Channel
-	 * @throws OpenemsException if the Channel is not present
+	 * Returns true if the SunSpec initialization is completed.
+	 *
+	 * @return true if initialized
 	 */
-	public Channel<Float> getModule2DcaChannel() throws OpenemsException;
-
-	/**
-	 * Gets the SunSpec Channel S160Module2DCV.
-	 * 
-	 * @return the Channel
-	 * @throws OpenemsException if the Channel is not present
-	 */
-	public Channel<Float> getModule2DcvChannel() throws OpenemsException;
-
-	/**
-	 * Asks if the SunSpec initialization is completed.
-	 * 
-	 * @return true, if the SunSpec initialization is completed
-	 */
-	public Channel<Float> getModuleSOC() throws OpenemsException;
-	public Channel<Float> getModule3DcaChannel() throws OpenemsException;
-	public Channel<Float> getModule4DcaChannel() throws OpenemsException;
-	public Channel<Float> getModule3DcVChannel() throws OpenemsException;
-	public Channel<Float> getModule4DcVChannel() throws OpenemsException;
-	public Channel<Float> getModule3DcWChannel() throws OpenemsException;
-	public Channel<Float> getModule4DcWChannel() throws OpenemsException;
-	public Channel<Float> getModule3DcWHChannel() throws OpenemsException;
-	public Channel<Float> getModule4DcWHChannel() throws OpenemsException;
-	public Channel<Float> getModuleCapacity() throws OpenemsException;
-	public Channel<Float> getStorageWChaMaxChannel() throws OpenemsException;
-
-	//public Channel<Float> getStorageOutWRteChannel() throws OpenemsException;
- //   public Channel<Float> getStorageInWRteChannel() throws OpenemsException;
-//	public Channel<Float> getStorageBatteryVoltageChannel() throws OpenemsException;
-	
-
-	
-
 	public boolean isInitialized();
 
+	/**
+	 * Registers a {@link FroniusGen24DcCharger}
+	 * with this BatteryInverter. Called by OSGi via a dynamic multiple
+	 * {@literal @Reference} when a matching Charger component activates - the
+	 * Charger itself holds no reference back to the BatteryInverter (matches
+	 * the pattern used by GoodWe and FENECON Commercial40).
+	 *
+	 * @param charger the Charger
+	 */
+	public void addCharger(FroniusGen24DcCharger charger);
+
+	/**
+	 * Unregisters a
+	 * {@link FroniusGen24DcCharger} from
+	 * this BatteryInverter.
+	 *
+	 * @param charger the Charger
+	 */
+	public void removeCharger(FroniusGen24DcCharger charger);
+
 	// -------------------------------------------------------------------------
-	// Konfliktauflösung: ManagedSymmetricPvInverter vs SymmetricBatteryInverter
-	// Re-Deklaration als abstrakt zwingt die Impl zur eindeutigen Implementierung
+	// Conflict resolution: ManagedSymmetricPvInverter vs SymmetricBatteryInverter
+	// Re-declaration as abstract forces the Impl to provide a unique implementation
 	// -------------------------------------------------------------------------
 
 	@Override
-	io.openems.edge.common.channel.IntegerReadChannel getActivePowerChannel();
+	IntegerReadChannel getActivePowerChannel();
 
 	@Override
-	io.openems.edge.common.channel.IntegerReadChannel getReactivePowerChannel();
+	IntegerReadChannel getReactivePowerChannel();
 
 	@Override
-	io.openems.edge.common.channel.IntegerReadChannel getMaxApparentPowerChannel();
+	IntegerReadChannel getMaxApparentPowerChannel();
 
 	@Override
 	boolean isManaged();
@@ -235,18 +247,28 @@ public interface BatteryInverterFroniusGen24 extends HybridManagedSymmetricBatte
 	void _setMaxApparentPower(int value);
 
 	@Override
-	io.openems.edge.common.channel.value.Value<Integer> getActivePower();
+	Value<Integer> getActivePower();
 
 	@Override
-	io.openems.edge.common.channel.value.Value<Integer> getReactivePower();
+	Value<Integer> getReactivePower();
 
 	@Override
-	io.openems.edge.common.channel.value.Value<Integer> getMaxApparentPower();
+	Value<Integer> getMaxApparentPower();
 
+	/**
+	 * Sets the debug value for WMaxLim percentage.
+	 *
+	 * @param value the value to set
+	 */
 	public default void _setDebugWMaxLimPct(int value) {
 		this.channel(ChannelId.DEBUG_W_MAX_LIM_PCT).setNextValue(value);
 	}
 
+	/**
+	 * Sets the debug value for WMaxLim enable flag.
+	 *
+	 * @param value the value to set
+	 */
 	public default void _setDebugWMaxLimEna(int value) {
 		this.channel(ChannelId.DEBUG_W_MAX_LIM_ENA).setNextValue(value);
 	}

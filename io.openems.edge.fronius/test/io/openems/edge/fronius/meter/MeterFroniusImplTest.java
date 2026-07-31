@@ -46,7 +46,7 @@ public class MeterFroniusImplTest {
 								/* TOT_V_ARH_EXP_Q3 */ 41, /* TOT_V_ARH_EXP_Q3PH_A,B,C */ 42, 43, 44, //
 								/* TOT_V_ARH_EXP_Q4 */ 45, /* TOT_V_ARH_EXP_Q4PH_A,B,C */ 46, 47, 48, //
 								/* EVT */ 49) //
-						.withRegisters(40196, 0xFFFF)) // END_OF_MAP
+						.withRegisters(40196, 0xFFFF, 0x0000)) // END_OF_MAP with padding for S_203 scan
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //

@@ -5,6 +5,7 @@ import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.StateChannel;
@@ -12,7 +13,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.fronius.enums.BatteryState;
 import io.openems.edge.fronius.enums.SetControlMode;
 
-public interface FroniusGen24 extends OpenemsComponent {
+public interface FroniusGen24Battery extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -48,9 +49,22 @@ public interface FroniusGen24 extends OpenemsComponent {
 				.accessMode(AccessMode.WRITE_ONLY)//
 				.unit(Unit.NONE)), //
 
-		// SELF_CONSUMPTION_ACTIVATION(Doc.of(OpenemsType.INTEGER) //
-		// .accessMode(AccessMode.READ_WRITE) //
-		// .unit(Unit.NONE)), //
+		// InOutWRte_RvrtTms (register 40358, verified against Fronius' official
+		// Gen24 register map). Written once on transition into INTERNAL mode, to
+		// shorten the Fronius watchdog fallback from its 8h (28800s) default so
+		// it returns to autonomous operation quickly after ApplyPowerHandler
+		// stops writing.
+		SET_REVERT_TIMEOUT(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.WRITE_ONLY)//
+				.unit(Unit.SECONDS)), //
+
+		/**
+		 * Whole-inverter operating state (SunSpec S103.St), read independently
+		 * (same physical device the Inverter also reads it from) purely to derive
+		 * {@link #BATTERY_WARNING}/{@link #BATTERY_ERROR} - S124 (Storage) has no
+		 * dedicated fault/event bitfield of its own. Internal/diagnostic only.
+		 */
+		DEBUG_INVERTER_STATE(Doc.of(DefaultSunSpecModel.S103_St.values())), //
 		;
 
 		private final Doc doc;
@@ -120,6 +134,15 @@ public interface FroniusGen24 extends OpenemsComponent {
 	 */
 	public default void _setBatteryError(boolean value) {
 		this.getBatteryErrorChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#DEBUG_INVERTER_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<DefaultSunSpecModel.S103_St> getDebugInverterStateChannel() {
+		return this.channel(ChannelId.DEBUG_INVERTER_STATE);
 	}
 
 }

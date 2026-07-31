@@ -1,252 +1,318 @@
 package io.openems.edge.fronius.gen24.batteryinverter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
 import io.openems.edge.fronius.enums.SetControlMode;
-import io.openems.edge.fronius.gen24.battery.FroniusGen24;
+import io.openems.edge.fronius.gen24.battery.FroniusGen24Battery;
 
 public class ApplyPowerHandler {
 
-    private static final int RATE_100_PERCENT = 10000;
-    private static final int RATE_HYSTERESIS = 25;
-    private static final long MIN_WRITE_INTERVAL_MS = 2000;
-    private static final long KEEP_ALIVE_INTERVAL_MS = 30000;
+	private final Logger log = LoggerFactory.getLogger(ApplyPowerHandler.class);
 
-    // Wechselrichter-Steuerung (Model 123)
-    // WMaxLimPct erwartet 0..100, wobei 100 = 100 %
-    private static final int W_MAX_LIM_100_PERCENT = 100;
-    private static final int W_MAX_LIM_HYSTERESIS = 1;
-    private static final long W_MAX_LIM_KEEP_ALIVE_MS = 30000;
+	private static final int RATE_100_PERCENT = 10000;
+	private static final int RATE_HYSTERESIS = 25;
+	private static final long MIN_WRITE_INTERVAL_MS = 2000;
+	private static final long KEEP_ALIVE_INTERVAL_MS = 30000;
 
-    private final BatteryInverterFroniusGen24Impl parent;
+	// Fronius' own watchdog defaults to 8h (28800s, the max of the register's
+	// documented 0-28800s range) if InOutWRte_RvrtTms is never written - far too
+	// long to wait for autonomous operation to resume after we stop actively
+	// writing in INTERNAL mode. We write a short value once instead, ensuring
+	// OutWRte/InWRte are reliably at 0 well before the watchdog fires.
+	private static final int SHORT_REVERT_TIMEOUT_SECONDS = 15;
 
-    private SetControlMode lastControlMode = null;
-    private Integer lastOutWRte = null;
-    private Integer lastInWRte = null;
-    private long lastWriteMillis = 0L;
+	// Inverter power control (Model 123)
+	// WMaxLimPct expects 0..100, where 100 = 100%
+	private static final int W_MAX_LIM_100_PERCENT = 100;
+	private static final int W_MAX_LIM_HYSTERESIS = 1;
+	private static final long W_MAX_LIM_KEEP_ALIVE_MS = 30000;
 
-    // Wechselrichter-Zustand
-    private Integer lastWMaxLimPct = null;
-    private int lastWMaxLimEna = -1; // -1 = noch nie geschrieben
-    private long lastWMaxLimWriteMillis = 0L;
+	private final BatteryInverterFroniusGen24Impl parent;
 
-    public ApplyPowerHandler(BatteryInverterFroniusGen24Impl parent) {
-        this.parent = parent;
-    }
+	private SetControlMode lastControlMode = null;
+	private Integer lastOutWRte = null;
+	private Integer lastInWRte = null;
+	private long lastWriteMillis = 0L;
 
-    public synchronized void apply(
-            FroniusGen24 battery,
-            int setActivePower,
-            int setReactivePower,
-            ControlMode controlmode
-    ) throws OpenemsNamedException {
+	// Tracks whether the one-time "force zero + short watchdog" write has
+	// already happened for the current INTERNAL-mode period, so it is only
+	// written once per transition, not every cycle.
+	private boolean internalModeTransitionHandled = false;
 
-        Result result = switch (controlmode) {
-        case INTERNAL -> this.handleInternalMode();
-        case REMOTE -> this.handleRemoteMode(setActivePower);
-        };
+	// Inverter state
+	private Integer lastWMaxLimPct = null;
+	private int lastWMaxLimEna = -1; // -1 = never written
+	private long lastWMaxLimWriteMillis = 0L;
 
-        this.parent._setDebugControlMode(result.controlMode());
+	public ApplyPowerHandler(BatteryInverterFroniusGen24Impl parent) {
+		this.parent = parent;
+	}
 
-        // Wechselrichter-Leistungsbegrenzung – immer prüfen, unabhängig von shouldWrite
-        var limitOpt = this.parent.getActivePowerLimitChannel().getNextWriteValueAndReset();
-        if (limitOpt.isPresent() || this.lastWMaxLimEna == 1) {
-            this.applyInverterPowerLimit(limitOpt.isPresent() ? limitOpt.get() : null);
-        }
+	/**
+	 * Applies the power setpoints to the battery inverter.
+	 *
+	 * @param battery          the Fronius Gen24 battery
+	 * @param setActivePower   the active power setpoint in W
+	 * @param setReactivePower the reactive power setpoint in var
+	 * @param controlmode      the control mode
+	 * @throws OpenemsNamedException on error
+	 */
+	public synchronized void apply(
+			FroniusGen24Battery battery,
+			int setActivePower,
+			int setReactivePower,
+			ControlMode controlmode
+	) throws OpenemsNamedException {
 
-        // Im INTERNAL-Modus nichts schreiben – Fronius arbeitet autonom
-        if (result.controlMode() == SetControlMode.DISABLED) {
-            // Zustand zurücksetzen damit beim nächsten REMOTE-Start alles neu geschrieben wird
-            this.lastControlMode = null;
-            this.lastOutWRte = null;
-            this.lastInWRte = null;
-            return;
-        }
+		Result result = switch (controlmode) {
+		case INTERNAL -> this.handleInternalMode();
+		case REMOTE -> this.handleRemoteMode(setActivePower);
+		};
 
-        // StorCtl_Mod (40348) jeden Zyklus schreiben im REMOTE-Modus –
-        // damit der Fronius den Modus nach Neustart/Verbindungsunterbruch sofort kennt
-        EnumWriteChannel setControlMode =
-                battery.channel(FroniusGen24.ChannelId.SET_STORAGE_CONTROL_MODE);
-        setControlMode.setNextWriteValue(result.controlMode());
+		this.parent._setDebugControlMode(result.controlMode());
 
-        if (!this.shouldWrite(result)) {
-            return;
-        }
+		// Inverter power limit – always check, independent of shouldWrite
+		var limitOpt = this.parent.getActivePowerLimitChannel().getNextWriteValueAndReset();
+		if (limitOpt.isPresent() || this.lastWMaxLimEna == 1) {
+			this.applyInverterPowerLimit(limitOpt.isPresent() ? limitOpt.get() : null);
+		}
 
-        IntegerWriteChannel setOutWRte =
-                battery.channel(FroniusGen24.ChannelId.SET_OUT_W_RTE);
+		// In INTERNAL mode: write once (StorCtlMod=CHARGE_AND_DISCHARGE_LIMIT,
+		// power=0, short revert timeout) so Fronius quickly falls back to
+		// autonomous operation instead of staying at the last REMOTE limit for
+		// up to its 8h watchdog default. Not written every cycle - only on the
+		// transition itself.
+		if (result.controlMode() == SetControlMode.DISABLED) {
+			if (!this.internalModeTransitionHandled) {
+				this.writeInternalModeTransition(battery);
+				this.internalModeTransitionHandled = true;
+			}
+			// Reset state so everything is re-written on the next REMOTE start
+			this.lastControlMode = null;
+			this.lastOutWRte = null;
+			this.lastInWRte = null;
+			return;
+		}
+		this.internalModeTransitionHandled = false;
 
-        IntegerWriteChannel setInWRte =
-                battery.channel(FroniusGen24.ChannelId.SET_IN_W_RTE);
+		// Write StorCtl_Mod (40348) every cycle in REMOTE mode –
+		// so Fronius knows the mode immediately after restart or connection loss
+		EnumWriteChannel setControlMode =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
+		setControlMode.setNextWriteValue(result.controlMode());
 
-        setOutWRte.setNextWriteValue(result.outWRte());
-        setInWRte.setNextWriteValue(result.inWRte());
+		if (!this.shouldWrite(result)) {
+			return;
+		}
 
-        this.rememberWrittenResult(result);
-    }
+		IntegerWriteChannel setOutWRte =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
 
-    private Result handleInternalMode() {
-        return new Result(SetControlMode.DISABLED, 0, 0);
-    }
+		IntegerWriteChannel setInWRte =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
 
-    private Result handleRemoteMode(int setActivePower) {
+		setOutWRte.setNextWriteValue(result.outWRte());
+		setInWRte.setNextWriteValue(result.inWRte());
 
-        Integer wChaMax = this.readWChaMax();
+		this.rememberWrittenResult(result);
+	}
 
-        if (wChaMax == null || wChaMax <= 0) {
-            return this.handleInternalMode();
-        }
+	/**
+	 * Writes StorCtlMod, zero power, and a short watchdog revert timeout once,
+	 * on the transition into INTERNAL mode. Without this, the Fronius keeps
+	 * honoring the last REMOTE-mode limit for up to its 8h watchdog default,
+	 * since nothing else is written while INTERNAL is active.
+	 *
+	 * @param battery the Fronius Gen24 battery
+	 * @throws OpenemsNamedException on error
+	 */
+	private void writeInternalModeTransition(FroniusGen24Battery battery) throws OpenemsNamedException {
 
-        int limitedActivePower = clamp(setActivePower, -wChaMax, wChaMax);
+		EnumWriteChannel setControlMode =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
+		setControlMode.setNextWriteValue(SetControlMode.CHARGE_AND_DISCHARGE_LIMIT);
 
-        int rate = (int) Math.round(
-                (double) limitedActivePower / (double) wChaMax * RATE_100_PERCENT
-        );
-        rate = clamp(rate, -RATE_100_PERCENT, RATE_100_PERCENT);
+		IntegerWriteChannel setOutWRte =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
+		IntegerWriteChannel setInWRte =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
+		setOutWRte.setNextWriteValue(0);
+		setInWRte.setNextWriteValue(0);
 
-        int outWRte = rate;
-        int inWRte = rate * (-1);
+		IntegerWriteChannel setRevertTimeout =
+				battery.channel(FroniusGen24Battery.ChannelId.SET_REVERT_TIMEOUT);
+		setRevertTimeout.setNextWriteValue(SHORT_REVERT_TIMEOUT_SECONDS);
+	}
 
-        return new Result(SetControlMode.CHARGE_AND_DISCHARGE_LIMIT, outWRte, inWRte);
-    }
+	private Result handleInternalMode() {
+		return new Result(SetControlMode.DISABLED, 0, 0);
+	}
 
-    private Integer readWChaMax() {
-        try {
-            var channel = this.parent.getStorageWChaMaxChannel();
-            var nextValue = channel.getNextValue();
-            if (nextValue.isDefined()) {
-                return Math.max(0, Math.round(Math.abs(nextValue.get())));
-            }
-            var value = channel.value();
-            if (value.isDefined()) {
-                return Math.max(0, Math.round(Math.abs(value.get())));
-            }
-            return null;
-        } catch (OpenemsException e) {
-            return null;
-        }
-    }
+	private Result handleRemoteMode(int setActivePower) {
 
-    private boolean shouldWrite(Result result) {
+		Integer wChaMax = this.readWChaMax();
 
-        long now = System.currentTimeMillis();
+		if (wChaMax == null || wChaMax <= 0) {
+			return this.handleInternalMode();
+		}
 
-        if (this.lastControlMode == null) {
-            return true;
-        }
+		int limitedActivePower = clamp(setActivePower, -wChaMax, wChaMax);
 
-        if (now - this.lastWriteMillis < MIN_WRITE_INTERVAL_MS) {
-            return false;
-        }
+		int rate = (int) Math.round(
+				(double) limitedActivePower / (double) wChaMax * RATE_100_PERCENT
+		);
+		rate = clamp(rate, -RATE_100_PERCENT, RATE_100_PERCENT);
 
-        if (result.controlMode() != this.lastControlMode) {
-            return true;
-        }
+		int outWRte = rate;
+		int inWRte = rate * (-1);
 
-        if (this.lastOutWRte == null
-                || Math.abs(result.outWRte() - this.lastOutWRte) >= RATE_HYSTERESIS) {
-            return true;
-        }
+		return new Result(SetControlMode.CHARGE_AND_DISCHARGE_LIMIT, outWRte, inWRte);
+	}
 
-        if (this.lastInWRte == null
-                || Math.abs(result.inWRte() - this.lastInWRte) >= RATE_HYSTERESIS) {
-            return true;
-        }
+	private Integer readWChaMax() {
+		try {
+			var channel = this.parent.getStorageWChaMaxChannel();
+			var nextValue = channel.getNextValue();
+			if (nextValue.isDefined()) {
+				return Math.max(0, Math.round(Math.abs(nextValue.get())));
+			}
+			var value = channel.value();
+			if (value.isDefined()) {
+				return Math.max(0, Math.round(Math.abs(value.get())));
+			}
+			return null;
+		} catch (OpenemsException e) {
+			return null;
+		}
+	}
 
-        return now - this.lastWriteMillis >= KEEP_ALIVE_INTERVAL_MS;
-    }
+	private boolean shouldWrite(Result result) {
 
-    private void rememberWrittenResult(Result result) {
-        this.lastControlMode = result.controlMode();
-        this.lastOutWRte = result.outWRte();
-        this.lastInWRte = result.inWRte();
-        this.lastWriteMillis = System.currentTimeMillis();
-    }
+		if (this.lastControlMode == null) {
+			return true;
+		}
 
-    private static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
+		// A mode change must always be written immediately, regardless of the
+		// throttle below - StorCtlMod is written every cycle (see apply()), so
+		// if we delayed the rate registers here, the inverter could briefly act
+		// on a stale OutWRte/InWRte value right when the new mode's gate opens.
+		if (result.controlMode() != this.lastControlMode) {
+			return true;
+		}
 
-    private static record Result(
-            SetControlMode controlMode,
-            int outWRte,
-            int inWRte
-    ) {
-    }
+		long now = System.currentTimeMillis();
 
-    // =========================================================================
-    // Wechselrichter-Leistungsbegrenzung (SunSpec Model 123)
-    // =========================================================================
+		if (now - this.lastWriteMillis < MIN_WRITE_INTERVAL_MS) {
+			return false;
+		}
 
-    private void applyInverterPowerLimit(Integer limitW) {
+		if (this.lastOutWRte == null
+				|| Math.abs(result.outWRte() - this.lastOutWRte) >= RATE_HYSTERESIS) {
+			return true;
+		}
 
-        if (limitW != null) {
-            Integer wMaxLimPct = this.convertWattsToPct(limitW);
-            if (wMaxLimPct != null) {
-                this.writeWMaxLim(wMaxLimPct, 1);
-            }
-        } else {
-            // Kein Setpoint → Begrenzung deaktivieren
-            this.writeWMaxLim(W_MAX_LIM_100_PERCENT, 0);
-        }
-    }
+		if (this.lastInWRte == null
+				|| Math.abs(result.inWRte() - this.lastInWRte) >= RATE_HYSTERESIS) {
+			return true;
+		}
 
-    private Integer convertWattsToPct(int limitW) {
-        try {
-            var wMaxChannel = this.parent.getWMaxChannel();
-            Float wMax = wMaxChannel.getNextValue().isDefined()
-                    ? (Float) wMaxChannel.getNextValue().get()
-                    : wMaxChannel.value().isDefined()
-                            ? (Float) wMaxChannel.value().get()
-                            : null;
+		return now - this.lastWriteMillis >= KEEP_ALIVE_INTERVAL_MS;
+	}
 
-            if (wMax == null || wMax <= 0) {
-                return null;
-            }
+	private void rememberWrittenResult(Result result) {
+		this.lastControlMode = result.controlMode();
+		this.lastOutWRte = result.outWRte();
+		this.lastInWRte = result.inWRte();
+		this.lastWriteMillis = System.currentTimeMillis();
+	}
 
-            int pct = (int) Math.round(
-                    (double) clamp(limitW, 0, Math.round(wMax))
-                            / wMax
-                            * W_MAX_LIM_100_PERCENT
-            );
+	private static int clamp(int value, int min, int max) {
+		return Math.max(min, Math.min(max, value));
+	}
 
-            return clamp(pct, 0, W_MAX_LIM_100_PERCENT);
+	private static record Result(
+			SetControlMode controlMode,
+			int outWRte,
+			int inWRte
+	) {
+	}
 
-        } catch (OpenemsException e) {
-            return null;
-        }
-    }
+	// =========================================================================
+	// Inverter power limit (SunSpec Model 123)
+	// =========================================================================
 
-    private void writeWMaxLim(int wMaxLimPct, int ena) {
+	private void applyInverterPowerLimit(Integer limitW) {
 
-        wMaxLimPct = clamp(wMaxLimPct, 0, W_MAX_LIM_100_PERCENT);
-        ena = ena == 0 ? 0 : 1;
+		if (limitW != null) {
+			Integer wMaxLimPct = this.convertWattsToPct(limitW);
+			if (wMaxLimPct != null) {
+				this.writeWMaxLim(wMaxLimPct, 1);
+			}
+		} else {
+			// No setpoint → disable power limit
+			this.writeWMaxLim(W_MAX_LIM_100_PERCENT, 0);
+		}
+	}
 
-        long now = System.currentTimeMillis();
+	private Integer convertWattsToPct(int limitW) {
+		try {
+			var wMaxChannel = this.parent.getWMaxChannel();
+			Float wMax = wMaxChannel.getNextValue().isDefined()
+					? (Float) wMaxChannel.getNextValue().get()
+					: wMaxChannel.value().isDefined()
+							? (Float) wMaxChannel.value().get()
+							: null;
 
-        boolean enaChanged = ena != this.lastWMaxLimEna;
-        boolean pctChanged = this.lastWMaxLimPct == null
-                || Math.abs(wMaxLimPct - this.lastWMaxLimPct) >= W_MAX_LIM_HYSTERESIS;
-        boolean keepAlive = now - this.lastWMaxLimWriteMillis >= W_MAX_LIM_KEEP_ALIVE_MS;
+			if (wMax == null || wMax <= 0) {
+				return null;
+			}
 
-        if (!enaChanged && !pctChanged && !keepAlive) {
-            return;
-        }
+			int pct = (int) Math.round(
+					(double) clamp(limitW, 0, Math.round(wMax))
+							/ wMax
+							* W_MAX_LIM_100_PERCENT
+			);
 
-        try {
-            this.parent.writeWMaxLimPct(wMaxLimPct);
-            this.parent.writeWMaxLimEna(ena);
-            this.parent._setDebugWMaxLimPct(wMaxLimPct);
-            this.parent._setDebugWMaxLimEna(ena);
+			return clamp(pct, 0, W_MAX_LIM_100_PERCENT);
 
-            this.lastWMaxLimPct = wMaxLimPct;
-            this.lastWMaxLimEna = ena;
-            this.lastWMaxLimWriteMillis = now;
+		} catch (OpenemsException e) {
+			return null;
+		}
+	}
 
-        } catch (OpenemsNamedException e) {
-            // S123 nicht verfügbar – kein fataler Fehler, Batteriesteuerung läuft weiter
-        }
-    }
+	private void writeWMaxLim(int wMaxLimPct, int ena) {
+
+		wMaxLimPct = clamp(wMaxLimPct, 0, W_MAX_LIM_100_PERCENT);
+		ena = ena == 0 ? 0 : 1;
+
+		long now = System.currentTimeMillis();
+
+		boolean enaChanged = ena != this.lastWMaxLimEna;
+		boolean pctChanged = this.lastWMaxLimPct == null
+				|| Math.abs(wMaxLimPct - this.lastWMaxLimPct) >= W_MAX_LIM_HYSTERESIS;
+		boolean keepAlive = now - this.lastWMaxLimWriteMillis >= W_MAX_LIM_KEEP_ALIVE_MS;
+
+		if (!enaChanged && !pctChanged && !keepAlive) {
+			return;
+		}
+
+		try {
+			this.parent.writeWMaxLimPct(wMaxLimPct);
+			this.parent.writeWMaxLimEna(ena);
+			this.parent._setDebugWMaxLimPct(wMaxLimPct);
+			this.parent._setDebugWMaxLimEna(ena);
+
+			this.lastWMaxLimPct = wMaxLimPct;
+			this.lastWMaxLimEna = ena;
+			this.lastWMaxLimWriteMillis = now;
+
+		} catch (OpenemsNamedException e) {
+			this.log.debug("S123 not available – battery control continues", e);
+		}
+	}
 }
