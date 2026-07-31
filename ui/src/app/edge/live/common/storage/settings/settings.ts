@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
@@ -339,9 +339,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
         const essComponents = SharedStorage.getEssComponents(config);
-
         const channelAddresses: ChannelAddress[] = [];
-        const hasRequiredEdgeVersion = edge.isVersionAtLeast("2024.12.3");
 
         for (const essComponent of essComponents) {
             const prepareBatteryExtensionCtrl = config
@@ -378,7 +376,7 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 );
             }
             const meta = new MetaComponent(config);
-            if (meta != null && hasRequiredEdgeVersion) {
+            if (meta != null) {
                 channelAddresses.push(
                     new ChannelAddress(
                         meta.id,
@@ -474,9 +472,8 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
                 updateArray.set(emergencyReserveCtrl.id, updateObj);
             }
 
-            const hasRequiredEdgeVersion = edge.isVersionAtLeast("2024.12.3");
             const meta = new MetaComponent(config);
-            if (hasRequiredEdgeVersion && meta) {
+            if (meta) {
                 updateArray.set(
                     meta.id,
                     [

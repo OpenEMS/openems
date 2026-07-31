@@ -108,35 +108,6 @@ export class EdgePermission {
         }, []);
     }
 
-    public static isModbusTcpApiWidgetAllowed(edge: Edge): boolean {
-        return edge?.isVersionAtLeast("2024.9.1");
-    }
-
-    /**
-     * Determines if the edge has its channels in the edgeconfig or if they should be obtained with a separate request.
-     *
-     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
-     * network, backend, ui, edge.
-     *
-     * @returns True if the channels are included in the edgeconfig
-     */
-    public static hasChannelsInEdgeConfig(edge: Edge): boolean {
-        return !edge.isVersionAtLeast("2024.6.1");
-    }
-
-    /**
-     * Determines if the edge has only the factories which are used by the active components in the edgeconfig or if all
-     * factories are inlcuded.
-     *
-     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
-     * network, backend, ui, edge.
-     *
-     * @returns True if only the factories of the used components are in the edgeconfig
-     */
-    public static hasReducedFactories(edge: Edge): boolean {
-        return edge.isVersionAtLeast("2024.6.1");
-    }
-
     /**
      * Checks if the edge version is at least 2025.12.1 to cover systemErrorAcknowledge JSON-RPC request.
      *
@@ -185,8 +156,7 @@ export class UserPermission {
      * @returns True, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
      */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
-        const isAllowed = edge?.isVersionAtLeast("2024.2.2");
-        return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
+        return Role.isAtLeast(user?.globalRole, Role.OWNER);
     }
 
     /**

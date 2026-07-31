@@ -8,8 +8,8 @@ pluginManagement {
 		id("biz.aQute.bnd.workspace") version bndVersion
 		id("biz.aQute.bnd") version bndVersion
 		id("com.github.node-gradle.node") version "7.1.0"
-		id("org.barfuin.gradle.jacocolog") version "3.1.0"
-		id("org.sonarqube") version "7.2.0.6526"
+		id("org.barfuin.gradle.jacocolog") version "4.0.2"
+		id("org.sonarqube") version "7.3.1.8318"
 	}
 	repositories {
 		maven {

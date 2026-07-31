@@ -20,7 +20,7 @@ import io.openems.common.types.DebugMode;
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
 
-	@AttributeDefinition(name = "URL", description = "Full API URL. See https://www.clever-pv.com/anleitungen/push-api", type = AttributeType.PASSWORD)
+	@AttributeDefinition(name = "URL", description = "Full API URL. See https://support.clever-pv.com/hc/de/articles/34324327185170-Push-API", type = AttributeType.PASSWORD)
 	String url();
 
 	@AttributeDefinition(name = "Read only", description = "Defines that this controller is read only. This permanently disables remote control via Clever-PV.", required = true)

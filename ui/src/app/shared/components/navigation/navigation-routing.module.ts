@@ -43,14 +43,12 @@ import { HeatAddTaskComponent } from "src/app/edge/live/Controller/Heat/schedule
 import { HeatEditTaskComponent } from "src/app/edge/live/Controller/Heat/schedule/task/edit/edit";
 import { ControllerHeatSettingsComponent } from "src/app/edge/live/Controller/Heat/settings/settings";
 import { ControllerBraiinsHomeComponent } from "src/app/edge/live/Controller/Io/Braiins/new-navigation/new-navigation";
-import { ControllerBraiinsGroupComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/group/group";
 import { ControllerBraiinsModeComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/mode/mode";
 import { ControllerBraiinsScheduleComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/schedule.component";
 import { ControllerBraiinsAddTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/add/add";
 import { ControllerBraiinsEditTaskComponent } from "src/app/edge/live/Controller/Io/Braiins/pages/schedule/task/edit/edit";
 import { ControllerIoChannelSingleThresholdHistoryComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/history/new-navigation/new-navigation";
 import { ControllerIoChannelSingleThresholdHomeComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/new-navigation/new-navigation";
-import { ControllerChannelSingleThresholdGroupComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/pages/group/group";
 import { ControllerIoChannelSingleThresholdSettingsComponent } from "src/app/edge/live/Controller/Io/ChannelSingleThreshold/settings/settings";
 import { FixDigitalDetailsComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/history/details/new-navigation/details";
 import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Controller/Io/FixDigitalOutput/new-navigation/new-navigation";
@@ -92,11 +90,10 @@ import { ModalComponent as EvseHistoryComponent } from "../../../edge/live/Contr
 import { ModalComponent as EvseSingleComponent } from "../../../edge/live/Controller/Evse/pages/home";
 import { UpdateAppConfigComponent } from "../../../edge/live/Controller/Evse/pages/update-app-config/update-app-config";
 import { ControllerHeatHomeComponent } from "../../../edge/live/Controller/Heat/new-navigation/heat-home";
-import { ControllerFixDigitalOutputGroupComponent } from "../../../edge/live/Controller/Io/FixDigitalOutput/pages/group/group";
 import { ModalComponent as IoHeatingRoomModalComponent } from "../../../edge/live/Controller/Io/HeatingRoom/modal/modal";
-import { IoHeatingRoomGroupComponent } from "../../../edge/live/Controller/Io/HeatingRoom/pages/group/group";
 import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.component";
 import { suffixMatcher } from "../../guards/url-matcher";
+import { ControllerGroupListComponent } from "./groups/group";
 
 export const newNavigationRoutes: Routes = [
     { path: "", component: EdgeLiveComponent },
@@ -130,8 +127,10 @@ export const newNavigationRoutes: Routes = [
         component: UpdateAppConfigComponent,
         canActivate: [hasEdgeRole(Role.OWNER)],
     },
-
-    { path: "io-heating-room", component: IoHeatingRoomGroupComponent },
+    {
+        path: "io-heating-room",
+        component: ControllerGroupListComponent,
+    },
     {
         path: "io-heating-room/:componentId",
         component: IoHeatingRoomModalComponent,
@@ -281,7 +280,7 @@ export const newNavigationRoutes: Routes = [
     },
     {
         path: "controller/io-fix-digital-output",
-        component: ControllerFixDigitalOutputGroupComponent,
+        component: ControllerGroupListComponent,
     },
     {
         path: "controller/io-fix-digital-output/:componentId",
@@ -293,7 +292,7 @@ export const newNavigationRoutes: Routes = [
     },
     {
         path: "controller/braiins",
-        component: ControllerBraiinsGroupComponent,
+        component: ControllerGroupListComponent,
     },
     {
         path: "controller/braiins/:componentId",
@@ -365,7 +364,7 @@ export const newNavigationRoutes: Routes = [
     },
     {
         path: "controller/io-channel-single-threshold",
-        component: ControllerChannelSingleThresholdGroupComponent,
+        component: ControllerGroupListComponent,
     },
     {
         path: "controller/io-channel-single-threshold/:componentId",

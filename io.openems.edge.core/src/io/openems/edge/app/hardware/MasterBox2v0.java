@@ -1,6 +1,7 @@
 package io.openems.edge.app.hardware;
 
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -35,6 +36,7 @@ import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 
 /**
@@ -120,7 +122,9 @@ public class MasterBox2v0 extends AbstractOpenemsAppWithProps<MasterBox2v0, Mast
 					HardwareComponents.ioc(bundle, iocId, internalModbusId), //
 					HardwareComponents.masterBoxMeter(bundle, meterId, iocId), //
 					HardwareComponents.masterBoxIo(bundle, ioId, iocId), //
-					HardwareComponents.masterBoxAnalogOutput(bundle, analogOutputId, iocId) //
+					HardwareComponents.masterBoxAnalogOutput(bundle, analogOutputId, iocId), //
+					ComponentDef.from(modbusInternal(bundle, t, internalModbusId),
+							ComponentDef.Configuration.defaultConfig().withForceUpdateOrCreate(true)) //
 			);
 
 			return AppConfiguration.create() //

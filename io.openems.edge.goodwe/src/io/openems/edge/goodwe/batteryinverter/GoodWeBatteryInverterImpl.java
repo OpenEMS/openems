@@ -104,6 +104,7 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
+import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable;
 import io.openems.edge.timedata.api.Timedata;
@@ -409,6 +410,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		// Should be updated according to back up power
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.AUTO_START_BACKUP), config.backupEnable().booleanValue);
+
+		// Waveform Detection high precision / disabled
+		if (this.isGoodWeType50Or100k()) {
+			this.applyWaveFormDetection();
+		}
 
 		// Power settings
 		this.setPowerSettings();
@@ -2127,4 +2133,17 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		protocol.addTasks(this.safetyParameterSettingsTasks);
 	}
 
+	private void applyWaveFormDetection() throws OpenemsNamedException {
+
+		var waveFormDetection = this.config.gridCode() == GridCode.VDE_4110 //
+				? WaveformDetection.DETECTION_DISABLED //
+				: WaveformDetection.HIGH_PRECISION;
+
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.WAVE_FORM_DETECTION), waveFormDetection);
+	}
+
+	private boolean isGoodWeType50Or100k() {
+		final var goodWeType = this.getGoodweType();
+		return goodWeType == GoodWeType.FENECON_50K || goodWeType == GoodWeType.FENECON_100K;
+	}
 }

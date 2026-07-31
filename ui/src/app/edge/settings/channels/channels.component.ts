@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { PersistencePriority } from "src/app/shared/components/edge/edgeconfig";
@@ -9,7 +9,7 @@ import { GetChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/ge
 import { SetChannelValueRequest } from "src/app/shared/jsonrpc/request/setChannelValueRequest";
 import { Channel, GetChannelsOfComponentResponse, } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
 import { environment } from "src/environments";
-import { ChannelAddress, Edge, EdgeConfig, EdgePermission, Service, Websocket } from "../../../shared/shared";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "../../../shared/shared";
 
 @Component({
     selector: ChannelsComponent.SELECTOR,
@@ -288,26 +288,8 @@ export class ChannelsComponent {
 
     private loadChannels(componentId: string): Promise<Channel[]> {
         return new Promise((resolve, reject) => {
-            if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-                const component = this.config.components[componentId];
-                if (!component) {
-                    reject();
-                    return;
-                }
-                const channels: Channel[] = [];
-                for (const [key, value] of Object.entries(component.channels)) {
-                    channels.push({
-                        id: key,
-                        ...value,
-                    });
-                }
-                resolve(channels);
-                return;
-            }
-
-            if (!(componentId in this.config.components)) {
-                console.warn(ChannelsComponent.ERROR_COMPONENT_COULD_NOT_BE_FOUND(componentId));
-                this.isAtLeastOneChannelExistingInEdgeConfig = true;
+            const component = this.config.components[componentId];
+            if (!component) {
                 reject();
                 return;
             }

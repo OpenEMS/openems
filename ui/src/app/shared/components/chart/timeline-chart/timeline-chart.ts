@@ -1,4 +1,4 @@
-import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
@@ -22,7 +22,6 @@ Chart.register(ChartConstants.Plugins.SYNC_CHARTS());
     selector: "oe-components-chart-single-xaxis",
     templateUrl: "./timeline-chart.html",
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         BaseChartDirective,
         ReactiveFormsModule,
@@ -40,7 +39,6 @@ export class TimeLineChartComponent {
     protected datasets: ChartDataset[] = [];
     protected labels: Date[] = [];
     protected options: ChartOptions = ONLY_X_AXIS();
-    protected loading = false;
     protected chartType: ChartType = "line";
     protected spinnerId: string = uuidv4();
 
@@ -50,7 +48,7 @@ export class TimeLineChartComponent {
         this.options = ONLY_X_AXIS();
         this.datasets = [
             {
-                data: this.labels.map((el) => el.getTime()),
+                data: this.labels.map((el) => ({ x: el.getTime(), y: 0 })),
                 borderWidth: 0,
                 pointRadius: 0,
                 backgroundColor: "transparent",
@@ -94,6 +92,8 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
             },
             tooltip: {
                 callbacks: {},
+                caretPadding: 0,
+                position: "average",
             },
             ["syncChart"]: {
                 group: 1,
@@ -121,6 +121,9 @@ export const ONLY_X_AXIS = (): ChartOptions<any> => {
                     source: "auto",
                     minRotation: 0,
                     maxRotation: 0,
+                    color: getComputedStyle(
+                        document.documentElement,
+                    ).getPropertyValue("--ion-color-chart-xAxis-ticks"),
                 },
                 afterUpdate: (scale: ChartOptions<any>["scales"][number]) => {
                     if (scale == null || scale.ticks == null) {

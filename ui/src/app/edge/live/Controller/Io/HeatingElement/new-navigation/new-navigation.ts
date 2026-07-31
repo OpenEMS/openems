@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -19,6 +19,7 @@ import { SharedControllerIoHeatingElement } from "../shared/shared";
     selector: "oe-controller-io-heating-element-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })

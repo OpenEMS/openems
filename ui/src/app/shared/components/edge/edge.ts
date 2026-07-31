@@ -4,7 +4,6 @@ import { TranslateService } from "@ngx-translate/core";
 import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
-import { hasUpdateAppVersion } from "src/app/edge/settings/app/permissions";
 import { SumState } from "src/app/index/shared/sumState";
 import { UserComponent } from "src/app/user/user.component";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
@@ -27,7 +26,7 @@ import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
 import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigResponse";
 import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
-import { ChannelAddress, EdgePermission, Service, SystemLog, Websocket } from "../../shared";
+import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
@@ -143,15 +142,6 @@ export class Edge {
      * @returns A promise of the found channel
      */
     public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
-        if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-            const config = await this.getFirstValidConfig(websocket);
-            const foundChannel = config.getChannel(channel);
-            if (!foundChannel) {
-                throw new Error("Channel not found: " + channel);
-            }
-            return { id: channel.channelId, ...foundChannel };
-        }
-
         const response = await this.sendRequest<GetChannelResponse>(
             websocket,
             new ComponentJsonApiRequest({
@@ -174,17 +164,6 @@ export class Edge {
      * @returns A promise with the reuslt channels
      */
     public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
-        if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-            const config = await this.getFirstValidConfig(websocket);
-            const component = config.components[componentId];
-            if (!component) {
-                throw new Error("Component not found");
-            }
-            return Object.entries(component.channels).reduce((p, c) => {
-                return [...p, { id: c[0], ...c[1] }];
-            }, []);
-        }
-
         const response = await this.sendRequest<GetChannelsOfComponentResponse>(
             websocket,
             new ComponentJsonApiRequest({
@@ -202,21 +181,16 @@ export class Edge {
         websocket: Websocket,
         factoryId: string,
     ): Promise<[EdgeConfig.Factory, EdgeConfig.FactoryProperty[]]> {
-        if (EdgePermission.hasReducedFactories(this)) {
-            const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(
-                websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_componentManager",
-                    payload: new GetPropertiesOfFactoryRequest({
-                        factoryId,
-                    }),
+        const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(
+            websocket,
+            new ComponentJsonApiRequest({
+                componentId: "_componentManager",
+                payload: new GetPropertiesOfFactoryRequest({
+                    factoryId,
                 }),
-            );
-            return [response.result.factory, response.result.properties];
-        }
-
-        const factory = (await this.getFirstValidConfig(websocket)).factories[factoryId];
-        return [factory, factory.properties];
+            }),
+        );
+        return [response.result.factory, response.result.properties];
     }
 
     /** Called by Service, when this Edge is set as currentEdge. */
@@ -570,26 +544,18 @@ export class Edge {
         componentId: string,
         properties: { name: string; value: string | number | boolean }[],
     ): Promise<JsonrpcResponseSuccess> {
-        let request;
-        if (!hasUpdateAppVersion(this)) {
-            request = new UpdateComponentConfigRequest({
-                componentId: componentId,
-                properties: properties,
-            });
-        } else {
-            const jsonObject = properties.reduce((acc, current) => {
-                acc[current.name] = current.value;
-                return acc;
-            }, {});
-            const payload = new UpdateAppConfigRequest({
-                componentId: componentId,
-                properties: jsonObject,
-            });
-            request = new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: payload,
-            });
-        }
+        const jsonObject = properties.reduce((acc, current) => {
+            acc[current.name] = current.value;
+            return acc;
+        }, {});
+        const payload = new UpdateAppConfigRequest({
+            componentId: componentId,
+            properties: jsonObject,
+        });
+        const request = new ComponentJsonApiRequest({
+            componentId: "_appManager",
+            payload: payload,
+        });
         return this.sendRequest(ws, request);
     }
 

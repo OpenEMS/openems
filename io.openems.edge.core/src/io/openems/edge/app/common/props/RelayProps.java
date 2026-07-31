@@ -2,6 +2,8 @@ package io.openems.edge.app.common.props;
 
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
+import static io.openems.edge.core.appmanager.TranslationUtil.getTranslation;
 import static io.openems.edge.core.appmanager.TranslationUtil.translate;
 import static io.openems.edge.core.appmanager.formly.builder.selectgroup.Option.buildOption;
 import static io.openems.edge.core.appmanager.formly.builder.selectgroup.OptionGroup.buildOptionGroup;
@@ -12,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -35,7 +38,7 @@ import io.openems.edge.core.appmanager.ComponentUtil.RelayContactInfo;
 import io.openems.edge.core.appmanager.ComponentUtil.RelayInfo;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
-import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
@@ -227,41 +230,48 @@ public final class RelayProps {
 	 * @param isHomeInstalled       if a home is installed; can be obtained with
 	 *                              {@link PropsUtil#isHomeInstalled(io.openems.edge.core.appmanager.AppManagerUtil)}
 	 * @param onlyHighVoltageRelays determines which relay channels are disabled
+	 * @param deviceHardware        the {@link OpenemsAppInstance} of the device
+	 *                              hardware
 	 * @return the {@link RelayContactFilter}
 	 */
 	public static RelayContactFilter feneconHomeFilter(//
 			final Language l, //
 			final boolean isHomeInstalled, //
-			final boolean onlyHighVoltageRelays //
+			final boolean onlyHighVoltageRelays, //
+			final OpenemsAppInstance deviceHardware //
 	) {
-		if (!isHomeInstalled) {
+		if (!isHomeInstalled || isHardwareInstalledForMasterBox(deviceHardware)) {
 			return emptyFilter();
 		}
 		final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+		final List<String> highVoltageRelays = List.of("Relay5", "Relay6");
+		String startupBatteryRelay = "Relay4";
+		final List<String> channelFilter = List.of(startupBatteryRelay, "Relay7", "Relay8");
 
-		return RelayContactFilter.create() //
-				.withChannelFilter((component, channel) -> {
-					if ("io0".equals(component.id())) {
-						if (List.of("Relay4", "Relay7", "Relay8").stream() //
-								.anyMatch(c -> c.equals(channel.channelId().id()))) {
-							return false;
-						}
-					}
-					return true;
-				}) //
-				.withChannelAliasMapper((component, channel) -> relayAliasMapper(channel)) //
-				.withDisabledReasons((component, channel) -> {
-					if (!onlyHighVoltageRelays) {
-						return emptyList();
-					}
-					if ("io0".equals(component.id())) {
-						if (List.of("Relay5", "Relay6").stream() //
-								.anyMatch(c -> c.equals(channel.channelId().id()))) {
-							return List.of(TranslationUtil.getTranslation(bundle, "relay.notApproved"));
-						}
-					}
-					return emptyList();
-				});
+		return createRelayContactFilter(bundle, onlyHighVoltageRelays, highVoltageRelays, channelFilter);
+	}
+
+	/**
+	 * Creates a {@link RelayContactFilter} for a techbase CM4 Gen 3.
+	 * 
+	 * @param l                     the current language
+	 * @param onlyHighVoltageRelays determines which relay channels are disabled
+	 * @param deviceHardware        the {@link OpenemsAppInstance} of the device
+	 * @return the {@link RelayContactFilter}
+	 */
+	public static RelayContactFilter techbaseCm4Gen3Filter(//
+			final Language l, //
+			final boolean onlyHighVoltageRelays, //
+			final OpenemsAppInstance deviceHardware //
+	) {
+		if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+			return emptyFilter();
+		}
+		final var bundle = AbstractOpenemsApp.getTranslationBundle(l);
+		final List<String> highVoltageRelays = List.of("Relay4", "Relay5");
+		final String startUpBatteryRelay = "Relay6";
+
+		return createRelayContactFilter(bundle, onlyHighVoltageRelays, highVoltageRelays, List.of(startUpBatteryRelay));
 	}
 
 	/**
@@ -305,15 +315,17 @@ public final class RelayProps {
 	}
 
 	// TODO remove when channels have their own alias
-	private static String relayAliasMapper(BooleanWriteChannel booleanWriteChannel) {
-		// TODO add translation
+	private static String relayAliasMapper(//
+			ResourceBundle bundle, //
+			BooleanWriteChannel booleanWriteChannel //
+	) {
 		for (final var iface : booleanWriteChannel.getComponent().getClass().getInterfaces()) {
 			var alias = switch (iface.getCanonicalName()) {
 			case "io.openems.edge.io.kmtronic.four.IoKmtronicRelay4Port" ->
 				switch (booleanWriteChannel.address().getChannelId()) {
-				case "Relay1" -> "Relais 1 (Pin 11/12)";
-				case "Relay2" -> "Relais 2 (Pin 13/14)";
-				case "Relay3" -> "Relais 3 (Pin 15/16)";
+				case "Relay1" -> translate(bundle, "relay.kmTronicRelay4Port.description", 1, 11, 12);
+				case "Relay2" -> translate(bundle, "relay.kmTronicRelay4Port.description", 2, 13, 14);
+				case "Relay3" -> translate(bundle, "relay.kmTronicRelay4Port.description", 1, 15, 16);
 				default -> null;
 				};
 			case "io.openems.edge.io.kmtronic.eight.IoKmtronicRelay8Port" -> {
@@ -321,14 +333,23 @@ public final class RelayProps {
 					yield null;
 				}
 				yield switch (booleanWriteChannel.address().getChannelId()) {
-				case "Relay1" -> "Relais 1 (Harting 10-polig, Pin 3/4, max. 230V/10A)";
-				case "Relay2" -> "Relais 2 (Harting 10-polig, Pin 5/6, max. 230V/10A)";
-				case "Relay3" -> "Relais 3 (Harting 10-polig, Pin 7/8, max. 230V/10A)";
-				case "Relay5" -> "Relais 5 (Harting 16-polig - C, Pin 5/6, max. 24V/1A)";
-				case "Relay6" -> "Relais 6 (Harting 16-polig - C, Pin 7/8, max. 24V/1A)";
+				case "Relay1" -> translate(bundle, "relay.harting10pole.description", 1, 3, 4, 230, 10);
+				case "Relay2" -> translate(bundle, "relay.harting10pole.description", 2, 5, 6, 230, 10);
+				case "Relay3" -> translate(bundle, "relay.harting10pole.description", 3, 7, 8, 230, 10);
+				case "Relay5" -> translate(bundle, "relay.harting16pole.description", 5, 5, 6, 24, 1);
+				case "Relay6" -> translate(bundle, "relay.harting16pole.description", 6, 7, 8, 24, 1);
 				default -> null;
 				};
 			}
+			case "io.openems.edge.system.fenecon.masterbox2v0.relay.IoMasterBox2v0Relay" ->
+				switch (booleanWriteChannel.address().getChannelId()) {
+				case "Relay1" -> translate(bundle, "relay.harting10pole.description", 1, 3, 4, 230, 10);
+				case "Relay2" -> translate(bundle, "relay.harting10pole.description", 2, 5, 6, 230, 10);
+				case "Relay3" -> translate(bundle, "relay.harting10pole.description", 3, 7, 8, 230, 10);
+				case "Relay4" -> translate(bundle, "relay.harting10pole.description", 4, 9, 10, 24, 2);
+				case "Relay5" -> translate(bundle, "relay.harting10pole.description", 5, 1, 2, 24, 2);
+				default -> null;
+				};
 			default -> null;
 			};
 			if (alias != null) {
@@ -336,6 +357,30 @@ public final class RelayProps {
 			}
 		}
 		return booleanWriteChannel.address().toString();
+	}
+
+	private static RelayContactFilter createRelayContactFilter(//
+			ResourceBundle bundle, //
+			boolean onlyHighVoltageRelays, //
+			List<String> highVoltageRelays, //
+			List<String> channelFilter //
+	) {
+		return RelayContactFilter.create() //
+				.withChannelFilter((component, channel) -> //
+				!("io0".equals(component.id())
+						&& channelFilter.stream().anyMatch(c -> c.equals(channel.channelId().id())))) //
+				.withChannelAliasMapper((component, channel) -> relayAliasMapper(bundle, channel)) //
+				.withDisabledReasons((component, channel) -> {
+					if (!onlyHighVoltageRelays) {
+						return emptyList();
+					}
+					if ("io0".equals(component.id()) //
+							&& highVoltageRelays.stream() //
+									.anyMatch(c -> c.equals(channel.channelId().id()))) {
+						return List.of(translate(bundle, "relay.notApproved"));
+					}
+					return emptyList();
+				});
 	}
 
 	/**
@@ -351,7 +396,7 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-			AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
+	AppDef<OpenemsApp, Nameable, P> relayContactDef(int contactPosition, Nameable... allContacts) {
 		return relayContactDef(false, contactPosition, allContacts);
 	}
 
@@ -369,8 +414,7 @@ public final class RelayProps {
 	 * @return the {@link AppDef}
 	 */
 	public static <P extends BundleProvider & RelayContactInformationProvider> //
-			AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition,
-					Nameable... allContacts) {
+	AppDef<OpenemsApp, Nameable, P> relayContactDef(boolean isMulti, int contactPosition, Nameable... allContacts) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> {
 			def.setDefaultValue((app, property, l, parameter) -> {
 				final var preferredRelay = parameter.relayContactInformation().preferredRelays[contactPosition - 1];
@@ -390,8 +434,7 @@ public final class RelayProps {
 				field.setMissingOptionsText(translate(parameter.bundle(), "relay.missingOptions"));
 
 				final var information = parameter.relayContactInformation();
-				final var defaultString = " ("
-						+ TranslationUtil.getTranslation(parameter.bundle(), "relay.defaultRelayContact") + ")";
+				final var defaultString = " (" + getTranslation(parameter.bundle(), "relay.defaultRelayContact") + ")";
 
 				final BiFunction<Nameable, RelayContactInfo, BooleanExpression> singleDisabledExpression = (nameable,
 						channel) -> {
@@ -458,8 +501,8 @@ public final class RelayProps {
 					return Exp.ifElse(exp, //
 							StringExpression.of(channelDisplayName), //
 							StringExpression.of(channelDisplayName //
-									+ " - " + TranslationUtil.getTranslation(parameter.bundle(),
-											"relay.relayContactAlreadyUsed", componentsString)) //
+									+ " - " + getTranslation(parameter.bundle(), "relay.relayContactAlreadyUsed",
+											componentsString)) //
 					);
 				};
 				information.allRelays().forEach(relayInfo -> {
@@ -500,8 +543,7 @@ public final class RelayProps {
 							.map(Exp::currentModelValue).toArray(Variable[]::new));
 
 					final var expression = array.every(t -> Exp.currentModelValue(phaseDef).notEqual(t));
-					final var errorMessage = TranslationUtil.getTranslation(parameter.bundle(),
-							"relay.duplicatedRelayContactSelected");
+					final var errorMessage = getTranslation(parameter.bundle(), "relay.duplicatedRelayContactSelected");
 					field.setCustomValidation(phaseDef.name() + "_VALIDATION", expression,
 							StringExpression.of(errorMessage), phaseDefs[phaseDefs.length - 1]);
 				}

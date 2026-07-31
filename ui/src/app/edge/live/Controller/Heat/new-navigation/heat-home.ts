@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -24,6 +24,7 @@ import { HeatConverter } from "./converter";
     selector: "oe-controller-heat-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
