@@ -2,6 +2,7 @@ package io.openems.edge.app.evcs;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.function.Function;
@@ -22,6 +23,7 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.DezonyEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.Host;
@@ -33,6 +35,7 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
@@ -70,7 +73,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  */
 @Component(name = "App.Evcs.Dezony")
 public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier {
+		implements OpenemsApp, HostSupplier, MetaSupplier, EMobilityApp {
 
 	public enum Property implements Type<Property, DezonyEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -203,6 +206,11 @@ public class DezonyEvcs extends AbstractOpenemsAppWithProps<DezonyEvcs, Property
 	@Override
 	public Meta getMeta() {
 		return this.meta;
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 
 }

@@ -1,4 +1,4 @@
-import { Component, effect, inject } from "@angular/core";
+import { Component, effect, inject, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -13,13 +13,10 @@ import en from "./i18n/en.json";
 @Component({
     selector: "oe-settings-profile-location",
     templateUrl: "./location.html",
-    imports: [
-        CommonUiModule,
-        NgxSpinnerModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, NgxSpinnerModule],
 })
 export class LocationComponent {
-
     protected isValidated: boolean | null = null;
     protected readonly spinnerId: string = uuidv4();
 
@@ -45,7 +42,6 @@ export class LocationComponent {
         this.service.startSpinner(this.spinnerId);
         this.setLocationValidateState(config).finally(() => this.service.stopSpinner(this.spinnerId));
     }
-
 
     protected editLocation() {
         this.router.navigate(["./location-validation"], { relativeTo: this.route });

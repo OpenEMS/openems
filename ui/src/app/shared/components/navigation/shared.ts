@@ -4,43 +4,119 @@ import { TEnumKeys, TPartialBy } from "../../type/utility";
 import { Icon, Widget, WidgetClass } from "../../type/widget";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { Edge } from "../edge/edge";
+import { EdgeConfig } from "../edge/edgeconfig";
+import { Name } from "../shared/name";
 
 export enum NavigationId {
     LIVE = "live",
     HISTORY = "history",
+    FORECAST = "forecast",
+    ROOT = "root",
 }
 
-type IconColor = "primary" | "secondary" | "tertiary" | "success" | "danger" | "medium" | "light" | "dark" | "warning" | "normal" | "production";
-export type PartialedIcon = TPartialBy<Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">, "color">;
+export enum AvailableScope {
+    LOCAL = "LOCAL",
+    LIVE_AND_OVERVIEW = "LIVE_AND_OVERVIEW",
+}
+
+export enum PageFilterMode {
+    HIDE = "HIDE",
+    SHOW = "SHOW",
+}
+
+export type PageFilterRule = {
+    navigationId: NavigationTree["id"];
+    mode: PageFilterMode;
+};
+
+export enum PageFilterCombineMode {
+    ALL = "ALL",
+    ANY = "ANY",
+}
+
+export type PageFilterSet = {
+    combine: PageFilterCombineMode;
+    rules: PageFilterRule[];
+};
+
+type IconColor =
+    | "primary"
+    | "secondary"
+    | "tertiary"
+    | "success"
+    | "danger"
+    | "medium"
+    | "light"
+    | "dark"
+    | "warning"
+    | "normal"
+    | "production";
+export type PartialedIcon = TPartialBy<
+    Pick<Omit<Icon, "size" | "color"> & { color: IconColor }, "color" | "name">,
+    "color"
+>;
+
+export type NavigationTreeOptions = {
+    showOrder?: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
+    availableScope?: AvailableScope.LOCAL | AvailableScope.LIVE_AND_OVERVIEW;
+    pageFilter?: PageFilterSet | null;
+    customLink?: string | null;
+    isCommonWidget?: boolean;
+};
 
 export class NavigationTree {
+    public showOrder: "VERY_HIGH" | "HIGH" | "LOW" | "HIDE";
+    public availableScope: AvailableScope.LOCAL | AvailableScope.LIVE_AND_OVERVIEW;
+    public pageFilter: PageFilterSet | null;
+    public customLink: string | null;
+    public isCommonWidget: boolean;
+
     constructor(
         public id: NavigationId | string,
-        public routerLink: { baseString: string, queryParams?: { [key: string]: string } },
+        public routerLink: {
+            baseString: string;
+            queryParams?: { [key: string]: string };
+        },
         public icon: PartialedIcon,
         public label: string,
-
-        // Display mode of chip
-        public mode: "icon" | "label",
+        public mode: "icon" | "label" | "hidden",
         public children: NavigationTree[],
-
-        /** Use null for nested node */
         public parent: NavigationTree | null,
-        /** Nodes with HIGH priority will be placed at the start, LOW at the bottom */
-        public showOrder: "HIGH" | "LOW" | "HIDE" = "HIGH",
-    ) { }
+        options: NavigationTreeOptions = {},
+    ) {
+        this.showOrder = options.showOrder ?? "HIGH";
+        this.availableScope = options.availableScope ?? AvailableScope.LOCAL;
+        this.pageFilter = options.pageFilter ?? null;
+        this.customLink = options.customLink ?? null;
+        this.isCommonWidget = options.isCommonWidget ?? false;
+    }
 
     /**
      * Creates new navigation tree instance from existing navigation tree object.
-    *
-    * @param navigationTree
-    * @returns the new navigationTree
-    */
+     *
+     * @param navigationTree
+     * @returns The new navigationTree
+     */
     public static of(navigationTree: NavigationTree | null): NavigationTree | null {
-        if (!navigationTree) {
+        if (navigationTree == null) {
             return null;
         }
-        return new NavigationTree(navigationTree.id, navigationTree.routerLink, navigationTree.icon, navigationTree.label, navigationTree.mode, navigationTree.children, navigationTree.parent);
+        return new NavigationTree(
+            navigationTree.id,
+            navigationTree.routerLink,
+            navigationTree.icon,
+            navigationTree.label,
+            navigationTree.mode,
+            navigationTree.children,
+            navigationTree.parent,
+            {
+                showOrder: navigationTree.showOrder,
+                availableScope: navigationTree.availableScope,
+                pageFilter: navigationTree.pageFilter,
+                customLink: navigationTree.customLink,
+                isCommonWidget: navigationTree.isCommonWidget,
+            },
+        );
     }
 
     public static dummy() {
@@ -50,7 +126,7 @@ export class NavigationTree {
     /**
      * Reorders the navigation tree children by its {@link showOrder} from HIGH to LOW.
      *
-     * @param node the node
+     * @param node The node
      * @returns
      */
     public reorderByShowOrder(node: NavigationTree): void {
@@ -59,40 +135,53 @@ export class NavigationTree {
         }
 
         // First reorder deeper levels
-        node.children.forEach(child => this.reorderByShowOrder(child));
+        node.children.forEach((child) => this.reorderByShowOrder(child));
 
         // Explicit grouping (safer than comparator)
-        const high = node.children.filter(c => c.showOrder === "HIGH");
-        const low = node.children.filter(c => c.showOrder === "LOW");
-        const hide = node.children.filter(c => c.showOrder === "HIDE");
+        const veryHigh = node.children.filter((c) => c.showOrder === "VERY_HIGH");
+        const high = node.children.filter((c) => c.showOrder === "HIGH");
+        const low = node.children.filter((c) => c.showOrder === "LOW");
+        const hide = node.children.filter((c) => c.showOrder === "HIDE");
 
-        node.children = [...high, ...low, ...hide];
+        node.children = [...veryHigh, ...high, ...low, ...hide];
+    }
+
+    public getBreadCrumbs(): NavigationTree[] {
+        const parents: NavigationTree[] = this.getParents() ?? [];
+        parents.push(this);
+        return parents;
     }
 
     public findParentByUrl(currentUrl: string | null): NavigationTree | null {
-
         /**
          * Converts a relative routerLink to absolute from root node.
          *
-         * @param tree the current navigation node
-            * @returns a navigationTree
+         * @param tree The current navigation node
+         * @returns A navigationTree
          */
         function convertRelativeToAbsoluteLink(tree: NavigationTree | null): NavigationTree | null {
-
             /**
              * Builds the absolute link from root node to current node.
              *
-             * @param node the current node
-             * @returns a update navigation tree
+             * @param node The current node
+             * @returns A update navigation tree
              */
             function buildAbsoluteLink(node: NavigationTree): NavigationTree {
                 const segments: (string | null)[] = [];
                 const current: NavigationTree | null = node;
 
+                if (node.customLink != null) {
+                    node.routerLink.baseString = node.customLink;
+                    return node;
+                }
+
                 segments.unshift(current.routerLink.baseString);
                 segments.unshift(current?.parent?.routerLink.baseString ?? null);
 
-                const routerLink = segments.filter(el => el != null).join("/").replace(/\/+/g, "/");
+                const routerLink = segments
+                    .filter((el) => el != null)
+                    .join("/")
+                    .replace(/\/+/g, "/");
                 node.routerLink.baseString = routerLink;
                 return node;
             }
@@ -100,10 +189,9 @@ export class NavigationTree {
             /**
              * Traverses through the navigation tree.
              *
-             * @param node the current node
+             * @param node The current node
              */
             function traverse(node: NavigationTree | null): void {
-
                 if (node == null) {
                     return;
                 }
@@ -124,13 +212,12 @@ export class NavigationTree {
         /**
          * Gets the navigation id from a navigation tree and current router url
          *
-         * @param tree the navigation tree
-         * @param url the current router url
-         * @returns the navigationId if found, else null
+         * @param tree The navigation tree
+         * @param url The current router url
+         * @returns The navigationId if found, else null
          */
 
         function findParentNode(tree: NavigationTree | null, url: string | null): NavigationTree | null {
-
             if (tree == null || url == null) {
                 return null;
             }
@@ -147,17 +234,21 @@ export class NavigationTree {
             }
 
             const upperMostParent = tree.routerLink.baseString;
-            const allRoutes = buildRoutes(url.split("/")).reverse().map(el => el.includes(upperMostParent) ? el.slice(el.indexOf(upperMostParent)) : el); // ["device", "device/fems888", "device/fems888/live"...]
+            const allRoutes = buildRoutes(url.split("/"))
+                .reverse()
+                .map((el) => (el.includes(upperMostParent) ? el.slice(el.indexOf(upperMostParent)) : el)); // ["device", "device/fems888", "device/fems888/live"...]
             let resultTree: NavigationTree | null = null;
             for (const entry of allRoutes) {
-
                 if (resultTree != null) {
                     continue;
                 }
 
                 function traverse(navigationTree: NavigationTree, segments: string): NavigationTree | null {
                     const urlSegments = navigationTree.routerLink.baseString.split("/");
-                    const foundNode = ArrayUtils.containsAll({ strings: urlSegments, arr: segments.split("/") });
+                    const foundNode = ArrayUtils.containsAll({
+                        strings: urlSegments,
+                        arr: segments.split("/"),
+                    });
                     if (foundNode) {
                         return navigationTree;
                     }
@@ -186,7 +277,10 @@ export class NavigationTree {
     }
 
     public updateNavigationTreeByAbsolutePath(
-        root: NavigationTree | null, absolutePath: string, updateFn: (node: NavigationTree) => void | NavigationTree, currentPath: string = ""
+        root: NavigationTree | null,
+        absolutePath: string,
+        updateFn: (node: NavigationTree) => void | NavigationTree,
+        currentPath: string = "",
     ) {
         if (root == null) {
             return false;
@@ -198,9 +292,11 @@ export class NavigationTree {
             const result = updateFn(root);
             if (result instanceof NavigationTree && root.parent) {
                 const idx = root.parent.children.findIndex(
-                    c => c.routerLink.baseString === root.routerLink.baseString
+                    (c) => c.routerLink.baseString === root.routerLink.baseString,
                 );
-                if (idx !== -1) { root.parent.children[idx] = result; }
+                if (idx !== -1) {
+                    root.parent.children[idx] = result;
+                }
             }
             return true;
         }
@@ -217,16 +313,14 @@ export class NavigationTree {
 
     public updateNavigationTree(
         root: NavigationTree,
-        path: string[],               // list of routerLink.baseString along the path
+        path: string[], // list of routerLink.baseString along the path
         updateFn: (node: NavigationTree) => void | NavigationTree, // called when found
-        currentPath: string[] = []    // used internally during recursion
+        currentPath: string[] = [], // used internally during recursion
     ): NavigationTree {
         const fullPath = [...currentPath, root.routerLink.baseString];
 
         // Check if we reached the target path
-        const isMatch =
-            fullPath.length === path.length &&
-            fullPath.every((segment, i) => segment === path[i]);
+        const isMatch = fullPath.length === path.length && fullPath.every((segment, i) => segment === path[i]);
 
         if (isMatch) {
             // Apply the update function to this node
@@ -235,9 +329,11 @@ export class NavigationTree {
                 // If updateFn returns a new node, replace it in parent's children
                 if (root.parent) {
                     const index = root.parent.children.findIndex(
-                        c => c.routerLink.baseString === root.routerLink.baseString
+                        (c) => c.routerLink.baseString === root.routerLink.baseString,
                     );
-                    if (index !== -1) { root.parent.children[index] = result; }
+                    if (index !== -1) {
+                        root.parent.children[index] = result;
+                    }
                 }
             }
             return root;
@@ -255,14 +351,25 @@ export class NavigationTree {
 
     public toConstructorParams(): ConstructorParameters<typeof NavigationTree> {
         return [
-            this.id, this.routerLink, this.icon,
-            this.label, this.mode, this.children, this.parent,
-            this.showOrder,
+            this.id,
+            this.routerLink,
+            this.icon,
+            this.label,
+            this.mode,
+            this.children,
+            this.parent,
+            {
+                showOrder: this.showOrder,
+                availableScope: this.availableScope,
+                pageFilter: this.pageFilter,
+                isCommonWidget: this.isCommonWidget,
+                customLink: this.customLink,
+            },
         ];
     }
 
-    public getChildren(): NavigationTree[] | null {
-        return this.children?.filter(el => el != null) ?? null;
+    public getChildren(): NavigationTree[] {
+        return this.children?.filter((el) => el != null) ?? [];
     }
 
     public getAllNavigationNodes(tree: NavigationTree[]): NavigationTree[] {
@@ -279,7 +386,6 @@ export class NavigationTree {
     }
 
     public getParents(): NavigationTree[] | null {
-
         let root: NavigationTree | null = this.parent;
         if (root == null) {
             return null;
@@ -297,15 +403,16 @@ export class NavigationTree {
     /**
      * Sets the child for a given parent navigation id
      *
+     * @param parentNavigationId The parent navigation id
+     * @param childNavigationTree The child navigation tree
      * @info set parent to null for nested children
-     *
-     * @param parentNavigationId the parent navigation id
-     * @param childNavigationTree the child navigation tree
      */
     public setChildToCurrentNode(childNavigationTree: NavigationTree): NavigationTree {
-        const nodeFoundInArr = this.children?.some(child => child.id === childNavigationTree.id);
+        const nodeFoundInArr = this.children?.some((child) => child.id === childNavigationTree.id);
         if (nodeFoundInArr) {
-            throw new Error(`NavigationTree with id '${childNavigationTree.id}' already exists as child of '${this.id}'`);
+            throw new Error(
+                `NavigationTree with id '${childNavigationTree.id}' already exists as child of '${this.id}'`,
+            );
         }
         this.children = [...this.children, childNavigationTree];
         this.setChild(this.id, childNavigationTree);
@@ -316,10 +423,9 @@ export class NavigationTree {
     /**
      * Sets the child for a given parent navigation id
      *
+     * @param parentNavigationId The parent navigation id
+     * @param childNavigationTree The child navigation tree
      * @info set parent to null for nested children
-     *
-     * @param parentNavigationId the parent navigation id
-     * @param childNavigationTree the child navigation tree
      */
     public setChild(parentNavigationId: NavigationId | string, childNavigationTree: NavigationTree) {
         this.children = this.getUpdatedNavigationTree(this, parentNavigationId, childNavigationTree)?.children ?? [];
@@ -329,29 +435,30 @@ export class NavigationTree {
     /**
      * Sets the child for a given parent navigation id
      *
+     * @param parentNavigationId The parent navigation id
+     * @param childNavigationTree The child navigation tree
      * @info set parent to null for nested children
-     *
-     * @param parentNavigationId the parent navigation id
-     * @param childNavigationTree the child navigation tree
      */
     public showHiddenNode(showOrder: typeof this.showOrder = "HIGH") {
         this.showOrder = showOrder;
         return this;
     }
 
-    public getUpdatedNavigationTree(tree: NavigationTree, navigationId: NavigationId | string, newNavigation: NavigationTree): NavigationTree | null {
-
+    public getUpdatedNavigationTree(
+        tree: NavigationTree,
+        navigationId: NavigationId | string,
+        newNavigation: NavigationTree,
+    ): NavigationTree | null {
         if (!tree) {
             return null;
         }
 
         if (tree?.id === navigationId) {
-
             // Initialize
             tree.children ??= [];
-            const currentChildren = tree.children.map(child => child.id == navigationId ? newNavigation : child);
+            const currentChildren = tree.children.map((child) => (child.id == navigationId ? newNavigation : child));
 
-            if (!currentChildren.some(el => el.id == newNavigation.id)) {
+            if (!currentChildren.some((el) => el.id == newNavigation.id)) {
                 currentChildren.push(newNavigation);
             }
             tree.children = currentChildren;
@@ -376,7 +483,6 @@ export class NavigationTree {
 
     private setParentRecursively() {
         function traverse(node: NavigationTree, parent: NavigationTree | null): void {
-
             if (node.parent == null) {
                 node.parent = parent;
             }
@@ -395,18 +501,15 @@ export class NavigationTree {
 }
 
 export type NavigationNode = {
-    id: NavigationId | string,
-    routerLink: string,
-    icon: Pick<Icon, "name">,
-    label: string,
-    mode: "icon" | "label",
+    id: NavigationId | string;
+    routerLink: string;
+    icon: Pick<Icon, "name">;
+    label: string;
+    mode: "icon" | "label";
 };
 
 export namespace NavigationConstants {
-
-    /**
-     * The widgets classes to show in new navigation
-     */
+    /** The widgets classes to show in new navigation */
     export const newClasses: TEnumKeys<typeof WidgetClass>[] = [
         "Common_Autarchy",
         "Common_Selfconsumption",
@@ -416,30 +519,195 @@ export namespace NavigationConstants {
         "Storage",
     ];
 
-    /**
-     * The widget factories to show in new navigation
-     */
+    /** The widget factories to show in new navigation */
     export const newWidgets: Widget["name"][] = [
+        "Controller.Io.FixDigitalOutput",
+        "System.Fenecon.Industrial.Xl",
+        "Controller.Clever-PV",
+        "System.Fenecon.Industrial.L",
+        "System.Fenecon.Industrial.M",
+        "System.Fenecon.Industrial.S",
         "Controller.ChannelThreshold",
         "Controller.IO.HeatingElement",
+        "Controller.IO.ChannelSingleThreshold",
         "Controller.Ess.FixActivePower",
         "Controller.Ess.Time-Of-Use-Tariff",
         "Controller.Ess.GridOptimizedCharge",
         "Heat.Askoma",
         "Heat.MyPv.AcThor9s",
         "Controller.Io.HeatPump.SgReady",
+        "Controller.Api.ModbusTcp.ReadWrite",
+        "Controller.TimeslotPeakshaving",
+        "Controller.Symmetric.PeakShaving",
+        "Controller.Asymmetric.PeakShaving",
+        "Weather.OpenMeteo",
     ];
 
     export namespace CommonNodes {
-        export function SETTINGS(translate: TranslateService, showOrder: NavigationTree["showOrder"] = "LOW") { return new NavigationTree("settings", { baseString: "settings" }, { name: "settings-outline", color: "medium" }, translate.instant("MENU.SETTINGS"), "label", [], null, showOrder); };
-        export function PHASE_ACCURATE(translate: TranslateService, id: NavigationTree["id"], iconColor: NavigationTree["icon"]["color"], children: NavigationTree["children"] = []) { return new NavigationTree(id, { baseString: id }, { name: "list-outline", color: iconColor }, translate.instant("EDGE.HISTORY.PHASE_ACCURATE"), "label", children, null); };
-        export function CURRENT_AND_VOLTAGE(translate: TranslateService, edge: Edge, children: NavigationTree["children"] = []) {
+        export function SETTINGS(translate: TranslateService, showOrder: NavigationTree["showOrder"] = "LOW") {
+            return new NavigationTree(
+                "settings",
+                { baseString: "settings" },
+                { name: "settings-outline", color: "medium" },
+                translate.instant("MENU.SETTINGS"),
+                "label",
+                [],
+                null,
+                { showOrder },
+            );
+        }
+        export function PHASE_ACCURATE(
+            translate: TranslateService,
+            id: NavigationTree["id"],
+            iconColor: NavigationTree["icon"]["color"],
+            children: NavigationTree["children"] = [],
+        ) {
+            return new NavigationTree(
+                id,
+                { baseString: id },
+                { name: "list-outline", color: iconColor },
+                translate.instant("EDGE.HISTORY.PHASE_ACCURATE"),
+                "label",
+                children,
+                null,
+            );
+        }
+        export function CURRENT_AND_VOLTAGE(
+            translate: TranslateService,
+            edge: Edge,
+            children: NavigationTree["children"] = [],
+        ) {
             return edge.roleIsAtLeast(Role.INSTALLER)
-                ? [new NavigationTree("current-voltage", { baseString: "current-voltage" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", children, null)]
+                ? [
+                      new NavigationTree(
+                          "current-voltage",
+                          { baseString: "current-voltage" },
+                          { name: "flame", color: "danger" },
+                          translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"),
+                          "label",
+                          children,
+                          null,
+                      ),
+                  ]
                 : [];
         }
-        export function HISTORY(translate: TranslateService, children: NavigationTree[] = []) { return new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", children, null); };
+        export function INFO(translate: TranslateService, queryParams: { source: string } | {} = {}) {
+            return new NavigationTree(
+                "info",
+                { baseString: "navigation-info", queryParams: queryParams },
+                { name: "information-outline" },
+                translate.instant("GENERAL.INFO"),
+                "label",
+                [],
+                null,
+                { showOrder: "LOW" },
+            );
+        }
+        export function HISTORY(translate: TranslateService, children: NavigationTree[] = []) {
+            return new NavigationTree(
+                "history",
+                { baseString: "history" },
+                { name: "stats-chart-outline", color: "warning" },
+                translate.instant("GENERAL.HISTORY"),
+                "label",
+                children,
+                null,
+            );
+        }
+    }
+}
 
+/**
+ * Utility for creating grouped navigation trees with common sorting and grouping logic. This is used by multiple
+ * components that manage collections of similar sub-components.
+ */
+export namespace GroupedNavigationTreeUtility {
+    /**
+     * Creates a grouped navigation tree for multiple component instances. Components are sorted by alias (if available)
+     * then by component ID.
+     *
+     * @param groupId Unique identifier for the group
+     * @param groupIcon Icon configuration for the group
+     * @param groupLabelKey Translation key for the group label
+     * @param translate Translation service
+     * @param componentIds The component IDs to group
+     * @param config Edge configuration
+     * @param getChildTreeFn Function that creates individual navigation trees for children
+     * @returns Constructor parameters for a grouped NavigationTree, or null if fewer than two valid children
+     */
+    export function createGroupedNavigationTree(
+        groupId: string,
+        groupIcon: PartialedIcon,
+        groupLabelKey: string,
+        groupBaseString: string,
+        translate: TranslateService,
+        componentIds: EdgeConfig.Component["id"][],
+        config: EdgeConfig,
+        factoryId: EdgeConfig.Factory["id"],
+        getChildTreeFn: (componentId: EdgeConfig.Component["id"]) => NavigationTree | null,
+    ): NavigationTree | null {
+        const children = componentIds
+            .slice()
+            .sort((left, right) => compareByAliasThenComponentId(config, left, right))
+            .map((componentId) => getChildTreeFn(componentId))
+            .filter((child): child is NavigationTree => child != null);
 
+        if (children.length < 2) {
+            return null;
+        }
+
+        return new NavigationTree(
+            groupId,
+            { baseString: groupBaseString, queryParams: { factoryId: factoryId } },
+            groupIcon,
+            translate.instant(groupLabelKey),
+            "label",
+            children,
+            null,
+        );
+    }
+
+    /**
+     * Compares two component IDs by their aliases (if available) then by ID. Used for consistent sorting of component
+     * collections.
+     *
+     * @param config Edge configuration
+     * @param leftComponentId First component ID to compare
+     * @param rightComponentId Second component ID to compare
+     * @returns Comparison result (-1, 0, 1) for sorting
+     */
+    function compareByAliasThenComponentId(
+        config: EdgeConfig,
+        leftComponentId: string,
+        rightComponentId: string,
+    ): number {
+        const leftAlias = config.getComponentSafely(leftComponentId)?.alias ?? "";
+        const rightAlias = config.getComponentSafely(rightComponentId)?.alias ?? "";
+        const aliasComparison = leftAlias.localeCompare(rightAlias);
+        if (aliasComparison !== 0) {
+            return aliasComparison;
+        }
+
+        return leftComponentId.localeCompare(rightComponentId);
+    }
+
+    export function getNavigationTreeAsChild(
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+        createComponentNavigationTree: (
+            componentId: EdgeConfig.Component["id"],
+            label: string,
+            baseString: string,
+            translate: TranslateService,
+        ) => NavigationTree,
+    ): NavigationTree | null {
+        const component = config.getComponentSafely(componentId);
+        if (component == null) {
+            return null;
+        }
+
+        const label = Name.METER_ALIAS_OR_ID(component);
+        return createComponentNavigationTree(componentId, label, componentId, translate);
     }
 }

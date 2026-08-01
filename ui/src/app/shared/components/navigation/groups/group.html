@@ -1,0 +1,17 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>{{ titleKey() | translate }}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    @if (components().length > 0) {
+      <ion-list>
+        @for (component of components(); track component.id) {
+          <ion-item button (click)="navigateTo(component.id)" (keydown.enter)="navigateTo(component.id)">
+            <ion-label>{{ component.alias || component.id }}</ion-label>
+            <ion-icon name="chevron-forward" slot="end"></ion-icon>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  </ion-card-content>
+</ion-card>

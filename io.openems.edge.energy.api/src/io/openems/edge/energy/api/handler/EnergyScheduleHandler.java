@@ -94,7 +94,7 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 * 
 		 * @return the {@link Modes}
 		 */
-		public Modes<?> modes();
+		public Modes<?, ?> modes();
 
 		/**
 		 * Generates {@link InitialPopulation} for this
@@ -130,6 +130,20 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 */
 		public int simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
 				EnergyFlow.Model ef, int modeIndex, Fitness.Builder fitness, boolean isFinalRun);
+
+		/**
+		 * Evaluates one simulated period, adjusting fitness as needed.
+		 *
+		 * @param period     the {@link GlobalOptimizationContext.Period}
+		 * @param gsc        the {@link GlobalScheduleContext}
+		 * @param csc        the ControllerScheduleContext
+		 * @param ef         the {@link EnergyFlow}
+		 * @param modeIndex  the index of the simulated Mode; -1 if no Mode is available
+		 * @param fitness    the {@link Fitness.Builder} result
+		 * @param isFinalRun is this the final simulation run?
+		 */
+		public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+				EnergyFlow ef, int modeIndex, Fitness.Builder fitness, boolean isFinalRun);
 
 		/**
 		 * Applies a new Schedule.
@@ -169,6 +183,18 @@ public sealed interface EnergyScheduleHandler permits WithDifferentModes, WithOn
 		 */
 		public void simulate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
 				EnergyFlow.Model ef, Fitness.Builder fitness);
+
+		/**
+		 * Evaluates one simulated period, adjusting fitness as needed.
+		 *
+		 * @param period  the {@link GlobalOptimizationContext.Period}
+		 * @param gsc     the {@link GlobalScheduleContext}
+		 * @param csc     the ControllerScheduleContext
+		 * @param ef      the final {@link EnergyFlow}
+		 * @param fitness the {@link Fitness.Builder} result
+		 */
+		public void evaluate(GlobalOptimizationContext.Period period, GlobalScheduleContext gsc, Object csc,
+				EnergyFlow ef, Fitness.Builder fitness);
 
 		/**
 		 * Applies a new Schedule.

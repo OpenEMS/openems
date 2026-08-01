@@ -1,6 +1,5 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.common.utils.IntUtils.fitWithin;
 import static io.openems.common.utils.JsonUtils.buildJsonObject;
 import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
 import static io.openems.edge.energy.optimizer.SimulationResult.EMPTY_SIMULATION_RESULT;
@@ -12,7 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,12 +29,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 
 import io.jenetics.EliteSelector;
-import io.jenetics.GaussianMutator;
 import io.jenetics.Gene;
 import io.jenetics.IntegerGene;
+import io.jenetics.Mutator;
 import io.jenetics.Phenotype;
 import io.jenetics.ShiftMutator;
-import io.jenetics.ShuffleMutator;
 import io.jenetics.SinglePointCrossover;
 import io.jenetics.TournamentSelector;
 import io.jenetics.engine.Engine;
@@ -47,7 +46,6 @@ import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
 import io.openems.edge.energy.api.simulation.GlobalScheduleContext;
 import io.openems.edge.energy.api.simulation.GocUtils;
-import io.openems.edge.energy.optimizer.ModeCombinations.Mode;
 import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 import io.openems.edge.energy.optimizer.SimulationResult.BestScheduleCollector;
 
@@ -147,18 +145,15 @@ public class Simulator {
 			return;
 		}
 
-		var eshsWithDifferentModesIndex = 0;
+		// Simulate period
+		int modeIndex = 0;
 		for (var esh : eshs) {
 			try {
 				var csc = cscs.get(esh);
 				switch (esh) {
 				case EnergyScheduleHandler.WithDifferentModes e -> {
-					final var modeIndex = e.modes().isEmpty() //
-							? -1 // none available
-							: Optional.ofNullable(modeCombination.mode(eshsWithDifferentModesIndex++)) //
-									.map(Mode::index) //
-									.orElse(-1); // none available
-					final var preProcessedMode = e.preProcessPeriod(period, gsc, modeIndex);
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final int preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
 
 					if (bsc == null) {
 						e.simulate(period, gsc, csc, ef, preProcessedMode, fitness, false);
@@ -180,6 +175,26 @@ public class Simulator {
 		}
 
 		final EnergyFlow energyFlow = ef.solve();
+
+		// Evaluate period
+		modeIndex = 0;
+		for (var esh : eshs) {
+			try {
+				var csc = cscs.get(esh);
+				switch (esh) {
+				case EnergyScheduleHandler.WithDifferentModes e -> {
+					final int eshModeIndex = resolveModeIndex(e, modeCombination, modeIndex++);
+					final var preProcessedMode = e.preProcessPeriod(period, gsc, eshModeIndex);
+					e.evaluate(period, gsc, csc, energyFlow, preProcessedMode, fitness, bsc != null);
+				}
+				case EnergyScheduleHandler.WithOnlyOneMode e -> //
+					e.evaluate(period, gsc, csc, energyFlow, fitness);
+				}
+			} catch (RuntimeException e) {
+				throw new RuntimeException("Error during evaluation of [" + esh.getParentId() + "] " //
+						+ "Period [" + period.index() + "/" + period.time() + "]: " + e.getMessage(), e);
+			}
+		}
 
 		// Evaluate Grid-Buy Soft-Limit
 		if (period.gridBuySoftLimit() != null && energyFlow.getGrid() > period.gridBuySoftLimit()) {
@@ -268,7 +283,8 @@ public class Simulator {
 		final var availableCores = Runtime.getRuntime().availableProcessors() - 1;
 		if (availableCores > 1) {
 			// Executor is a Thread-Pool with CPU-Cores minus one
-			executor = new ForkJoinPool(availableCores);
+			var threadFactory = new OptimizerThreadFactory(OptimizerThreadFactory.KEY_JENETICS, Thread.MIN_PRIORITY);
+			executor = Executors.newFixedThreadPool(availableCores, threadFactory);
 			System.out.println("OPTIMIZER Executor runs on " + availableCores + " cores");
 		} else {
 			// Executor is the current thread
@@ -278,7 +294,6 @@ public class Simulator {
 
 		// Build the Jenetics Engine
 		final var initialPopulation = generateInitialPopulation(codec);
-		var populationSize = fitWithin(10, 50, initialPopulation.population().size() * 2);
 
 		var engine = Engine //
 				.builder(gt -> {
@@ -287,71 +302,74 @@ public class Simulator {
 							this.normalizedEshModePreferenceRanks);
 					return result.build();
 				}, codec) //
-				.selector(//
-						new EliteSelector<IntegerGene, Fitness>(populationSize / 4, //
-								new TournamentSelector<>(3)))
+				.selector(new EliteSelector<IntegerGene, Fitness>(new TournamentSelector<>()))//
 				.alterers(//
-						new ShiftMutator<>(), //
-						new ShuffleMutator<>(), //
-						new SinglePointCrossover<>(), //
-						new GaussianMutator<>()) //
-				.populationSize(populationSize) //
+						new Mutator<>(0.05), //
+						new ShiftMutator<>(0.2), //
+						new SinglePointCrossover<>(0.2)) //
+				.populationSize(300) //
 				.executor(executor) //
 				.minimizing();
 		if (engineInterceptor != null) {
 			engine = engineInterceptor.apply(engine);
 		}
 
-		var stream = engine.build() //
-				.stream(initialPopulation) //
-				.limit(result -> !Thread.currentThread().isInterrupted());
-		if (evolutionStreamInterceptor != null) {
-			stream = evolutionStreamInterceptor.apply(stream);
-		}
+		try {
+			var stream = engine.build() //
+					.stream(initialPopulation) //
+					.limit(result -> !Thread.currentThread().isInterrupted());
+			if (evolutionStreamInterceptor != null) {
+				stream = evolutionStreamInterceptor.apply(stream);
+			}
 
-		final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
-		final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
+			final var bestPt = new AtomicReference<Phenotype<IntegerGene, Fitness>>();
+			final var earliestCallback = Instant.now().plus(this.earliestCallbackDelay);
 
-		// Start the evaluation
-		stream.forEach(er -> {
-			this.generationsCounter.set(er.generation());
-			var currentBest = er.bestPhenotype();
+			// Start the evaluation
+			stream.forEach(er -> {
+				this.generationsCounter.set(er.generation());
+				var currentBest = er.bestPhenotype();
 
-			// Update best phenotype
-			bestPt.updateAndGet(prev -> {
-				if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
-					return currentBest;
+				// Update best phenotype
+				bestPt.updateAndGet(prev -> {
+					if (prev == null || currentBest.fitness().compareTo(prev.fitness()) < 0) {
+						return currentBest;
+					}
+					return prev;
+				});
+
+				// Apply current best result
+				if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+					if (bestPt.get() == null) {
+						onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
+					} else {
+						onBestResult.accept(SimulationResult.fromQuarters(//
+								this.goc, //
+								codec.decode(bestPt.get().genotype()), //
+								this.getTotalNumberOfSimulations(), //
+								this.getTotalNumberOfGenerations()));
+					}
+					// Fix current period form now on
+					isCurrentPeriodFixed.set(true);
 				}
-				return prev;
 			});
 
-			// Apply current best result
-			if (!isCurrentPeriodFixed.get() && Instant.now().isAfter(earliestCallback)) {
+			// Apply final best result
+			if (Instant.now().isAfter(earliestCallback)) {
 				if (bestPt.get() == null) {
 					onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
-				} else {
-					onBestResult.accept(SimulationResult.fromQuarters(//
-							this.goc, //
-							codec.decode(bestPt.get().genotype()), //
-							this.getTotalNumberOfSimulations(), //
-							this.getTotalNumberOfGenerations()));
+					return;
 				}
-				// Fix current period form now on
-				isCurrentPeriodFixed.set(true);
+				onBestResult.accept(SimulationResult.fromQuarters(//
+						this.goc, //
+						codec.decode(bestPt.get().genotype()), //
+						this.getTotalNumberOfSimulations(), //
+						this.getTotalNumberOfGenerations()));
 			}
-		});
-
-		// Apply final best result
-		if (Instant.now().isAfter(earliestCallback)) {
-			if (bestPt.get() == null) {
-				onBestResult.accept(SimulationResult.EMPTY_SIMULATION_RESULT);
-				return;
+		} finally {
+			if (executor instanceof ThreadPoolExecutor poolExecutor) {
+				poolExecutor.shutdownNow();
 			}
-			onBestResult.accept(SimulationResult.fromQuarters(//
-					this.goc, //
-					codec.decode(bestPt.get().genotype()), //
-					this.getTotalNumberOfSimulations(), //
-					this.getTotalNumberOfGenerations()));
 		}
 	}
 
@@ -399,6 +417,19 @@ public class Simulator {
 		}
 
 		return penalty;
+	}
+
+	private static int resolveModeIndex(//
+			EnergyScheduleHandler.WithDifferentModes esh, //
+			ModeCombination modeCombination, //
+			int index) {
+		if (esh.modes().isEmpty()) {
+			return -1;
+		}
+
+		return Optional.ofNullable(modeCombination.mode(index))//
+				.map(ModeCombinations.Mode::index)//
+				.orElse(-1);
 	}
 
 	/**

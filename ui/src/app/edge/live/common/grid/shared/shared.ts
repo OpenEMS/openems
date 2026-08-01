@@ -6,7 +6,7 @@ import { Filter } from "src/app/shared/components/shared/filter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { Phase } from "src/app/shared/components/shared/phase";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, RippleControlReceiverRestrictionLevel } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, RippleControlReceiverRestrictionLevel, } from "src/app/shared/shared";
 import { ChartAnnotationState, GridMode } from "src/app/shared/type/general";
 import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -14,17 +14,15 @@ import { GridSectionComponent } from "../../../energymonitor/chart/section/grid.
 import { transformRcrValues } from "../history/shared-grid";
 
 export namespace SharedGrid {
-
     export const GRID_MODE_IS_GENERATOR: Filter = (value): boolean => value !== GridMode.GENERATOR;
 
     export function getFormlyView(config: EdgeConfig | null, role: Role, translate: TranslateService): OeFormlyView {
-
         AssertionUtils.assertIsDefined(config);
 
         // Grid-Mode
         const lines: OeFormlyField[] = [];
 
-        const gridMeters = Object.values(config.components).filter(component => config?.isTypeGrid(component));
+        const gridMeters = Object.values(config.components).filter((component) => config?.isTypeGrid(component));
 
         // Sum Channels (if more than one meter)
         if (gridMeters.length > 1) {
@@ -34,23 +32,30 @@ export namespace SharedGrid {
                 {
                     type: "value-from-channels-line",
                     name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
-                    channelsToSubscribe: [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMode")],
+                    channelsToSubscribe: [
+                        new ChannelAddress("_sum", "GridActivePower"),
+                        new ChannelAddress("_sum", "GridMode"),
+                    ],
                     value: (data) => Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
-                    filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
+                    filter: (currentData: CurrentData) =>
+                        currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                 },
                 {
                     type: "value-from-channels-line",
                     name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
-                    channelsToSubscribe: [new ChannelAddress("_sum", "GridActivePower"), new ChannelAddress("_sum", "GridMode")],
+                    channelsToSubscribe: [
+                        new ChannelAddress("_sum", "GridActivePower"),
+                        new ChannelAddress("_sum", "GridMode"),
+                    ],
                     value: (data) => Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents["_sum/GridActivePower"]),
-                    filter: (currentData: CurrentData) => { console.log("test", currentData.allComponents["_sum/GridMode"]); return currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR; },
+                    filter: (currentData: CurrentData) =>
+                        currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                 },
                 {
                     type: "horizontal-line",
                 },
             );
         }
-
 
         // Individual Meters
         for (const meter of gridMeters) {
@@ -62,19 +67,28 @@ export namespace SharedGrid {
                     {
                         type: "value-from-channels-line",
                         name: translate.instant("GENERAL.GRID_SELL_ADVANCED"),
-                        channelsToSubscribe: [new ChannelAddress(meter.id, "ActivePower"), new ChannelAddress("_sum", "GridMode")],
-                        value: (data) => Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
-                        filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
+                        channelsToSubscribe: [
+                            new ChannelAddress(meter.id, "ActivePower"),
+                            new ChannelAddress("_sum", "GridMode"),
+                        ],
+                        value: (data) =>
+                            Converter.GRID_SELL_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
+                        filter: (currentData: CurrentData) =>
+                            currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                     {
                         type: "value-from-channels-line",
                         name: translate.instant("GENERAL.GRID_BUY_ADVANCED"),
-                        channelsToSubscribe: [new ChannelAddress(meter.id, "ActivePower"), new ChannelAddress("_sum", "GridMode")],
-                        value: (data) => Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
-                        filter: (currentData: CurrentData) => currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
+                        channelsToSubscribe: [
+                            new ChannelAddress(meter.id, "ActivePower"),
+                            new ChannelAddress("_sum", "GridMode"),
+                        ],
+                        value: (data) =>
+                            Converter.GRID_BUY_POWER_OR_ZERO(data.allComponents[meter.id + "/ActivePower"]),
+                        filter: (currentData: CurrentData) =>
+                            currentData.allComponents["_sum/GridMode"] != GridMode.GENERATOR,
                     },
                 );
-
             } else {
                 // More than one meter? Show only one line per meter.
                 lines.push({
@@ -113,33 +127,45 @@ export namespace SharedGrid {
         };
     }
 
-    export function generatePhasesView(component: EdgeConfig.Component, translate: TranslateService, role: Role): OeFormlyField[] {
-        return Phase.THREE_PHASE
-            .map(phase => <OeFormlyField>{
-                type: "children-line",
-                name: {
-                    channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
-                    converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(translate, translate.instant("GENERAL.PHASE") + " " + phase),
+    export function generatePhasesView(
+        component: EdgeConfig.Component,
+        translate: TranslateService,
+        role: Role,
+    ): OeFormlyField[] {
+        return Phase.THREE_PHASE.map(
+            (phase) =>
+                <OeFormlyField>{
+                    type: "children-line",
+                    name: {
+                        channel: ChannelAddress.fromString(component.id + "/ActivePower" + phase),
+                        converter: Name.SUFFIX_FOR_GRID_SELL_OR_GRID_BUY(
+                            translate,
+                            translate.instant("GENERAL.PHASE") + " " + phase,
+                        ),
+                    },
+                    filter: GRID_MODE_IS_GENERATOR,
+                    channel: new ChannelAddress("_sum", "GridMode"),
+                    indentation: TextIndentation.SINGLE,
+                    children: generatePhasesLineItems(role, phase, component),
                 },
-                filter: GRID_MODE_IS_GENERATOR,
-                channel: new ChannelAddress("_sum", "GridMode"),
-                indentation: TextIndentation.SINGLE,
-                children: generatePhasesLineItems(role, phase, component),
-            });
+        );
     }
 
     export function generatePhasesLineItems(role: Role, phase: string, component: EdgeConfig.Component) {
         const children: OeFormlyField[] = [];
         if (Role.isAtLeast(role, Role.INSTALLER)) {
-            children.push({
-                type: "item",
-                channel: component.id + "/Voltage" + phase,
-                converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT,
-            }, {
-                type: "item",
-                channel: component.id + "/Current" + phase,
-                converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
-            });
+            children.push(
+                {
+                    type: "item",
+                    channel: component.id + "/Voltage" + phase,
+                    converter: Converter.VOLTAGE_IN_MILLIVOLT_TO_VOLT,
+                },
+                {
+                    type: "item",
+                    channel: component.id + "/Current" + phase,
+                    converter: Converter.CURRENT_IN_MILLIAMPERE_TO_ABSOLUTE_AMPERE,
+                },
+            );
         }
 
         children.push({
@@ -163,9 +189,7 @@ export namespace SharedGrid {
             type: "value-from-channels-line",
             name: translate.instant("GENERAL.STATE"),
             value: (currentData: CurrentData) => Converter.GRID_STATE_TO_MESSAGE(translate, currentData),
-            channelsToSubscribe: [
-                ...getChannelsFromController(config),
-            ],
+            channelsToSubscribe: [...getChannelsFromController(config)],
         });
 
         if (isRcrEnabled) {
@@ -173,12 +197,19 @@ export namespace SharedGrid {
                 type: "value-from-channels-line",
                 name: translate.instant("GRID_STATES.FEED_IN_LIMITATION"),
                 value: (currentData: CurrentData) => {
-                    const value = transformRcrValues(currentData.allComponents[controllerRcr + "/RestrictionMode"]) ?? 0;
-                    return value + " % (" + translate.instant("GRID_STATES.RIPPLE_CONTROL_RECEIVER") + " " + (100 - value) + "%" + ")";
+                    const value =
+                        transformRcrValues(currentData.allComponents[controllerRcr + "/RestrictionMode"]) ?? 0;
+                    return (
+                        value +
+                        " % (" +
+                        translate.instant("GRID_STATES.RIPPLE_CONTROL_RECEIVER") +
+                        " " +
+                        (100 - value) +
+                        "%" +
+                        ")"
+                    );
                 },
-                channelsToSubscribe: [
-                    new ChannelAddress(controllerRcr, "RestrictionMode"),
-                ],
+                channelsToSubscribe: [new ChannelAddress(controllerRcr, "RestrictionMode")],
                 filter: (currentData: CurrentData) => {
                     const restrictionMode = currentData?.allComponents[controllerRcr + "/RestrictionMode"] ?? null;
                     if (restrictionMode == null) {
@@ -192,10 +223,11 @@ export namespace SharedGrid {
             lines.push({
                 type: "value-from-channels-line",
                 name: translate.instant("GRID_STATES.FEED_IN_DESCRIPITON"),
-                value: (currentData: CurrentData) => currentData.allComponents[controller14a + "/RestrictionMode"] == ChartAnnotationState.ON ? limiter14aValue : "-",
-                channelsToSubscribe: [
-                    new ChannelAddress(controller14a, "RestrictionMode"),
-                ],
+                value: (currentData: CurrentData) =>
+                    currentData.allComponents[controller14a + "/RestrictionMode"] == ChartAnnotationState.ON
+                        ? limiter14aValue
+                        : "-",
+                channelsToSubscribe: [new ChannelAddress(controller14a, "RestrictionMode")],
                 filter: (currentData: CurrentData) => {
                     const restrictionMode = currentData?.allComponents[controller14a + "/RestrictionMode"] ?? null;
                     if (restrictionMode == null) {
@@ -214,7 +246,6 @@ export namespace SharedGrid {
     }
 
     export function getChannelsFromController(config: EdgeConfig): ChannelAddress[] {
-
         const channelAddresses: ChannelAddress[] = [new ChannelAddress("_sum", "GridMode")];
         const is14aActivated = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
         const isRcrActivated = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");
@@ -230,28 +261,70 @@ export namespace SharedGrid {
         return channelAddresses;
     }
 
-    export function getNavigationTree(edge: Edge, config: EdgeConfig, translate: TranslateService): ConstructorParameters<typeof NavigationTree> | null {
-        const gridMeters = Object.values(config.components)
-            .filter((component) => component.isEnabled && config.isTypeGrid(component));
+    export function getNavigationTree(
+        edge: Edge,
+        config: EdgeConfig,
+        translate: TranslateService,
+    ): ConstructorParameters<typeof NavigationTree> | null {
+        const gridMeters = Object.values(config.components).filter(
+            (component) => component.isEnabled && config.isTypeGrid(component),
+        );
 
         if (gridMeters == null) {
             return null;
         }
         const currentAndVoltage = NavigationConstants.CommonNodes.CURRENT_AND_VOLTAGE(translate, edge);
 
-        return new NavigationTree("grid", { baseString: "common/grid" }, { name: "oe-grid", color: "dark" }, translate.instant("GENERAL.GRID"), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [
-                ...gridMeters
-                    .map(el => gridMeters.length === 1
-                        ? NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, el.id + "/phase-accurate", "dark", currentAndVoltage)
-                        : new NavigationTree(el.id + "/phase-accurate", { baseString: el.id + "/phase-accurate" },
-                            { name: "oe-grid", color: "dark" }, el.alias, "label",
-                            currentAndVoltage,
-                            null)),
+        return new NavigationTree(
+            "grid",
+            { baseString: "common/grid" },
+            { name: "oe-grid", color: "dark" },
+            translate.instant("GENERAL.GRID"),
+            "icon",
+            [
                 new NavigationTree(
-                    "external-limitation", { baseString: "external-limitation" }, { name: "flame", color: "danger" }, translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"), "label", [],
-                    null),
-            ], null),
-        ], null).toConstructorParams();
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    "label",
+                    [
+                        ...gridMeters.map((el) =>
+                            gridMeters.length === 1
+                                ? NavigationConstants.CommonNodes.PHASE_ACCURATE(
+                                      translate,
+                                      el.id + "/phase-accurate",
+                                      "dark",
+                                      currentAndVoltage,
+                                  )
+                                : new NavigationTree(
+                                      el.id + "/phase-accurate",
+                                      { baseString: el.id + "/phase-accurate" },
+                                      { name: "oe-grid", color: "dark" },
+                                      el.alias,
+                                      "label",
+                                      currentAndVoltage,
+                                      null,
+                                  ),
+                        ),
+                        new NavigationTree(
+                            "external-limitation",
+                            { baseString: "external-limitation" },
+                            { name: "flame", color: "danger" },
+                            translate.instant("EDGE.HISTORY.EXTERNAL_LIMITATION"),
+                            "label",
+                            [],
+                            null,
+                        ),
+                    ],
+                    null,
+                ),
+                NavigationConstants.CommonNodes.INFO(translate, {
+                    source: "grid",
+                }),
+            ],
+            null,
+            { isCommonWidget: true },
+        ).toConstructorParams();
     }
 }

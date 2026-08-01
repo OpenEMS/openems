@@ -11,9 +11,13 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -65,6 +69,8 @@ import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
+import io.openems.edge.bridge.modbus.api.task.hooks.WaitBetweenUnitIdHook;
 import io.openems.edge.common.channel.BooleanWriteChannel;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId.ChannelIdImpl;
@@ -99,6 +105,12 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 
 	public static final int DEFAULT_CRITICAL_MIN_VOLTAGE = 2800;
 
+	/**
+	 * Home Battery BMS is getting stuck if it sees a request/response with another
+	 * unit id on the bus for around 30 - 45ms. (Task #64166)
+	 */
+	protected static final Duration DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID = Duration.ofMillis(50L);
+
 	protected static final int TIMEOUT = 600; // [10 minutes in seconds]
 	private static final int FORCE_CHARGE_CURRENT_PER_TOWER = 2;
 	private static final String TOWER = "TOWER_";
@@ -114,8 +126,8 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 					return null;
 				}
 
-				return new BatteryFeneconHomeUpdateable(bridge, this.config.modbusUnitId(), updateParams,
-						BatteryData.byBattery(this), this::handleBatteryUpdateEvent,
+				return new BatteryFeneconHomeUpdateable(bridge, this.config.alias(), this.config.modbusUnitId(),
+						updateParams, BatteryData.byBattery(this), this::handleBatteryUpdateEvent,
 						OpenemsComponent.getComponentLogger(BatteryFeneconHomeUpdateable.class, this));
 			}, BatteryFeneconHomeUpdateable::deactivate);
 	// Null-safety for deactivate() is guaranteed by deactivateBindService() null
@@ -127,6 +139,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	private Instant timeCriticalMinVoltage;
 	private Integer lastKnownMinVoltage;
 	private BatteryFeneconHomeHardwareType hardwareType;
+	private List<TaskHook> modbusTaskHooks = List.of();
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -190,6 +203,7 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 			return;
 		}
 
+		this.modbusTaskHooks = List.of(new WaitBetweenUnitIdHook(DURATION_BETWEEN_REQUESTS_WITH_DIFFERENT_UNIT_ID));
 		this.detectHardwareType();
 	}
 
@@ -459,6 +473,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 										new ElementToChannelConverter(BatteryFeneconHomeImpl::parseEmsOffGrid)) //
 								.build() //
 				));
+	}
+
+	@Override
+	public List<TaskHook> getModbusTaskHooks() {
+		return this.modbusTaskHooks;
 	}
 
 	/**
@@ -1050,11 +1069,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 	/**
 	 * Build the serial number with prefix.
 	 *
-	 * @param prefix the serial number prefix
-	 * @param value  the serial number
+	 * @param hardwareTypePrefix the serial number prefix
+	 * @param value              the serial number
 	 * @return The serial number
 	 */
-	protected static String buildSerialNumber(String prefix, Integer value) {
+	protected static String buildSerialNumber(Function<LocalDate, String> hardwareTypePrefix, Integer value) {
 		if (value == null || value == 0) {
 			// Old BMS firmware versions do not provide serial number
 			return null;
@@ -1065,8 +1084,10 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		var day = extractNumber(value, 5, 17);
 		var number = extractNumber(value, 16, 1);
 
+		final var date = LocalDate.of(year + 2000, month, day);
+
 		var serialNumber = new StringBuilder();
-		serialNumber.append(prefix);
+		serialNumber.append(hardwareTypePrefix.apply(date));
 		serialNumber.append(year < 10 ? "0" + year : year);
 		serialNumber.append(month < 10 ? "0" + month : month);
 		serialNumber.append(day < 10 ? "0" + day : day);
@@ -1286,6 +1307,11 @@ public class BatteryFeneconHomeImpl extends AbstractOpenemsModbusComponent imple
 		ABOVE_LIMIT, //
 		BELOW_LIMIT, //
 		BELOW_LIMIT_CHARGING; //
+	}
+
+	@Override
+	public BatteryInverterPort getBatteryInverterPort() {
+		return this.config.inverterPort();
 	}
 
 	protected static final ElementToChannelConverter MAJ_VERSION_CONVERTER = new ElementToChannelConverter(v -> {

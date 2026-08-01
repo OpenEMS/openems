@@ -42,6 +42,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for Heidelberg Connect charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports both single-phase and three-phase configurations with optional dynamic phase switching for load optimization.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

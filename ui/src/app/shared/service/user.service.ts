@@ -15,7 +15,6 @@ import { Service } from "./service";
 @Injectable({ providedIn: "root" })
 export class UserService {
 
-    public static readonly DEFAULT_THEME: UserTheme = UserTheme.LIGHT;
     public currentUser: WritableSignal<User | null> = signal(null);
 
     /** @deprecated determines if applying new ui or old*/
@@ -36,6 +35,10 @@ export class UserService {
                 this.isNewNavigation.set(NavigationService.isNewNavigation(user, this.service.currentEdge()?.getConfigSignal()()));
             }
         });
+    }
+
+    public static get DEFAULT_THEME(): UserTheme {
+        return UserTheme.LIGHT;
     }
 
     /**

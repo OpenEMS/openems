@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { AlertController, ModalController } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
+
 import { SohDeterminationService } from "src/app/edge/live/common/soh/service/soh-determination.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -18,6 +19,7 @@ import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { ChannelAddress, Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { environment, Environment } from "src/environments";
 import { SohCycleSectionComponent } from "../../soh/components/soh-cycle-section/soh-cycle-section";
 import { StorageSystemComponent } from "./storage-system/storage-system";
@@ -26,6 +28,7 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
     selector: "storage-modal",
     templateUrl: "./admin-modal.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         StorageSystemComponent,
@@ -40,7 +43,8 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
         LocaleProvider,
         LiveDataServiceProvider,
     ],
-    styles: [`
+    styles: [
+        `
             .ess-accordion-group {
                 padding: 0 0.625rem;
             }
@@ -61,11 +65,11 @@ import { StorageSystemComponent } from "./storage-system/storage-system";
             }
             .ess-accordion-content {
                 background: var(--ion-color-light);
-            }`,
+            }
+        `,
     ],
 })
 export class AdminStorageModalComponent implements OnInit, OnDestroy {
-
     // TODO after refactoring of Model: subscribe to EssActivePowerL1/L2/L3 here instead of Flat Widget
 
     @Input({ required: true }) protected edge!: Edge;
@@ -78,8 +82,6 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
     protected readonly Converter = Converter;
     protected isAtLeastInstaller: boolean;
     protected isTargetTimeInValid: Map<string, boolean> = new Map();
-    protected controllerIsRequiredEdgeVersion: boolean = false;
-    protected hasRequiredEdgeVersion: boolean = false;
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
@@ -97,10 +99,10 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         public websocket: Websocket,
         public formBuilder: FormBuilder,
         protected sohDeterminationService: SohDeterminationService,
-    ) { }
+    ) {}
 
     ngOnInit() {
-        this.edge.getFirstValidConfig(this.websocket).then(config => {
+        this.edge.getFirstValidConfig(this.websocket).then((config) => {
             this.config = config;
 
             // Initialize SoH cycle state tracking
@@ -108,18 +110,21 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
             this.essComponents = this.config
                 .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-                .filter(component => component.isEnabled && !this.config
-                    .getNatureIdsByFactoryId(component.factoryId)
-                    .includes("io.openems.edge.ess.api.MetaEss"));
+                .filter(
+                    (component) =>
+                        component.isEnabled &&
+                        !this.config
+                            .getNatureIdsByFactoryId(component.factoryId)
+                            .includes("io.openems.edge.ess.api.MetaEss"),
+                );
 
             this.chargerComponents = this.config
                 .getComponentsImplementingNature("io.openems.edge.ess.dccharger.api.EssDcCharger")
-                .filter(component => component.isEnabled);
+                .filter((component) => component.isEnabled);
 
             const BatteryInverterNature = "io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter";
-            this.batteryInverters = this.config
-                .getComponentsImplementingNature(BatteryInverterNature)
-                ?.filter(c => c.isEnabled) || [];
+            this.batteryInverters =
+                this.config.getComponentsImplementingNature(BatteryInverterNature)?.filter((c) => c.isEnabled) || [];
 
             this.batteryInverterIdsByEssId = {};
             for (const bi of this.batteryInverters) {
@@ -129,29 +134,26 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // Future Work: Remove when all ems are at least at this version
-            this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast("2023.2.5");
-
             this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
             const emergencyReserveCtrl = this.config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
-            const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
+            const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory(
+                "Controller.Ess.PrepareBatteryExtension",
+            );
             const essSohCycleCtrl = this.config.getComponentsByFactory("Controller.Ess.SoH.Cycle");
-            this.hasRequiredEdgeVersion = this.edge.isVersionAtLeast("2024.12.3");
-            const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl, ...essSohCycleCtrl].filter(component => component.isEnabled).reduce((result, component) => {
-                const essId = component.properties["ess.id"];
-                if (result[essId] == null) {
-                    result[essId] = [];
-                }
-                result[essId].push(component);
-                return result;
-            }, {});
+            const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl, ...essSohCycleCtrl]
+                .filter((component) => component.isEnabled)
+                .reduce((result, component) => {
+                    const essId = component.properties["ess.id"];
+                    if (result[essId] == null) {
+                        result[essId] = [];
+                    }
+                    result[essId].push(component);
+                    return result;
+                }, {});
 
             const channelAddresses: ChannelAddress[] = [];
-            channelAddresses.push(...this.chargerComponents.map(comp => new ChannelAddress(comp.id, "ActualPower")));
+            channelAddresses.push(...this.chargerComponents.map((comp) => new ChannelAddress(comp.id, "ActualPower")));
 
-            if (this.hasRequiredEdgeVersion) {
-                channelAddresses.push(new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"));
-            }
             for (const essId in prepareBatteryExtensionCtrl) {
                 const controller = prepareBatteryExtensionCtrl[essId];
                 channelAddresses.push(
@@ -194,94 +196,102 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
             this.edge.subscribeChannels(this.websocket, "storage", channelAddresses);
 
-            this.edge.currentData
-                .subscribe(currentData => {
+            this.edge.currentData.subscribe((currentData) => {
+                const controls: FormGroup = new FormGroup({});
+                controls.addControl(
+                    "_meta",
+                    this.formBuilder.group({
+                        isEssChargeFromGridAllowed: new FormControl(
+                            NumberUtils.numberToBooleanOrElse(
+                                currentData.channel["_meta/IsEssChargeFromGridAllowed"],
+                                false,
+                            ),
+                        ),
+                    }),
+                );
 
-                    const controls: FormGroup = new FormGroup({});
-                    if (this.hasRequiredEdgeVersion) {
-                        controls.addControl("_meta", this.formBuilder.group({
-                            isEssChargeFromGridAllowed: new FormControl(currentData.channel["_meta/IsEssChargeFromGridAllowed"]),
-                        }));
-                    }
-                    for (const essId of Object.keys(components)) {
-                        const controllers = components[essId];
+                for (const essId of Object.keys(components)) {
+                    const controllers = components[essId];
 
-                        const controllerFrmGrp: FormGroup = new FormGroup({});
-                        for (const controller of (controllers as EdgeConfig.Component[])) {
+                    const controllerFrmGrp: FormGroup = new FormGroup({});
+                    for (const controller of controllers as EdgeConfig.Component[]) {
+                        if (controller.factoryId == "Controller.Ess.EmergencyCapacityReserve") {
+                            const reserveSoc =
+                                currentData.channel[controller.id + "/_PropertyReserveSoc"] ??
+                                20; /* default Reserve-Soc */
+                            const isReserveSocEnabled =
+                                currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1;
 
-                            if (controller.factoryId == "Controller.Ess.EmergencyCapacityReserve") {
-                                const reserveSoc = currentData.channel[controller.id + "/_PropertyReserveSoc"] ?? 20 /* default Reserve-Soc */;
-                                const isReserveSocEnabled = currentData.channel[controller.id + "/_PropertyIsReserveSocEnabled"] == 1;
+                            controllerFrmGrp.addControl(
+                                "emergencyReserveController",
+                                this.formBuilder.group({
+                                    controllerId: new FormControl(controller["id"]),
+                                    isReserveSocEnabled: new FormControl(isReserveSocEnabled),
+                                    reserveSoc: new FormControl(reserveSoc),
+                                }),
+                            );
+                        } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
+                            const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
+                            const isInReferenceCycle =
+                                currentData.channel[controller.id + "/CtrlIsInReferenceCycle"] == 1;
 
-                                controllerFrmGrp.addControl("emergencyReserveController",
-                                    this.formBuilder.group({
-                                        controllerId: new FormControl(controller["id"]),
-                                        isReserveSocEnabled: new FormControl(isReserveSocEnabled),
-                                        reserveSoc: new FormControl(reserveSoc),
-                                    }),
-                                );
+                            // Because of ionic segment buttons only accepting a string value, i needed to convert it
+                            const targetTimeSpecified = (
+                                currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1
+                            ).toString();
+                            let targetTime = currentData.channel[controller.id + "/_PropertyTargetTime"];
+                            const targetSoc = currentData.channel[controller.id + "/_PropertyTargetSoc"];
+                            const targetTimeBuffer = currentData.channel[controller.id + "/_PropertyTargetTimeBuffer"];
+                            const epochSeconds = currentData.channel[controller.id + "/ExpectedStartEpochSeconds"];
 
-                            } else if (controller.factoryId == "Controller.Ess.PrepareBatteryExtension") {
+                            const expectedStartOfPreparation = new Date(0);
+                            expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
 
-                                const isRunning = currentData.channel[controller.id + "/_PropertyIsRunning"] == 1;
-                                const isInReferenceCycle = currentData.channel[controller.id + "/CtrlIsInReferenceCycle"] == 1;
-
-                                // Because of ionic segment buttons only accepting a string value, i needed to convert it
-                                const targetTimeSpecified = (currentData.channel[controller.id + "/_PropertyTargetTimeSpecified"] == 1).toString();
-                                let targetTime = currentData.channel[controller.id + "/_PropertyTargetTime"];
-                                const targetSoc = currentData.channel[controller.id + "/_PropertyTargetSoc"];
-                                const targetTimeBuffer = currentData.channel[controller.id + "/_PropertyTargetTimeBuffer"];
-                                const epochSeconds = currentData.channel[controller.id + "/ExpectedStartEpochSeconds"];
-
-                                const expectedStartOfPreparation = new Date(0);
-                                expectedStartOfPreparation.setUTCSeconds(epochSeconds ?? 0);
-
-                                // If targetTime not set, not equals 0 or targetTime is no valid time,
-                                // then set targetTime to null
-                                if (!targetTime || targetTime == 0 || isNaN(Date.parse(targetTime))) {
-                                    targetTime = null;
-                                }
-
-                                // Channel "ExpectedStartEpochSeconds" is not set
-                                if ((epochSeconds == null
-                                    || epochSeconds == 0)) {
-                                    this.isTargetTimeInValid.set(essId, true);
-                                } else if (isBefore(new Date(targetTime), expectedStartOfPreparation)
-                                    || isBefore(new Date(targetTime), new Date())) {
-
-                                    // If expected expectedStartOfpreparation is after targetTime
-                                    //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
-                                    this.isTargetTimeInValid.set(essId, true);
-                                } else {
-                                    this.isTargetTimeInValid.set(essId, false);
-                                }
-
-                                controllerFrmGrp.addControl("prepareBatteryExtensionController",
-                                    this.formBuilder.group({
-                                        controllerId: new FormControl(controller.id),
-                                        isRunning: new FormControl(isRunning),
-                                        isInReferenceCycle: new FormControl(isInReferenceCycle),
-                                        targetTime: new FormControl(targetTime),
-                                        targetTimeSpecified: new FormControl(targetTimeSpecified),
-                                        targetSoc: new FormControl(targetSoc),
-                                        targetTimeBuffer: new FormControl(targetTimeBuffer),
-                                        expectedStartOfPreparation: new FormControl(expectedStartOfPreparation),
-                                    }),
-                                );
-                            } else if (controller.factoryId == "Controller.Ess.SoH.Cycle") {
-                                this.addSohCycleFormGroup(currentData, controller, controllerFrmGrp);
+                            // If targetTime not set, not equals 0 or targetTime is no valid time,
+                            // then set targetTime to null
+                            if (!targetTime || targetTime == 0 || isNaN(Date.parse(targetTime))) {
+                                targetTime = null;
                             }
+
+                            // Channel "ExpectedStartEpochSeconds" is not set
+                            if (epochSeconds == null || epochSeconds == 0) {
+                                this.isTargetTimeInValid.set(essId, true);
+                            } else if (
+                                isBefore(new Date(targetTime), expectedStartOfPreparation) ||
+                                isBefore(new Date(targetTime), new Date())
+                            ) {
+                                // If expected expectedStartOfpreparation is after targetTime
+                                //  Guarantee, that the TargetSoc should be reached after the preparation to reach that Soc started
+                                this.isTargetTimeInValid.set(essId, true);
+                            } else {
+                                this.isTargetTimeInValid.set(essId, false);
+                            }
+
+                            controllerFrmGrp.addControl(
+                                "prepareBatteryExtensionController",
+                                this.formBuilder.group({
+                                    controllerId: new FormControl(controller.id),
+                                    isRunning: new FormControl(isRunning),
+                                    isInReferenceCycle: new FormControl(isInReferenceCycle),
+                                    targetTime: new FormControl(targetTime),
+                                    targetTimeSpecified: new FormControl(targetTimeSpecified),
+                                    targetSoc: new FormControl(targetSoc),
+                                    targetTimeBuffer: new FormControl(targetTimeBuffer),
+                                    expectedStartOfPreparation: new FormControl(expectedStartOfPreparation),
+                                }),
+                            );
+                        } else if (controller.factoryId == "Controller.Ess.SoH.Cycle") {
+                            this.addSohCycleFormGroup(currentData, controller, controllerFrmGrp);
                         }
-                        controls.addControl(essId, controllerFrmGrp);
                     }
+                    controls.addControl(essId, controllerFrmGrp);
+                }
 
-                    if (!this.formGroup.dirty) {
-                        this.formGroup = controls;
-                    }
-                });
-        },
-        );
-
+                if (!this.formGroup.dirty) {
+                    this.formGroup = controls;
+                }
+            });
+        });
     }
 
     async applyChanges() {
@@ -290,15 +300,13 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         }
 
         const updateArray: Map<string, Array<Map<string, any>>> = new Map();
-        if (this.hasRequiredEdgeVersion) {
-            const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];
-            for (const prop of Object.keys(metaFormGroup)) {
-                if (metaFormGroup[prop].dirty) {
-                    if (updateArray.get("_meta")) {
-                        updateArray.get("_meta").push(new Map().set(prop, metaFormGroup[prop].value));
-                    } else {
-                        updateArray.set("_meta", [new Map().set(prop, metaFormGroup[prop].value)]);
-                    }
+        const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];
+        for (const prop of Object.keys(metaFormGroup)) {
+            if (metaFormGroup[prop].dirty) {
+                if (updateArray.get("_meta")) {
+                    updateArray.get("_meta").push(new Map().set(prop, metaFormGroup[prop].value));
+                } else {
+                    updateArray.set("_meta", [new Map().set(prop, metaFormGroup[prop].value)]);
                 }
             }
         }
@@ -306,26 +314,34 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         for (const essId in this.formGroup.controls) {
             const essGroups = this.formGroup.controls[essId];
 
-            const emergencyReserveController = (essGroups.get("emergencyReserveController") as FormGroup)?.controls ?? {};
+            const emergencyReserveController =
+                (essGroups.get("emergencyReserveController") as FormGroup)?.controls ?? {};
             for (const essGroup of Object.keys(emergencyReserveController)) {
                 if (emergencyReserveController[essGroup].dirty) {
                     if (updateArray.get(emergencyReserveController["controllerId"].value)) {
-                        updateArray.get(emergencyReserveController["controllerId"].value).push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
+                        updateArray
+                            .get(emergencyReserveController["controllerId"].value)
+                            .push(new Map().set(essGroup, emergencyReserveController[essGroup].value));
                     } else {
-                        updateArray.set(emergencyReserveController["controllerId"].value, [new Map().set(essGroup, emergencyReserveController[essGroup].value)]);
+                        updateArray.set(emergencyReserveController["controllerId"].value, [
+                            new Map().set(essGroup, emergencyReserveController[essGroup].value),
+                        ]);
                     }
                 }
-
             }
-            const prepareBatteryExtensionController = (essGroups.get("prepareBatteryExtensionController") as FormGroup)?.controls ?? {};
+            const prepareBatteryExtensionController =
+                (essGroups.get("prepareBatteryExtensionController") as FormGroup)?.controls ?? {};
             for (const essGroup of Object.keys(prepareBatteryExtensionController)) {
                 if (prepareBatteryExtensionController[essGroup].dirty) {
-
                     // For simplicity, split targetTimeSpecified in 2 for template formControlName
                     if (updateArray.get(prepareBatteryExtensionController["controllerId"].value)) {
-                        updateArray.get(prepareBatteryExtensionController["controllerId"].value).push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
+                        updateArray
+                            .get(prepareBatteryExtensionController["controllerId"].value)
+                            .push(new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value));
                     } else {
-                        updateArray.set(prepareBatteryExtensionController["controllerId"].value, [new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value)]);
+                        updateArray.set(prepareBatteryExtensionController["controllerId"].value, [
+                            new Map().set(essGroup, prepareBatteryExtensionController[essGroup].value),
+                        ]);
                     }
                 }
             }
@@ -333,9 +349,13 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             for (const essGroup of Object.keys(essSohCycleController)) {
                 if (essSohCycleController[essGroup].dirty) {
                     if (updateArray.get(essSohCycleController["controllerId"].value)) {
-                        updateArray.get(essSohCycleController["controllerId"].value).push(new Map().set(essGroup, essSohCycleController[essGroup].value));
+                        updateArray
+                            .get(essSohCycleController["controllerId"].value)
+                            .push(new Map().set(essGroup, essSohCycleController[essGroup].value));
                     } else {
-                        updateArray.set(essSohCycleController["controllerId"].value, [new Map().set(essGroup, essSohCycleController[essGroup].value)]);
+                        updateArray.set(essSohCycleController["controllerId"].value, [
+                            new Map().set(essGroup, essSohCycleController[essGroup].value),
+                        ]);
                     }
                 }
             }
@@ -343,7 +363,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
         for (const controllerId of updateArray.keys()) {
             const controllers = updateArray.get(controllerId);
-            const properties: { name: string, value: any }[] = [];
+            const properties: { name: string; value: any }[] = [];
             controllers.forEach((element) => {
                 const name = element.keys().next().value;
                 const rawValue = element.values().next().value;
@@ -365,11 +385,9 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                 await this.edge.updateComponentConfig(this.websocket, controllerId, properties);
                 this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
                 this.formGroup.markAsPristine();
-
             } catch (reason) {
                 this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason, "danger");
             }
-
         }
     }
 
@@ -377,9 +395,7 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         this.edge.unsubscribeChannels(this.websocket, "storage");
     }
 
-    /**
-     * Add SoH cycle controller form group with channel data
-     */
+    /** Add SoH cycle controller form group with channel data */
     private addSohCycleFormGroup(
         currentData: any,
         controller: EdgeConfig.Component,
@@ -396,7 +412,8 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         const isBatteryBalanced = currentData.channel[controller.id + "/IsBatteryBalanced"] == 1;
         const isMeasured = currentData.channel[controller.id + "/IsMeasured"] == 1;
 
-        controllerFrmGrp.addControl("essSohCycleController",
+        controllerFrmGrp.addControl(
+            "essSohCycleController",
             this.formBuilder.group({
                 controllerId: new FormControl(controller.id),
                 enabled: new FormControl(enabled),
@@ -411,5 +428,4 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             }),
         );
     }
-
 }

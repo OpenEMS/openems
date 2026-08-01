@@ -13,51 +13,150 @@ import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { SharedEssFixDigitalPowerControl } from "../../../Controller/Ess/FixActivePower/shared/shared";
 import { SharedGridOptimizedCharge } from "../../../Controller/Ess/GridOptimizedCharge/shared/shared";
 import { SharedControllerEssTimeOfUseTariff } from "../../../Controller/Ess/TimeOfUseTariff/shared/shared";
+import { SharedControllerModbusTcpApiReadWrite } from "../../../Controller/ModbusTcpApi/shared/shared";
+import { SharedControllerPeakShavingAsymmetric } from "../../../Controller/peak-shaving/Asymmetric/shared/shared";
+import { SharedControllerPeakShavingSymmetric } from "../../../Controller/peak-shaving/symmetric/shared/shared";
+
+import { SharedControllerTimeslotPeakshaving } from "../../../Controller/peak-shaving/Symmetric_TimeSlot/shared/shared";
+import { SharedSchedulerJsCalendar } from "../../../scheduler/js-calendar/shared-scheduler-js-calendar";
 
 export namespace SharedStorage {
-
     export function getNavigationTree(edge: Edge, translate: TranslateService, config: EdgeConfig) {
-        const essFixActivePowerController = config.getComponentsByFactory("Controller.Ess.FixActivePower");
-        const essGridOptimizedChargeController = config.getComponentsByFactory("Controller.Ess.GridOptimizedCharge");
-        const timeOfUseTariffController = config.getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff");
-
-
         const essController: NavigationTree[] = [
-            ...timeOfUseTariffController
-                .filter(component => component.isEnabled)
-                .map(component => new NavigationTree(
-                    ...SharedControllerEssTimeOfUseTariff.getNavigationTree(translate, component)
-                )),
+            ...config
+                .getComponentsByFactory("Scheduler.JSCalendar")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(...SharedSchedulerJsCalendar.getNavigationTree(translate, component)),
+                ),
 
-            ...essGridOptimizedChargeController
-                .filter(component => component.isEnabled)
-                .map(component => new NavigationTree(
-                    ...SharedGridOptimizedCharge.getNavigationTree(translate, component)
-                )),
+            ...config
+                .getComponentsByFactory("Controller.Ess.Time-Of-Use-Tariff")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedControllerEssTimeOfUseTariff.getNavigationTree(translate, component),
+                        ),
+                ),
 
-            ...essFixActivePowerController
-                .filter(component => component.isEnabled)
-                .map(component => new NavigationTree(
-                    ...SharedEssFixDigitalPowerControl.getNavigationTree(translate, component)
-                )),
+            ...config
+                .getComponentsByFactory("Controller.Ess.GridOptimizedCharge")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(...SharedGridOptimizedCharge.getNavigationTree(translate, component)),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.Ess.FixActivePower")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedEssFixDigitalPowerControl.getNavigationTree(
+                                translate,
+                                component,
+                                "controller/ess-fix-active-power/" + component.id,
+                            ),
+                        ),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.Symmetric.FixReactivePower")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedEssFixDigitalPowerControl.getNavigationTree(
+                                translate,
+                                component,
+                                "controller/ess-fix-reactive-power/" + component.id,
+                            ),
+                        ),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.Api.ModbusTcp.ReadWrite")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedControllerModbusTcpApiReadWrite.getNavigationTree(translate, component),
+                        ),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.TimeslotPeakshaving")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedControllerTimeslotPeakshaving.getNavigationTree(translate, component),
+                        ),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.Symmetric.PeakShaving")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedControllerPeakShavingSymmetric.getNavigationTree(translate, component),
+                        ),
+                ),
+
+            ...config
+                .getComponentsByFactory("Controller.Asymmetric.PeakShaving")
+                .filter((component) => component.isEnabled)
+                .map(
+                    (component) =>
+                        new NavigationTree(
+                            ...SharedControllerPeakShavingAsymmetric.getNavigationTree(translate, component),
+                        ),
+                ),
         ];
 
-        const essComponents =
-            config?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-                .filter(component => component.isEnabled && !component.factoryId.includes("Ess.Cluster"));
+        const essComponents = config
+            ?.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
+            .filter((component) => component.isEnabled && !component.factoryId.includes("Ess.Cluster"));
 
-        const historyChildren = essComponents.length <= 1 ? [] : essComponents.map(el => new NavigationTree(el.id, { baseString: el.id + "/phase-accurate" }, { color: "success", name: "stats-chart-outline" }, el.alias, "label", [], null));
+        const historyChildren =
+            essComponents.length <= 1
+                ? []
+                : essComponents.map(
+                      (el) =>
+                          new NavigationTree(
+                              el.id,
+                              { baseString: el.id + "/phase-accurate" },
+                              { color: "success", name: "stats-chart-outline" },
+                              el.alias,
+                              "label",
+                              [],
+                              null,
+                          ),
+                  );
 
         const emergencyReserveCtrl = config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
         const prepareBatteryExtensionCtrl = config.getComponentsByFactory("Controller.Ess.PrepareBatteryExtension");
         const hasAtLeastOneController = emergencyReserveCtrl.length > 0 || prepareBatteryExtensionCtrl.length > 0;
 
-        return new NavigationTree("storage", { baseString: "common/storage" }, { name: "oe-storage", color: "success" }, translate.instant("GENERAL.STORAGE_SYSTEM"), "label", [
-            ...essController,
-            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
-            NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),
-            NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
-        ], null).toConstructorParams();
+        return new NavigationTree(
+            "storage",
+            { baseString: "common/storage" },
+            { name: "oe-storage", color: "success" },
+            translate.instant("GENERAL.STORAGE_SYSTEM"),
+            "icon",
+            [
+                ...essController,
+                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
+                NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),
+                NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
+            ],
+            null,
+            { isCommonWidget: true },
+        ).toConstructorParams();
     }
 
     export const convertToPower: Converter = (value: number | string | null): string => {
@@ -103,11 +202,9 @@ export namespace SharedStorage {
         // Round thisValue to Integer when decimal place equals 0
         if (thisValue != null && thisValue > 0) {
             return Formatter.FORMAT_KILO_WATT(thisValue);
-
         } else if (thisValue == 0 && isCharge) {
             // if thisValue is 0, then show only when charge and not discharge
             return Formatter.FORMAT_KILO_WATT(0);
-
         } else {
             return "-";
         }
@@ -122,17 +219,19 @@ export namespace SharedStorage {
         // Round value to Integer when decimal place equals 0
         if (thisValue != null && thisValue > 0) {
             return Formatter.FORMAT_WATT(thisValue);
-
         } else if (thisValue == 0 && isCharge) {
             // if value is 0, then show only when charge and not discharge
             return Formatter.FORMAT_WATT(0);
-
         } else {
             return "-";
         }
     }
 
-    export function getBatteryCapacityExtensionStatus(translate: TranslateService, currentData: CurrentData, controllerId: EdgeConfig.Component["id"]): { color: string, text: string } | null {
+    export function getBatteryCapacityExtensionStatus(
+        translate: TranslateService,
+        currentData: CurrentData,
+        controllerId: EdgeConfig.Component["id"],
+    ): { color: string; text: string } | null {
         const isRunning: boolean = currentData.allComponents[controllerId + "/_PropertyIsRunning"] == 1;
         const essIsBlocking: number = currentData.allComponents[controllerId + "/CtrlIsBlockingEss"];
         const essIsCharging: number = currentData.allComponents[controllerId + "/CtrlIsChargingEss"];
@@ -146,14 +245,17 @@ export namespace SharedStorage {
         }
 
         if (isInReferenceCycle) {
-            return { color: "orange", text: translate.instant("EDGE.INDEX.RETROFITTING.PREPARING") };
+            return {
+                color: "orange",
+                text: translate.instant("EDGE.INDEX.RETROFITTING.PREPARING"),
+            };
         }
 
         // Planned Expansion
         if (targetTimeSpecified != null && targetDate != null) {
-
             return {
-                color: "green", text: translate.instant("EDGE.INDEX.RETROFITTING.TARGET_TIME_SPECIFIED", {
+                color: "green",
+                text: translate.instant("EDGE.INDEX.RETROFITTING.TARGET_TIME_SPECIFIED", {
                     targetDate: DateUtils.toLocaleDateString(targetDate),
                     targetTime: targetDate.toLocaleTimeString(),
                 }),
@@ -162,39 +264,55 @@ export namespace SharedStorage {
 
         if (essIsBlocking != null && essIsBlocking == 1) {
             // If ess reached targetSoc
-            return { color: "green", text: translate.instant("EDGE.INDEX.RETROFITTING.REACHED_TARGET_SOC") };
-
-        } else if ((essIsCharging != null && essIsCharging == 1) || (essIsDischarging != null && essIsDischarging == 1)) {
-
+            return {
+                color: "green",
+                text: translate.instant("EDGE.INDEX.RETROFITTING.REACHED_TARGET_SOC"),
+            };
+        } else if (
+            (essIsCharging != null && essIsCharging == 1) ||
+            (essIsDischarging != null && essIsDischarging == 1)
+        ) {
             // If Ess is charging to or discharging to the targetSoc
-            return { color: "orange", text: translate.instant("EDGE.INDEX.RETROFITTING.PREPARING") };
+            return {
+                color: "orange",
+                text: translate.instant("EDGE.INDEX.RETROFITTING.PREPARING"),
+            };
         } else {
             return null;
         }
     }
 
-    export function getChargeDischargeLinesInKw(ess: EdgeConfig.Component, config: EdgeConfig, translate: TranslateService): OeFormlyField[] {
+    export function getChargeDischargeLinesInKw(
+        ess: EdgeConfig.Component,
+        config: EdgeConfig,
+        translate: TranslateService,
+    ): OeFormlyField[] {
         const isHybridEss: boolean = config
             .getNatureIdsByFactoryId(ess.factoryId)
             .includes("io.openems.edge.ess.api.HybridEss");
 
         const channelId: ChannelAddress["channelId"] = isHybridEss ? "DcDischargePower" : "ActivePower";
-        return [{
-            type: "channel-line",
-            channel: new ChannelAddress(ess.id, channelId).toString(),
-            name: translate.instant("GENERAL.CHARGE"),
-            converter: (value) => SharedStorage.convertChargePowerInKw(value),
-        },
-        {
-            type: "channel-line",
-            channel: new ChannelAddress(ess.id, channelId).toString(),
-            name: translate.instant("GENERAL.DISCHARGE"),
-            converter: (value) => SharedStorage.powerInKw(value),
-        }];
+        return [
+            {
+                type: "channel-line",
+                channel: new ChannelAddress(ess.id, channelId).toString(),
+                name: translate.instant("GENERAL.CHARGE"),
+                converter: (value) => SharedStorage.convertChargePowerInKw(value),
+            },
+            {
+                type: "channel-line",
+                channel: new ChannelAddress(ess.id, channelId).toString(),
+                name: translate.instant("GENERAL.DISCHARGE"),
+                converter: (value) => SharedStorage.powerInKw(value),
+            },
+        ];
     }
 
-    export function getLinesPerEss(ess: EdgeConfig.Component, config: EdgeConfig, translate: TranslateService): OeFormlyField[] {
-
+    export function getLinesPerEss(
+        ess: EdgeConfig.Component,
+        config: EdgeConfig,
+        translate: TranslateService,
+    ): OeFormlyField[] {
         const isHybridEss: boolean = config
             .getNatureIdsByFactoryId(ess.factoryId)
             .includes("io.openems.edge.ess.api.HybridEss");
@@ -228,8 +346,12 @@ export namespace SharedStorage {
         ];
     }
 
-    function getPhasesLines(translate: TranslateService, ess: EdgeConfig.Component, channelId: ChannelAddress["channelId"]): OeFormlyField[] {
-        return Phase.THREE_PHASE.map(phase => ({
+    function getPhasesLines(
+        translate: TranslateService,
+        ess: EdgeConfig.Component,
+        channelId: ChannelAddress["channelId"],
+    ): OeFormlyField[] {
+        return Phase.THREE_PHASE.map((phase) => ({
             type: "channel-line",
             channel: new ChannelAddress(ess.id, channelId).toString(),
             name: Name.SUFFIX_FOR_ESS_CHARGE_OR_DISCHARGE(translate, translate.instant("GENERAL.PHASE") + " " + phase),
@@ -240,9 +362,9 @@ export namespace SharedStorage {
     }
 
     function getTotalPhasesLines(translate: TranslateService): OeFormlyField[] {
-        return Phase.THREE_PHASE.map(phase => ({
+        return Phase.THREE_PHASE.map((phase) => ({
             type: "channel-line",
-            channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+            channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
             name: Name.SUFFIX_FOR_ESS_CHARGE_OR_DISCHARGE(translate, translate.instant("GENERAL.PHASE") + " " + phase),
             converter: (value) => SharedStorage.convertToPower(value),
             filter: () => true,
@@ -253,7 +375,8 @@ export namespace SharedStorage {
     export function getTotalLines(translate: TranslateService, essComponents: EdgeConfig.Component[]): OeFormlyField[] {
         return [
             {
-                type: "name-line", name: translate.instant("GENERAL.TOTAL"),
+                type: "name-line",
+                name: translate.instant("GENERAL.TOTAL"),
             },
             {
                 type: "channel-line",
@@ -264,7 +387,7 @@ export namespace SharedStorage {
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+                channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
                 name: translate.instant("GENERAL.CHARGE"),
                 converter: (value) => SharedStorage.convertChargePowerInW(value),
                 filter: Filter.NOT_NULL_OR_UNDEFINED,
@@ -272,26 +395,31 @@ export namespace SharedStorage {
             },
             {
                 type: "channel-line",
-                channel: new ChannelAddress("_sum", "EssActivePower").toString(),
+                channel: new ChannelAddress("_sum", "EssDischargePower").toString(),
                 name: translate.instant("GENERAL.DISCHARGE"),
                 converter: (value) => SharedStorage.powerInW(value),
                 filter: Filter.NOT_NULL_OR_UNDEFINED,
                 indentation: TextIndentation.SINGLE,
             },
             ...getTotalPhasesLines(translate),
-            ...(essComponents.length > 1
-                ? [{ type: "horizontal-line" }]
-                : []) as OeFormlyField[],
+            ...((essComponents.length > 1 ? [{ type: "horizontal-line" }] : []) as OeFormlyField[]),
         ];
     }
 
-    export function getEssLines(translate: TranslateService, essComponents: EdgeConfig.Component[], config: EdgeConfig): OeFormlyField[] {
+    export function getEssLines(
+        translate: TranslateService,
+        essComponents: EdgeConfig.Component[],
+        config: EdgeConfig,
+    ): OeFormlyField[] {
         if (essComponents.length <= 1) {
             return [];
         }
         return essComponents.reduce((arr: OeFormlyField[], ess, index) => {
             if (essComponents.length > 1) {
-                arr.push({ type: "name-line", name: Name.METER_ALIAS_OR_ID(ess) });
+                arr.push({
+                    type: "name-line",
+                    name: Name.METER_ALIAS_OR_ID(ess),
+                });
             }
 
             arr.push(...SharedStorage.getLinesPerEss(ess, config, translate));
@@ -305,13 +433,11 @@ export namespace SharedStorage {
     }
 
     export function getEssComponents(config: EdgeConfig) {
-        return config
-            .getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss")
-            .filter(component => {
-
-                return (component.isEnabled || component.getPropertyFromComponent<boolean>("enabled") == true) && !config
-                    .getNatureIdsByFactoryId(component.factoryId)
-                    .includes("io.openems.edge.ess.api.MetaEss");
-            });
+        return config.getComponentsImplementingNature("io.openems.edge.ess.api.SymmetricEss").filter((component) => {
+            return (
+                (component.isEnabled || component.getPropertyFromComponent<boolean>("enabled") == true) &&
+                !config.getNatureIdsByFactoryId(component.factoryId).includes("io.openems.edge.ess.api.MetaEss")
+            );
+        });
     }
 }

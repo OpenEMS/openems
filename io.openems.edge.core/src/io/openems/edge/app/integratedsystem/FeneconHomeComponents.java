@@ -1,5 +1,7 @@
 package io.openems.edge.app.integratedsystem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.google.gson.JsonObject;
@@ -9,13 +11,16 @@ import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.Parity;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.hardware.IoGpio;
+import io.openems.edge.app.hardware.MasterBox2v0;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen3;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
 import io.openems.edge.core.appmanager.AppManagerUtil;
@@ -27,7 +32,6 @@ import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration;
 
 public final class FeneconHomeComponents {
-
 	/**
 	 * Creates a default battery component for a FENECON Home.
 	 *
@@ -42,6 +46,31 @@ public final class FeneconHomeComponents {
 			final String modbusIdInternal //
 	) {
 		return battery(bundle, batteryId, modbusIdInternal, "AUTO");
+	}
+
+	/**
+	 * Creates a default battery component for a FENECON Home.
+	 * 
+	 * @param deviceHardware   the device hardware; used to determine the correct
+	 *                         startup relay for the battery component
+	 * @param bundle           the translation bundle
+	 * @param batteryId        the id of the battery
+	 * @param modbusIdInternal the id of the internal modbus bridge
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component battery(//
+			final OpenemsAppInstance deviceHardware, //
+			final ResourceBundle bundle, //
+			final String batteryId, //
+			final String modbusIdInternal //
+	) {
+		if (deviceHardware == null) {
+			return battery(bundle, batteryId, modbusIdInternal);
+		}
+
+		return deviceHardware.appId.equals(TechbaseCm4sGen3.APPID) //
+				? battery(bundle, batteryId, modbusIdInternal, "AUTO", "io0/Relay6")
+				: battery(bundle, batteryId, modbusIdInternal);
 	}
 
 	/**
@@ -91,6 +120,32 @@ public final class FeneconHomeComponents {
 	}
 
 	/**
+	 * Creates a default battery component for a FENECON Home.
+	 * 
+	 * @param deviceHardware   the device hardware; used to determine the correct
+	 *                         startup relay for the battery component
+	 * @param bundle           the translation bundle
+	 * @param batteryId        the id of the battery
+	 * @param modbusIdInternal the id of the internal modbus bridge
+	 * @param batteryStartStop the startStop target of the bridge
+	 * @return the {@link Component}
+	 */
+	public static EdgeConfig.Component battery(//
+			final OpenemsAppInstance deviceHardware, //
+			final ResourceBundle bundle, //
+			final String batteryId, //
+			final String modbusIdInternal, //
+			final String batteryStartStop //
+	) {
+		if (deviceHardware == null) {
+			return battery(bundle, batteryId, modbusIdInternal, batteryStartStop);
+		}
+		return deviceHardware.appId.equals(TechbaseCm4sGen3.APPID) //
+				? battery(bundle, batteryId, modbusIdInternal, batteryStartStop, "io0/Relay6")
+				: battery(bundle, batteryId, modbusIdInternal, batteryStartStop, "io0/Relay4");
+	}
+
+	/**
 	 * Creates a default battery inverter component for a FENECON Home.
 	 *
 	 * @param bundle                   the translation bundle
@@ -99,7 +154,7 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @return the {@link Component}
@@ -111,7 +166,7 @@ public final class FeneconHomeComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled //
 	) {
@@ -128,7 +183,7 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
@@ -141,7 +196,7 @@ public final class FeneconHomeComponents {
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode //
@@ -149,7 +204,7 @@ public final class FeneconHomeComponents {
 		return new EdgeConfig.Component(batteryInverterId,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.batteryInverter0.alias"),
 				"GoodWe.BatteryInverter", getBatteryInverterConfig(hasEmergencyReserve, feedInType, modbusIdExternal,
-						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode));
+						shadowManagementDisabled, safetyCountry, feedInSetting, naProtectionEnabled, gridCode).build());
 	}
 
 	/**
@@ -195,6 +250,60 @@ public final class FeneconHomeComponents {
 						.addProperty("modbus.id", modbusIdInternal) //
 						.addProperty("modbusUnitId", 2) //
 						.build());
+	}
+
+	/**
+	 * Creates a battery depending on the deviceHardware with different startup
+	 * relay and an io if the installed hardware isn't a TechbaseCm4sGen3.
+	 *
+	 * @param bundle           the translation bundle
+	 * @param deviceHardware   the device hardware; used to determine the correct
+	 *                         startup relay for the battery component and if the io
+	 *                         should be installed
+	 * @param batteryId        the battery id
+	 * @param modbusIdInternal the internal modbus id
+	 * @return a {@link List} of {@link Component}
+	 */
+	public static List<Component> batteryAndIo(//
+			final ResourceBundle bundle, //
+			final OpenemsAppInstance deviceHardware, //
+			final String batteryId, //
+			final String modbusIdInternal //
+	) {
+		var result = new ArrayList<Component>();
+		result.add(battery(deviceHardware, bundle, batteryId, modbusIdInternal));
+		if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+			result.add(io(bundle, modbusIdInternal));
+		}
+		return result;
+	}
+
+	/**
+	 * Creates a battery depending on the deviceHardware with different startup
+	 * relay and an io if the installed hardware isn't a TechbaseCm4sGen3.
+	 *
+	 * @param bundle           the translation bundle
+	 * @param deviceHardware   the device hardware; used to determine the correct
+	 *                         startup relay for the battery component and if the io
+	 *                         should be installed
+	 * @param batteryId        the battery id
+	 * @param modbusIdInternal the internal modbus id
+	 * @param batteryStartStop the startStop target of the bridge
+	 * @return a {@link List} of {@link Component}
+	 */
+	public static List<Component> batteryAndIo(//
+			final ResourceBundle bundle, //
+			final OpenemsAppInstance deviceHardware, //
+			final String batteryId, //
+			final String modbusIdInternal, //
+			final String batteryStartStop //
+	) {
+		var result = new ArrayList<Component>();
+		result.add(battery(deviceHardware, bundle, batteryId, modbusIdInternal, batteryStartStop));
+		if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+			result.add(io(bundle, modbusIdInternal));
+		}
+		return result;
 	}
 
 	/**
@@ -317,9 +426,9 @@ public final class FeneconHomeComponents {
 			final String modbusIdExternal, //
 			final OpenemsAppInstance deviceHardware //
 	) {
-		final var portName = deviceHardware == null || !deviceHardware.appId.equals("App.OpenemsHardware.CM4S.Gen2")
-				? "/dev/bus0"
-				: "/dev/busUSB3";
+		final var portName = isHardwareGen2OrGen3(deviceHardware) //
+				? "/dev/busUSB3" //
+				: "/dev/bus0";
 
 		return new EdgeConfig.Component(modbusIdExternal,
 				TranslationUtil.getTranslation(bundle, "App.IntegratedSystem.modbus2.alias"), "Bridge.Modbus.Serial", //
@@ -810,10 +919,25 @@ public final class FeneconHomeComponents {
 		}
 		return switch (hardwareInstance.appId) {
 		case "App.OpenemsHardware.CM3", "App.OpenemsHardware.CM4", "App.OpenemsHardware.CM4S",
-				"App.OpenemsHardware.CM4S.Gen2" ->
+				"App.OpenemsHardware.CM4S.Gen2", "App.OpenemsHardware.CM4S.Gen3" ->
 			true;
 		default -> false;
 		};
+	}
+
+	/**
+	 * Checks if the current installed hardware instance is compatible with the
+	 * {@link MasterBox2v0}.
+	 * 
+	 * @param deviceHardware the current installed hardware instance
+	 * @return true if the hardware is compatible with the {@link MasterBox2v0};
+	 *         else false
+	 */
+	public static final boolean isHardwareInstalledForMasterBox(OpenemsAppInstance deviceHardware) {
+		if (deviceHardware == null) {
+			return false;
+		}
+		return deviceHardware.appId.equals(TechbaseCm4sGen3.APPID);
 	}
 
 	/**
@@ -858,17 +982,17 @@ public final class FeneconHomeComponents {
 	 * @param feedInType               the {@link ExternalLimitationType}
 	 * @param modbusIdExternal         the id of the external modbus bridge
 	 * @param shadowManagementDisabled if shadowmanagement is disabled
-	 * @param safetyCountry            the {@link SafetyCountry}
+	 * @param safetyCountry            the {@link AppSafetyCountry}
 	 * @param feedInSetting            the feedInSetting
 	 * @param naProtectionEnabled      if NA-protection is enabled
 	 * @param gridCode                 the grid code
-	 * @return the {@link JsonObject}
+	 * @return the {@link JsonUtils.JsonObjectBuilder}
 	 */
-	public static JsonObject getBatteryInverterConfig(final boolean hasEmergencyReserve, //
+	public static JsonUtils.JsonObjectBuilder getBatteryInverterConfig(final boolean hasEmergencyReserve, //
 			final ExternalLimitationType feedInType, //
 			final String modbusIdExternal, //
 			final boolean shadowManagementDisabled, //
-			final SafetyCountry safetyCountry, //
+			final AppSafetyCountry safetyCountry, //
 			final String feedInSetting, //
 			final boolean naProtectionEnabled, //
 			final String gridCode) {
@@ -882,18 +1006,25 @@ public final class FeneconHomeComponents {
 				.addProperty("modbus.id", modbusIdExternal) //
 				.addProperty("modbusUnitId", 247) //
 				.addProperty("mpptForShadowEnable", shadowManagementDisabled ? "DISABLE" : "ENABLE") //
-				.addProperty("safetyCountry", safetyCountry) //
+				.addProperty("safetyCountry", safetyCountry.goodWeValue) //
 				.addProperty("setfeedInPowerSettings", feedInSetting) //
 				.addProperty("rcrEnable",
 						feedInType == ExternalLimitationType.EXTERNAL_LIMITATION
 								|| feedInType == ExternalLimitationType.DYNAMIC_AND_EXTERNAL_LIMITATION ? "ENABLE"
 										: "DISABLE") //
 				.addProperty("naProtectionEnable", naProtectionEnabled ? "ENABLE" : "DISABLE") //
-				.addPropertyIfNotNull("gridCode", gridCode) //
-				.build();
+				.addPropertyIfNotNull("gridCode", gridCode);
 	}
 
 	private FeneconHomeComponents() {
+	}
+
+	private static boolean isHardwareGen2OrGen3(OpenemsAppInstance deviceHardware) {
+		if (deviceHardware == null) {
+			return false;
+		}
+		return deviceHardware.appId.equals(TechbaseCm4sGen2.APPID)
+				|| deviceHardware.appId.equals(TechbaseCm4sGen3.APPID);
 	}
 
 }

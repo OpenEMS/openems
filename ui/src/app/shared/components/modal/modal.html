@@ -1,56 +1,47 @@
 <ion-header>
-  <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color);">
-    <ion-title translate style="color: var(--ion-title-color);"
-      [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }">{{title}}</ion-title>
+  <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color)">
+    <ion-title translate style="color: var(--ion-title-color)" [ngClass]="{ 'oe-ci-font-family-bold': isCommonWidget }">{{ title }}</ion-title>
     <ion-buttons slot="end">
       <!-- Additional Toolbarbuttons -->
       @if (toolbarButtons !== null) {
-        @if (((toolbarButtons | typeof) !== 'Object') && toolbarButtons.length > 0) {
+        @if ((toolbarButtons | typeof) !== "Object" && toolbarButtons.length > 0) {
           @for (button of toolbarButtons; track button) {
             <ion-button tabindex="0" [href]="button.url" target="_blank">
-              <ion-icon [name]="button.icon?.name ??'help-circle-outline'" [color]="button.icon?.color ??'light'"
-                [size]="button.icon?.size ??'medium'">
-              </ion-icon>
+              <ion-icon [name]="button.icon?.name ?? 'help-circle-outline'" [color]="button.icon?.color ?? 'light'" [size]="button.icon?.size ?? 'medium'"> </ion-icon>
             </ion-button>
           }
         } @else {
           <ion-button tabindex="0" [href]="toolbarButtons?.url" target="_blank" (click)="toolbarButtons?.callback()">
-            <ion-icon [name]="toolbarButtons.icon?.name ??'help-circle-outline'"
-              [color]="toolbarButtons.icon?.color ?? 'dark'" [size]="toolbarButtons.icon?.size ??'medium'">
-            </ion-icon>
+            <ion-icon [name]="toolbarButtons.icon?.name ?? 'help-circle-outline'" [color]="toolbarButtons.icon?.color ?? 'dark'" [size]="toolbarButtons.icon?.size ?? 'medium'"> </ion-icon>
           </ion-button>
         }
       }
 
       <ng-content select="[button]"></ng-content>
       @if (helpKey) {
-        <oe-help-button [key]="helpKey" [useDefaultPrefix]="(useDefaultPrefix === undefined) ? useDefaultPrefix : true"></oe-help-button>
+        <oe-help-button [key]="helpKey" [useDefaultPrefix]="useDefaultPrefix ?? true"></oe-help-button>
       }
 
       <ion-button (keydown.enter)="modalController.dismiss()" tabindex="0" (click)="modalController.dismiss()">
-        <ion-icon name="close-outline" size="medium" style="color: var(--ion-title-color);"></ion-icon>
+        <ion-icon name="close-outline" size="medium" style="color: var(--ion-title-color)"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content style="font-size: 1em;">
-
+<ion-content style="font-size: 1em">
   <!-- If FromGroup is used -->
   @if (formGroup) {
-    <form [formGroup]="formGroup"
-      style="padding-left: 5%; padding-right: 5%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; height: 88%; width: 100%; padding-bottom: 10%">
+    <form [formGroup]="formGroup" style="padding-left: 5%; padding-right: 5%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x: hidden; height: 88%; width: 100%; padding-bottom: 10%">
       <!-- For gap between header and content  -->
       <!-- Cant do margin-top in formGroup due to scrollbar being moved with it -->
-      <ng-container *ngTemplateOutlet="contentTpl">
-      </ng-container>
+      <ng-container *ngTemplateOutlet="contentTpl"> </ng-container>
     </form>
   }
 
   <!-- If FormGroup not used -->
   @if (!formGroup) {
-    <div
-      style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x:hidden; height: 88%; width: 100%;">
+    <div style="padding-left: 5%; padding-right: 5%; padding-bottom: 10%; padding-top: 2%; position: absolute; overflow-y: auto; overflow-x: hidden; height: 88%; width: 100%">
       <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
     </div>
   }
@@ -62,11 +53,9 @@
 
   <!-- Submit-Button appears when formControl values are changed, if Smartphone, button placed right bottom, else center bottom -->
   @if (formGroup?.dirty) {
-    <ion-fab vertical="bottom" style="position: fixed"
-      [horizontal]="this.service.isSmartphoneResolution ? 'end':'center'">
+    <ion-fab vertical="bottom" style="position: fixed" [horizontal]="this.service.getIsSmartphoneResolution() ? 'end' : 'center'">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="oe-checkmark">
-        </ion-icon>
+        <ion-icon size="large" name="oe-checkmark"> </ion-icon>
       </ion-fab-button>
     </ion-fab>
   }

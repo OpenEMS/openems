@@ -7,11 +7,11 @@ import static io.openems.common.utils.JsonUtils.parseToJsonArray;
 import static io.openems.edge.common.currency.Currency.EUR;
 import static io.openems.edge.timeofusetariff.entsoe.Utils.parseToSchedule;
 import static java.time.LocalTime.MIN;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -24,7 +24,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.io.Resources;
 
@@ -115,7 +115,7 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testHttpFetch() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var clock = new TimeLeapClock(Instant.parse("2026-02-01T23:00:00Z"));
 		final var entsoe = new TouEntsoeImpl();
 		var dummyMeta = new DummyMeta() //
@@ -134,7 +134,8 @@ public class TouEntsoeTest {
 						.setAncillaryCosts(buildJsonObject() //
 								.addProperty("dso", "BAYERNWERK") //
 								.build() //
-								.toString())
+								.toString()) //
+						.setCalculateExpression("") //
 						.build())
 
 				.next(new TestCase("Successful response") //
@@ -193,8 +194,8 @@ public class TouEntsoeTest {
 						final var end = tr.end();
 
 						// Check for gaps or overlaps
-						assertTrue("[" + dso.name() + "] Gap/overlap on " + currentDay + " between " + lastEnd + " and "
-								+ start, !lastEnd.isAfter(start));
+						assertTrue(!lastEnd.isAfter(start), "[" + dso.name() + "] Gap/overlap on " + currentDay
+								+ " between " + lastEnd + " and " + start);
 
 						// Calculate duration in minutes
 						totalMinutes += calculateMinutes(start, end);
@@ -202,14 +203,15 @@ public class TouEntsoeTest {
 					}
 
 					// Verify entire day is covered (24 hours)
-					assertTrue("[" + dso.name() + "] Incomplete day coverage on " + currentDay + ": " + totalMinutes
-							+ " minutes", totalMinutes == FULL_DAY_MINUTES);
+					assertTrue(totalMinutes == FULL_DAY_MINUTES, "[" + dso.name() + "] Incomplete day coverage on "
+							+ currentDay + ": " + totalMinutes + " minutes");
 
 					// Verify tariff consistency: low < standard < high
 					if (dateRange.lowTariff() > 0 || dateRange.highTariff() > 0) {
-						assertTrue("[" + dso.name() + "] Tariff violation: low < standard < high",
+						assertTrue(
 								dateRange.lowTariff() < dateRange.standardTariff()
-										&& dateRange.standardTariff() < dateRange.highTariff());
+										&& dateRange.standardTariff() < dateRange.highTariff(),
+								"[" + dso.name() + "] Tariff violation: low < standard < high");
 					}
 					currentDay = currentDay.plusDays(1);
 				}
@@ -385,7 +387,7 @@ public class TouEntsoeTest {
 
 	@Test
 	public void testSchedule() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var clock = new TimeLeapClock(Instant.parse("2026-02-02T00:00:00Z"));
 		var entsoe = new TouEntsoeImpl();
 		var dummyMeta = new DummyMeta() //
@@ -407,6 +409,7 @@ public class TouEntsoeTest {
 								.add("schedule", schedule) //
 								.build() //
 								.toString()) //
+						.setCalculateExpression("x+y") //
 						.build());
 
 		httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok(this.getTestEntsoeResponse()));

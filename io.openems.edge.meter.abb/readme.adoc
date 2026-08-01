@@ -30,6 +30,7 @@ This bundle implements the following OpenEMS Component:
 *Description*: Three-phase electricity meter for energy measurement via M-Bus protocol.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "meter0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

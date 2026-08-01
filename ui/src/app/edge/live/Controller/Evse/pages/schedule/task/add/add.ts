@@ -1,4 +1,4 @@
-import { Component, model } from "@angular/core";
+import { Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { Mode } from "src/app/edge/live/Controller/Evse/pages/chargemode/chargemode";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AddTaskComponent } from "src/app/shared/components/schedule/add/add-task.component";
@@ -10,22 +10,21 @@ import { EvseManualPayload } from "../../js-calender-utils";
 
 @Component({
     templateUrl: "./add.html",
-    imports: [
-        AddTaskComponent,
-        CommonUiModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [AddTaskComponent, CommonUiModule],
 })
 export class EvseAddTaskComponent extends JsCalendarAddTaskComponent {
-
     public payload = model<EvseManualPayload>(new EvseManualPayload());
     public allowedPeriods = model<TSignalValue<TaskFormComponent["allowedPeriods"]>>(["daily", "weekly", "monthly"]);
-    protected modeOptions: { value: Mode, label: string }[] = Object.values(Mode).map(mode => ({
+    protected modeOptions: { value: Mode; label: string }[] = Object.values(Mode).map((mode) => ({
         value: mode,
         label: ControllerEvseSingleShared.CONVERT_TO_MODE_LABEL(this.translate)(mode),
     }));
 
     setValue(event: CustomEvent) {
-        this.payload.update(el => { el.setValue({ class: "Manual", mode: event.detail.value }); return el; });
+        this.payload.update((el) => {
+            el.setValue({ class: "Manual", mode: event.detail.value });
+            return el;
+        });
     }
 }
-

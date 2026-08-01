@@ -1,19 +1,3 @@
 @if (edge?.currentData | async; as currentData) {
-  @if (navigationService.position() !== 'disabled' && navigationService.position() !== null) {
-    <energymonitor-chart
-      class="ion-padding-top-double ion-padding-bottom-double ion-padding-left-double ion-padding-right-double"
-      [currentData]="currentData"></energymonitor-chart>
-  }@else{
-    <ion-card>
-      <ion-item lines="full" style="--background: var(--ion-background-color-card-header)">
-        <ion-icon size="large" slot="start" name="laptop-outline" color="normal"></ion-icon>
-        <ion-label>
-          {{"EDGE.INDEX.ENERGYMONITOR.TITLE" | translate}}
-        </ion-label>
-      </ion-item>
-      <ion-card-content>
-        <energymonitor-chart [currentData]="currentData"></energymonitor-chart>
-      </ion-card-content>
-    </ion-card>
-  }
+  <energymonitor-chart [currentData]="currentData"></energymonitor-chart>
 }

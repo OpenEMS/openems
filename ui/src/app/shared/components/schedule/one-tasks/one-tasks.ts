@@ -1,4 +1,4 @@
-import { Component, inject, model } from "@angular/core";
+import { Component, inject, model, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetOneTasks } from "src/app/shared/jsonrpc/request/getOneTasks";
@@ -10,18 +10,15 @@ import { JsCalendar } from "../js-calendar-task";
 @Component({
     selector: "oe-components-scheduler-one-tasks",
     templateUrl: "./one-tasks.html",
-    imports: [
-        CommonUiModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule],
 })
 export class OneTasksComponent extends AbstractModal {
-
     public payload = model(new JsCalendar.BaseOpenEMSPayload());
     protected oneTasks: OneTask[] = [];
     private routeService = inject(RouteService);
 
     protected override onIsInitialized(): void {
-
         const now = new Date(Date.now());
         const THREE_DAYS_FROM_NOW = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 days in milliseconds
 
@@ -31,19 +28,24 @@ export class OneTasksComponent extends AbstractModal {
             return;
         }
 
-        this.edge.sendRequest<GetOneTasksResponse>(this.websocket, new ComponentJsonApiRequest({
-            componentId: componentId,
-            payload: new GetOneTasks(now.toISOString(), THREE_DAYS_FROM_NOW.toISOString()),
-        })).then(response => {
-            const payload = this.payload();
-            this.oneTasks = response.result.oneTasks.map(item => {
-                return {
-                    uid: item.uid,
-                    start: item.start,
-                    end: JsCalendar.Utils.calculateEndTimeFromDuration(item?.start ?? null, item?.duration ?? null),
-                    duration: payload.toOneTasks(item, this.translate),
-                } as OneTask;
+        this.edge
+            .sendRequest<GetOneTasksResponse>(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: componentId,
+                    payload: new GetOneTasks(now.toISOString(), THREE_DAYS_FROM_NOW.toISOString()),
+                }),
+            )
+            .then((response) => {
+                const payload = this.payload();
+                this.oneTasks = response.result.oneTasks.map((item) => {
+                    return {
+                        uid: item.uid,
+                        start: item.start,
+                        end: JsCalendar.Utils.calculateEndTimeFromDuration(item?.start ?? null, item?.duration ?? null),
+                        duration: payload.toOneTasks(item, this.translate),
+                    } as OneTask;
+                });
             });
-        });
     }
 }

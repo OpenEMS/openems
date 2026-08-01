@@ -1,7 +1,11 @@
 package io.openems.edge.timedata.api.utils;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
@@ -10,6 +14,8 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.timedata.api.TimedataProvider;
 
 public class CalculateActiveTime {
+
+	private static final Logger LOG = LoggerFactory.getLogger(CalculateActiveTime.class);
 
 	/**
 	 * Available States.
@@ -35,6 +41,8 @@ public class CalculateActiveTime {
 	private final ChannelId channelId;
 
 	private final TimedataProvider timedataProvider;
+	private final Clock clock;
+	private final TimedataQueryRetryHandler retryHandler;
 
 	/**
 	 * Keeps the time stamp of the last data.
@@ -58,8 +66,14 @@ public class CalculateActiveTime {
 	private long continuousTime = 0L;
 
 	public CalculateActiveTime(TimedataProvider timedataProvider, ChannelId channelId) {
+		this(timedataProvider, channelId, Clock.systemDefaultZone());
+	}
+
+	public CalculateActiveTime(TimedataProvider timedataProvider, ChannelId channelId, Clock clock) {
 		this.timedataProvider = timedataProvider;
 		this.channelId = channelId;
+		this.clock = clock;
+		this.retryHandler = new TimedataQueryRetryHandler(LOG, clock, timedataProvider.id(), channelId.id());
 	}
 
 	/**
@@ -84,7 +98,7 @@ public class CalculateActiveTime {
 		}
 
 		// Keep last data for next run
-		this.lastTimestamp = Instant.now();
+		this.lastTimestamp = Instant.now(this.clock);
 		this.lastIsActive = isActive;
 	}
 
@@ -100,7 +114,19 @@ public class CalculateActiveTime {
 			this.state = State.TIMEDATA_QUERY_IS_RUNNING;
 
 			timedata.getLatestValue(new ChannelAddress(this.timedataProvider.id(), this.channelId.id()))
-					.thenAccept(activeTimeOpt -> {
+					.whenComplete((activeTimeOpt, throwable) -> {
+						if (throwable != null) {
+							if (this.retryHandler.onFailure(throwable) == TimedataQueryRetryHandler.Decision.RETRY) {
+								this.state = State.TIMEDATA_QUERY_NOT_STARTED;
+								return;
+							}
+
+							this.state = State.CALCULATE_TIME_OPERATION;
+							this.lastStoredActiveTime = 0L;
+							return;
+						}
+
+						this.retryHandler.reset();
 						this.state = State.CALCULATE_TIME_OPERATION;
 
 						if (activeTimeOpt.isPresent()) {
@@ -125,7 +151,7 @@ public class CalculateActiveTime {
 		if (this.lastTimestamp != null && this.lastStoredActiveTime != null && this.lastIsActive && isActive) {
 
 			// Calculate duration since last value
-			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now()).toMillis();
+			var duration /* [msec] */ = Duration.between(this.lastTimestamp, Instant.now(this.clock)).toMillis();
 
 			// Add to continuous cumulated time
 			this.continuousTime += duration;

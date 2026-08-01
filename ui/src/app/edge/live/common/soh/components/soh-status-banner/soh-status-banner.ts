@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from "@angular/core";
+import { Component, computed, effect, inject, ChangeDetectionStrategy } from "@angular/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -10,12 +10,10 @@ import { SohDeterminationService } from "../../service/soh-determination.service
     templateUrl: "./soh-status-banner.html",
     styleUrl: "./soh-status-banner.scss",
     imports: [CommonUiModule],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class SohStatusBannerComponent {
-
     protected anySohCycleRunningState = computed<"error" | "success" | null>(() => {
         if (this.sohDeterminationService.anySohCycleRunningWithError()) {
             return "error";

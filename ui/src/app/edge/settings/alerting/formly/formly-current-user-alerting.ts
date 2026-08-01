@@ -1,6 +1,6 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FieldWrapper, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
@@ -21,14 +21,16 @@ import { ModalComponentsModule } from "../../../../shared/components/modal/modal
         ModalComponentsModule,
         FormlyModule,
     ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styleUrl: "./alerting.scss",
 })
 export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements OnInit {
-
     ngOnInit() {
-        const flattenedFormGroup = (this.props.options as FormlyFieldConfig[])
-            .map(el => el.fieldGroup).flat(1);
-        const dependentControls = FormUtils.filterFieldPropsWithKey(flattenedFormGroup as FormlyFieldConfig[], "disabledOnFormControl");
+        const flattenedFormGroup = (this.props.options as FormlyFieldConfig[]).map((el) => el.fieldGroup).flat(1);
+        const dependentControls = FormUtils.filterFieldPropsWithKey(
+            flattenedFormGroup as FormlyFieldConfig[],
+            "disabledOnFormControl",
+        );
 
         if (!dependentControls) {
             return;
@@ -36,13 +38,15 @@ export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements 
 
         for (const control of dependentControls) {
             const controlDependentOn = control.props.disabledOnFormControl;
-            const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(this.form as FormGroup, controlDependentOn);
+            const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(
+                this.form as FormGroup,
+                controlDependentOn,
+            );
             this.updateToggleDependentFields(control.key as string, isToggleOn);
         }
     }
 
     protected changeEditMode(controlName: string, control?: FormControl | null) {
-
         /** If formControl provided, use it directly */
         if (control !== null) {
             this.form.get(controlName).setValue(!control.value);
@@ -51,11 +55,14 @@ export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements 
 
         const isToggleOn = FormUtils.findFormControlsValueSafely<boolean>(this.form as FormGroup, controlName);
         const normalizedFormGroup = (this.props.options as FormlyFieldConfig[])
-            .map(el => el.fieldGroup
-                ?.map((i) => i)).flat(1);
+            .map((el) => el.fieldGroup?.map((i) => i))
+            .flat(1);
 
         // Disable other controls if dependent
-        const affectedControls: string[] = normalizedFormGroup.filter(el => el.props?.disabledOnFormControl == controlName)?.map(el => el.key as string) ?? [];
+        const affectedControls: string[] =
+            normalizedFormGroup
+                .filter((el) => el.props?.disabledOnFormControl == controlName)
+                ?.map((el) => el.key as string) ?? [];
         for (const control of affectedControls) {
             this.updateToggleDependentFields(control, isToggleOn);
         }
@@ -64,8 +71,8 @@ export class FormlyCurrentUserAlertingComponent extends FieldWrapper implements 
     /**
      * Updates edit mode of toggle dependent fields
      *
-     * @param control the control to update
-     * @param isToggleOn the current state of the dependent toggle
+     * @param control The control to update
+     * @param isToggleOn The current state of the dependent toggle
      */
     private updateToggleDependentFields(control: string, isToggleOn: boolean) {
         if (!isToggleOn) {

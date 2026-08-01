@@ -1,297 +1,304 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "app": {
-      "root": "",
-      "sourceRoot": "src",
-      "projectType": "application",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "allowedCommonJsDependencies": [
-              "chart.js"
-            ],
-            "baseHref": "/",
-            "budgets": [
-              {
-                "type": "initial",
-                "maximumWarning": "15mb",
-                "maximumError": "20mb"
-              }
-            ],
-            "index": "src/index.html",
-            "namedChunks": false,
-            "outputPath": {
-              "base": "target",
-              "browser": ""
-            },
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
-            "scripts": [],
-            "tsConfig": "tsconfig.app.json",
-            "aot": false,
-            "extractLicenses": false,
-            "optimization": false,
-            "outputHashing": "none",
-            "sourceMap": true,
-            "browser": "src/main.ts",
-            "stylePreprocessorOptions": {
-              "includePaths": [
-                "."
-              ]
+    "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+    "cli": {
+        "analytics": false
+    },
+    "newProjectRoot": "projects",
+    "projects": {
+        "app": {
+            "root": "",
+            "sourceRoot": "src",
+            "projectType": "application",
+            "prefix": "app",
+            "architect": {
+                "build": {
+                    "builder": "@angular/build:application",
+                    "options": {
+                        "allowedCommonJsDependencies": [
+                            "chart.js",
+                            "patternomaly",
+                            "tinyduration"
+                        ],
+                        "baseHref": "/",
+                        "budgets": [
+                            {
+                                "type": "initial",
+                                "maximumWarning": "15mb",
+                                "maximumError": "20mb"
+                            }
+                        ],
+                        "index": "src/index.html",
+                        "namedChunks": false,
+                        "outputPath": {
+                            "base": "target",
+                            "browser": ""
+                        },
+                        "polyfills": [
+                            "src/polyfills.ts"
+                        ],
+                        "scripts": [],
+                        "tsConfig": "tsconfig.app.json",
+                        "aot": false,
+                        "extractLicenses": false,
+                        "optimization": false,
+                        "outputHashing": "none",
+                        "sourceMap": true,
+                        "browser": "src/main.ts",
+                        "stylePreprocessorOptions": {
+                            "includePaths": [
+                                "."
+                            ]
+                        }
+                    },
+                    "configurations": {
+                        "prod": {
+                            "aot": true,
+                            "extractLicenses": true,
+                            "optimization": {
+                                "scripts": true,
+                                "styles": {
+                                    "minify": true,
+                                    "inlineCritical": false
+                                },
+                                "fonts": true
+                            },
+                            "outputHashing": "all",
+                            "sourceMap": false
+                        },
+                        "openems": {
+                            "assets": [
+                                "src/assets",
+                                {
+                                    "glob": "**/*",
+                                    "input": "src/themes/openems/root",
+                                    "output": ""
+                                },
+                                {
+                                    "glob": "**/*",
+                                    "input": "src/themes/openems/assets",
+                                    "output": "./assets"
+                                },
+                                {
+                                    "glob": "**/*.svg",
+                                    "input": "node_modules/ionicons/dist/ionicons/svg",
+                                    "output": "./svg"
+                                },
+                                {
+                                    "glob": "**/*.js",
+                                    "input": "src/themes/shared",
+                                    "output": ""
+                                }
+                            ],
+                            "stylePreprocessorOptions": {
+                                "includePaths": [
+                                    "src/themes/openems/scss"
+                                ]
+                            },
+                            "styles": [
+                                "src/themes/openems/scss/variables.scss",
+                                "src/global.scss",
+                                "src/global-ion-custom.scss"
+                            ]
+                        },
+                        "openems-backend-dev": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/backend-dev.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-backend-prod": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/backend-prod.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-edge-dev": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/edge-dev.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-edge-prod": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/edge-prod.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-edge-docker": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/edge-docker.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-backend-docker": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/backend-docker.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        },
+                        "openems-gitpod": {
+                            "fileReplacements": [
+                                {
+                                    "replace": "src/environments/theme.ts",
+                                    "with": "src/themes/openems/environments/theme.ts"
+                                },
+                                {
+                                    "replace": "src/environments/dummy.ts",
+                                    "with": "src/themes/openems/environments/gitpod.ts"
+                                },
+                                {
+                                    "replace": "src/environments/oem-meta.ts",
+                                    "with": "src/themes/openems/environments/oem-meta.ts"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "serve": {
+                    "builder": "@angular/build:dev-server",
+                    "options": {
+                        "buildTarget": "app:build:openems,openems-edge-dev"
+                    },
+                    "configurations": {
+                        "openems-backend-dev": {
+                            "buildTarget": "app:build:openems,openems-backend-dev"
+                        },
+                        "openems-edge-dev": {
+                            "buildTarget": "app:build:openems,openems-edge-dev"
+                        },
+                        "openems-backend-prod": {
+                            "buildTarget": "app:build:openems,openems-backend-prod,prod"
+                        },
+                        "openems-edge-prod": {
+                            "buildTarget": "app:build:openems,openems-edge-prod,prod"
+                        },
+                        "openems-gitpod": {
+                            "buildTarget": "app:build:openems,openems-gitpod"
+                        }
+                    }
+                },
+                "lint": {
+                    "builder": "@angular-eslint/builder:lint",
+                    "options": {
+                        "lintFilePatterns": [
+                            "src/**/*.ts",
+                            "src/**/*.html"
+                        ]
+                    }
+                },
+                "test": {
+                    "builder": "@angular/build:karma",
+                    "options": {
+                        "tsConfig": "tsconfig.spec.json",
+                        "karmaConfig": "karma.conf.js",
+                        "polyfills": [
+                            "src/polyfills.ts"
+                        ],
+                        "fileReplacements": [
+                            {
+                                "replace": "src/environments/dummy.ts",
+                                "with": "src/themes/openems/environments/karma.ts"
+                            }
+                        ]
+                    },
+                    "configurations": {
+                        "local": {
+                            "tsConfig": "tsconfig.spec.json",
+                            "karmaConfig": "karma.conf.local.js",
+                            "polyfills": [
+                                "src/polyfills.ts"
+                            ]
+                        }
+                    }
+                }
             }
-          },
-          "configurations": {
-            "prod": {
-              "aot": true,
-              "extractLicenses": true,
-              "optimization": {
-                "scripts": true,
-                "styles": {
-                  "minify": true,
-                  "inlineCritical": false
-                },
-                "fonts": true
-              },
-              "outputHashing": "all",
-              "sourceMap": false
-            },
-            "openems": {
-              "assets": [
-                "src/assets",
-                {
-                  "glob": "**/*",
-                  "input": "src/themes/openems/root",
-                  "output": ""
-                },
-                {
-                  "glob": "**/*.svg",
-                  "input": "node_modules/ionicons/dist/ionicons/svg",
-                  "output": "./svg"
-                },
-                {
-                  "glob": "**/*.js",
-                  "input": "src/themes/shared",
-                  "output": ""
-                }
-              ],
-              "stylePreprocessorOptions": {
-                "includePaths": [
-                  "src/themes/openems/scss"
-                ]
-              },
-              "styles": [
-                "src/themes/openems/scss/variables.scss",
-                "src/global.scss",
-                "src/global-ion-custom.scss"
-              ]
-            },
-            "openems-backend-dev": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/backend-dev.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-backend-prod": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/backend-prod.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-edge-dev": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/edge-dev.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-edge-prod": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/edge-prod.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-edge-docker": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/edge-docker.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-backend-docker": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/backend-docker.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            },
-            "openems-gitpod": {
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/theme.ts",
-                  "with": "src/themes/openems/environments/theme.ts"
-                },
-                {
-                  "replace": "src/environments/dummy.ts",
-                  "with": "src/themes/openems/environments/gitpod.ts"
-                },
-                {
-                  "replace": "src/environments/oem-meta.ts",
-                  "with": "src/themes/openems/environments/oem-meta.ts"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "options": {
-            "buildTarget": "app:build:openems,openems-edge-dev"
-          },
-          "configurations": {
-            "openems-backend-dev": {
-              "buildTarget": "app:build:openems,openems-backend-dev"
-            },
-            "openems-edge-dev": {
-              "buildTarget": "app:build:openems,openems-edge-dev"
-            },
-            "openems-backend-prod": {
-              "buildTarget": "app:build:openems,openems-backend-prod,prod"
-            },
-            "openems-edge-prod": {
-              "buildTarget": "app:build:openems,openems-edge-prod,prod"
-            },
-            "openems-gitpod": {
-              "buildTarget": "app:build:openems,openems-gitpod"
-            }
-          }
-        },
-        "lint": {
-          "builder": "@angular-eslint/builder:lint",
-          "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "polyfills": [
-              "src/polyfills.ts"
-            ],
-            "fileReplacements": [
-              {
-                "replace": "src/environments/dummy.ts",
-                "with": "src/themes/openems/environments/karma.ts"
-              },
-            ]
-          },
-          "configurations": {
-            "local": {
-              "tsConfig": "tsconfig.spec.json",
-              "karmaConfig": "karma.conf.local.js",
-              "polyfills": [
-                "src/polyfills.ts"
-              ]
-            }
-          }
         }
-      }
-    }
-  },
-  "cli": {
-    "analytics": false
-  },
-  "schematics": {
-    "@schematics/angular:component": {
-      "type": "component"
     },
-    "@schematics/angular:directive": {
-      "type": "directive"
+    "schematics": {
+        "@schematics/angular:component": {
+            "type": "component"
+        },
+        "@schematics/angular:directive": {
+            "type": "directive"
+        },
+        "@schematics/angular:service": {
+            "type": "service"
+        },
+        "@schematics/angular:guard": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:interceptor": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:module": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:pipe": {
+            "typeSeparator": "."
+        },
+        "@schematics/angular:resolver": {
+            "typeSeparator": "."
+        }
     },
-    "@schematics/angular:service": {
-      "type": "service"
-    },
-    "@schematics/angular:guard": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:interceptor": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:module": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:pipe": {
-      "typeSeparator": "."
-    },
-    "@schematics/angular:resolver": {
-      "typeSeparator": "."
-    }
-  }
+    "version": 1
 }

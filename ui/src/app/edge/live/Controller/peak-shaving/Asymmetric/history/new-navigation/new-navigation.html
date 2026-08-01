@@ -1,0 +1,13 @@
+@if (edge !== null) {
+  <oe-navigation-view>
+    <ion-buttons header class="ion-justify-content-center">
+      <div #ref>
+        <ng-content select="[custom-pickdate]"></ng-content>
+      </div>
+      @if (ref.children !== null && ref.children.length === 0) {
+        <pickdate></pickdate>
+      }
+    </ion-buttons>
+    <oe-controller-peakshaving-asymmetric-chart (setChartConfig)="setChartConfig($event)" [isOnlyChart]="true" [component]="component"></oe-controller-peakshaving-asymmetric-chart>
+  </oe-navigation-view>
+}

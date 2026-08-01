@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
@@ -7,14 +7,13 @@ import { WorkMode } from "src/app/shared/type/general";
 import { ModalComponent } from "../modal/modal";
 import { getInactiveIfPowerIsLow, getRunStateConverter, Level, State } from "../util/utils";
 
-
 @Component({
     selector: "oe-controller-io-heating-element",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     private static PROPERTY_MODE: string = "_PropertyMode";
     protected readonly CONVERT_HEATING_ELEMENT_RUNSTATE = getRunStateConverter(this.translate);
 
@@ -41,17 +40,13 @@ export class FlatComponent extends AbstractFlatWidget {
                 component: this.component,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses() {
-
         this.outputChannelArray.push(
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL1"]),
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL2"]),
-            ChannelAddress.fromString(
-                this.component.properties["outputChannelPhaseL3"]),
+            ChannelAddress.fromString(this.component.properties["outputChannelPhaseL1"]),
+            ChannelAddress.fromString(this.component.properties["outputChannelPhaseL2"]),
+            ChannelAddress.fromString(this.component.properties["outputChannelPhaseL3"]),
         );
 
         const channelAddresses: ChannelAddress[] = [
@@ -61,14 +56,12 @@ export class FlatComponent extends AbstractFlatWidget {
             new ChannelAddress(this.component.id, "Status"),
             new ChannelAddress(this.component.id, FlatComponent.PROPERTY_MODE),
             new ChannelAddress(this.component.id, "_PropertyWorkMode"),
-
         ];
 
         return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-
         this.workMode = currentData.allComponents[this.component.id + "/" + "_PropertyWorkMode"];
         this.consumptionMeter = this.config.getComponent(this.component.properties["meter.id"]) ?? null;
 
@@ -89,14 +82,11 @@ export class FlatComponent extends AbstractFlatWidget {
         }
 
         this.level = currentData.allComponents[this.component.id + "/" + "Level"];
+        this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
 
-        if (this.edge.isVersionAtLeast("2022.8")) {
-            this.runState = currentData.allComponents[this.component.id + "/" + "Status"];
-
-            if (this.consumptionMeter) {
-                const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
-                this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
-            }
+        if (this.consumptionMeter) {
+            const activePower = currentData.allComponents[this.consumptionMeter.id + "/ActivePower"];
+            this.runState = getInactiveIfPowerIsLow(this.runState, activePower);
         }
     }
 }

@@ -7,8 +7,8 @@ import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static io.openems.common.utils.ReflectionUtils.setStaticAttributeViaReflection;
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.stream.Collectors.joining;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -39,6 +39,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
+import io.openems.common.utils.CancellationToken;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.host.DummyHost;
@@ -54,6 +55,7 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggregateTaskImpl;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.EvseClusterTaskImpl;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTaskImpl;
@@ -287,7 +289,7 @@ public class AppManagerTestBundle {
 	 * @throws Exception on error
 	 */
 	public void assertNoValidationErrors() throws Exception {
-		this.appValidateWorker.validateApps();
+		this.appValidateWorker.validateApps(new CancellationToken());
 
 		// should not have found defective Apps
 		if (!this.appValidateWorker.defectiveApps.isEmpty()) {
@@ -370,6 +372,21 @@ public class AppManagerTestBundle {
 		for (var component : components) {
 			this.assertComponentExist(component);
 		}
+	}
+
+	/**
+	 * Creates assertions for the given {@link AbstractOpenemsAppWithProps}.
+	 *
+	 * @param <APP>       the app type
+	 * @param <PROPERTY>  the property type
+	 * @param <PARAMETER> the parameter type
+	 * @param app         the app under test
+	 * @return the app assertions
+	 */
+	public <APP extends AbstractOpenemsAppWithProps<APP, PROPERTY, PARAMETER>, //
+			PROPERTY extends Type<PROPERTY, APP, PARAMETER>, //
+			PARAMETER> AppAssertions<APP, PROPERTY, PARAMETER> withApp(APP app) {
+		return new AppAssertions<>(app);
 	}
 
 	/**
@@ -456,6 +473,18 @@ public class AppManagerTestBundle {
 		final var clusterTask = new EvseClusterTaskImpl(this.componentManger);
 		this.appHelper.addAggregateTask(clusterTask);
 		return clusterTask;
+	}
+
+	/**
+	 * Adds a {@link EnergySchedulerVersionAggregateTaskImpl} to the current active
+	 * tasks.
+	 *
+	 * @return the created {@link EnergySchedulerVersionAggregateTaskImpl}
+	 */
+	public EnergySchedulerVersionAggregateTaskImpl addEnergySchedulerVersionAggregateTask() {
+		final var task = new EnergySchedulerVersionAggregateTaskImpl(this.componentManger);
+		this.appHelper.addAggregateTask(task);
+		return task;
 	}
 
 	/**

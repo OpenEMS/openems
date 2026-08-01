@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -17,12 +17,14 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 @Component({
     selector: "oe-controller-ess-gridoptimizedcharge-prediction-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class NewNavigationPredictionChartComponent extends AbstractHistoryChart implements OnChanges {
-
-    private static readonly DEFAULT_PERIOD: DefaultTypes.HistoryPeriod =
-        new DefaultTypes.HistoryPeriod(new Date(), new Date());
+    private static readonly DEFAULT_PERIOD: DefaultTypes.HistoryPeriod = new DefaultTypes.HistoryPeriod(
+        new Date(),
+        new Date(),
+    );
 
     private static readonly DEFAULT_RESOLUTION: Resolution = {
         unit: ChronoUnit.Type.MINUTES,
@@ -64,7 +66,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
 
     protected override getChartHeight(): number | null {
         const fourTimesTheHeight = 400;
-        return ViewUtils.getChartContentHeightInVh(window.innerHeight, this.navigationService.position(), fourTimesTheHeight);
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position(), fourTimesTheHeight);
     }
 
     protected override getChartData(): HistoryUtils.ChartData {
@@ -123,8 +125,8 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
             this.labels = prepared.labels;
             this.datasets = this.prepareDatasets(prepared.datasets);
             this.legendOptions = this.datasets
-                .filter((dataset, index, arr) => arr.findIndex(d => d.label === dataset.label) === index)
-                .map(dataset => ({
+                .filter((dataset, index, arr) => arr.findIndex((d) => d.label === dataset.label) === index)
+                .map((dataset) => ({
                     label: dataset.label?.toString() ?? "",
                     strokeThroughHidingStyle: false,
                     hideLabelInLegend: false,
@@ -162,7 +164,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
         const currentIndex = this.getCurrentFiveMinuteIndex();
         const startIndex = Math.max(currentIndex - 12, 0);
 
-        const socData: (number | null)[] = rawSocData.map(value => {
+        const socData: (number | null)[] = rawSocData.map((value) => {
             if (value == null || value > 100 || value < 0) {
                 return null;
             }
@@ -198,9 +200,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
 
         if (startSoc != null) {
             const remainingCapacity = 100 - startSoc;
-            const remainingSteps = isChargeStartPresent
-                ? targetIndex - chargeStartIndex
-                : targetIndex - currentIndex;
+            const remainingSteps = isChargeStartPresent ? targetIndex - chargeStartIndex : targetIndex - currentIndex;
 
             if (remainingSteps > 0) {
                 const dataSteps = remainingCapacity / remainingSteps;
@@ -237,7 +237,7 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
         }
 
         return {
-            labels: trimmedTimestamps.map(timestamp => new Date(timestamp)),
+            labels: trimmedTimestamps.map((timestamp) => new Date(timestamp)),
             datasets: [
                 {
                     type: "line",
@@ -274,28 +274,24 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
             return {
                 ...preparedDataset,
                 yAxisID: ChartAxis.RIGHT,
-                backgroundColor: preparedDataset.backgroundColor != null
-                    ? (ColorUtils.changeOpacityFromRGBA(
-                        preparedDataset.backgroundColor.toString(),
-                        preparedDataset.label === this.translate.instant("GENERAL.SOC") ? 0.05 : 0,
-                    ) ?? preparedDataset.backgroundColor)
-                    : preparedDataset.backgroundColor,
-                borderColor: preparedDataset.borderColor != null
-                    ? (ColorUtils.changeOpacityFromRGBA(
-                        preparedDataset.borderColor.toString(),
-                        1,
-                    ) ?? preparedDataset.borderColor)
-                    : preparedDataset.borderColor,
+                backgroundColor:
+                    preparedDataset.backgroundColor != null
+                        ? (ColorUtils.changeOpacityFromRGBA(
+                              preparedDataset.backgroundColor.toString(),
+                              preparedDataset.label === this.translate.instant("GENERAL.SOC") ? 0.05 : 0,
+                          ) ?? preparedDataset.backgroundColor)
+                        : preparedDataset.backgroundColor,
+                borderColor:
+                    preparedDataset.borderColor != null
+                        ? (ColorUtils.changeOpacityFromRGBA(preparedDataset.borderColor.toString(), 1) ??
+                          preparedDataset.borderColor)
+                        : preparedDataset.borderColor,
             } as Chart.ChartDataset;
         });
     }
 
     private createPredictionChartOptions(): Chart.ChartOptions {
-        let options = AbstractHistoryChart.getDefaultXAxisOptions(
-            this.xAxisScalingType,
-            this.service,
-            this.labels,
-        );
+        let options = AbstractHistoryChart.getDefaultXAxisOptions(this.xAxisScalingType, this.service, this.labels);
 
         if (this.chartObject != null) {
             for (const yAxis of this.chartObject.yAxes) {
@@ -356,7 +352,8 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
                 }
 
                 return {
-                    borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
+                    borderColor:
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
                     backgroundColor: backgroundColor.toString(),
                 };
             };
@@ -367,10 +364,14 @@ export class NewNavigationPredictionChartComponent extends AbstractHistoryChart 
                 const legendItems: Chart.LegendItem[] = [];
 
                 chart.data.datasets.forEach((dataset, index) => {
-                    const existingItem = legendItems.find(item => item.text === dataset.label);
+                    const existingItem = legendItems.find((item) => item.text === dataset.label);
 
-                    const borderColor = Array.isArray(dataset.borderColor) ? dataset.borderColor[0] : dataset.borderColor;
-                    const backgroundColor = Array.isArray(dataset.backgroundColor) ? dataset.backgroundColor[0] : dataset.backgroundColor;
+                    const borderColor = Array.isArray(dataset.borderColor)
+                        ? dataset.borderColor[0]
+                        : dataset.borderColor;
+                    const backgroundColor = Array.isArray(dataset.backgroundColor)
+                        ? dataset.backgroundColor[0]
+                        : dataset.backgroundColor;
 
                     if (existingItem != null) {
                         existingItem.datasetIndex = index;

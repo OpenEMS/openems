@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractModalLine } from "src/app/shared/components/modal/abstract-modal-line";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
@@ -7,15 +7,21 @@ import { Role } from "src/app/shared/type/role";
 @Component({
     selector: "oe-electricity-meter",
     templateUrl: "./modal.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ElectricityMeterComponent extends AbstractModalLine implements OnInit {
-
     protected override readonly Role = Role;
     protected override readonly Utils = Utils;
     protected readonly TextIndentation = TextIndentation;
 
-    protected readonly phases: { key: string, name: string, power: number | null, current: number | null, voltage: number | null }[] = [
+    protected readonly phases: {
+        key: string;
+        name: string;
+        power: number | null;
+        current: number | null;
+        voltage: number | null;
+    }[] = [
         { key: "L1", name: "", power: null, current: null, voltage: null },
         { key: "L2", name: "", power: null, current: null, voltage: null },
         { key: "L3", name: "", power: null, current: null, voltage: null },

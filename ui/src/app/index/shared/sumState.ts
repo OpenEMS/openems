@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Service } from "src/app/shared/shared";
 import { Role } from "src/app/shared/type/role";
@@ -15,53 +15,53 @@ export enum SumState {
 @Component({
     selector: "oe-sum-state",
     template: `
-  <ion-col class="sum-state-icon">
-    @if (!isEdgeOnline) {
-      <ion-icon name="oe-offline" color="danger"></ion-icon>
-    } @else {
-      @if (!isAtLeastInstaller) {
-        <ion-icon color="primary" name="play-outline"></ion-icon>
-      } @else {
-        <ng-container class="sum-state-icon">
-          @switch (sumState) {
-            @case (SUM_STATE.OK) {
-              <ion-icon color="success" name="oe-checkmark"></ion-icon>
+        <ion-col class="sum-state-icon">
+            @if (!isEdgeOnline) {
+                <ion-icon name="oe-offline" color="danger"></ion-icon>
+            } @else {
+                @if (!isAtLeastInstaller) {
+                    <ion-icon color="primary" name="play-outline"></ion-icon>
+                } @else {
+                    <ng-container class="sum-state-icon">
+                        @switch (sumState) {
+                            @case (SUM_STATE.OK) {
+                                <ion-icon color="success" name="oe-checkmark"></ion-icon>
+                            }
+                            @case (SUM_STATE.INFO) {
+                                <ion-icon color="success" name="oe-info"></ion-icon>
+                            }
+                            @case (SUM_STATE.WARNING) {
+                                <ion-icon color="warning" name="oe-warning"></ion-icon>
+                            }
+                            @case (SUM_STATE.FAULT) {
+                                <ion-icon color="danger" name="oe-error"></ion-icon>
+                            }
+                            @default {
+                                <ion-icon color="primary" name="play-outline"></ion-icon>
+                            }
+                        }
+                    </ng-container>
+                }
             }
-            @case (SUM_STATE.INFO) {
-              <ion-icon color="success" name="oe-info"></ion-icon>
+        </ion-col>
+    `,
+    styles: [
+        `
+            .sum-state-icon > ion-icon {
+                font-size: 20pt !important;
             }
-            @case (SUM_STATE.WARNING) {
-              <ion-icon color="warning" name="oe-warning"></ion-icon>
-            }
-            @case (SUM_STATE.FAULT) {
-              <ion-icon color="danger" name="oe-error"></ion-icon>
-            }
-            @default {
-              <ion-icon color="primary" name="play-outline"></ion-icon>
-            }
-          }
-        </ng-container>
-      }
-    }
-
-
-  </ion-col>
-  `,
-    styles: [`
-  .sum-state-icon > ion-icon{
-    font-size: 20pt !important;
-}
-  `],
+        `,
+    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class SumStateComponent implements OnInit {
-
     @Input() protected sumState: SumState = SumState.OK;
     @Input() protected isEdgeOnline: boolean = false;
     protected isAtLeastInstaller: boolean = false;
     protected readonly SUM_STATE = SumState;
 
-    constructor(private service: Service) { }
+    constructor(private service: Service) {}
 
     ngOnInit() {
         const user = this.service.metadata?.value?.user ?? null;

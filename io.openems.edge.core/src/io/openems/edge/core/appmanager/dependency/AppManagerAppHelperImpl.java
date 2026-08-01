@@ -60,6 +60,7 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentAggrega
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef.Configuration;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.EnergySchedulerVersionAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.PersistencePredictorAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerAggregateTask;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderAggregateTask;
@@ -85,6 +86,8 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 		private SchedulerByCentralOrderAggregateTask schedulerByCentralOrderAggregateTask;
 		@Reference
 		private StaticIpAggregateTask staticIpAggregateTask;
+		@Reference
+		private EnergySchedulerVersionAggregateTask energySchedulerVersionAggregateTask;
 	}
 
 	@Reference
@@ -1536,7 +1539,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 			String removeKey = null;
 			for (var entry : copy.entrySet()) {
 				var id = JsonUtils.getAsOptionalString(entry.getValue()).orElse(null);
-				if (id != null && component.id().startsWith(id)) {
+				if (id != null && component.id().startsWith(id + entry.getKey() + ":")) {
 					removeKey = entry.getKey();
 					propertyKeyToCurrentId.put(entry.getKey(), id);
 					break;
@@ -1797,23 +1800,16 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 	 * @return the {@link ResourceBundle}
 	 */
 	public static ResourceBundle getTranslationBundle(Language language) {
-		if (language == null) {
-			language = Language.DEFAULT;
-		}
-		// TODO translation
-		switch (language) {
-		case CZ:
-		case ES:
-		case FR:
-		case NL:
-			language = Language.EN;
-			break;
-		case DE:
-		case EN:
-			break;
-		}
+		final var availableLanguage = switch (language) {
+		// Language was not set -> fall back to default (currently GERMAN)
+		case null -> Language.DEFAULT;
+		// Translations are not available -> fall back to ENGLISH
+		case CS, ES, FR, NL, JA -> Language.EN;
+		case DE, EN -> language;
+		};
 
-		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.dependency.translation", language.getLocal());
+		return ResourceBundle.getBundle("io.openems.edge.core.appmanager.dependency.translation",
+				availableLanguage.getLocal());
 	}
 
 	@Override

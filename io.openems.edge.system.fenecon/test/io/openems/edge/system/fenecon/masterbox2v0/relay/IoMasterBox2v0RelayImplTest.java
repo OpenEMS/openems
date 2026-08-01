@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -26,7 +25,6 @@ public class IoMasterBox2v0RelayImplTest {
 		var relay = new IoMasterBox2v0RelayImpl();
 
 		new ComponentTest(relay) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ioc", ioc) //
 				.activate(MyConfig.create() //
 						.setId("io0") //
@@ -48,7 +46,6 @@ public class IoMasterBox2v0RelayImplTest {
 		var ioc = new DummyMasterBox2v0("ioc0");
 
 		new ComponentTest(new IoMasterBox2v0RelayImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("ioc", ioc) //
 				.activate(MyConfig.create() //
 						.setId("io0") //

@@ -1,12 +1,16 @@
-@if (isVisible) {
-  <ion-modal class="action-sheet-modal" #modal [isOpen]="true" [initialBreakpoint]="initialBreakPoint"
-    [breakpoints]="[0.05,initialBreakPoint,0.9]" showBackdrop="true" [backdropDismiss]="false"
-    [backdropBreakpoint]="initialBreakPoint" focusTrap="false" style="--box-shadow: 0 0 0.25rem rgba(0,0,0,0.7)"
-    (ionBreakpointDidChange)="onBreakpointDidChange($event)">
+@if (isVisible()) {
+  <ion-modal class="action-sheet-modal" #modal [isOpen]="true" [initialBreakpoint]="initialBreakPoint" [breakpoints]="[initialBreakPoint, upperMostBreakPoint]" showBackdrop="true" [backdropDismiss]="false" [backdropBreakpoint]="initialBreakPoint" focusTrap="false" style="--box-shadow: 0 0 0.25rem rgba(0, 0, 0, 0.7)" (ionBreakpointDidChange)="onBreakpointDidChange($event)" [animated]="true">
     <ng-template>
-      <ion-content class="ion-padding">
+      <ion-content class="ion-padding ion-padding-top-double">
         <oe-navigation-breadcrumbs (navigate)="navigateTo($event, true)"></oe-navigation-breadcrumbs>
-        <oe-navigation-chips (navigate)="navigateTo($event, true)"></oe-navigation-chips>
+        <ion-grid [style.overflow-y]="'scroll'">
+          <ion-row [style.white-space]="isActionSheetOpened() ? 'inherit' : 'nowrap'">
+            <oe-navigation-chips [children]="displayChildren" (navigate)="navigateTo($event, true)"></oe-navigation-chips>
+          </ion-row>
+        </ion-grid>
+        @if (isActionSheetOpened()) {
+          <oe-footer-content style="display: block; height: 20vh"></oe-footer-content>
+        }
       </ion-content>
     </ng-template>
   </ion-modal>

@@ -36,7 +36,7 @@ import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 	@AttributeDefinition(name = "Genset Rated Power", description = "Nominal genset power in watt. Allowed range: 0–50000 W.")
 	int ratedPower() default 0;
 
-	@AttributeDefinition(name = "Preheating Time", description = "Genset preheating time in seconds. Allowed range: 10–300 s.")
+	@AttributeDefinition(name = "Lead Time", description = "Genset lead time in seconds. Allowed range: 10–300 s.")
 	int preheatingTime() default 10;
 
 	@AttributeDefinition(name = "Runtime", description = "Maximum genset runtime in minutes. Allowed range: 0–1440 minutes (24 hours).")
@@ -45,8 +45,8 @@ import io.openems.edge.goodwe.common.enums.MultiplexingMode;
 	@AttributeDefinition(name = "Enable Charging from Genset", description = "Controls whether charging from the Genset is enabled.")
 	EnableDisable enableCharge() default EnableDisable.ENABLE;
 
-	@AttributeDefinition(name = "Charge Start SoC", description = "State of Charge percentage at which Genset charging starts. Allowed range: 20–90%.")
-	int chargeSocStart() default 20;
+	@AttributeDefinition(name = "Charge Start SoC", description = "State of Charge percentage at which Genset charging starts. Allowed range: 10–90%.")
+	int chargeSocStart() default 10;
 
 	@AttributeDefinition(name = "Charge End SoC", description = "State of Charge percentage at which Genset charging stops. Allowed range: 40–95%.")
 	int chargeSocEnd() default 95;

@@ -1,8 +1,13 @@
 package io.openems.edge.system.fenecon.masterbox2v0.meter;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -10,9 +15,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -20,15 +22,20 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.system.fenecon.masterbox2v0.MasterBox2v0;
-import io.openems.edge.system.fenecon.masterbox2v0.utils.MasterBoxModbusComponent;
 import io.openems.edge.system.fenecon.masterbox2v0.utils.IocReadValueMapping;
+import io.openems.edge.system.fenecon.masterbox2v0.utils.MasterBoxModbusComponent;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -42,24 +49,22 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
+@GenerateTargetsFromReferences("ioc")
 public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements MasterBox2v0Meter, OpenemsComponent,
-		EventHandler, ElectricityMeter, TimedataProvider, MasterBoxModbusComponent {
+		EventHandler, ElectricityMeter, TimedataProvider, MasterBoxModbusComponent, ModbusSlave {
 
 	private final Logger log = LoggerFactory.getLogger(MasterBox2v0MeterImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ioc_id})(enabled=true))")
 	private MasterBox2v0 ioc;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-
-	private Config config;
 
 	public MasterBox2v0MeterImpl() {
 		super(//
@@ -76,13 +81,11 @@ public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements M
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.applyConfig(config);
 	}
 
 	@Modified
 	protected void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
-		this.applyConfig(config);
 	}
 
 	@Override
@@ -144,13 +147,6 @@ public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements M
 		return this.ioc != null;
 	}
 
-	private void applyConfig(Config config) {
-		this.config = config;
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ioc", this.config.ioc_id())) {
-			return;
-		}
-	}
-
 	private void calculateEnergy() {
 		var activePower = this.getActivePower().get();
 		if (activePower == null) {
@@ -162,4 +158,13 @@ public class MasterBox2v0MeterImpl extends AbstractOpenemsComponent implements M
 		}
 	}
 
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode), //
+				ElectricityMeter.getModbusSlaveNatureTable(accessMode), //
+				ModbusSlaveNatureTable.of(MasterBox2v0Meter.class, accessMode, 100) //
+						.build() //
+		);
+	}
 }

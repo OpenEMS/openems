@@ -7,51 +7,63 @@ import { Edge } from "../../edge";
 import { EdgeConfig } from "../../edgeconfig";
 
 export class EvcsComponent extends EdgeConfig.Component {
-
     private constructor(
         id: string,
         alias: string,
         public readonly powerChannel: ChannelAddress,
-        public readonly energyChannel: ChannelAddress
+        public readonly energyChannel: ChannelAddress,
     ) {
         super(id, alias);
     }
 
     /**
-     * Retrieves the appropriate power channel ID for an Electric Vehicle Charging Station (EVCS) component.
-     *
-     * The method returns "ActivePower", unless the given `edge` object does not meet the minimum
-     * required version or the component implements DeprecatedEvcs, in which case it returns "ChargePower".
+     * Checks if the provided evcsComponent has the deprecate evcs nature.
      *
      * @param component - The component for which to determine the power channel ID.
      * @param config - The EdgeConfig.
      * @param edge - The edge instance
-     * @returns - Returns "ActivePower" if the edge version is at least "2024.10.2" and
-     * the component is not deprecated. Otherwise, returns "ChargePower".
+     * @returns - Returns true, if the component is not deprecated, else false.
      */
     public static isDeprecated(component: EdgeConfig.Component, config: EdgeConfig, edge: Edge | null): boolean {
-        if (edge != null && component != null && config != null && (config.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id) == false && edge.isVersionAtLeast("2024.10.2"))) {
+        if (
+            edge != null &&
+            component != null &&
+            config != null &&
+            config.hasComponentNature("io.openems.edge.evcs.api.DeprecatedEvcs", component.id) == false
+        ) {
             return false;
         }
         return true;
     }
 
     public static getComponents(config: EdgeConfig, edge: Edge | null): EvcsComponent[] {
-        return ArrayUtils.sanitize(config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component => StringUtils.isNotInArr(
-                component.factoryId,
-                ["Evcs.Cluster", "Evcs.Cluster.PeakShaving", "Evcs.Cluster.SelfConsumption"]
-            ))
-            .map(component => EvcsComponent.from(component, config, edge)));
+        return ArrayUtils.sanitize(
+            config
+                .getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+                .filter((component) =>
+                    StringUtils.isNotInArr(component.factoryId, [
+                        "Evcs.Cluster",
+                        "Evcs.Cluster.PeakShaving",
+                        "Evcs.Cluster.SelfConsumption",
+                    ]),
+                )
+                .map((component) => EvcsComponent.from(component, config, edge)),
+        );
     }
 
     public static from(component: EdgeConfig.Component, config: EdgeConfig | null, edge: Edge | null) {
         if (config === null) {
             return null;
         }
-        const powerChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ChargePower" : "ActivePower";
-        const energyChannelId = EvcsComponent.isDeprecated(component, config, edge) ? "ActiveConsumptionEnergy" : "ActiveProductionEnergy";
-        return new EvcsComponent(component.id, component.alias, new ChannelAddress(component.id, powerChannelId), new ChannelAddress(component.id, energyChannelId));
+        const isDeprecated = EvcsComponent.isDeprecated(component, config, edge);
+        const powerChannelId = isDeprecated ? "ChargePower" : "ActivePower";
+        const energyChannelId = isDeprecated ? "ActiveConsumptionEnergy" : "ActiveProductionEnergy";
+        return new EvcsComponent(
+            component.id,
+            component.alias,
+            new ChannelAddress(component.id, powerChannelId),
+            new ChannelAddress(component.id, energyChannelId),
+        );
     }
 
     public getChartInputChannel(): HistoryUtils.InputChannel {
@@ -62,7 +74,11 @@ export class EvcsComponent extends EdgeConfig.Component {
         };
     }
 
-    public getChartDisplayValue(data: HistoryUtils.ChannelData, color: string, rest?: HistoryUtils.DisplayValue<HistoryUtils.PluginCustomOptions>): HistoryUtils.DisplayValue<HistoryUtils.PluginCustomOptions> {
+    public getChartDisplayValue(
+        data: HistoryUtils.ChannelData,
+        color: string,
+        rest?: HistoryUtils.DisplayValue<HistoryUtils.PluginCustomOptions>,
+    ): HistoryUtils.DisplayValue<HistoryUtils.PluginCustomOptions> {
         return {
             name: this.alias,
             nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => {

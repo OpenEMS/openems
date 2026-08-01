@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -16,25 +16,21 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
 @Component({
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyComponent<{ mode: Mode }> {
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
     private route: ActivatedRoute = inject(ActivatedRoute);
 
-    public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView<{ mode: Mode }> {
+    public static getFormlyGeneralView(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+    ): OeFormlyView<{ mode: Mode }> {
         return SharedControllerIoHeatpump.getFormlyView(translate, component, edge);
     }
 
@@ -53,17 +49,72 @@ export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyCompone
         if (this.component == null) {
             return;
         }
-        this.setFormControlSafelyWithChannel(this.form, "mode", currentData, new ChannelAddress(this.component.id, "_PropertyMode"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticRecommendationCtrlEnabled", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationCtrlEnabled"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticForceOnCtrlEnabled", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnCtrlEnabled"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticForceOnSurplusPower", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSurplusPower"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticRecommendationSurplusPower", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationSurplusPower"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticForceOnSoc", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSoc"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticLockCtrlEnabled", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticLockCtrlEnabled"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticLockGridBuyPower", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticLockGridBuyPower"));
-        this.setFormControlSafelyWithChannel(this.form, "automaticLockSoc", currentData, new ChannelAddress(this.component.id, "_PropertyAutomaticLockSoc"));
-        this.setFormControlSafelyWithChannel(this.form, "minimumSwitchingTime", currentData, new ChannelAddress(this.component.id, "_PropertyMinimumSwitchingTime"));
-        this.setFormControlSafelyWithChannel(this.form, "manualState", currentData, new ChannelAddress(this.component.id, "_PropertyManualState"));
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "mode",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyMode"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticRecommendationCtrlEnabled",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationCtrlEnabled"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticForceOnCtrlEnabled",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnCtrlEnabled"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticForceOnSurplusPower",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSurplusPower"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticRecommendationSurplusPower",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticRecommendationSurplusPower"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticForceOnSoc",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticForceOnSoc"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticLockCtrlEnabled",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticLockCtrlEnabled"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticLockGridBuyPower",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticLockGridBuyPower"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "automaticLockSoc",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyAutomaticLockSoc"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "minimumSwitchingTime",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyMinimumSwitchingTime"),
+        );
+        this.setFormControlSafelyWithChannel(
+            this.form,
+            "manualState",
+            currentData,
+            new ChannelAddress(this.component.id, "_PropertyManualState"),
+        );
     }
 
     protected override getFormGroup(): FormGroup {

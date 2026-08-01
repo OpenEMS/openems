@@ -8,11 +8,13 @@
         "ENERGY_MANAGEMENT": "Energiemanagementsystem",
         "FAQ": "Häufig gestellte Fragen (FAQ)",
         "LANGUAGE": "Sprache wählen:",
+        "THEME": "Theme",
+        "NEW_UI": "Neues UI",
         "OPEN_EMS": "Mehr zu OpenEMS",
         "PATCHNOTES": "Änderungen im Monitoring zu diesem Build"
     },
     "APP": {
-        "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwenden Sie bitte dafür die Web-App."
+        "FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE": "Diese Funktion ist vorübergehend in der App nicht verfügbar, verwende bitte dafür die Web-App."
     },
     "CHANNELS": {
         "ADD": "hinzufügen",
@@ -40,6 +42,7 @@
                 "WARNING": "Warnungs Benachrichtigung"
             },
             "APP": {
+                "APP_DETAILS": "App-Details",
                 "AVAILABLE": "Verfügbar",
                 "BUY_APP": "Lizenzschlüssel kaufen",
                 "CARDINALITY": "Kardinalität",
@@ -48,7 +51,7 @@
                 "DELETE_APP": "App entfernen",
                 "DELETE_CONFIRM": "entfernen",
                 "DELETE_CONFIRM_DESCRIPTION": "Beim Entfernen werden alle Komponenten und Einstellungen gelöscht, die von dieser App angelegt wurden.",
-                "DELETE_CONFIRM_HEADLINE": "Sind Sie sicher, dass die App entfernt werden soll?",
+                "DELETE_CONFIRM_HEADLINE": "Bist du sicher, dass die App entfernt werden soll?",
                 "ERROR_COMPATIBLE": "Kompatibilitäts fehler",
                 "ERROR_INSTALLABLE": "Installierungs fehler",
                 "FAIL_DELETE": "Entfernen der App fehlgeschlagen: {{error}}",
@@ -58,15 +61,15 @@
                 "INCOMPATIBLE": "Inkompatibel",
                 "INSTALLED": "Installiert",
                 "KEY": {
-                    "ALREADY_REGISTERED_DIFFERENT_APP": "Key wurde bereits für eine App auf diesem System registriert! \nWenn Sie fortfahren, wird die andere Registrierung entfernt.",
-                    "ALREADY_REGISTERED_DIFFERENT_SYSTEM": "Lizenzschlüssel wurde bereits auf einem anderen System registriert! Wenn Sie fortfahren, wird die andere Registrierung entfernt.",
-                    "ENTER_KEY": "Geben Sie hier den Lizenzschlüssel ein, den Sie mit der Bestellung der App erhalten haben",
+                    "ALREADY_REGISTERED_DIFFERENT_APP": "Key wurde bereits für eine App auf diesem System registriert! \nWenn du nun fortfährst, wird die andere Registrierung entfernt.",
+                    "ALREADY_REGISTERED_DIFFERENT_SYSTEM": "Lizenzschlüssel wurde bereits auf einem anderen System registriert! Wenn du nun fortfährst, wird die andere Registrierung entfernt.",
+                    "ENTER_KEY": "Gib hier den Lizenzschlüssel ein, den du mit der Bestellung der App erhalten hast",
                     "FAILED_LOADING_REGISTER_KEY": "Bereits registrierte Schlüssel konnten nicht abgerufen werden",
                     "FAILED_REGISTER_KEY": "Registrierung des Schlüssels fehlgeschlagen",
                     "INVALID": "Lizenzschlüssel ist ungültig",
                     "INVALID_PATTERN": "Eingabe ist ungültig",
                     "KEY": "Lizenzschlüssel",
-                    "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achten Sie bei der Eingabe des Lizenzschlüssels auf mögliche Vertipper: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>",
+                    "KEY_TYPO_MESSAGE_HINT": "<br><span class=\"warning\">Hinweis</span>: Achte bei der Eingabe des Lizenzschlüssels auf mögliche Tippfehler: <ul><li>kleines L „l“ vs. großes i „I“</li><li>Null „0“ vs. großes o „O“</li></ul> Wir empfehlen stets, den Lizenzschlüssel aus dem Lieferschein zu kopieren und in das Feld oben einzufügen, anstatt diesen manuell einzutippen.<br>",
                     "MASTER_KEY_HINT": "<br><span class=\"warning\">Hinweis</span>: Der Masterkey wird im Hintergrund verwendet. Es wird kein Key angezeigt. Sofern ein Lizenzschlüssel vorliegt, bitte diesen verwenden.<br>",
                     "REGISTER_KEY": "Lizenzschlüssel registrieren",
                     "REGISTERED_KEY": "Registrierte Lizenzschlüssel",
@@ -86,18 +89,18 @@
                     "CONNECT": "Verbindung mit {{ oauthName }}",
                     "LOG_IN": "{{ oauthName }} Anmeldung",
                     "LOG_OUT": "Verbindung trennen",
-                    "STATES_MISMATCH": "Es gab ein Problem bei der Anmeldung. Bitte versuchen Sie es erneut.",
+                    "STATES_MISMATCH": "Es gab ein Problem bei der Anmeldung. Bitte versuche die Anmeldung erneut durchzuführen.",
                     "SWITCH_TO_BROWSER": "Zum Browser wechseln",
-                    "UNABLE_TO_CONNECT_CODE": "Verbindung zu konnte nicht hergestellt werden. Bitte versuchen Sie es erneut. {{ error }}"
+                    "UNABLE_TO_CONNECT_CODE": "Verbindung zu konnte nicht hergestellt werden. Bitte versuche die Anmeldung erneut durchzuführen. {{ error }}"
                 },
                 "SUCCESS_DELETE": "App erfolgreich entfernt",
                 "SUCCESS_INSTALL": "App erfolgreich installiert",
                 "SUCCESS_UPDATE": "App erfolgreich aktualisiert",
                 "TECHNICAL_NAME": "Technischer Name",
                 "UNKNOWN_INSTALLATION_STEP": "Unbekannter Installations Schritt: {{ step }}",
-                "UNUSED_REGISTERED_KEY_AVAILABLE": "Es steht noch eine App zur Installation bereit! Klicken Sie auf 'Lizenzschlüssel einlösen', um sie zu installieren.",
+                "UNUSED_REGISTERED_KEY_AVAILABLE": "Es steht noch eine App zur Installation bereit! Klicke auf 'Lizenzschlüssel einlösen', um sie zu installieren.",
                 "UPDATE_APP": "App aktualisieren",
-                "UPDATE_AVAILABLE": "Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisieren Sie das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden."
+                "UPDATE_AVAILABLE": "Es ist eine neue {{ edgeShortName }} Version verfügbar! Bitte aktualisiere das {{ edgeShortName }}, damit alle neuen {{ edgeShortName }} Apps im App Center angezeigt werden."
             },
             "BRIDGE": {
                 "NEW_CONNECTION": "Neue Verbindung...",
@@ -118,6 +121,7 @@
                 "CONTROLLER": "Anwendungen",
                 "DATA_STORAGE": "Datenspeicher",
                 "EXECUTE_SIMULATOR": "Simulationen ausführen",
+                "EXPORT": "Export",
                 "EXPORT_CHANNELS": "Export Kanäle",
                 "GENERAL_DATA": "Allgemeine Daten",
                 "LIVE_LOG": "Live Systemprotokoll",
@@ -158,7 +162,7 @@
             "SCHEDULER": {
                 "ALWAYS": "Immer",
                 "CLASS": "Klasse:",
-                "CONTACT": "Das sollte nicht passieren. Bitte kontaktieren Sie <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
+                "CONTACT": "Das sollte nicht passieren. Bitte kontaktiere <a href=\"mailto:{{ value }}\">{{ value }}</a>.",
                 "NEW_SCHEDULER": "Neuer Scheduler...",
                 "NOT_IMPLEMENTED": "Formular nicht implementiert:"
             }
@@ -206,8 +210,9 @@
             "SUN": "So",
             "THU": "Do",
             "TODAY": "Heute",
+            "TOMORROW": "Morgen",
             "TOTAL": "Gesamt",
-            "TRY_AGAIN": "versuchen Sie es später noch einmal...",
+            "TRY_AGAIN": "versuche es später noch einmal...",
             "TUE": "Di",
             "VOLTAGE": "Spannung",
             "WED": "Mi",
@@ -248,10 +253,10 @@
                 "REACHED_TARGET_SOC": "Bereit zur Kapazitätserweiterung",
                 "REFERENCING_OF_STORAGE": {
                     "CONTENT": "Vor einer Kapazitätserweiterung muss eine Referenzierung des Speichers in den Tagen vor der Kapazitätserweiterung zwingend stattfinden. D.h., dass dieser vollständig entladen (SOC: 0 %) und anschließend vollständig beladen werden muss (SOC: 100 %).",
-                    "HEADER": "Bitte beachten Sie vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
+                    "HEADER": "Bitte beachte vor einer Kapazitätserweiterung eine Referenzierung des Speichers durchzuführen",
                     "TO_INSTRUCTIONS": "Link zur Anleitung"
                 },
-                "SELECT_A_DATE": "Wählen Sie bitte ein Datum aus",
+                "SELECT_A_DATE": "Wähle bitte ein Datum aus",
                 "TARGET_TIME_SPECIFIED": "Kapazitätserweiterung wird am {{targetDate}} um {{targetTime}} durchgeführt",
                 "UPDATE_TO_NEW_VERSION": "Um die Kapazitätserweiterung nutzen zu können, ist ein Update auf die neueste Version erforderlich."
             },
@@ -273,24 +278,27 @@
                     "SELL_TO_GRID_POWER_LIMIT": "Beladung über"
                 },
                 "ENERIX_CONTROL": {
-                    "CHARGE_CONSUMPTION": "ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
+                    "CHARGE_CONSUMPTION": "<b>ACHTUNG:</b> Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/><b>Beachte:</b> Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG 2023) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird.",
                     "CHARGE_FROM_GRID": "Beladung vom Netz erzwungen",
                     "CONNECTED": "Verbunden",
                     "DISCONNECTED": "Keine Verbindung",
                     "NO_DISCHARGE": "Keine Entladung",
                     "NO_INPUT": "Kein Befehl",
                     "NO_OVERWRITE": "keine Übersteuerung",
-                    "NOTE": "Bitte beachten Sie:",
+                    "NOTE": "Bitte beachte:",
                     "OVERWRITE": "aktive Übersteuerung",
                     "OVERWRITE_INFO": "Bei Aktivierung dieser Funktion werden die Standard-Einstellung zur Be- und Entladung des Speichers durch externe Vorgaben der enerix Franchise GmbH & Co. KG ersetzt. Dadurch kann es zu Abweichungen vom gewohnten Betriebsverhalten kommen - zum Beispiel kann Strom aus dem Netz bezogen werden, obwohl das Speichersystem ausreichend geladen ist.",
                     "OVERWRITE_MODE": "Übersteuerungsmodus",
-                    "READ_ONLY": "Lesend"
+                    "READ_ONLY": "Lesend",
+                    "DISCHARGE_TO_GRID_ACTIVATE": "Aktive Entladung in das Netz erlauben",
+                    "DISCHARGE_TO_GRID_DESCRIPTION": "<b>ACHTUNG:</b> Eine aktive Einspeisung von Batteriestrom in das Netz, die über die technisch erforderlichen Betriebszustände hinausgeht, macht eine formelle Anmeldung des Speichersystems erforderlich. Wenden Sie sich im Zweifelsfall bitte an Ihren Installateur. Mit einem Klick auf die blaue Schaltfläche „Speichern“ bestätigen Sie, dass diese Prüfung erfolgt ist.<br/><br/><b>Hinweis:</b> Die Aktivierung dieser Funktion ermöglicht die Einspeisung von Energie aus dem Batteriespeicher in das öffentliche Stromnetz. Je nach Förderprogramm, Vergütungsmodell, Messkonzept und geltenden regulatorischen Vorgaben kann dies Auswirkungen auf bestehende Ansprüche im Zusammenhang mit Förderungen, Vergütungen oder Herkunftsnachweisen haben.<br/><br/>Insbesondere kann es erforderlich sein, den eingespeisten Strom eindeutig zuzuordnen und dessen Herkunft messtechnisch nachzuweisen. Wir können nicht gewährleisten, dass die Nutzung dieser Funktion mit den Anforderungen Ihres spezifischen Förder- oder Vergütungsmodells vereinbar ist.<br/><br/>Bitte klären Sie die Auswirkungen vor der Aktivierung mit Ihrem Installateur, Direktvermarkter, Netzbetreiber oder einem qualifizierten Berater ab.",
+                    "CHARGE_FROM_GRID_ALLOWED": "Aktive Beladung aus dem Netz erlauben"
                 },
                 "EVCS": {
                     "ACTIVATE_CHARGING": "Aktivieren der Ladesäule",
                     "ADMINISTRATION": {
                         "CAR_ADMINISTRATION": "Autoverwaltung",
-                        "CUSTOM_CAR_INFO": "Sollte das der Fall sein, kann ihr Auto nur ab einer bestimmten Leistung effizient beladen werden. Durch diesen Button wird das in Ihre Konfigurationsmöglichkeiten- sowie die in die automatische Beladung einberechnet.",
+                        "CUSTOM_CAR_INFO": "Sollte das der Fall sein, kann das Auto nur ab einer bestimmten Leistung effizient beladen werden. Durch die Bestätigung über den Button wird das in die Konfigurationsmöglichkeiten- sowie die in die automatische Beladung einberechnet.",
                         "RENAULT_ZOE": "Wird an dieser Ladesäule hauptsächlich ein Renault Zoe beladen?"
                     },
                     "AMOUNT_OF_CHARGING_STATIONS": "Anzahl der Ladestationen",
@@ -330,7 +338,7 @@
                     "MAX_ENERGY_RESTRICTION": "Maximale Energie pro Ladevorgang begrenzen",
                     "NO_CONNECTION": {
                         "DESCRIPTION": "Es konnte keine Verbindung zur Ladestation aufgebaut werden.",
-                        "HELP1": "Prüfen sie ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
+                        "HELP1": "Prüfe ob die Ladestation eingeschaltet und über das Netz erreichbar ist",
                         "HELP1_1": "Die IP der Ladesäule erscheint beim erneuten einschalten"
                     },
                     "NOT_AUTHORIZED": "Nicht authorisiert",
@@ -363,7 +371,7 @@
                     "UNKNOWN": "Unbekannt",
                     "UNPLUGGED": "Ausgesteckt",
                     "ZERO": "Keine Beladung",
-                    "MINIMUM": "Minimal Beladung mit PV-Überschuss",
+                    "MINIMUM": "PV-Überschuss mit garantierter Beladung",
                     "SURPLUS": "PV-Überschuss",
                     "FORCE_CHARGE": "Schnellladen",
                     "TASKS": "Tasks"
@@ -423,14 +431,21 @@
                         "ALLOWED_FEED_IN_LIMIT_TOO_LOW_DESCRIPTION": "Eine limitierte oder verzögerte Beladung ist nicht möglich, da keine oder nur eine geringe Einspeisung erlaubt ist."
                     },
                     "LIMITED_FUNCTIONALITY": "Eingeschränkte Funktionalität",
-                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)"
+                    "STORAGE_CAPACITY": "Speicherkapazität (nur sichtbar für admin)",
+                    "INFO_DISABLED_BY_TIME_OF_USE": "Hinweis: Die netzdienliche Beladung ist nun in die App „Dynamischer Stromtarif“ integriert. Die hier gesetzten Einstellungen bleiben weiterhin wirksam.",
+                    "EEG_2025_APP_NAME": "EEG 2025",
+                    "EEG_2025_DESCRIPTION_NOT_INSTALLED": "Ist deine Anlage von der EEG-2025-Regelung betroffen?<br/><br/>Mit der EEG-2025-App wird die Einspeisung bei negativen Börsenpreisen automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
+                    "EEG_2025_DESCRIPTION_INSTALLED": "Die EEG-2025-App ist aktiv.<br/><br/>Bei negativen Börsenpreisen wird die Einspeisung automatisch so weit wie möglich reduziert. Falls weiterhin überschüssige Energie vorhanden ist, wird diese weiterhin eingespeist und geht nicht verloren.",
+                    "EEG_2025_APP_LINK": "Zur App"
                 },
                 "HEAT": {
-                    "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen Ihres AC-Thor Heizstabes können Sie in der MyPV-App vornehmen.",
-                    "HEATING": "heizt",
+                    "CHANGES_MY_PV_INFO": "Änderungen für die Einstellungen deines AC-Thor Heizstabes kannst du in der MyPV-App vornehmen.",
+                    "CONTROL_NOT_ALLOWED": "Steuerung nicht erlaubt",
+                    "ERROR": "Fehler",
+                    "HEATING": "Heizt",
                     "HEATING_ENERGY": "Heizenergie",
                     "HEATING_OUTPUT": "Heizleistung",
-                    "NO_HEATING": "heizt nicht",
+                    "NO_HEATING": "Heizt nicht",
                     "TARGET_TEMPERATURE_REACHED": "Zieltemperatur erreicht",
                     "TEMPERATURE": "Wassertemperatur",
                     "TEMPERATURE_UNIT": "Wassertemperatur in °C"
@@ -454,7 +469,7 @@
                 },
                 "HEATINGELEMENT": {
                     "ACTIVE_FORCED": "Aktiv (Mindestlaufzeit)",
-                    "ACTIVE_LEVEL": "Aktives Level",                    
+                    "ACTIVE_LEVEL": "Aktives Level",
                     "LEVEL_ONE": "Level 1",
                     "LEVEL_TWO": "Level 2",
                     "LEVEL_THREE": "Level 3",
@@ -516,13 +531,15 @@
                     "SWITCH_ON_ABOVE": "Einschalten über",
                     "SWITCH_ON_BELOW": "Einschalten unter",
                     "SWITCHED_LOAD_POWER": "Geschaltete Last",
-                    "THRESHOLD": "Schwellenwert"
+                    "THRESHOLD": "Schwellenwert",
+                    "SWITCH_ON_ABOVE_THRESHOLD": "Einschalten über Schwellenwert",
+                    "SWITCH_ON_BELOW_THRESHOLD": "Einschalten unter Schwellenwert"
                 },
                 "STORAGE": {
                     "AMBIENT_TEMPERATURE": "Umgebungstemperatur",
                     "BATTERY_DC": "Batterie - DC",
                     "GRID_CHARGE": "Erhalt der Notstromreserve aus dem Netz aktivieren",
-                    "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wenden Sie sich hierzu bitte an Ihren Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigen Sie, dass Sie diese Prüfung durchgeführt haben.<br/><br/>Beachten Sie: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird",
+                    "GRID_CHARGE_WARNING": "Das Speichersystem kann zur Aufrechterhaltung der eingestellten Notstromreserve aktiv aus dem Netz nachladen um bei längerem Ausbleiben von Erzeugung Verluste durch internen Eigenverbrauch auszugleichen.<br/><br/>ACHTUNG: Die aktive Beladung der Batterie aus dem Netz über die technisch notwendige Erhaltungsladung hinaus erfordert eine entsprechende Anmeldung des Speichersystems. Im Zweifel wende dich hierzu bitte an deinen Installateur. Mit Betätigung des blauen \"Speichern\"-Buttons bestätigst du, dass diese Prüfung durchgeführt wurde.<br/><br/>Beachte: Voraussetzung für die Inanspruchnahme einer Förderung nach dem Gesetz für den Ausbau erneuerbarer Energien (EEG) ist, dass im Speicher ausschließlich Strom zwischengespeichert wird, der aus erneuerbaren Energien und/oder Grubengas stammt. Bei Aktivierung dieser Funktion wird der Speicher mit Netzstrom geladen. Dieser Netzstrom wird, je nach Stromlieferungsvertrag, ggf. auch aus fossilen Energieträgern und/oder Atomkraft gewonnen. Daher können wir nicht gewährleisten, dass der Speicher ausschließlich mit Strom aus erneuerbaren Energien und/oder Grubengas geladen wird",
                     "INVERTER": "Wechselrichter",
                     "TOTAL_AC": "Gesamt AC",
                     "TOTAL_DC": "Gesamt DC"
@@ -535,18 +552,25 @@
                 "TIME_OF_USE_TARIFF": {
                     "CHARGE_FROM_GRID_ACTIVATE": "Aktive Beladung aus dem Netz aktivieren",
                     "CHART_TITLE": "Aktueller Fahrplan",
-                    "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachten Sie, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
+                    "CHART_WARNING_NOTE": "Die Grafik zeigt die vergangenen drei Stunden, sowie die zukünftig geplante Betriebsweise für den Zeitraum, für den die dynamischen Netzbezugspreise zur Verfügung stehen. Bitte beachte, dass der Fahrplan kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann.",
                     "CONTROL_MODE_DESCRIPTION": {
                         "CHARGE_CONSUMPTION": ""
                     },
-                    "POWER_SOC_CHART_TITLE": "Vorhersagen (Nur für Admins)",
+                    "POWER_SOC_CHART_TITLE": "Vorhersagen",
                     "PRICE": "Aktueller Bezugsstrompreis",
                     "STATE": {
                         "BALANCING": "Eigenverbrauchsoptimierung",
-                        "CHARGE_GRID": "Beladung aus dem Netz freigegeben",
-                        "DELAY_DISCHARGE": "Entladung verzögert",
-                        "PEAK_SHAVING": "Lastspitzenkappung"
-                    }
+                        "CHARGE_GRID": "Beladung aus dem Netz",
+                        "DELAY_DISCHARGE": "Entladung verzögern",
+                        "PEAK_SHAVING": "Lastspitzenkappung",
+                        "DELAY_CHARGE": "Beladung verzögern",
+                        "LIMIT_CHARGE": "Beladung limitieren",
+                        "AVOID_GRID_SELL_LIMIT": "Einspeiselimitierung vermeiden",
+                        "DISCHARGE_CONSUMPTION": "Entladung in den Verbrauch",
+                        "DISCHARGE_GRID": "Entladung ins Netz"
+                    },
+                    "EEG_2025_HEADER": "EEG 2025 Prognose",
+                    "EEG_2025_DESCRIPTION": "Die Grafik zeigt die zukünftig erwartete Netzeinspeisung sowie die voraussichtliche Einspeisevergütung gemäß EEG 2025. Diese wird bei der Berechnung der optimalen Betriebsweise berücksichtigt. Es wird versucht, die Netzeinspeisung zu Zeiten ohne Vergütung möglichst gering zu halten. Bitte beachte, dass die Prognose kontinuierlich neu berechnet wird und sich somit im Tagesverlauf ändern kann."
                 },
                 "TWO_WAY_INFO_GRID": "Negative Werte entsprechen Netzeinspeisung, Positive Werte entsprechen Netzbezug",
                 "EVSE": {
@@ -554,8 +578,8 @@
                         "SCHEDULE": "Zeitplan",
                         "ADD_TASK": "Aufgabe hinzufügen"
                     },
-                    "CHARGE_MODE": "Lademodus",
-                    "VEHICLE_ID_ERROR": "Die Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfen Sie die Konfiguration. Alle registrierten Fahrzeuge werden angezeigt."
+                    "CHARGE_MODE": "Grundmodus",
+                    "VEHICLE_ID_ERROR": "Alle registrierten Fahrzeuge werden angezeigt. Die entsprechende Fahrzeug-ID konnte nicht gefunden werden. Bitte überprüfe die Konfiguration."
                 }
             }
         },
@@ -569,11 +593,11 @@
             "ERROR_READING_CONFIGURATION": "Fehler beim Lesen der aktuellen Netzwerkkonfiguration:",
             "ERROR_UPDATING": "Fehler beim Aktualisieren",
             "IP_ADDRESS": "IP-Adresse",
-            "MANDATORY_FIELDS": "Bitte füllen Sie die Pflichtfelder aus",
+            "MANDATORY_FIELDS": "Bitte fülle die Pflichtfelder aus",
             "SUBMIT": "Anwenden",
             "SUBNETMASK": "Subnetzmaske",
             "SUCCESS_UPDATE": "Netzwerkkonfiguration erfolgreich aktualisiert für",
-            "VALID_ADDRESS_WARNING": "Geben Sie unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24"
+            "VALID_ADDRESS_WARNING": "Gib unter \"Statische IP-Adressen hinzufügen\" eine gültige IP-Adresse mit Netzmaske ein, z. B. 10.4.1.6/24"
         },
         "SERVICE": {
             "CELL": {
@@ -584,6 +608,11 @@
             "ENTIRE_SYSTEM": "Gesamtsystem"
         },
         "TITLE": "{{ edgeShortName }}"
+    },
+    "EVSE_SINGLE": {
+        "SETTINGS": {
+            "CHARGE_MODE": "In welchen Modus soll beladen werden"
+        }
     },
     "FORMLY_FORM": {
         "TARIFF_TABLE": {
@@ -637,6 +666,7 @@
         "CURRENT_VALUE": "Aktueller Wert",
         "DARK": "Dunkel",
         "DATE_FORMAT": "dd.MM.yyyy",
+        "DETAILS": "Details",
         "DIGITAL_INPUTS": "Digitaleingänge",
         "DIRECT_CONSUMPTION": "Direktverbrauch",
         "DISCHARGE": "Entladung",
@@ -644,6 +674,7 @@
         "ENERGY_LIMIT": "Energielimit",
         "FAULT": "Fehler",
         "FOR": "für",
+        "FORECAST": "Prognose",
         "FORMLY": {
             "INITIALIZING_ERROR": "Fehler beim Initialisieren der Komponente",
             "LINK_TO_DOCS": "Link zu Docs",
@@ -656,8 +687,10 @@
         "GRID": "Netz",
         "GRID_BUY": "Netzbezug",
         "GRID_BUY_ADVANCED": "Bezug",
+        "GRID_BUY_PRICE": "Strompreis",
         "GRID_SELL": "Netzeinspeisung",
         "GRID_SELL_ADVANCED": "Einspeisung",
+        "GRID_SELL_PRICE": "Einspeisevergütung",
         "HEAT_PUMP": "Wärmepumpe",
         "HISTORY": "Historie",
         "INACTIVE": "Inaktiv",
@@ -668,6 +701,7 @@
         "LIGHT": "Hell",
         "LIVE": "Live",
         "LOAD": "Last",
+        "MANAGED_CONSUMPTION": "Gesteuerter Verbrauch",
         "MANUAL": "Anleitung",
         "MANUALLY": "Manuell",
         "MEASURED_VALUE": "Gemessener Wert",
@@ -729,7 +763,7 @@
         },
         "SUM_STATE": "Systemzustand",
         "SYSTEM": "System",
-        "SYSTEM_OUTAGE": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuchen Sie es später noch einmal. Mehr Informationen finden Sie unter",
+        "SYSTEM_OUTAGE": "Aufgrund von Wartungsarbeiten steht das Online-Monitoring vorübergehend nur eingeschränkt zur Verfügung. Bitte versuche es später noch einmal. Mehr Informationen findest du unter",
         "SYSTEM_STATE": "Systemstatus",
         "SYSTEM_THEME": "System",
         "THEME_SELECTION": {
@@ -765,7 +799,13 @@
         "NAVIGATION_INFO": "Wir arbeiten aktuell daran, unser Monitoring sowie die App neu zu gestalten. Dies betrifft die Navigation und Funktionen.",
         "NAVIGATION_DETAILS": " In diesem Hilfe-Chip findest du jederzeit Unterstützung. Hier gibt es Infos zu den Änderungen, Erklärungen oder Hilfestellungen – inklusive der erweiterten Möglichkeiten deiner Ladestation.",
         "LINK": "Details findest du unter folgendem Link:",
-        "HELP": "Hilfe"
+        "LINK_TEXT": "Changelog zum Beta-Test ansehen",
+        "SURVEY": "Hier kannst du uns dein Feedback zum Beta-Test mitteilen:",
+        "SURVEY_LINK": "An der Beta-Test-Umfrage teilnehmen",
+        "HELP": "Hilfe",
+        "CHARGE_ONCE": "Einmalige Beladung",
+        "DISCHARGE_ONCE": "Einmalige Entladung",
+        "TARGET_SOC": "Ziel-Ladezustand"
     },
     "GRID_STATES": {
         "CONSUMPTION_LIMITATION": "Bezugslimitierung",
@@ -787,12 +827,12 @@
         "FIRST_SETUP_PROTOCOL": "Erstinbetriebnahme",
         "IS_OFFLINE": "OpenEMS ist offline!",
         "LOGGED_IN_AS": "Angemeldet als",
-        "NO_EDGE_AVAILABLE": "Sie haben noch kein {{edgeShortName}} hinzugefügt.",
-        "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit Ihrem Account verknüpft.",
+        "NO_EDGE_AVAILABLE": "Es wurde noch kein {{edgeShortName}} hinzugefügt.",
+        "NO_EDGE_FOR_USER": "Leider wurde noch kein {{edgeShortName}} mit deinem Account verknüpft.",
         "OFFLINE_SINCE": "Offline seit",
         "TO_ENERGYMONITOR": "Zum Energiemonitor...",
         "TYPE": "Typ",
-        "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem Ihr {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, sehen Sie es an dieser Stelle."
+        "VISIBLE_HERE_AFTER_INSTALLATION": "Nachdem das {{edgeShortName}} durch einen Installateur in Betrieb genommen wurde, kannst du es an dieser Stelle sehen."
     },
     "LIVE": {
         "PULL_TO_REFRESH": "Hier ziehen, um zu aktualisieren"
@@ -802,13 +842,13 @@
         "SERVER_NOT_ACCESSIBLE": "Server nicht erreichbar",
         "SERVER_NOT_ACCESSIBLE_ACCESS_LOCALLY": "Lokal zugreifen",
         "SERVER_NOT_ACCESSIBLE_DESCRIPTION": "Der Onlinezugriff auf das Speichersystem ist aktuell nicht möglich. Die Daten werden lokal gespeichert und gehen nicht verloren.",
-        "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Probieren Sie bitte in 10 Minuten den Browser neu zu laden."
+        "SERVER_NOT_ACCESSIBLE_TRY_RELOADING": "Lade bitte in 10 Minuten den Browser neu."
     },
     "LOGIN": {
         "AUTHENTICATION_FAILED": "Authentifizierung fehlgeschlagen",
         "PASSWORD_LABEL": "Passwort",
         "PASSWORD_RESET": "Passwort zurücksetzen",
-        "PREAMBLE": "Bitte geben Sie Ihr Passwort ein oder bestätigen Sie die Voreingabe um sich als Gast anzumelden.",
+        "PREAMBLE": "Bitte gib dein Passwort ein oder bestätige die Voreingabe um dich als Gast anzumelden.",
         "REQUEST_TIMEOUT": "Zeitüberschreitung der Anforderung. Versuche es später noch einmal.",
         "SIGN_IN": "Anmelden",
         "TITLE": "Login",
@@ -818,9 +858,19 @@
     "MENU": {
         "ACCESS_LEVEL": "Zugriffslevel",
         "CHANGELOG": "Changelog",
-        "DEFAULT_EDGE_LONG_NAME": "Open Energy Management System",
+        "COCKPIT": "Cockpit",
+        "DEFAULT_EDGE_LONG_NAME": "FENECON Energiemanagementsystem",
         "EDGE_SETTINGS": "Einstellungen",
+        "EDGE_SYSTEM_SETTINGS": "Systemeinstellungen",
+        "FENECON_ENERGY_MANAGEMENT_SYSTEM": "FENECON Energiemanagementsystem",
         "GENERAL_SETTINGS": "Allgemeine Einstellungen",
+        "GROUPS": {
+            "FIX_DIGITAL_OUTPUT": "Manuelle Relaissteuerung",
+            "CHANNEL_SINGLE_THRESHOLD": "Schwellwertsteuerung",
+            "HEATING_ROOM": "Heizung",
+            "BRAIINS": "Bitcoin Miner"
+        },
+        "HECKERT_ENERGY_MANAGEMENT_SYSTEM": "Heckert Solar Symphon-E Energiemanagementsystem",
         "INDEX": "Übersicht",
         "LOGOUT": "Abmelden",
         "MENU": "Menü",
@@ -829,7 +879,8 @@
         "OTHER_USER": "Weitere Benutzer",
         "OVERVIEW": "Alle Systeme",
         "SETTINGS": "Einstellungen",
-        "USER": "Benutzer"
+        "USER": "Benutzer",
+        "PROFILE": "Profil"
     },
     "MODBUS_TCP_API_READ_WRITE": {
         "ACTIVE_POWER_LIMITATIONS": "Wirkleistungsvorgabe",
@@ -838,7 +889,7 @@
         "CUMULATED_INACTIVE_TIME": "Keine externe Vorgabe vorhanden",
         "CURRENT_STATE": "Aktueller Status",
         "DOWNLOAD_PROTOCOL": "Protokoll Herunterladen",
-        "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung finden Sie in der Anleitung.",
+        "INFO_TEXT": "Tatsächlicher Wert kann von der Vorgabe abweichen. Negative Werte entsprechen Speicherbeladung - postive Speicherentladung. Eine detaillierte Erklärung findest du in der Anleitung.",
         "LAST_COMMAND": "Letzter Schreibbefehl",
         "LIMITATION": "Vorgabe",
         "NO_OVERRIDDEN_CHANNELS": "Es wurden noch keine Kanäle überschrieben.",
@@ -858,7 +909,7 @@
     },
     "OFFLINE": {
         "EDGE": {
-            "DESCRIPTION": "Sollte das {{edgeShortName}}-Gerät neugestartet worden sein, warten Sie bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde.",
+            "DESCRIPTION": "Im Falle eines Neustarts des {{edgeShortName}}-Gerät, warte bitte einen Moment, bis der Neustart vollkommen durchgeführt wurde.",
             "LOCAL_ACCESS_CURRENTLY_NOT_POSSIBLE": "Lokalzugriff derzeit nicht möglich"
         }
     },
@@ -874,6 +925,7 @@
     "REGISTER": {
         "BUTTON": "Anlegen",
         "CREATE_USER": "Account anlegen",
+        "CREATING_USER": "Account wird angelegt...",
         "ERRORS": {
             "EMAIL_NOT_EQUAL": "E-Mails stimmen nicht überein",
             "PASSWORD_NOT_EQUAL": "Passwörter sind nicht gleich",
@@ -935,11 +987,15 @@
                 "TEMPERATURE_SENSORS": "Temperatursensoren"
             }
         },
+        "ENERGY_JOURNEY": {
+            "TO_THE_ANALYSIS": "Zur Analyse",
+            "YOUR_ENERYJOURNEY": "Deine Energy Journey"
+        },
         "POWER_ASSISTANT": {
             "INFO": "Der 'Power Assistant' zeigt für alle Speichersysteme (ess0, ess1,...) die jeweiligen Controller und jeweils einige relevante Datenpunkte. Die Reihenfolge entspricht der Reihenfolge im Scheduler."
         },
         "SYSTEM_UPDATE": {
-            "CONFIRMATION_INFO": "Möchten Sie ihr {{edgeShortName}} aktualisieren?",
+            "CONFIRMATION_INFO": "Möchtest du dein {{edgeShortName}} aktualisieren?",
             "CREATE_COMPONENT": "Komponente anlegen",
             "DELETE_COMPONENT": "Lösche Komponente",
             "EDGE_RESTARTING": "Das {{ edge }} wird neu gestartet...",
@@ -949,28 +1005,19 @@
             "NEW_VERSION": "Neueste Version:",
             "NEW_VERSION_INSTALLING": "Neueste Version installieren",
             "OFFLINE": "Das {{ edgeShortName }} ist offline.",
-            "RESTART_CONFIRMATION": "Möchten Sie {{system}} neu starten?",
+            "RESTART_CONFIRMATION": "Möchtest du {{system}} neu starten?",
             "RESTART_FAILED": "{{system}}-Neustart fehlgeschlagen.",
-            "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
+            "RESTART_WARNING": "Während {{system}} neu startet ist die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stelle sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet.",
             "RESTARTED": "{{system}} neu starten war erfolgreich.",
             "RESTARTING": "{{system}} wird neu gestartet (Dies kann bis zu {{minutes}} Minuten dauern)",
-            "SUB_HEADER": "Möchten Sie ein Systemupdate durchführen?",
+            "SUB_HEADER": "Möchtest du ein Systemupdate durchführen?",
             "UPDATE_COMPONENT": "Aktualisiere Komponente",
             "UPDATE_EXECUTE": "Systemupdate durchführen",
             "UPDATE_NOT_POSSIBLE": "System kann nicht geupdatet werden!",
             "UPDATE_PROGRESS": "Update wird ausgeführt...",
             "UPDATE_SEARCH": "Suche nach Updates...",
             "UPDATE_TIME": "(Dies kann bis zu {{minutes}} min dauern)",
-            "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stellen Sie sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
+            "WARNING": "Im Rahmen des Systemupdates wird {{system}} neu gestartet und dabei die Kommunikation unterbrochen. In dieser Zeit werden keine Daten aufgezeichnet oder Komponenten angesteuert. Bitte stelle sicher, dass sich das Gesamtsystem in einem sicheren Zustand befindet."
         }
-    },
-    "EVSE_SINGLE": {
-        "SETTINGS": {
-            "CHARGE_MODE": "In welchen Modus soll beladen werden"
-        }
-    },
-    "JS_SCHEDULE": {
-        "EDIT_TASK": "Aufgabe bearbeiten",
-        "ADD_TASK": "Aufgabe hinzufügen"
     }
 }

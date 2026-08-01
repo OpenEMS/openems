@@ -1,14 +1,14 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FieldArrayType } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-repeat-section",
     templateUrl: "./repeat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class RepeatTypeComponent extends FieldArrayType {
     // TODO: add explicit constructor
-
 
     public override add(i?: number, initialModel?: any): void {
         i = Number(i) + 1;

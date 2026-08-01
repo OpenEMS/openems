@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -7,6 +7,7 @@ import { filter, takeUntil } from "rxjs/operators";
 import { environment } from "src/environments";
 
 import { RouteService } from "../../service/route.service";
+import { UserService } from "../../service/user.service";
 import { Service, Websocket } from "../../shared";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { PickDateComponent } from "../pickdate/pickdate.component";
@@ -14,10 +15,10 @@ import { PickDateComponent } from "../pickdate/pickdate.component";
 @Component({
     selector: "header",
     templateUrl: "./header.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
-
     @ViewChild(PickDateComponent, { static: false }) public PickDateComponent: PickDateComponent;
 
     public environment = environment;
@@ -30,9 +31,9 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     protected showBackButton: boolean = false;
     protected edge = this.service.currentEdge;
 
-
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
+    private userService: UserService = inject(UserService);
 
     constructor(
         private cdRef: ChangeDetectorRef,
@@ -46,7 +47,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         protected navCtrl: NavController,
         private menuCtrl: MenuController,
     ) {
-
         effect(() => {
             this.showBackButton = this.navigationService.headerOptions().showBackButton;
         });
@@ -64,14 +64,15 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         // set inital URL
         this.updateUrl(this.router.routerState.snapshot.url);
         // update backUrl on navigation events
-        this.router.events.pipe(
-            takeUntil(this.ngUnsubscribe),
-            filter(event => event instanceof NavigationEnd),
-        ).subscribe(event => {
-            window.scrollTo(0, 0);
-            this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
-        });
-
+        this.router.events
+            .pipe(
+                takeUntil(this.ngUnsubscribe),
+                filter((event) => event instanceof NavigationEnd),
+            )
+            .subscribe((event) => {
+                window.scrollTo(0, 0);
+                this.updateUrl((<NavigationEnd>event).urlAfterRedirects);
+            });
     }
 
     // used to prevent 'Expression has changed after it was checked' error
@@ -89,7 +90,14 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         const urlArray = url.split("/");
         const file = urlArray.pop();
 
-        if (file == "user" || file == "settings" || file == "changelog" || file == "login" || file == "index" || urlArray.length > 3) {
+        if (
+            file == "user" ||
+            file == "settings" ||
+            file == "changelog" ||
+            file == "login" ||
+            file == "index" ||
+            urlArray.length > 3
+        ) {
             // disable side-menu; show back-button instead
             this.enableSideMenu = false;
         } else {
@@ -99,7 +107,6 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
 
     updateBackUrl(url: string) {
-
         if (this._customBackUrl) {
             this.backUrl = this._customBackUrl;
             return;
@@ -162,8 +169,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             }
         } else if (file == "settings" && urlArray.length > 1) {
             this.currentPage = "EdgeSettings";
-        }
-        else {
+        } else {
             this.currentPage = "Other";
         }
     }
@@ -174,8 +180,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
             this.cdRef.detectChanges();
         }
         if (event.detail.value == "IndexHistory") {
-
-            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed  */
+            /** Creates bug of being infinite forwarded betweeen live and history, if not relatively routed */
             // this.router.navigate(["../history"], { relativeTo: this.route });
             this.navCtrl.navigateRoot(["/device/" + this.service.currentEdge().id + "/history"]);
             this.cdRef.detectChanges();

@@ -1,7 +1,14 @@
-= my-PV Heatingelement
+= my-PV Heating element
 
 Implements a my-PV heating element.
 
 See https://www.my-pv.com/de/
+
+== Modbus Register Documentation
+
+* https://download.my-pv.com/acthor/Documentation-Controls_AC-THOR_AC-THOR%209s_EN241205.pdf[AC THOR 9s (External Link)]
+* https://download.my-pv.com/acelwa2/AC_ELWA_2_Documentation-Controls_EN241205.pdf[AC ELWA 2 (External Link)]
+* https://download.my-pv.com/acthor/Documentation-Controls_AC-THOR_AC-THOR%209s_EN241205.pdf[AC_THOR (External Link)]
+
 
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.heat.mypv[Source Code icon:github[]]

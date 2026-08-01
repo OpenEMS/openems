@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.jsonrpc.serialization.PolymorphicSerializer;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 
 public class Types {
 
@@ -106,9 +105,11 @@ public class Types {
 		}
 
 		/**
-		 * Stream all entries as {@link Map.Entry} with active power greater than 0 and isReadyForCharging = true.
+		 * Stream all entries as {@link Map.Entry} with active power greater than 0 and
+		 * isReadyForCharging = true.
 		 *
-		 * @return {@link Stream} of {@link Map.Entry}s with Instant keys and Entry values
+		 * @return {@link Stream} of {@link Map.Entry}s with Instant keys and Entry
+		 *         values
 		 */
 		public synchronized Stream<Map.Entry<Instant, Entry>> streamAllWithActivePowerAndReadyForCharging() {
 			if (this.entries.isEmpty()) {

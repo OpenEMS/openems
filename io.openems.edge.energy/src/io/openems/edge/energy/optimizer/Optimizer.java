@@ -87,8 +87,10 @@ public class Optimizer {
 				simulationsPerQuarterChannel, //
 				generationsPerQuarterChannel, //
 				Clock.systemDefaultZone(), //
-				Executors::newSingleThreadExecutor, //
-				Executors::newSingleThreadScheduledExecutor, //
+				() -> Executors.newSingleThreadExecutor(new OptimizerThreadFactory(
+						OptimizerThreadFactory.KEY_OPTIMIZER_EXECUTOR, Thread.NORM_PRIORITY)), //
+				() -> Executors.newSingleThreadScheduledExecutor(new OptimizerThreadFactory(
+						OptimizerThreadFactory.KEY_OPTIMIZER_SCHEDULER, Thread.NORM_PRIORITY)), //
 				Simulator::new);
 	}
 
