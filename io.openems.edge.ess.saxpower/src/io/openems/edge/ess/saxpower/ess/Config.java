@@ -2,7 +2,7 @@ package io.openems.edge.ess.saxpower.ess;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
         name = "Sax Power ESS", //
@@ -25,7 +25,7 @@ public @interface Config {
     int modbusUnitId() default 64;
 
     @AttributeDefinition(name = "Phase", description = "Which Phase is this ESS connected to?")
-    SingleOrAllPhase phase() default SingleOrAllPhase.L1;
+    SinglePhase phase() default SinglePhase.L1;
 
     @AttributeDefinition(name = "Capacity", description = "The Capacity of the ESS in Wh")
     int capacity() default 7700;

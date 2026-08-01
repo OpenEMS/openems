@@ -11,9 +11,9 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
-import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 
-public interface SaxPower extends SymmetricEss, OpenemsComponent, ModbusComponent, ModbusSlave {
+public interface SaxPower extends ManagedSinglePhaseEss, OpenemsComponent, ModbusComponent, ModbusSlave {
 
     enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
@@ -47,7 +47,7 @@ public interface SaxPower extends SymmetricEss, OpenemsComponent, ModbusComponen
 
         private final Doc doc;
 
-        ChannelId(Doc doc) {
+        private ChannelId(Doc doc) {
             this.doc = doc;
         }
 

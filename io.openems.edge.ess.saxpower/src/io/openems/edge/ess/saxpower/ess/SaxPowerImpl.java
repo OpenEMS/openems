@@ -11,7 +11,10 @@ import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
+import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -21,7 +24,6 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.openems.edge.common.sum.GridMode;
-
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
@@ -34,12 +36,16 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 )
 @GenerateTargetsFromReferences("Modbus")
 public class SaxPowerImpl extends AbstractOpenemsModbusComponent
-        implements SaxPower, ManagedSymmetricEss, SymmetricEss, OpenemsComponent, ModbusComponent, ModbusSlave {
+        implements SaxPower, ManagedSinglePhaseEss, OpenemsComponent, ModbusComponent, ModbusSlave {
 
     @Reference
     private ConfigurationAdmin cm;
     @Reference
     private Power power;
+
+    private Config config;
+
+    private SinglePhase phase;
 
     @Override
     @Reference(//
@@ -62,8 +68,8 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         super(//
                 OpenemsComponent.ChannelId.values(), //
                 ModbusComponent.ChannelId.values(), //
-                SymmetricEss.ChannelId.values(), //
-                ManagedSymmetricEss.ChannelId.values(), //
+                SinglePhaseEss.ChannelId.values(), //
+                ManagedSinglePhaseEss.ChannelId.values(), //
                 SaxPower.ChannelId.values() //
         );
     }
@@ -78,6 +84,9 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         }
 
         this.getGridModeChannel().setNextValue(GridMode.ON_GRID);
+
+        this.config = config;
+        SinglePhaseEss.initializeCopyPhaseChannel(this, config.phase());
 
         try {
             this.setOperatingState(2);
@@ -108,7 +117,6 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
                 new FC3ReadRegistersTask(45, Priority.HIGH,
 
                         m(SaxPower.ChannelId.OPERATING_STATE, operatingStateElement),
-                        m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(46)),
 
                         m(SymmetricEss.ChannelId.ACTIVE_POWER, new UnsignedWordElement(47),
                                 new ElementToChannelConverter(val -> {
@@ -150,6 +158,11 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     @Override
     public int getPowerPrecision() {
         return 1;
+    }
+
+    @Override
+    public SinglePhase getPhase() {
+        return this.config.phase();
     }
 
 
