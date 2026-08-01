@@ -28,7 +28,7 @@ services:
       - 443:443
 
   openems-influxdb:
-    image: influxdb:2-alpine
+    image: influxdb:2.9-alpine
     container_name: openems-influxdb
     hostname: openems-influxdb
     restart: unless-stopped

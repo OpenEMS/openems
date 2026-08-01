@@ -158,7 +158,7 @@ to add InfluxDB to your setup, you can do so by adjusting your `docker-compose.y
 ----
   …
   openems-influxdb:
-    image: influxdb:2-alpine
+    image: influxdb:2.9-alpine
     container_name: openems-influxdb
     hostname: openems-influxdb
     restart: unless-stopped
