@@ -13,7 +13,7 @@ import { Websocket } from "../websocket";
 export class JsonrpcRequestStateHandler {
 
     public async establishRequestMinState(request: JsonrpcRequest, websocket: Websocket): Promise<void> {
-        // eslint-disable-next-line no-async-promise-executor
+
         return new Promise<void>(async (resolve) => {
             const authService = websocket.injector.get(AuthService);
             const pagination = websocket.injector.get(Pagination);
