@@ -157,19 +157,19 @@ to add InfluxDB to your setup, you can do so by adjusting your `docker-compose.y
 [source,yaml]
 ----
   …
-  openems_influxdb:
-    image: influxdb:alpine
-    container_name: openems_influxdb
-    hostname: openems_influxdb
+  openems-influxdb:
+    image: influxdb:2.9-alpine
+    container_name: openems-influxdb
+    hostname: openems-influxdb
     restart: unless-stopped
     volumes:
-      - openems-influxdb:/var/lib/influxdb2:rw
+      - openems-influxdb2-data:/var/lib/influxdb2:rw
     ports:
       - 8086:8086
 
 volumes:
   …
-  openems-influxdb:
+  openems-influxdb2-data:
 ----
 
 === Setup InfluxDB
@@ -201,7 +201,7 @@ NOTE: Note down Token
 [%noheader,cols="1,1",width="50%"]
 |===
 | Query Language | INFLUX_QL
-| URL | http://openems_influxdb:8086
+| URL | http://openems-influxdb:8086
 | Org | openems.io
 | ApiKey | InfluxDB-Token
 | Bucket | openems
