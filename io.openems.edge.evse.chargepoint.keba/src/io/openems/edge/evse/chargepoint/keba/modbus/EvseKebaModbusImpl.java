@@ -32,6 +32,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
@@ -67,6 +68,8 @@ import io.openems.edge.timedata.api.TimedataProvider;
 })
 public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChargePoint, ElectricityMeter,
 		OpenemsComponent, TimedataProvider, EventHandler, ModbusComponent {
+
+	static final ElementToChannelConverter ENERGY_LIMIT_CONVERTER = SCALE_FACTOR_1;
 
 	private final KebaUtils kebaUtils = new KebaUtils(this);
 	private final EvseKebaUtils evseKebaUtils = new EvseKebaUtils(this);
@@ -203,7 +206,8 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 					new FC6WriteRegisterTask(5004,
 							m(Keba.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))),
 					new FC6WriteRegisterTask(5010,
-							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010), SCALE_FACTOR_1)),
+							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010),
+									ENERGY_LIMIT_CONVERTER)),
 					new FC6WriteRegisterTask(5012, m(Keba.ChannelId.SET_UNLOCK_PLUG, new UnsignedWordElement(5012))),
 					new FC6WriteRegisterTask(5014, m(Keba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 					new FC6WriteRegisterTask(5050,
@@ -248,7 +252,6 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 		case TOPIC_CYCLE_BEFORE_PROCESS_IMAGE -> {
 			this.kebaUtils.onBeforeProcessImage();
 			this.evseKebaUtils.onBeforeProcessImage();
-		}
 		}
 	}
 
