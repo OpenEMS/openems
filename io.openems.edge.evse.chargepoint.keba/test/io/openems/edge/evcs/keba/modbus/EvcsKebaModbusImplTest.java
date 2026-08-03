@@ -101,4 +101,9 @@ public class EvcsKebaModbusImplTest {
 
 		assertEquals("L:5678 W|SetCurrent:UNDEFINED|SetEnable:-1:Undefined", sut.debugLog());
 	}
+
+	@Test
+	public void testEnergyLimitScaleFactor() {
+		assertEquals(Integer.valueOf(100), EvcsKebaModbusImpl.ENERGY_LIMIT_CONVERTER.channelToElement(1000));
+	}
 }
