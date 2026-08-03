@@ -79,6 +79,11 @@ public class EvseChargePointKebaModbusImplTest {
 	}
 
 	@Test
+	public void testEnergyLimitWriteScaleFactor() {
+		assertEquals(Integer.valueOf(100), EvseKebaModbusImpl.ENERGY_LIMIT_CONVERTER.channelToElement(1000));
+	}
+
+	@Test
 	public void testFirmwareOutdated() throws OpenemsException, Exception {
 		final var sut = new EvseKebaModbusImpl();
 		final var test = prepareKebaModbus(sut) //
