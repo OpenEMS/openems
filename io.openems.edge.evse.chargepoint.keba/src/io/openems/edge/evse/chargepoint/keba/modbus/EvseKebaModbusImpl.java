@@ -253,6 +253,7 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 			this.kebaUtils.onBeforeProcessImage();
 			this.evseKebaUtils.onBeforeProcessImage();
 		}
+		}
 	}
 
 	@Override
