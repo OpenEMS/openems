@@ -90,7 +90,7 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsComponent
 	private void applyConfig(Config config) {
 		log.info("StationID '{}': Applying config", config.id());
 		this.config = config;
-		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.username(), config.password());
+		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(), config.password());
 		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), config.dataInstanceName(),
 				config.id());
 	}
@@ -106,14 +106,14 @@ public class PlcNextLoadCircuitImpl extends AbstractOpenemsComponent
 
 	@Override
 	public String debugLog() {
-		return "MaxActPow:" + this.getMaxActivePowerExport().asString() + ";" + //
-				this.getMaxActivePowerImport().asString() + "|" +
-				"MaxReactPow: " + this.getMaxReactivePower().asString();
+		return new StringBuilder("MaxActPow: ").append(this.getMaxActivePowerExport()).append("; ")
+				.append(this.getMaxActivePowerImport()).append(" | ")
+				.append("MaxReactPow: ").append(this.getMaxReactivePower()).toString();
 	}
 
 	@Override
 	public void handleEvent(Event event) {
-		log.debug("Handling event '" + event.getTopic() + "'");
+		log.debug("Handling event '{}'", event.getTopic());
 		if (!this.isEnabled()) {
 			log.warn("StationID '{}': Module deactivated, skipping event processing of event",
 					this.gdsDataAccessConfig.stationId());

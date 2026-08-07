@@ -25,20 +25,15 @@ import io.openems.edge.phoenixcontact.plcnext.common.auth.PlcNextTokenManagerImp
 
 public class PlcNextGdsDataProviderWriteTest {
 
-	private String sessionId = "1234567890";
-
-	private DummyBridgeHttp mockDummyBridgeHttp;
-	private PlcNextTokenManager mockTokenManager;
-
-	private PlcNextGdsDataProviderImpl dataProvider;
+    private PlcNextGdsDataProviderImpl dataProvider;
 
 	@Before
 	public void setupBefore() {
-		mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
+        DummyBridgeHttp mockDummyBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
 		when(mockDummyBridgeHttp.createService(any())).thenReturn(new HttpBridgeTimeServiceImpl(mockDummyBridgeHttp, //
 				new DummyBridgeHttpExecutor(), new DummyEndpointFetcher()));
 
-		mockTokenManager = Mockito.mock(PlcNextTokenManagerImpl.class);
+        PlcNextTokenManager mockTokenManager = Mockito.mock(PlcNextTokenManagerImpl.class);
 
 		this.dataProvider = new PlcNextGdsDataProviderImpl(mockDummyBridgeHttp, mockTokenManager);
 	}
@@ -46,11 +41,19 @@ public class PlcNextGdsDataProviderWriteTest {
 	@Test
 	public void testSerializationOfJsonObjectStructure() {
 		// prep
-		String expectedBody = "{\"sessionID\":\"1234567890\",\"pathPrefix\":\"pathPrefix\",\"variables\":[" //
-				+ "{\"path\":\"variable_1\",\"value\":1,\"valueType\":\"Variable\"}," //
-				+ "{\"path\":\"variable_2\",\"value\":2,\"valueType\":\"Variable\"}" //
-				+ "]}";
-		List<JsonElement> variablesToWrite = new ArrayList<JsonElement>(2);
+		String expectedBody = new StringBuilder("{")
+				.append("\"sessionID\":\"1234567890\",")
+				.append("\"pathPrefix\":\"pathPrefix\",")
+				.append("\"variables\":[{")
+				.append("\"path\":\"variable_1\",")
+				.append("\"value\":1,")
+				.append("\"valueType\":\"Variable\"")
+				.append("},{")
+				.append("\"path\":\"variable_2\",")
+				.append("\"value\":2,")
+				.append("\"valueType\":\"Variable\"")
+				.append("}]}").toString();
+		List<JsonElement> variablesToWrite = new ArrayList<>(2);
 
 		JsonObject var1 = new JsonObject();
 		var1.addProperty("path", "variable_1");
@@ -65,7 +68,8 @@ public class PlcNextGdsDataProviderWriteTest {
 		variablesToWrite.add(var2);
 
 		// test
-		String requestBody = dataProvider.buildPutBodyForWrite(sessionId, variablesToWrite);
+        String sessionId = "1234567890";
+        String requestBody = dataProvider.buildPutBodyForWrite(sessionId, variablesToWrite);
 
 		// check
 		assertNotNull(requestBody);
