@@ -13,16 +13,27 @@ import org.gradle.testing.jacoco.tasks.JacocoReport
 plugins {
 	id("base")
 	id("java")
+	id("jacoco-report-aggregation")
 	id("com.github.node-gradle.node")
 	id("org.barfuin.gradle.jacocolog")
 	id("org.sonarqube")
-	id("openems.bundle-aggregates")
+	id("openems.bundle-aggregates")	
 }
 
 repositories {
 	mavenLocal()
 	mavenCentral()
 	gradlePluginPortal()
+}
+
+dependencyLocking {
+	lockAllConfigurations()
+}
+
+dependencies {
+	subprojects
+		.filter { it.plugins.hasPlugin("biz.aQute.bnd") }
+		.forEach { jacocoAggregation(it) }
 }
 
 fun Project.isEdgeBundle(): Boolean =
@@ -227,9 +238,16 @@ subprojects {
 	}
 }
 
-/*
- * Build OpenEMS Edge and Backend Components
- */
+reporting {
+    reports {
+		// Choose a name like `jacocoXxxReport`, which will get you a `jacocoLogXxxCoverage` task:
+		// ./gradlew jacocoLogAggregatedCoverage
+        create<JacocoCoverageReport>("jacocoAggregatedReport") {
+            testSuiteName = "test"
+        }
+    }
+}
+
 tasks.register("buildComponents") {
 	subprojects.forEach { proj ->
 		if (proj.tasks.names.contains("compileJava")) {

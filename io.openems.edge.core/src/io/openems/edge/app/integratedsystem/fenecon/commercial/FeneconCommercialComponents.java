@@ -384,6 +384,28 @@ public final class FeneconCommercialComponents {
 	}
 
 	/**
+	 * Creates a default io for the second battery used in a
+	 * {@link FeneconCommercial100} system.
+	 * 
+	 * @param bundle   the translation bundle
+	 * @param modbusId the id of the external modbus bridge
+	 * @return the {@link ComponentDef}
+	 */
+	public static ComponentDef ioForSecondBattery(//
+			final ResourceBundle bundle, //
+			final String modbusId //
+	) {
+		return new ComponentDef("io2", translate(bundle, "App.FENECON.Commercial.100.ioForSecondBattery.alias"), //
+				"IO.KMtronic.4Port", //
+				ComponentProperties.fromJson(JsonUtils.buildJsonObject() //
+						.addProperty("enabled", true) //
+						.addProperty("modbus.id", modbusId) //
+						.addProperty("modbusUnitId", 2) //
+						.build()),
+				ComponentDef.Configuration.defaultConfig());
+	}
+
+	/**
 	 * Creates a default sts-box component for a FENECON Commercial 50/100.
 	 * 
 	 * @param bundle          the translation bundle

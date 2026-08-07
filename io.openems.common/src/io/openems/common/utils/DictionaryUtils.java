@@ -22,6 +22,9 @@ public final class DictionaryUtils {
 	 * @return the value as {@link String}
 	 */
 	public static <T> String getAsString(Dictionary<T, Object> dict, T key) {
+		if (dict == null) {
+			return null;
+		}
 		final var raw = dict.get(key);
 		return switch (raw) {
 		case null -> null;
@@ -51,6 +54,9 @@ public final class DictionaryUtils {
 	 * @return the value as {@link Integer}
 	 */
 	public static <T> Integer getAsInteger(Dictionary<T, Object> dict, T key) {
+		if (dict == null) {
+			return null;
+		}
 		final var raw = dict.get(key);
 		return switch (raw) {
 		case Boolean b -> b ? 1 : 0;
@@ -81,6 +87,9 @@ public final class DictionaryUtils {
 	 * @return the value as {@link Integer}
 	 */
 	public static <T> Boolean getAsBoolean(Dictionary<T, Object> dict, T key) {
+		if (dict == null) {
+			return null;
+		}
 		final var raw = dict.get(key);
 		return switch (raw) {
 		case Boolean b -> b;

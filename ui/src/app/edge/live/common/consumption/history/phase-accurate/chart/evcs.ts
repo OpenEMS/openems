@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -22,7 +22,6 @@ export class EvcsChartDetailsComponent extends AbstractHistoryChart {
     ): HistoryUtils.ChartData {
         const component = config?.getComponent(route.snapshot.params.componentId);
         const evcs = EvcsComponent.from(component, config, edge);
-
         if (evcs == null) {
             return HistoryUtils.ChartData.EMPTY;
         }
