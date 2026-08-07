@@ -79,9 +79,11 @@ import io.openems.edge.goodwe.common.enums.EnableDisable;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings;
 import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
+import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.MeterCommunicateStatus;
 import io.openems.edge.goodwe.common.enums.PvMode;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
+import io.openems.edge.goodwe.common.enums.WaveformDetection;
 
 @SuppressWarnings("deprecation")
 class GoodWeBatteryInverterImplTest {
@@ -1278,26 +1280,7 @@ class GoodWeBatteryInverterImplTest {
 		var component = new GoodWeBatteryInverterImpl();
 		final var docForState14 = component.channel(GoodWe.ChannelId.STATE_14).channelDoc();
 
-		var test = new ComponentTest(component) //
-				.addReference("meta", META) //
-				.addReference("power", new DummyPower()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
-				.addReference("componentManager", new DummyComponentManager()) //
-				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
-				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
-				.addReference("sum", new DummySum()) //
-				.activate(MyConfig.create() //
-						.setId("batteryInverter0") //
-						.setModbusId("modbus0") //
-						.setModbusUnitId(DEFAULT_UNIT_ID) //
-						.setSafetyCountry(SafetyCountry.GERMANY) //
-						.setMpptForShadowEnable(EnableDisable.ENABLE) //
-						.setBackupEnable(EnableDisable.ENABLE) //
-						.setFeedPowerEnable(EnableDisable.ENABLE) //
-						.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
-						.setControlMode(ControlMode.REMOTE) //
-						.setStartStop(StartStopConfig.START) //
-						.build()) //
+		var test = getComponentTest(component, GridCode.VDE_4105) //
 				.next(new TestCase() //
 						.input(GOODWE_TYPE, GoodWeType.GOODWE_5K_BT));
 
@@ -1310,6 +1293,63 @@ class GoodWeBatteryInverterImplTest {
 
 		assertEquals("Utility Phase Failure | Phasenfehler | Überprüfen Sie das Drehfeld am Wechselrichter.",
 				docForState14.getText());
+	}
+
+	@Test
+	void testWaveFormDetectionWith4105() throws Exception {
+		getComponentTest(GridCode.VDE_4105, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+				.next(new TestCase()
+						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.HIGH_PRECISION));
+	}
+
+	@Test
+	void testWaveFormDetectionWith4110() throws Exception {
+		getComponentTest(GridCode.VDE_4110, new TestCase().input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K)) //
+				.next(new TestCase() //
+						.input(GoodWe.ChannelId.GOODWE_TYPE, GoodWeType.FENECON_50K) //
+						.output(GoodWe.ChannelId.WAVE_FORM_DETECTION, WaveformDetection.DETECTION_DISABLED));
+	}
+
+	private static ComponentTest getComponentTest(//
+			GridCode gridCode, //
+			TestCase... inputsBeforeActive //
+	) throws Exception {
+		return getComponentTest(new GoodWeBatteryInverterImpl(), gridCode, inputsBeforeActive);
+	}
+
+	private static ComponentTest getComponentTest(//
+			GoodWeBatteryInverter component, //
+			GridCode gridCode, //
+			TestCase... inputsBeforeActive //
+	) throws Exception {
+		final var componentTest = new ComponentTest(component) //
+				.addReference("meta", META) //
+				.addReference("power", new DummyPower()) //
+				.addReference("cm", new DummyConfigurationAdmin()) //
+				.addReference("componentManager", new DummyComponentManager()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.addReference("serialNumberStorage", new DummySerialNumberStorage()) //
+				.addReference("sum", new DummySum()); //
+
+		for (var input : inputsBeforeActive) {
+			componentTest.next(input);
+		}
+
+		componentTest.activate(MyConfig.create() //
+				.setId("batteryInverter0") //
+				.setModbusId("modbus0") //
+				.setModbusUnitId(DEFAULT_UNIT_ID) //
+				.setSafetyCountry(SafetyCountry.GERMANY) //
+				.setMpptForShadowEnable(EnableDisable.ENABLE) //
+				.setBackupEnable(EnableDisable.ENABLE) //
+				.setFeedPowerEnable(EnableDisable.ENABLE) //
+				.setFeedInPowerSettings(FeedInPowerSettings.PU_ENABLE_CURVE) //
+				.setControlMode(ControlMode.REMOTE) //
+				.setStartStop(StartStopConfig.START) //
+				.setGridCode(gridCode) //
+				.build());
+
+		return componentTest;
 	}
 
 	@Test

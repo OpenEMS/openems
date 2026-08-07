@@ -1,6 +1,7 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
@@ -143,10 +144,13 @@ public class FeneconCommercial92ClusterSlave
 							modbusToBatteryInverterId, dcMinVoltage, gridCode), //
 					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
 							batteryInverterId, essProtection), //
-					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
 					ComponentDef.from(
 							FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId)) //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //

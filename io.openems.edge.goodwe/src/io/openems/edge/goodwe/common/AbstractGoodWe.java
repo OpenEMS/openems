@@ -586,7 +586,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						m(GoodWe.ChannelId.MPPT_FOR_SHADOW_ENABLE, new UnsignedWordElement(45251)), //
 						m(GoodWe.ChannelId.BACK_UP_ENABLE, new UnsignedWordElement(45252)), //
 						m(GoodWe.ChannelId.AUTO_START_BACKUP, new UnsignedWordElement(45253)), //
-						m(GoodWe.ChannelId.GRID_WAVE_CHECK_LEVEL, new UnsignedWordElement(45254)), //
+						m(GoodWe.ChannelId.WAVE_FORM_DETECTION, new UnsignedWordElement(45254)), //
 						new DummyRegisterElement(45255), //
 						m(GoodWe.ChannelId.BACKUP_START_DLY, new UnsignedWordElement(45256)), //
 						m(GoodWe.ChannelId.UPS_STD_VOLT_TYPE, new UnsignedWordElement(45257)), //
@@ -769,7 +769,7 @@ public abstract class AbstractGoodWe extends AbstractOpenemsModbusComponent
 						// Scan" function
 						m(GoodWe.ChannelId.AUTO_START_BACKUP, new UnsignedWordElement(45253)), //
 						// As default is "0"
-						m(GoodWe.ChannelId.GRID_WAVE_CHECK_LEVEL, new UnsignedWordElement(45254)), //
+						m(GoodWe.ChannelId.WAVE_FORM_DETECTION, new UnsignedWordElement(45254)), //
 						new DummyRegisterElement(45255), //
 						// Default is 1500 (30s)
 						m(GoodWe.ChannelId.BACKUP_START_DLY, new UnsignedWordElement(45256)), //

@@ -53,12 +53,6 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 				.text("Inverter Restart (Stopping). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
 		INVERTER_RESTART_STARTING(Doc.of(Level.WARNING)//
 				.text("Inverter Restart (Starting). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
-
-		/**
-		 * Internal StateMachine from KACO.
-		 */
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.WARNING)//
-				.text("The 'CurrentState' is invalid")), //
 		;
 
 		private final Doc doc;
@@ -171,24 +165,6 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	 */
 	public default void setRequestedState(S64201RequestedState value) throws OpenemsNamedException {
 		this.getRequestedStateChannel().setNextWriteValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.INVERTER_CURRENT_STATE_FAULT.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getInverterCurrentStateFaultChannel() {
-		return this.channel(ChannelId.INVERTER_CURRENT_STATE_FAULT);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.INVERTER_CURRENT_STATE_FAULT.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setInverterCurrentStateFault(boolean value) {
-		this.getInverterCurrentStateFaultChannel().setNextValue(value);
 	}
 
 	/**

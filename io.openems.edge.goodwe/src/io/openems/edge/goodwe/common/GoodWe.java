@@ -39,7 +39,7 @@ import io.openems.edge.goodwe.common.enums.FeedInPowerSettings.FixedPowerFactor;
 import io.openems.edge.goodwe.common.enums.GoodWeGridMeterType;
 import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridProtect;
-import io.openems.edge.goodwe.common.enums.GridWaveCheckLevel;
+import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.common.enums.LedState;
 import io.openems.edge.goodwe.common.enums.LoadMode;
@@ -799,7 +799,7 @@ public interface GoodWe extends OpenemsComponent {
 				.accessMode(AccessMode.READ_WRITE)), //
 		AUTO_START_BACKUP(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_WRITE)), //
-		GRID_WAVE_CHECK_LEVEL(Doc.of(GridWaveCheckLevel.values())//
+		WAVE_FORM_DETECTION(Doc.of(WaveformDetection.values())//
 				.accessMode(AccessMode.READ_WRITE)), //
 		BACKUP_START_DLY(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.READ_WRITE)), //

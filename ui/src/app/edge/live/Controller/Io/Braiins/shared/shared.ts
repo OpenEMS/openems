@@ -1,5 +1,5 @@
 import { TranslateService } from "@ngx-translate/core";
-import { GroupedNavigationTreeUtility, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { GroupedNavigationTreeUtility, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { EdgeConfig } from "src/app/shared/shared";
 
@@ -45,19 +45,15 @@ export namespace ControllerBraiinsShared {
         }
 
         const label = component.alias?.trim() || component.id;
-        return createComponentNavigationTree(
-            componentId,
-            label,
-            componentId,
-            translate,
-        );
+        return createComponentNavigationTree(componentId, label, componentId, translate);
     }
 
     export function getGroupedNavigationTree(
         translate: TranslateService,
         componentIds: EdgeConfig.Component["id"][],
         config: EdgeConfig,
-    ): ConstructorParameters<typeof NavigationTree> | null {
+        factoryId: EdgeConfig.Factory["id"],
+    ): NavigationTree | null {
         return GroupedNavigationTreeUtility.createGroupedNavigationTree(
             NAVIGATION_BASE,
             { name: "logo-bitcoin", color: "normal" },
@@ -66,8 +62,8 @@ export namespace ControllerBraiinsShared {
             translate,
             componentIds,
             config,
-            (componentId) =>
-                getNavigationTreeAsChild(translate, componentId, config),
+            factoryId,
+            (componentId) => getNavigationTreeAsChild(translate, componentId, config),
         );
     }
 
@@ -138,9 +134,7 @@ export namespace ControllerBraiinsShared {
      * @param raw The raw value
      * @returns The value for chosen mode
      */
-    export const CONVERT_TO_MODE_LABEL = (
-        translate: TranslateService,
-    ): Converter => {
+    export const CONVERT_TO_MODE_LABEL = (translate: TranslateService): Converter => {
         return (raw): string => {
             return Converter.IF_NUMBER_OR_STRING(raw, (value) => {
                 switch (value) {

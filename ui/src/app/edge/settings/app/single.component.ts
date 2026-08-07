@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, HostListener, inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, inject, OnDestroy, OnInit, signal, } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
@@ -25,7 +25,7 @@ import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterGetPossibleApps } from "./keypopup/appCenterGetPossibleApps";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
 import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
-import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
+import { canEnterKey, hasPredefinedKey } from "./permissions";
 
 @Component({
     selector: SingleAppComponent.SELECTOR,
@@ -39,12 +39,13 @@ import { canEnterKey, hasKeyModel, hasPredefinedKey } from "./permissions";
         RouterModule,
         NavigationBackButtonComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush, // ChangeDetectionStrategy.Default
 })
 export class SingleAppComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "app-single";
     public readonly spinnerId: string = SingleAppComponent.SELECTOR;
 
-    public form: FormGroup | null = null;
+    public form = signal<FormGroup | null>(null);
     public model: any | null = null;
 
     protected canEnterKey: boolean | undefined;
@@ -66,8 +67,9 @@ export class SingleAppComponent implements OnInit, OnDestroy {
     private useMasterKey: boolean = false;
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
-    private routeService: RouteService = inject(RouteService);
-    private navigationService: NavigationService = inject(NavigationService);
+    private readonly routeService: RouteService = inject(RouteService);
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -113,50 +115,45 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 });
 
             // update if the app is free depending of the configured key in the edge config
-            if (hasKeyModel(this.edge)) {
-                this.edge
-                    .getConfig(this.websocket)
-                    .pipe(
-                        filter((config) => config !== null),
-                        takeUntil(this.stopOnDestroy),
-                    )
-                    .subscribe((next) => {
-                        const appManager = next.getComponent("_appManager");
-                        const newKeyForFreeApps = appManager.properties["keyForFreeApps"];
-                        if (!newKeyForFreeApps) {
-                            // no key in config
-                            this.increaseReceivedResponse();
-                        }
-                        if (this.keyForFreeApps === newKeyForFreeApps) {
-                            return;
-                        }
-                        this.keyForFreeApps = newKeyForFreeApps;
-                        // update free apps
-                        this.edge
-                            .sendRequest(
-                                this.websocket,
-                                new AppCenter.Request({
-                                    payload: new AppCenterGetPossibleApps.Request({
-                                        key: this.keyForFreeApps,
-                                    }),
+            this.edge
+                .getConfig(this.websocket)
+                .pipe(
+                    filter((config) => config !== null),
+                    takeUntil(this.stopOnDestroy),
+                )
+                .subscribe((next) => {
+                    const appManager = next.getComponent("_appManager");
+                    const newKeyForFreeApps = appManager.properties["keyForFreeApps"];
+                    if (!newKeyForFreeApps) {
+                        // no key in config
+                        this.increaseReceivedResponse();
+                    }
+                    if (this.keyForFreeApps === newKeyForFreeApps) {
+                        return;
+                    }
+                    this.keyForFreeApps = newKeyForFreeApps;
+                    // update free apps
+                    this.edge
+                        .sendRequest(
+                            this.websocket,
+                            new AppCenter.Request({
+                                payload: new AppCenterGetPossibleApps.Request({
+                                    key: this.keyForFreeApps,
                                 }),
-                            )
-                            .then((response) => {
-                                const result = (response as AppCenterGetPossibleApps.Response).result;
-                                this.isPreInstalledApp = result.bundles.some((bundle) => {
-                                    return bundle.some((app) => {
-                                        return app.appId == this.appId;
-                                    });
+                            }),
+                        )
+                        .then((response) => {
+                            const result = (response as AppCenterGetPossibleApps.Response).result;
+                            this.isPreInstalledApp = result.bundles.some((bundle) => {
+                                return bundle.some((app) => {
+                                    return app.appId == this.appId;
                                 });
-                            })
-                            .finally(() => {
-                                this.increaseReceivedResponse();
                             });
-                    });
-            } else {
-                this.isPreInstalledApp = false;
-                this.increaseReceivedResponse();
-            }
+                        })
+                        .finally(() => {
+                            this.increaseReceivedResponse();
+                        });
+                });
 
             this.service.metadata.pipe(takeUntil(this.stopOnDestroy)).subscribe((entry) => {
                 this.canEnterKey = canEnterKey(edge, entry.user);
@@ -219,6 +216,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
                 )
                 .finally(() => {
                     this.increaseReceivedResponse();
+                    this.cdRef.markForCheck();
                 });
         });
     }
@@ -246,8 +244,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
             });
             return;
         }
-        // if the version is not high enough and the edge doesnt support installing apps via keys directly navigate to installation
-        if (!hasKeyModel(this.edge) || this.isFreeApp) {
+        if (this.isFreeApp) {
             this.router.navigate(["./install"], {
                 queryParams: { name: this.appName, appId: this.appId },
                 relativeTo: this.route,
@@ -268,7 +265,7 @@ export class SingleAppComponent implements OnInit, OnDestroy {
 
     private setApp(app: GetApps.App) {
         this.app = app;
-        this.form = new FormGroup({});
+        this.form.set(new FormGroup({}));
         this.increaseReceivedResponse();
     }
 
