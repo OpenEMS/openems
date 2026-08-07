@@ -20,12 +20,12 @@ Steps to take:
 . Restart NGINX on device.
 . Check functionality of NGINX, URL (https://192.168.1.10) should be still available.
 . Enable "Controller Api Websocket" using [Apache Felix Console](http://192.168.1.10:8080/system/console/configMgr) to listen to port `8075`.
-. Open "WBM" and enable port `8075` to be accessed from outside of the device, because "OpenEMS-UI" is running as "fat web client" in users browser.
+. Open "WBM" and enable port `8075` to be accessed from outside of the device, because "OpenEMS-UI" is running as "fat web client" in user's browser.
 . Point your browser to ["OpenEMS-UI" on device](https://192.168.1.10/openems-ui)
 . Use default passwd "admin" to login to "OpenEMS-UI" module as guest user.
 . Change password!
 
 == Troubleshooting
 
-* Installing the NGINX config for "OpenEMS-UI" may cause that the NGINX on device ist not responding anymore. In this case it's necessary to check the logs what had happened, do a device reset, re-update the firmware, adjust the NGINX config and try again.
+* Installing the NGINX config for "OpenEMS-UI" may cause that the NGINX on device is not responding anymore. In this case it's necessary to check the logs what had happened, do a device reset, re-update the firmware, adjust the NGINX config and try again.
 * ...

@@ -152,11 +152,14 @@ public class PlcNextTokenManagerImpl implements PlcNextTokenManager {
 	 * @param config represents the authentication configuration
 	 * @return configured endpoint to be called
 	 */
-	Endpoint buildAccessTokenEndpointRepresentation(PlcNextAuthAndAccessTokenDTO authAndAccessToken,
+	Endpoint buildAccessTokenEndpointRepresentation(
+			PlcNextAuthAndAccessTokenDTO authAndAccessToken,
 			PlcNextAuthConfig config) {
-		String requestBody = "{ \"code\": \"" + authAndAccessToken.getCode() + "\", "
-				+ "\"grant_type\": \"authorization_code\", " + "\"username\": \"" + config.username() + "\", "
-				+ "\"password\": \"" + config.password() + "\" }";
+		String requestBody = new StringBuilder("{ \"code\": \"").append(authAndAccessToken.getCode()).append("\", ")
+				.append("\"grant_type\": \"authorization_code\", ")
+				.append("\"username\": \"").append(config.username()).append("\", ")
+				.append("\"password\": \"").append(config.password()).append("\" }")
+				.toString();
 		Map<String, String> headers = Map.of(//
 				"Content-Type", "application/json");
 		String accessTokenUrlString = PlcNextUrlStringHelper.buildUrlString(config.authUrl(), PATH_ACCESS_TOKEN);

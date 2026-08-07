@@ -44,6 +44,8 @@ public class PlcNextGdsDataMappedValue {
 
 	@Override
 	public String toString() {
-		return "PlcNextGdsDataMappedValue [channelId=" + channelId + ", value=" + value + "]";
+		return new StringBuilder("PlcNextGdsDataMappedValue [")
+				.append("channelId=").append(channelId).append(", ")
+				.append("value=").append(value).append("]").toString();
 	}
 }

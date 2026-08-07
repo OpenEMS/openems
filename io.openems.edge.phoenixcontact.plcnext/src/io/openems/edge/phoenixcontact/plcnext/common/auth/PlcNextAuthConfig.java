@@ -5,9 +5,7 @@ import io.openems.edge.phoenixcontact.plcnext.common.utils.PlcNextUrlStringHelpe
 /**
  * Covering configuration to authorize REST-API access
  */
-public record PlcNextAuthConfig(String baseUrl, String username, String password) {
-
-	private static final String PLC_NEXT_AUTH_API_PATH = "/v1.3/auth";
+public record PlcNextAuthConfig(String baseUrl, String pathAuthApi, String username, String password) {
 
 	/**
 	 * Assembles URL of authentication endpoint
@@ -15,6 +13,6 @@ public record PlcNextAuthConfig(String baseUrl, String username, String password
 	 * @return URL of authentication endpoint
 	 */
 	public String authUrl() {
-		return PlcNextUrlStringHelper.buildUrlString(baseUrl, PLC_NEXT_AUTH_API_PATH);
+		return PlcNextUrlStringHelper.buildUrlString(baseUrl, pathAuthApi);
 	}
 }

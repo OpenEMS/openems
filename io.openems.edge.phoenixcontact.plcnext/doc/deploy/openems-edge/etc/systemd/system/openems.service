@@ -3,8 +3,8 @@ Description=OpenEMS Edge
 After=network.target
 
 [Service]
-User=root
-Group=root
+User=admin
+Group=admin
 Type=notify
 WorkingDirectory=/opt/plcnext/apps/openems/data
 ExecStart=/opt/plcnext/apps/openems/bin/PLCnext-Start-OpenEMS-Edge.sh

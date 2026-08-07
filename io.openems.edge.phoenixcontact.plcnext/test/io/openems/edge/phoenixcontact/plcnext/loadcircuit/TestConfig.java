@@ -48,6 +48,9 @@ public class TestConfig extends AbstractComponentConfig
 	}
 
 	@Override
+	public String pathAuthApi() { return "/v1.3/auth"; }
+
+	@Override
 	public String username() {
 		return "jUnit";
 	}

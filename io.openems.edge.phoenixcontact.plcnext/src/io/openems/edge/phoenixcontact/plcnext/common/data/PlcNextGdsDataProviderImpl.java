@@ -326,8 +326,9 @@ public class PlcNextGdsDataProviderImpl implements PlcNextGdsDataProvider {
 							log.debug("StationID '{}': Request successful", stationId);
 							return apiResponse.data().getAsJsonObject();
 						} else {
-							throw new IllegalStateException("API endpoint responds with status: '" + apiResponse.status()
-							+ "' and body: '" + apiResponse.data() + "'");
+							throw new IllegalStateException(new StringBuilder()
+									.append("API endpoint responds with status: '").append(apiResponse.status()).append("' ")
+									.append("and body: '").append(apiResponse.data()).append("'").toString());
 						}
 					});
 		} catch (CompletionException e) {

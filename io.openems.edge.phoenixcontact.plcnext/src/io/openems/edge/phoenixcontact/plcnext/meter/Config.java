@@ -27,6 +27,9 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Base-URL", description = "Defines base URL for PLCnext authorization and data access")
 	String baseUrl() default "https://192.168.1.10/_pxc_api";
 
+	@AttributeDefinition(name = "Path auth API", description = "Defines URL path to PLCnext auth API")
+	String pathAuthApi() default "/v1.3/auth";
+
 	@AttributeDefinition(name = "Username", description = "Credentials: username")
 	String username() default "admin";
 
