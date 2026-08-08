@@ -103,13 +103,4 @@ export namespace StringUtils {
 
         return match ? Number.parseInt(match, 10) : null;
     }
-
-    /** Converts a camelCase string to SCREAMING_SNAKE_CASE. Example: "apmOutputActivePower" -> "APM_OUTPUT_ACTIVE_POWER" */
-    export function toScreamingSnakeCase(str: string | null): string | null {
-        if (str == null || !isValidString(str)) {
-            return null;
-        }
-
-        return str.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toUpperCase();
-    }
 }

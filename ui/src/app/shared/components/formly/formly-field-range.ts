@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FieldType } from "@ngx-formly/core";
 import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 
@@ -29,10 +29,11 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
         </ion-range>
 
         <ion-text class="range-current-value">
-            {{ "GENERAL.CURRENT_VALUE" | translate }}: {{ getCurrentValueLabel() }}%
+            {{ "GENERAL.CURRENT_VALUE" | translate }}:
+            {{ getCurrentValueLabel() }}
         </ion-text>
 
-        @if (to.description) {
+        @if (props.description) {
             <p class="description-text">
                 {{ props.description }}
             </p>

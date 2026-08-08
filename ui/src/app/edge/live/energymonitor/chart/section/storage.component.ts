@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
@@ -79,15 +79,10 @@ export class StorageSectionComponent extends AbstractSection implements OnInit, 
     public _updateCurrentData(sum: DefaultTypes.Summary): void {
         this.service.getCurrentEdge().then(async (edge) => {
             edge.currentData.subscribe((curr) => {
-                const maxApparentPower = edge.isVersionAtLeast("2024.2.2")
-                    ? curr.channel["_sum/EssMaxDischargePower"]
-                    : curr.channel["_sum/EssMaxApparentPower"];
-                const minDischargePower = edge.isVersionAtLeast("2024.2.2")
-                    ? curr.channel["_sum/EssMinDischargePower"]
-                    : curr.channel["_sum/EssMaxApparentPower"];
-
+                const maxDischargePower = curr.channel["_sum/EssMaxDischargePower"];
+                const minDischargePower = curr.channel["_sum/EssMinDischargePower"];
                 sum.storage.powerRatio = CurrentData.getEssPowerRatio(
-                    maxApparentPower,
+                    maxDischargePower,
                     minDischargePower,
                     sum.storage.effectivePower,
                 );

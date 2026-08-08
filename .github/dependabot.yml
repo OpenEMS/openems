@@ -79,3 +79,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     target-branch: "develop"
+    groups:
+      all-actions:
+        patterns:
+          - "*"

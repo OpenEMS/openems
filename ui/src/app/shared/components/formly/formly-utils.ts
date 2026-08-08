@@ -2,8 +2,7 @@ import { AbstractControl } from "@angular/forms";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 
 export type NestedKeyOf<ObjectType extends object> = {
-    [Key in keyof ObjectType &
-        (string | number)]: ObjectType[Key] extends object
+    [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
         ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
         : `${Key}`;
 }[keyof ObjectType & (string | number)];
@@ -16,19 +15,17 @@ export type TypedFormlyFieldConfig<T extends object> = Omit<
     model?: T;
     fieldGroup?: TypedFormlyFieldConfig<T>[];
     expressions?: {
-        [property: string]:
-            | string
-            | ((field: TypedFormlyFieldConfig<T>) => any);
+        [property: string]: string | ((field: TypedFormlyFieldConfig<T>) => any);
     };
     hooks?: {
         onInit?: (field: TypedFormlyFieldConfig<T>) => void;
     };
 };
 
-export type StrictFormlyFieldConfig<T extends object> =
-    TypedFormlyFieldConfig<T> & {
-        key?: NestedKeyOf<T>;
-    };
+export type StrictFormlyFieldConfig<T extends object> = Omit<TypedFormlyFieldConfig<T>, "fieldGroup"> & {
+    key?: NestedKeyOf<T>;
+    fieldGroup?: StrictFormlyFieldConfig<T>[];
+};
 
 export namespace FormlyUtils {
     /**
@@ -36,8 +33,7 @@ export namespace FormlyUtils {
      *
      * @param control The Angular AbstractControl to check
      * @param isFocused Whether the field is currently focused
-     * @param cssProperty The CSS property to target (e.g., 'border-color',
-     *   'border-bottom-color')
+     * @param cssProperty The CSS property to target (e.g., 'border-color', 'border-bottom-color')
      */
     export function getControlStyle(
         control: AbstractControl | null | undefined,
@@ -49,10 +45,7 @@ export namespace FormlyUtils {
         if (control !== null && control !== undefined) {
             if (control.touched && control.invalid) {
                 color = "var(--ion-color-danger)";
-            } else if (
-                control.valid &&
-                (control.dirty || control.touched || control.value)
-            ) {
+            } else if (control.valid && (control.dirty || control.touched || control.value)) {
                 color = "var(--ion-color-success)";
             } else if (isFocused) {
                 color = "var(--ion-color-primary)";
@@ -72,9 +65,7 @@ export namespace FormlyUtils {
     export function changeFormlyFieldProps(
         key: FormlyFieldConfig["key"],
         fields: FormlyFieldConfig[],
-        callback: (
-            props: FormlyFieldConfig["props"],
-        ) => FormlyFieldConfig["props"],
+        callback: (props: FormlyFieldConfig["props"]) => FormlyFieldConfig["props"],
     ): FormlyFieldConfig[] {
         const field = fields.find((el) => el.key === key) ?? null;
         if (field == null || field.props == null) {
@@ -111,37 +102,27 @@ export namespace FormlyUtils {
     }
 
     /**
-     * Combines multiple Formly expression functions with a logical OR. Returns
-     * true if ANY of the provided functions evaluate to true.
+     * Combines multiple Formly expression functions with a logical OR. Returns true if ANY of the provided functions
+     * evaluate to true.
      */
-    export function combineOr<T extends object>(
-        ...conditions: ((field: TypedFormlyFieldConfig<T>) => boolean)[]
-    ) {
+    export function combineOr<T extends object>(...conditions: ((field: TypedFormlyFieldConfig<T>) => boolean)[]) {
         return (field: TypedFormlyFieldConfig<T>): boolean => {
             return conditions.some((condition) => condition(field));
         };
     }
 
     /**
-     * Combines multiple Formly expression functions with a logical AND. Returns
-     * true ONLY if ALL of the provided functions evaluate to true.
+     * Combines multiple Formly expression functions with a logical AND. Returns true ONLY if ALL of the provided
+     * functions evaluate to true.
      */
-    export function combineAnd<T extends object>(
-        ...conditions: ((field: TypedFormlyFieldConfig<T>) => boolean)[]
-    ) {
+    export function combineAnd<T extends object>(...conditions: ((field: TypedFormlyFieldConfig<T>) => boolean)[]) {
         return (field: TypedFormlyFieldConfig<T>): boolean => {
             return conditions.every((condition) => condition(field));
         };
     }
 
-    /**
-     * Evaluates to TRUE (hides) if ANY of the provided boolean properties are
-     * FALSE.
-     */
-    export function anyPropIsFalse<
-        T extends object,
-        K extends keyof T = keyof T,
-    >(...propNames: K[]) {
+    /** Evaluates to TRUE (hides) if ANY of the provided boolean properties are FALSE. */
+    export function anyPropIsFalse<T extends object, K extends keyof T = keyof T>(...propNames: K[]) {
         return (field: TypedFormlyFieldConfig<T>): boolean => {
             if (!field.model) {
                 return true;
@@ -155,8 +136,7 @@ export namespace FormlyUtils {
     /**
      * Evaluates to TRUE if the property EQUALS the expected value.
      *
-     * @param defaultWhenMissing What to return if the model hasn't loaded yet
-     *   (default: false)
+     * @param defaultWhenMissing What to return if the model hasn't loaded yet (default: false)
      */
     export function propEquals<T extends object, K extends keyof T = keyof T>(
         propName: K,
@@ -174,13 +154,13 @@ export namespace FormlyUtils {
     /**
      * Evaluates to TRUE if the property does NOT EQUAL the expected value.
      *
-     * @param defaultWhenMissing What to return if the model hasn't loaded yet
-     *   (default: true)
+     * @param defaultWhenMissing What to return if the model hasn't loaded yet (default: true)
      */
-    export function propNotEquals<
-        T extends object,
-        K extends keyof T = keyof T,
-    >(propName: K, expectedValue: T[K], defaultWhenMissing: boolean = true) {
+    export function propNotEquals<T extends object, K extends keyof T = keyof T>(
+        propName: K,
+        expectedValue: T[K],
+        defaultWhenMissing: boolean = true,
+    ) {
         return (field: TypedFormlyFieldConfig<T>): boolean => {
             if (!field.model) {
                 return defaultWhenMissing;

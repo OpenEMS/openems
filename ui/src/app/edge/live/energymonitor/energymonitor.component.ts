@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -26,12 +26,10 @@ export class EnergymonitorComponent implements OnInit, OnDestroy {
         this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
 
-            const essMinMaxChannels = this.edge.isVersionAtLeast("2024.2.2")
-                ? [
-                      new ChannelAddress("_sum", "EssMinDischargePower"),
-                      new ChannelAddress("_sum", "EssMaxDischargePower"),
-                  ]
-                : [new ChannelAddress("_sum", "EssMaxApparentPower")];
+            const essMinMaxChannels = [
+                new ChannelAddress("_sum", "EssMinDischargePower"),
+                new ChannelAddress("_sum", "EssMaxDischargePower"),
+            ];
 
             this.dataService.subscribeChannels(
                 [

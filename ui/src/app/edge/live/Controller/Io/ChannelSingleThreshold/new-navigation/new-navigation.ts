@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -16,12 +16,10 @@ import { SharedIoChannelSingleThreshold } from "../shared/shared";
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFormlyComponent {
-    protected switchState: string | null = null;
-    protected switchValue: string | null = null;
-
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;

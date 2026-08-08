@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -13,6 +13,7 @@ import { FixPowerComponent } from "../shared/shared-new-navigation";
     selector: "oe-controller-ess-fix-active-power",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
