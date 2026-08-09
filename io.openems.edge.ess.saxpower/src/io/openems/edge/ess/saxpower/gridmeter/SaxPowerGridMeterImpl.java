@@ -27,6 +27,8 @@ import org.osgi.service.metatype.annotations.Designate;
 public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
         implements SaxPowerEssGridMeter, ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
+    private static final int ACTIVE_POWER_OFFSET = 16384;
+
     @Reference
     private ConfigurationAdmin cm;
 
@@ -75,7 +77,7 @@ public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
                         m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(48),
                                 new ElementToChannelConverter(val -> {
                                     if (val == null) return null;
-                                    return ((Number) val).intValue() - 16384;
+                                    return ((Number) val).intValue() - ACTIVE_POWER_OFFSET;
                                 })
                         )
                 )
