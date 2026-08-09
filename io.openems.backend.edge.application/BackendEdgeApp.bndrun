@@ -5,6 +5,7 @@
 -resolve.effective: active
 
 -runproperties: \
+	java.awt.headless=true,\
 	org.osgi.service.http.port=8078,\
 	felix.cm.dir=c:/openems-backend-edge/config,\
 	org.apache.felix.eventadmin.Timeout=0,\
