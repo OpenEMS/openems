@@ -3,7 +3,11 @@ package io.openems.edge.ess.saxpower.ess;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
-import io.openems.edge.bridge.modbus.api.*;
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
@@ -13,11 +17,20 @@ import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.type.Phase.SinglePhase;
 import io.openems.edge.common.type.TypeUtils;
-import io.openems.edge.ess.api.*;
+import io.openems.edge.ess.api.AsymmetricEss;
+import io.openems.edge.ess.api.ManagedAsymmetricEss;
+import io.openems.edge.ess.api.ManagedSinglePhaseEss;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
+import io.openems.edge.ess.api.SinglePhaseEss;
+import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.common.sum.GridMode;
 
@@ -126,21 +139,23 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         return new ModbusProtocol(this,
                 new FC3ReadRegistersTask(45, Priority.HIGH,
 
-                        m(SaxPower.ChannelId.OPERATING_STATE, operatingStateElement),
+                        m(SaxPower.ChannelId.OPERATING_STATE, this.operatingStateElement),
                         m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(46)),
 
                         m(activePowerChannelId(this.phase), new UnsignedWordElement(47),
                                 new ElementToChannelConverter(val -> {
-                                    if (val == null) return null;
+                                    if (val == null) {
+                                        return null;
+                                    }
                                     return ((Number) val).intValue() - ACTIVE_POWER_OFFSET;
                                 })
                         )
                 ),
 
-                new FC6WriteRegisterTask(41, m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, activePowerElement)),
-                new FC6WriteRegisterTask(42, m(SaxPower.ChannelId.COS_PHI_SET_POINT, cosPhiElement)),
-                new FC6WriteRegisterTask(43, m(SaxPower.ChannelId.MAX_DISCHARGE_POWER, maxDischargePowerElement)),
-                new FC6WriteRegisterTask(44, m(SaxPower.ChannelId.MAX_CHARGE_POWER, maxChargePowerElement))
+                new FC6WriteRegisterTask(41, m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, this.activePowerElement)),
+                new FC6WriteRegisterTask(42, m(SaxPower.ChannelId.COS_PHI_SET_POINT, this.cosPhiElement)),
+                new FC6WriteRegisterTask(43, m(SaxPower.ChannelId.MAX_DISCHARGE_POWER, this.maxDischargePowerElement)),
+                new FC6WriteRegisterTask(44, m(SaxPower.ChannelId.MAX_CHARGE_POWER, this.maxChargePowerElement))
         );
     }
 

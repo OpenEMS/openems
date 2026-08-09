@@ -66,6 +66,7 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
     default WriteChannel<Integer> getActivePowerSetPointChannel() {
         return this.channel(ChannelId.ACTIVE_POWER_SET_POINT);
     }
+
     default void setActivePowerSetPoint(Integer value) throws OpenemsError.OpenemsNamedException {
         this.getActivePowerSetPointChannel().setNextWriteValue(value);
     }
@@ -77,6 +78,13 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
                 activePowerL3, reactivePowerL3);
     }
 
+    /**
+     * Used for Modbus/TCP Api Controller. Provides a Modbus table for the Channels
+     * of this Component.
+     *
+     * @param accessMode filters the Modbus-Records that should be shown
+     * @return the {@link ModbusSlaveNatureTable}
+     */
     static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
         return ModbusSlaveNatureTable.of(SaxPower.class, accessMode, 41)
                 .channel(0, ChannelId.ACTIVE_POWER_SET_POINT, ModbusType.UINT16) // 41

@@ -6,7 +6,7 @@ import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.common.test.ComponentTest;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public class SaxPowerEssGridMeterImplTest {
 

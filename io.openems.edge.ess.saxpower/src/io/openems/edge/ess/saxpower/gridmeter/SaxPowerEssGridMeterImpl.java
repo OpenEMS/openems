@@ -4,7 +4,11 @@ import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.MeterType;
-import io.openems.edge.bridge.modbus.api.*;
+import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
+import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -14,7 +18,14 @@ import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.*;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
 @Designate(ocd = Config.class, factory = true)
@@ -65,8 +76,9 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm, "Modbus", config.modbus_id());
     }
 
+    @Override
     @Deactivate
-    public void deactivate() {
+    protected void deactivate() {
         super.deactivate();
     }
 
@@ -76,7 +88,9 @@ public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
                 new FC3ReadRegistersTask(48, Priority.HIGH,
                         m(ElectricityMeter.ChannelId.ACTIVE_POWER, new UnsignedWordElement(48),
                                 new ElementToChannelConverter(val -> {
-                                    if (val == null) return null;
+                                    if (val == null) {
+                                        return null;
+                                    }
                                     return ((Number) val).intValue() - ACTIVE_POWER_OFFSET;
                                 })
                         )
