@@ -24,7 +24,7 @@ import org.osgi.service.metatype.annotations.Designate;
         configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @GenerateTargetsFromReferences("Modbus")
-public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
+public class SaxPowerEssGridMeterImpl extends AbstractOpenemsModbusComponent
         implements SaxPowerEssGridMeter, ElectricityMeter, OpenemsComponent, ModbusComponent, ModbusSlave {
 
     private static final int ACTIVE_POWER_OFFSET = 16384;
@@ -43,7 +43,7 @@ public class SaxPowerGridMeterImpl extends AbstractOpenemsModbusComponent
         super.setModbus(modbus);
     }
 
-    public SaxPowerGridMeterImpl() {
+    public SaxPowerEssGridMeterImpl() {
         super(//
                 OpenemsComponent.ChannelId.values(), //
                 ModbusComponent.ChannelId.values(), //

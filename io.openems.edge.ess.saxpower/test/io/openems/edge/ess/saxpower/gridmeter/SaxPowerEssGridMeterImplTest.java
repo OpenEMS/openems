@@ -12,7 +12,7 @@ public class SaxPowerEssGridMeterImplTest {
 
     @Test
     public void test() throws Exception {
-        new ComponentTest(new SaxPowerGridMeterImpl())
+        new ComponentTest(new SaxPowerEssGridMeterImpl())
                 .addReference("cm", new DummyConfigurationAdmin())
                 .addReference("setModbus", new DummyModbusBridge("modbus0"))
                 .activate(MyConfig.create()
