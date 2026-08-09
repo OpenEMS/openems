@@ -46,8 +46,13 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
 * `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 64)
 * `phase` (SingleOrAllPhase): Phase connection - L1, L2, L3, or ALL (default: L1)
-* `capacity` (Integer): Battery capacity in Wh (default: 7700)
+* `capacity` (Integer): Battery capacity in Wh (default: 7000)
+* `maxChargePower` (Integer): Max charge power in Watt (default: 1400)
+* `maxDischargePower` (Integer): Max discharge power in Watt (default: 4600)
+* `minSoc` (Integer): Min state of charge in percent (default: 15)
 * `Modbus_target` (String): Modbus target filter - auto-generated
+
+[[_saxpower_ess]]
 
 === <<_saxpower_grid_meter,SAX Power ESS Grid-Meter>>
 
@@ -72,3 +77,5 @@ This bundle implements the following OpenEMS Components:
 * `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
 * `modbusUnitId` (Integer): The Unit-ID of the Modbus device (default: 64)
 * `Modbus_target` (String): Modbus target filter - auto-generated
+
+[[_saxpower_grid_meter]]
