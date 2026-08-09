@@ -17,7 +17,7 @@ public class SaxPowerImplTest {
                         .setId("ess0")
                         .setModbusId("modbus0")
                         .setModbusUnitId(64)
-                        .setCapacity(7700)
+                        .setCapacity(7000)
                         .build()
                 )
                 .next(new TestCase())

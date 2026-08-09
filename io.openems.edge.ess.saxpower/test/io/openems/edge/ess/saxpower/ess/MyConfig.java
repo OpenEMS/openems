@@ -2,7 +2,7 @@ package io.openems.edge.ess.saxpower.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -13,8 +13,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
         private boolean enabled = true;
         private String modbusId;
         private int modbusUnitId;
-        private SingleOrAllPhase phase = SingleOrAllPhase.L1;
+        private SinglePhase phase = SinglePhase.L1;
         private int capacity;
+        private int maxChargePower;
+        private int maxDischargePower;
+        private int minSoc;
 
         private Builder() {
         }
@@ -44,13 +47,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
             return this;
         }
 
-        public Builder setPhase(SingleOrAllPhase phase) {
+        public Builder setPhase(SinglePhase phase) {
             this.phase = phase;
             return this;
         }
 
         public Builder setCapacity(int capacity) {
             this.capacity = capacity;
+            return this;
+        }
+
+        public Builder setMaxChargePower(int maxChargePower) {
+            this.maxChargePower = maxChargePower;
+            return this;
+        }
+
+        public Builder setMaxDischargePower(int maxDischargePower) {
+            this.maxDischargePower = maxDischargePower;
+            return this;
+        }
+
+        public Builder setMinSoc(int minSoc) {
+            this.minSoc = minSoc;
             return this;
         }
 
@@ -91,13 +109,28 @@ public class MyConfig extends AbstractComponentConfig implements Config {
     }
 
     @Override
-    public SingleOrAllPhase phase() {
+    public SinglePhase phase() {
         return this.builder.phase;
     }
 
     @Override
     public int capacity() {
         return this.builder.capacity;
+    }
+
+    @Override
+    public int maxChargePower() {
+        return this.builder.maxChargePower;
+    }
+
+    @Override
+    public int maxDischargePower() {
+        return this.builder.maxDischargePower;
+    }
+
+    @Override
+    public int minSoc() {
+        return this.builder.minSoc;
     }
 
     @Override
