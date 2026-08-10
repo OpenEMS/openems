@@ -14,7 +14,7 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface PowerControlUnit extends OpenemsComponent {
 
 	enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		/**
+        /**
 		 * Holds the maximum active power feed of the grid. This value is defined like follows.
 		 *
 		 * <ul>
@@ -27,8 +27,8 @@ public interface PowerControlUnit extends OpenemsComponent {
         MAX_BUY_FROM_GRID_LIMIT(Doc.of(OpenemsType.LONG)//
                 .unit(Unit.WATT)//
                 .persistencePriority(PersistencePriority.HIGH)),
-		
-		/**
+
+        /**
 		 * Holds the maximum active power feed exported to the grid. This value is defined like follows.
 		 *
 		 * <ul>
@@ -90,7 +90,7 @@ public interface PowerControlUnit extends OpenemsComponent {
 		this.getMaxBuyFromGridLimitChannel().setNextValue(value);
 	}
 
-    /**
+	/**
      * Fetches fixed value from channel {@link ChannelId#MAX_BUY_FROM_GRID_LIMIT} of process image
      *
      * @return  value object
@@ -118,7 +118,7 @@ public interface PowerControlUnit extends OpenemsComponent {
 		this.getMaxSellToGridLimitChannel().setNextValue(value);
 	}
 
-    /**
+	/**
      * Fetches fixed value from channel {@link ChannelId#MAX_BUY_FROM_GRID_LIMIT} of process image
      *
      * @return  value object
