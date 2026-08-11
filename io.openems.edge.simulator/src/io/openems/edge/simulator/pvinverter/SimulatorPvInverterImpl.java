@@ -2,7 +2,6 @@ package io.openems.edge.simulator.pvinverter;
 
 import java.io.IOException;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +28,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -41,6 +41,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("datasource")
 public class SimulatorPvInverterImpl extends AbstractOpenemsComponent implements SimulatorPvInverter,
 		ManagedSymmetricPvInverter, ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler {
 
@@ -48,11 +49,9 @@ public class SimulatorPvInverterImpl extends AbstractOpenemsComponent implements
 			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
 	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
 			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
-
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY,//
+		target = "(&(id=${config.datasource_id})(enabled=true))")
 	private SimulatorDatasource datasource;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -71,10 +70,6 @@ public class SimulatorPvInverterImpl extends AbstractOpenemsComponent implements
 	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
 	}
 
 	@Override

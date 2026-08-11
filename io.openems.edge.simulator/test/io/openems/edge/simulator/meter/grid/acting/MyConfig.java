@@ -62,11 +62,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String datasource_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.datasource_id());
-	}
-
-	@Override
 	public boolean needFrequencyStepResponse() {
 		return this.builder.needFrequencyStepResponse;
 	}

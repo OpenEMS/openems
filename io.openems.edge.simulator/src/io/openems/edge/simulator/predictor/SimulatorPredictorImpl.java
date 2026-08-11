@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,6 +28,7 @@ import io.openems.edge.predictor.api.prediction.AbstractPredictor;
 import io.openems.edge.predictor.api.prediction.Prediction;
 import io.openems.edge.predictor.api.prediction.Predictor;
 import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -39,16 +39,15 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("datasource")
 public class SimulatorPredictorImpl extends AbstractPredictor
 		implements SimulatorPredictor, Predictor, OpenemsComponent {
 
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY,//
+		target = "(&(id=${config.datasource_id})(enabled=true))")
 	private SimulatorDatasource datasource;
 
 	public SimulatorPredictorImpl() {
@@ -62,11 +61,6 @@ public class SimulatorPredictorImpl extends AbstractPredictor
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		super.activate(context, config.id(), config.alias(), config.enabled(), config.logVerbosity(),
 				config.channelAddresses());
-
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
 	}
 
 	@Override

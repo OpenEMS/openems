@@ -4,7 +4,6 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 
 import java.io.IOException;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -38,6 +37,7 @@ import io.openems.edge.simulator.datasource.api.SimulatorDatasource;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -48,6 +48,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("datasource")
 public class SimulatorEssSinglePhaseReactingImpl extends AbstractOpenemsComponent implements
 		SimulatorEssSinglePhaseReacting, ManagedSinglePhaseEss, SinglePhaseEss, ManagedAsymmetricEss, AsymmetricEss,
 		ManagedSymmetricEss, SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
@@ -60,11 +61,10 @@ public class SimulatorEssSinglePhaseReactingImpl extends AbstractOpenemsComponen
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+		policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY,//
+		target = "(&(id=${config.datasource_id})(enabled=true))")
 	private SimulatorDatasource datasource;
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -92,11 +92,6 @@ public class SimulatorEssSinglePhaseReactingImpl extends AbstractOpenemsComponen
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.phase = config.phase();
 		SinglePhaseEss.initializeCopyPhaseChannel(this, this.phase);
-
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
 
 		this.config = config;
 		this.soc = config.initialSoc();

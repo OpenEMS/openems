@@ -9,7 +9,6 @@ import java.time.ZonedDateTime;
 import org.junit.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
@@ -34,7 +33,6 @@ public class SimulatorPredictorImplTest {
 				""");
 		final var sut = new SimulatorPredictorImpl();
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", datasource) //
 				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
 				.activate(MyConfig.create() //

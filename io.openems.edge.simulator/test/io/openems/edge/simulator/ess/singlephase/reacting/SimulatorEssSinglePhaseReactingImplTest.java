@@ -5,8 +5,7 @@ import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
 import org.junit.Test;
 
-import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
+import io.openems.common.exceptions.OpenemsException;		
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
@@ -20,7 +19,6 @@ public class SimulatorEssSinglePhaseReactingImplTest {
 	@Test
 	public void test() throws OpenemsException, Exception {
 		new ManagedSymmetricEssTest(new SimulatorEssSinglePhaseReactingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", SimulatorDatasourceCsvDirectImplTest.create("datasource0", "123")) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //
