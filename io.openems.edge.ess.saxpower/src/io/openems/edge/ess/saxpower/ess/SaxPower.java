@@ -29,23 +29,6 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
                 .unit(Unit.WATT)
         ),
 
-        // Register 42
-        COS_PHI_SET_POINT(Doc.of(OpenemsType.INTEGER) //
-                .accessMode(AccessMode.WRITE_ONLY) //
-        ),
-
-        // Register 43
-        MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-                .accessMode(AccessMode.WRITE_ONLY) //
-                .unit(Unit.WATT) //
-        ),
-
-        // Register 44
-        MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-                .accessMode(AccessMode.WRITE_ONLY) //
-                .unit(Unit.WATT) //
-        ),
-
         // Register 45
         OPERATING_STATE(Doc.of(OpenemsType.INTEGER)
                 .accessMode(AccessMode.READ_ONLY)
@@ -88,9 +71,6 @@ public interface SaxPower extends ManagedSinglePhaseEss, ManagedAsymmetricEss, M
     static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
         return ModbusSlaveNatureTable.of(SaxPower.class, accessMode, 41)
                 .channel(0, ChannelId.ACTIVE_POWER_SET_POINT, ModbusType.UINT16) // 41
-                .channel(1, ChannelId.COS_PHI_SET_POINT, ModbusType.UINT16) // 42
-                .channel(2, ChannelId.MAX_DISCHARGE_POWER, ModbusType.UINT16) // 43
-                .channel(3, ChannelId.MAX_CHARGE_POWER, ModbusType.UINT16) // 44
                 .build();
     }
 }

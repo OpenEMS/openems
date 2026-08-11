@@ -9,8 +9,8 @@ import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
-import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
@@ -77,9 +77,6 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
     }
 
     private final UnsignedWordElement activePowerElement = new UnsignedWordElement(41);
-    private final UnsignedWordElement cosPhiElement = new UnsignedWordElement(42);
-    private final UnsignedWordElement maxDischargePowerElement = new UnsignedWordElement(43);
-    private final UnsignedWordElement maxChargePowerElement = new UnsignedWordElement(44);
     private final UnsignedWordElement operatingStateElement = new UnsignedWordElement(45);
 
     public SaxPowerImpl() {
@@ -155,10 +152,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
                         )
                 ),
 
-                new FC6WriteRegisterTask(41, m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, this.activePowerElement)),
-                new FC6WriteRegisterTask(42, m(SaxPower.ChannelId.COS_PHI_SET_POINT, this.cosPhiElement)),
-                new FC6WriteRegisterTask(43, m(SaxPower.ChannelId.MAX_DISCHARGE_POWER, this.maxDischargePowerElement)),
-                new FC6WriteRegisterTask(44, m(SaxPower.ChannelId.MAX_CHARGE_POWER, this.maxChargePowerElement))
+                new FC16WriteRegistersTask(41, m(SaxPower.ChannelId.ACTIVE_POWER_SET_POINT, this.activePowerElement))
         );
     }
 
