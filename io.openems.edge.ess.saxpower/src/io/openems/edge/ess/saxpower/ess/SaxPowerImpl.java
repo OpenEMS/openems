@@ -34,6 +34,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import io.openems.edge.common.sum.GridMode;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
@@ -167,10 +170,19 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         };
     }
 
+    private Instant lastWrite = null;
+
     @Override
     public void applyPower(int activePower, int reactivePower) throws OpenemsError.OpenemsNamedException {
-        var setPoint = (int) TypeUtils.fitWithin(0, 0xFFFF, activePower + ACTIVE_POWER_OFFSET);
-        this.setActivePowerSetPoint(setPoint);
+        final var now = Instant.now();
+
+        // Minimum write interval required by SAX battery (5 seconds)
+        if (lastWrite == null || Duration.between(this.lastWrite, now).toMillis() > 5000) {
+            var setPoint = (int) TypeUtils.fitWithin(0, 0xFFFF, activePower + ACTIVE_POWER_OFFSET);
+            this.setActivePowerSetPoint(setPoint);
+
+            lastWrite = now;
+        }
     }
 
     @Override
