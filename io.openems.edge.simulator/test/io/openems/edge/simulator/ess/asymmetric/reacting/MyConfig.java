@@ -94,9 +94,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.gridMode;
 	}
 
-	@Override
-	public String datasource_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.datasource_id());
-	}
+
 
 }

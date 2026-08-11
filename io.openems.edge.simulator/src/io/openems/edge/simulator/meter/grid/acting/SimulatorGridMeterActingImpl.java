@@ -9,7 +9,6 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -26,6 +25,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.MeterType;
 import io.openems.common.types.OpenemsType;
@@ -50,6 +50,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		property = { //
 				"type=GRID" //
 		})
+@GenerateTargetsFromReferences("datasource")
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
@@ -69,10 +70,8 @@ public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference
-	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY, target = "(id=${config.datasource_id})")
 	private SimulatorDatasource datasource;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MULTIPLE)
@@ -95,10 +94,6 @@ public class SimulatorGridMeterActingImpl extends AbstractOpenemsComponent
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
 
 		if (this.config.needFrequencyStepResponse()) {
 			Instant startTime = this.convertTime(this.config.startTime());

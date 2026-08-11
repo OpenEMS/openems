@@ -67,10 +67,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		return this.builder.datasourceId;
 	}
 
-	@Override
-	public String datasource_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.datasource_id());
-	}
+
 
 	@Override
 	public LogVerbosity logVerbosity() {
