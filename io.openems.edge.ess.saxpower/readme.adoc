@@ -52,6 +52,13 @@ This bundle implements the following OpenEMS Components:
 * `minSoc` (Integer): Min state of charge in percent (default: 15)
 * `Modbus_target` (String): Modbus target filter - auto-generated
 
+.*Warning*:
+The device must be switched to the `P setpoint (TCP)` power control mode
+("Control via customer-side EMS and Modbus-TCP" in the SAX dashboard) before it can be
+used with OpenEMS. In any other mode register 41 is unavailable: you will only see live
+data and cannot control the device. +
+See the https://sax-power.net/download/SAXPower_Dashboard.pdf[SAX dashboard manual icon:external-link[]].
+
 [[_saxpower_ess]]
 
 === <<_saxpower_grid_meter,SAX Power ESS Grid-Meter>>

@@ -30,10 +30,19 @@ public @interface Config {
     @AttributeDefinition(name = "Capacity", description = "The Capacity of the ESS in Wh" + "Usable capacity as stated, not installed (5,8 kWh = 5,2 kWh, 7,7 kWh = 7,0 kWh")
     int capacity() default 7000;
 
-    @AttributeDefinition(name = "Max charge power", description = "The maximum charge power in W, as a positive value" + "Device maximum: 1400 W")
+    @AttributeDefinition(//
+            name = "Max charge power", //
+            description = "Maximum charge power in W, as a positive value. " //
+                    + "Must match the value configured in the SAX dashboard. " //
+                    + "See the readme for a guide.")
     int maxChargePower() default 1400;
 
-    @AttributeDefinition(name = "Max discharge power", description = "The maximum discharge power in W" + "Device maximum: 4600 W")
+
+    @AttributeDefinition(//
+            name = "Max discharge power", //
+            description = "Maximum discharge power in W, as a positive value. " //
+                    + "Must match the value configured in the SAX dashboard. " //
+                    + "See the readme for a guide.")
     int maxDischargePower() default 4600;
 
     @AttributeDefinition(name = "Min SoC [%]", description = "Discharging is blocked while State of Charge is below Min-SoC.")
