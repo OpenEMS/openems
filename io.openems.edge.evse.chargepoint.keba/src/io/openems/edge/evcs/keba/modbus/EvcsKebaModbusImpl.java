@@ -89,8 +89,6 @@ import io.openems.edge.timedata.api.TimedataProvider;
 public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedEvcs, Evcs, DeprecatedEvcs,
 		ElectricityMeter, OpenemsComponent, EventHandler, ModbusSlave, ModbusComponent, TimedataProvider {
 
-	static final ElementToChannelConverter ENERGY_LIMIT_CONVERTER = SCALE_FACTOR_1;
-
 	private final Logger log = LoggerFactory.getLogger(EvcsKebaModbusImpl.class);
 	private final KebaUtils kebaUtils = new KebaUtils(this);
 	private final KebaModbusUtils kebaModbusUtils = new KebaModbusUtils(this);
@@ -397,8 +395,7 @@ public class EvcsKebaModbusImpl extends KebaModbus implements EvcsKeba, ManagedE
 					new FC6WriteRegisterTask(5004,
 							m(Keba.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))),
 					new FC6WriteRegisterTask(5010,
-							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010),
-									ENERGY_LIMIT_CONVERTER)),
+							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010), SCALE_FACTOR_1)),
 					new FC6WriteRegisterTask(5012, m(Keba.ChannelId.SET_UNLOCK_PLUG, new UnsignedWordElement(5012))),
 					new FC6WriteRegisterTask(5014, m(Keba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 					new FC6WriteRegisterTask(5050,

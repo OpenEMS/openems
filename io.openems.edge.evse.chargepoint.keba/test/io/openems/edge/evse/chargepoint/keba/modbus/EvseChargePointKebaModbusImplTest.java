@@ -4,6 +4,7 @@ import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.chargepoint.keba.common.CommonNaturesTest.testElectricityMeterChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.EvseKebaTest.testEvseKebaChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.prepareKebaModbus;
+import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.testEnergyLimitWriteScale;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaModbusTest.testKebaModbusChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.KebaTest.testKebaChannels;
 import static io.openems.edge.evse.chargepoint.keba.common.enums.LogVerbosity.DEBUG_LOG;
@@ -79,8 +80,18 @@ public class EvseChargePointKebaModbusImplTest {
 	}
 
 	@Test
-	public void testEnergyLimitWriteScaleFactor() {
-		assertEquals(Integer.valueOf(100), EvseKebaModbusImpl.ENERGY_LIMIT_CONVERTER.channelToElement(1000));
+	public void testEnergyLimitWriteScaleFactor() throws Exception {
+		final var sut = new EvseKebaModbusImpl();
+		prepareKebaModbus(sut) //
+				.activate(MyConfig.create() //
+						.setId("evseChargePoint0") //
+						.setModbusId("modbus0") //
+						.setWiring(THREE_PHASE) //
+						.setPhaseRotation(L2_L3_L1) //
+						.setLogVerbosity(DEBUG_LOG) //
+						.setReadOnly(false) //
+						.build());
+		testEnergyLimitWriteScale(sut, 1000, 100);
 	}
 
 	@Test
