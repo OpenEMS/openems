@@ -1,11 +1,15 @@
 package io.openems.edge.sma.ess.sunnyboystorage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -14,7 +18,7 @@ import io.openems.edge.ess.test.DummyPower;
 public class EssSmaSunnyBoyStorageImplTest {
 
 	/**
-	 * Smoke test: component activates and deactivates without errors.
+	 * Smoke test: component activates, runs one cycle, and deactivates without errors.
 	 */
 	@Test
 	public void testActivateDeactivate() throws Exception {
@@ -27,6 +31,7 @@ public class EssSmaSunnyBoyStorageImplTest {
 						.setModbusUnitId(3) //
 						.setCapacity(2000) //
 						.build()) //
+				.next(new TestCase()) //
 				.deactivate();
 	}
 
@@ -165,5 +170,66 @@ public class EssSmaSunnyBoyStorageImplTest {
 
 		IntegerWriteChannel gridSetpointChannel = ess.channel(EssSmaSunnyBoyStorage.ChannelId.GRID_POWER_SETPOINT);
 		assertEquals(false, gridSetpointChannel.getNextWriteValue().isPresent());
+	}
+
+	/**
+	 * Verifies debugLog() returns a non-null string in the expected format.
+	 */
+	@Test
+	public void testDebugLog() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build()) //
+				.next(new TestCase());
+
+		var log = ess.debugLog();
+		assertNotNull(log);
+		assertTrue(log.startsWith("SoC:"));
+	}
+
+	/**
+	 * Verifies getPowerPrecision() returns 1 W resolution.
+	 */
+	@Test
+	public void testGetPowerPrecision() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build());
+
+		assertEquals(1, ess.getPowerPrecision());
+	}
+
+	/**
+	 * Verifies getPower() returns the injected Power instance.
+	 */
+	@Test
+	public void testGetPower() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build());
+
+		assertNotNull(ess.getPower());
+	}
+
+	/**
+	 * Verifies getModbusSlaveTable() returns a valid table for all access modes.
+	 */
+	@Test
+	public void testGetModbusSlaveTable() throws Exception {
+		var ess = new EssSmaSunnyBoyStorageImpl();
+		new ComponentTest(ess) //
+				.addReference("power", new DummyPower()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
+				.activate(MyConfig.create().build());
+
+		assertNotNull(ess.getModbusSlaveTable(AccessMode.READ_WRITE));
+		assertNotNull(ess.getModbusSlaveTable(AccessMode.READ_ONLY));
+		assertNotNull(ess.getModbusSlaveTable(AccessMode.WRITE_ONLY));
 	}
 }
