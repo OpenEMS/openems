@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -9,10 +8,11 @@ import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
 import { ControllerIoHeatingElementChartComponent } from "../chart/chart";
 
 @Component({
+    selector: "oe-controller-heating-element-history",
     templateUrl: "./new-navigation.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
-        CommonModule,
         IonicModule,
         ReactiveFormsModule,
         FormlyModule,
@@ -21,4 +21,4 @@ import { ControllerIoHeatingElementChartComponent } from "../chart/chart";
         ControllerIoHeatingElementChartComponent,
     ],
 })
-export class ControllerHeatingElementHistoryComponent extends AbstractModal { }
+export class ControllerHeatingElementHistoryComponent extends AbstractModal {}

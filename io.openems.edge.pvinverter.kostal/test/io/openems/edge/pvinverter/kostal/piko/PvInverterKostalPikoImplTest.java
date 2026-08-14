@@ -103,7 +103,7 @@ public class PvInverterKostalPikoImplTest {
 
 	@Test
 	public void test() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		new ComponentTest(new PvInverterKostalPikoImpl()) //
@@ -140,7 +140,7 @@ public class PvInverterKostalPikoImplTest {
 
 	@Test
 	public void testWithNoData() throws Exception {
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		final String noDataHtml = """

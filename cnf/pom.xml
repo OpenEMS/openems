@@ -29,9 +29,21 @@
 			-->
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>biz.aQute.bnd.gradle</artifactId>
-			<version>7.2.3</version>
+			<version>7.3.0</version>
 		</dependency>
 		<!-- com -->
+		<dependency>
+			<!--
+			Javaluator is a simple, but powerful, infix expression evaluator for Java
+			Changelog: https://github.com/fathzer/javaluator/releases
+			Update files:
+			- io.openems.wrapper/bnd.bnd
+			- io.openems.wrapper/javaluator.bnd
+			-->
+			<groupId>com.fathzer</groupId>
+			<artifactId>javaluator</artifactId>
+			<version>3.0.6</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fazecast</groupId>
 			<artifactId>jSerialComm</artifactId>
@@ -54,7 +66,7 @@
 			-->
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.21</version>
+			<version>2.22</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rzymek</groupId>
@@ -99,7 +111,7 @@
 			-->
 			<groupId>com.google.protobuf</groupId>
 			<artifactId>protobuf-java</artifactId>
-			<version>4.35.0</version>
+			<version>4.35.1</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -111,7 +123,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>auth0</artifactId>
-			<version>3.7.0</version>
+			<version>4.1.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -123,7 +135,7 @@
 			-->
 			<groupId>com.auth0</groupId>
 			<artifactId>java-jwt</artifactId>
-			<version>4.5.2</version>
+			<version>4.6.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -150,16 +162,23 @@
 			<version>5.3.1</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: Logging Interceptor
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.2</version>
+			<version>5.4.0</version>
 		</dependency>
 		<dependency>
-			<!-- Used by com.influxdb: influxdb -->
+			<!--
+			Square’s meticulous HTTP client for Java and Kotlin: OkHttp
+			Changelog: https://square.github.io/okhttp/changelogs/changelog
+			- io.openems.wrapper/bnd.bnd
+			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.3.2</version>
+			<version>5.4.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -168,7 +187,7 @@
 			-->
 			<groupId>com.squareup.okio</groupId>
 			<artifactId>okio-jvm</artifactId>
-			<version>3.17.0</version>
+			<version>3.18.0</version>
 		</dependency>
 		<dependency>
 			<!-- Used by com.influxdb: influxdb-client -->
@@ -201,11 +220,13 @@
 			<version>1.2.0</version>
 		</dependency>
 		<dependency>
-			<!-- HikariCP A solid, high-performance, JDBC connection pool at
-			last. -->
+			<!--
+			HikariCP A solid, high-performance, JDBC connection pool
+			Changelog: https://github.com/brettwooldridge/HikariCP/blob/dev/CHANGES
+			-->
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>7.0.2</version>
+			<version>7.1.0</version>
 		</dependency>
 		<!-- eu -->
 		<dependency>
@@ -293,10 +314,13 @@
 		</dependency>
 		<!-- net -->
 		<dependency>
-			<!-- Used by SDNotify -->
+			<!--
+			Java Native Access
+			Changelog: https://github.com/java-native-access/jna/blob/master/CHANGES.md
+			-->
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna</artifactId>
-			<version>5.18.1</version>
+			<version>5.19.1</version>
 		</dependency>
 		<!-- org -->
 		<dependency>
@@ -369,7 +393,7 @@
 			-->
 			<groupId>org.apache.felix</groupId>
 			<artifactId>org.apache.felix.http.jetty12</artifactId>
-			<version>1.1.10</version>
+			<version>2.0.4</version>
 		</dependency>
 		<dependency>
 			<!-- Apache Felix Servlet API -->
@@ -438,7 +462,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -447,7 +471,7 @@
 			-->
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.84</version>
+			<version>1.85</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -459,7 +483,7 @@
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel</artifactId>
-			<version>0.20.1</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -471,7 +495,7 @@
 			-->
 			<groupId>org.dhatim</groupId>
 			<artifactId>fastexcel-reader</artifactId>
-			<version>0.20.1</version>
+			<version>0.20.2</version>
 		</dependency>
 		<dependency>
 			<!-- Eclipse Paho MQTTv3 Client (MQTT 3.1/3.1.1) -->
@@ -512,7 +536,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.11</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -522,7 +546,7 @@
 			-->
 			<groupId>net.bytebuddy</groupId>
 			<artifactId>byte-buddy-agent</artifactId>
-			<version>1.18.8</version>
+			<version>1.18.11</version>
 		</dependency>
 		<!-- com -->
 		<dependency>
@@ -574,7 +598,7 @@
 			-->
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-osgi-bundle</artifactId>
-			<version>2.3.21</version>
+			<version>2.4.10</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -616,7 +640,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -627,7 +651,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -638,7 +662,7 @@
 			-->
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -649,7 +673,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-commons</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -660,7 +684,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -671,7 +695,7 @@
 			-->
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -682,7 +706,7 @@
 			-->
 			<groupId>org.junit.vintage</groupId>
 			<artifactId>junit-vintage-engine</artifactId>
-			<version>6.1.0</version>
+			<version>6.1.2</version>
 		</dependency>
 		<dependency>
 			<!--

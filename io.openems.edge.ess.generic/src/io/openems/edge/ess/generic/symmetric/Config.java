@@ -4,6 +4,7 @@ import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 import io.openems.edge.ess.generic.symmetric.essfaultbehaviour.EssFaultBehaviourConfig;
 
 @ObjectClassDefinition(//
@@ -22,6 +23,9 @@ import io.openems.edge.ess.generic.symmetric.essfaultbehaviour.EssFaultBehaviour
 
 	@AttributeDefinition(name = "Start/stop behaviour?", description = "Should this Component be forced to start or stop?")
 	StartStopConfig startStop() default StartStopConfig.START;
+
+	@AttributeDefinition(name = "ESS Protection", description = "Which algorithm to use for ESS Protection")
+	EssProtectionConfig essProtection() default EssProtectionConfig.VOLTAGE_REGULATION;
 
 	@AttributeDefinition(name = "Ess fault checking behaviour")
 	EssFaultBehaviourConfig essFaultBehaviour() default EssFaultBehaviourConfig.CHECK_ALL;

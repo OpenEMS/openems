@@ -16,6 +16,7 @@ import io.openems.common.jsonrpc.response.Base64PayloadResponse;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
 import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
+import io.openems.edge.common.modbusslave.ModbusRecordInt16;
 import io.openems.edge.common.modbusslave.ModbusRecordString16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint16;
 import io.openems.edge.common.modbusslave.ModbusRecordUint32;
@@ -152,6 +153,7 @@ public class GetModbusProtocolExportXlsxResponse extends Base64PayloadResponse {
 			case FLOAT64 -> ModbusRecordFloat64.UNDEFINED_BYTE_ARRAY;
 			case STRING16 -> ModbusRecordString16.UNDEFINED_BYTE_ARRAY;
 			case ENUM16, UINT16 -> ModbusRecordUint16.UNDEFINED_BYTE_ARRAY;
+			case INT16 -> ModbusRecordInt16.UNDEFINED_BYTE_ARRAY;
 			case UINT32 -> ModbusRecordUint32.UNDEFINED_BYTE_ARRAY;
 			case UINT64 -> ModbusRecordUint64.UNDEFINED_BYTE_ARRAY;
 			};

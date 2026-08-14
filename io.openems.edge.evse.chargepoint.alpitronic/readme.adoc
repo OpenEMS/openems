@@ -41,6 +41,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVSE (Electric Vehicle Supply Equipment) interface for Alpitronic Hypercharger. Provides charging point functionality with power measurement and status monitoring. Supports both read-only monitoring and managed charging control modes.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -75,6 +76,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVCS (Electric Vehicle Charging Station) interface for Alpitronic Hypercharger. Manages dynamic charging control, monitors power consumption, and enables integration with energy management systems. Supports per-connector configuration for multi-connector units.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "evcs0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -87,6 +89,7 @@ This bundle implements the following OpenEMS Components:
 
 .Example Configuration
 For each physical connector, configure separate component:
+
 * **Connector 1 (SLOT_0)**:
   - `id`: "evcs0"
   - `connector`: "SLOT_0"

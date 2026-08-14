@@ -170,36 +170,40 @@ public class GoodWeChargerMpptTwoStringImpl extends AbstractOpenemsComponent
 		}
 
 		this.timedataQueryIsRunning = true;
-		timedata.getLatestValue(new ChannelAddress(this.id(), actualEnergyChannel.id())).thenAccept(currentEnergy -> {
+		timedata.getLatestValue(new ChannelAddress(this.id(), actualEnergyChannel.id()))//
+				.whenComplete((currentEnergy, throwable) -> {
 
-			if (currentEnergy.isEmpty()) {
+					if (throwable != null || currentEnergy.isEmpty()) {
 
-				final String[] stringIds = switch (this.config.mpptPort()) {
-				case MPPT_1 -> new String[] { "charger0", "charger1" };
-				case MPPT_2 -> new String[] { "charger2", "charger3" };
-				case MPPT_3 -> new String[] { "charger4", "charger5" };
-				default -> throw new IllegalStateException("Unexpected value: " + this.config.mpptPort());
-				};
+						final String[] stringIds = switch (this.config.mpptPort()) {
+						case MPPT_1 -> new String[] { "charger0", "charger1" };
+						case MPPT_2 -> new String[] { "charger2", "charger3" };
+						case MPPT_3 -> new String[] { "charger4", "charger5" };
+						default -> throw new IllegalStateException("Unexpected value: " + this.config.mpptPort());
+						};
 
-				/*
-				 * Calculate total base energy from separate string energy values
-				 */
-				timedata.getLatestValueOfNotExistingChannel(new ChannelAddress(stringIds[0], actualEnergyChannel.id()),
-						actualEnergyChannel.doc().getUnit())
-						.thenCombine(timedata.getLatestValueOfNotExistingChannel(
-								new ChannelAddress(stringIds[1], actualEnergyChannel.id()),
-								actualEnergyChannel.doc().getUnit()), (energyString1, energyString2) -> {
-									return caculateEnergyFromTwoStrings(energyString1, energyString2);
-								})
-						.thenAccept(combinedEnergy -> {
-							this.channel(actualEnergyChannel).setNextValue(combinedEnergy);
-							this.calculateActualEnergy.setBaseEnergyManually(combinedEnergy);
-						});
-			} else {
-				this.channel(actualEnergyChannel)
-						.setNextValue(TypeUtils.getAsType(OpenemsType.LONG, currentEnergy.get()));
-			}
-		});
+						/*
+						 * Calculate total base energy from separate string energy values
+						 */
+						timedata.getLatestValueOfNotExistingChannel(
+								new ChannelAddress(stringIds[0], actualEnergyChannel.id()),
+								actualEnergyChannel.doc().getUnit())
+								.thenCombine(
+										timedata.getLatestValueOfNotExistingChannel(
+												new ChannelAddress(stringIds[1], actualEnergyChannel.id()),
+												actualEnergyChannel.doc().getUnit()),
+										(energyString1, energyString2) -> {
+											return caculateEnergyFromTwoStrings(energyString1, energyString2);
+										})
+								.thenAccept(combinedEnergy -> {
+									this.channel(actualEnergyChannel).setNextValue(combinedEnergy);
+									this.calculateActualEnergy.setBaseEnergyManually(combinedEnergy);
+								});
+					} else {
+						this.channel(actualEnergyChannel)
+								.setNextValue(TypeUtils.getAsType(OpenemsType.LONG, currentEnergy.get()));
+					}
+				});
 	}
 
 	/**

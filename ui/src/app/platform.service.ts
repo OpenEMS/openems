@@ -1,12 +1,12 @@
 // @ts-strict-ignore
-import { Injectable, signal, WritableSignal } from "@angular/core";
+import { inject, Injectable, Injector, signal, WritableSignal } from "@angular/core";
 import { App } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 import { ScreenOrientation } from "@capacitor/screen-orientation";
 import { AlertController, Platform, ToastController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { saveAs } from "file-saver-es";
-import { DeviceDetectorService, DeviceInfo } from "ngx-device-detector";
+import { DeviceDetectorService, DeviceType } from "ngx-device-detector";
 import { BehaviorSubject, distinctUntilChanged, map, startWith, Subject, takeUntil, tap } from "rxjs";
 import { environment } from "src/environments";
 import { JsonrpcRequest } from "./shared/jsonrpc/base";
@@ -16,18 +16,14 @@ import { Service, Websocket } from "./shared/shared";
 
 @Injectable()
 export class PlatFormService {
-
     public static readonly platform: string = Capacitor.getPlatform();
 
     public static isActive: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(null);
-    public static deviceInfo: DeviceInfo;
-    public static notifications: Map<string, { subscribe: JsonrpcRequest, unsubscribe: JsonrpcRequest }> = new Map();
-    public static isMobile: boolean = false;
-    public static isTablet: boolean = false;
-
-    private static readonly SMARTPHONE_BP = 576;
+    public static notifications: Map<string, { subscribe: JsonrpcRequest; unsubscribe: JsonrpcRequest }> = new Map();
 
     public isActiveAgain: WritableSignal<boolean> = signal(false);
+    private injector: Injector = inject(Injector);
+    private device: Device = new Device(this.injector);
 
     constructor(
         private alertCtrl: AlertController,
@@ -35,15 +31,11 @@ export class PlatFormService {
         private deviceService: DeviceDetectorService,
         private toaster: ToastController,
     ) {
-        PlatFormService.deviceInfo = this.deviceService.getDeviceInfo();
-        PlatFormService.isMobile = this.deviceService.isMobile();
-        PlatFormService.isTablet = this.deviceService.isTablet();
-
-        if (!this.getIsApp()) {
+        if (!this.device.isApp()) {
             return;
         }
 
-        if (PlatFormService.isTablet) {
+        if (deviceService.isTablet() || deviceService.isDesktop()) {
             ScreenOrientation.lock({ orientation: "landscape" });
         } else {
             ScreenOrientation.lock({ orientation: "portrait" });
@@ -51,23 +43,7 @@ export class PlatFormService {
     }
 
     public static handleRefresh() {
-        setTimeout(() =>
-            window.location.reload()
-        , 1000);
-    }
-
-    public static getAppStoreLink(): string | null {
-        if (this.isMobile) {
-            switch (PlatFormService.deviceInfo.os) {
-                case "iOS":
-                    return environment.links.APP.IOS;
-                case "Android":
-                    return environment.links.APP.ANDROID;
-                default:
-                    return null;
-            }
-        }
-        return null;
+        setTimeout(() => window.location.reload(), 1000);
     }
 
     public listen() {
@@ -96,23 +72,18 @@ export class PlatFormService {
                     service.deviceWidth = width;
                     service.deviceHeight = height;
                 }),
-                map(({ width }) => width <= PlatFormService.SMARTPHONE_BP),
                 distinctUntilChanged(),
-                tap((isSmartphone) => {
-                    service.isSmartphoneResolution = isSmartphone;
-                    service.isSmartphoneResolutionSubject.next(isSmartphone);
-                })
-            ).subscribe();
+            )
+            .subscribe();
     }
 
     /**
-   * Converts a base 64 encoded string to blob
-  *
-  * @param res the base 64 string
-  * @returns null, if string is invalid, else the blob
-  */
+     * Converts a base 64 encoded string to blob
+     *
+     * @param res The base 64 string
+     * @returns Null, if string is invalid, else the blob
+     */
     public convertBase64ToBlob(res: Base64PayloadResponse | null): Blob | null {
-
         if (!res?.result?.payload) {
             return null;
         }
@@ -134,79 +105,8 @@ export class PlatFormService {
         return data;
     }
 
-    /**
-   * Downloads the data as pdf
-  *
-  * @param data the data as blob
-  * @param fileName the file name to save the pdf to
-  */
-    public downloadAsPdf(data: Blob, fileName: string) {
-
-        if (!this.deviceHasFilePermissions()) {
-            return;
-        }
-        saveAs(data, fileName);
-    }
-
-    public deviceHasFilePermissions(): boolean {
-        if (this.getIsApp()) {
-            this.toast(this.translate.instant("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
-            return false;
-        }
-        return true;
-    }
-
-    public async sendRequest(req: GetSetupProtocolRequest, websocket: Websocket): Promise<Base64PayloadResponse> | null {
-        if (!this.deviceHasFilePermissions()) {
-            return null;
-        }
-        return await websocket.sendRequest(req) as Base64PayloadResponse;
-    }
-    /**
-   * Method that shows a confirmation window for the app selection
-  *
-  * @param clickedApp the app that has been clicked
-  */
-    public async presentAlert(header: string, message: string, successCallback: () => void) {
-        const alert = this.alertCtrl.create({
-            header: header,
-            message: message,
-            buttons: [{
-                text: this.translate.instant("INSTALLATION.BACK"),
-                role: "cancel",
-            },
-            {
-                text: this.translate.instant("INSTALLATION.FORWARD"),
-                handler: () => {
-                    successCallback();
-                },
-            }],
-            cssClass: "alertController",
-        });
-        (await alert).present();
-    }
-
-    public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
-        const toast = await this.toaster.create({
-            message: message,
-            color: level,
-            duration: duration ?? 2000,
-            cssClass: "container",
-        });
-        toast.present();
-    }
-
-    /**
-   * Checks if app or web-app
-   *
-   * @returns true, if current platform is not web
-   */
-    public getIsApp() {
-        return Capacitor.getPlatform() !== "web";
-    }
-
-    public getDeviceType(): DeviceType {
-        return this.deviceService.deviceType as DeviceType;
+    public getDevice() {
+        return this.device;
     }
 
     private async updateState() {
@@ -216,14 +116,12 @@ export class PlatFormService {
     }
 
     /**
-   * Controls the reload behaviour after app was running in background und got active again
-   *
-   * @param isAppCurrentlyActive is app currently active
-   */
+     * Controls the reload behaviour after app was running in background und got active again
+     *
+     * @param isAppCurrentlyActive Is app currently active
+     */
     private setIsActiveAgain(isAppCurrentlyActive: boolean) {
-
-        if (isAppCurrentlyActive === true
-            && PlatFormService.isActive?.getValue() === false) {
+        if (isAppCurrentlyActive === true && PlatFormService.isActive?.getValue() === false) {
             this.isActiveAgain.set(true);
             return;
         }
@@ -231,8 +129,96 @@ export class PlatFormService {
     }
 }
 
-export enum DeviceType {
-    MOBILE = "mobile",
-    DESKTOP = "desktop",
-    TABLET = "tablet",
+class Device {
+    private static readonly SMARTPHONE_BP = 576;
+
+    constructor(private injector: Injector) {}
+
+    public getAppStoreLink(): string | null {
+        const deviceDetectorService = this.injector.get(DeviceDetectorService);
+        if (deviceDetectorService.isMobile()) {
+            const deviceInfo = deviceDetectorService.getDeviceInfo();
+            switch (deviceInfo.os) {
+                case "iOS":
+                    return environment.links.APP.IOS;
+                case "Android":
+                    return environment.links.APP.ANDROID;
+                default:
+                    return null;
+            }
+        }
+        return null;
+    }
+
+    public isSmartphone() {
+        const platform = this.injector.get(Platform);
+        return platform.width() <= Device.SMARTPHONE_BP;
+    }
+
+    public isTablet() {
+        const deviceDetectorService = this.injector.get(DeviceDetectorService);
+        return deviceDetectorService.isTablet();
+    }
+
+    /**
+     * Checks if app or web-app
+     *
+     * @returns True, if current platform is not web
+     */
+    public isApp() {
+        return Capacitor.getPlatform() !== "web";
+    }
+
+    public getDeviceType(): DeviceType {
+        const deviceDetectorService = this.injector.get(DeviceDetectorService);
+        return deviceDetectorService.deviceType();
+    }
+
+    public hasFileWritePermissions(): boolean {
+        const translate = this.injector.get(TranslateService);
+        if (this.isApp()) {
+            this.toast(translate.instant("APP.FUNCTIONALITY_TEMPORARILY_NOT_AVAILABLE"), "warning");
+            return false;
+        }
+        return true;
+    }
+
+    public async toast(message: string, level: "success" | "warning" | "danger", duration?: number) {
+        const toaster = this.injector.get(ToastController);
+        const toast = await toaster.create({
+            message: message,
+            color: level,
+            duration: duration ?? 2000,
+            cssClass: "container",
+        });
+        toast.present();
+    }
+
+    /**
+     * Downloads the data as pdf
+     *
+     * @param data The data as blob
+     * @param fileName The file name to save the pdf to
+     */
+    public downloadAsPdf(data: Blob, fileName: string) {
+        if (!this.hasFileWritePermissions()) {
+            return;
+        }
+        saveAs(data, fileName);
+    }
+
+    public async sendRequest(
+        req: GetSetupProtocolRequest,
+        websocket: Websocket,
+    ): Promise<Base64PayloadResponse> | null {
+        if (!this.hasFileWritePermissions()) {
+            return null;
+        }
+        return (await websocket.sendRequest(req)) as Base64PayloadResponse;
+    }
+
+    getDeviceInfo() {
+        const deviceDetectorService = this.injector.get(DeviceDetectorService);
+        return deviceDetectorService.getDeviceInfo();
+    }
 }

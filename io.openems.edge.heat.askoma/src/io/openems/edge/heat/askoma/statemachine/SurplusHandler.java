@@ -7,7 +7,6 @@ public class SurplusHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		context.resetFastHeatState();
 		context.setTargetActivePowerForHeatElement(context.getGridActivePower());
 		return State.SURPLUS;
 	}

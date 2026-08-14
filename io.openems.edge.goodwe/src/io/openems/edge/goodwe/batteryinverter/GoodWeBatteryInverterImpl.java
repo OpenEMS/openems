@@ -11,6 +11,13 @@ import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
 import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
 import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
 import static io.openems.edge.ess.power.api.Relationship.LESS_OR_EQUALS;
+import static java.lang.Math.min;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MULTIPLE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,9 +35,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -38,7 +42,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.OptionsEnum;
 import io.openems.common.types.ServiceBinder;
 import io.openems.edge.battery.api.Battery;
@@ -62,6 +69,7 @@ import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -77,6 +85,8 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.common.update.Updateable;
 import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.goodwe.battery.cluster.AbstractGoodWeBatteryCluster;
+import io.openems.edge.goodwe.battery.cluster.GoodWeBatteryClusterFeneconHomeImpl;
 import io.openems.edge.goodwe.batteryinverter.statemachine.Context;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine;
 import io.openems.edge.goodwe.batteryinverter.statemachine.StateMachine.State;
@@ -84,6 +94,7 @@ import io.openems.edge.goodwe.common.AbstractGoodWe;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.GoodWePowerSetting;
 import io.openems.edge.goodwe.common.enums.AppModeIndex;
+import io.openems.edge.goodwe.common.enums.BatteryPort;
 import io.openems.edge.goodwe.common.enums.BatteryProtocol;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.goodwe.common.enums.EnableCurve;
@@ -93,6 +104,7 @@ import io.openems.edge.goodwe.common.enums.GoodWeType;
 import io.openems.edge.goodwe.common.enums.GridCode;
 import io.openems.edge.goodwe.common.enums.InternalSocProtection;
 import io.openems.edge.goodwe.common.enums.SafetyCountry;
+import io.openems.edge.goodwe.common.enums.WaveformDetection;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateParams;
 import io.openems.edge.goodwe.update.GoodWeBatteryInverterUpdateable;
 import io.openems.edge.timedata.api.Timedata;
@@ -105,6 +117,7 @@ import io.openems.edge.timedata.api.Timedata;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeBatteryInverter, GoodWe,
 		HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter, SymmetricBatteryInverter,
 		ModbusComponent, OpenemsComponent, EventHandler, StartStoppable {
@@ -131,7 +144,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						OpenemsComponent.getComponentLogger(GoodWeBatteryInverterUpdateable.class, this));
 			}, GoodWeBatteryInverterUpdateable::deactivate);
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Reference
@@ -152,11 +165,14 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	@Reference
 	private Meta meta;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	protected volatile ControllerEssRippleControlReceiver rcr;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))" //
+	)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 		this.updateServiceBinder.updateConfiguration();
@@ -165,9 +181,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private List<Task> safetyParameterSettingsTasks = Collections.emptyList();
 
 	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE //
+			policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE //
 	)
 	private void bindUpdateParams(GoodWeBatteryInverterUpdateParams updateParams) {
 		this.updateServiceBinder.bindService(updateParams);
@@ -188,6 +202,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	}
 
 	private Config config = null;
+	private final BatteryLimitsChannel battery1Limits;
+	private final BatteryLimitsChannel battery2Limits;
 
 	public GoodWeBatteryInverterImpl() throws OpenemsNamedException {
 		super(//
@@ -212,6 +228,9 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		this._setStartStop(StartStop.START);
 
 		SymmetricBatteryInverter.calculateApparentPowerFromActiveAndReactivePower(this);
+
+		this.battery1Limits = this.getBattery1LimitsChannel();
+		this.battery2Limits = this.getBattery2LimitsChannel();
 	}
 
 	@Activate
@@ -221,10 +240,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
 
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+
 		this.applyConfigIfNotSet(config, true);
 		this.addPowerSettingTasks();
 	}
@@ -233,10 +250,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
 		this.updateServiceBinder.updateBundleContext(context.getBundleContext());
-		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
+
 		this.applyConfigIfNotSet(config, true);
 		this.addPowerSettingTasks();
 	}
@@ -396,6 +411,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Should be updated according to back up power
 		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.AUTO_START_BACKUP), config.backupEnable().booleanValue);
 
+		// Waveform Detection high precision / disabled
+		if (this.isGoodWeType50Or100k()) {
+			this.applyWaveFormDetection();
+		}
+
 		// Power settings
 		this.setPowerSettings();
 
@@ -468,41 +488,83 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		}
 	}
 
+	record BatteryLimitsChannel(//
+			WriteChannel<Integer> bmsChargeMaxCurrentChannel, //
+			WriteChannel<Integer> bmsDischargeMaxCurrentChannel, //
+			WriteChannel<Integer> bmsChargeMaxVoltageChannel, //
+			WriteChannel<Integer> bmsDischargeMinVoltageChannel, //
+			WriteChannel<Integer> bmsSocUnderMin, //
+			WriteChannel<Integer> bmsOfflineSocUnderMin, //
+			WriteChannel<Integer> bmsOfflineDischargeMinVoltage, //
+			WriteChannel<Integer> bmsCapacity, //
+			WriteChannel<Integer> wbmsVersion, //
+			WriteChannel<Integer> wbmsStrings, //
+			WriteChannel<Integer> wbmsChargeMaxVoltage, //
+			WriteChannel<Integer> wbmsChargeMaxCurrent, //
+			Channel<Integer> debugWbmsChargeMaxCurrent, //
+			WriteChannel<Integer> wbmsDischargeMinVoltage, //
+			WriteChannel<Integer> wbmsDischargeMaxCurrent, //
+			Channel<Integer> debugWbmsDischargeMaxCurrent, //
+			WriteChannel<Integer> wbmsVoltage, //
+			WriteChannel<Integer> wbmsCurrent, //
+			WriteChannel<Integer> wbmsSoc, //
+			WriteChannel<Integer> wbmsSoh, //
+			WriteChannel<Integer> wbmsTemperature, //
+			WriteChannel<Integer> wbmsWarningCode, //
+			WriteChannel<Integer> wbmsAlarmCode, //
+			WriteChannel<Integer> wbmsStatus, //
+			WriteChannel<Integer> wbmsDisableTimeoutDetection, //
+			WriteChannel<Boolean> batteryLock //
+	) {
+	}
+
+	private void setBattery1Limits(Battery battery, ClusterInfo clusterInfo) throws OpenemsNamedException {
+		this.setBatteryLimits(battery, this.battery1Limits, clusterInfo);
+	}
+
+	private void setBattery2Limits(Battery battery, ClusterInfo clusterInfo) throws OpenemsNamedException {
+		this.setBatteryLimits(battery, this.battery2Limits, clusterInfo);
+	}
+
 	/**
 	 * Sets the Battery Limits.
 	 *
-	 * @param battery linked {@link Battery}.
+	 * @param battery     linked {@link Battery}.
+	 * @param channels    the channels of the inverter
+	 * @param clusterInfo the cluster info of all batteries
 	 * @throws OpenemsNamedException on error
 	 */
-	private void setBatteryLimits(Battery battery) throws OpenemsNamedException {
+	private void setBatteryLimits(Battery battery, BatteryLimitsChannel channels, ClusterInfo clusterInfo)
+			throws OpenemsNamedException {
 
 		/*
 		 * Make sure PV-Master registers are correct, because they define the overall
 		 * min/max limits.
 		 */
-		var bmsChargeMaxCurrent = this.getBmsChargeMaxCurrent();
-		var bmsDischargeMaxCurrent = this.getBmsDischargeMaxCurrent();
-		var bmsChargeMaxVoltage = this.getBmsChargeMaxVoltage();
-		var bmsDischargeMinVoltage = this.getBmsDischargeMinVoltage();
+		final var bmsChargeMaxCurrent = channels.bmsChargeMaxCurrentChannel().value();
+		final var bmsDischargeMaxCurrent = channels.bmsDischargeMaxCurrentChannel().value();
+		final var bmsChargeMaxVoltage = channels.bmsChargeMaxVoltageChannel().value();
+		final var bmsDischargeMinVoltage = channels.bmsDischargeMinVoltageChannel().value();
 
-		Channel<Integer> bmsSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN);
-		var bmsSocUnderMin = bmsSocUnderMinChannel.value();
-		Channel<Integer> bmsOfflineSocUnderMinChannel = this.channel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN);
-		var bmsOfflineSocUnderMin = bmsOfflineSocUnderMinChannel.value();
+		final var bmsSocUnderMin = channels.bmsSocUnderMin().value();
+		final var bmsOfflineSocUnderMin = channels.bmsOfflineSocUnderMin().value();
+		final var bmsCapacity = channels.bmsCapacity().value();
 
 		var setBatteryStrings = TypeUtils.divide(battery.getDischargeMinVoltage().get(), MODULE_MIN_VOLTAGE);
 		final int setChargeMaxCurrent;
 		final int setDischargeMaxCurrent;
-		var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
-		var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
+		final var setChargeMaxVoltage = battery.getChargeMaxVoltage().orElse(210);
+		final var setDischargeMinVoltage = battery.getDischargeMinVoltage().orElse(210);
 		Integer setSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
 		Integer setOfflineSocUnderMin = 0; // [0-100]; 0 MinSoc = 100 DoD
+		var setCapacity = 50; // Ah
 
 		if (battery.isStarted() && battery instanceof BatteryFeneconHome homeBattery) {
 
 			setBatteryStrings = homeBattery.getNumberOfModulesPerTower().orElse(setBatteryStrings);
 
 			final var batteryType = homeBattery.getBatteryHardwareType();
+			setCapacity = batteryType.value * homeBattery.getNumberOfTowersChannel().value().orElse(1);
 
 			/*
 			 * Check combination of GoodWe inverter and FENECON Home battery to avoid
@@ -532,10 +594,12 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 						&& !Objects.equals(bmsDischargeMaxCurrent.get(), setDischargeMaxCurrent)
 				|| bmsSocUnderMin.isDefined() && !Objects.equals(bmsSocUnderMin.get(), setSocUnderMin)
 				|| bmsOfflineSocUnderMin.isDefined()
-						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)) {
+						&& !Objects.equals(bmsOfflineSocUnderMin.get(), setOfflineSocUnderMin)
+				|| bmsCapacity.isDefined() && !Objects.equals(bmsCapacity.get(), setCapacity)) {
 
 			// Update is required
 			this.logInfo(this.log, "Update for PV-Master BMS Registers is required." //
+					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
 					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage + "]" //
@@ -544,16 +608,18 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 					+ " [Discharge " + bmsDischargeMaxCurrent.get() + " -> " + setDischargeMaxCurrent + "]" //
 					+ " MinSoc " //
 					+ " [On-Grid " + bmsSocUnderMin.get() + " -> " + setSocUnderMin + "] " //
-					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]");
+					+ " [Off-Grid " + bmsOfflineSocUnderMin.get() + " -> " + setOfflineSocUnderMin + "]" //
+					+ " Capacity [" + bmsCapacity.get() + "Ah -> " + setCapacity + "Ah]");
 
 			// Registers 45352
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_CURRENT, setChargeMaxCurrent); // [0-100]
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MAX_CURRENT, setDischargeMaxCurrent); // [0-100]
-			this.writeToChannel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN, setSocUnderMin);
-			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage); // [150-600]
-			this.writeToChannel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN, setOfflineSocUnderMin);
+			channels.bmsChargeMaxVoltageChannel().setNextWriteValue(setChargeMaxVoltage); // [150-600]
+			channels.bmsChargeMaxCurrentChannel().setNextWriteValue(setChargeMaxCurrent); // [0-100]
+			channels.bmsDischargeMinVoltageChannel().setNextWriteValue(setDischargeMinVoltage); // [150-600]
+			channels.bmsDischargeMaxCurrentChannel().setNextWriteValue(setDischargeMaxCurrent); // [0-100]
+			channels.bmsSocUnderMin().setNextWriteValue(setSocUnderMin);
+			channels.bmsOfflineDischargeMinVoltage().setNextWriteValue(setDischargeMinVoltage); // [150-600]
+			channels.bmsOfflineSocUnderMin().setNextWriteValue(setOfflineSocUnderMin);
+			channels.bmsCapacity().setNextWriteValue(setCapacity);
 		}
 
 		/*
@@ -565,46 +631,147 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				setDischargeMinVoltage)) {
 			// Update is required
 			this.logInfo(this.log, "Update for BMS Registers." //
+					+ " Battery " + battery.id() //
 					+ " Voltages" //
 					+ " [Discharge " + bmsDischargeMinVoltage.get() + " -> " + setDischargeMinVoltage + "]" //
 					+ " [Charge " + bmsChargeMaxVoltage.get() + " -> " + setChargeMaxVoltage
 					+ "]. This can take up to 10 minutes.");
 
-			this.writeToChannel(GoodWe.ChannelId.BMS_CHARGE_MAX_VOLTAGE, setChargeMaxVoltage);
-			this.writeToChannel(GoodWe.ChannelId.BMS_DISCHARGE_MIN_VOLTAGE, setDischargeMinVoltage);
+			channels.bmsChargeMaxVoltageChannel().setNextWriteValue(setChargeMaxVoltage);
+			channels.bmsDischargeMinVoltageChannel().setNextWriteValue(setDischargeMinVoltage);
 		}
 
 		/*
 		 * Regularly write all WBMS Channels.
 		 */
-		this.writeToChannel(GoodWe.ChannelId.WBMS_VERSION, 1);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_STRINGS, setBatteryStrings); // numberOfModulesPerTower
-		// TODO is writing WBMS_STRINGS still required with latest firmware?
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE, battery.getChargeMaxVoltage().orElse(0));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT,
+		channels.wbmsVersion().setNextWriteValue(1);
+		channels.wbmsStrings().setNextWriteValue(setBatteryStrings); // numberOfModulesPerTower
+		channels.wbmsChargeMaxVoltage().setNextWriteValue(battery.getChargeMaxVoltage().orElse(0));
+		channels.wbmsChargeMaxCurrent()
+				.setNextWriteValue(calculateWbmsChargeMaxCurrent(battery, channels, clusterInfo, setChargeMaxCurrent));
 
-				preprocessAmpereValue47900(battery.getChargeMaxCurrent(), setChargeMaxCurrent));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE, battery.getDischargeMinVoltage().orElse(0));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT,
-				preprocessAmpereValue47900(battery.getDischargeMaxCurrent(), setDischargeMaxCurrent));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_VOLTAGE, battery.getVoltage().orElse(0));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_CURRENT, TypeUtils.abs(battery.getCurrent().orElse(0)));
+		channels.wbmsDischargeMinVoltage().setNextWriteValue(battery.getDischargeMinVoltage().orElse(0));
+		channels.wbmsDischargeMaxCurrent().setNextWriteValue(
+				calculateWbmsDischargeMaxCurrent(battery, channels, clusterInfo, setDischargeMaxCurrent));
+		channels.wbmsVoltage().setNextWriteValue(battery.getVoltage().orElse(0));
+		channels.wbmsCurrent().setNextWriteValue(TypeUtils.abs(battery.getCurrent().orElse(0)));
 
 		// Set SoC within [1;100] to avoid force-charge internally by PCS at 0 %
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOC, fitWithin(1, 100, battery.getSoc().orElse(1)));
-		this.writeToChannel(GoodWe.ChannelId.WBMS_SOH, battery.getSoh().orElse(100));
+		channels.wbmsSoc().setNextWriteValue(fitWithin(1, 100, battery.getSoc().orElse(1)));
+		channels.wbmsSoh().setNextWriteValue(battery.getSoh().orElse(100));
 
 		// Average Min/Max Cell Temperature; defaults to 0
-		this.writeToChannel(GoodWe.ChannelId.WBMS_TEMPERATURE, //
-				TypeUtils.orElse(//
-						TypeUtils.averageRounded(//
-								battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()),
-						0));
+		channels.wbmsTemperature().setNextWriteValue(TypeUtils.orElse(//
+				TypeUtils.averageRounded(//
+						battery.getMaxCellTemperature().get(), battery.getMinCellTemperature().get()),
+				0));
 
-		this.writeToChannel(GoodWe.ChannelId.WBMS_WARNING_CODE, 0);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_ALARM_CODE, 0);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_STATUS, 0);
-		this.writeToChannel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION, 0);
+		channels.wbmsWarningCode().setNextWriteValue(0);
+		channels.wbmsAlarmCode().setNextWriteValue(0);
+		channels.wbmsStatus().setNextWriteValue(0);
+
+		// if set to '0' second battery is not working
+		// goodwe: should be '1' or better not touched at all
+		// channels.wbmsDisableTimeoutDetection().setNextWriteValue(0);
+	}
+
+	private BatteryLimitsChannel getBattery1LimitsChannel() {
+		return new BatteryLimitsChannel(//
+				this.getBmsChargeMaxCurrentChannel(), //
+				this.getBmsDischargeMaxCurrentChannel(), //
+				this.getBmsChargeMaxVoltageChannel(), //
+				this.getBmsDischargeMinVoltageChannel(), //
+				this.channel(GoodWe.ChannelId.BMS_SOC_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BMS_OFFLINE_SOC_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BMS_OFFLINE_DISCHARGE_MIN_VOLTAGE), //
+				this.channel(GoodWe.ChannelId.BMS_CAPACITY), //
+				this.channel(GoodWe.ChannelId.WBMS_VERSION), //
+				// TODO check BMS or WBMS Strings channel
+				this.channel(GoodWe.ChannelId.WBMS_STRINGS), //
+				this.channel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE), //
+				this.channel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT), //
+				this.channel(GoodWe.ChannelId.DEBUG_WBMS_CHARGE_MAX_CURRENT), //
+				this.channel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE), //
+				this.channel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT), //
+				this.channel(GoodWe.ChannelId.DEBUG_WBMS_DISCHARGE_MAX_CURRENT), //
+				this.channel(GoodWe.ChannelId.WBMS_VOLTAGE), //
+				this.channel(GoodWe.ChannelId.WBMS_CURRENT), //
+				this.channel(GoodWe.ChannelId.WBMS_SOC), //
+				this.channel(GoodWe.ChannelId.WBMS_SOH), //
+				this.channel(GoodWe.ChannelId.WBMS_TEMPERATURE), //
+				this.channel(GoodWe.ChannelId.WBMS_WARNING_CODE), //
+				this.channel(GoodWe.ChannelId.WBMS_ALARM_CODE), //
+				this.channel(GoodWe.ChannelId.WBMS_STATUS), //
+				this.channel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION), //
+				this.channel(GoodWe.ChannelId.BATTERY_1_LOCK) //
+		);
+	}
+
+	private BatteryLimitsChannel getBattery2LimitsChannel() {
+		return new BatteryLimitsChannel(//
+				this.channel(GoodWe.ChannelId.BATTERY_2_CHARGE_CURRENT_MAX), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_DISCHARGE_CURRENT_MAX), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_CHARGE_VOLTAGE_MAX), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_VOLTAGE_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_SOC_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_OFFLINE_SOC_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_OFFLINE_VOLTAGE_UNDER_MIN), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_CAPACITY), //
+				this.channel(GoodWe.ChannelId.WBMS_VERSION_2), //
+				this.channel(GoodWe.ChannelId.WBMS_STRINGS_2), //
+				this.channel(GoodWe.ChannelId.WBMS_CHARGE_MAX_VOLTAGE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_CHARGE_MAX_CURRENT_2), //
+				this.channel(GoodWe.ChannelId.DEBUG_WBMS_CHARGE_MAX_CURRENT_2), //
+				this.channel(GoodWe.ChannelId.WBMS_DISCHARGE_MIN_VOLTAGE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_DISCHARGE_MAX_CURRENT_2), //
+				this.channel(GoodWe.ChannelId.DEBUG_WBMS_DISCHARGE_MAX_CURRENT_2), //
+				this.channel(GoodWe.ChannelId.WBMS_VOLTAGE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_CURRENT_2), //
+				this.channel(GoodWe.ChannelId.WBMS_SOC_2), //
+				this.channel(GoodWe.ChannelId.WBMS_SOH_2), //
+				this.channel(GoodWe.ChannelId.WBMS_TEMPERATURE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_WARNING_CODE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_ALARM_CODE_2), //
+				this.channel(GoodWe.ChannelId.WBMS_STATUS_2), //
+				this.channel(GoodWe.ChannelId.WBMS_DISABLE_TIMEOUT_DETECTION_2), //
+				this.channel(GoodWe.ChannelId.BATTERY_2_LOCK) //
+		);
+	}
+
+	@VisibleForTesting
+	static int calculateWbmsChargeMaxCurrent(//
+			Battery battery, //
+			BatteryLimitsChannel channels, //
+			ClusterInfo clusterInfo, //
+			int setChargeMaxCurrent //
+	) {
+		if (channels.batteryLock.getNextWriteValue().orElse(false)) {
+			return 0;
+		}
+		if (clusterInfo.anyNegativeDischarge() && battery.getDischargeMaxCurrent().orElse(0) >= 0) {
+			return 0;
+		}
+		final var prevValue = channels.debugWbmsChargeMaxCurrent().value().orElse(0);
+		final var maxChargeValue = battery.getChargeMaxCurrent().orElse(0);
+		return preprocessAmpereValue47900(min(maxChargeValue, prevValue + 1), setChargeMaxCurrent);
+	}
+
+	@VisibleForTesting
+	static int calculateWbmsDischargeMaxCurrent(//
+			Battery battery, //
+			BatteryLimitsChannel channels, //
+			ClusterInfo clusterInfo, //
+			int setDischargeMaxCurrent //
+	) {
+		if (channels.batteryLock.getNextWriteValue().orElse(false)) {
+			return 0;
+		}
+		if (clusterInfo.anyNegativeCharge() && battery.getChargeMaxCurrent().orElse(0) >= 0) {
+			return 0;
+		}
+		final var prevValue = channels.debugWbmsDischargeMaxCurrent().value().orElse(0);
+		final var maxDischargeValue = battery.getDischargeMaxCurrent().orElse(0);
+		return preprocessAmpereValue47900(min(maxDischargeValue, prevValue + 1), setDischargeMaxCurrent);
 	}
 
 	protected static boolean doSetBmsVoltage(Battery battery, Value<Integer> bmsChargeMaxVoltage,
@@ -624,6 +791,56 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 			return false;
 		}
 		return true;
+	}
+
+	record ClusterInfo(//
+			boolean anyNegativeCharge, //
+			boolean anyNegativeDischarge //
+	) {
+
+	}
+
+	/**
+	 * Sets the Battery Limits depending on multiple batteries.
+	 *
+	 * @param batteryCluster linked {@link AbstractGoodWeBatteryCluster}.
+	 * @throws OpenemsNamedException on error
+	 */
+	private void setBatteryClusterLimits(AbstractGoodWeBatteryCluster batteryCluster) throws OpenemsNamedException {
+
+		if (batteryCluster.getBatteries().isEmpty()) {
+			return;
+		}
+
+		final var anyNegativeCharge = batteryCluster.getBatteries().stream() //
+				.anyMatch(b -> b.getChargeMaxCurrent().orElse(0) < 0);
+		final var anyNegativeDischarge = batteryCluster.getBatteries().stream() //
+				.anyMatch(b -> b.getDischargeMaxCurrent().orElse(0) < 0);
+		final var clusterInfo = new ClusterInfo(anyNegativeCharge, anyNegativeDischarge);
+
+		int index = 0;
+		for (Battery battery : batteryCluster.getBatteries()) {
+			index++;
+
+			final var invalidCombination = batteryCluster.getBatteries().stream() //
+					.filter(StartStoppable::isStarted) //
+					.filter(BatteryFeneconHome.class::isInstance) //
+					.map(BatteryFeneconHome.class::cast) //
+					.anyMatch(b -> this.getGoodweType().isInvalidBattery.test(b.getBatteryHardwareType()));
+
+			this._setImpossibleFeneconHomeCombination(invalidCombination);
+
+			var batteryPort = BatteryPort.fromIndex(index);
+			if (batteryCluster instanceof GoodWeBatteryClusterFeneconHomeImpl
+					&& battery instanceof BatteryFeneconHome homeBattery) {
+				batteryPort = BatteryPort.fromIndex(homeBattery.getBatteryInverterPort().port);
+			}
+
+			switch (batteryPort) {
+			case PORT_1 -> this.setBattery1Limits(battery, clusterInfo);
+			case PORT_2 -> this.setBattery2Limits(battery, clusterInfo);
+			}
+		}
 	}
 
 	/**
@@ -650,8 +867,8 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		}
 	}
 
-	protected static int preprocessAmpereValue47900(Value<Integer> v, int maxDcCurrent) {
-		return fitWithin(0, maxDcCurrent, v.orElse(0));
+	protected static int preprocessAmpereValue47900(int v, int maxDcCurrent) {
+		return fitWithin(0, maxDcCurrent, v);
 	}
 
 	private void writeToChannel(GoodWe.ChannelId channelId, OptionsEnum value)
@@ -735,7 +952,11 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled());
 
 		// Set Battery Limits
-		this.setBatteryLimits(battery);
+		if (battery instanceof AbstractGoodWeBatteryCluster cluster) {
+			this.setBatteryClusterLimits(cluster);
+		} else {
+			this.setBattery1Limits(battery, new ClusterInfo(false, false));
+		}
 
 		// Set General Values
 		this.setGeneralValues();
@@ -787,7 +1008,7 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		// Limit from Ripple Control Receiver (Minimum of both limits)
 		if (this.rcr != null && this.rcr.isEnabled()) {
 			enableFeedInLimit = true;
-			gridFeedInLimit = Math.min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
+			gridFeedInLimit = min(gridFeedInLimit, this.rcr.getDynamicGridFeedInLimit(maxApparentPower));
 		}
 
 		this.handleFeedInSetting(enableFeedInLimit, gridFeedInLimit, this.getGoodweType());
@@ -1910,5 +2131,19 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 		case UNDEFINED -> Collections.emptyList();
 		};
 		protocol.addTasks(this.safetyParameterSettingsTasks);
+	}
+
+	private void applyWaveFormDetection() throws OpenemsNamedException {
+
+		var waveFormDetection = this.config.gridCode() == GridCode.VDE_4110 //
+				? WaveformDetection.DETECTION_DISABLED //
+				: WaveformDetection.HIGH_PRECISION;
+
+		setWriteValueIfNotRead(this.channel(GoodWe.ChannelId.WAVE_FORM_DETECTION), waveFormDetection);
+	}
+
+	private boolean isGoodWeType50Or100k() {
+		final var goodWeType = this.getGoodweType();
+		return goodWeType == GoodWeType.FENECON_50K || goodWeType == GoodWeType.FENECON_100K;
 	}
 }

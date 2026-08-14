@@ -10,57 +10,142 @@ import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/sh
 import { Role } from "src/app/shared/type/role";
 
 export namespace SharedConsumption {
-
-    export function getNavigationTree(edge: Edge, config: EdgeConfig, translate: TranslateService): ConstructorParameters<typeof NavigationTree> | null {
+    export function getNavigationTree(
+        edge: Edge,
+        config: EdgeConfig,
+        translate: TranslateService,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const evcss: EvcsComponent[] = EvcsComponent.getComponents(config, edge);
-        const consumptionMeters = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled
-                && config.isTypeConsumptionMetered(component)
-                && evcss.every(evcs => component.id !== evcs.id));
+        const consumptionMeters = config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter(
+                (component) =>
+                    component.isEnabled &&
+                    config.isTypeConsumptionMetered(component) &&
+                    evcss.every((evcs) => component.id !== evcs.id),
+            );
 
-        const heatComponents = config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-            .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
+        const heatComponents = config
+            ?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(
+                (component) =>
+                    !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+            );
         const sum: EdgeConfig.Component = config.getComponent("_sum");
         sum.alias = translate.instant("EDGE.HISTORY.PHASE_ACCURATE");
 
-        return new NavigationTree("consumption", { baseString: "common/consumption" }, { name: "oe-consumption", color: "warning" }, translate.instant("GENERAL.CONSUMPTION"), "label", [
-            NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning"),
-            getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
-        ], null).toConstructorParams();
+        return new NavigationTree(
+            "consumption",
+            { baseString: "common/consumption" },
+            { name: "oe-consumption", color: "warning" },
+            translate.instant("GENERAL.CONSUMPTION"),
+            "icon",
+            [
+                NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "warning"),
+                getHistoryNavigationTree(edge, sum, evcss, heatComponents, consumptionMeters, translate),
+                NavigationConstants.CommonNodes.INFO(translate, { source: "consumption" }),
+            ],
+            null,
+            { isCommonWidget: true },
+        ).toConstructorParams();
     }
 
-    function getHistoryNavigationTree(edge: Edge, sum: EdgeConfig.Component, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[], translate: TranslateService): NavigationTree {
-        return new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [
-            ...getHistorySingleComponentNavigationTree(edge, sum, evcsComponents, heatComponents, consumptionMeterComponents, translate),
-        ], null);
+    function getHistoryNavigationTree(
+        edge: Edge,
+        sum: EdgeConfig.Component,
+        evcsComponents: EdgeConfig.Component[],
+        heatComponents: EdgeConfig.Component[],
+        consumptionMeterComponents: EdgeConfig.Component[],
+        translate: TranslateService,
+    ): NavigationTree {
+        return new NavigationTree(
+            "history",
+            { baseString: "history" },
+            { name: "stats-chart-outline", color: "warning" },
+            translate.instant("GENERAL.HISTORY"),
+            "label",
+            [
+                ...getHistorySingleComponentNavigationTree(
+                    edge,
+                    sum,
+                    evcsComponents,
+                    heatComponents,
+                    consumptionMeterComponents,
+                    translate,
+                ),
+            ],
+            null,
+        );
     }
 
-    function getHistorySingleComponentNavigationTree(edge: Edge, sum: EdgeConfig.Component, evcsComponents: EdgeConfig.Component[], heatComponents: EdgeConfig.Component[], consumptionMeterComponents: EdgeConfig.Component[], translate: TranslateService): NavigationTree[] {
+    function isHeatComponent(component: EdgeConfig.Component, heatComponents: EdgeConfig.Component[]): boolean {
+        return heatComponents.includes(component);
+    }
+
+    function getHistorySingleComponentNavigationTree(
+        edge: Edge,
+        sum: EdgeConfig.Component,
+        evcsComponents: EdgeConfig.Component[],
+        heatComponents: EdgeConfig.Component[],
+        consumptionMeterComponents: EdgeConfig.Component[],
+        translate: TranslateService,
+    ): NavigationTree[] {
+        const uniqueComponents = [
+            ...new Map(
+                [...evcsComponents, ...heatComponents, ...consumptionMeterComponents].map((component) => [
+                    component.id,
+                    component,
+                ]),
+            ).values(),
+        ];
+
         return [
             NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, sum.id + "/details", "warning"),
-            ...[...evcsComponents, ...heatComponents, ...consumptionMeterComponents].map(el => (
-                new NavigationTree(el.id + "/details", { baseString: el.id + "/details" }, { name: "stats-chart-outline", color: "warning" }, el.alias, "label", [
-                    ...(edge.roleIsAtLeast(Role.INSTALLER) ?
-                        [new NavigationTree(el.id + "/current-voltage", { baseString: "current-voltage" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"), "label", [], null)]
-                        : []
+            ...uniqueComponents.map(
+                (el) =>
+                    new NavigationTree(
+                        el.id + "/details",
+                        { baseString: el.id + "/details" },
+                        { name: "stats-chart-outline", color: "warning" },
+                        el.alias,
+                        "label",
+                        [
+                            ...(edge.roleIsAtLeast(Role.INSTALLER) && !isHeatComponent(el, heatComponents)
+                                ? [
+                                      new NavigationTree(
+                                          el.id + "/current-voltage",
+                                          { baseString: "current-voltage" },
+                                          { name: "stats-chart-outline", color: "warning" },
+                                          translate.instant("EDGE.HISTORY.CURRENT_AND_VOLTAGE"),
+                                          "label",
+                                          [],
+                                          null,
+                                      ),
+                                  ]
+                                : []),
+                        ],
+                        null,
                     ),
-                ], null))),
+            ),
         ];
     }
 
     export function getFormlyGeneralView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
+        const evcss: EdgeConfig.Component[] | null = config
+            .getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+            .filter(
+                (component) =>
+                    !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
+                    !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+                    !config.factories[component.factoryId].natureIds.includes(
+                        "io.openems.edge.meter.api.ElectricityMeter",
+                    ) &&
+                    !component.isEnabled == false,
+            );
 
-        const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component =>
-                !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-                !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
-                !(config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
-                !component.isEnabled == false);
-
-        const consumptionMeters: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+        const consumptionMeters: EdgeConfig.Component[] | null = config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => component.isEnabled && config.isTypeConsumptionMetered(component));
 
         const lines: OeFormlyField[] = [];
 
@@ -72,7 +157,7 @@ export namespace SharedConsumption {
             converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
         });
 
-        Phase.THREE_PHASE.forEach(phase => {
+        Phase.THREE_PHASE.forEach((phase) => {
             lines.push({
                 type: "channel-line",
                 name: translate.instant("GENERAL.PHASE") + " " + phase,
@@ -97,7 +182,7 @@ export namespace SharedConsumption {
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             });
 
-            if (index < (evcss.length - 1)) {
+            if (index < evcss.length - 1) {
                 lines.push({ type: "horizontal-line" });
             }
         });
@@ -114,7 +199,7 @@ export namespace SharedConsumption {
                 channel: meter.id + "/ActivePower",
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             });
-            Phase.THREE_PHASE.forEach(phase => {
+            Phase.THREE_PHASE.forEach((phase) => {
                 lines.push({
                     type: "channel-line",
                     name: "Phase " + phase,
@@ -124,7 +209,7 @@ export namespace SharedConsumption {
                 });
             });
 
-            if (index < (consumptionMeters.length - 1)) {
+            if (index < consumptionMeters.length - 1) {
                 lines.push({
                     type: "horizontal-line",
                 });
@@ -136,15 +221,18 @@ export namespace SharedConsumption {
         // OtherPower
         const channelsToSubscribe: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActivePower")];
 
-        evcss.forEach(evcs => channelsToSubscribe.push(new ChannelAddress(evcs.id, "ChargePower")));
-        consumptionMeters.forEach(meter => {
+        evcss.forEach((evcs) => channelsToSubscribe.push(new ChannelAddress(evcs.id, "ChargePower")));
+        consumptionMeters.forEach((meter) => {
             channelsToSubscribe.push(...[new ChannelAddress(meter.id, "ActivePower")]);
         });
 
         lines.push({
             type: "value-from-channels-line",
             name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
-            value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
+            value: (currentData: CurrentData) =>
+                Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(
+                    Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData),
+                ),
             channelsToSubscribe: channelsToSubscribe,
         });
 
@@ -164,16 +252,21 @@ export namespace SharedConsumption {
     }
 
     export function getFormlyDetailsView(config: EdgeConfig, translate: TranslateService): OeFormlyView {
+        const evcss: EdgeConfig.Component[] | null = config
+            .getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
+            .filter(
+                (component) =>
+                    !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
+                    !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
+                    !config.factories[component.factoryId].natureIds.includes(
+                        "io.openems.edge.meter.api.ElectricityMeter",
+                    ) &&
+                    !component.isEnabled == false,
+            );
 
-        const evcss: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.evcs.api.Evcs")
-            .filter(component =>
-                !(component.factoryId == "Evcs.Cluster.SelfConsumption") &&
-                !(component.factoryId == "Evcs.Cluster.PeakShaving") &&
-                !(config.factories[component.factoryId].natureIds.includes("io.openems.edge.meter.api.ElectricityMeter")) &&
-                !component.isEnabled == false);
-
-        const consumptionMeters: EdgeConfig.Component[] | null = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => component.isEnabled && config.isTypeConsumptionMetered(component));
+        const consumptionMeters: EdgeConfig.Component[] | null = config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => component.isEnabled && config.isTypeConsumptionMetered(component));
 
         const lines: OeFormlyField[] = [];
 
@@ -185,7 +278,7 @@ export namespace SharedConsumption {
             converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
         });
 
-        Phase.THREE_PHASE.forEach(phase => {
+        Phase.THREE_PHASE.forEach((phase) => {
             lines.push({
                 type: "channel-line",
                 name: translate.instant("GENERAL.PHASE") + " " + phase,
@@ -210,7 +303,7 @@ export namespace SharedConsumption {
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             });
 
-            if (index < (evcss.length - 1)) {
+            if (index < evcss.length - 1) {
                 lines.push({ type: "horizontal-line" });
             }
         });
@@ -227,7 +320,7 @@ export namespace SharedConsumption {
                 channel: meter.id + "/ActivePower",
                 converter: Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO,
             });
-            Phase.THREE_PHASE.forEach(phase => {
+            Phase.THREE_PHASE.forEach((phase) => {
                 lines.push({
                     type: "channel-line",
                     name: "Phase " + phase,
@@ -237,7 +330,7 @@ export namespace SharedConsumption {
                 });
             });
 
-            if (index < (consumptionMeters.length - 1)) {
+            if (index < consumptionMeters.length - 1) {
                 lines.push({
                     type: "horizontal-line",
                 });
@@ -249,15 +342,18 @@ export namespace SharedConsumption {
         // OtherPower
         const channelsToSubscribe: ChannelAddress[] = [new ChannelAddress("_sum", "ConsumptionActivePower")];
 
-        evcss.forEach(evcs => channelsToSubscribe.push(new ChannelAddress(evcs.id, "ChargePower")));
-        consumptionMeters.forEach(meter => {
+        evcss.forEach((evcs) => channelsToSubscribe.push(new ChannelAddress(evcs.id, "ChargePower")));
+        consumptionMeters.forEach((meter) => {
             channelsToSubscribe.push(...[new ChannelAddress(meter.id, "ActivePower")]);
         });
 
         lines.push({
             type: "value-from-channels-line",
             name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
-            value: (currentData: CurrentData) => Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData)),
+            value: (currentData: CurrentData) =>
+                Converter.ONLY_POSITIVE_POWER_AND_NEGATIVE_AS_ZERO(
+                    Converter.CALCULATE_CONSUMPTION_OTHER_POWER(evcss, consumptionMeters, currentData),
+                ),
             channelsToSubscribe: channelsToSubscribe,
         });
 

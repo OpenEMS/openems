@@ -223,6 +223,8 @@ public class EnergyFlow {
 			final var essOne = gsc.ess;
 			final var grid = gsc.goc.grid();
 
+			final boolean isEssFull = gsc.ess.getInitialEnergy() == gsc.goc.ess().totalEnergy();
+
 			return new EnergyFlow.Model(//
 					/* production */ period.data().production(), //
 					/* unmanagedConsumption */ period.data().consumption()//
@@ -235,7 +237,8 @@ public class EnergyFlow {
 							period.duration().convertPowerToEnergy(essGlobal.maxDischargePower()),
 							gsc.ess.getInitialEnergy()), //
 					/* gridMaxBuy */ period.duration().convertPowerToEnergy(grid.maxBuyPower()), //
-					/* gridMaxSell */ period.duration().convertPowerToEnergy(grid.maxSellPower()));
+					/* gridMaxSell */ period.duration()
+							.convertPowerToEnergy(isEssFull ? grid.maxSellPower() : grid.maxSellPowerWithBuffer()));
 		}
 
 		/**

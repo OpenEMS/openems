@@ -11,6 +11,7 @@ import { States } from "../../ngrx-store/states";
 import { Language } from "../../type/language";
 import { TSignalValue } from "../../type/utility";
 import { StringUtils } from "../../utils/string/string.utils";
+import { RouteService } from "../route.service";
 import { Service } from "../service";
 import { UserService } from "../user.service";
 import { AuthenticateWithOAuthRequest, AuthenticateWithOAuthResponse } from "./jsonrpc";
@@ -23,7 +24,6 @@ export enum AUTHENTICATION_STATE {
 
 @Injectable({ providedIn: "root" })
 export class OAuthService {
-
     public static readonly REFRESH_TOKEN: string = "refresh_token";
 
     private state: WritableSignal<AUTHENTICATION_STATE> = signal(AUTHENTICATION_STATE.NOT_AUTHENTICATED);
@@ -32,13 +32,17 @@ export class OAuthService {
     private router: Router = inject(Router);
     private userService: UserService = inject(UserService);
     private platformService: PlatFormService = inject(PlatFormService);
+    private readonly routeService: RouteService = inject(RouteService);
 
     constructor() {
         App.addListener("appUrlOpen", (data: URLOpenListenerEvent) => {
-            const isApp = this.platformService.getIsApp();
+            const device = this.platformService.getDevice();
+            const isApp = device.isApp();
             const code = OAuthService.getCode(data);
             if (isApp) {
-                this.router.navigate(["/oauthcallback"], { queryParams: { code: code ?? null } });
+                this.router.navigate(["/oauthcallback"], {
+                    queryParams: { code: code ?? null },
+                });
             }
         });
     }
@@ -48,7 +52,8 @@ export class OAuthService {
     }
 
     public static getRedirectUri(plaformService: PlatFormService) {
-        if (plaformService.getIsApp()) {
+        const device = plaformService.getDevice();
+        if (device.isApp()) {
             return {};
         }
 
@@ -57,9 +62,9 @@ export class OAuthService {
 
     /**
      * Gets the OEM to use.
-    *
-    * @returns the oem
-    */
+     *
+     * @returns The oem
+     */
     public static getOem() {
         return { oem: environment.theme.toLowerCase() };
     }
@@ -67,8 +72,8 @@ export class OAuthService {
     /**
      * Gets the code from url queryParams.
      *
-     * @param data the data
-     * @returns the code if available in event, else null
+     * @param data The data
+     * @returns The code if available in event, else null
      */
     private static getCode(data: URLOpenListenerEvent) {
         const dataQueryParams = StringUtils.splitBy(data.url, "?");
@@ -89,10 +94,10 @@ export class OAuthService {
     }
 
     /**
-        * Executes when websocket is 'online'
-        *
-        * @returns
-        */
+     * Executes when websocket is 'online'
+     *
+     * @returns
+     */
     public async startOAuth(): Promise<void> {
         this.state.set(AUTHENTICATION_STATE.AUTHENTICATING);
 
@@ -108,49 +113,55 @@ export class OAuthService {
     /**
      * Gets the current oauth state
      *
-     * @param cookieService the cookie service
-     * @returns state and identifiere if available, else null
+     * @param cookieService The cookie service
+     * @returns State and identifiere if available, else null
      */
-    public getOAuthState(): { state: string, identifier: string } | null {
+    public getOAuthState(): { state: string; identifier: string } | null {
         return this.cookieService.check("oauthredirectstate")
-            ? JSON.parse(this.cookieService.get("oauthredirectstate")) as { state: string, identifier: string }
+            ? (JSON.parse(this.cookieService.get("oauthredirectstate")) as {
+                  state: string;
+                  identifier: string;
+              })
             : null;
     }
 
     /**
      * Executes after redirecting from external authentication service back to UI
      *
-     * @param code the current code
-     * @param oauthState the current oauth state
+     * @param code The current code
+     * @param oauthState The current oauth state
      * @returns
      */
-    public getTokenByCode(code: string, oauthState: { state: string; identifier: string; } | null) {
+    public getTokenByCode(code: string, oauthState: { state: string; identifier: string } | null) {
         if (oauthState == null) {
             return;
         }
-        this.service.websocket.sendRequest<AuthenticateWithOAuthResponse>(new AuthenticateWithOAuthRequest({
-            payload: new JsonrpcRequest("getTokenByCode", {
-                identifier: oauthState.identifier,
-                code: code,
-                ...OAuthService.getOem(),
-            }),
-        })).then((response: AuthenticateWithOAuthResponse) => {
-            const token = response.result;
+        this.service.websocket
+            .sendRequest<AuthenticateWithOAuthResponse>(
+                new AuthenticateWithOAuthRequest({
+                    payload: new JsonrpcRequest("getTokenByCode", {
+                        identifier: oauthState.identifier,
+                        code: code,
+                        ...OAuthService.getOem(),
+                    }),
+                }),
+            )
+            .then((response: AuthenticateWithOAuthResponse) => {
+                const token = response.result;
 
-            this.setTokens(token);
-            this.completeAuthentication(response);
-        }).catch(() => this.service.websocket.logout());
+                this.setTokens(token);
+                this.completeAuthentication(response);
+            })
+            .catch(() => this.service.websocket.logout());
     }
 
     /**
      * Executes after successfull authentication.
      *
-     * @param tokenResponse the token response from authentication
-    */
+     * @param tokenResponse The token response from authentication
+     */
     public completeAuthentication(tokenResponse: AuthenticateWithOAuthResponse): Promise<void> {
-
         return new Promise<void>((res) => {
-
             const user = User.from(tokenResponse.result.user);
             if (user == null) {
                 this.service.websocket.logout();
@@ -167,25 +178,24 @@ export class OAuthService {
                 edges: {},
             });
 
-            const language = Language.getByKey(localStorage.DEMO_LANGUAGE ?? this?.userService?.currentUser()?.language?.toLocaleLowerCase()) ?? Language.DEFAULT;
+            const language =
+                Language.getByKey(
+                    localStorage.DEMO_LANGUAGE ?? this?.userService?.currentUser()?.language?.toLocaleLowerCase(),
+                ) ?? Language.DEFAULT;
             localStorage.LANGUAGE = language.key;
             this.service.setLang(language);
 
-            const initialUrl = this.router.lastSuccessfulNavigation?.initialUrl;
-            if (initialUrl == null) {
-                this.router.navigate(["/overview"]);
+            const currentUrl = this.routeService.currentUrl();
+            const isAuthenticatedNavi = (currentUrl?.split("/")?.length ?? 0) > 2;
+
+            if (isAuthenticatedNavi && currentUrl != null) {
+                this.router.navigateByUrl(currentUrl);
                 res();
                 return;
             }
 
-            const isAuthenticatedNavi = initialUrl?.toString()?.split("/")?.length > 2;
-            if (isAuthenticatedNavi && initialUrl != null) {
-                this.router.navigate([initialUrl.toString().split("?")[0]], { queryParams: initialUrl.queryParams });
-                res();
-                return;
-            }
-
-            this.router.navigate(["/overview"]);
+            // Fallback
+            this.router.navigateByUrl("/overview");
             res();
         });
     }
@@ -193,10 +203,9 @@ export class OAuthService {
     /**
      * Gets the refresh token.
      *
-     * @returns the refresh token if existing, else null
-    */
+     * @returns The refresh token if existing, else null
+     */
     public getRefreshToken(): string | null {
-
         if (this.cookieService.check("refresh_token") == false) {
             return null;
         }
@@ -207,9 +216,9 @@ export class OAuthService {
     /**
      * Executes when token and refresh_token is set
      *
-     * @param refreshToken the refresh token
-     * @returns a authentication response if valid session, else null
-    */
+     * @param refreshToken The refresh token
+     * @returns A authentication response if valid session, else null
+     */
     public async getTokenByRefreshToken(): Promise<AuthenticateWithOAuthResponse | null> {
         const refreshToken = this.getRefreshToken();
 
@@ -218,12 +227,16 @@ export class OAuthService {
             return null;
         }
 
-        const [err, response] = await JsonRpcUtils.handleResponse<AuthenticateWithOAuthResponse>(this.service.websocket.sendRequest(new AuthenticateWithOAuthRequest({
-            payload: new JsonrpcRequest("getTokenByRefreshToken", {
-                refreshToken: refreshToken,
-                ...OAuthService.getOem(),
-            }),
-        })));
+        const [err, response] = await JsonRpcUtils.handleResponse<AuthenticateWithOAuthResponse>(
+            this.service.websocket.sendRequest(
+                new AuthenticateWithOAuthRequest({
+                    payload: new JsonrpcRequest("getTokenByRefreshToken", {
+                        refreshToken: refreshToken,
+                        ...OAuthService.getOem(),
+                    }),
+                }),
+            ),
+        );
 
         if (err || response == null) {
             this.service.websocket.logout();
@@ -234,7 +247,6 @@ export class OAuthService {
         return response;
     }
 
-
     public getCurrentState(): TSignalValue<typeof this.state> {
         return this.state.asReadonly()();
     }
@@ -242,7 +254,7 @@ export class OAuthService {
     /**
      * Sets the tokens in the cookie service.
      *
-     * @param result the authentication response result
+     * @param result The authentication response result
      */
     private setTokens(result: AuthenticateWithOAuthResponse["result"]) {
         this.cookieService.set(OAuthService.REFRESH_TOKEN, JSON.stringify(result.refreshToken), 14, "/");

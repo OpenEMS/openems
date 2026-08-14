@@ -1,35 +1,50 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { UnitvaluePipe } from "src/app/shared/pipe/unitvalue/unitvalue.pipe";
 import { environment } from "src/environments";
 import { Service, Utils } from "../../../../../shared/shared";
 import { DefaultTypes } from "../../../../../shared/type/defaulttypes";
-import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition } from "./abstractsection.component";
+import { AbstractSection, EnergyFlow, Ratio, SvgEnergyFlow, SvgSquare, SvgSquarePosition, } from "./abstractsection.component";
 import { AnimationService } from "./animation.service";
 
 @Component({
     selector: "[productionsection]",
     templateUrl: "./production.component.html",
     styleUrls: ["../animation.scss"],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ProductionSectionComponent extends AbstractSection implements OnInit, OnDestroy {
+    protected productionAnimationClass: string = "production-hide";
 
-    private unitpipe: UnitvaluePipe;
     private subShow?: Subscription;
-    private productionAnimationClass: string = "production-hide";
     private animationTrigger: boolean = false;
 
     constructor(
         translate: TranslateService,
         service: Service,
-        unitpipe: UnitvaluePipe,
+        navigationService: NavigationService,
+        router: Router,
+        route: ActivatedRoute,
+        private unitpipe: UnitvaluePipe,
         private animationService: AnimationService,
     ) {
-        super("GENERAL.PRODUCTION", "up", "var(--ion-color-primary)", translate, service, "Common_Production");
-        this.unitpipe = unitpipe;
+        super(
+            "GENERAL.PRODUCTION",
+            "up",
+            "var(--ion-color-primary)",
+            translate,
+            service,
+            navigationService,
+            router,
+            route,
+            "Common_Production",
+            ["common", "production"],
+        );
     }
 
     ngOnInit() {
@@ -70,15 +85,12 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         } else {
             arrowIndicate = 0;
         }
-        super.updateSectionData(
-            sum.production.activePower,
-            sum.production.powerRatio,
-            arrowIndicate);
+        super.updateSectionData(sum.production.activePower, sum.production.powerRatio, arrowIndicate);
     }
 
     protected getSquarePosition(square: SvgSquare, innerRadius: number): SvgSquarePosition {
-        const x = (square.length / 2) * (-1);
-        const y = (innerRadius - 10) * (-1);
+        const x = (square.length / 2) * -1;
+        const y = (innerRadius - 10) * -1;
         return new SvgSquarePosition(x, y);
     }
 
@@ -99,8 +111,8 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
     }
 
     protected setElementHeight() {
-        this.square.valueText.y = this.square.valueText.y - (this.square.valueText.y * 0.4);
-        this.square.image.y = this.square.image.y - (this.square.image.y * 0.45);
+        this.square.valueText.y = this.square.valueText.y - this.square.valueText.y * 0.4;
+        this.square.image.y = this.square.image.y - this.square.image.y * 0.45;
     }
 
     protected getSvgEnergyFlow(ratio: number, radius: number): SvgEnergyFlow {
@@ -145,5 +157,4 @@ export class ProductionSectionComponent extends AbstractSection implements OnIni
         }
         return p;
     }
-
 }

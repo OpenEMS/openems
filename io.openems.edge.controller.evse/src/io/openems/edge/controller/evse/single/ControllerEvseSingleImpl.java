@@ -40,7 +40,6 @@ import io.openems.edge.controller.evse.single.statemachine.Context;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 import io.openems.edge.evse.api.electricvehicle.EvseElectricVehicle;
 
@@ -157,7 +156,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 				.setIsReadyForCharging(!isSessionLimitReached) //
 				.build();
 
-		return new Params(this.id(), this.config.mode(), activePower, //
+		return new Params(this.id(), this.config.chargePoint_id(), this.config.mode(), activePower, //
 				sessionEnergy, sessionEnergyLimit, //
 				this.history, this.config.phaseSwitching(), combinedAbilities, this.tasks);
 	}
@@ -187,6 +186,9 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		try {
 			var context = new Context(this, this.componentManager.getClock(), input, this.chargePoint, this.history,
 					(actions) -> {
+						if (this.chargePoint.isReadOnly()) {
+							return;
+						}
 						// Callback: forward actions
 						this.chargePoint.apply(actions);
 						this.history.addEntry(Instant.now(this.componentManager.getClock()),
@@ -206,8 +208,24 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 	}
 
 	private State getForceNextState(ChargePointActions input, State state) {
+		if (input.phaseSwitch() == null) {
+			if (state == State.PHASE_SWITCH_TO_SINGLE_PHASE || state == State.PHASE_SWITCH_TO_THREE_PHASE) {
+				// Do not interrupt Phase-Switch; it has a timeout
+				return null;
+			}
+			if (state != State.EV_NOT_CONNECTED && !input.abilities().isEvConnected()) {
+				// EV is not connected
+				return State.EV_NOT_CONNECTED;
+			}
+			if (state != State.FINISHED_ENERGY_SESSION_LIMIT && isSessionLimitReached(this.config.mode(),
+					this.getSessionEnergy().get(), this.config.manualEnergySessionLimit())) {
+				// Session Energy Limit was reached
+				return State.FINISHED_ENERGY_SESSION_LIMIT;
+			}
+			return null;
+		}
 		// Force State when...
-		return switch (input.phaseSwitch()) {
+		return switch (input.phaseSwitch().direction()) {
 		// NOTE: this is before EV_NOT_CONNECTED to allow phase-switching with
 		// not-connected EVs
 		case TO_SINGLE_PHASE -> {
@@ -217,21 +235,6 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		case TO_THREE_PHASE -> {
 			// ...phase switching to Three-Phase
 			yield State.PHASE_SWITCH_TO_THREE_PHASE;
-		}
-		case null -> {
-			if (state == State.PHASE_SWITCH_TO_SINGLE_PHASE || state == State.PHASE_SWITCH_TO_THREE_PHASE) {
-				yield null; // Do not interrupt Phase-Switch; it has a timeout
-			}
-			if (state != State.EV_NOT_CONNECTED && !input.abilities().isEvConnected()) {
-				// ...EV is not connected
-				yield State.EV_NOT_CONNECTED;
-			}
-			if (state != State.FINISHED_ENERGY_SESSION_LIMIT && isSessionLimitReached(this.config.mode(),
-					this.getSessionEnergy().get(), this.config.manualEnergySessionLimit())) {
-				// ...Session Energy Limit was reached
-				yield State.FINISHED_ENERGY_SESSION_LIMIT;
-			}
-			yield null;
 		}
 		};
 	}

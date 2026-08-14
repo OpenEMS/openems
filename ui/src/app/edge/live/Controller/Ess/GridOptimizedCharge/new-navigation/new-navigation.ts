@@ -1,7 +1,7 @@
-import { Component, inject } from "@angular/core";
+import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
@@ -10,14 +10,13 @@ import { LiveDataService } from "../../../../livedataservice";
 import { CONVERT_GRID_OPTIMIZED_CHARGE_STATE, SharedGridOptimizedCharge } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-ess-grid-optimized-charge-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractFormlyComponent {
-
     public component: EdgeConfig.Component | null = null;
     public mode: Mode | null = null;
     public state: string | null = null;
@@ -35,7 +34,9 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
         mode: Mode | null,
         isSellToGridLimitAvoided: boolean,
         delayChargeMaximumChargeLimit: number | null,
-        sellToGridLimitMinimumChargeLimit: number | null): OeFormlyView {
+        sellToGridLimitMinimumChargeLimit: number | null,
+        isDisabledByTimeOfUse: boolean,
+    ): OeFormlyView {
         const lines: OeFormlyField[] = [];
 
         lines.push({
@@ -45,7 +46,15 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
             converter: Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(translate),
         });
 
-        if (mode == Mode.OFF) {
+        if (isDisabledByTimeOfUse == true) {
+            lines.push({
+                type: "info-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.INFO_DISABLED_BY_TIME_OF_USE"),
+                icon: { name: "oe-info", color: "primary", size: "large" },
+            });
+        }
+
+        if (mode == Mode.OFF || isDisabledByTimeOfUse == true) {
             return {
                 title: component.alias,
                 helpKey: "REDIRECT.CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE",
@@ -58,7 +67,9 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
         if (isSellToGridLimitAvoided == true) {
             lines.push({
                 type: "info-line",
-                name: translate.instant("EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.GRID_FEED_IN_LIMITATION_IS_AVOIDED"),
+                name: translate.instant(
+                    "EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.GRID_FEED_IN_LIMITATION_IS_AVOIDED",
+                ),
             });
             if (sellToGridLimitMinimumChargeLimit != null && sellToGridLimitMinimumChargeLimit > 0) {
                 lines.push({
@@ -102,7 +113,17 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
         this.component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
         AssertionUtils.assertIsDefined(this.component);
 
-        return ControllerEssGridOptimizedChargeHomeComponent.generateView(this.translate, this.component, this.mode, this.isSellToGridLimitAvoided, this.delayChargeMaximumChargeLimit, this.sellToGridLimitMinimumChargeLimit);
+        const isDisabledByTimeOfUse = SharedGridOptimizedCharge.isDisabledByTimeOfUse(config, this.component);
+
+        return ControllerEssGridOptimizedChargeHomeComponent.generateView(
+            this.translate,
+            this.component,
+            this.mode,
+            this.isSellToGridLimitAvoided,
+            this.delayChargeMaximumChargeLimit,
+            this.sellToGridLimitMinimumChargeLimit,
+            isDisabledByTimeOfUse,
+        );
     }
 
     protected override onCurrentData(currentData: CurrentData) {
@@ -114,18 +135,22 @@ export class ControllerEssGridOptimizedChargeHomeComponent extends AbstractForml
         this.mode = currentData.allComponents[this.component.id + "/_PropertyMode"];
 
         // Check if Grid feed in limitation is avoided
-        if (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 0 ||
-            (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 3
-                && currentData.allComponents[this.component.id + "/DelayChargeState"] != 0
-                && currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"] > 0)) {
+        if (
+            currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 0 ||
+            (currentData.allComponents[this.component.id + "/SellToGridLimitState"] == 3 &&
+                currentData.allComponents[this.component.id + "/DelayChargeState"] != 0 &&
+                currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"] > 0)
+        ) {
             this.isSellToGridLimitAvoided = true;
         }
 
-        this.sellToGridLimitMinimumChargeLimit = currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"];
+        this.sellToGridLimitMinimumChargeLimit =
+            currentData.allComponents[this.component.id + "/SellToGridLimitMinimumChargeLimit"];
 
         this.state = this.getDelayChargeStateLabel(delayChargeState);
 
-        this.delayChargeMaximumChargeLimit = currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
+        this.delayChargeMaximumChargeLimit =
+            currentData.allComponents[this.component.id + "/DelayChargeMaximumChargeLimit"];
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {

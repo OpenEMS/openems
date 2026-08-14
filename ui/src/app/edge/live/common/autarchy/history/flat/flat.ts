@@ -1,21 +1,21 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, Utils } from "src/app/shared/shared";
 
 @Component({
     selector: "autarchyWidget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     protected autarchyValue: number | null = null;
 
     protected override onCurrentData(currentData: CurrentData) {
-        this.autarchyValue =
-            Utils.calculateAutarchy(
-                currentData.allComponents["_sum/GridBuyActiveEnergy"] / 1000,
-                currentData.allComponents["_sum/ConsumptionActiveEnergy"] / 1000);
+        this.autarchyValue = Utils.calculateAutarchy(
+            currentData.allComponents["_sum/GridBuyActiveEnergy"] / 1000,
+            currentData.allComponents["_sum/ConsumptionActiveEnergy"] / 1000,
+        );
     }
 
     protected override getChannelAddresses(): ChannelAddress[] {
@@ -25,4 +25,3 @@ export class FlatComponent extends AbstractFlatWidget {
         ];
     }
 }
-

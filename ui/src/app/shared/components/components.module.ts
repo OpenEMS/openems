@@ -6,6 +6,7 @@ import { BrowserModule } from "@angular/platform-browser";
 import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { LabelToLinesPipe } from "src/app/shared/pipe/label-to-lines/label-to-lines.pipe";
 import { PipeComponentsModule, PipeModule } from "src/app/shared/pipe/pipe.module";
 import { CommonUiModule } from "../common-ui.module";
 import { DomChangeDirective } from "../directive/oe-dom-change";
@@ -17,12 +18,14 @@ import { FlatWidgetLineItemComponent } from "./flat/flat-widget-line/flat-widget
 
 import { FlatWidgetLineDividerComponent } from "./flat/flat-widget-line-divider/flat-widget-line-divider";
 import { FlatWidgetPercentagebarComponent } from "./flat/flat-widget-percentagebar/flat-widget-percentagebar";
+import { FooterContentComponent } from "./footer/content/content";
 import { FooterComponent } from "./footer/footer";
-import { FooterNavigationComponentsModule, FooterNavigationModule } from "./footer/subnavigation/footerNavigation.module";
+import { FooterNavigationComponentsModule, FooterNavigationModule, } from "./footer/subnavigation/footerNavigation.module";
 import { HistoryDataErrorModule } from "./history-data-error/history-data-error.module";
 import { HelpButtonComponent } from "./modal/help-button/help-button";
 import { ModalComponentsModule, ModalModule } from "./modal/modal.module";
-import { NavigationBreadCrumbsComponent } from "./navigation/bread-crumbs/breadcrumbs";
+import { NavigationBackButtonComponent } from "./navigation/back-button/back-button";
+import { NavigationBreadCrumbsComponent } from "./navigation/breadcrumbs/breadcrumbs";
 import { NavigationChipsComponent } from "./navigation/chips/chips";
 import { NavigationPageComponent as NavigationViewComponent } from "./navigation/view/view";
 import { PickdateComponentModule, PickdateModule } from "./pickdate/pickdate.module";
@@ -42,6 +45,9 @@ import { NotificationComponent } from "./shared/notification/notification";
         HelpButtonComponent,
         FlatWidgetPercentagebarComponent,
         TranslateModule,
+        FooterContentComponent,
+        LabelToLinesPipe,
+        NavigationBackButtonComponent,
     ],
     declarations: [
         // Flat
@@ -81,7 +87,7 @@ import { NotificationComponent } from "./shared/notification/notification";
     ],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ComponentsBaseModule { }
+export class ComponentsBaseModule {}
 @NgModule({
     imports: [
         ComponentsBaseModule,
@@ -97,9 +103,7 @@ export class ComponentsBaseModule { }
         ReactiveFormsModule,
         RouterModule,
     ],
-    exports: [
-        ComponentsBaseModule,
-    ],
+    exports: [ComponentsBaseModule],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
-export class ComponentsModule { }
+export class ComponentsModule {}

@@ -28,6 +28,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Modbus interface for the FENECON Commercial Battery system. Manages charging and discharging of the battery pack, monitors state of charge, temperature, cell voltages, and health status. Supports relay-based automatic start/stop control for safety and operational optimization.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "battery0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

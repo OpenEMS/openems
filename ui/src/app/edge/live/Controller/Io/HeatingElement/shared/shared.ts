@@ -12,7 +12,8 @@ export namespace SharedControllerIoHeatingElement {
     // hide elements when mode is not off
     const HIDE_ON_MODE_NOT_MANUAL_ON = (el: { mode: Mode }) => el.mode !== Mode.MANUAL_ON;
     // hide elements when mode is not off
-    const HIDE_ON_WORKMODE_NONE_OR_MODE_NOT_TIME = (el: { mode: Mode, workMode: WorkMode }) => el.mode !== Mode.AUTOMATIC || el.workMode === WorkMode.NONE;
+    const HIDE_ON_WORKMODE_NONE_OR_MODE_NOT_TIME = (el: { mode: Mode; workMode: WorkMode }) =>
+        el.mode !== Mode.AUTOMATIC || el.workMode === WorkMode.NONE;
 
     export const getFormlyView = (
         translate: TranslateService,
@@ -22,7 +23,7 @@ export namespace SharedControllerIoHeatingElement {
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            icon: { name: "flame", color: "normal", size: "large" },
+            icon: { name: "oe-heating-element", color: "normal", size: "large" },
             lines: [
                 ...getFormlySharedLines(translate, component),
                 ...getFormlyAutomaticView(translate, HIDE_ON_WORKMODE_NONE_OR_MODE_NOT_TIME),
@@ -35,7 +36,7 @@ export namespace SharedControllerIoHeatingElement {
 
     const getFormlyAutomaticView = (
         translate: TranslateService,
-        hideCondition: (field: { mode: Mode, workMode: WorkMode }) => boolean
+        hideCondition: (field: { mode: Mode; workMode: WorkMode }) => boolean,
     ): OeFormlyView<HeatingElementViewModel>["lines"] => {
         const lines: OeFormlyView<HeatingElementViewModel>["lines"] = [];
 
@@ -93,15 +94,17 @@ export namespace SharedControllerIoHeatingElement {
                     pinFormatter: (value: number) => Formatter.FORMAT_HOUR(value),
                     snaps: true,
                 },
-            }
+            },
         );
-        return lines.map(line => ({
+        return lines.map((line) => ({
             ...line,
             hide: line.hide ?? hideCondition,
         }));
     };
 
-    const getFormlyManualOnView = (hideCondition: (field: { mode: Mode }) => boolean): OeFormlyView<HeatingElementViewModel>["lines"] => ([
+    const getFormlyManualOnView = (
+        hideCondition: (field: { mode: Mode }) => boolean,
+    ): OeFormlyView<HeatingElementViewModel>["lines"] => [
         {
             type: "select-line",
             controlName: "defaultLevel",
@@ -113,41 +116,47 @@ export namespace SharedControllerIoHeatingElement {
             ],
             hide: hideCondition,
         },
-    ]);
+    ];
 
-    const getFormlySharedLines = (translate: TranslateService, component: EdgeConfig.Component): OeFormlyView<HeatingElementViewModel>["lines"] => ([{
-        type: "value-from-channels-line",
-        name: translate.instant("GENERAL.STATE"),
-        channelsToSubscribe: [new ChannelAddress(component.id, "Status")],
-        value: (currentData: CurrentData) => {
-            const runState = currentData.allComponents[component.id + "/Status"];
-            return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate)(runState);
+    const getFormlySharedLines = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+    ): OeFormlyView<HeatingElementViewModel>["lines"] => [
+        {
+            type: "value-from-channels-line",
+            name: translate.instant("GENERAL.STATE"),
+            channelsToSubscribe: [new ChannelAddress(component.id, "Status")],
+            value: (currentData: CurrentData) => {
+                const runState = currentData.allComponents[component.id + "/Status"];
+                return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate)(runState);
+            },
         },
-    },
-    {
-        type: "buttons-from-form-control-line",
-        name: translate.instant("GENERAL.MODE"),
-        controlName: "mode",
-        buttons: [
-            {
-                name: translate.instant("GENERAL.ON"),
-                value: Mode.MANUAL_ON,
-                icon: { color: "success", name: "play-outline", size: "medium" },
-            },
-            {
-                name: translate.instant("GENERAL.AUTOMATIC"),
-                value: Mode.AUTOMATIC,
-                icon: { color: "primary", name: "sunny", size: "medium" },
-            },
-            {
-                name: translate.instant("GENERAL.OFF"),
-                value: Mode.MANUAL_OFF,
-                icon: { color: "danger", name: "power-outline", size: "medium" },
-            },
-        ],
-    }, {
-        type: "horizontal-line",
-    }]);
+        {
+            type: "buttons-from-form-control-line",
+            name: translate.instant("GENERAL.MODE"),
+            controlName: "mode",
+            buttons: [
+                {
+                    name: translate.instant("GENERAL.ON"),
+                    value: Mode.MANUAL_ON,
+                    icon: { color: "success", name: "play-outline", size: "medium" },
+                },
+                {
+                    name: translate.instant("GENERAL.AUTOMATIC"),
+                    value: Mode.AUTOMATIC,
+                    icon: { color: "primary", name: "sunny", size: "medium" },
+                },
+                {
+                    name: translate.instant("GENERAL.OFF"),
+                    value: Mode.MANUAL_OFF,
+                    icon: { color: "danger", name: "power-outline", size: "medium" },
+                },
+            ],
+        },
+        {
+            type: "horizontal-line",
+        },
+    ];
 
     export function getChannelAddresses(component: EdgeConfig.Component): Promise<ChannelAddress[]> {
         return Promise.resolve([
@@ -169,11 +178,31 @@ export namespace SharedControllerIoHeatingElement {
         });
     }
 
-    export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree(component.id, { baseString: "controller/heatingelement/" + component.id }, { name: "flame", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-            NavigationConstants.CommonNodes.SETTINGS(translate),
-        ], null).toConstructorParams();
+    export function getNavigationTree(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+    ): ConstructorParameters<typeof NavigationTree> {
+        return new NavigationTree(
+            component.id,
+            { baseString: "controller/heatingelement/" + component.id },
+            { name: "oe-heating-element", color: "normal" },
+            Name.METER_ALIAS_OR_ID(component),
+            "label",
+            [
+                new NavigationTree(
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    "label",
+                    [],
+                    null,
+                ),
+                NavigationConstants.CommonNodes.SETTINGS(translate),
+                NavigationConstants.CommonNodes.INFO(translate, { source: component.id }),
+            ],
+            null,
+        ).toConstructorParams();
     }
 }
 

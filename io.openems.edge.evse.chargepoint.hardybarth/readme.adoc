@@ -43,6 +43,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVSE (Electric Vehicle Supply Equipment) interface for Hardy Barth Salia charging station. Provides charging point functionality with real-time power measurement and status monitoring. Supports read-only monitoring or managed charging control modes.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "evseChargePoint0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)
@@ -71,6 +72,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: EVCS (Electric Vehicle Charging Station) interface for Hardy Barth Salia. Manages dynamic charging control and enables integration with energy management systems for demand response and load optimization. Controls charging power and monitors real-time consumption.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component

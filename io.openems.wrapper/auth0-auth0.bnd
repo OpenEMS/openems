@@ -2,10 +2,10 @@ Bundle-Name: auth0 auth0
 Bundle-Description: Java client library for the Auth0 platform 
 Bundle-DocURL: https://github.com/auth0/auth0-java
 Bundle-License: https://opensource.org/licenses/MIT
-Bundle-Version: 3.7.0
+Bundle-Version: 4.1.0
 
 Include-Resource: \
-	@auth0-3.7.0.jar,\
+	@auth0-4.1.0.jar,\
 
 Export-Package: \
 	com.auth0.client,\
@@ -57,8 +57,14 @@ Export-Package: \
 	com.auth0.client.mgmt.keys,\
 	com.auth0.client.mgmt.keys.types,\
 	com.auth0.client.mgmt.organizations,\
+	com.auth0.client.mgmt.organizations.groups,\
+	com.auth0.client.mgmt.organizations.groups.types,\
 	com.auth0.client.mgmt.organizations.members,\
+	com.auth0.client.mgmt.organizations.members.effectiveroles.sources,\
+	com.auth0.client.mgmt.organizations.members.effectiveroles.sources.types,\
 	com.auth0.client.mgmt.organizations.members.types,\
+	com.auth0.client.mgmt.organizations.roles,\
+	com.auth0.client.mgmt.organizations.roles.types,\
 	com.auth0.client.mgmt.organizations.types,\
 	com.auth0.client.mgmt.prompts,\
 	com.auth0.client.mgmt.prompts.types,\
@@ -74,6 +80,10 @@ Export-Package: \
 	com.auth0.client.mgmt.tenants.types,\
 	com.auth0.client.mgmt.types,\
 	com.auth0.client.mgmt.users,\
+	com.auth0.client.mgmt.users.effectivepermissions.sources,\
+	com.auth0.client.mgmt.users.effectivepermissions.sources.types,\
+	com.auth0.client.mgmt.users.effectiveroles.sources,\
+	com.auth0.client.mgmt.users.effectiveroles.sources.types,\
 	com.auth0.client.mgmt.users.types,\
 	com.auth0.client.mgmt.verifiablecredentials,\
 	com.auth0.client.mgmt.verifiablecredentials.verification,\

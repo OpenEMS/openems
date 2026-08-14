@@ -1,7 +1,8 @@
-import { Component, effect, HostBinding } from "@angular/core";
+import { Component, effect, HostBinding, inject, ChangeDetectionStrategy } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { filter } from "rxjs/operators";
 
+import { PlatFormService } from "src/app/platform.service";
 import { environment } from "../../../../environments";
 import { User } from "../../jsonrpc/shared";
 import { Edge, Service } from "../../shared";
@@ -9,45 +10,48 @@ import { Role } from "../../type/role";
 
 @Component({
     selector: "oe-footer",
-    styles: [`
+    styles: [
+        `
+            :host[data-isSmartphone="true"] {
+                position: relative;
+            }
 
-    :host[data-isSmartPhone=true] {
-      position: relative;
-    }
+            :host[data-isSmartphone="false"] {
+                position: sticky;
+                bottom: 0;
+                width: 100%;
 
-    :host[data-isSmartPhone=false] {
-      position: sticky;
-      bottom: 0;
-      width: 100%;
+                font-size: 14px !important;
+                :is(ion-row) {
+                    text-align: center;
+                }
 
-      font-size: 14px !important;
-      :is(ion-row) {
-        text-align: center;
-      }
-
-      :is(ion-item) {
-
-        font-size: inherit;
-      }
-    }
-  `],
+                :is(ion-item) {
+                    font-size: inherit;
+                }
+            }
+        `,
+    ],
     templateUrl: "footer.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FooterComponent {
-
-    @HostBinding("attr.data-isSmartPhone")
-    public isSmartPhone: boolean = this.service.isSmartphoneResolution;
+    @HostBinding("attr.data-isSmartphone")
+    public isSmartphone: boolean = false;
 
     protected user: User | null = null;
     protected edge: Edge | null = null;
-    protected displayValues: { comment: string, id: string, version: string } | null = null;
+    protected displayValues: { comment: string; id: string; version: string } | null = null;
     protected isAtLeastOwner: boolean | null = null;
+
+    private platFormService = inject(PlatFormService);
 
     constructor(
         protected service: Service,
         private title: Title,
     ) {
+        this.isSmartphone = this.platFormService.getDevice().isSmartphone();
 
         effect(() => {
             const edge = this.service.currentEdge();
@@ -62,7 +66,7 @@ export class FooterComponent {
         });
     }
 
-    private static getDisplayValues(user: User, edge: Edge): { comment: string, id: string, version: string } {
+    private static getDisplayValues(user: User, edge: Edge): { comment: string; id: string; version: string } {
         const result = {
             comment: "",
             id: "",
@@ -86,8 +90,7 @@ export class FooterComponent {
     }
 
     private setDisplayValues(edge: Edge) {
-
-        this.service.metadata.pipe(filter(metadata => !!metadata)).subscribe((metadata) => {
+        this.service.metadata.pipe(filter((metadata) => !!metadata)).subscribe((metadata) => {
             this.user = metadata.user;
 
             let title = environment.edgeShortName;

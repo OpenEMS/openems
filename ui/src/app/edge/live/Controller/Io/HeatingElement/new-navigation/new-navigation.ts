@@ -1,32 +1,27 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { environment } from "src/environments";
 import { LiveDataService } from "../../../../livedataservice";
 import { SharedControllerIoHeatingElement } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-io-heating-element-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
-    imports: [
-        CommonModule,
-        IonicModule,
-        ReactiveFormsModule,
-        FormlyModule,
-        TranslateModule,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
@@ -36,20 +31,37 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
     public static generateView(translate: TranslateService, component: EdgeConfig.Component, mode: Mode): OeFormlyView {
         const lines: OeFormlyField[] = [];
 
-        lines.push({
-            type: "channel-line",
-            name: translate.instant("GENERAL.MODE"),
-            channel: component.id + "/_PropertyMode",
-            converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
-        }, {
-            type: "value-from-channels-line",
-            name: translate.instant("GENERAL.STATE"),
-            channelsToSubscribe: [new ChannelAddress(component.id, "Status")],
-            value: (currentData: CurrentData) => {
-                const runState = currentData.allComponents[component.id + "/Status"];
-                return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate)(runState);
+        lines.push(
+            {
+                type: "image-line",
+                img: {
+                    url: environment.icons.COMPONENT.HEATING_ELEMENT,
+                    width: 20,
+                    height: 20,
+                    color: "var(--ion-color-svg)",
+                    style: {
+                        maxWidth: "20rem",
+                        justifySelf: "center",
+                        paddingBottom: "var(--ion-padding)",
+                    },
+                },
             },
-        });
+            {
+                type: "channel-line",
+                name: translate.instant("GENERAL.MODE"),
+                channel: component.id + "/_PropertyMode",
+                converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
+            },
+            {
+                type: "value-from-channels-line",
+                name: translate.instant("GENERAL.STATE"),
+                channelsToSubscribe: [new ChannelAddress(component.id, "Status")],
+                value: (currentData: CurrentData) => {
+                    const runState = currentData.allComponents[component.id + "/Status"];
+                    return Converter.CONVERT_HEATING_ELEMENT_RUNSTATE(translate)(runState);
+                },
+            },
+        );
 
         if (mode !== Mode.MANUAL_OFF) {
             lines.push({
@@ -66,7 +78,7 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            icon: { name: "flame", color: "normal", size: "large" },
+            useDefaultPrefix: false,
             lines: lines,
             component: component,
         };

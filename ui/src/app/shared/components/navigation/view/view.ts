@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, effect, ElementRef, EventEmitter, HostListener, input, Input, Output, Renderer2, signal, untracked } from "@angular/core";
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, ElementRef, EventEmitter, HostListener, input, Input, Output, Renderer2, signal, untracked, } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -15,30 +15,34 @@ export enum Status {
     PENDING,
 }
 
-/**
- * Always use conditionally rendering, this component doesnt wait for async events to be resolved first
- */
+/** Always use conditionally rendering, this component doesnt wait for async events to be resolved first */
 @Component({
     selector: "oe-navigation-view",
     templateUrl: "./view.html",
-    styles: [`
-        :host {
-            height: 100%;
-            font-size: 0.9em;
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            :host {
+                height: 100%;
+                font-size: 0.9em;
 
-            ion-grid {
-                display: inline !important;
+                ion-grid {
+                    display: inline !important;
+                }
+                .floating-btn {
+                    position: fixed;
+                    right: 10%;
+                }
             }
             .floating-btn {
                 position: fixed;
-                right: 10%;
+                right: 5%;
             }
-        }
-    `],
+        `,
+    ],
     standalone: false,
 })
 export class NavigationPageComponent implements AfterViewInit {
-
     @Output() public emitForm: EventEmitter<FormGroup | null> = new EventEmitter();
     @Input() protected component: EdgeConfig.Component | null = null;
     @Input() protected formGroup: FormGroup | null = null;
@@ -62,7 +66,7 @@ export class NavigationPageComponent implements AfterViewInit {
         private cdRef: ChangeDetectorRef,
         private routeService: RouteService,
     ) {
-        this.service.getCurrentEdge().then(edge => this.edge = edge);
+        this.service.getCurrentEdge().then((edge) => (this.edge = edge));
         const hostElement = el.nativeElement;
         this.renderer.addClass(hostElement, "ion-page");
 
@@ -72,12 +76,14 @@ export class NavigationPageComponent implements AfterViewInit {
                 return;
             }
             this.contentHeight = ViewUtils.getViewHeightInPx(untracked(() => this.navigationService.position()));
-            this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(untracked(() => this.navigationService.position()));
+            this.actionSheetModalHeight = ViewUtils.getActionSheetModalHeightInVh(
+                untracked(() => this.navigationService.position()),
+            );
         });
     }
 
     @HostListener("window:resize", ["$event.target.innerHeight"])
-    private onResize(height: number) {
+    protected onResize(height: number) {
         this.contentHeight = ViewUtils.getViewHeightInPx(untracked(() => this.navigationService.position()));
     }
 

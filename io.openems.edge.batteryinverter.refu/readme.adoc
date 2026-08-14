@@ -1,0 +1,69 @@
+= REFU Battery Inverter
+
+Battery inverter integration for REFU devices.
+
+== Overview
+
+This bundle provides two implementations for REFU battery inverters:
+
+* **Battery-Inverter.Refu** — SunSpec Modbus implementation. Works with both REFUstore 50K and 88K hardware via SunSpec auto-discovery. This is the recommended implementation for new setups.
+* **Battery-Inverter.Refu.REFUstore88k** — Raw Modbus implementation for REFUstore 88K hardware.
+
+== Components
+
+=== <<_refu_battery_inverter,REFU Battery Inverter (SunSpec)>>
+
+*Name*: Battery-Inverter REFU
+
+*Factory-PID*: `Battery-Inverter.Refu`
+
+.Implemented Natures/Interfaces
+* BatteryInverterRefu
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* ModbusSlave
+* OpenemsComponent
+* TimedataProvider
+* StartStoppable
+
+.*Configuration*:
+
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behaviour - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `activateWatchdog` (Boolean): Enable watchdog timer - increments CONTROLLER_HB each cycle (default: true)
+* `modbusUnitId` (Integer): Unit-ID of the Modbus device (default: 1)
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+
+[[_refu_battery_inverter]]
+
+=== <<_refu_store88k,REFU Battery Inverter REFUstore88k>>
+
+*Name*: Battery-Inverter REFUstore88k
+
+*Factory-PID*: `Battery-Inverter.Refu.REFUstore88k`
+
+.Implemented Natures/Interfaces
+* BatteryInverterRefuStore88k
+* ManagedSymmetricBatteryInverter
+* SymmetricBatteryInverter
+* ModbusComponent
+* OpenemsComponent
+* StartStoppable
+
+.*Configuration*:
+
+* `id` (String): Component ID for unique identification (default: "batteryInverter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `startStop` (StartStopConfig): Start/stop behaviour - AUTO, ALWAYS_ON, or ALWAYS_OFF (default: AUTO)
+* `modbusUnitId` (Integer): Unit-ID of the Modbus device
+* `modbus_id` (String): ID of the Modbus bridge to use (default: "modbus0")
+* `timeLimitNoPower` (Integer): Time in seconds with no power before entering standby (default: 60)
+* `watchdoginterval` (Integer): Watchdog timer interval in seconds, 0 = disable (default: 0)
+
+[[_refu_store88k]]
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.batteryinverter.refu[Source Code icon:github[]]

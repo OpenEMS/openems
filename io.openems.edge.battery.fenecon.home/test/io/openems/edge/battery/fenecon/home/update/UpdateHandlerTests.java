@@ -14,8 +14,6 @@ import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 import com.ghgande.j2mod.modbus.msg.ModbusRequest;
 import com.ghgande.j2mod.modbus.msg.ModbusResponse;
 import com.ghgande.j2mod.modbus.net.AbstractSerialConnection;
-import com.ghgande.j2mod.modbus.procimg.DefaultProcessImageFactory;
-import com.ghgande.j2mod.modbus.slave.ModbusSlaveFactory;
 import com.ghgande.j2mod.modbus.util.SerialParameters;
 import com.google.common.hash.HashCode;
 
@@ -23,10 +21,9 @@ import io.openems.common.session.Role;
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeHardwareType;
 import io.openems.edge.battery.fenecon.home.TwoPartVersion;
 import io.openems.edge.battery.fenecon.home.update.j2mod.BatteryUpdateModbusRtuTransport;
-import io.openems.edge.battery.fenecon.home.update.mock.SerialConnectionMock;
-import io.openems.edge.battery.fenecon.home.update.mock.slave.ModbusSerialListenerMock;
+import io.openems.edge.bridge.modbus.test.ModbusSlaveMock;
+import io.openems.edge.bridge.modbus.test.SerialConnectionMock;
 import io.openems.edge.common.update.ProgressPublisher;
-import io.openems.edge.common.update.Updateable;
 
 public class UpdateHandlerTests {
 	static final int BATTERY_UNIT_ID = 1;
@@ -39,38 +36,34 @@ public class UpdateHandlerTests {
 		serialParams.setBaudRate(Integer.MAX_VALUE);
 
 		var ports = SerialConnectionMock.create(serialParams);
-		this.addSimulatedBattery(ports.client(), serialParams);
-
-		var serialPortHandler = new SerialPortHandlerMock(ports.server());
-		var updateHandler = new UpdateHandler(serialPortHandler);
-		var updateFileContent = this.getMockUpdateFileContent();
-		var progress = new ProgressPublisher();
-
-		var updateParamsProvider = new MockUpdateParamsProvider();
-		var updateParams = updateParamsProvider.getParams(BATTERY_TYPE);
-
-		var updateable = new BatteryFeneconHomeUpdateable(null, BATTERY_UNIT_ID, updateParamsProvider,
-				new MockBatteryData(), LoggerFactory.getLogger(BatteryFeneconHomeUpdateable.class)) {
-		};
-
-		assertEquals(ModbusSerialListenerMock.INITIAL_FIRMWARE_VERSION, updateHandler.readFirmwareVersion());
-		updateable.updateBattery(updateHandler, updateFileContent, updateParams, progress);
-		assertEquals(ModbusSerialListenerMock.AFTER_UPDATE_FIRMWARE_VERSION, updateHandler.readFirmwareVersion());
-	}
-
-	private void addSimulatedBattery(SerialConnectionMock connection, SerialParameters serialParams) throws Exception {
-		connection.open();
-
 		var transport = new BatteryUpdateModbusRtuTransport();
-		transport.setCommPort(connection);
-		connection.setModbusTransport(transport);
+		var clientConn = ports.createClientConnection();
+		ModbusSlaveMock.register(clientConn, serialParams, BATTERY_UNIT_ID,
+				() -> new BatterySerialListenerMock(clientConn), transport);
 
-		var processImage = new DefaultProcessImageFactory().createProcessImageImplementation();
+		try {
+			var serialPortHandler = new SerialPortHandlerMock(ports.getServer());
+			var updateHandler = new UpdateHandler(serialPortHandler);
+			var updateFileContent = this.getMockUpdateFileContent();
+			var progress = new ProgressPublisher();
 
-		var slave = ModbusSlaveFactory.createSerialSlave(serialParams, () -> new ModbusSerialListenerMock(connection));
-		slave.addProcessImage(BATTERY_UNIT_ID, processImage);
+			var updateParamsProvider = new MockUpdateParamsProvider();
+			var updateParams = updateParamsProvider.getParams(BATTERY_TYPE);
 
-		slave.open();
+			var updateable = new BatteryFeneconHomeUpdateable(null, "battery", BATTERY_UNIT_ID, updateParamsProvider,
+					new MockBatteryData(), LoggerFactory.getLogger(BatteryFeneconHomeUpdateable.class)) {
+			};
+
+			assertEquals(BatterySerialListenerMock.INITIAL_FIRMWARE_VERSION, updateHandler.readFirmwareVersion());
+			updateable.updateBattery(updateHandler, updateFileContent, updateParams, progress);
+			assertEquals(BatterySerialListenerMock.AFTER_UPDATE_FIRMWARE_VERSION, updateHandler.readFirmwareVersion());
+		} finally {
+			// Normally we need to stop, but j2mod is buggy currently.
+			// ModbusSlave::closeListener is throwing UnsupportedOperationException because
+			// it's using listenerThread.stop() - stopping threads is not supported anymore
+
+			// batterySlave.close();
+		}
 	}
 
 	private byte[] getMockUpdateFileContent() throws IOException {
@@ -114,9 +107,8 @@ public class UpdateHandlerTests {
 	private static class MockUpdateParamsProvider implements BatteryFeneconHomeUpdateParams {
 
 		@Override
-		public Updateable.UpdateableMetaInfo getMetaInfo() {
-			return new Updateable.UpdateableMetaInfo("Fenecon Home Battery", "Update for Fenecon Home Battery",
-					Role.ADMIN);
+		public UpdateInfo getMetaInfo() {
+			return new UpdateInfo("Fenecon Home Battery", Role.ADMIN);
 		}
 
 		@Override
@@ -126,7 +118,7 @@ public class UpdateHandlerTests {
 
 		@Override
 		public UpdateParams getParams(BatteryFeneconHomeHardwareType hardwareType) {
-			return new UpdateParams("MOCK", ModbusSerialListenerMock.AFTER_UPDATE_FIRMWARE_VERSION,
+			return new UpdateParams("MOCK", BatterySerialListenerMock.AFTER_UPDATE_FIRMWARE_VERSION,
 					HashCode.fromString("a26f6b58e98d68be1fff5eb74ae1118590b086cb12f5ec9250c4d5e672dfb993"));
 		}
 	}
@@ -135,7 +127,7 @@ public class UpdateHandlerTests {
 
 		@Override
 		public TwoPartVersion getVersion() {
-			return TwoPartVersion.fromString(ModbusSerialListenerMock.INITIAL_FIRMWARE_VERSION.toString());
+			return TwoPartVersion.fromString(BatterySerialListenerMock.INITIAL_FIRMWARE_VERSION.toString());
 		}
 
 		@Override

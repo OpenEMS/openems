@@ -1,38 +1,46 @@
 /* To learn more about this file see: https://angular.io/config/tsconfig. */
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "baseUrl": "./",
-    "outDir": "./dist/out-tsc",
-    "sourceMap": true,
-    "declaration": false,
-    "experimentalDecorators": true,
-    "moduleResolution": "bundler",
-    "plugins": [
-      {
-        "name": "typescript-strict-plugin"
-      }
-    ],
-    "importHelpers": true,
-    "strict": false,
-    "target": "ES2022",
-    "module": "es2020",
-    "noImplicitOverride": true,
-    "lib": [
-      "es2022",
-      "dom"
-    ],
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "useDefineForClassFields": false,
-    "paths": {
-      "chart.js/dist/types/utils": ["node_modules/chart.js/dist/types/utils.d.ts"] // wait for ng2-charts to support angular 20
+    "angularCompilerOptions": {
+        "enableI18nLegacyMessageIdFormat": false,
+        "strictInjectionParameters": false,
+        "strictInputAccessModifiers": true,
+        "strictTemplates": false
+    },
+    "compileOnSave": false,
+    "compilerOptions": {
+        "skipLibCheck": true,
+        // Should be rendered
+        "baseUrl": "./",
+        "ignoreDeprecations": "6.0",
+        "outDir": "./dist/out-tsc",
+        "sourceMap": true,
+        "declaration": false,
+        "experimentalDecorators": true,
+        "moduleResolution": "bundler",
+        "plugins": [
+            {
+                "name": "typescript-strict-plugin"
+            }
+        ],
+        "importHelpers": true,
+        "strict": false,
+        "target": "ES2022",
+        "module": "es2020",
+        "noImplicitOverride": true,
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "useDefineForClassFields": false,
+        "paths": {
+            "chart.js/dist/types/utils": [
+                "node_modules/chart.js/dist/types/utils.d.ts"
+            ], // wait for ng2-charts to support angular 20
+            "src/*": [
+                "./src/*"
+            ]
+        },
+        "types": [
+            "jasmine",
+            "node"
+        ]
     }
-  },
-  "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": false,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": false,
-  }
 }

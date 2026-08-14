@@ -10,20 +10,25 @@ import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 export namespace SharedControllerIoHeatpump {
-
     const PROPERTY_MODE: string = "_PropertyMode";
     // hide manual elements when mode is AUTOMATIC
     const HIDE_ON_MODE_AUTOMATIC = (el: { mode: Mode }) => el.mode === Mode.AUTOMATIC;
     // hide automatic elements when mode is manual
     const HIDE_ON_MODE_MANUAL = (el: { mode: Mode }) => el.mode === Mode.MANUAL;
 
-    export const getFormlyView = (translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView<{ mode: Mode }> => {
-
+    export const getFormlyView = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        edge: Edge,
+    ): OeFormlyView<{ mode: Mode }> => {
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEAT_PUMP_SG_READY",
+            useDefaultPrefix: true,
             lines: [
-                ...getFormlySharedLines(translate, component),
+                ...getFormlySharedLines(translate, component, config),
                 ...getFormlyAutomaticView(translate, component, HIDE_ON_MODE_MANUAL),
                 ...getFormlyManualView(translate, HIDE_ON_MODE_AUTOMATIC),
             ],
@@ -35,9 +40,8 @@ export namespace SharedControllerIoHeatpump {
     const getFormlyAutomaticView = (
         translate: TranslateService,
         component: EdgeConfig.Component,
-        hideCondition: (field: { mode: Mode }) => boolean
+        hideCondition: (field: { mode: Mode }) => boolean,
     ): OeFormlyView<{ mode: Mode }>["lines"] => {
-
         const lines: OeFormlyView<{ mode: Mode }>["lines"] = [
             {
                 type: "toggle-line",
@@ -121,13 +125,16 @@ export namespace SharedControllerIoHeatpump {
             },
         ];
 
-        return lines.map(line => ({
+        return lines.map((line) => ({
             ...line,
             hide: hideCondition,
         }));
     };
 
-    const getFormlyManualView = (translate: TranslateService, hideCondition: (field: { mode: Mode }) => boolean): OeFormlyView<{ mode: Mode }>["lines"] => ([
+    const getFormlyManualView = (
+        translate: TranslateService,
+        hideCondition: (field: { mode: Mode }) => boolean,
+    ): OeFormlyView<{ mode: Mode }>["lines"] => [
         {
             type: "select-line",
             controlName: "manualState",
@@ -135,42 +142,78 @@ export namespace SharedControllerIoHeatpump {
             options: getManualOptions(translate),
             hide: hideCondition,
         },
-    ]);
+    ];
 
-    const getFormlySharedLines = (translate: TranslateService, component: EdgeConfig.Component): OeFormlyView["lines"] => ([{
-        type: "channel-line",
-        name: translate.instant("GENERAL.STATE"),
-        channel: component.id + "/Status",
-        converter: Converter.HEAT_PUMP_STATES(translate),
-    }, {
-        type: "channel-line",
-        name: translate.instant("GENERAL.MODE"),
-        channel: component.id + "/" + PROPERTY_MODE,
-        converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
-    }, {
-        type: "horizontal-line",
-    },
-    {
-        type: "buttons-from-form-control-line",
-        name: translate.instant("GENERAL.MODE"),
-        controlName: "mode",
-        buttons: [
+    const getFormlySharedLines = (
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+        config: EdgeConfig,
+    ): OeFormlyView["lines"] => {
+        const lines: OeFormlyView["lines"] = [];
+        const consumptionMeter = getConsumptionMeter(config, component);
+        if (consumptionMeter) {
+            lines.push({
+                type: "channel-line",
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT.HEATING_OUTPUT"),
+                channel: consumptionMeter.id + "/ActivePower",
+                converter: Converter.POWER_IN_KILO_WATT,
+            });
+        }
+
+        lines.push(
             {
-                name: translate.instant("GENERAL.MANUALLY"),
-                value: "MANUAL",
-                icon: { color: "success", name: "options-outline", size: "medium" },
+                type: "channel-line",
+                name: translate.instant("GENERAL.STATE"),
+                channel: component.id + "/Status",
+                converter: Converter.HEAT_PUMP_STATES(translate),
             },
             {
-                name: translate.instant("GENERAL.AUTOMATIC"),
-                value: "AUTOMATIC",
-                icon: { color: "danger", name: "power-outline", size: "medium" },
+                type: "channel-line",
+                name: translate.instant("GENERAL.MODE"),
+                channel: component.id + "/" + PROPERTY_MODE,
+                converter: Converter.CONTROLLER_PROPERTY_MODES(translate),
             },
-        ],
-    }, {
-        type: "horizontal-line",
-    }]);
+            {
+                type: "horizontal-line",
+            },
+            {
+                type: "buttons-from-form-control-line",
+                name: translate.instant("GENERAL.MODE"),
+                controlName: "mode",
+                buttons: [
+                    {
+                        name: translate.instant("GENERAL.MANUALLY"),
+                        value: "MANUAL",
+                        icon: {
+                            color: "success",
+                            name: "options-outline",
+                            size: "medium",
+                        },
+                    },
+                    {
+                        name: translate.instant("GENERAL.AUTOMATIC"),
+                        value: "AUTOMATIC",
+                        icon: {
+                            color: "danger",
+                            name: "power-outline",
+                            size: "medium",
+                        },
+                    },
+                ],
+            },
+            {
+                type: "horizontal-line",
+            },
+        );
 
-    export function getChannelAddresses(service: Service, route: ActivatedRoute, component: EdgeConfig.Component | null = null): Promise<ChannelAddress[]> {
+        return lines;
+    };
+
+    export function getChannelAddresses(
+        service: Service,
+        route: ActivatedRoute,
+        component: EdgeConfig.Component | null = null,
+    ): Promise<ChannelAddress[]> {
         const edge = service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
@@ -178,7 +221,8 @@ export namespace SharedControllerIoHeatpump {
         const heatpumpComponent = component ?? config.getComponentSafely(route.snapshot.params.componentId);
 
         AssertionUtils.assertIsDefined(heatpumpComponent);
-        return Promise.resolve([
+
+        const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(heatpumpComponent.id, PROPERTY_MODE),
             new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticRecommendationCtrlEnabled"),
             new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticForceOnCtrlEnabled"),
@@ -190,11 +234,17 @@ export namespace SharedControllerIoHeatpump {
             new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticLockGridBuyPower"),
             new ChannelAddress(heatpumpComponent.id, "_PropertyAutomaticLockSoc"),
             new ChannelAddress(heatpumpComponent.id, "_PropertyMinimumSwitchingTime"),
-        ]);
+        ];
+
+        const consumptionMeter = config.getComponentFromOtherComponentsProperty(heatpumpComponent.id, "meter.id");
+        if (consumptionMeter) {
+            channelAddresses.push(new ChannelAddress(consumptionMeter.id, "ActivePower"));
+        }
+
+        return Promise.resolve(channelAddresses);
     }
 
     export function getFormGroup(): FormGroup {
-
         return new FormGroup({
             mode: new FormControl(null),
             manualState: new FormControl(null),
@@ -210,11 +260,33 @@ export namespace SharedControllerIoHeatpump {
         });
     }
 
-    export function getNavigationTree(translate: TranslateService, component: EdgeConfig.Component): ConstructorParameters<typeof NavigationTree> {
-        return new NavigationTree(component.id, { baseString: "controller/heatpump/" + component.id }, { name: "oe-heatpump", color: "normal" }, Name.METER_ALIAS_OR_ID(component), "label", [
-            new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), "label", [], null),
-            NavigationConstants.CommonNodes.SETTINGS(translate),
-        ], null).toConstructorParams();
+    export function getNavigationTree(
+        translate: TranslateService,
+        component: EdgeConfig.Component,
+    ): ConstructorParameters<typeof NavigationTree> {
+        return new NavigationTree(
+            component.id,
+            { baseString: "controller/heatpump/" + component.id },
+            { name: "oe-heatpump", color: "normal" },
+            Name.METER_ALIAS_OR_ID(component),
+            "label",
+            [
+                new NavigationTree(
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    "label",
+                    [],
+                    null,
+                ),
+                NavigationConstants.CommonNodes.SETTINGS(translate),
+                NavigationConstants.CommonNodes.INFO(translate, {
+                    source: component.id,
+                }),
+            ],
+            null,
+        ).toConstructorParams();
     }
 
     export function getHeatPumpStates(translate: TranslateService): string {
@@ -226,13 +298,31 @@ export namespace SharedControllerIoHeatpump {
             `;
     }
 
-    function getManualOptions(translate: TranslateService): { value: string; name: string; }[] {
+    export function getConsumptionMeter(
+        config: EdgeConfig,
+        heatpump: EdgeConfig.Component,
+    ): EdgeConfig.Component | null {
+        return config.getComponentFromOtherComponentsProperty(heatpump.id, "meter.id");
+    }
+
+    function getManualOptions(translate: TranslateService): { value: string; name: string }[] {
         return [
-            { name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"), value: "FORCE_ON" },
-            { name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"), value: "RECOMMENDATION" },
-            { name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"), value: "REGULAR" },
-            { name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"), value: "LOCK" },
+            {
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_COM"),
+                value: "FORCE_ON",
+            },
+            {
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.SWITCH_ON_REC"),
+                value: "RECOMMENDATION",
+            },
+            {
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.NORMAL_OPERATION"),
+                value: "REGULAR",
+            },
+            {
+                name: translate.instant("EDGE.INDEX.WIDGETS.HEAT_PUMP.LOCK"),
+                value: "LOCK",
+            },
         ];
     }
 }
-

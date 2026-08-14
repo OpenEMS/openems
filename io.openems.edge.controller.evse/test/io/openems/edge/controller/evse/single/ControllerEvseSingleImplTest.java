@@ -1,21 +1,24 @@
 package io.openems.edge.controller.evse.single;
 
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.controller.evse.TestUtils.generateSingleSut;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.evse.single.Types.Hysteresis;
-import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.controller.evse.single.statemachine.StateMachine.State;
+import io.openems.edge.evse.api.chargepoint.Profile;
+import io.openems.edge.evse.api.common.ApplySetPoint;
 
-public class ControllerEvseSingleImplTest {
+class ControllerEvseSingleImplTest {
 
 	@Test
-	public void test() throws OpenemsException, Exception {
+	void test() throws Exception {
 		var sut = generateSingleSut(c -> c //
 				.setLogVerbosity(LogVerbosity.DEBUG_LOG) //
 				.setJsCalendar("""
@@ -46,7 +49,7 @@ public class ControllerEvseSingleImplTest {
 		assertEquals("Mode:Zero|Undefined", ctrl.debugLog());
 
 		var params = sut.ctrlSingle().getParams();
-		assertEquals("ctrlEvseSingle0", params.componentId());
+		assertEquals("ctrlEvseSingle0", params.ctrlSingleId());
 		assertEquals(Mode.MINIMUM, params.mode());
 		assertNull(params.activePower());
 		assertEquals(0, params.sessionEnergy());
@@ -55,5 +58,28 @@ public class ControllerEvseSingleImplTest {
 		assertEquals(Hysteresis.INACTIVE, params.hysteresis());
 		assertEquals(PhaseSwitching.DISABLE, params.phaseSwitching());
 		assertFalse(params.appearsToBeFullyCharged());
+	}
+
+	@Test
+	void testDoesNotApplyActionsWhenChargePointIsReadOnly() {
+		final var sut = generateSingleSut(FunctionUtils::doNothing);
+		final var abilities = Profile.ChargePointAbilities.create() //
+				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+				.setIsEvConnected(false) //
+				.build();
+		final var actions = Profile.ChargePointActions.from(abilities) //
+				.setApplySetPointInMilliAmpere(6000) //
+				.build();
+
+		sut.ctrlSingle().apply(Mode.ZERO, actions);
+		sut.chargePoint().withIsReadOnly(true);
+		sut.ctrlSingle().apply(Mode.FORCE, actions);
+
+		assertEquals(Mode.FORCE.getValue(),
+				sut.ctrlSingle().channel(ControllerEvseSingle.ChannelId.ACTUAL_MODE).getNextValue().get());
+		assertEquals(State.EV_NOT_CONNECTED.getValue(),
+				sut.ctrlSingle().channel(ControllerEvseSingle.ChannelId.STATE_MACHINE).getNextValue().get());
+
+		assertNull(sut.chargePoint().getLastChargePointActions());
 	}
 }

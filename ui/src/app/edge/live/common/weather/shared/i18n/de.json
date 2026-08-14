@@ -1,6 +1,7 @@
 {
     "TODAY": "Heute",
     "WEEKLY_FORECAST": "Wochenprognose",
+    "TITLE": "Wetter",
     "TITLE_WITH_LOCATION": "Wettervorhersage für {{location}}",
     "MIN_TEMPERATURE": "T: {{temp}}°",
     "MAX_TEMPERATURE": "H: {{temp}}°",

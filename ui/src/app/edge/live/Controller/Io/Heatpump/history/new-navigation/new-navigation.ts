@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -22,6 +22,7 @@ import en from "../shared/i18n/en.json";
     selector: "controller-io-heatpump-overview",
     templateUrl: "./new-navigation.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         LocaleProvider,
@@ -34,7 +35,6 @@ import en from "../shared/i18n/en.json";
     ],
 })
 export class ControllerIoHeatpumpHistoryComponent extends AbstractHistoryChartOverview {
-
     protected readonly STATES = SharedControllerIoHeatpump.getHeatPumpStates(this.translate);
     protected chartType: "line" | "bar" = "line";
 
@@ -55,5 +55,4 @@ export class ControllerIoHeatpumpHistoryComponent extends AbstractHistoryChartOv
     protected setChartConfig(event: ChartTypes.ChartConfig) {
         this.chartType = event.chartType;
     }
-
 }

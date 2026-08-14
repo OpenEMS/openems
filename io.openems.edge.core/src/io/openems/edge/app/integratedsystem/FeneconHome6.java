@@ -2,14 +2,17 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverComponent;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamicRippleControlReceiverScheduler;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
@@ -39,8 +42,8 @@ import io.openems.common.function.ThrowingTriFunction;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome6.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -163,7 +166,7 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 
 			final var shadowManagmentDisabled = this.getBoolean(p, Property.SHADOW_MANAGEMENT_DISABLED);
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
 			final var naProtection = this.getBoolean(p, Property.NA_PROTECTION_ENABLED);
 
@@ -173,21 +176,25 @@ public class FeneconHome6 extends AbstractOpenemsAppWithProps<FeneconHome6, Prop
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
 					// modbus
-					FeneconHomeComponents.modbusInternal(bundle, t, modbusIdInternal),
 					FeneconHomeComponents.modbusExternal(bundle, t, modbusIdExternal),
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					// ess
 					FeneconHomeComponents.ess(bundle, essId, "battery0", "batteryInverter0"),
 					FeneconHomeComponents.ctrlEssSurplusFeedToGrid(bundle, essId), //
 					// battery
-					FeneconHomeComponents.battery(bundle, "battery0", modbusIdInternal),
 					batteryInverter(bundle, "batteryInverter0", hasEmergencyReserve, feedInType, modbusIdExternal,
 							shadowManagmentDisabled, safetyCountry, feedInSetting, naProtection), //
 					// meter
 					FeneconHomeComponents.gridMeter(bundle, "meter0", modbusIdExternal, gridMeterCategory,
 							ctRatioFirst),
 					// other
-					FeneconHomeComponents.power(), FeneconHomeComponents.io(bundle, modbusIdInternal));
+					FeneconHomeComponents.power());
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(modbusInternal(bundle, t, modbusIdInternal));
+			}
 
 			for (int i = 0; i < 2; i++) {
 				final var oneBase = i + 1;

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { DefaultTypes } from "src/app/shared/type/defaulttypes";
@@ -11,13 +11,12 @@ import { AbstractHistoryChart } from "../abstracthistorychart";
 @Component({
     selector: "delayedselltogridgchart",
     templateUrl: "../abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class DelayedSellToGridChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
-
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
-
 
     constructor(
         protected override service: Service,
@@ -48,154 +47,166 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
         this.startSpinner();
         this.loading = true;
         this.colors = [];
-        this.queryHistoricTimeseriesData(this.period.from, this.period.to).then(response => {
-            this.service.getConfig().then(config => {
-                const meterIdActivePower = config.getComponent(this.componentId).properties["meter.id"] + "/ActivePower";
-                const sellToGridPowerLimit = this.componentId + "/_PropertySellToGridPowerLimit";
-                const continuousSellToGridPower = this.componentId + "/_PropertyContinuousSellToGridPower";
-                const result = response.result;
-                // convert labels
-                const labels: Date[] = [];
-                for (const timestamp of result.timestamps) {
-                    labels.push(new Date(timestamp));
-                }
-                this.labels = labels;
+        this.queryHistoricTimeseriesData(this.period.from, this.period.to)
+            .then((response) => {
+                this.service
+                    .getConfig()
+                    .then((config) => {
+                        const meterIdActivePower =
+                            config.getComponent(this.componentId).properties["meter.id"] + "/ActivePower";
+                        const sellToGridPowerLimit = this.componentId + "/_PropertySellToGridPowerLimit";
+                        const continuousSellToGridPower = this.componentId + "/_PropertyContinuousSellToGridPower";
+                        const result = response.result;
+                        // convert labels
+                        const labels: Date[] = [];
+                        for (const timestamp of result.timestamps) {
+                            labels.push(new Date(timestamp));
+                        }
+                        this.labels = labels;
 
-                // convert datasets
-                const datasets = [];
+                        // convert datasets
+                        const datasets = [];
 
-                if (meterIdActivePower in result.data) {
-                    const data = result.data[meterIdActivePower].map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value < 0) {
-                            return (value * -1) / 1000;// convert to kW + positive GridSell values;
-                        } else {
-                            return 0;
+                        if (meterIdActivePower in result.data) {
+                            const data = result.data[meterIdActivePower].map((value) => {
+                                if (value == null) {
+                                    return null;
+                                } else if (value < 0) {
+                                    return (value * -1) / 1000; // convert to kW + positive GridSell values;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                            datasets.push({
+                                label: this.translate.instant("GENERAL.GRID_SELL"),
+                                data: data,
+                                hidden: false,
+                            });
+                            this.colors.push({
+                                backgroundColor: "rgba(0,0,0,0.05)",
+                                borderColor: "rgba(0,0,0,1)",
+                            });
                         }
-                    });
-                    datasets.push({
-                        label: this.translate.instant("GENERAL.GRID_SELL"),
-                        data: data,
-                        hidden: false,
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(0,0,0,0.05)",
-                        borderColor: "rgba(0,0,0,1)",
-                    });
-                }
-                if (sellToGridPowerLimit in result.data) {
-                    const data = result.data[sellToGridPowerLimit].map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000; // convert to kW
+                        if (sellToGridPowerLimit in result.data) {
+                            const data = result.data[sellToGridPowerLimit].map((value) => {
+                                if (value == null) {
+                                    return null;
+                                } else if (value == 0) {
+                                    return 0;
+                                } else {
+                                    return value / 1000; // convert to kW
+                                }
+                            });
+                            datasets.push({
+                                label: this.translate.instant(
+                                    "EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.SELL_TO_GRID_POWER_LIMIT",
+                                ),
+                                data: data,
+                                hidden: false,
+                                borderDash: [3, 3],
+                            });
+                            this.colors.push({
+                                backgroundColor: "rgba(0,0,0,0)",
+                                borderColor: "rgba(0,223,0,1)",
+                            });
                         }
-                    });
-                    datasets.push({
-                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.SELL_TO_GRID_POWER_LIMIT"),
-                        data: data,
-                        hidden: false,
-                        borderDash: [3, 3],
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(0,223,0,1)",
-                    });
-                }
-                if (continuousSellToGridPower in result.data) {
-                    const data = result.data[continuousSellToGridPower].map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value == 0) {
-                            return 0;
-                        } else {
-                            return value / 1000; // convert to kW
+                        if (continuousSellToGridPower in result.data) {
+                            const data = result.data[continuousSellToGridPower].map((value) => {
+                                if (value == null) {
+                                    return null;
+                                } else if (value == 0) {
+                                    return 0;
+                                } else {
+                                    return value / 1000; // convert to kW
+                                }
+                            });
+                            datasets.push({
+                                label: this.translate.instant(
+                                    "EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.CONTINUOUS_SELL_TO_GRID_POWER",
+                                ),
+                                data: data,
+                                hidden: false,
+                                borderDash: [3, 3],
+                            });
+                            this.colors.push({
+                                backgroundColor: "rgba(0,0,0,0)",
+                                borderColor: "rgba(200,0,0,1)",
+                            });
                         }
-                    });
-                    datasets.push({
-                        label: this.translate.instant("EDGE.INDEX.WIDGETS.DELAYED_SELL_TO_GRID.CONTINUOUS_SELL_TO_GRID_POWER"),
-                        data: data,
-                        hidden: false,
-                        borderDash: [3, 3],
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(0,0,0,0)",
-                        borderColor: "rgba(200,0,0,1)",
-                    });
-                }
-                if ("_sum/EssActivePower" in result.data) {
-                    /*
-                     * Storage Charge
-                     */
-                    let effectivePower;
-                    if ("_sum/ProductionDcActualPower" in result.data && result.data["_sum/ProductionDcActualPower"].length > 0) {
-                        effectivePower = result.data["_sum/ProductionDcActualPower"].map((value, index) => {
-                            return Utils.subtractSafely(result.data["_sum/EssActivePower"][index], value);
-                        });
-                    } else {
-                        effectivePower = result.data["_sum/EssActivePower"];
-                    }
-                    const chargeData = effectivePower.map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value < 0) {
-                            return value / -1000; // convert to kW;
-                        } else {
-                            return 0;
+                        if ("_sum/EssActivePower" in result.data) {
+                            /*
+                             * Storage Charge
+                             */
+                            let effectivePower;
+                            if (
+                                "_sum/ProductionDcActualPower" in result.data &&
+                                result.data["_sum/ProductionDcActualPower"].length > 0
+                            ) {
+                                effectivePower = result.data["_sum/ProductionDcActualPower"].map((value, index) => {
+                                    return Utils.subtractSafely(result.data["_sum/EssActivePower"][index], value);
+                                });
+                            } else {
+                                effectivePower = result.data["_sum/EssActivePower"];
+                            }
+                            const chargeData = effectivePower.map((value) => {
+                                if (value == null) {
+                                    return null;
+                                } else if (value < 0) {
+                                    return value / -1000; // convert to kW;
+                                } else {
+                                    return 0;
+                                }
+                            });
+                            datasets.push({
+                                label: this.translate.instant("GENERAL.CHARGE"),
+                                data: chargeData,
+                                borderDash: ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
+                            });
+                            this.colors.push({
+                                backgroundColor: "rgba(0,223,0,0.05)",
+                                borderColor: "rgba(0,223,0,1)",
+                            });
+                            /*
+                             * Storage Discharge
+                             */
+                            const dischargeData = effectivePower.map((value) => {
+                                if (value == null) {
+                                    return null;
+                                } else if (value > 0) {
+                                    return value / 1000; // convert to kW
+                                } else {
+                                    return 0;
+                                }
+                            });
+                            datasets.push({
+                                label: this.translate.instant("GENERAL.DISCHARGE"),
+                                data: dischargeData,
+                                borderDash: [10, 10],
+                            });
+                            this.colors.push({
+                                backgroundColor: "rgba(200,0,0,0.05)",
+                                borderColor: "rgba(200,0,0,1)",
+                            });
                         }
+                        this.datasets = datasets;
+                        this.loading = false;
+                        this.stopSpinner();
+                    })
+                    .catch((reason) => {
+                        console.error(reason); // TODO error message
+                        this.initializeChart();
+                        return;
                     });
-                    datasets.push({
-                        label: this.translate.instant("GENERAL.CHARGE"),
-                        data: chargeData,
-                        borderDash: ChartConstants.Plugins.Datasets.DEFAULT_BORDER_DASH,
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(0,223,0,0.05)",
-                        borderColor: "rgba(0,223,0,1)",
-                    });
-                    /*
-                     * Storage Discharge
-                     */
-                    const dischargeData = effectivePower.map(value => {
-                        if (value == null) {
-                            return null;
-                        } else if (value > 0) {
-                            return value / 1000; // convert to kW
-                        } else {
-                            return 0;
-                        }
-                    });
-                    datasets.push({
-                        label: this.translate.instant("GENERAL.DISCHARGE"),
-                        data: dischargeData,
-                        borderDash: [10, 10],
-                    });
-                    this.colors.push({
-                        backgroundColor: "rgba(200,0,0,0.05)",
-                        borderColor: "rgba(200,0,0,1)",
-                    });
-                }
-                this.datasets = datasets;
-                this.loading = false;
-                this.stopSpinner();
-
-            }).catch(reason => {
+            })
+            .catch((reason) => {
                 console.error(reason); // TODO error message
                 this.initializeChart();
                 return;
+            })
+            .finally(() => {
+                this.unit = YAxisType.ENERGY;
+                this.setOptions(this.options);
             });
-
-        }).catch(reason => {
-            console.error(reason); // TODO error message
-            this.initializeChart();
-            return;
-        }).finally(() => {
-            this.unit = YAxisType.ENERGY;
-            this.setOptions(this.options);
-        });
     }
 
     protected getChannelAddresses(edge: Edge, config: EdgeConfig): Promise<ChannelAddress[]> {
@@ -214,5 +225,4 @@ export class DelayedSellToGridChartComponent extends AbstractHistoryChart implem
     protected setLabel() {
         this.options = this.createDefaultChartOptions();
     }
-
 }

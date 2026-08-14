@@ -15,6 +15,7 @@ This is an API/contract bundle - it does not implement any concrete meter compon
 The primary interface that all electricity meter implementations must implement.
 
 *Features*:
+
 * Active Power (W) - Real power output/input
 * Reactive Power (var) - Reactive power measurement
 * Apparent Power (VA) - Total power including reactive
@@ -25,6 +26,7 @@ The primary interface that all electricity meter implementations must implement.
 * Energy measurements (Wh) - Cumulative consumption/production
 
 *Meter Types*:
+
 * GRID - Grid connection meter
 * PRODUCTION - Photovoltaic production meter
 * CONSUMPTION - Building consumption meter
@@ -48,6 +50,7 @@ Meter implementations extend the `ElectricityMeter` interface to provide:
 * Specific protocol implementations (Modbus, M-Bus, REST, etc.)
 
 Example implementations include:
+
 * `io.openems.edge.meter.abb` - ABB B23 M-Bus meter
 * `io.openems.edge.meter.janitza` - Janitza energy meters
 * `io.openems.edge.meter.eastron` - Eastron SDM meters

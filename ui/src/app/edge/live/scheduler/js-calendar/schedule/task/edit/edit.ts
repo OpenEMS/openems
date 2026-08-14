@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, model } from "@angular/core";
+import { ChangeDetectorRef, Component, model, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -19,24 +19,23 @@ import { SharedSchedulerJsCalendar } from "../../../shared-scheduler-js-calendar
 
 @Component({
     templateUrl: "./edit.html",
-    imports: [
-        CommonUiModule,
-        EditTaskComponent,
-        ComponentsBaseModule,
-    ],
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    imports: [CommonUiModule, EditTaskComponent, ComponentsBaseModule],
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
 export class SchedulerJsCalendarEditTaskComponent extends JsCalendarEditTaskComponent {
-    public payload = model<SharedSchedulerJsCalendar.SchedulerJsCalendarPayload>(new SharedSchedulerJsCalendar.SchedulerJsCalendarPayload());
+    public payload = model<SharedSchedulerJsCalendar.SchedulerJsCalendarPayload>(
+        new SharedSchedulerJsCalendar.SchedulerJsCalendarPayload(),
+    );
     protected allowedPeriods: TSignalValue<TaskFormComponent["allowedPeriods"]> = ["daily", "weekly", "monthly"];
-    protected controllerOptions: { value: string, label: string }[] = [];
+    protected controllerOptions: { value: string; label: string }[] = [];
 
     constructor(
         protected override websocket: Websocket,
@@ -55,12 +54,14 @@ export class SchedulerJsCalendarEditTaskComponent extends JsCalendarEditTaskComp
         });
     }
 
-
     public ionViewWillEnter() {
         this.controllerOptions = SharedSchedulerJsCalendar.getControllerOptions(this.service);
     }
 
     protected setValue(event: CustomEvent) {
-        this.payload.update(el => { el.setValue({ controllerIds: [event.detail.value] as string[] }); return el; });
+        this.payload.update((el) => {
+            el.setValue({ controllerIds: [event.detail.value] as string[] });
+            return el;
+        });
     }
 }

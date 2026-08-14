@@ -14,7 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		private Builder() {
 		}
-		
+
 		public Builder setReadOnly(boolean readOnly) {
 			this.readOnly = readOnly;
 			return this;
@@ -65,7 +65,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
 	}
-	
 
 	@Override
 	public boolean readOnly() {

@@ -7,10 +7,16 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
     public icon: PartialedIcon = { color: "normal", name: "oe-evcs" };
     public abstract img: OeImageComponent["img"];
 
-    constructor(
-        component: EdgeConfig.Component,
-    ) {
-        super(component.id, component.alias, component.isEnabled, false, component.factoryId, component.properties, component.channels);
+    constructor(component: EdgeConfig.Component) {
+        super(
+            component.id,
+            component.alias,
+            component.isEnabled,
+            false,
+            component.factoryId,
+            component.properties,
+            component.channels,
+        );
     }
 
     public static getEvseChargepoint(chargePoint: EdgeConfig.Component | null): EvseChargepoint | null {
@@ -29,6 +35,8 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
                 return new Alpitronic(chargePoint);
             case "Evse.ChargePoint.Mennekes":
                 return new Mennekes(chargePoint);
+            case "Simulator.Evse.ChargePoint":
+                return new Simulator(chargePoint);
             case null:
             default:
                 return null;
@@ -37,15 +45,23 @@ export abstract class EvseChargepoint extends EdgeConfig.Component {
     /**
      * Gets the navigation tree for phase switching if the evse chargepoint supports phase switching.
      *
-     * @param controller the evse controller
-     * @returns a navigation tree, if phase switching is allowed, else null
+     * @param controller The evse controller
+     * @returns A navigation tree, if phase switching is allowed, else null
      */
     public getPhaseSwitchingNavigationTree(controller: EdgeConfig.Component): NavigationTree | null {
         if (this.hasPhaseSwitchingAbility() == false) {
             return null;
         }
 
-        return new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "stats-chart-outline", color: "warning" }, "phase-switching", "label", [], null);
+        return new NavigationTree(
+            "phase-switching",
+            { baseString: "phase-switching" },
+            { name: "stats-chart-outline", color: "warning" },
+            "phase-switching",
+            "label",
+            [],
+            null,
+        );
     }
 
     public abstract hasPhaseSwitchingAbility(): boolean;
@@ -62,7 +78,6 @@ export class P30KebaUdp extends EvseChargepoint {
 }
 
 export class HardyBarth extends EvseChargepoint {
-
     public img = {
         url: environment.images.EVSE.HARDY_BARTH,
     };
@@ -72,7 +87,6 @@ export class HardyBarth extends EvseChargepoint {
 }
 
 export class P40KebaModbus extends EvseChargepoint {
-
     public img = {
         url: environment.images.EVSE.KEBA_P40,
     };
@@ -83,7 +97,6 @@ export class P40KebaModbus extends EvseChargepoint {
 }
 
 export class Alpitronic extends EvseChargepoint {
-
     public img = {
         url: environment.images.EVSE.ALPITRONIC,
     };
@@ -94,12 +107,24 @@ export class Alpitronic extends EvseChargepoint {
 }
 
 export class Mennekes extends EvseChargepoint {
-
     public img = {
         url: environment.images.EVSE.MENNEKES,
     };
 
     public override hasPhaseSwitchingAbility(): boolean {
-        return false;
+        return true;
+    }
+}
+
+export class Simulator extends EvseChargepoint {
+    public img = {
+        url: environment.images.EVSE.SIMULATOR,
+    };
+
+    public override hasPhaseSwitchingAbility(): boolean {
+        return (
+            this.hasPropertyValue("wiring", "THREE_PHASE") && //
+            this.hasPropertyValue("supportsPhaseSwitching", true)
+        );
     }
 }

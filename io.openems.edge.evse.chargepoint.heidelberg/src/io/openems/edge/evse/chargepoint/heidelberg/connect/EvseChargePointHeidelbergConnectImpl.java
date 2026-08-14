@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -301,7 +301,7 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled() || this.config.readOnly()) {
+		if (!this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {
@@ -349,13 +349,13 @@ public class EvseChargePointHeidelbergConnectImpl extends AbstractOpenemsModbusC
 		this.handleApplyCharge(now, current);
 	}
 
-	private Tuple<Instant, Integer> previousCurrent = null;
+	private Tuple2<Instant, Integer> previousCurrent = null;
 
 	private void handleApplyCharge(Instant now, int current) {
 		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
 			return;
 		}
-		this.previousCurrent = Tuple.of(now, current);
+		this.previousCurrent = Tuple2.of(now, current);
 
 		try {
 			this.setChargingCurrent(current);

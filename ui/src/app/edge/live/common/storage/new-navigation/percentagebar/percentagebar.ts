@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { Component, input, ChangeDetectionStrategy } from "@angular/core";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
@@ -7,10 +7,8 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 @Component({
     selector: "oe-common-storage-percentagebar",
     templateUrl: "./percentagebar.html",
-    imports: [
-        CommonUiModule,
-        ComponentsBaseModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule, ComponentsBaseModule],
 })
 export class CommonStoragePercentagebarComponent extends AbstractModal {
     public emergencyReserveController = input<EdgeConfig.Component | null>(null);
@@ -36,6 +34,7 @@ export class CommonStoragePercentagebarComponent extends AbstractModal {
         }
 
         this.reserveSoc = currentData.allComponents[emergencyReserveController.id + "/_PropertyReserveSoc"];
-        this.isEmergencyReserveEnabled = currentData.allComponents[emergencyReserveController.id + "/_PropertyIsReserveSocEnabled"];
+        this.isEmergencyReserveEnabled =
+            currentData.allComponents[emergencyReserveController.id + "/_PropertyIsReserveSocEnabled"];
     }
 }

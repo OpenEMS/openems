@@ -23,6 +23,7 @@ import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.IesKeywattEvcs.Property;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.meta.Meta;
@@ -33,6 +34,7 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
@@ -70,7 +72,7 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  */
 @Component(name = "App.Evcs.IesKeywatt")
 public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, Property, Parameter.BundleParameter>
-		implements OpenemsApp, MetaSupplier {
+		implements OpenemsApp, MetaSupplier, EMobilityApp {
 
 	public static enum Property implements Type<Property, IesKeywattEvcs, Parameter.BundleParameter>, Nameable {
 		// Component-IDs
@@ -208,5 +210,10 @@ public class IesKeywattEvcs extends AbstractOpenemsAppWithProps<IesKeywattEvcs, 
 						Role.ADMIN //
 				)) //
 				.build();
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 }

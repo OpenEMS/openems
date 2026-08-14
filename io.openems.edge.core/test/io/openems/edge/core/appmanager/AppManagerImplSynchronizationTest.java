@@ -9,9 +9,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
@@ -26,7 +26,7 @@ public class AppManagerImplSynchronizationTest {
 
 	private AppManagerImpl appManager;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		final var appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

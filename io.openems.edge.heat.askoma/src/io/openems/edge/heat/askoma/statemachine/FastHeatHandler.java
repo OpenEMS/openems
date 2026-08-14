@@ -1,30 +1,26 @@
 package io.openems.edge.heat.askoma.statemachine;
 
-import static io.openems.edge.heat.askoma.statemachine.AskomaConstants.OFF_ACTIVE_POWER;
+import static io.openems.edge.heat.askoma.statemachine.AskomaConstants.FAST_HEAT_DURATION;
 
+import java.time.Clock;
 import java.time.Duration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.time.Instant;
 
 public class FastHeatHandler extends AbstractFastHeatHandler {
-	private static final Logger log = LoggerFactory.getLogger(FastHeatHandler.class);
 	private static final Duration POWER_NOT_APPLIED_DELAY = Duration.ofMinutes(5);
+	private Instant fastHeatPowerNotAppliedSince = null;
+	private Instant fastHeatStartedAt;
+
+	@Override
+	protected void onEntry(Context context) {
+		this.fastHeatStartedAt = context.clock.instant();
+		this.resetFastHeatPowerNotAppliedState(context);
+	}
 
 	@Override
 	public StateMachine.State runAndGetNextState(Context context) {
-		if (context.getFastHeatStartedAt() == null) {
-			context.setFastHeatStartedAt(context.clock.instant());
-			context.resetFastHeatPowerNotAppliedState();
-		}
-
-		context.logInfo(log, "handle Fast Heat");
-
-		if (context.isFastHeatExpired()) {
-			context.setTargetActivePowerForHeatElement(OFF_ACTIVE_POWER);
-			context.resetFastHeatPowerNotAppliedState();
-			context.setFastHeatStartedAt(null);
-			return StateMachine.State.FAST_HEAT_PAUSE;
+		if (this.isFastHeatExpired(context.clock)) {
+			return StateMachine.State.FAST_HEAT_PROTECTION_PAUSE;
 		}
 
 		this.applyMaxHeatPower(context);
@@ -32,21 +28,32 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 		return StateMachine.State.FAST_HEAT;
 	}
 
+	@Override
+	protected void onExit(Context context) {
+		this.fastHeatStartedAt = null;
+		this.resetFastHeatPowerNotAppliedState(context);
+	}
+
 	private void updateFastHeatPowerResponse(Context context) {
 		if (this.isTargetGridActivePowerApplied(context)) {
-			context.resetFastHeatPowerNotAppliedState();
+			this.resetFastHeatPowerNotAppliedState(context);
 			return;
 		}
 
-		var powerNotAppliedSince = context.getFastHeatPowerNotAppliedSince();
-		if (powerNotAppliedSince == null) {
-			context.setFastHeatPowerNotAppliedSince(context.clock.instant());
+		if (this.fastHeatPowerNotAppliedSince == null) {
+			this.fastHeatPowerNotAppliedSince = context.clock.instant();
 			context.setFastHeatPowerNotApplied(false);
 			return;
 		}
 
-		var isDelayElapsed = !context.clock.instant().isBefore(powerNotAppliedSince.plus(POWER_NOT_APPLIED_DELAY));
+		var isDelayElapsed = !context.clock.instant()
+				.isBefore(this.fastHeatPowerNotAppliedSince.plus(POWER_NOT_APPLIED_DELAY));
 		context.setFastHeatPowerNotApplied(isDelayElapsed);
+	}
+
+	private void resetFastHeatPowerNotAppliedState(Context context) {
+		this.fastHeatPowerNotAppliedSince = null;
+		context.setFastHeatPowerNotApplied(false);
 	}
 
 	private boolean isTargetGridActivePowerApplied(Context context) {
@@ -57,6 +64,14 @@ public class FastHeatHandler extends AbstractFastHeatHandler {
 
 		var activePower = context.getActivePower();
 		return activePower != null && activePower > 0;
+	}
+
+	private boolean isFastHeatExpired(Clock clock) {
+		var startedAt = this.fastHeatStartedAt;
+		if (startedAt == null) {
+			return false;
+		}
+		return !clock.instant().isBefore(startedAt.plus(FAST_HEAT_DURATION));
 	}
 
 }
