@@ -228,7 +228,7 @@
 
 -runbundles: \
 	bcpkix;version='[1.85.0,1.85.1)',\
-	bcprov;version='[1.85.0,1.85.1)',\
+	bcprov;version='[1.85.2,1.85.3)',\
 	bcutil;version='[1.85.0,1.85.1)',\
 	com.fasterxml.aalto-xml;version='[1.4.0,1.4.1)',\
 	com.fazecast.jSerialComm;version='[2.11.4,2.11.5)',\
