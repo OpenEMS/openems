@@ -13,8 +13,8 @@ import { Service, Utils, Websocket } from "../../../shared/shared";
 type CommandFunction = (...args: (string | boolean | number)[]) => string;
 
 const COMMANDS: { [key: string]: CommandFunction; } = {
-    "ping": (host: string) => `ping -c4 ${host}`,
-    "openems-restart": () => 
+    ping: (host: string) => `ping -c4 ${host}`,
+    "openems-restart": () =>
         "which at || DEBIAN_FRONTEND=noninteractive apt-get -y install at; echo 'systemctl restart openems' | at now",
 };
 
@@ -47,17 +47,18 @@ export class SystemExecuteComponent implements OnInit {
             key: "host",
             type: "input",
             templateOptions: {
-                label: "Host", 
-                placeholder: "127.0.0.1 / localhost", 
+                label: "Host",
+                placeholder: "127.0.0.1 / ::1 / localhost",
                 required: true,
             },
             validators: {
                 host: {
                     expression: (c: AbstractControl) => InetUtils.isHostnameOrIp(c.value),
-                    message: (error, field: FormlyFieldConfig) => 
+                    message: (error, field: FormlyFieldConfig) =>
                         `${field.formControl?.value} is not a valid IP-Address or Hostname`,
                 },
-            ],
+            },
+        }],
         },
         {
             key: "predefined",

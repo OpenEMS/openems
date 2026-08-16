@@ -86,11 +86,11 @@ export function registerTranslateExtension(translate: TranslateService) {
 }
 
 export function Ipv4Validator(control: FormControl): ValidationErrors {
-    return InetUtils.isIPv4(control.value) ? null : { "ip": true };
+    return InetUtils.isIPv4(control.value) ? null : { ip: true };
 }
 
 export function SubnetmaskValidator(control: FormControl): ValidationErrors {
-    return InetUtils.isSubnetMask(control.value) ? null : { "subnetmask": true };
+    return InetUtils.isSubnetMask(control.value) ? null : { subnetmask: true };
 }
 
 export function Ipv4ValidatorMessage(err, field: FormlyFieldConfig) {
