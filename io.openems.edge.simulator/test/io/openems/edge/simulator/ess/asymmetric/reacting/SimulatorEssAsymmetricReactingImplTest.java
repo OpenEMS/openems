@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.common.sum.GridMode;
@@ -12,7 +12,7 @@ import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDir
 public class SimulatorEssAsymmetricReactingImplTest {
 
 	@Test
-	public void test() throws OpenemsException, Exception {
+	void test() throws OpenemsException, Exception {
 		new ManagedSymmetricEssTest(new SimulatorEssAsymmetricReactingImpl()) //
 				.addReference("datasource", SimulatorDatasourceCsvDirectImplTest.create("datasource0", "123")) //
 				.addReference("power", new DummyPower()) //

@@ -92,6 +92,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public GridMode gridMode() {
 		return this.builder.gridMode;
 	}
-
-
 }

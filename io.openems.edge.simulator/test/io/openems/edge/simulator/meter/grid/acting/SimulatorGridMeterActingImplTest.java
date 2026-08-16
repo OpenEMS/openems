@@ -3,7 +3,7 @@ package io.openems.edge.simulator.meter.grid.acting;
 import java.time.Instant;
 import java.time.ZoneOffset;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
@@ -15,7 +15,7 @@ import io.openems.edge.simulator.datasource.api.DummyDatasource;
 public class SimulatorGridMeterActingImplTest {
 
 	@Test
-	public void test() throws OpenemsException, Exception {
+	void test() throws OpenemsException, Exception {
 		new ComponentTest(new SimulatorGridMeterActingImpl()) //
 				.addReference("datasource", new DummyDatasource(123)) //
 				.activate(MyConfig.create() //
@@ -29,7 +29,7 @@ public class SimulatorGridMeterActingImplTest {
 	}
 
 	@Test
-	public void test1() throws OpenemsException, Exception {
+	void test1() throws OpenemsException, Exception {
 		final var clock = new TimeLeapClock(Instant.parse("2024-01-29T19:05:00Z"), ZoneOffset.UTC);
 		new ComponentTest(new SimulatorGridMeterActingImpl()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //

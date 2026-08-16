@@ -1,7 +1,6 @@
 package io.openems.edge.simulator.meter.grid.acting;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
