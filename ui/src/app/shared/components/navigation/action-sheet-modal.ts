@@ -31,7 +31,7 @@ export class NavigationComponent {
     protected initialBreakPoint: number = NavigationComponent.INITIAL_BREAKPOINT;
     protected upperMostBreakPoint: number = NavigationComponent.UPPERMOST_BREAKPOINT;
     protected isActionSheetOpened = model<boolean>(false);
-    protected isVisible: boolean = false;
+    protected isVisible = signal<boolean>(false);
     protected displayChildren: NavigationTree[] = [];
     protected children: NavigationTree[] = [];
 
@@ -44,7 +44,7 @@ export class NavigationComponent {
                 return;
             }
 
-            this.isVisible = this.computeIsVisible(currentNode);
+            this.isVisible.set(this.computeIsVisible(currentNode));
             this.children = [...currentNode.getChildren().filter((el) => el.availableScope === AvailableScope.LOCAL)];
             this.displayChildren = NavigationComponent.getNonCommonChildren(this.children, this.translate);
         });

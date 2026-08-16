@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -17,6 +17,7 @@ import { PropertyMode, SharedControllerHeat } from "../shared/shared";
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             ::ng-deep formly-form {

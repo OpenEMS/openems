@@ -24,10 +24,12 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.DebugMode;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -102,6 +104,8 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private ActiveControlModes activeControlModes = null;
 	private Integer limit = 0;
 	private Integer maxChargePower = 0;
+	private volatile SendData lastSentData = null;
+	private volatile String lastHttpResult = "HTTP:WAITING";
 
 	public ControllerCleverPvImpl() {
 		super(//
@@ -137,10 +141,16 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 
 		timeService.subscribeJsonTime(delayTime, () -> {
 			var data = this.collectData();
+			this.lastSentData = data;
 			return BridgeHttp.create(this.config.url()) //
 					.setBodyJson(SendData.serializer().serialize(data)) //
 					.build();
 		}, (jsonHttpResponse, httpError) -> {
+			this.lastHttpResult = switch (httpError) {
+			case null -> "HTTP:" + jsonHttpResponse.status();
+			case HttpError.ResponseError responseError -> "HTTP:" + responseError.status;
+			case HttpError.UnknownError unknownError -> "HTTP:" + getRootCause(unknownError).getClass().getSimpleName();
+			};
 			setValue(this, ControllerCleverPv.ChannelId.UNABLE_TO_SEND, httpError != null);
 
 			if (httpError != null || this.config.controlMode() != ControlMode.REMOTE_CONTROL) {
@@ -168,6 +178,22 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 			}
 			}
 		});
+	}
+
+	private static Throwable getRootCause(HttpError error) {
+		var cause = (Throwable) error;
+		while (cause.getCause() != null && cause.getCause() != cause) {
+			cause = cause.getCause();
+		}
+		return cause;
+	}
+
+	private static String describePayload(SendData data) {
+		return "watt=" + data.watt() //
+				+ ", producingWatt=" + data.producingWatt() //
+				+ ", soc=" + data.soc() //
+				+ ", powerStorageState=" + data.powerStorageState() //
+				+ ", chargingPower=" + data.chargingPower();
 	}
 
 	@Override
@@ -305,5 +331,16 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	@Override
+	public String debugLog() {
+		if (this.config == null || !this.config.debugMode().isAtLeast(DebugMode.SIMPLE)) {
+			return null;
+		}
+		if (!this.config.debugMode().isAtLeast(DebugMode.DETAILED) || this.lastSentData == null) {
+			return this.lastHttpResult;
+		}
+		return this.lastHttpResult + "|" + describePayload(this.lastSentData);
 	}
 }

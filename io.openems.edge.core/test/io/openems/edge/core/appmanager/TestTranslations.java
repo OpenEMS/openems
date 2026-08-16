@@ -140,10 +140,14 @@ class TestTranslations {
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen2(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.techbaseCm4sGen3(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.enerixControl(t), true, JsonUtils.buildJsonObject()//
-					.addProperty("URL", "url")//
+					.addProperty("URL",
+							"https://push.clever-pv.com/api/v1/first-id/electricMeters/fenecon/"
+									+ "second-id?code=code") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.cleverPv(t), true, JsonUtils.buildJsonObject()//
-					.addProperty("URL", "url")//
+					.addProperty("URL",
+							"https://push.clever-pv.com/api/v1/first-id/electricMeters/fenecon/"
+									+ "second-id?code=code") //
 					.build()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadOnly(t), true, new JsonObject()));
 			this.apps.add(new TestTranslation(Apps.modbusTcpApiReadWrite(t), true, JsonUtils.buildJsonObject() //

@@ -9,8 +9,10 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.dynamic
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimiter14a;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionDefault;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.predictionUnmanagedConsumption;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.prepareBatteryExtension;
@@ -178,7 +180,6 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 			var bundle = AbstractOpenemsApp.getTranslationBundle(l);
 			var components = Lists.newArrayList(//
 					// modbus
-					FeneconHomeComponents.modbusInternal(bundle, t, modbusIdInternal),
 					FeneconHomeComponents.modbusExternal(bundle, t, modbusIdExternal),
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					// ess
@@ -194,6 +195,10 @@ public class FeneconHome15 extends AbstractOpenemsAppWithProps<FeneconHome15, Pr
 					FeneconHomeComponents.power());
 
 			components.addAll(batteryAndIo(bundle, deviceHardware, "battery0", modbusIdInternal));
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(modbusInternal(bundle, t, modbusIdInternal));
+			}
 
 			for (int i = 0; i < 3; i++) {
 				final var oneBase = i + 1;

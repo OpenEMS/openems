@@ -4,31 +4,34 @@ import { AuthenticateWithPasswordRequest } from "../jsonrpc/request/authenticate
 import { AuthenticateWithTokenRequest } from "../jsonrpc/request/authenticateWithTokenRequest";
 
 export interface WebsocketInterface {
-
     /**
-   * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
-   *
-   * @param request the JSON-RPC Request
-   */
+     * Logs in by sending an authentication JSON-RPC Request and handles the AuthenticateResponse.
+     *
+     * @param request The JSON-RPC Request
+     */
     login(request: AuthenticateWithPasswordRequest | AuthenticateWithTokenRequest);
 
-    /**
-   * Logs out by sending a logout JSON-RPC Request.
-   */
+    /** Logs out by sending a logout JSON-RPC Request. */
     logout(): void;
 
     /**
-   * Sends a JSON-RPC Request to a Websocket and promises a callback.
-   *
-   * @param request the JSON-RPC Request
-   */
+     * Sends a JSON-RPC Request to a Websocket and promises a callback.
+     *
+     * @param request The JSON-RPC Request
+     */
     sendStateFullRequest(request: JsonrpcRequest): Promise<JsonrpcResponseSuccess>;
 
     /**
-   * Sends a JSON-RPC notification to a Websocket.
-   *
-   * @param notification the JSON-RPC Notification
-   */
+     * Sends a JSON-RPC notification to a Websocket.
+     *
+     * @param notification The JSON-RPC Notification
+     */
     sendNotification(notification: JsonrpcNotification): void;
 
+    /**
+     * Sends a JSON-RPC Request to a Websocket and promises a callback.
+     *
+     * @param request The JSON-RPC Request
+     */
+    sendRequest<T extends JsonrpcResponseSuccess = JsonrpcResponseSuccess>(request: JsonrpcRequest): Promise<T>;
 }

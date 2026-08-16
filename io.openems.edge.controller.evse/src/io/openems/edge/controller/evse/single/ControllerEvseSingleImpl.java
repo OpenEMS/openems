@@ -186,6 +186,9 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 		try {
 			var context = new Context(this, this.componentManager.getClock(), input, this.chargePoint, this.history,
 					(actions) -> {
+						if (this.chargePoint.isReadOnly()) {
+							return;
+						}
 						// Callback: forward actions
 						this.chargePoint.apply(actions);
 						this.history.addEntry(Instant.now(this.componentManager.getClock()),

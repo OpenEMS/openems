@@ -1,5 +1,4 @@
-import { Component, effect, ElementRef, inject, OnDestroy, ViewChild, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component, effect, ElementRef, inject, OnDestroy, ViewChild } from "@angular/core";
 import { RefresherCustomEvent } from "@ionic/angular";
 import { Subject } from "rxjs";
 import { PlatFormService } from "src/app/platform.service";
@@ -7,7 +6,7 @@ import { NavigationService } from "src/app/shared/components/navigation/service/
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, EdgeConfig, EdgePermission, Service, Utils, Websocket } from "src/app/shared/shared";
+import { Edge, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
@@ -31,7 +30,6 @@ export class LiveComponent implements OnDestroy {
     protected edge: Edge | null = null;
     protected config: EdgeConfig | null = null;
     protected widgets: Widgets | null = null;
-    protected isModbusTcpWidgetAllowed: boolean = false;
     protected showRefreshDragDown: boolean = false;
     protected showNewFooter: boolean = false;
     protected isTablet: boolean = false;
@@ -41,14 +39,12 @@ export class LiveComponent implements OnDestroy {
     private platformService = inject(PlatFormService);
 
     constructor(
-        private route: ActivatedRoute,
         public service: Service,
         protected utils: Utils,
         protected websocket: Websocket,
         private dataService: DataService,
-        private router: Router,
         protected navigationService: NavigationService,
-        private userService: UserService,
+        userService: UserService,
         private layoutRefresh: LayoutRefreshService,
     ) {
         this.isTablet = this.platformService.getDevice().isTablet();
@@ -60,8 +56,6 @@ export class LiveComponent implements OnDestroy {
             if (edge === null) {
                 return;
             }
-
-            this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
 
             edge?.getFirstValidConfig(websocket)?.then(async (config) => {
                 this.config = config;

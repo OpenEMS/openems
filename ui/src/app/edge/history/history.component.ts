@@ -1,13 +1,12 @@
 // @ts-strict-ignore
-import { Component, effect, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ChangeDetectionStrategy, Component, effect, OnInit } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, EdgeConfig, EdgePermission, Service } from "src/app/shared/shared";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { environment } from "src/environments";
 
@@ -33,12 +32,10 @@ export class HistoryComponent implements OnInit {
 
     public config: EdgeConfig | null = null;
     protected errorResponse: JsonrpcResponseError | null = null;
-    protected isModbusTcpWidgetAllowed: boolean = false;
 
     constructor(
         public service: Service,
         public translate: TranslateService,
-        private route: ActivatedRoute,
         private dataService: DataService,
         private userService: UserService,
         protected navigationService: NavigationService,
@@ -47,7 +44,6 @@ export class HistoryComponent implements OnInit {
         effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
-            this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
         });
     }
 

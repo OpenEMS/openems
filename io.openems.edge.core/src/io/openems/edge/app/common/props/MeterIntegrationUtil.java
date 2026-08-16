@@ -2,6 +2,7 @@ package io.openems.edge.app.common.props;
 
 import static io.openems.edge.app.common.components.CommonComponents.externMeter;
 import static io.openems.edge.app.common.components.CommonComponents.internMeter;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.core.appmanager.AbstractOpenemsApp.getTranslationBundle;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import io.openems.edge.core.appmanager.ComponentUtilSupplier;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyUtil;
@@ -71,14 +73,22 @@ public final class MeterIntegrationUtil {
 	 * Checks if the intern meter is used by any component except the core
 	 * components.
 	 * 
-	 * @param componentUtil the ComponentUtil
+	 * @param componentUtil  the ComponentUtil
+	 * @param deviceHardware the {@link OpenemsAppInstance} device hardware instance
 	 * @return true if the intern meter is used by any component except the core
 	 *         components, false otherwise
 	 */
 	public static boolean isInternMeterUsedByComponent(//
-			ComponentUtil componentUtil //
+			ComponentUtil componentUtil, //
+			OpenemsAppInstance deviceHardware //
 	) {
-		var meterId = getMeterIdFromModbusConfig(componentUtil);
+		final String meterId;
+		if (isHardwareInstalledForMasterBox(deviceHardware)) {
+			meterId = getMasterboxMeterId(componentUtil);
+		} else {
+			meterId = getMeterIdFromModbusConfig(componentUtil);
+		}
+
 		if (meterId == null) {
 			return false;
 		}
@@ -101,6 +111,11 @@ public final class MeterIntegrationUtil {
 				.map(OpenemsComponent::id) //
 				.findAny() //
 				.orElse(null);
+	}
+
+	private static String getMasterboxMeterId(ComponentUtil componentUtil) {
+		return Objects.requireNonNull(componentUtil.getComponent("meter1", "Fenecon.MasterBox2V0.Meter").orElse(null))
+				.getId();
 	}
 
 	/**
@@ -283,13 +298,14 @@ public final class MeterIntegrationUtil {
 	 * is used by any component, it throws an exception. Otherwise, it adds the
 	 * intern meter dependency to the dependencies list and returns the meter id.
 	 * 
-	 * @param app          the app
-	 * @param l            the language
-	 * @param t            the configuration target
-	 * @param dependencies the list of dependencies to add the intern meter
-	 *                     dependency
-	 * @param <APP>        the type of the app, which must implement OpenemsApp,
-	 *                     ComponentUtilSupplier and ComponentManagerSupplier
+	 * @param app            the app
+	 * @param l              the language
+	 * @param t              the configuration target
+	 * @param deviceHardware the {@link OpenemsAppInstance} device hardware instance
+	 * @param dependencies   the list of dependencies to add the intern meter
+	 *                       dependency
+	 * @param <APP>          the type of the app, which must implement OpenemsApp,
+	 *                       ComponentUtilSupplier and ComponentManagerSupplier
 	 * @return the meter id of the intern meter
 	 * @throws OpenemsError.OpenemsNamedException on error
 	 */
@@ -297,18 +313,19 @@ public final class MeterIntegrationUtil {
 			APP app, //
 			Language l, //
 			ConfigurationTarget t, //
+			OpenemsAppInstance deviceHardware, //
 			List<DependencyDeclaration> dependencies //
 	) throws OpenemsError.OpenemsNamedException {
 
-		if (MeterIntegrationUtil.isInternMeterUsedByComponent(app.getComponentUtil()) //
+		if (MeterIntegrationUtil.isInternMeterUsedByComponent(app.getComponentUtil(), deviceHardware) //
 				&& t.isAddOrUpdate()) {
 			throw new OpenemsException("Intern meter already in use");
 		}
 
-		var meterId = MeterIntegrationUtil.getNextMeterId(app);
+		String meterId = isHardwareInstalledForMasterBox(deviceHardware) ? getMasterboxMeterId(app.getComponentUtil())
+				: MeterIntegrationUtil.getNextMeterId(app);
 
 		dependencies.add(internMeter(l, meterId));
-
 		return meterId;
 	}
 

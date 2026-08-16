@@ -3,28 +3,30 @@ import { GroupedNavigationTreeUtility, NavigationTree } from "src/app/shared/com
 import { EdgeConfig } from "src/app/shared/shared";
 
 export namespace SharedControllerIoHeatingRoom {
-
-    export function getNavigationTree(_translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getNavigationTree(
+        _translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const component = config.getComponentSafely(componentId);
         if (component == null) {
             return null;
         }
 
         const label = component.alias?.trim() || component.id;
-        return createComponentNavigationTree(componentId, label, "io-heating-room/" + componentId).toConstructorParams();
+        return createComponentNavigationTree(
+            componentId,
+            label,
+            "io-heating-room/" + componentId,
+        ).toConstructorParams();
     }
 
-    export function getNavigationTreeAsChild(_translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): NavigationTree | null {
-        const component = config.getComponentSafely(componentId);
-        if (component == null) {
-            return null;
-        }
-
-        const label = component.alias?.trim() || component.id;
-        return createComponentNavigationTree(componentId, label, componentId);
-    }
-
-    export function getGroupedNavigationTree(translate: TranslateService, componentIds: EdgeConfig.Component["id"][], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getGroupedNavigationTree(
+        translate: TranslateService,
+        componentIds: EdgeConfig.Component["id"][],
+        config: EdgeConfig,
+        factoryId: EdgeConfig.Factory["id"],
+    ): NavigationTree | null {
         return GroupedNavigationTreeUtility.createGroupedNavigationTree(
             "heating-room-controllers",
             { name: "flame", color: "danger" },
@@ -33,7 +35,14 @@ export namespace SharedControllerIoHeatingRoom {
             translate,
             componentIds,
             config,
-            (componentId) => getNavigationTreeAsChild(translate, componentId, config),
+            factoryId,
+            (componentId) =>
+                GroupedNavigationTreeUtility.getNavigationTreeAsChild(
+                    translate,
+                    componentId,
+                    config,
+                    createComponentNavigationTree,
+                ),
         );
     }
 

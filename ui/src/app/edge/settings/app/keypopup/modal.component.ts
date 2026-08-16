@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -20,6 +20,7 @@ import { Key } from "./key";
     selector: KeyModalComponent.SELECTOR,
     templateUrl: "./modal.component.html",
     standalone: false,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KeyModalComponent implements OnInit {
     private static readonly SELECTOR = "key-modal";
@@ -45,6 +46,8 @@ export class KeyModalComponent implements OnInit {
 
     private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
     private registeredKeys: Key[] = [];
+
+    private readonly cdRef = inject(ChangeDetectorRef);
 
     constructor(
         private service: Service,
@@ -155,6 +158,7 @@ export class KeyModalComponent implements OnInit {
                 this.service.toast(this.translate.instant("EDGE.CONFIG.APP.KEY.FAILED_LOADING_REGISTER_KEY"), "danger");
             })
             .finally(() => {
+                this.cdRef.markForCheck();
                 this.service.stopSpinner(this.spinnerId);
             });
     }

@@ -151,6 +151,7 @@ export namespace ChartConstants {
             id: "syncChart",
             groups: {},
             enabled: true,
+            syncing: false,
 
             registerChart(chart) {
                 const group = chart.options.plugins?.syncChart?.group;
@@ -260,24 +261,48 @@ export namespace ChartConstants {
                 };
 
                 // Defer syncDrawingAreas until all charts in group are registered
-                setTimeout(() => this.syncDrawingAreas([...getOthers(), chart]), 0);
+                setTimeout(() => {
+                    const all = [...getOthers(), chart];
+                    if (all.length > 1) {
+                        this.syncDrawingAreas(all);
+                    }
+                }, 100);
             },
             syncDrawingAreas(charts) {
-                // largest left offset among charts
+                if (this._syncing) {
+                    return;
+                }
+                this._syncing = true;
+
+                // Reset padding first to get accurate chartArea measurements
+                charts.forEach((chart) => {
+                    chart.options.layout ??= {};
+                    chart.options.layout.padding = {
+                        ...chart.options.layout.padding,
+                        left: 0,
+                        right: 0,
+                    };
+                    chart.update("none");
+                });
+
                 const maxLeft = Math.max(...charts.map((c) => c.chartArea?.left ?? 0));
+                const maxRight = Math.max(...charts.map((c) => (c.width ?? 0) - (c.chartArea?.right ?? c.width ?? 0)));
 
                 charts.forEach((chart) => {
                     const paddingLeft = maxLeft - (chart?.chartArea?.left ?? 0);
+                    const chartRightMargin = (chart.width ?? 0) - (chart.chartArea?.right ?? chart.width ?? 0);
+                    const paddingRight = maxRight - chartRightMargin;
 
                     chart.options.layout ??= {};
                     chart.options.layout.padding = {
                         ...chart.options.layout.padding,
                         left: paddingLeft,
+                        right: paddingRight,
                     };
-                    chart.update();
+                    chart.update("none");
                 });
+                this._syncing = false;
             },
-
             beforeDestroy(chart) {
                 const listeners = (chart as any)._syncChartListeners;
                 if (listeners != null && chart.canvas != null) {
@@ -293,6 +318,15 @@ export namespace ChartConstants {
                 }
 
                 this.unregisterChart(chart);
+            },
+            afterUpdate(chart) {
+                if (this._syncing) {
+                    return;
+                }
+                const others = this.getOtherCharts(chart);
+                if (others.length > 0) {
+                    this.syncDrawingAreas([...others, chart]);
+                }
             },
         });
 

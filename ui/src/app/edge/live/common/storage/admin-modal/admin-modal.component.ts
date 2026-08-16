@@ -6,6 +6,7 @@ import { FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { isBefore } from "date-fns";
 import { v4 as uuidv4 } from "uuid";
+
 import { SohDeterminationService } from "src/app/edge/live/common/soh/service/soh-determination.service";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { ComponentsBaseModule } from "src/app/shared/components/components.module";
@@ -81,8 +82,6 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
     protected readonly Converter = Converter;
     protected isAtLeastInstaller: boolean;
     protected isTargetTimeInValid: Map<string, boolean> = new Map();
-    protected controllerIsRequiredEdgeVersion: boolean = false;
-    protected hasRequiredEdgeVersion: boolean = false;
     protected config: EdgeConfig;
     protected essComponents: EdgeConfig.Component[] | null = null;
     protected chargerComponents!: EdgeConfig.Component[];
@@ -135,16 +134,12 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
                 }
             }
 
-            // Future Work: Remove when all ems are at least at this version
-            this.controllerIsRequiredEdgeVersion = this.edge.isVersionAtLeast("2023.2.5");
-
             this.isAtLeastInstaller = this.edge.roleIsAtLeast(Role.INSTALLER);
             const emergencyReserveCtrl = this.config.getComponentsByFactory("Controller.Ess.EmergencyCapacityReserve");
             const prepareBatteryExtensionCtrl = this.config.getComponentsByFactory(
                 "Controller.Ess.PrepareBatteryExtension",
             );
             const essSohCycleCtrl = this.config.getComponentsByFactory("Controller.Ess.SoH.Cycle");
-            this.hasRequiredEdgeVersion = this.edge.isVersionAtLeast("2024.12.3");
             const components = [...prepareBatteryExtensionCtrl, ...emergencyReserveCtrl, ...essSohCycleCtrl]
                 .filter((component) => component.isEnabled)
                 .reduce((result, component) => {
@@ -159,9 +154,6 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
             const channelAddresses: ChannelAddress[] = [];
             channelAddresses.push(...this.chargerComponents.map((comp) => new ChannelAddress(comp.id, "ActualPower")));
 
-            if (this.hasRequiredEdgeVersion) {
-                channelAddresses.push(new ChannelAddress("_meta", "IsEssChargeFromGridAllowed"));
-            }
             for (const essId in prepareBatteryExtensionCtrl) {
                 const controller = prepareBatteryExtensionCtrl[essId];
                 channelAddresses.push(
@@ -206,19 +198,18 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
 
             this.edge.currentData.subscribe((currentData) => {
                 const controls: FormGroup = new FormGroup({});
-                if (this.hasRequiredEdgeVersion) {
-                    controls.addControl(
-                        "_meta",
-                        this.formBuilder.group({
-                            isEssChargeFromGridAllowed: new FormControl(
-                                NumberUtils.numberToBooleanOrElse(
-                                    currentData.channel["_meta/IsEssChargeFromGridAllowed"],
-                                    false,
-                                ),
+                controls.addControl(
+                    "_meta",
+                    this.formBuilder.group({
+                        isEssChargeFromGridAllowed: new FormControl(
+                            NumberUtils.numberToBooleanOrElse(
+                                currentData.channel["_meta/IsEssChargeFromGridAllowed"],
+                                false,
                             ),
-                        }),
-                    );
-                }
+                        ),
+                    }),
+                );
+
                 for (const essId of Object.keys(components)) {
                     const controllers = components[essId];
 
@@ -309,15 +300,13 @@ export class AdminStorageModalComponent implements OnInit, OnDestroy {
         }
 
         const updateArray: Map<string, Array<Map<string, any>>> = new Map();
-        if (this.hasRequiredEdgeVersion) {
-            const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];
-            for (const prop of Object.keys(metaFormGroup)) {
-                if (metaFormGroup[prop].dirty) {
-                    if (updateArray.get("_meta")) {
-                        updateArray.get("_meta").push(new Map().set(prop, metaFormGroup[prop].value));
-                    } else {
-                        updateArray.set("_meta", [new Map().set(prop, metaFormGroup[prop].value)]);
-                    }
+        const metaFormGroup = (this.formGroup.get("_meta") as FormGroup)?.controls ?? [];
+        for (const prop of Object.keys(metaFormGroup)) {
+            if (metaFormGroup[prop].dirty) {
+                if (updateArray.get("_meta")) {
+                    updateArray.get("_meta").push(new Map().set(prop, metaFormGroup[prop].value));
+                } else {
+                    updateArray.set("_meta", [new Map().set(prop, metaFormGroup[prop].value)]);
                 }
             }
         }

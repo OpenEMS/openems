@@ -146,11 +146,9 @@
                       <oe-controller-io-fix-digital-output [componentId]="widget.componentId"></oe-controller-io-fix-digital-output>
                     </ion-col>
 
-                    <ng-container *ngIf="isModbusTcpWidgetAllowed">
-                      <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                        <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
-                      </ion-col>
-                    </ng-container>
+                    <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
+                      <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+                    </ion-col>
 
                     <!-- Widgets that are likely to be configured seldomly -->
                     <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
