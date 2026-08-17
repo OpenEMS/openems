@@ -87,6 +87,7 @@ public class PvInverterFroniusImpl extends AbstractSunSpecPvInverter implements 
 				READ_FROM_MODBUS_BLOCK, SingleOrAllPhase.ALL);
 	}
 
+	@Override
 	@Deactivate
 	protected void deactivate() {
 		super.deactivate();
