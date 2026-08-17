@@ -20,8 +20,6 @@ import io.openems.edge.simulator.evse.chargepoint.enums.PhaseSwitchState;
 
 class SimulatorEvseChargepointImplTest {
 
-	private static final String COMPONENT_ID = "evseChargePoint0";
-
 	@Test
 	void testReadOnlySinglePhasePresets() throws Exception {
 		final var sut = new SimulatorEvseChargepointImpl();
@@ -30,7 +28,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setReadOnly(true) //
 						.setVehicleConnected(true) //
 						.setWiring(SINGLE_PHASE) //
@@ -50,7 +48,8 @@ class SimulatorEvseChargepointImplTest {
 							assertEquals(Integer.valueOf(0), sut.getVoltageL2().get());
 							assertEquals(Integer.valueOf(0), sut.getVoltageL3().get());
 							assertNull(sut.getChargePointAbilities());
-						}));
+						})) //
+				.deactivate();
 	}
 
 	@Test
@@ -61,7 +60,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setReadOnly(true) //
 						.setVehicleConnected(true) //
 						.setWiring(THREE_PHASE) //
@@ -93,7 +92,7 @@ class SimulatorEvseChargepointImplTest {
 				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evseChargePoint0") //
 						.setVehicleConnected(true) //
 						.setWiring(THREE_PHASE) //
 						.setSupportsPhaseSwitching(true) //

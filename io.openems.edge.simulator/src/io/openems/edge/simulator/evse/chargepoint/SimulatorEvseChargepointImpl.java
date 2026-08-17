@@ -4,6 +4,9 @@ import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedActivePowerChannels;
 import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedCurrentChannels;
 import static io.openems.edge.meter.api.PhaseRotation.setPhaseRotatedVoltageChannels;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -13,9 +16,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -62,7 +62,7 @@ public class SimulatorEvseChargepointImpl extends AbstractOpenemsComponent imple
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Reference
