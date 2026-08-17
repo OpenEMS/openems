@@ -3,6 +3,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { AngularDelegate, ModalController } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { PlatFormService } from "src/app/platform.service";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { RouteService } from "src/app/shared/service/route.service";
 import { EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
@@ -11,7 +14,24 @@ import { HeatScheduleComponent } from "./schedule.component";
 describe("ControllerHeatScheduleComponent", () => {
     let fixture: ComponentFixture<HeatScheduleComponent>;
     let component: HeatScheduleComponent;
-    let routeServiceMock: { getRouteParam: jasmine.Spy<(paramName: string) => string>; currentUrl: () => null; };
+    let routeServiceMock: { getRouteParam: jasmine.Spy<(paramName: string) => string>; currentUrl: () => null };
+    const edgeMock = {
+        subscribeChannels: jasmine.createSpy("subscribeChannels"),
+        unsubscribeFromChannels: jasmine.createSpy("unsubscribeFromChannels"),
+        currentData: new Subject<any>(),
+    };
+    const configMock = {
+        components: {},
+        getComponentSafely: jasmine.createSpy("getComponentSafely").and.returnValue(null),
+    };
+    const serviceMock = {
+        getCurrentEdge: jasmine.createSpy("getCurrentEdge").and.resolveTo(edgeMock as any),
+        getConfig: jasmine.createSpy("getConfig").and.resolveTo(configMock as any),
+        toast: jasmine.createSpy("toast"),
+        websocket: {},
+        isSmartphoneResolution: false,
+        currentEdge: () => null,
+    };
 
     beforeEach(async () => {
         routeServiceMock = {
@@ -25,10 +45,12 @@ describe("ControllerHeatScheduleComponent", () => {
             providers: [
                 { provide: Websocket, useValue: {} },
                 { provide: ActivatedRoute, useValue: {} },
-                { provide: Service, useValue: {} },
+                { provide: Service, useValue: serviceMock },
                 { provide: ModalController, useValue: {} },
                 { provide: AngularDelegate, useValue: {} },
                 { provide: RouteService, useValue: routeServiceMock },
+                NavigationService,
+                PlatFormService,
             ],
             schemas: [CUSTOM_ELEMENTS_SCHEMA],
         }).compileComponents();

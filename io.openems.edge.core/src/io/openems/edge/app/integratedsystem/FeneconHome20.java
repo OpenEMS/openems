@@ -2,7 +2,7 @@ package io.openems.edge.app.integratedsystem;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryInverter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.chargerOld;
@@ -16,7 +16,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isStateLedCompatible;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
@@ -66,8 +66,8 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHome20.PropertyParent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
@@ -102,7 +102,7 @@ import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
     "instanceId": UUID,
     "image": base64,
     "properties":{
-      "SAFETY_COUNTRY": {@link SafetyCountry},
+      "SAFETY_COUNTRY": {@link AppSafetyCountry},
       "FEED_IN_TYPE": {@link ExternalLimitationType},
       "MAX_FEED_IN_POWER":5000,
       "FEED_IN_SETTING":"PU_ENABLE_CURVE",
@@ -296,7 +296,7 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 			final var modbusIdExternalMeters = "modbus2";
 			final var gridMeterId = "meter0";
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 
 			final var feedInType = this.getEnum(p, ExternalLimitationType.class, Property.FEED_IN_TYPE);
 			final var feedInSetting = this.getString(p, Property.FEED_IN_SETTING);
@@ -324,18 +324,21 @@ public class FeneconHome20 extends AbstractOpenemsAppWithProps<FeneconHome20, Pr
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var components = Lists.<EdgeConfig.Component>newArrayList(//
-					battery(bundle, batteryId, modbusIdInternal), //
 					batteryInverter(bundle, batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal,
 							shadowManagementDisabled, safetyCountry, feedInSetting, naProtection), //
 					ess(bundle, essId, batteryId, batteryInverterId), //
-					io(bundle, modbusIdInternal), //
 					gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst), //
-					modbusInternal(bundle, t, modbusIdInternal), //
 					modbusExternal(bundle, t, modbusIdExternal), //
 					modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware), //
 					ctrlEssSurplusFeedToGrid(bundle, essId), //
 					power() //
 			);
+
+			components.addAll(batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal));
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(modbusInternal(bundle, t, modbusIdInternal));
+			}
 
 			if (hasEmergencyReserve) {
 				components.add(emergencyMeter(bundle, modbusIdExternal));

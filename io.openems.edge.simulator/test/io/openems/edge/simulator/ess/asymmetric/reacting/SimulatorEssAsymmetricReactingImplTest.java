@@ -1,9 +1,8 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.sum.GridMode;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.ess.test.DummyPower;
@@ -13,9 +12,8 @@ import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDir
 public class SimulatorEssAsymmetricReactingImplTest {
 
 	@Test
-	public void test() throws OpenemsException, Exception {
+	void test() throws OpenemsException, Exception {
 		new ManagedSymmetricEssTest(new SimulatorEssAsymmetricReactingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", SimulatorDatasourceCsvDirectImplTest.create("datasource0", "123")) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //

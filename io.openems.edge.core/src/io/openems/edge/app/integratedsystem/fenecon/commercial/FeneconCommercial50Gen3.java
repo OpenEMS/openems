@@ -2,7 +2,7 @@ package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
 import static io.openems.edge.app.common.props.CommonProps.defaultDef;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.battery;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.batteryAndIo;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.charger;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEmergencyCapacityReserve;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.ctrlEssSurplusFeedToGrid;
@@ -15,7 +15,7 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
-import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -36,6 +36,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowM
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.genset;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.stsBox;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocEnd;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocGroup;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocStart;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetEnableCharge;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetMaxPower;
@@ -72,9 +73,9 @@ import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.FunctionUtils;
+import io.openems.edge.app.enums.AppSafetyCountry;
 import io.openems.edge.app.enums.ExternalLimitationType;
 import io.openems.edge.app.enums.GridCode;
-import io.openems.edge.app.enums.SafetyCountry;
 import io.openems.edge.app.integratedsystem.FeneconHomeComponents;
 import io.openems.edge.app.integratedsystem.GoodWeGridMeterCategory;
 import io.openems.edge.app.integratedsystem.IntegratedSystemProps;
@@ -115,7 +116,7 @@ public class FeneconCommercial50Gen3 extends
 		GRID_CODE(AppDef.copyOfGeneric(gridCode(), def -> def//
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(SAFETY_COUNTRY)//
-							.equal(Exp.staticValue(SafetyCountry.GERMANY)));
+							.equal(Exp.staticValue(AppSafetyCountry.GERMANY)));
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -139,9 +140,7 @@ public class FeneconCommercial50Gen3 extends
 
 		HAS_EMERGENCY_RESERVE(hasEmergencyReserve()), //
 
-		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)),
-		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
-		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED)), //
+		IS_GENSET_INSTALLED(isGensetInstalled(HAS_EMERGENCY_RESERVE)), //
 		GENSET_ID(AppDef.componentId("meter1") //
 				.wrapField((app, property, l, parameter, field) -> {
 					field.onlyShowIf(Exp.currentModelValue(IS_GENSET_INSTALLED).notNull());
@@ -151,8 +150,13 @@ public class FeneconCommercial50Gen3 extends
 		GENSET_RUN_TIME(gensetRunTime(IS_GENSET_INSTALLED)), //
 		GENSET_ENABLE_CHARGE(gensetEnableCharge(IS_GENSET_INSTALLED)), //
 		GENSET_MAX_POWER(gensetMaxPower(GENSET_ENABLE_CHARGE)), //
-		GENSET_CHARGE_SOC_START(gensetChargeSocStart(GENSET_ENABLE_CHARGE)), //
-		GENSET_CHARGE_SOC_END(gensetChargeSocEnd(GENSET_ENABLE_CHARGE)), //
+		GENSET_CHARGE_SOC_START(gensetChargeSocStart()), //
+		GENSET_CHARGE_SOC_END(gensetChargeSocEnd()), //
+		GENSET_CHARGE_SOC_GROUP(
+				gensetChargeSocGroup(GENSET_ENABLE_CHARGE, GENSET_CHARGE_SOC_START, GENSET_CHARGE_SOC_END)), //
+		EMERGENCY_RESERVE_ENABLED(emergencyReserveEnabled(HAS_EMERGENCY_RESERVE)), //
+		EMERGENCY_RESERVE_SOC(emergencyReserveSoc(EMERGENCY_RESERVE_ENABLED, GENSET_CHARGE_SOC_START,
+				IS_GENSET_INSTALLED, GENSET_ENABLE_CHARGE)), //
 
 		SHADOW_MANAGEMENT_DISABLED(shadowManagementDisabled()) //
 		;
@@ -252,10 +256,10 @@ public class FeneconCommercial50Gen3 extends
 			final var gridMeterId = "meter0";
 			final var stsBoxId = "stsBox0";
 
-			final var safetyCountry = this.getEnum(p, SafetyCountry.class, Property.SAFETY_COUNTRY);
+			final var safetyCountry = this.getEnum(p, AppSafetyCountry.class, Property.SAFETY_COUNTRY);
 
 			GridCode gridCode = null;
-			if (safetyCountry == SafetyCountry.GERMANY) {
+			if (safetyCountry == AppSafetyCountry.GERMANY) {
 				gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE);
 			}
 
@@ -279,7 +283,7 @@ public class FeneconCommercial50Gen3 extends
 			EdgeConfig.Component batteryInverter;
 
 			if (gridCode == GridCode.VDE_4110) {
-				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(bundle,
+				batteryInverter = FeneconCommercialComponents.batteryInverterWithExtendedSettings(t, bundle,
 						batteryInverterId, hasEmergencyReserve, feedInType, modbusIdExternal, shadowManagementDisabled,
 						safetyCountry, feedInSetting, naProtection, gridCode.name(), this.goodWeDefs, //
 						(propertyParent) -> this.getJsonElementOrNull(p, propertyParent));
@@ -301,13 +305,10 @@ public class FeneconCommercial50Gen3 extends
 			final var gensetSocEnd = this.getInt(p, Property.GENSET_CHARGE_SOC_END);
 
 			final var components = Lists.newArrayList(//
-					ComponentDef.from(battery(bundle, batteryId, modbusIdInternal)), //
 					ComponentDef.from(batteryInverter), //
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
-					ComponentDef.from(io(bundle, modbusIdInternal)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
-					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(modbusForExternalMeters(bundle, t, modbusIdExternalMeters, deviceHardware)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
@@ -317,6 +318,16 @@ public class FeneconCommercial50Gen3 extends
 									.withPriority(5))),
 							ComponentDef.Configuration.defaultConfig()) //
 			);
+
+			components.addAll(//
+					batteryAndIo(bundle, deviceHardware, batteryId, modbusIdInternal).stream() //
+							.map(ComponentDef::from) //
+							.toList() //
+			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)));
+			}
 
 			if (hasEmergencyReserve) {
 				components.add(ComponentDef.from(emergencyMeter(bundle, modbusIdExternal)));
@@ -403,6 +414,7 @@ public class FeneconCommercial50Gen3 extends
 						Property.GENSET_MAX_POWER, //
 						Property.GENSET_CHARGE_SOC_START, //
 						Property.GENSET_CHARGE_SOC_END, //
+						Property.GENSET_CHARGE_SOC_GROUP, //
 						Property.SHADOW_MANAGEMENT_DISABLED //
 				).allMatch(t -> p != t)).toList());
 
@@ -424,6 +436,7 @@ public class FeneconCommercial50Gen3 extends
 				.add(Property.GENSET_MAX_POWER) //
 				.add(Property.GENSET_CHARGE_SOC_START) //
 				.add(Property.GENSET_CHARGE_SOC_END) //
+				.add(Property.GENSET_CHARGE_SOC_GROUP) //
 				.add(Property.SHADOW_MANAGEMENT_DISABLED);
 		this.goodWeDefs.values()//
 				.forEach(builder::add);

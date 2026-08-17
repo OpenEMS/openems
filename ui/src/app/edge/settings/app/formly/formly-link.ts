@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewEncapsulation } from "@angular/core";
-import { ActivatedRoute, ActivatedRouteSnapshot } from "@angular/router";
-import { NavController } from "@ionic/angular";
+import { ActivatedRoute, ActivatedRouteSnapshot, Router } from "@angular/router";
 import { FieldType, FieldTypeConfig, FormlyFieldConfig } from "@ngx-formly/core";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
@@ -10,16 +9,30 @@ import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils
     encapsulation: ViewEncapsulation.None,
     standalone: false,
 })
-export class FormlyLinkComponent extends FieldType<FieldTypeConfig<FormlyFieldConfig["props"] & {
-    link?:
-    | { type: "appUpdate", appId: string, instanceId?: string, property?: string }
-    | { type: "appInstall", appId: string, name: string, }
-}>> implements OnInit {
-
-    protected urlToNavigate: string | null = null;
+export class FormlyLinkComponent
+    extends FieldType<
+        FieldTypeConfig<
+            FormlyFieldConfig["props"] & {
+                link?:
+                    | {
+                          type: "appUpdate";
+                          appId: string;
+                          instanceId?: string;
+                          property?: string;
+                      }
+                    | { type: "appInstall"; appId: string; name: string };
+            }
+        >
+    >
+    implements OnInit
+{
+    protected urlToNavigate: {
+        queryParams: Record<string, string>;
+        baseUrl: string;
+    } | null = null;
 
     constructor(
-        private router: NavController,
+        private router: Router,
         private route: ActivatedRoute,
     ) {
         super();
@@ -31,10 +44,16 @@ export class FormlyLinkComponent extends FieldType<FieldTypeConfig<FormlyFieldCo
 
     protected onNavigate() {
         AssertionUtils.assertIsDefined(this.urlToNavigate, "link is undefined");
-        this.router.navigateForward(this.urlToNavigate);
+        this.router.navigate([this.urlToNavigate.baseUrl], {
+            relativeTo: this.route,
+            queryParams: this.urlToNavigate.queryParams,
+        });
     }
 
-    private buildUrlToNavigate(): string | null {
+    private buildUrlToNavigate(): {
+        queryParams: Record<string, string>;
+        baseUrl: string;
+    } | null {
         const link = this.props.link;
         if (link === undefined || link === null) {
             return null;
@@ -48,16 +67,24 @@ export class FormlyLinkComponent extends FieldType<FieldTypeConfig<FormlyFieldCo
             return null;
         }
 
-        const baseRoute = route.url.join("/");
         if (link.type === "appUpdate") {
-            return baseRoute + "/settings/app/update/" + link.appId;
+            return {
+                baseUrl: "../update",
+                queryParams: { appId: link.appId },
+            };
         }
 
         if (link.type === "appInstall") {
-            return baseRoute + "/settings/app/install/" + link.appId + "?name=" + link.name + "&callback=true";
+            return {
+                baseUrl: "../install",
+                queryParams: {
+                    appId: link.appId,
+                    name: link.name,
+                    callback: "true",
+                },
+            };
         }
 
         return null;
     }
-
 }

@@ -38,8 +38,8 @@ describe("EVSE phase switching", () => {
                                 name: TEST_CONTEXT.translate.instant("EDGE.INDEX.WIDGETS.EVCS.FORCE_SINGLE_PHASE"),
                                 value: PhaseSwitching.FORCE_SINGLE_PHASE,
                                 style: {
-                                    "color": "red",
-                                    "fontWeight": "bold",
+                                    color: "red",
+                                    fontWeight: "bold",
                                 },
                             },
                             {

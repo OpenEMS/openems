@@ -1,43 +1,58 @@
 import { DestroyRef, inject, Injectable, signal, WritableSignal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
+import { ActivatedRouteSnapshot, NavigationCancel, NavigationEnd, NavigationError, NavigationStart, ResolveEnd, Router, } from "@angular/router";
+import { CookieService } from "ngx-cookie-service";
+import { ObjectUtils } from "../utils/object/object-utils";
+import { StringUtils } from "../utils/string/string.utils";
+import { OAuthCallBackComponent } from "./auth/oauthcallback.component";
 
 @Injectable()
 export class RouteService {
-
     public currentUrl: WritableSignal<string | null> = signal(null);
 
     private previousUrl: string | null = null;
+    private queryParams: WritableSignal<URLSearchParams | null> = signal(null);
+    private cookieService = inject(CookieService);
     private destroyRef: DestroyRef = inject(DestroyRef);
     private router: Router = inject(Router);
 
     constructor() {
         this.previousUrl = this.currentUrl();
-        this.router.events
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(event => {
-                if (event instanceof NavigationEnd) {
-                    this.previousUrl = this.currentUrl();
-                    this.currentUrl.set(event.urlAfterRedirects);
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationEnd) {
+                if (this.previousUrl === event.urlAfterRedirects) {
+                    return;
                 }
-            });
+
+                this.setQueryParams(event.urlAfterRedirects);
+                this.previousUrl = this.currentUrl();
+                this.currentUrl.set(event.urlAfterRedirects);
+            }
+
+            if (event instanceof (NavigationStart || NavigationError || NavigationCancel || ResolveEnd)) {
+                if (this.previousUrl === event.url) {
+                    return;
+                }
+                this.setQueryParams(event.url);
+                this.previousUrl = this.currentUrl();
+                this.currentUrl.set(event.url);
+            }
+        });
     }
 
     /**
      * Gets the previous url, active before this url
-    *
-    * @returns the previous url
-    */
+     *
+     * @returns The previous url
+     */
     public getPreviousUrl() {
         return this.previousUrl;
     }
 
-
     /**
      * Gets the current url
-    *
-    * @returns the current url
-    */
+     *
+     * @returns The current url
+     */
     public getCurrentUrl() {
         return this.currentUrl();
     }
@@ -45,16 +60,14 @@ export class RouteService {
     /**
      * Gets the route params, defined in routing modules
      *
-     * @example retrieve :componentId by "componentId"
+     * @example
+     *     retrieve :componentId by "componentId"
      *
-     * @param key the key
-     * @returns the value for this key if found, else null
-    */
+     * @param key The key
+     * @returns The value for this key if found, else null
+     */
     public getRouteParam<T>(key: string): T | null {
-        const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
-        const routeParams = Object.entries(route.params)
-            .reduce((obj: { [k: string]: any }, [k, v]) => { obj[k] = v; return obj; }
-                , {});
+        const routeParams = this.getRouteParams();
         if (key in routeParams) {
             return routeParams[key] as T;
         }
@@ -62,25 +75,81 @@ export class RouteService {
     }
 
     /**
-     * Gets a query param.
+     * Gets the route params, defined in routing modules
      *
-     * @param key the key
-     * @returns the value for this key if found, else null
+     * @example
+     *     retrieve :componentId by "componentId"
+     *
+     * @param key The key
+     * @returns The value for this key if found, else null
      */
-    public getQueryParam<T>(key: string): T | null {
-        const queryParams = this.router.routerState.snapshot.root.queryParams;
+    public getRouteParams(): Record<string, string> {
+        const route = this.getDeepestRoute(this.router.routerState.snapshot.root);
+        const routeParams = Object.entries(route.params).reduce((obj: { [k: string]: any }, [k, v]) => {
+            const routeParamValue = typeof v === "string" ? v : null;
+            const cleanedRouteParam =
+                StringUtils.splitBy(StringUtils.splitBy(routeParamValue, "%")?.[0] ?? "", "?")?.[0] ?? "";
+            obj[k] = cleanedRouteParam;
+            return obj;
+        }, {});
 
-        if (key in queryParams) {
-            return queryParams[key] as T;
-        }
-        return null;
+        return routeParams;
     }
 
+    /**
+     * Gets a query param.
+     *
+     * @param key The key
+     * @returns The value for this key if found, else null
+     */
+    public getQueryParam<T>(key: string): T | null {
+        const params = this.queryParams();
+        if (params == null) {
+            return null;
+        }
+        const value = params.get(key);
+        return value as T;
+    }
+
+    /**
+     * Gets the query params signal.
+     *
+     * @returns The query params signal
+     */
+    public getQueryParams() {
+        return this.queryParams.asReadonly();
+    }
+
+    public navigateAfterAuthentication() {
+        const oauthredirectstate = this.cookieService.get("oauthredirectstate");
+        const oauthRedirectStateHref = ObjectUtils.parseFromString<{ href: string }>(oauthredirectstate)?.href ?? null;
+        if (oauthRedirectStateHref != null && oauthRedirectStateHref != OAuthCallBackComponent.ID) {
+            this.router.navigate([oauthRedirectStateHref]);
+            return;
+        }
+
+        const initialUrl = this.router.lastSuccessfulNavigation()?.initialUrl ?? null;
+        const isAuthenticatedNavi = (initialUrl?.toString()?.split("/")?.length ?? 0) > 2;
+        if (isAuthenticatedNavi && initialUrl != null) {
+            this.router.navigate([initialUrl.toString()]);
+            return;
+        }
+
+        // Fallback
+        this.router.navigate(["/overview"]);
+    }
 
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {
             routeSnapshot = routeSnapshot.firstChild;
         }
         return routeSnapshot;
+    }
+
+    private setQueryParams(url: string) {
+        const queryParams = url.split("?")?.[1] ?? null;
+        if (queryParams != null) {
+            this.queryParams.set(new URLSearchParams(queryParams));
+        }
     }
 }

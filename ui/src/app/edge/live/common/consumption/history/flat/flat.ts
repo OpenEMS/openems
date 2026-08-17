@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../../shared/shared";
@@ -7,10 +7,10 @@ import { ChannelAddress, CurrentData, EdgeConfig } from "../../../../../../share
 @Component({
     selector: "consumptionWidget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
     protected evcsComponents: EvcsComponent[] = [];
     protected heatComponents: EdgeConfig.Component[] = [];
     protected consumptionMeterComponents: EdgeConfig.Component[] = [];
@@ -21,24 +21,29 @@ export class FlatComponent extends AbstractFlatWidget {
 
         this.evcsComponents = EvcsComponent.getComponents(this.config, this.edge);
 
-        this.heatComponents = this.config?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-            .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
+        this.heatComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(
+                (component) =>
+                    !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+            );
         channels.push(
-            ...this.heatComponents.map(
-                (component) => new ChannelAddress(component.id, "ActiveProductionEnergy")
-            )
+            ...this.heatComponents.map((component) => new ChannelAddress(component.id, "ActiveProductionEnergy")),
         );
 
-        this.consumptionMeterComponents = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => {
+        this.consumptionMeterComponents = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => {
                 const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
                 const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
                 const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
-                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-                    isEvcs === false && isHeat === false;
+                return (
+                    component.isEnabled &&
+                    this.config?.isTypeConsumptionMetered(component) &&
+                    isEvcs === false &&
+                    isHeat === false
+                );
             });
 
         return channels;
@@ -49,25 +54,22 @@ export class FlatComponent extends AbstractFlatWidget {
     }
 
     /**
-   * Gets the totalOtherEnergy
-   *
-   * @param currentData the current data
-   * @returns the total other Energy
-   */
+     * Gets the totalOtherEnergy
+     *
+     * @param currentData The current data
+     * @returns The total other Energy
+     */
     private getTotalOtherEnergy(currentData: CurrentData): number {
-
         let otherEnergy: number = 0;
 
-        this.evcsComponents.forEach(evcs => {
+        this.evcsComponents.forEach((evcs) => {
             otherEnergy += currentData.allComponents[evcs.energyChannel.toString()] ?? 0;
         });
 
-        [...this.consumptionMeterComponents, ...this.heatComponents].forEach(component => {
+        [...this.consumptionMeterComponents, ...this.heatComponents].forEach((component) => {
             otherEnergy += currentData.allComponents[component.id + "/ActiveProductionEnergy"] ?? 0;
         });
 
         return currentData.allComponents["_sum/ConsumptionActiveEnergy"] - otherEnergy;
-
     }
 }
-

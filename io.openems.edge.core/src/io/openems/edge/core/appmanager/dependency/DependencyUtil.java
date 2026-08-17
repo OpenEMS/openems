@@ -1,9 +1,9 @@
 package io.openems.edge.core.appmanager.dependency;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.function.Function;
 
 import org.osgi.framework.FrameworkUtil;
@@ -18,7 +18,7 @@ public class DependencyUtil {
 
 	// instance per thread so the installation of an app is separated
 	// from the validate worker
-	private static final Map<Thread, DependencyUtil> THREAD_2_INSTANCE = new HashMap<>();
+	private static final Map<Thread, DependencyUtil> THREAD_2_INSTANCE = new WeakHashMap<>();
 
 	// only for testing
 	private static AppManagerAppHelper appHelper;

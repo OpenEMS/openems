@@ -2,7 +2,6 @@ import { ArrayUtils } from "../array/array.utils";
 import { AssertionUtils } from "../assertions/assertions.utils";
 
 export namespace StringUtils {
-
     export const INVALID_STRING = "Passed value is not of type string";
     export type UppercaseString<T extends string> = T extends Uppercase<T> ? T : never;
 
@@ -20,48 +19,47 @@ export namespace StringUtils {
     }
 
     export function validateStrings(arr: string[] | null): boolean {
-        return arr?.every(el => el != null && isValidString(el)) ?? false;
+        return arr?.every((el) => el != null && isValidString(el)) ?? false;
     }
 
     /**
      * Checks if the value does not occur in array
      *
-     * @param val the value
-     * @param arr the array
-     * @returns true if passed value is not contained by the array
+     * @param val The value
+     * @param arr The array
+     * @returns True if passed value is not contained by the array
      */
     export function isNotInArr(val: string | null, arr: string[] | null): boolean {
         ArrayUtils.isValidArr(arr);
         StringUtils.isValidString(val);
         StringUtils.validateStrings(arr);
-        return arr?.every(el => val != el) ?? true;
+        return arr?.every((el) => val != el) ?? true;
     }
 
     /**
      * Checks if the value does occur in array
      *
-     * @param val the value
-     * @param arr the array
-     * @returns true if passed value is ocurring in the array
+     * @param val The value
+     * @param arr The array
+     * @returns True if passed value is ocurring in the array
      */
     export function isInArr(val: string | null, arr: string[] | null): boolean {
         ArrayUtils.isValidArr(arr);
         StringUtils.isValidString(val);
         StringUtils.validateStrings(arr);
-        return arr?.some(el => val == el) ?? false;
+        return arr?.some((el) => val == el) ?? false;
     }
 
     /**
      * Gets the substring between a start and end character
      *
-     * @param start the start character
-     * @param end the end character
-     * @param val the value
-     * @returns a string, if valid, else null
+     * @param start The start character
+     * @param end The end character
+     * @param val The value
+     * @returns A string, if valid, else null
      */
     export function getSubstringInBetween(start: string | null, end: string | null, val: string | null): string | null {
-
-        if ((!val || !start || !end) || !(validateStrings([start, end, val]))) {
+        if (!val || !start || !end || !validateStrings([start, end, val])) {
             throw new Error(INVALID_STRING);
         }
 
@@ -92,8 +90,7 @@ export namespace StringUtils {
     }
 
     /**
-     * Extracts a numeric suffix from a string.
-     * Matches logic: Pattern.compile("[^0-9]+([0-9]+)$")
+     * Extracts a numeric suffix from a string. Matches logic: Pattern.compile("[^0-9]+([0-9]+)$")
      *
      * @param val The input string (e.g. "fems123")
      * @returns The number found at the end, or null if format doesn't match.

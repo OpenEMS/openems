@@ -12,10 +12,11 @@ export { SystemLog } from "./type/systemlog";
 export { Utils } from "./utils/utils";
 import { AlertController, AlertOptions } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
+import { isBefore, subDays, subYears } from "date-fns";
+
 import { addIcons } from "ionicons";
 import { environment } from "src/environments";
 import { Edge } from "./components/edge/edge";
-import { EdgeConfig } from "./components/edge/edgeconfig";
 import { User } from "./jsonrpc/shared";
 import { DefaultTypes } from "./type/defaulttypes";
 import { Role } from "./type/role";
@@ -24,6 +25,7 @@ import { StringUtils } from "./utils/string/string.utils";
 addIcons({
     "oe-consumption": environment.icons.COMMON.CONSUMPTION,
     "oe-heatpump": environment.icons.COMPONENT.HEATPUMP,
+    "oe-heating-element": environment.icons.COMPONENT.HEATING_ELEMENT,
     "oe-selfconsumption": environment.icons.COMMON.SELFCONSUMPTION,
     "oe-evcs": environment.icons.COMPONENT.EVCS,
     "oe-grid": environment.icons.COMMON.GRID,
@@ -41,23 +43,14 @@ addIcons({
     "oe-time-of-use": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE,
     "oe-time-of-use-thin": environment.icons.COMMON.TIME_OF_USE.TIME_OF_USE_THIN,
     "oe-generator": environment.icons.COMMON.GENERATOR,
+    "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
+    "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
+    "oe-wrap-up": environment.icons.WRAP_UP,
 });
 
-export class Permission {
-}
+export class Permission {}
 
 export class EdgePermission {
-
-    /**
-     * Checks if the edge has phase switching ability.
-     *
-     * @param edge The edge to check
-     * @returns True if the edge supports switching ability, false otherwise
-     */
-    public static hasPhaseSwitchingAbility(edge: Edge, component: EdgeConfig.Component): boolean {
-        return EdgePermission.hasSwitchArchitecture(edge) && StringUtils.isInArr(component.factoryId, ["Evse.ChargePoint.Keba.Modbus", /* TODO: remove, implemented for fems888 */"Evse.ChargePoint.Keba.UDP"]);
-    }
-
     /**
      * Checks if the edge has the switchArchitecture jsonRpc logic.
      *
@@ -68,33 +61,43 @@ export class EdgePermission {
         return edge.isVersionAtLeast("2025.12.4");
     }
 
-
     /**
      * Checks if user is allowed to see {@link ProfileComponent} setup protocol download
      *
-     * @param edge the edge
-     * @returns true, if user is at least {@link Role.OWNER}
+     * @param edge The edge
+     * @returns True, if user is at least {@link Role.OWNER}
      */
     public static isUserAllowedToSetupProtocolDownload(edge: Edge): boolean {
         return Role.isAtLeast(edge.role, Role.OWNER);
     }
 
     /**
-   * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent}
-   * and if histroyPeriods exist, it gets the correspondent periods accordingly
-   *
-   * @param edge the edge
-   * @param historyPeriods the historyPeriods i.e 'day', 'week' or 'custom'
-   * @returns the list of allowed periods for this edge
-   */
-    public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
+     * Checks if the {@link EnergyJourneyComponent energy journey} is allowed to be seen
+     *
+     * @param ibnDate The ibn date - first setup protocol date
+     * @returns True, if ibnDate is at least one year ago and edge producttype is 'Home 10'
+     */
+    public static isEnergyJourneyAllowed(edge: Edge): boolean {
+        const isDateAtLeastOneYearAgo = isBefore(edge.firstSetupProtocol, subDays(subYears(new Date(), 1), 1));
+        return (
+            isDateAtLeastOneYearAgo && StringUtils.isInArr(edge.producttype, [])
+        );
+    }
 
+    /**
+     * Gets the allowed history periods for this edge, used in {@link PickDatePopoverComponent} and if histroyPeriods
+     * exist, it gets the correspondent periods accordingly
+     *
+     * @param edge The edge
+     * @param historyPeriods The historyPeriods i.e 'day', 'week' or 'custom'
+     * @returns The list of allowed periods for this edge
+     */
+    public static getAllowedHistoryPeriods(edge: Edge, historyPeriods?: DefaultTypes.PeriodStringValues[]) {
         if (historyPeriods?.length > 0) {
             return historyPeriods;
         }
 
         return Object.values(DefaultTypes.PeriodString).reduce((arr, el) => {
-
             // hide total, if no first ibn date
             if (el === DefaultTypes.PeriodString.TOTAL && edge?.firstSetupProtocol === null) {
                 return arr;
@@ -105,99 +108,84 @@ export class EdgePermission {
         }, []);
     }
 
-    public static isModbusTcpApiWidgetAllowed(edge: Edge): boolean {
-        return edge?.isVersionAtLeast("2024.9.1");
-    }
-
     /**
-     * Determines if the edge has its channels in the edgeconfig
-     * or if they should be obtained with a separate request.
+     * Checks if the edge version is at least 2025.12.1 to cover systemErrorAcknowledge JSON-RPC request.
      *
-     * The reason this was introduced is to reduce the size of the EdgeConfig
-     * and therefore improve performance in network, backend, ui, edge.
-     *
-     * @returns true if the channels are included in the edgeconfig
+     * @param edge The edge to check
+     * @returns True if the edge is 2025.12.1
      */
-    public static hasChannelsInEdgeConfig(edge: Edge): boolean {
-        return !edge.isVersionAtLeast("2024.6.1");
-    }
-
-    /**
-     * Determines if the edge has only the factories which are used by the
-     * active components in the edgeconfig or if all factories are inlcuded.
-     *
-     * The reason this was introduced is to reduce the size of the EdgeConfig
-     * and therefore improve performance in network, backend, ui, edge.
-     *
-     * @returns true if only the factories of the used components are in the edgeconfig
-     */
-    public static hasReducedFactories(edge: Edge): boolean {
-        return edge.isVersionAtLeast("2024.6.1");
+    public static hasSystemErrorAcknowledge(edge: Edge): boolean {
+        return edge.isVersionAtLeast("2025.12.1");
     }
 }
 
 export class UserPermission {
-
     /**
-   * Checks if user is allowed to see  {@link FooterComponent}
-   *
-   * @param user the current user
-   * @returns true, if user is at least {@link Role.GUEST}
-   */
+     * Checks if user is allowed to see {@link FooterComponent}
+     *
+     * @param user The current user
+     * @returns True, if user is at least {@link Role.GUEST}
+     */
     public static isUserAllowedToSeeFooter(user: User): boolean {
         return Role.isAtLeast(user.globalRole, Role.GUEST);
     }
 
+    /**
+     * Checks if user is allowed to see the Overview page.
+     *
+     * @param user The current user
+     * @returns True, if user is allowed to see the overview page
+     */
     public static isUserAllowedToSeeOverview(user: User): boolean {
-
+        if (environment.backend === "OpenEMS Edge") {
+            return false;
+        }
+        if (user.hasMultipleEdges) {
+            return true;
+        }
         if (Role.isAtLeast(user.globalRole, Role.INSTALLER)) {
             return true;
         }
-
-        return user.hasMultipleEdges;
+        return false;
     }
-
 
     /**
      * Checks if user is allowed to see {@link SystemRestartComponent}
      *
-     * @param user the current user
-     * @returns true, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
+     * @param user The current user
+     * @returns True, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
      */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
-        const isAllowed = edge?.isVersionAtLeast("2024.2.2");
-        return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
+        return Role.isAtLeast(user?.globalRole, Role.OWNER);
     }
 
     /**
      * Checks if user is allowed to see additional updates.
      *
-     * @param edge the current {@link Edge}
-     * @returns true, if user has access to see additional updates
+     * @param edge The current {@link Edge}
+     * @returns True, if user has access to see additional updates
      */
     public static isAllowedToSeeAdditionalUpdates(edge: Edge) {
         return edge.isVersionAtLeast("2025.5.4") && edge.roleIsAtLeast(Role.ADMIN);
     }
-
 }
 
-export enum Producttype {
-}
+export enum Producttype {}
 
 export namespace Currency {
-
     /**
      * This method returns the corresponding label based on the user-selected currency in "core.meta."
      *
      * @param currency The currency enum.
-     * @returns the Currencylabel
+     * @returns The Currencylabel
      */
-    export function getCurrencyLabelByCurrency(currency: string): Label {
+    export function getCurrencyLabelByCurrency(currency: string | null): Label {
         switch (currency) {
             case "SEK":
                 return Label.OERE_PER_KWH;
             case "CHF":
                 return Label.RAPPEN_PER_KWH;
+            case null:
             default:
                 return Label.CENT_PER_KWH;
         }
@@ -207,7 +195,7 @@ export namespace Currency {
      * This method returns the corresponding label for the chart based on the user-selected currency.
      *
      * @param currency The currency enum.
-     * @returns the Currency Unit label
+     * @returns The Currency Unit label
      */
     export function getChartCurrencyUnitLabel(currency: string) {
         switch (currency) {
@@ -222,7 +210,7 @@ export namespace Currency {
 
     export enum Label {
         OERE_PER_KWH = "Öre/kWh",
-        CENT_PER_KWH = "Cent/kWh",
+        CENT_PER_KWH = "ct/kWh",
         RAPPEN_PER_KWH = "Rp./kWh",
     }
 
@@ -234,12 +222,12 @@ export namespace Currency {
 }
 
 export enum ChannelRegister {
-    "SetActivePowerEquals" = 706,
-    "SetReactivePowerEquals" = 708,
-    "SetActivePowerLessOrEquals" = 710,
-    "SetReactivePowerLessOrEquals" = 712,
-    "SetActivePowerGreaterOrEquals" = 714,
-    "SetReactivePowerGreaterOrEquals" = 716,
+    SetActivePowerEquals = 706,
+    SetReactivePowerEquals = 708,
+    SetActivePowerLessOrEquals = 710,
+    SetReactivePowerLessOrEquals = 712,
+    SetActivePowerGreaterOrEquals = 714,
+    SetReactivePowerGreaterOrEquals = 716,
 }
 
 export enum RippleControlReceiverRestrictionLevel {
@@ -254,22 +242,24 @@ export enum Limiter14aRestriction {
     RESTRICTION = 1,
 }
 
-/**
- * Presents a simple
- */
-export async function presentAlert(alertController: AlertController, translate: TranslateService, alertOptions: AlertOptions) {
-
+/** Presents a simple */
+export async function presentAlert(
+    alertController: AlertController,
+    translate: TranslateService,
+    alertOptions: AlertOptions,
+) {
     if (!alertOptions?.buttons) {
         throw new Error("Confirmation button is missing");
     }
 
     const alert = alertController.create({
         ...alertOptions,
-        buttons: [{
-            text: translate.instant("GENERAL.CANCEL"),
-            role: "cancel",
-        },
-        ...(alertOptions?.buttons ?? []),
+        buttons: [
+            {
+                text: translate.instant("GENERAL.CANCEL"),
+                role: "cancel",
+            },
+            ...(alertOptions?.buttons ?? []),
         ],
         cssClass: "alertController",
     });

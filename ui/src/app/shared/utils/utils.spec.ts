@@ -30,7 +30,7 @@ describe("Utils", () => {
     );
 
     const channelData: HistoryUtils.ChannelData = {
-        "ConsumptionActivePower": [null, null, null, 565, 560, 561, 573],
+        ConsumptionActivePower: [null, null, null, 565, 560, 561, 573],
         "evcs0/ChargePower": [null, null, null, 0, 0, 0, 100],
         "evcs1/ChargePower": [null, null, null, 0, 0, 0, 0],
         "meter0/ActivePower": [124, 0, null, 0, 173, 0, 100],
@@ -75,10 +75,10 @@ describe("Utils", () => {
 
     it("+CONVERT_PRICE_TO_CENT_PER_KWH", () => {
         let currencyLabel: string = Currency.getCurrencyLabelByCurrency("EUR");
-        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(0)).toEqual("0 Cent/kWh");
-        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(null)).toEqual("- Cent/kWh");
-        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(undefined)).toEqual("- Cent/kWh");
-        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(1)).toEqual("0,1 Cent/kWh");
+        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(0)).toEqual("0 ct/kWh");
+        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(null)).toEqual("- ct/kWh");
+        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(undefined)).toEqual("- ct/kWh");
+        expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(1)).toEqual("0,1 ct/kWh");
 
         currencyLabel = Currency.getCurrencyLabelByCurrency("CHF");
         expect(Utils.CONVERT_PRICE_TO_CENT_PER_KWH(2, currencyLabel)(0)).toEqual("0 Rp./kWh");

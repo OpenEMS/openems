@@ -1,4 +1,4 @@
-import { Component, model, ModelSignal } from "@angular/core";
+import { Component, model, ModelSignal, ChangeDetectionStrategy } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerModule } from "ngx-spinner";
@@ -14,6 +14,7 @@ import { TaskFormWeeklyComponent } from "./weekly/weekly";
 @Component({
     selector: "oe-schedule-task-form",
     templateUrl: "./task-form.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         CommonUiModule,
         NgxSpinnerModule,
@@ -40,8 +41,8 @@ export class TaskFormComponent {
     }
 
     protected setRecurrenceRuleByDay(event: CustomEvent) {
-        this.recurrenceRuleByDay.update(_el => {
-            return ({ frequency: event.detail.value });
+        this.recurrenceRuleByDay.update((_el) => {
+            return { frequency: event.detail.value };
         });
     }
 }

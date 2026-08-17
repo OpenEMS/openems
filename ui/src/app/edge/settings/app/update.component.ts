@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, OnInit, signal } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { AlertController } from "@ionic/angular";
@@ -6,6 +6,7 @@ import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/back-button";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { RouteService } from "src/app/shared/service/route.service";
@@ -24,19 +25,20 @@ import { UpdateAppInstance } from "./jsonrpc/updateAppInstance";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
 
 interface MyInstance {
-    instanceId: string, // uuid
-    form: FormGroup,
-    isDeleting: boolean,
-    isUpdating: boolean,
-    fields: FormlyFieldConfig[]
-    properties: Record<string, any>,
-    steps: GetAppAssistant.AppConfigurationStep[],
+    instanceId: string; // uuid
+    form: FormGroup;
+    isDeleting: boolean;
+    isUpdating: boolean;
+    fields: FormlyFieldConfig[];
+    properties: Record<string, any>;
+    steps: GetAppAssistant.AppConfigurationStep[];
 }
 
 @Component({
     selector: UpdateAppComponent.SELECTOR,
     templateUrl: "./update.component.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         CommonUiModule,
         PipeComponentsModule,
@@ -45,16 +47,16 @@ interface MyInstance {
         RouterModule,
         FormlyModule,
         ConfigurationOAuthComponent,
+        NavigationBackButtonComponent,
     ],
 })
 export class UpdateAppComponent implements OnInit {
-
     private static readonly SELECTOR = "app-update";
     public readonly spinnerId: string = UpdateAppComponent.SELECTOR;
 
     protected showSwitchArchitecture = false;
     protected currentArchitecture: string | null = null;
-    protected instances: MyInstance[] = [];
+    protected instances = signal<MyInstance[]>([]);
     protected appName: string | null = null;
     protected isAppCenter: boolean = false;
 
@@ -65,6 +67,9 @@ export class UpdateAppComponent implements OnInit {
     private switchMethod: string | null = null;
     private handlerId: string | null = null;
     private translateService = inject(TranslateService);
+    private isRunning: boolean = false;
+
+    private readonly cdRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -76,11 +81,25 @@ export class UpdateAppComponent implements OnInit {
         private translate: TranslateService,
         private alertCtrl: AlertController,
     ) {
+        const queryParamsSignal = this.routeService.getQueryParams();
+        effect(() => {
+            const _queryParams = queryParamsSignal();
+            if (this.isRunning) {
+                return;
+            }
+            this.ngOnInit();
+        });
     }
 
     public ngOnInit() {
         this.service.startSpinnerTransparentBackground(this.spinnerId);
-        const appId = this.route.snapshot.params["appId"];
+        const appId = this.routeService.getQueryParam<string>("appId");
+        if (appId == null) {
+            this.service.stopSpinner(this.spinnerId);
+            this.service.toast("Missing app id in route.", "danger");
+            return;
+        }
+        this.isRunning = true;
         const componentId = this.routeService.getQueryParam<string>("componentId");
 
         const queryName = this.routeService.getQueryParam<string>("name");
@@ -88,63 +107,107 @@ export class UpdateAppComponent implements OnInit {
 
         const appName = queryName ?? this.service.currentPageTitle;
 
-        this.service.setCurrentComponent(appName ?? "", this.route).then(edge => {
+        this.service.setCurrentComponent(appName ?? "", this.route).then((edge) => {
             this.edge = edge;
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: new GetApp.Request({ appId: appId }),
-            })).then(getAppResponse => {
-                const app = (getAppResponse as GetApp.Response).result.app;
-                const flag = app.flags.filter(t => t.name === "canSwitchVersion");
-                if (flag.length > 0) {
-                    this.canSwitchArchitecture(flag[0]);
-                }
-            });
-            edge.sendRequest(this.websocket,
+            this.edge
+                .sendRequest(
+                    this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: "_appManager",
+                        payload: new GetApp.Request({ appId: appId }),
+                    }),
+                )
+                .then((getAppResponse) => {
+                    const app = (getAppResponse as GetApp.Response).result.app;
+                    const flag = app.flags.filter((t) => t.name === "canSwitchVersion");
+                    if (flag.length > 0) {
+                        this.canSwitchArchitecture(flag[0]);
+                    }
+                });
+            edge.sendRequest(
+                this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new GetAppInstances.Request({ appId: appId }),
-                })).then(getInstancesResponse => {
-                const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
-                edge.sendRequest(this.websocket,
-                    new ComponentJsonApiRequest({
-                        componentId: "_appManager",
-                        payload: new GetAppAssistant.Request({ appId: appId }),
-                    })).then(getAppAssistantResponse => {
-                    const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
-
-                    if (this.isAppCenter == true) {
-                        this.setInstance(appAssistant, null, recInstances, null, appId);
-                        return;
-                    }
-
-                    if (componentId == null) {
-                        this.setInstance(appAssistant, null, recInstances, null, appId);
-                        return;
-                    }
-
-                    edge.sendRequest(this.websocket,
+                }),
+            )
+                .then((getInstancesResponse) => {
+                    const recInstances = (getInstancesResponse as GetAppInstances.Response).result.instances;
+                    edge.sendRequest(
+                        this.websocket,
                         new ComponentJsonApiRequest({
                             componentId: "_appManager",
-                            payload: new QueryAppInstancesByFilter.Request({
-                                filter: {
-                                    component: {
-                                        componentId: [
-                                            componentId,
-                                        ],
-                                    },
-                                },
-                                pagination: {
-                                    limit: 1,
-                                },
+                            payload: new GetAppAssistant.Request({
+                                appId: appId,
                             }),
-                        })).then(queryAppInstancesByFilter => {
-                        const queryedAppInstance = (queryAppInstancesByFilter as QueryAppInstancesByFilter.Response).result.apps;
+                        }),
+                    )
+                        .then((getAppAssistantResponse) => {
+                            const appAssistant = (getAppAssistantResponse as GetAppAssistant.Response).result;
 
-                        this.setInstance(appAssistant, componentId, recInstances, queryedAppInstance, appId);
-                    }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
-                }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error));
-            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App-Instances for [" + appId + "]: " + error));
+                            if (this.isAppCenter == true) {
+                                this.setInstance(appAssistant, null, recInstances, null, appId);
+                                return;
+                            }
+
+                            if (componentId == null) {
+                                this.setInstance(appAssistant, null, recInstances, null, appId);
+                                return;
+                            }
+
+                            edge.sendRequest(
+                                this.websocket,
+                                new ComponentJsonApiRequest({
+                                    componentId: "_appManager",
+                                    payload: new QueryAppInstancesByFilter.Request({
+                                        filter: {
+                                            component: {
+                                                componentId: [componentId],
+                                            },
+                                        },
+                                        pagination: {
+                                            limit: 1,
+                                        },
+                                    }),
+                                }),
+                            )
+                                .then((queryAppInstancesByFilter) => {
+                                    const queryedAppInstance = (
+                                        queryAppInstancesByFilter as QueryAppInstancesByFilter.Response
+                                    ).result.apps;
+
+                                    this.setInstance(
+                                        appAssistant,
+                                        componentId,
+                                        recInstances,
+                                        queryedAppInstance,
+                                        appId,
+                                    );
+                                })
+                                .catch(
+                                    InstallAppComponent.errorToast(
+                                        this.service,
+                                        (error) => "Error while receiving App-Instances for [" + appId + "]: " + error,
+                                    ),
+                                );
+                        })
+                        .catch(
+                            InstallAppComponent.errorToast(
+                                this.service,
+                                (error) => "Error while receiving App Assistant for [" + appId + "]: " + error,
+                            ),
+                        );
+                })
+                .catch(
+                    InstallAppComponent.errorToast(
+                        this.service,
+                        (error) => "Error while receiving App-Instances for [" + appId + "]: " + error,
+                    ),
+                )
+                .finally(() => {
+                    this.isRunning = false;
+                    this.cdRef.markForCheck();
+                });
         });
     }
 
@@ -156,22 +219,27 @@ export class UpdateAppComponent implements OnInit {
             this.showSwitchArchitecture = false;
             return;
         }
-        this.edge.sendRequest(this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: flag.handlerId,
-                payload: new CanSwitchArchitecture.Request(flag.canSwitchMethod),
-            })).then(response => {
-            const result = (response as CanSwitchArchitecture.Response).result;
-            this.switchMethod = flag.switchMethod;
-            this.handlerId = flag.handlerId;
-            this.showSwitchArchitecture = result.canSwitch;
-            this.currentArchitecture = result.current ?? null;
-            this.header = result.header;
-            this.info = result.info;
-            this.link = result.link;
-        }).catch(reason => {
-            console.log(reason);
-        });
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: flag.handlerId,
+                    payload: new CanSwitchArchitecture.Request(flag.canSwitchMethod),
+                }),
+            )
+            .then((response) => {
+                const result = (response as CanSwitchArchitecture.Response).result;
+                this.switchMethod = flag.switchMethod;
+                this.handlerId = flag.handlerId;
+                this.showSwitchArchitecture = result.canSwitch;
+                this.currentArchitecture = result.current ?? null;
+                this.header = result.header;
+                this.info = result.info;
+                this.link = result.link;
+            })
+            .catch((reason) => {
+                console.log(reason);
+            });
     }
 
     protected switchArchitecture() {
@@ -179,31 +247,39 @@ export class UpdateAppComponent implements OnInit {
         if (currentEdge == null) {
             return;
         }
-        this.instances.forEach(instance => {
+        this.instances().forEach((instance) => {
             this.service.startSpinnerTransparentBackground(instance.instanceId);
             instance.isUpdating = true;
         });
         if (this.handlerId == null || this.switchMethod == null) {
             return;
         }
-        currentEdge.sendRequest(this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: this.handlerId,
-                payload: new SwitchArchitecture.Request(this.switchMethod),
-            })).then(response => {
-            const navigationExtras = { state: { appInstanceChange: true } };
-            this.router.navigate(["device/" + (currentEdge.id) + "/settings/app/"], navigationExtras);
-            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
-        }).catch(reason => {
-            const errorMessage = extractErrorMessage(reason);
-            this.service.toast(errorMessage, "danger");
-        }).finally(() => {
-            this.instances.forEach(instance => {
-                this.service.stopSpinner(instance.instanceId);
-                instance.isUpdating = false;
+        currentEdge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: this.handlerId,
+                    payload: new SwitchArchitecture.Request(this.switchMethod),
+                }),
+            )
+            .then((response) => {
+                const navigationExtras = {
+                    state: { appInstanceChange: true },
+                    relativeTo: this.route,
+                };
+                this.router.navigate(["../"], navigationExtras);
+                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
+            })
+            .catch((reason) => {
+                const errorMessage = extractErrorMessage(reason);
+                this.service.toast(errorMessage, "danger");
+            })
+            .finally(() => {
+                this.instances().forEach((instance) => {
+                    this.service.stopSpinner(instance.instanceId);
+                    instance.isUpdating = false;
+                });
             });
-        }
-        );
     }
 
     protected submit(instance: MyInstance) {
@@ -221,29 +297,40 @@ export class UpdateAppComponent implements OnInit {
             }
         }
         instance.form.markAsPristine();
-        this.edge.sendRequest(this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: new UpdateAppInstance.Request({
-                    instanceId: instance.instanceId,
-                    alias: alias,
-                    properties: clonedFields,
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new UpdateAppInstance.Request({
+                        instanceId: instance.instanceId,
+                        alias: alias,
+                        properties: clonedFields,
+                    }),
                 }),
-            })).then(response => {
-            const result = (response as UpdateAppInstance.Response).result;
+            )
+            .then((response) => {
+                const result = (response as UpdateAppInstance.Response).result;
 
-            if (result.warnings && result.warnings.length > 0) {
-                this.service.toast(result.warnings.join(";"), "warning");
-            } else {
-                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
-            }
-            instance.properties = result.instance.properties;
-            instance.properties["ALIAS"] = result.instance.alias;
-        })
-            .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", { error: error })))
+                if (result.warnings && result.warnings.length > 0) {
+                    this.service.toast(result.warnings.join(";"), "warning");
+                } else {
+                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_UPDATE"), "success");
+                }
+                instance.properties = result.instance.properties;
+                instance.properties["ALIAS"] = result.instance.alias;
+            })
+            .catch(
+                InstallAppComponent.errorToast(this.service, (error) =>
+                    this.translate.instant("EDGE.CONFIG.APP.FAIL_UPDATE", {
+                        error: error,
+                    }),
+                ),
+            )
             .finally(() => {
                 instance.isUpdating = false;
                 this.service.stopSpinner(instance.instanceId);
+                this.cdRef.markForCheck();
             });
     }
 
@@ -253,14 +340,16 @@ export class UpdateAppComponent implements OnInit {
         const alert = this.alertCtrl.create({
             subHeader: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM_HEADLINE"),
             message: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM_DESCRIPTION"),
-            buttons: [{
-                text: translate.instant("GENERAL.CANCEL"),
-                role: "cancel",
-            },
-            {
-                text: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM"),
-                handler: () => this.delete(instance),
-            }],
+            buttons: [
+                {
+                    text: translate.instant("GENERAL.CANCEL"),
+                    role: "cancel",
+                },
+                {
+                    text: translate.instant("EDGE.CONFIG.APP.DELETE_CONFIRM"),
+                    handler: () => this.delete(instance),
+                },
+            ],
             cssClass: "alertController",
         });
         (await alert).present();
@@ -273,29 +362,49 @@ export class UpdateAppComponent implements OnInit {
         }
         this.service.startSpinnerTransparentBackground(instance.instanceId);
         instance.isDeleting = true;
-        currentEdge.sendRequest(this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: new DeleteAppInstance.Request({
-                    instanceId: instance.instanceId,
+        currentEdge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new DeleteAppInstance.Request({
+                        instanceId: instance.instanceId,
+                    }),
                 }),
-            })).then(response => {
-            this.instances.splice(this.instances.indexOf(instance), 1);
-            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
-            const navigationExtras = { state: { appInstanceChange: true } };
+            )
+            .then((response) => {
+                this.instances().splice(this.instances().indexOf(instance), 1);
+                this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_DELETE"), "success");
+                const navigationExtras = {
+                    state: { appInstanceChange: true },
+                    relativeTo: this.route,
+                };
 
-            this.router.navigate(["device/" + (currentEdge.id) + "/settings/app/"], navigationExtras);
-        })
-            .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_DELETE", { error: error })))
+                this.router.navigate(["../"], navigationExtras);
+            })
+            .catch(
+                InstallAppComponent.errorToast(this.service, (error) =>
+                    this.translate.instant("EDGE.CONFIG.APP.FAIL_DELETE", {
+                        error: error,
+                    }),
+                ),
+            )
             .finally(() => {
                 instance.isDeleting = false;
                 this.service.stopSpinner(instance.instanceId);
+                this.cdRef.markForCheck();
             });
     }
 
-    private setInstance(appAssistant: GetAppAssistant.AppAssistant, componentId: string | null, recInstances: GetAppInstances.AppInstance[], queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null, appId: string) {
+    private setInstance(
+        appAssistant: GetAppAssistant.AppAssistant,
+        componentId: string | null,
+        recInstances: GetAppInstances.AppInstance[],
+        queryedAppInstance: QueryAppInstancesByFilter.AppInstance[] | null,
+        appId: string,
+    ) {
         this.appName = appAssistant.name;
-        this.instances = [];
+        this.instances.set([]);
 
         const first = queryedAppInstance?.[0];
         const instanceId = first?.instanceId ?? first?.["instanceId"];
@@ -312,7 +421,7 @@ export class UpdateAppComponent implements OnInit {
         }
 
         if (componentId != null && this.isAppCenter == false) {
-            const instancesFiltered = recInstances.filter(i => i.instanceId == instanceId);
+            const instancesFiltered = recInstances.filter((i) => i.instanceId == instanceId);
             this.buildUiInstances(instancesFiltered, appAssistant);
             return;
         }
@@ -320,10 +429,9 @@ export class UpdateAppComponent implements OnInit {
 
     private buildUiInstances(
         instances: GetAppInstances.AppInstance[],
-        appAssistant: GetAppAssistant.AppAssistant
+        appAssistant: GetAppAssistant.AppAssistant,
     ): void {
         for (const instance of instances) {
-
             const form = new FormGroup({});
 
             const model = {
@@ -339,18 +447,21 @@ export class UpdateAppComponent implements OnInit {
                 ...(appAssistant.steps ?? []),
             ];
 
-            this.instances.push({
-                instanceId: instance.instanceId,
-                form,
-                isDeleting: false,
-                isUpdating: false,
-                fields: GetAppAssistant.getInitialFields(
-                    GetAppAssistant.postprocess(structuredClone(appAssistant)).fields,
-                    structuredClone(model),
-                    instance.instanceId
-                ),
-                properties: model,
-                steps,
+            this.instances.update((el) => {
+                el.push({
+                    instanceId: instance.instanceId,
+                    form,
+                    isDeleting: false,
+                    isUpdating: false,
+                    fields: GetAppAssistant.getInitialFields(
+                        GetAppAssistant.postprocess(structuredClone(appAssistant)).fields,
+                        structuredClone(model),
+                        instance.instanceId,
+                    ),
+                    properties: model,
+                    steps,
+                });
+                return el;
             });
         }
         this.service.stopSpinner(this.spinnerId);

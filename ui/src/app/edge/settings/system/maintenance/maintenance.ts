@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit } from "@angular/core";
+import { Component, CUSTOM_ELEMENTS_SCHEMA, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
@@ -24,38 +24,57 @@ enum SystemRestartState {
 @Component({
     selector: MaintenanceComponent.SELECTOR,
     templateUrl: "./maintenance.html",
-    styles: [`
-    :host {
-        :is(ion-card) {
-            cursor: auto !important;;
-        }
-    }
-    `],
-    standalone: true,
-    imports: [
-        CommonUiModule,
-        NgxSpinnerComponent,
-        ComponentsBaseModule,
+    styles: [
+        `
+            :host {
+                :is(ion-card) {
+                    cursor: auto !important;
+                }
+            }
+        `,
     ],
+    standalone: true,
+    imports: [CommonUiModule, NgxSpinnerComponent, ComponentsBaseModule],
+    changeDetection: ChangeDetectionStrategy.Eager,
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class MaintenanceComponent implements OnInit, OnDestroy {
-
     private static readonly SELECTOR: string = "oe-maintenance";
     private static readonly TIMEOUT: number = 3000;
 
     protected readonly environment = environment;
 
     protected edge: Edge | null = null;
-    protected options: { key: string, message: string, color: "success" | "warning" | null, info: string, roleIsAtLeast: Role, button: { disabled: boolean, label: string, callback: () => void } }[] = [
+    protected options: {
+        key: string;
+        message: string;
+        color: "success" | "warning" | null;
+        info: string;
+        roleIsAtLeast: Role;
+        button: { disabled: boolean; label: string; callback: () => void };
+    }[] = [
         {
-            key: Type.HARD, message: null, color: null, info: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }), roleIsAtLeast: Role.OWNER, button: {
-                callback: () => this.confirmationAlert(Type.HARD), disabled: false, label: this.translate.instant("SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING", { edgeShortName: environment.edgeShortName }),
+            key: Type.HARD,
+            message: null,
+            color: null,
+            info: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", {
+                system: environment.edgeShortName,
+            }),
+            roleIsAtLeast: Role.OWNER,
+            button: {
+                callback: () => this.confirmationAlert(Type.HARD),
+                disabled: false,
+                label: this.translate.instant("SETTINGS.SYSTEM_UPDATE.EMS_RESTARTING", {
+                    edgeShortName: environment.edgeShortName,
+                }),
             },
         },
     ];
 
-    protected systemRestartState: BehaviorSubject<{ key: Type, state: SystemRestartState }> = new BehaviorSubject({ key: null, state: SystemRestartState.INITIAL });
+    protected systemRestartState: BehaviorSubject<{ key: Type; state: SystemRestartState }> = new BehaviorSubject({
+        key: null,
+        state: SystemRestartState.INITIAL,
+    });
     protected spinnerId: string = MaintenanceComponent.SELECTOR;
     protected readonly SystemRestartState = SystemRestartState;
     private subscriptions: Subscription = new Subscription();
@@ -65,25 +84,25 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
         protected service: Service,
         private translate: TranslateService,
         private alertCtrl: AlertController,
-    ) { }
+    ) {}
 
-    /**
- * Present confirmation alert
- */
+    /** Present confirmation alert */
     async presentAlert(type: Type) {
         const translate = this.translate;
         const system = type === Type.HARD ? environment.edgeShortName : "OpenEMS";
         const alert = this.alertCtrl.create({
             subHeader: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: system }),
             message: translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: system }),
-            buttons: [{
-                text: translate.instant("GENERAL.CANCEL"),
-                role: "cancel",
-            },
-            {
-                text: translate.instant("GENERAL.RESTART"),
-                handler: () => this.execRestart(type),
-            }],
+            buttons: [
+                {
+                    text: translate.instant("GENERAL.CANCEL"),
+                    role: "cancel",
+                },
+                {
+                    text: translate.instant("GENERAL.RESTART"),
+                    handler: () => this.execRestart(type),
+                },
+            ],
             cssClass: "alertController",
         });
         (await alert).present();
@@ -95,35 +114,40 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
             this.service.getConfig().then(() => {
                 this.edge = edge;
 
-                this.options = this.options.map(option => {
+                this.options = this.options.map((option) => {
                     option.button.disabled = !this.edge.roleIsAtLeast(option.roleIsAtLeast);
                     return option;
                 });
             });
         });
 
-        this.subscriptions.add(
-            this.systemRestartState.subscribe(state => this.updateOptions(state.key))
-        );
+        this.subscriptions.add(this.systemRestartState.subscribe((state) => this.updateOptions(state.key)));
     }
 
     public ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
 
-    protected confirmationAlert: (type: Type) => void = (type: Type) => presentAlert(this.alertCtrl, this.translate, {
-        message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }),
-        subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", { system: environment.edgeShortName }),
-        buttons: [{
-            text: this.translate.instant("GENERAL.RESTART"),
-            handler: () => this.execRestart(type),
-        }],
-    });
+    protected confirmationAlert: (type: Type) => void = (type: Type) =>
+        presentAlert(this.alertCtrl, this.translate, {
+            message: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", {
+                system: environment.edgeShortName,
+            }),
+            subHeader: this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_CONFIRMATION", {
+                system: environment.edgeShortName,
+            }),
+            buttons: [
+                {
+                    text: this.translate.instant("GENERAL.RESTART"),
+                    handler: () => this.execRestart(type),
+                },
+            ],
+        });
 
     /**
      * Updates the options
      *
-     * @param type the restart type
+     * @param type The restart type
      */
     private updateOptions(type: Type): void {
         let message: string | null = null;
@@ -154,21 +178,24 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
                 break;
             default:
                 break;
-
         }
 
         if (!message) {
             return;
         }
 
-        this.options = this.options.map(option => {
+        this.options = this.options.map((option) => {
             if (option.key === type) {
                 option.message = message;
             }
             // Hide and show buttons
             option.button.disabled = disableButtons ? disableButtons : !this.edge.roleIsAtLeast(option.roleIsAtLeast);
             option.color = color;
-            option.info = showInfo ? this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", { system: environment.edgeShortName }) : null;
+            option.info = showInfo
+                ? this.translate.instant("SETTINGS.SYSTEM_UPDATE.RESTART_WARNING", {
+                      system: environment.edgeShortName,
+                  })
+                : null;
             return option;
         });
     }
@@ -176,11 +203,13 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
     /**
      * Executes the system restart
      *
-     * @param type the restart type
+     * @param type The restart type
      */
     private execRestart(type: Type) {
-
-        const request = new ComponentJsonApiRequest({ componentId: "_host", payload: new ExecuteSystemRestartRequest({ type: type }) });
+        const request = new ComponentJsonApiRequest({
+            componentId: "_host",
+            payload: new ExecuteSystemRestartRequest({ type: type }),
+        });
 
         // Workaround, there could be no response
         this.edge.sendRequest(this.websocket, request).catch(() => {
@@ -200,19 +229,19 @@ export class MaintenanceComponent implements OnInit, OnDestroy {
     /**
      * Checks the system state and waits for a getEdgeConfig notification
      *
-     * @param type the restart type
+     * @param type The restart type
      */
     private checkSystemState(type: Type): void {
-
         const subscription: Subscription = new Subscription();
         subscription.add(
-
             // wait for next edgeConfig
-            this.edge.getConfig(this.websocket).pipe(skip(1)).subscribe(() => {
-                subscription.unsubscribe();
-                this.systemRestartState.next({ key: type, state: SystemRestartState.RESTARTED });
-            }),
+            this.edge
+                .getConfig(this.websocket)
+                .pipe(skip(1))
+                .subscribe(() => {
+                    subscription.unsubscribe();
+                    this.systemRestartState.next({ key: type, state: SystemRestartState.RESTARTED });
+                }),
         );
     }
-
 }

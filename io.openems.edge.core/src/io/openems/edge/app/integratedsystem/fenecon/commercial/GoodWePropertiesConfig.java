@@ -17,6 +17,7 @@ import io.openems.edge.app.enums.SafetyParameterTranslatableEnum;
 import io.openems.edge.app.enums.TranslatableFixPfSetting;
 import io.openems.edge.app.enums.TranslatableReactivePowerMode;
 import io.openems.edge.core.appmanager.AppDef;
+import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -75,6 +76,7 @@ public class GoodWePropertiesConfig {
 			OptionsFactory optionsFactory, //
 			BooleanExpression showCondition, //
 			BooleanExpression validation, //
+			Predicate<ConfigurationTarget> includeInComponentConfig, //
 			Category category //
 	) {
 		/**
@@ -256,6 +258,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_POWER_GRADIENT", //
@@ -272,6 +275,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		/*
@@ -290,7 +294,9 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
-				null, Category.APM));
+				null, //
+				t -> false, //
+				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_START_POINT", //
 				"settingApmPfOverFrequencyStartPoint", //
@@ -307,6 +313,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_SLOPE", //
@@ -324,6 +331,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_DELAY_TIME", //
@@ -341,6 +349,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP", //
@@ -358,6 +367,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_HYSTERESIS_POINT", //
@@ -377,6 +387,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_DELAY_WAITING_TIME", //
@@ -396,6 +407,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_OVER_FREQUENCY_HYSTERESIS_SLOPE", //
@@ -415,6 +427,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_OVER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		/*
@@ -434,6 +447,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_THRESHOLD", //
@@ -451,6 +465,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_SLOPE", //
@@ -468,6 +483,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_DELAY_TIME", //
@@ -485,6 +501,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP", //
@@ -502,6 +519,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_HYSTERESIS_POINT", //
@@ -521,6 +539,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_DELAY_WAITING_TIME", //
@@ -540,6 +559,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PF_UNDER_FREQUENCY_HYSTERESIS_SLOPE", //
@@ -559,6 +579,7 @@ public class GoodWePropertiesConfig {
 						.and(Exp.currentModelValue(Nameable.of("APM_PF_UNDER_FREQUENCY_DEACTIVATION_THRESHOLD_FSTOP"))
 								.notNull()), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		/*
@@ -577,7 +598,9 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
-				null, Category.APM));
+				null, //
+				t -> false, //
+				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V1_VOLTAGE", //
 				"settingApmPuV1Voltage", //
@@ -594,6 +617,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V1_ACTIVE_POWER", //
@@ -611,6 +635,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V2_VOLTAGE", //
@@ -628,6 +653,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V2_ACTIVE_POWER", //
@@ -645,6 +671,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V3_VOLTAGE", //
@@ -662,6 +689,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V3_ACTIVE_POWER", //
@@ -679,6 +707,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V4_VOLTAGE", //
@@ -696,6 +725,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_V4_ACTIVE_POWER", //
@@ -713,6 +743,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_OUTPUT_RESPONSE_MODE", //
@@ -730,6 +761,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("PU_CURVE_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_PT1_LOW_PASS_FILTER_TIME_CONSTANT", //
@@ -750,6 +782,7 @@ public class GoodWePropertiesConfig {
 								.equal(Exp.staticValue(
 										SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.PT_1_BEHAVIOUR))), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		PROPERTIES.add(new PropertyAttributes("APM_PU_PT1_LOW_PASS_FILTER_CONSTANT_GRADIENT_MODE", //
@@ -770,6 +803,7 @@ public class GoodWePropertiesConfig {
 								.equal(Exp.staticValue(
 										SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.GRADIENT_CONTROL))), //
 				null, //
+				t -> false, //
 				Category.APM));
 
 		// ========================================
@@ -789,6 +823,7 @@ public class GoodWePropertiesConfig {
 				TranslatableReactivePowerMode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM));
 
 		// ========================================
@@ -808,6 +843,7 @@ public class GoodWePropertiesConfig {
 				TranslatableFixPfSetting.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_P));
 
 		// ========================================
@@ -827,6 +863,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU));
 
 		// ========================================
@@ -846,6 +883,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Rpm.Mode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_VOLTAGE_DEAD_BAND", //
@@ -863,6 +901,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_OVEREXCITED_SLOPE", //
@@ -880,6 +919,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_UNDEREXCITED_SLOPE", //
@@ -897,6 +937,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V1_VOLTAGE", //
@@ -914,6 +955,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V1_REACTIVE_POWER", //
@@ -930,6 +972,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V2_VOLTAGE", //
@@ -947,6 +990,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V2_REACTIVE_POWER", //
@@ -963,6 +1007,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V3_VOLTAGE", //
@@ -980,6 +1025,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V3_REACTIVE_POWER", //
@@ -996,6 +1042,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V4_VOLTAGE", //
@@ -1013,6 +1060,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_V4_REACTIVE_POWER", //
@@ -1029,6 +1077,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_TIME_CONSTANT", //
@@ -1045,6 +1094,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_EXTENDED_FUNCTIONS", //
@@ -1061,6 +1111,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_LOCK_IN_POWER", //
@@ -1078,6 +1129,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_EXTENDED_FUNCTIONS")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QU_LOCK_OUT_POWER", //
@@ -1095,6 +1147,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QU_EXTENDED_FUNCTIONS")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.RPM_QU_CURVE));
 
 		// ========================================
@@ -1114,6 +1167,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Rpm.Mode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHI_OVEREXCITED_SLOPE", //
@@ -1131,6 +1185,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHI_UNDEREXCITED_SLOPE", //
@@ -1148,6 +1203,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_P_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_POWER_A", //
@@ -1165,6 +1221,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_COS_PHI_A", //
@@ -1181,6 +1238,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				seperateRangesValidator(Nameable.of("RPM_COS_PHIP_COS_PHI_A")), //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_POWER_B", //
@@ -1197,6 +1255,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_COS_PHI_B", //
@@ -1213,6 +1272,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				seperateRangesValidator(Nameable.of("RPM_COS_PHIP_COS_PHI_B")), //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_POWER_C", //
@@ -1229,6 +1289,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_COS_PHI_C", //
@@ -1245,6 +1306,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				seperateRangesValidator(Nameable.of("RPM_COS_PHIP_COS_PHI_C")), //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_POWER_D", //
@@ -1262,6 +1324,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)),
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_COS_PHI_D", //
@@ -1278,6 +1341,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				seperateRangesValidator(Nameable.of("RPM_COS_PHIP_COS_PHI_D")), //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_POWER_E", //
@@ -1295,6 +1359,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_COS_PHI_E", //
@@ -1312,6 +1377,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHI_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				seperateRangesValidator(Nameable.of("RPM_COS_PHIP_COS_PHI_E")), //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_TIME_CONSTANT", //
@@ -1320,7 +1386,7 @@ public class GoodWePropertiesConfig {
 				"GoodWe.PowerSetting.range", //
 				null, //
 				Type.INPUT, //
-				new JsonPrimitive(3300), //
+				new JsonPrimitive(3000), //
 				Unit.MILLISECONDS, //
 				0, //
 				6000000, //
@@ -1328,6 +1394,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				ConfigurationTarget::isAddOrUpdate, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_EXTENDED_FUNCTIONS", //
@@ -1344,6 +1411,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_LOCK_IN_VOLT", //
@@ -1361,6 +1429,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHIP_EXTENDED_FUNCTIONS")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_COS_PHIP_LOCK_OUT_VOLT", //
@@ -1378,6 +1447,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_COS_PHIP_EXTENDED_FUNCTIONS")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.RPM_COS_PHI));
 
 		// ========================================
@@ -1397,6 +1467,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Rpm.Mode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_OVEREXCITED_SLOPE", //
@@ -1414,6 +1485,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_UNDEREXCITED_SLOPE", //
@@ -1431,6 +1503,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.SLOPE)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P1", //
 				"settingRpmQpPowerP1", //
@@ -1447,6 +1520,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P1", //
@@ -1463,6 +1537,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P2", //
@@ -1479,6 +1554,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P2", //
@@ -1495,6 +1571,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P3", //
@@ -1511,6 +1588,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P3", //
@@ -1527,6 +1605,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P4", //
@@ -1544,6 +1623,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P4", //
@@ -1560,6 +1640,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P5", //
@@ -1577,6 +1658,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P5", //
@@ -1594,6 +1676,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_POWER_P6", //
@@ -1611,6 +1694,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_REACTIVE_POWER_P6", //
@@ -1628,6 +1712,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		PROPERTIES.add(new PropertyAttributes("RPM_QP_TIME_CONSTANT", //
@@ -1645,6 +1730,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("RPM_QP_CURVE_MODE"))
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Rpm.Mode.BASIC)), //
 				null, //
+				t -> false, //
 				Category.RPM_QP));
 
 		// ========================================
@@ -1668,6 +1754,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION));
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE1_TRIP_TIME", //
@@ -1684,6 +1771,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION));
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE1_TRIP_VALUE", //
@@ -1700,6 +1788,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION));
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE1_TRIP_TIME", //
@@ -1716,6 +1805,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION));
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE2_TRIGGER_VALUE", //
@@ -1732,6 +1822,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION));
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE2_TRIP_TIME", //
@@ -1748,6 +1839,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE2_TRIP_VALUE", //
@@ -1764,6 +1856,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE2_TRIP_TIME", //
@@ -1780,6 +1873,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE3_TRIGGER_VALUE", //
@@ -1796,6 +1890,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE3_TRIP_TIME", //
@@ -1812,6 +1907,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE3_TRIP_VALUE", //
@@ -1828,6 +1924,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE3_TRIP_TIME", //
@@ -1844,6 +1941,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE4_TRIGGER_VALUE", //
@@ -1860,6 +1958,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_OV_STAGE4_TRIP_TIME", //
@@ -1876,6 +1975,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE4_TRIP_VALUE", //
@@ -1892,6 +1992,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_UV_STAGE4_TRIP_TIME", //
@@ -1908,6 +2009,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_10MIN_OV_TRIP_THRESHOLD", //
@@ -1924,6 +2026,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("VPP_10MIN_OV_TRIP_TIME", //
@@ -1940,6 +2043,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		/*
@@ -1959,6 +2063,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE1_TRIP_TIME", //
@@ -1975,6 +2080,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE1_TRIP_VALUE", //
@@ -1991,6 +2097,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE1_TRIP_TIME", //
@@ -2007,6 +2114,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE2_TRIGGER_VALUE", //
@@ -2023,6 +2131,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE2_TRIP_TIME", //
@@ -2039,6 +2148,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE2_TRIP_VALUE", //
@@ -2055,6 +2165,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE2_TRIP_TIME", //
@@ -2071,6 +2182,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE3_TRIGGER_VALUE", //
@@ -2087,6 +2199,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE3_TRIP_TIME", //
@@ -2103,6 +2216,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE3_TRIP_VALUE", //
@@ -2119,6 +2233,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE3_TRIP_TIME", //
@@ -2135,6 +2250,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE4_TRIGGER_VALUE", //
@@ -2151,6 +2267,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_OF_STAGE4_TRIP_TIME", //
@@ -2167,6 +2284,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE4_TRIP_VALUE", //
@@ -2183,6 +2301,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("FPP_UF_STAGE4_TRIP_TIME", //
@@ -2199,6 +2318,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.PROTECTION)); //
 
 		// ========================================
@@ -2222,6 +2342,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RAMP_UP_LOWER_VOLTAGE", //
@@ -2238,6 +2359,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RAMP_UP_UPPER_FREQUENCY", //
@@ -2246,7 +2368,7 @@ public class GoodWePropertiesConfig {
 				"GoodWe.PowerSetting.range", //
 				null, //
 				Type.INPUT, //
-				new JsonPrimitive(50200), //
+				new JsonPrimitive(51000), //
 				Unit.MILLIHERTZ, //
 				30000, //
 				80000, //
@@ -2254,6 +2376,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RAMP_UP_LOWER_FREQUENCY", //
@@ -2270,6 +2393,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RAMP_UP_OBSERVATION_TIME", //
@@ -2286,6 +2410,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_SOFT_RAMP_UP_GRADIENT_ENABLE", //
@@ -2294,7 +2419,7 @@ public class GoodWePropertiesConfig {
 				"GoodWe.PowerSettings.cp.soft.ramp.up.gradient.enable.description", //
 				null, //
 				Type.CHECKBOX, //
-				new JsonPrimitive(false), //
+				new JsonPrimitive(true), //
 				null, //
 				null, //
 				null, //
@@ -2302,6 +2427,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_SOFT_RAMP_UP_GRADIENT", //
@@ -2319,6 +2445,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("CP_SOFT_RAMP_UP_GRADIENT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		/*
@@ -2338,6 +2465,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_LOWER_VOLTAGE", //
@@ -2354,6 +2482,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_UPPER_FREQUENCY", //
@@ -2370,6 +2499,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_LOWER_FREQUENCY", //
@@ -2386,6 +2516,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_OBSERVATION_TIME", //
@@ -2402,6 +2533,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_GRADIENT_ENABLE", //
@@ -2410,7 +2542,7 @@ public class GoodWePropertiesConfig {
 				"GoodWe.PowerSettings.cp.reconnection.gradient.enable.description", //
 				null, //
 				Type.CHECKBOX, //
-				new JsonPrimitive(false), //
+				new JsonPrimitive(true), //
 				null, //
 				null, //
 				null, //
@@ -2418,6 +2550,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.CONNECTION)); //
 
 		PROPERTIES.add(new PropertyAttributes("CP_RECONNECTION_GRADIENT", //
@@ -2426,7 +2559,7 @@ public class GoodWePropertiesConfig {
 				"GoodWe.PowerSetting.range", //
 				null, //
 				Type.INPUT, //
-				new JsonPrimitive(600), //
+				new JsonPrimitive(200), //
 				Unit.SECONDS, //
 				0, //
 				1200, //
@@ -2435,6 +2568,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("CP_RECONNECTION_GRADIENT_ENABLE")) //
 						.notNull(), //
 				null, //
+				ConfigurationTarget::isAddOrUpdate, //
 				Category.CONNECTION)); //
 
 		// ========================================
@@ -2458,6 +2592,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV1_VOLTAGE", //
@@ -2475,6 +2610,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV1_TIME", //
@@ -2492,6 +2628,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV2_VOLTAGE", //
@@ -2509,6 +2646,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV2_TIME", //
@@ -2526,6 +2664,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV3_VOLTAGE", //
@@ -2543,6 +2682,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV3_TIME", //
@@ -2560,6 +2700,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV4_VOLTAGE", //
@@ -2577,6 +2718,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV4_TIME", //
@@ -2594,6 +2736,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV5_VOLTAGE", //
@@ -2611,6 +2754,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV5_TIME", //
@@ -2628,6 +2772,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV6_VOLTAGE", //
@@ -2645,6 +2790,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV6_TIME", //
@@ -2662,6 +2808,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV7_VOLTAGE", //
@@ -2679,6 +2826,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_UV7_TIME", //
@@ -2696,6 +2844,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_ENTER_LVRT_THRESHOLD", //
@@ -2713,6 +2862,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_EXIT_LVRT_ENDPOINT", //
@@ -2730,6 +2880,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_K1_SLOPE", //
@@ -2747,6 +2898,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_LVRT_ZERO_CURRENT_MODE_ENABLE", //
@@ -2764,6 +2916,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_LVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_LVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD", //
@@ -2783,6 +2936,7 @@ public class GoodWePropertiesConfig {
 								Exp.currentModelValue(Nameable.of("VRT_LVRT_ZERO_CURRENT_MODE_ENABLE")) //
 										.notNull()), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		/*
@@ -2802,6 +2956,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV1_VOLTAGE", //
@@ -2819,6 +2974,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV1_TIME", //
@@ -2836,6 +2992,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV2_VOLTAGE", //
@@ -2853,6 +3010,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV2_TIME", //
@@ -2870,6 +3028,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV3_VOLTAGE", //
@@ -2887,6 +3046,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV3_TIME", //
@@ -2904,6 +3064,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV4_VOLTAGE", //
@@ -2921,6 +3082,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV4_TIME", //
@@ -2938,6 +3100,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV5_VOLTAGE", //
@@ -2955,6 +3118,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV5_TIME", //
@@ -2972,6 +3136,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV6_VOLTAGE", //
@@ -2989,6 +3154,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV6_TIME", //
@@ -3006,6 +3172,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV7_VOLTAGE", //
@@ -3023,6 +3190,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_OV7_TIME", //
@@ -3040,6 +3208,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_ENTER_HIGH_CROSSING_THRESHOLD", //
@@ -3057,6 +3226,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("HVRT_EXIT_HIGH_CROSSING_THRESHOLD", //
@@ -3074,6 +3244,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("HVRT_K2_SLOPE", //
@@ -3091,6 +3262,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_HVRT_ZERO_CURRENT_MODE_ENABLE", //
@@ -3108,6 +3280,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_HVRT_ENABLE")) //
 						.notNull(), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_HVRT_ZERO_CURRENT_MODE_ENTRY_THRESHOLD", //
@@ -3127,6 +3300,7 @@ public class GoodWePropertiesConfig {
 								Exp.currentModelValue(Nameable.of("VRT_HVRT_ZERO_CURRENT_MODE_ENABLE")) //
 										.notNull()), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_CURRENT_DISTRIBUTION_MODE", //
@@ -3144,6 +3318,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Vrt.CurrentDistributionMode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.VRT));
 
 		PROPERTIES.add(new PropertyAttributes("VRT_ACTIVE_POWER_RECOVERY_MODE", //
@@ -3160,6 +3335,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.VRT));
 
 		PROPERTIES.add(new PropertyAttributes("VRT_ACTIVE_POWER_RECOVERY_SPEED", //
@@ -3178,6 +3354,7 @@ public class GoodWePropertiesConfig {
 						.equal(Exp
 								.staticValue(SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.GRADIENT_CONTROL)), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_ACTIVE_POWER_RECOVERY_SLOPE", //
@@ -3195,6 +3372,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_ACTIVE_POWER_RECOVERY_MODE")) //
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.PT_1_BEHAVIOUR)), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_REACTIVE_POWER_RECOVERY_MODE_END", //
@@ -3211,6 +3389,7 @@ public class GoodWePropertiesConfig {
 				SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.optionsFactory(), //
 				null, //
 				null, //
+				t -> false, //
 				Category.VRT));
 
 		PROPERTIES.add(new PropertyAttributes("VRT_REACTIVE_POWER_RECOVERY_SPEED", //
@@ -3229,6 +3408,7 @@ public class GoodWePropertiesConfig {
 						.equal(Exp
 								.staticValue(SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.GRADIENT_CONTROL)), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("VRT_REACTIVE_POWER_RECOVERY_SLOPE", //
@@ -3246,6 +3426,7 @@ public class GoodWePropertiesConfig {
 				Exp.currentModelValue(Nameable.of("VRT_REACTIVE_POWER_RECOVERY_MODE_END")) //
 						.equal(Exp.staticValue(SafetyParameterTranslatableEnum.Vrt.GeneralRecoveryMode.PT_1_BEHAVIOUR)), //
 				null, //
+				t -> false, //
 				Category.VRT)); //
 
 		// ========================================
@@ -3265,6 +3446,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				null, //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF1_FREQUENCY", //
@@ -3281,6 +3463,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF1_TIME", //
@@ -3297,6 +3480,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF2_FREQUENCY", //
@@ -3313,6 +3497,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF2_TIME", //
@@ -3329,6 +3514,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF3_FREQUENCY", //
@@ -3345,6 +3531,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_UF3_TIME", //
@@ -3361,6 +3548,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF1_FREQUENCY", //
@@ -3377,6 +3565,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF1_TIME", //
@@ -3393,6 +3582,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF2_FREQUENCY", //
@@ -3409,6 +3599,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF2_TIME", //
@@ -3425,6 +3616,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF3_FREQUENCY", //
@@ -3441,6 +3633,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		PROPERTIES.add(new PropertyAttributes("FRT_OF3_TIME", //
@@ -3457,6 +3650,7 @@ public class GoodWePropertiesConfig {
 				null, //
 				Exp.currentModelValue(Nameable.of("FRT_ENABLE")).notNull(), //
 				null, //
+				t -> false, //
 				Category.FRT)); //
 
 		// ========================================

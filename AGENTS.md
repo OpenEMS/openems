@@ -42,8 +42,6 @@ Use dedicated skills for detailed test-writing patterns:
 - `.github/skills/oe-junit/SKILL.md` for Java Edge/Backend tests.
 - `.github/skills/oe-ui-test/SKILL.md` for Angular/Ionic UI tests.
 
-Java tests must match the framework and style of nearby tests. Many existing tests still use JUnit 4; use Jupiter for new test classes only when it fits. Do not mix JUnit 4 and Jupiter in the same file.
-
 Preserve intentional trailing `//` markers in fluent `ComponentTest` chains.
 
 ## Validation

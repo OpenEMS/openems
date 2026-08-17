@@ -1,6 +1,7 @@
 package io.openems.common.timedata;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Set;
@@ -15,7 +16,11 @@ import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 
-public class XlsxExportUtil {
+public final class XlsxExportUtil {
+
+	private XlsxExportUtil() {
+		// utlity class
+	}
 
 	/**
 	 * Gathers the detail data for excel export.
@@ -81,7 +86,7 @@ public class XlsxExportUtil {
 						continue;
 					}
 
-					final var activePowerType = getActivePowerType(component.getFactoryId());
+					final var activePowerType = getActivePowerType(factory.getNatureIds());
 					if (activePowerType == null) {
 						continue;
 					}
@@ -103,12 +108,25 @@ public class XlsxExportUtil {
 		return new XlsxExportDetailData(enumMap, XlsxExportUtil.getCurrency(edgeConfig));
 	}
 
-	private static XlsxExportCategory getActivePowerType(String factoryId) {
-		if (Natures.PRODUCTION_NATURES.contains(factoryId)) {
-			return XlsxExportCategory.PRODUCTION;
-		} else if (Natures.CONSUMPTION_NATURES.contains(factoryId)) {
+	private static XlsxExportCategory getActivePowerType(String[] natureIds) {
+		if (natureIds == null || natureIds.length == 0) {
+			return null;
+		}
+
+		Set<String> natureSet = Set.of(natureIds);
+
+		if (!Collections.disjoint(natureSet, Natures.EXCLUDED_NATURES)) {
+			return null;
+		}
+
+		if (!Collections.disjoint(natureSet, Natures.CONSUMPTION_NATURES)) {
 			return XlsxExportCategory.CONSUMPTION;
 		}
+
+		if (!Collections.disjoint(natureSet, Natures.PRODUCTION_NATURES)) {
+			return XlsxExportCategory.PRODUCTION;
+		}
+
 		return null;
 	}
 
@@ -117,18 +135,23 @@ public class XlsxExportUtil {
 		public static final String TIME_OF_USE_TARIFF = "io.openems.edge.timeofusetariff.api.TimeOfUseTariff";
 		public static final String DC_CHARGER = "io.openems.edge.ess.dccharger.api.EssDcCharger";
 		public static final String DEPRECATED_EVCS = "io.openems.edge.evcs.api.DeprecatedEvcs";
-		public static final Set<String> PRODUCTION_NATURES = Set.of("Simulator.PvInverter", "Fenecon.Dess.PvMeter",
-				"Fenecon.Mini.PvMeter", "Kaco.BlueplanetHybrid10.PvInverter", "PvInverter.Cluster",
-				"PV-Inverter.Fronius", "PV-Inverter.KACO.blueplanet", "PV-Inverter.SMA.SunnyTripower",
-				"PV-Inverter.Kostal", "PV-Inverter.Solarlog", "Simulator.ProductionMeter.Acting",
-				"SolarEdge.PV-Inverter");
+		public static final Set<String> EXCLUDED_NATURES = Set.of(//
+				"io.openems.edge.evcs.api.MetaEvcs", //
+				"io.openems.edge.pvinverter.cluster.PvInverterCluster"//
+		);
+		public static final Set<String> CONSUMPTION_NATURES = Set.of(//
+				"io.openems.edge.goodwe.emergencypowermeter.GoodWeEmergencyPowerMeter", //
+				"io.openems.edge.evse.api.chargepoint.EvseChargePoint", //
+				"io.openems.edge.evcs.api.Evcs", //
+				"io.openems.edge.heat.api.Heat", //
+				"io.openems.edge.simulator.meter.nrc.acting.SimulatorNrcMeterActing" //
+		);
 
-		public static final Set<String> CONSUMPTION_NATURES = Set.of("GoodWe.EmergencyPowerMeter",
-				"Simulator.NRCMeter.Acting", "Evcs.AlpitronicHypercharger", "Evcs.Dezony", "Evcs.Goe.ChargerHome",
-				"Evcs.HardyBarth", "Evcs.Keba.KeContact", "Evcs.Ocpp.Abl", "Evcs.Ocpp.IesKeywattSingle",
-				"Evcs.Spelsberg.SMART", "Evcs.Webasto.Next", "Evcs.Webasto.Unite", "Evse.ChargePoint.Keba.Modbus",
-				"Evse.ChargePoint.Keba.UDP", "Evcs.Keba.P40", "Evse.ChargePoint.HardyBarth",
-				"Evse.ChargePoint.Mennekes");
+		public static final Set<String> PRODUCTION_NATURES = Set.of(//
+				"io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter", //
+				"io.openems.edge.fenecon.dess.pvmeter.FeneconDessPvMeter", //
+				"io.openems.edge.simulator.meter.production.acting.SimulatorProductionMeterActing" //
+		);
 	}
 
 }

@@ -2,7 +2,6 @@ import { ArrayUtils } from "../array/array.utils";
 import { StringUtils } from "./string.utils";
 
 describe("StringUtils", () => {
-
     describe("+getSubstringInBetween", () => {
         it("valid", () => {
             const msg = "(valid)";
@@ -17,11 +16,15 @@ describe("StringUtils", () => {
             expect(StringUtils.getSubstringInBetween("(", ")", msg)).toEqual(null);
         });
         it("invalid input string, start and end character", () => {
-            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.getSubstringInBetween(null, null, null)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("valid string, invalid start and end character", () => {
             const msg = "(valid)";
-            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(new Error(StringUtils.INVALID_STRING));;
+            expect(() => StringUtils.getSubstringInBetween(null, null, msg)).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
     });
 
@@ -33,7 +36,9 @@ describe("StringUtils", () => {
             expect(StringUtils.isNotInArr("test3", ["test", "test2"])).toBeTrue();
         });
         it("value is null", () => {
-            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(new Error(StringUtils.INVALID_STRING));
+            expect(() => StringUtils.isNotInArr(null, ["test", "test2"])).toThrow(
+                new Error(StringUtils.INVALID_STRING),
+            );
         });
         it("arr is empty", () => {
             expect(StringUtils.isNotInArr("test", [])).toBeTrue();

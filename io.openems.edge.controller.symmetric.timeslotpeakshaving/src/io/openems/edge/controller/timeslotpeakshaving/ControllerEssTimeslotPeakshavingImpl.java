@@ -301,8 +301,7 @@ public class ControllerEssTimeslotPeakshavingImpl extends AbstractOpenemsCompone
 	}
 
 	/**
-	 * This method returns true if the Current date is within configured StartDate
-	 * and endDate.
+	 * Returns true if the Current date is within configured StartDate and endDate.
 	 *
 	 * @param startDate the configured start date
 	 * @param endDate   the configured end date

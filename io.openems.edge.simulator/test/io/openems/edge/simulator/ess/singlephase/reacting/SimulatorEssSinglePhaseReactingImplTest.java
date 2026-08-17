@@ -3,10 +3,9 @@ package io.openems.edge.simulator.ess.singlephase.reacting;
 import static io.openems.edge.common.sum.GridMode.ON_GRID;
 import static io.openems.edge.common.type.Phase.SinglePhase.L1;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.ess.test.DummyPower;
 import io.openems.edge.ess.test.ManagedSymmetricEssTest;
@@ -14,18 +13,14 @@ import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDir
 
 public class SimulatorEssSinglePhaseReactingImplTest {
 
-	private static final String ESS_ID = "ess0";
-	private static final String DATASOURCE_ID = "datasource0";
-
 	@Test
-	public void test() throws OpenemsException, Exception {
+	void test() throws OpenemsException, Exception {
 		new ManagedSymmetricEssTest(new SimulatorEssSinglePhaseReactingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", SimulatorDatasourceCsvDirectImplTest.create("datasource0", "123")) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //
-						.setId(ESS_ID) //
-						.setDatasourceId(DATASOURCE_ID) //
+						.setId("ess0") //
+						.setDatasourceId("datasource0") //
 						.setCapacity(10_000) //
 						.setMaxApparentPower(10_000) //
 						.setInitialSoc(50) //
@@ -35,5 +30,4 @@ public class SimulatorEssSinglePhaseReactingImplTest {
 				.next(new TestCase()) //
 				.deactivate();
 	}
-
 }

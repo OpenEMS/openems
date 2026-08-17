@@ -1,20 +1,22 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { Converter } from "src/app/shared/components/shared/converter";
 import { ChannelAddress, CurrentData } from "src/app/shared/shared";
+import { SharedControllerEnerixControl } from "../shared/shared";
 
 @Component({
     selector: "oe-controller-enerix-control-modal",
     templateUrl: "./modal.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ModalComponent extends AbstractModal {
-
     private static PROPERTY_CONTROL_MODE: string = "_PropertyControlMode";
     private static PROPERTY_READ_ONLY: string = "_PropertyReadOnly";
 
-    protected readonly CONVERT_ENERIX_CONTROL_STATE = Converter.CONVERT_ENERIX_CONTROL_STATE(this.translate);
+    protected readonly CONVERT_ENERIX_CONTROL_STATE = SharedControllerEnerixControl.CONVERT_ENERIX_CONTROL_STATE(
+        this.translate,
+    );
     protected propertyMode: string | null = null;
     protected controlMode: ControlMode | null = null;
     protected state: State | null = null;
@@ -23,9 +25,10 @@ export class ModalComponent extends AbstractModal {
     protected unableToSend: boolean | null = null;
     protected isEssChargeFromGridAllowed: boolean | null = null;
 
-
     protected override getChannelAddresses(): ChannelAddress[] {
-        if (!this.component) { return []; }
+        if (!this.component) {
+            return [];
+        }
 
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress(this.component.id, ModalComponent.PROPERTY_CONTROL_MODE),
@@ -39,7 +42,9 @@ export class ModalComponent extends AbstractModal {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-        if (!this.component) { return []; }
+        if (!this.component) {
+            return [];
+        }
 
         this.propertyMode = currentData.allComponents[this.component.id + "/" + ModalComponent.PROPERTY_CONTROL_MODE];
         this.controlMode = currentData.allComponents[this.component.id + "/RemoteControlMode"];
@@ -56,8 +61,7 @@ export class ModalComponent extends AbstractModal {
             }
             switch (this.controlMode) {
                 case ControlMode.idle:
-                    this.state =
-                        this.component.properties.controlMode === "REMOTE_CONTROL" ? State.on : State.off;
+                    this.state = this.component.properties.controlMode === "REMOTE_CONTROL" ? State.on : State.off;
                     break;
                 case ControlMode.noDischarge:
                     this.state = State.noDischarge;
@@ -85,15 +89,24 @@ export class ModalComponent extends AbstractModal {
     }
 
     protected toggleIsEssChargeFromGridAllowed(event: CustomEvent) {
-        this.service.getCurrentEdge()
-            .then(edge =>
-                edge.updateComponentConfig(this.websocket, "_meta", [{
-                    name: "isEssChargeFromGridAllowed", value: event.detail["checked"],
-                }]).then(() => {
+        this.service.getCurrentEdge().then((edge) =>
+            edge
+                .updateComponentConfig(this.websocket, "_meta", [
+                    {
+                        name: "isEssChargeFromGridAllowed",
+                        value: event.detail["checked"],
+                    },
+                ])
+                .then(() => {
                     this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
-                }).catch((reason) => {
-                    this.service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
-                }));
+                })
+                .catch((reason) => {
+                    this.service.toast(
+                        this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                        "danger",
+                    );
+                }),
+        );
     }
 }
 

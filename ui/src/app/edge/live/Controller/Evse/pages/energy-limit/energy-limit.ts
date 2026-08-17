@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
@@ -6,23 +6,24 @@ import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
-import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext } from "src/app/shared/components/shared/oe-formly-component";
+import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 
 @Component({
+    selector: "oe-evse-energy-limit",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: false,
-    providers: [
-        { provide: DataService, useClass: LiveDataService },
-    ],
-    styles: [`
-        ::ng-deep formly-form{
-            height: 100% !important;
-        }`,
+    providers: [{ provide: DataService, useClass: LiveDataService }],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    styles: [
+        `
+            ::ng-deep formly-form {
+                height: 100% !important;
+            }
+        `,
     ],
 })
-
 export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
@@ -37,7 +38,11 @@ export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
         super();
     }
 
-    public static generateView(translate: TranslateService, component: EdgeConfig.Component | null, edge: Edge | null): OeFormlyView {
+    public static generateView(
+        translate: TranslateService,
+        component: EdgeConfig.Component | null,
+        edge: Edge | null,
+    ): OeFormlyView {
         AssertionUtils.assertIsDefined(component);
         AssertionUtils.assertIsDefined(edge);
 
@@ -58,7 +63,8 @@ export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
                     tickFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
                     pinFormatter: (val) => Converter.WATT_HOURS_IN_KILO_WATT_HOURS(val),
                 },
-            }];
+            },
+        ];
 
         return {
             title: Name.METER_ALIAS_OR_ID(component),
@@ -69,7 +75,12 @@ export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
     }
 
     protected override onCurrentData(currentData: CurrentData): void {
-        this.setFormControlSafelyWithChannel<number>(this.form, "manualEnergySessionLimit", currentData, this.energySessionLimitChannel);
+        this.setFormControlSafelyWithChannel<number>(
+            this.form,
+            "manualEnergySessionLimit",
+            currentData,
+            this.energySessionLimitChannel,
+        );
     }
 
     protected override generateView(viewContext: ViewContext): OeFormlyView {
@@ -87,7 +98,6 @@ export class EvseEnergyLimitComponent extends AbstractFormlyComponent {
     }
 
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
-
         const config = await this.service.getConfig();
         const component = config.getComponent(this.route.snapshot.params.componentId);
 

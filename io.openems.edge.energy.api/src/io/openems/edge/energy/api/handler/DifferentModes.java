@@ -3,8 +3,10 @@ package io.openems.edge.energy.api.handler;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.joining;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -15,8 +17,11 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 
+import io.openems.common.types.ChannelAddress;
+import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.energy.api.simulation.EnergyFlow;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
@@ -32,10 +37,11 @@ public class DifferentModes {
 	public static final class Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> extends
 			AbstractEnergyScheduleHandler.Builder<Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT>, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
 
-		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<MODE>> modesFunction;
+		private BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> modesFunction;
 		private InitialPopulationsProvider<MODE, OPTIMIZATION_CONTEXT> initialPopulationsProvider = InitialPopulationsProvider
 				.empty();
 		private Simulator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> simulator = Simulator.doNothing();
+		private Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator = Evaluator.doNothing();
 		private PreProcessor<MODE, OPTIMIZATION_CONTEXT> preProcessor = PreProcessor.doNothing();
 
 		/**
@@ -72,7 +78,7 @@ public class DifferentModes {
 		 * @param supplier a {@link Modes} supplier
 		 * @return myself
 		 */
-		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setModes(Supplier<Modes<MODE>> supplier) {
+		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setModes(Supplier<Modes<?, MODE>> supplier) {
 			this.modesFunction = (goc, context) -> supplier.get();
 			return this;
 		}
@@ -87,7 +93,7 @@ public class DifferentModes {
 		 * @return myself
 		 */
 		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setModes(
-				BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<MODE>> function) {
+				BiFunction<GlobalOptimizationContext, OPTIMIZATION_CONTEXT, Modes<?, MODE>> function) {
 			this.modesFunction = function;
 			return this;
 		}
@@ -131,6 +137,19 @@ public class DifferentModes {
 		}
 
 		/**
+		 * Sets a {@link Evaluator} that evaluates one simulated period, adjusting
+		 * fitness as needed.
+		 *
+		 * @param evaluator a {@link Evaluator}
+		 * @return myself
+		 */
+		public Builder<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> setEvaluator(
+				Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> evaluator) {
+			this.evaluator = Objects.requireNonNullElseGet(evaluator, Evaluator::doNothing);
+			return this;
+		}
+
+		/**
 		 * Builds an instance of {@link EshWithDifferentModes}.
 		 *
 		 * @return a {@link EshWithDifferentModes}
@@ -143,59 +162,109 @@ public class DifferentModes {
 					this.cscFunction, //
 					this.initialPopulationsProvider, //
 					this.preProcessor, //
-					this.simulator);
+					this.simulator, //
+					this.evaluator);
 		}
 	}
 
-	public static class Modes<MODE> {
-		public record Mode<MODE>(MODE mode, boolean addToOptimizer, Integer preferenceRank) {
-			@Override
-			public String toString() {
-				return this.mode.toString() //
-						+ "[" + (this.addToOptimizer ? "+" : "-") + "]" //
-						+ "(prio=" + this.preferenceRank + ")";
+	public abstract static sealed class Modes<WRAPPER extends Modes.Mode<MODE>, MODE>
+			permits Modes.SingleModes, Modes.JointModes {
+
+		public static record Channels(ChannelAddress mode, ChannelAddress managedConsumptionPower) {
+		}
+
+		/**
+		 * Wrapper for a typed Mode of {@link EnergyScheduleHandler.WithDifferentModes}.
+		 * 
+		 * @param <MODE> the type of the Mode
+		 */
+		public static sealed interface Mode<MODE> permits SingleModes.SingleMode, JointModes.JointMode {
+
+			/**
+			 * The typed MODE.
+			 * 
+			 * @return mode
+			 */
+			MODE mode();
+
+			/**
+			 * Should this Mode be made available to the Optimizer?.
+			 * 
+			 * @return true for available
+			 */
+			boolean addToOptimizer();
+
+			/**
+			 * A preference rank for the Optimizer.
+			 * 
+			 * @return preferenceRank
+			 */
+			Integer preferenceRank();
+		}
+
+		public static final class SingleModes<MODE extends OptionsEnum>
+				extends Modes<SingleModes.SingleMode<MODE>, MODE> {
+
+			public final Channels channels;
+
+			public SingleModes(Channels channels, MODE[] modes) {
+				this(channels, Arrays.stream(modes) //
+						.map(m -> new SingleModes.SingleMode<MODE>(m, true, null)) //
+						.collect(toImmutableList()));
+			}
+
+			public SingleModes(Channels channels, ImmutableList<SingleMode<MODE>> modes) {
+				super(modes);
+				this.channels = channels;
+			}
+
+			public record SingleMode<MODE>(MODE mode, boolean addToOptimizer, Integer preferenceRank)
+					implements Mode<MODE> {
 			}
 		}
 
-		/**
-		 * Create empty {@link Modes}.
-		 * 
-		 * @param <MODE> the type of the Mode
-		 * @return empty {@link Modes}
-		 */
-		public static <MODE> Modes<MODE> empty() {
-			return new Modes<MODE>(ImmutableList.of());
+		public static final class JointModes<SUBMODE extends OptionsEnum>
+				extends Modes<JointModes.JointMode<SUBMODE>, JointModes.JointMode<SUBMODE>> {
+
+			public record JointMode<SUBMODE>(ImmutableMap<String, SUBMODE> submodes, boolean addToOptimizer,
+					Integer preferenceRank) implements Modes.Mode<JointModes.JointMode<SUBMODE>> {
+
+				@Override
+				public JointModes.JointMode<SUBMODE> mode() {
+					return this;
+				}
+
+				/**
+				 * Gets the MODE of the given Component.
+				 * 
+				 * @param componentId the Component-ID
+				 * @return the mode or null
+				 */
+				public SUBMODE getMode(String componentId) {
+					return this.submodes.get(componentId);
+				}
+
+				@Override
+				public final String toString() {
+					return this.submodes.entrySet().stream() //
+							.map(e -> e.getKey() + ":" + e.getValue()) //
+							.collect(joining("+"));
+				}
+			}
+
+			public final ImmutableMap<String, Channels> channels;
+
+			public JointModes(ImmutableMap<String, Channels> channels,
+					ImmutableList<JointModes.JointMode<SUBMODE>> modes) {
+				super(modes);
+				this.channels = channels;
+			}
 		}
 
-		/**
-		 * Create {@link Modes} from an Array of MODEs, add all to Optimizer, with no
-		 * priorities.
-		 * 
-		 * @param <MODE> the type of the Mode
-		 * @param modes  the MODEs array
-		 * @return the {@link Modes}
-		 */
-		public static <MODE> Modes<MODE> of(MODE[] modes) {
-			return new Modes<MODE>(Arrays.stream(modes) //
-					.map(m -> new Mode<MODE>(m, true, null)) //
-					.collect(toImmutableList()));
-		}
+		private final ImmutableList<WRAPPER> allModes;
+		private final ImmutableList<WRAPPER> optimizerModes;
 
-		/**
-		 * Create {@link Modes} from an ImmutableList of {@link Mode}s.
-		 * 
-		 * @param <MODE> the type of the Mode
-		 * @param modes  the {@link Mode}s
-		 * @return the {@link Modes}
-		 */
-		public static <MODE> Modes<MODE> of(ImmutableList<Mode<MODE>> modes) {
-			return new Modes<MODE>(modes);
-		}
-
-		private final ImmutableList<Mode<MODE>> allModes;
-		private final ImmutableList<Mode<MODE>> optimizerModes;
-
-		private Modes(ImmutableList<Mode<MODE>> modes) {
+		protected Modes(ImmutableList<WRAPPER> modes) {
 			this.allModes = modes;
 			this.optimizerModes = this.allModes.stream() //
 					.filter(Mode::addToOptimizer) //
@@ -225,7 +294,7 @@ public class DifferentModes {
 		 * 
 		 * @return the {@link Stream}
 		 */
-		public Stream<Mode<MODE>> streamAll() {
+		public Stream<? extends Mode<MODE>> streamAll() {
 			return this.allModes.stream();
 		}
 
@@ -244,7 +313,8 @@ public class DifferentModes {
 		 * @return the {@link Stream}
 		 */
 		public Stream<MODE> streamForOptimizer() {
-			return this.optimizerModes.stream().map(Mode::mode);
+			return this.optimizerModes.stream() //
+					.map(Mode::mode);
 		}
 
 		/**
@@ -313,7 +383,7 @@ public class DifferentModes {
 		 */
 		public int getIndex(MODE mode) {
 			for (var i = 0; i < this.allModes.size(); i++) {
-				if (this.allModes.get(i).mode.equals(mode)) {
+				if (this.allModes.get(i).mode().equals(mode)) {
 					return i;
 				}
 			}
@@ -322,7 +392,7 @@ public class DifferentModes {
 
 		@Override
 		public final String toString() {
-			var t = toStringHelper("Modes");
+			var t = toStringHelper(this.getClass());
 			this.allModes.stream() //
 					.forEach(m -> t.addValue(m.toString()));
 			return t.toString();
@@ -444,7 +514,7 @@ public class DifferentModes {
 		 * @return a list of {@link InitialPopulation}s
 		 */
 		public ImmutableSortedSet<InitialPopulation<MODE>> get(GlobalOptimizationContext goc, OPTIMIZATION_CONTEXT coc,
-				Modes<MODE> modes);
+				Modes<?, MODE> modes);
 	}
 
 	public static interface PreProcessor<MODE, OPTIMIZATION_CONTEXT> {
@@ -503,6 +573,39 @@ public class DifferentModes {
 		public MODE simulate(String parentComponentId, GlobalOptimizationContext.Period period,
 				GlobalScheduleContext gsc, OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow.Model ef,
 				MODE mode, Fitness.Builder fitness, boolean isFinalRun);
+	}
+
+	public interface Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> {
+
+		/**
+		 * A 'do-nothing' {@link Evaluator}.
+		 *
+		 * @param <MODE>                 the type of the Mode
+		 * @param <OPTIMIZATION_CONTEXT> the type of the ControllerOptimizationContext
+		 * @param <SCHEDULE_CONTEXT>     the type of the ControllerScheduleContext
+		 * @return an {@link Evaluator} that performs no action
+		 */
+		static <MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> Evaluator<MODE, OPTIMIZATION_CONTEXT, SCHEDULE_CONTEXT> doNothing() {
+			return (parentComponentId, period, gsc, coc, csc, ef, mode, fitness, isFinalRun) -> {
+			};
+		}
+
+		/**
+		 * Evaluates one simulated period, adjusting fitness as needed.
+		 *
+		 * @param parentComponentId the parent component ID
+		 * @param period            the {@link GlobalOptimizationContext.Period}
+		 * @param gsc               the {@link GlobalScheduleContext}
+		 * @param coc               the ControllerOptimizationContext
+		 * @param csc               the ControllerScheduleContext
+		 * @param ef                the {@link EnergyFlow}
+		 * @param mode              the simulated mode
+		 * @param fitness           the {@link Fitness.Builder} to update
+		 * @param isFinalRun        true if this is the final simulation run
+		 */
+		void evaluate(String parentComponentId, GlobalOptimizationContext.Period period, GlobalScheduleContext gsc,
+				OPTIMIZATION_CONTEXT coc, SCHEDULE_CONTEXT csc, EnergyFlow ef, MODE mode, Fitness.Builder fitness,
+				boolean isFinalRun);
 	}
 
 	private DifferentModes() {

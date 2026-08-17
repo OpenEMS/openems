@@ -1,9 +1,9 @@
 package io.openems.edge.victron.batteryinverter.statemachine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for the Victron State Machine.
@@ -69,7 +69,7 @@ public class StateMachineTest {
 		// Test that all states return a non-null handler
 		for (var state : StateMachine.State.values()) {
 			var handler = stateMachine.getStateHandler(state);
-			assertNotNull("Handler for state " + state + " should not be null", handler);
+			assertNotNull(handler, "Handler for state " + state + " should not be null");
 		}
 	}
 

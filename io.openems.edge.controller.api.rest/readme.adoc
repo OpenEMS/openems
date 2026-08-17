@@ -421,6 +421,7 @@ Authorization: Basic base64(username:password)
 ----
 
 Usernames are typically:
+
 * `user` (default unprivileged)
 * `admin` (admin privileges)
 * `x` (if username is omitted)

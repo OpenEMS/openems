@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, effect, inject, OnDestroy, OnInit, signal } from "@angular/core";
 import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController, NavController } from "@ionic/angular";
@@ -7,7 +7,7 @@ import { FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NgxSpinnerComponent } from "ngx-spinner";
 import { Subject } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { NavigationBackButtonComponent } from "src/app/shared/components/navigation/back-button/back-button";
 import { JsonrpcRequest } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -23,7 +23,6 @@ import { AppCenter } from "./keypopup/appCenter";
 import { AppCenterInstallAppWithSuppliedKeyRequest } from "./keypopup/appCenterInstallAppWithSuppliedKey";
 import { AppCenterIsAppFree } from "./keypopup/appCenterIsAppFree";
 import { KeyModalComponent, KeyValidationBehaviour } from "./keypopup/modal.component";
-import { hasPredefinedKey } from "./permissions";
 import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.component";
 
 @Component({
@@ -38,14 +37,15 @@ import { ConfigurationOAuthComponent } from "./steps/oauth/configuration-oauth.c
         FormsModule,
         ReactiveFormsModule,
         ConfigurationOAuthComponent,
+        NavigationBackButtonComponent,
     ],
 })
 export class InstallAppComponent implements OnInit, OnDestroy {
-
     private static readonly SELECTOR = "app-install";
+
     public readonly spinnerId: string = InstallAppComponent.SELECTOR;
 
-    protected form: FormGroup | null = null;
+    protected form = signal<FormGroup | null>(null);
     protected fields: FormlyFieldConfig[] | null = null;
     protected model: any | null = null;
     protected appName: string | null = null;
@@ -57,10 +57,10 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     private useMasterKey: boolean = false;
     private appId: string | null = null;
     private edge: Edge | null = null;
-    private hasPredefinedKey: boolean = false;
     private isAppFree: boolean = false;
     private isAppFreeFromEdge: boolean = false;
     private routeService = inject(RouteService);
+    private isRunning: boolean = false;
 
     public constructor(
         private route: ActivatedRoute,
@@ -71,14 +71,23 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         private router: Router,
         private translate: TranslateService,
         private navController: NavController,
-    ) { }
+    ) {
+        const queryParamsSignal = this.routeService.getQueryParams();
+        effect(() => {
+            const _queryParams = queryParamsSignal();
+            if (this.isRunning) {
+                return;
+            }
+            this.init();
+        });
+    }
 
     /**
      * Displays a error toast with the string supplied from the messageBuilder.
      *
-     * @param service the service to open the toast with
-     * @param messageBuilder the message supplier
-     * @returns a method to handle a catch from a promise
+     * @param service The service to open the toast with
+     * @param messageBuilder The message supplier
+     * @returns A method to handle a catch from a promise
      */
     public static errorToast(service: Service, messageBuilder: (reason) => string): (reason: any) => void {
         return (reason) => {
@@ -88,7 +97,12 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         };
     }
 
-    public ngOnInit() {
+    ngOnInit() {
+        this.init();
+    }
+
+    public init() {
+        this.isRunning = true;
         this.service.startSpinner(this.spinnerId);
         const state = history?.state;
         if (state) {
@@ -99,65 +113,82 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 this.useMasterKey = state["useMasterKey"];
             }
         }
-        const appId = this.route.snapshot.params["appId"];
-        const appName = this.route.snapshot.queryParams["name"];
+        const appId = this.routeService.getQueryParam<string>("appId");
+        const appName = this.routeService.getQueryParam<string>("name");
         this.appId = appId;
-        this.service.setCurrentComponent(appName, this.route).then(edge => {
+        this.service.setCurrentComponent(appName, this.route).then((edge) => {
             this.edge = edge;
 
-            this.edge.sendRequest(this.websocket,
-                new AppCenter.Request({
-                    payload: new AppCenterIsAppFree.Request({
-                        appId: this.appId,
+            this.edge
+                .sendRequest(
+                    this.websocket,
+                    new AppCenter.Request({
+                        payload: new AppCenterIsAppFree.Request({
+                            appId: this.appId,
+                        }),
                     }),
-                }),
-            ).then(response => {
-                const result = (response as AppCenterIsAppFree.Response).result;
-                this.isAppFree = result.isAppFree;
-            }).catch(() => {
-                this.isAppFree = false;
-            });
-
-            this.edge.sendRequest(this.websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_appManager",
-                    payload: new GetApp.Request({ appId: appId }),
-                })).then(response => {
-                const result = (response as GetApp.Response).result;
-                this.appName = result.app.name;
-
-                this.isAppFreeFromEdge = Flags.getByType(result.app.flags, Flags.FREE_FROM_DEPENDENCY) !== undefined;
-            }).catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App [" + appId + "]: " + error));
-
-            this.service.metadata
-                .pipe(takeUntil(this.stopOnDestroy))
-                .subscribe(entry => {
-                    this.hasPredefinedKey = hasPredefinedKey(edge, entry.user);
+                )
+                .then((response) => {
+                    const result = (response as AppCenterIsAppFree.Response).result;
+                    this.isAppFree = result.isAppFree;
+                })
+                .catch(() => {
+                    this.isAppFree = false;
                 });
-            edge.sendRequest(this.websocket,
+
+            this.edge
+                .sendRequest(
+                    this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: "_appManager",
+                        payload: new GetApp.Request({ appId: appId }),
+                    }),
+                )
+                .then((response) => {
+                    const result = (response as GetApp.Response).result;
+
+                    this.isAppFreeFromEdge =
+                        Flags.getByType(result.app.flags, Flags.FREE_FROM_DEPENDENCY) !== undefined;
+                })
+                .catch(
+                    InstallAppComponent.errorToast(
+                        this.service,
+                        (error) => "Error while receiving App [" + appId + "]: " + error,
+                    ),
+                );
+            edge.sendRequest(
+                this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: "_appManager",
                     payload: new GetAppAssistant.Request({ appId: appId }),
-                })).then(response => {
-                const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
+                }),
+            )
+                .then((response) => {
+                    const appAssistant = GetAppAssistant.postprocess((response as GetAppAssistant.Response).result);
 
-                this.fields = GetAppAssistant.getInitialFields(appAssistant.fields, {});
-                this.appName = appAssistant.name;
-                this.model = {};
-                this.form = new FormGroup({});
+                    this.fields = GetAppAssistant.getInitialFields(appAssistant.fields, {});
+                    this.appName = appAssistant.name;
+                    this.model = {};
+                    this.form.set(new FormGroup({}));
 
-                // treat configuration as a installation step
-                this.steps = [
-                    {
-                        type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
-                        params: {},
-                    },
-                    ...(appAssistant.steps ?? []),
-                ];
-            })
-                .catch(InstallAppComponent.errorToast(this.service, error => "Error while receiving App Assistant for [" + appId + "]: " + error))
+                    // treat configuration as a installation step
+                    this.steps = [
+                        {
+                            type: GetAppAssistant.AppConfigurationStepType.CONFIGURATION,
+                            params: {},
+                        },
+                        ...(appAssistant.steps ?? []),
+                    ];
+                })
+                .catch(
+                    InstallAppComponent.errorToast(
+                        this.service,
+                        (error) => "Error while receiving App Assistant for [" + appId + "]: " + error,
+                    ),
+                )
                 .finally(() => {
                     this.service.stopSpinner(this.spinnerId);
+                    this.isRunning = false;
                 });
         });
     }
@@ -167,79 +198,98 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         this.stopOnDestroy.complete();
     }
 
-    /**
-   * Submit for installing a app.
-   */
+    /** Submit for installing a app. */
     protected submit() {
-        this.obtainKey().then(key => {
-            this.service.startSpinnerTransparentBackground(this.appId);
-            // remove alias field from properties
-            const alias = this.form.value["ALIAS"];
-            const clonedFields = {};
-            for (const item in this.form.value) {
-                if (item !== "ALIAS") {
-                    clonedFields[item] = this.form.value[item];
+        this.obtainKey()
+            .then((key) => {
+                this.service.startSpinnerTransparentBackground(this.appId);
+                // remove alias field from properties
+                const alias = this.form().value["ALIAS"];
+                const clonedFields = {};
+                for (const item in this.form().value) {
+                    if (item !== "ALIAS") {
+                        clonedFields[item] = this.form().value[item];
+                    }
                 }
-            }
 
-            let request: JsonrpcRequest = new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: new AddAppInstance.Request({
-                    appId: this.appId,
-                    alias: alias,
-                    properties: clonedFields,
-                    ...(key && { key: key }),
-                }),
-            });
-            // if key not set send request with supplied key
-            if (!key && !this.isAppFreeFromEdge) {
-                request = new AppCenter.Request({
-                    payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
-                        installRequest: request,
+                let request: JsonrpcRequest = new ComponentJsonApiRequest({
+                    componentId: "_appManager",
+                    payload: new AddAppInstance.Request({
+                        appId: this.appId,
+                        alias: alias,
+                        properties: clonedFields,
+                        ...(key && { key: key }),
                     }),
                 });
-            }
-
-            this.isInstalling = true;
-            this.edge.sendRequest(this.websocket, request).then(response => {
-                const result = (response as AddAppInstance.Response).result;
-
-                if (result.instance) {
-                    result.instanceId = result.instance.instanceId;
-                    this.model = result.instance.properties;
-                }
-                if (result.warnings && result.warnings.length > 0) {
-                    this.service.toast(result.warnings.join(";"), "warning");
-                } else {
-                    this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_INSTALL"), "success");
+                // if key not set send request with supplied key
+                if (!key && !this.isAppFreeFromEdge) {
+                    request = new AppCenter.Request({
+                        payload: new AppCenterInstallAppWithSuppliedKeyRequest.Request({
+                            installRequest: request,
+                        }),
+                    });
                 }
 
-                this.form.markAsPristine();
-                if (this.routeService.getQueryParam("callback")) {
-                    this.navController.back();
-                }
-                if (this.steps.length > 1) {
-                    this.router.navigate(["device/" + (this.edge.id) + "/settings/app/update/" + (this.appId)], { queryParams: { name: this.appName } });
-                } else {
-                    const navigationExtras = { state: { appInstanceChange: true } };
-                    this.router.navigate(["device/" + (this.edge.id) + "/settings/app/"], navigationExtras);
-                }
+                this.isInstalling = true;
+                this.edge
+                    .sendRequest(this.websocket, request)
+                    .then((response) => {
+                        const result = (response as AddAppInstance.Response).result;
+
+                        if (result.instance) {
+                            result.instanceId = result.instance.instanceId;
+                            this.model = result.instance.properties;
+                        }
+                        if (result.warnings && result.warnings.length > 0) {
+                            this.service.toast(result.warnings.join(";"), "warning");
+                        } else {
+                            this.service.toast(this.translate.instant("EDGE.CONFIG.APP.SUCCESS_INSTALL"), "success");
+                        }
+
+                        this.form().markAsPristine();
+                        if (this.routeService.getQueryParam("callback")) {
+                            this.navController.back();
+                            return;
+                        }
+
+                        if (this.steps.length > 1) {
+                            this.router.navigate(["update"], {
+                                queryParams: {
+                                    name: this.appName,
+                                    appId: this.appId,
+                                },
+                                relativeTo: this.route,
+                            });
+                        } else {
+                            const navigationExtras = {
+                                state: { appInstanceChange: true },
+                            };
+                            this.router.navigate(["../"], {
+                                ...navigationExtras,
+                                relativeTo: this.route,
+                            });
+                        }
+                    })
+                    .catch(
+                        InstallAppComponent.errorToast(this.service, (error) =>
+                            this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error }),
+                        ),
+                    )
+                    .finally(() => {
+                        this.isInstalling = false;
+                        this.service.stopSpinner(this.appId);
+                    });
             })
-                .catch(InstallAppComponent.errorToast(this.service, error => this.translate.instant("EDGE.CONFIG.APP.FAIL_INSTALL", { error: error })))
-                .finally(() => {
-                    this.isInstalling = false;
-                    this.service.stopSpinner(this.appId);
-                });
-        }).catch(() => {
-            // can not get key => dont install
-        });
+            .catch(() => {
+                // can not get key => dont install
+            });
     }
 
     /**
-   * Gets the key to install the current app with.
-   *
-   * @returns the key or null if the predefined key gets used
-   */
+     * Gets the key to install the current app with.
+     *
+     * @returns The key or null if the predefined key gets used
+     */
     private obtainKey(): Promise<string | null> {
         return new Promise<string | null>((resolve, reject) => {
             if (this.key) {
@@ -258,9 +308,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 resolve(null);
                 return;
             }
-            this.presentModal()
-                .then(resolve)
-                .catch(reject);
+            this.presentModal().then(resolve).catch(reject);
         });
     }
 
@@ -273,12 +321,13 @@ export class InstallAppComponent implements OnInit, OnDestroy {
                 appId: this.appId,
                 behaviour: KeyValidationBehaviour.SELECT,
                 appName: this.appName,
+                route: this.route,
             },
             cssClass: "auto-height",
         });
 
         const selectKeyPromise = new Promise<string>((resolve, reject) => {
-            modal.onDidDismiss().then(event => {
+            modal.onDidDismiss().then((event) => {
                 if (!event.data) {
                     reject();
                     return; // no key selected
@@ -298,6 +347,4 @@ export class InstallAppComponent implements OnInit, OnDestroy {
         await modal.present();
         return selectKeyPromise;
     }
-
-
 }

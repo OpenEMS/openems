@@ -111,12 +111,18 @@ public class ThresholdControl
 		public Function<GetParameterValues<ThresholdControl>, ThresholdControlControlParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new ThresholdControlControlParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true),
-										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
+								List.of(//
+										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true, deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, true, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -172,9 +178,14 @@ public class ThresholdControl
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true),
-						CheckRelayCountFilters.deviceHardware()));
+				.setInstallableCheckableConfigs(checkRelayCount(1, //
+						CheckRelayCountFilters.feneconHome(true, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(true, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override

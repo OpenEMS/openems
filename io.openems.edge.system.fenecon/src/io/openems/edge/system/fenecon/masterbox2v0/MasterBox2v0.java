@@ -18,20 +18,20 @@ import io.openems.edge.system.fenecon.masterbox2v0.enums.StateEnergyMeter;
 public interface MasterBox2v0 extends OpenemsComponent {
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		TEMPERATURE(Doc.of(OpenemsType.DOUBLE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.DEGREE_CELSIUS)),
+		TEMPERATURE(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.DEZIDEGREE_CELSIUS)),
 
-		HUMIDITY(Doc.of(OpenemsType.DOUBLE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.unit(Unit.PERCENT)),
+		HUMIDITY(Doc.of(OpenemsType.INTEGER)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.unit(Unit.THOUSANDTH)),
 
 		/**
 		 * Hardware config: Startup.<br>
 		 * false -> FEMS<br>
 		 * true -> IOC
 		 */
-		HW_STARTUP(Doc.of(OpenemsType.BOOLEAN) //
+		HW_STARTUP(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
@@ -39,7 +39,7 @@ public interface MasterBox2v0 extends OpenemsComponent {
 		 * false -> WUERTH (2525020210002)<br>
 		 * true -> TI (TMP75AIDR)
 		 */
-		HW_TEMPERATURE_SENSOR_TYPE(Doc.of(OpenemsType.BOOLEAN) //
+		HW_TEMPERATURE_SENSOR_TYPE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)),
 
 		/**
@@ -47,133 +47,133 @@ public interface MasterBox2v0 extends OpenemsComponent {
 		 * false -> FEMS<br>
 		 * true -> IOC
 		 */
-		HW_ANALOG_OUT_MODE(Doc.of(OpenemsType.BOOLEAN) //
+		HW_ANALOG_OUT_MODE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)),
 
-		HW_SPI_ENERGY_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		HW_SPI_ENERGY_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)),
 
-		HW_CAN_TOWER_ENABLE(Doc.of(OpenemsType.BOOLEAN) //
+		HW_CAN_TOWER_ENABLE(Doc.of(OpenemsType.BOOLEAN)//
 				.accessMode(AccessMode.READ_ONLY)),
 
-		GRID_STATE(Doc.of(GridState.values()) //
+		GRID_STATE(Doc.of(GridState.values())//
 				.accessMode(AccessMode.READ_ONLY)),
 
-		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_1(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_1(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_1(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_1)),
 
-		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_2(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_2(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_2(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_2)),
 
-		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_3(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_3(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_3(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_3)),
 
-		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_4(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_4(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_4(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_4)),
 
-		DEBUG_RELAY_5(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_5(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_5(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_5(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_5)),
 
-		DEBUG_RELAY_6(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_RELAY_6(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)), //
 
-		RELAY_6(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RELAY_6(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY_6)),
 
-		TIME_STAMP_ENERGYMETER(Doc.of(OpenemsType.LONG) //
-				.accessMode(AccessMode.READ_ONLY) //
+		TIME_STAMP_ENERGYMETER(Doc.of(OpenemsType.LONG)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		STATUS_ENERGYMETER(Doc.of(StateEnergyMeter.values()) //
-				.accessMode(AccessMode.READ_ONLY) //
+		STATUS_ENERGYMETER(Doc.of(StateEnergyMeter.values())//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		VOLTAGE_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		VOLTAGE_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		VOLTAGE_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		VOLTAGE_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		VOLTAGE_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		VOLTAGE_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		CURRENT_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		CURRENT_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		CURRENT_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
+		CURRENT_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		ACTIVE_POWER_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		ACTIVE_POWER_L1_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		ACTIVE_POWER_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		ACTIVE_POWER_L2_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		ACTIVE_POWER_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
+		ACTIVE_POWER_L3_ENERGYMETER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
 				.persistencePriority(PersistencePriority.HIGH)),
 
-		DEBUG_ANALOG_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
+		DEBUG_ANALOG_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
 				.persistencePriority(PersistencePriority.MEDIUM)),
 
-		ANALOG_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIVOLT) //
-				.accessMode(AccessMode.READ_WRITE) //
+		ANALOG_OUT_VOLTAGE(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIVOLT)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(DEBUG_ANALOG_OUT_VOLTAGE)),
 
-		DEBUG_ANALOG_OUT_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
+		DEBUG_ANALOG_OUT_CONTROL(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)),
 
-		ANALOG_OUT_CONTROL(Doc.of(OpenemsType.BOOLEAN) //
-				.accessMode(AccessMode.READ_WRITE) //
+		ANALOG_OUT_CONTROL(Doc.of(OpenemsType.BOOLEAN)//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(DEBUG_ANALOG_OUT_CONTROL));
 
 		private final Doc doc;

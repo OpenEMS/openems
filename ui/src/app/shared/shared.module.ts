@@ -25,29 +25,35 @@ import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/forml
 import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
 import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
 import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
+import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
 import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
 import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
 import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
+
 import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
 import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
 import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
 import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
+import { FormlyFieldWeekdaysComponent } from "./components/formly/formly-weekday-checkbox/formly-weekday-checkbox";
 import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
 import { InputTypeComponent } from "./components/formly/input";
 import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
 import { PanelWrapperComponent } from "./components/formly/panel-wrapper.component";
 import { RepeatTypeComponent } from "./components/formly/repeat";
 import { AppHeaderComponent } from "./components/header/app-header";
+import { AppHeaderContentComponent } from "./components/header/header-message/header-content";
 import { HeaderComponent } from "./components/header/header.component";
 import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
 import { HelpButtonComponent } from "./components/modal/help-button/help-button";
 import { ModalToggleLineComponent as ModalToggleWithValueLineComponent } from "./components/modal/modal-toggle-line/modal-toggle-line";
 import { ModalComponentsModule } from "./components/modal/modal.module";
+import { OeImageComponent } from "./components/oe-img/oe-img";
 import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
 import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
 import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
 import { TimeLineComponent } from "./components/picktime/picktime.component";
 import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
+import { StatsComponent } from "./components/stats/stats";
 import { SystemStatusComponent } from "./components/status/system/system-status.component";
 import { DirectiveModule } from "./directive/directive";
 import de from "./i18n/de.json";
@@ -61,28 +67,37 @@ import { Service } from "./service/service";
 import { Utils, Websocket } from "./shared";
 import { Language } from "./type/language";
 
-
 export function registerTranslateExtension(translate: TranslateService) {
     return {
         validationMessages: [
             {
                 name: "person-name-prohibited-characters",
                 message(err, field: FormlyFieldConfig) {
-                    const INVALID_CHARACTERS = "< > & \" $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )";
-                    return translate.stream("SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS", { invalidCharacters: INVALID_CHARACTERS, formControlValue: field.formControl.value });
+                    const INVALID_CHARACTERS = '< > & " $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )';
+                    return translate.stream("SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS", {
+                        invalidCharacters: INVALID_CHARACTERS,
+                        formControlValue: field.formControl.value,
+                    });
                 },
             },
         ],
     };
 }
 
-
 export function IpValidator(control: FormControl): ValidationErrors {
-    return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { "ip": true };
+    return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+        control.value,
+    )
+        ? null
+        : { ip: true };
 }
 
 export function SubnetmaskValidator(control: FormControl): ValidationErrors {
-    return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(control.value) ? null : { "subnetmask": true };
+    return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(
+        control.value,
+    )
+        ? null
+        : { subnetmask: true };
 }
 
 export function IpValidatorMessage(err, field: FormlyFieldConfig) {
@@ -93,24 +108,83 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
     return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
+/**
+ * Angular's Validators.required treats `false` as a valid value, so a checkbox with `props.required: true` would pass
+ * validation while unchecked. This validator makes `required: true` behave as expected for checkbox fields: the control
+ * must be checked.
+ */
+export function checkboxRequiredValidator(control: FormControl, field: FormlyFieldConfig): boolean {
+    return !field.props?.required || control.value === true;
+}
+
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
     // https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/userprofile/validator/PersonNameProhibitedCharactersValidator.java
     const INVALID_CHARACTERS: string[] = [
         // Control characters (ASCII 0–31)
-        "\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\x07",
-        "\x08", "\x09", "\x0A", "\x0B", "\x0C", "\x0D", "\x0E", "\x0F",
-        "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17",
-        "\x18", "\x19", "\x1A", "\x1B", "\x1C", "\x1D", "\x1E", "\x1F",
+        "\x00",
+        "\x01",
+        "\x02",
+        "\x03",
+        "\x04",
+        "\x05",
+        "\x06",
+        "\x07",
+        "\x08",
+        "\x09",
+        "\x0A",
+        "\x0B",
+        "\x0C",
+        "\x0D",
+        "\x0E",
+        "\x0F",
+        "\x10",
+        "\x11",
+        "\x12",
+        "\x13",
+        "\x14",
+        "\x15",
+        "\x16",
+        "\x17",
+        "\x18",
+        "\x19",
+        "\x1A",
+        "\x1B",
+        "\x1C",
+        "\x1D",
+        "\x1E",
+        "\x1F",
 
         // DEL (ASCII 127)
         "\x7F",
 
         // Symbols
-        "<", ">", "&", "\"", "\v", "$", "%", "!", "#", "?", "§",
-        ";", "*", "~", "/", "\\", "|", "^", "=", "[", "]",
-        "{", "}", "(", ")",
+        "<",
+        ">",
+        "&",
+        '"',
+        "\v",
+        "$",
+        "%",
+        "!",
+        "#",
+        "?",
+        "§",
+        ";",
+        "*",
+        "~",
+        "/",
+        "\\",
+        "|",
+        "^",
+        "=",
+        "[",
+        "]",
+        "{",
+        "}",
+        "(",
+        ")",
     ];
-    return [...(control.value ?? "")].some(ch => INVALID_CHARACTERS.includes(ch))
+    return [...(control.value ?? "")].some((ch) => INVALID_CHARACTERS.includes(ch))
         ? { "person-name-prohibited-characters": true }
         : null;
 }
@@ -126,33 +200,96 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         DirectiveModule,
         FormlyModule.forRoot({
             wrappers: [
-                { name: "form-field", component: FormlyWrapperFormFieldComponent },
-                { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-                { name: "formly-select-extended-wrapper", component: FormlySelectFieldExtendedWrapperComponent },
-                { name: "form-field-checkbox-hyperlink", component: FormlyCheckBoxHyperlinkWrapperComponent },
-                { name: "formly-wrapper-default-of-cases", component: FormlyWrapperDefaultValueWithCasesComponent },
+                {
+                    name: "form-field",
+                    component: FormlyWrapperFormFieldComponent,
+                },
+                {
+                    name: "input-serial-number",
+                    component: FormlyWrapperInputSerialNumber,
+                },
+                {
+                    name: "formly-select-extended-wrapper",
+                    component: FormlySelectFieldExtendedWrapperComponent,
+                },
+                {
+                    name: "form-field-checkbox-hyperlink",
+                    component: FormlyCheckBoxHyperlinkWrapperComponent,
+                },
+                {
+                    name: "formly-wrapper-default-of-cases",
+                    component: FormlyWrapperDefaultValueWithCasesComponent,
+                },
                 { name: "panel", component: PanelWrapperComponent },
-                { name: "formly-field-modal", component: FormlyFieldModalComponent },
-                { name: "formly-field-navigation", component: FormlyFieldNavigationComponent },
-                { name: "formly-field-checkbox-with-image", component: FormlyFieldCheckboxWithImageComponent },
-                { name: "formly-current-user-alerting", component: FormlyCurrentUserAlertingComponent },
-                { name: "formly-other-users-alerting", component: FormlyOtherUsersAlertingComponent },
+                {
+                    name: "formly-field-modal",
+                    component: FormlyFieldModalComponent,
+                },
+                {
+                    name: "formly-field-navigation",
+                    component: FormlyFieldNavigationComponent,
+                },
+                {
+                    name: "formly-field-waiting-spinner",
+                    component: FormlyFieldWaitingSpinnerComponent,
+                },
+                {
+                    name: "formly-field-checkbox-with-image",
+                    component: FormlyFieldCheckboxWithImageComponent,
+                },
+                {
+                    name: "formly-current-user-alerting",
+                    component: FormlyCurrentUserAlertingComponent,
+                },
+                {
+                    name: "formly-other-users-alerting",
+                    component: FormlyOtherUsersAlertingComponent,
+                },
             ],
             types: [
-                { name: "help-popover-label-with-description-and-checkbox", component: FormlyFieldCheckboxWithLabelComponent },
+                {
+                    name: "help-popover-label-with-description-and-checkbox",
+                    component: FormlyFieldCheckboxWithLabelComponent,
+                },
                 { name: "input", component: InputTypeComponent },
                 { name: "repeat", component: RepeatTypeComponent },
-                { name: "multi-step", component: FormlyFieldMultiStepComponent },
+                {
+                    name: "multi-step",
+                    component: FormlyFieldMultiStepComponent,
+                },
                 { name: "select", component: FormlySelectComponent },
-                { name: "checkbox-button", component: CheckboxButtonTypeComponent },
+                {
+                    name: "checkbox-button",
+                    component: CheckboxButtonTypeComponent,
+                },
                 { name: "radio", component: FormlyRadioTypeComponent },
-                { name: "tariff-table", component: FormlyTariffTableTypeComponent },
+                {
+                    name: "tariff-table",
+                    component: FormlyTariffTableTypeComponent,
+                },
                 { name: "range", component: FormlyRangeTypeComponent },
+                {
+                    name: "weekday-checkbox",
+                    component: FormlyFieldWeekdaysComponent,
+                },
+                {
+                    // Overrides the "checkbox" type's built-in "required" behaviour so that
+                    // `props.required: true` actually enforces the checkbox being checked.
+                    name: "checkbox",
+                    defaultOptions: {
+                        validators: {
+                            required: checkboxRequiredValidator,
+                        },
+                    },
+                },
             ],
             validators: [
                 { name: "ip", validation: IpValidator },
                 { name: "subnetmask", validation: SubnetmaskValidator },
-                { name: "person-name-prohibited-characters", validation: PersonNameProhibitedCharactersValidator },
+                {
+                    name: "person-name-prohibited-characters",
+                    validation: PersonNameProhibitedCharactersValidator,
+                },
             ],
             validationMessages: [
                 { name: "ip", message: IpValidatorMessage },
@@ -175,8 +312,11 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         FlatWidgetButtonComponent,
         HelpButtonComponent,
         TimeLineComponent,
+        OeImageComponent,
+        AppHeaderContentComponent,
         ModalToggleWithValueLineComponent,
         DateTimeLineComponent,
+        StatsComponent,
     ],
     declarations: [
         AppHeaderComponent,
@@ -241,15 +381,21 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         Utils,
         Websocket,
         // Use factory for formly. This allows us to use translations in validationMessages.
-        { provide: FORMLY_CONFIG, multi: true, useFactory: registerTranslateExtension, deps: [TranslateService] },
+        {
+            provide: FORMLY_CONFIG,
+            multi: true,
+            useFactory: registerTranslateExtension,
+            deps: [TranslateService],
+        },
     ],
 })
-
 export class SharedModule {
-
     public static injector: Injector;
 
-    constructor(private injector: Injector, private translate: TranslateService) {
+    constructor(
+        private injector: Injector,
+        private translate: TranslateService,
+    ) {
         SharedModule.injector = injector;
 
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {

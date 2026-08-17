@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -11,47 +11,56 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 @Component({
     selector: "consumptionchart",
     templateUrl: "../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-
     public static getChartData(config: EdgeConfig, translate: TranslateService, edge: Edge): HistoryUtils.ChartData {
-        const inputChannel: HistoryUtils.InputChannel[] = [{
-            name: "ConsumptionActivePower",
-            powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
-            energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
-        }];
+        const inputChannel: HistoryUtils.InputChannel[] = [
+            {
+                name: "ConsumptionActivePower",
+                powerChannel: ChannelAddress.fromString("_sum/ConsumptionActivePower"),
+                energyChannel: ChannelAddress.fromString("_sum/ConsumptionActiveEnergy"),
+            },
+        ];
 
         const evcsComponents: EvcsComponent[] = EvcsComponent.getComponents(config, edge);
 
-        evcsComponents.forEach(evcs => {
+        evcsComponents.forEach((evcs) => {
             inputChannel.push(evcs.getChartInputChannel());
         });
 
-        const heatComponents: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
-            .filter(component =>
-                !(component.factoryId === "Controller.Heat.Heatingelement") &&
-                !component.isEnabled === false);
+        const heatComponents: EdgeConfig.Component[] = config
+            .getComponentsImplementingNature("io.openems.edge.heat.api.Heat")
+            .filter(
+                (component) =>
+                    !(component.factoryId === "Controller.Heat.Heatingelement") && !component.isEnabled === false,
+            );
 
         inputChannel.push(
-            ...heatComponents.map(component => ({
+            ...heatComponents.map((component) => ({
                 name: component.id + "/ActivePower",
                 powerChannel: new ChannelAddress(component.id, "ActivePower"),
                 energyChannel: new ChannelAddress(component.id, "ActiveProductionEnergy"),
-            }))
+            })),
         );
 
-        const consumptionMeters: EdgeConfig.Component[] = config.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => {
+        const consumptionMeters: EdgeConfig.Component[] = config
+            .getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => {
                 const natureIds = config.getNatureIdsByFactoryId(component.factoryId);
                 const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
                 const isHeat = natureIds.includes("io.openems.edge.heat.api.Heat");
 
-                return component.isEnabled && config.isTypeConsumptionMetered(component) &&
-                    isEvcs === false && isHeat === false;
+                return (
+                    component.isEnabled &&
+                    config.isTypeConsumptionMetered(component) &&
+                    isEvcs === false &&
+                    isHeat === false
+                );
             });
 
-        consumptionMeters.forEach(meter => {
+        consumptionMeters.forEach((meter) => {
             inputChannel.push({
                 name: meter.id + "/ActivePower",
                 powerChannel: ChannelAddress.fromString(meter.id + "/ActivePower"),
@@ -60,10 +69,7 @@ export class ChartComponent extends AbstractHistoryChart {
         });
 
         return {
-            input:
-                [
-                    ...inputChannel,
-                ],
+            input: [...inputChannel],
             output: (data: HistoryUtils.ChannelData) => {
                 const datasets: HistoryUtils.DisplayValue[] = [];
                 datasets.push({
@@ -81,7 +87,9 @@ export class ChartComponent extends AbstractHistoryChart {
                 const evcsComponentColors: string[] = ChartConstants.Colors.SHADES_OF_GREEN;
                 datasets.push(
                     ...evcsComponents.map((evcs, index) =>
-                        evcs.getChartDisplayValue(data, evcsComponentColors[index % (evcsComponentColors.length - 1)])));
+                        evcs.getChartDisplayValue(data, evcsComponentColors[index % (evcsComponentColors.length - 1)]),
+                    ),
+                );
                 const heatComponentColors: string[] = ChartConstants.Colors.SHADES_OF_GREEN;
                 heatComponents.forEach((component, index) => {
                     datasets.push({
@@ -116,8 +124,15 @@ export class ChartComponent extends AbstractHistoryChart {
                 if (consumptionMeters.length > 0 || evcsComponents.length > 0 || heatComponents.length > 0) {
                     datasets.push({
                         name: translate.instant("GENERAL.OTHER_CONSUMPTION"),
-                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) => Utils.calculateOtherConsumptionTotal(energyValues, evcsComponents, heatComponents, consumptionMeters),
-                        converter: () => Utils.calculateOtherConsumption(data, evcsComponents, heatComponents, consumptionMeters),
+                        nameSuffix: (energyValues: QueryHistoricTimeseriesEnergyResponse) =>
+                            Utils.calculateOtherConsumptionTotal(
+                                energyValues,
+                                evcsComponents,
+                                heatComponents,
+                                consumptionMeters,
+                            ),
+                        converter: () =>
+                            Utils.calculateOtherConsumption(data, evcsComponents, heatComponents, consumptionMeters),
                         color: ChartConstants.Colors.GREY,
                         stack: 1,
                     });
@@ -133,13 +148,12 @@ export class ChartComponent extends AbstractHistoryChart {
                     unit: YAxisType.ENERGY,
                     position: "left",
                     yAxisId: ChartAxis.LEFT,
-                }],
+                },
+            ],
         };
     }
 
     protected override getChartData() {
         return ChartComponent.getChartData(this.config, this.translate, this.edge);
     }
-
-
 }

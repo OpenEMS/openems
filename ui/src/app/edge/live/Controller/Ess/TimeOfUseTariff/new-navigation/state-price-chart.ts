@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
 
+import { setLabelVisible } from "src/app/edge/history/shared";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
@@ -19,10 +20,10 @@ import { Controller_Ess_TimeOfUseTariffUtils } from "../utils";
 @Component({
     selector: "oe-state-price-chart",
     templateUrl: "../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart implements OnChanges {
-
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public override component!: EdgeConfig.Component;
@@ -84,7 +85,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     protected override getChartHeight(): number | null {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected override async loadChart(): Promise<void> {
@@ -107,13 +108,13 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
             this.chartObject = this.getChartData();
 
-            const response = await this.edge.sendRequest(
+            const response = (await this.edge.sendRequest(
                 this.websocket,
                 new ComponentJsonApiRequest({
                     componentId: this.component.id,
                     payload: new GetScheduleRequest(),
                 }),
-            ) as GetScheduleResponse;
+            )) as GetScheduleResponse;
 
             const schedule = response?.result?.schedule ?? [];
 
@@ -122,11 +123,11 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 return;
             }
 
-            const priceArray = schedule.map(entry => entry.price);
-            const stateArray = schedule.map(entry => entry.state);
-            const timestampArray = schedule.map(entry => entry.timestamp);
-            const gridBuyArray = schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid));
-            const socArray = schedule.map(entry => entry.soc);
+            const priceArray = schedule.map((entry) => entry.price);
+            const stateArray = schedule.map((entry) => entry.state);
+            const timestampArray = schedule.map((entry) => entry.timestamp);
+            const gridBuyArray = schedule.map((entry) => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid));
+            const socArray = schedule.map((entry) => entry.soc);
 
             const scheduleChartData = Controller_Ess_TimeOfUseTariffUtils.getScheduleChartData(
                 schedule.length,
@@ -142,8 +143,8 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             this.labels = scheduleChartData.labels;
             this.datasets = this.prepareDatasets(scheduleChartData.datasets);
             this.legendOptions = this.datasets
-                .filter((dataset, index, arr) => arr.findIndex(d => d.label === dataset.label) === index)
-                .map(dataset => ({
+                .filter((dataset, index, arr) => arr.findIndex((d) => d.label === dataset.label) === index)
+                .map((dataset) => ({
                     label: dataset.label?.toString() ?? "",
                     strokeThroughHidingStyle: false,
                     hideLabelInLegend: false,
@@ -177,17 +178,15 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             const opacity = preparedDataset.type === "line" ? 0.2 : 0.5;
 
             if (preparedDataset.backgroundColor != null) {
-                preparedDataset.backgroundColor = ColorUtils.changeOpacityFromRGBA(
-                    preparedDataset.backgroundColor.toString(),
-                    opacity,
-                ) ?? preparedDataset.backgroundColor;
+                preparedDataset.backgroundColor =
+                    ColorUtils.changeOpacityFromRGBA(preparedDataset.backgroundColor.toString(), opacity) ??
+                    preparedDataset.backgroundColor;
             }
 
             if (preparedDataset.borderColor != null) {
-                preparedDataset.borderColor = ColorUtils.changeOpacityFromRGBA(
-                    preparedDataset.borderColor.toString(),
-                    1,
-                ) ?? preparedDataset.borderColor;
+                preparedDataset.borderColor =
+                    ColorUtils.changeOpacityFromRGBA(preparedDataset.borderColor.toString(), 1) ??
+                    preparedDataset.borderColor;
             }
 
             if (preparedDataset.label === this.translate.instant("GENERAL.GRID_BUY_ADVANCED")) {
@@ -203,11 +202,7 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
     }
 
     private createScheduleChartOptions(): Chart.ChartOptions {
-        let options = AbstractHistoryChart.getDefaultXAxisOptions(
-            this.xAxisScalingType,
-            this.service,
-            this.labels,
-        );
+        let options = AbstractHistoryChart.getDefaultXAxisOptions(this.xAxisScalingType, this.service, this.labels);
 
         AssertionUtils.assertIsDefined(this.chartObject);
 
@@ -264,7 +259,8 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
                 }
 
                 return {
-                    borderColor: ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
+                    borderColor:
+                        ColorUtils.changeOpacityFromRGBA(backgroundColor.toString(), 1) ?? backgroundColor.toString(),
                     backgroundColor: backgroundColor.toString(),
                 };
             };
@@ -276,10 +272,14 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
                 chart.data.datasets.forEach((dataset, index) => {
                     const typedDataset = dataset as StatePriceChartDataset;
-                    const existingItem = legendItems.find(item => item.text === typedDataset.label);
+                    const existingItem = legendItems.find((item) => item.text === typedDataset.label);
 
-                    const borderColor = Array.isArray(typedDataset.borderColor) ? typedDataset.borderColor[0] : typedDataset.borderColor;
-                    const backgroundColor = Array.isArray(typedDataset.backgroundColor) ? typedDataset.backgroundColor[0] : typedDataset.backgroundColor;
+                    const borderColor = Array.isArray(typedDataset.borderColor)
+                        ? typedDataset.borderColor[0]
+                        : typedDataset.borderColor;
+                    const backgroundColor = Array.isArray(typedDataset.backgroundColor)
+                        ? typedDataset.backgroundColor[0]
+                        : typedDataset.backgroundColor;
 
                     if (existingItem != null) {
                         existingItem.datasetIndex = index;
@@ -331,8 +331,9 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
         }
 
         if (leftScale != null && options.scales != null) {
-            const leftDatasets = (this.datasets as StatePriceChartDataset[])
-                .filter(dataset => dataset.yAxisID === ChartAxis.LEFT) as Chart.ChartDataset[];
+            const leftDatasets = (this.datasets as StatePriceChartDataset[]).filter(
+                (dataset) => dataset.yAxisID === ChartAxis.LEFT,
+            ) as Chart.ChartDataset[];
 
             options.scales[ChartAxis.LEFT] = {
                 ...leftScale,
@@ -352,6 +353,54 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
             };
         }
 
+        if (options.plugins?.legend != null) {
+            options.plugins.legend.onClick = function (
+                event: Chart.ChartEvent,
+                legendItem: Chart.LegendItem,
+                legend: Chart.LegendElement<any>,
+            ) {
+                const chart: Chart.Chart = this.chart;
+
+                const legendItems = chart.data.datasets.reduce((arr: { label: string; index: number }[], ds, i) => {
+                    if (ds.label == legendItem.text) {
+                        arr.push({ label: ds.label, index: i });
+                    }
+                    return arr;
+                }, []);
+
+                // Should avoid same datasets in multiple stacks and in legend to be always visible => can be hidden with single legend hide
+                const hasBeenChanged: Map<string, boolean> = new Map();
+
+                /**
+                 * Shows or hides a dataset.
+                 *
+                 * @param label The legendItem label
+                 * @param chart The chart
+                 * @param datasetIndex The dataset index
+                 * @returns
+                 */
+                function showOrHideLabel(label: string, chart: Chart.Chart, datasetIndex: number) {
+                    if (hasBeenChanged.has(label)) {
+                        return;
+                    }
+
+                    const isLabelHidden = !chart.isDatasetVisible(datasetIndex);
+                    setLabelVisible(label, isLabelHidden);
+                    hasBeenChanged.set(label, isLabelHidden);
+                }
+
+                legendItems.forEach((item: { label: string; index: number }) => {
+                    showOrHideLabel(item.label, chart, item.index);
+
+                    const meta = chart.getDatasetMeta(item.index);
+
+                    // See controller.isDatasetVisible comment
+                    meta.hidden = meta.hidden === null ? !chart.data.datasets[item.index].hidden : !meta.hidden;
+                });
+                chart.update();
+            };
+        }
+
         options.animation = false;
 
         return options;
@@ -360,12 +409,12 @@ export class ScheduleStateAndPriceChartComponent extends AbstractHistoryChart im
 
 type StatePriceChartDataset =
     | (Chart.ChartDataset<"line", (number | null)[]> & {
-        yAxisID?: string;
-        borderDash?: number[];
-    })
+          yAxisID?: string;
+          borderDash?: number[];
+      })
     | (Chart.ChartDataset<"bar", (number | null)[]> & {
-        yAxisID?: string;
-        borderDash?: number[];
-    });
+          yAxisID?: string;
+          borderDash?: number[];
+      });
 
 type TimeScaleOptions = Chart.TimeScaleOptions;

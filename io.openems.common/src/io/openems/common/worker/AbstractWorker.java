@@ -154,8 +154,8 @@ public abstract class AbstractWorker {
 					 */
 					AbstractWorker.this.forever();
 
-					// Everything went ok -> reset onWorkerExceptionSleep
-					onWorkerExceptionSleep = 1;
+					// Everything went ok -> decrease onWorkerExceptionSleep
+					onWorkerExceptionSleep = Math.max(onWorkerExceptionSleep - 5, 1);
 
 				} catch (Throwable e) {
 					if (e instanceof InterruptedException && AbstractWorker.this.isStopped.get()) {
@@ -190,7 +190,7 @@ public abstract class AbstractWorker {
 		var targetTime = System.currentTimeMillis() + duration * 1000;
 		do {
 			try {
-				var thisDuration = (targetTime - System.currentTimeMillis()) / 1000;
+				var thisDuration = targetTime - System.currentTimeMillis();
 				if (thisDuration > 0) {
 					Thread.sleep(thisDuration);
 				}

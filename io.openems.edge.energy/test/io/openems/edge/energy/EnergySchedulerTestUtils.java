@@ -4,21 +4,26 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.Clock;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.edge.common.component.OpenemsComponent;
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import io.openems.edge.controller.ess.fixactivepower.EnergyScheduler;
+import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
+import io.openems.edge.controller.evse.cluster.DistributionStrategy;
+import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.energy.api.test.DummyEnergySchedulable;
-import io.openems.edge.ess.power.api.Relationship;
+import io.openems.edge.heat.askoma.HeatAskomaImpl;
 
 public class EnergySchedulerTestUtils {
 
@@ -28,32 +33,37 @@ public class EnergySchedulerTestUtils {
 	private static final Clock CLOCK = createDummyClock();
 
 	public static enum Controller {
-		ESS_EMERGENCY_CAPACITY_RESERVE("Controller.Ess.EmergencyCapacityReserve",
-				new Factory<io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler.Config>(
+		ESS_EMERGENCY_CAPACITY_RESERVE("Controller.Ess.EmergencyCapacityReserve", //
+				new Factory<>(//
 						io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler::buildEnergyScheduleHandler,
 						io.openems.edge.controller.ess.emergencycapacityreserve.EnergyScheduler.Config.serializer())),
-		ESS_LIMIT_TOTAL_DISCHARGE("Controller.Ess.LimitTotalDischarge",
-				new Factory<io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.Config>(
+		ESS_LIMIT_TOTAL_DISCHARGE("Controller.Ess.LimitTotalDischarge", //
+				new Factory<>(//
 						io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler::buildEnergyScheduleHandler,
 						io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.Config.serializer())),
-		ESS_FIX_ACTIVE_POWER("Controller.Ess.FixActivePower",
-				new Factory<io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext>(
-						io.openems.edge.controller.ess.fixactivepower.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.OptimizationContext
-								.serializer())),
-		ESS_GRID_OPTIMIZED_CHARGE("Controller.Ess.GridOptimizedCharge",
-				new Factory<io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config>(
-						io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler::buildEnergyScheduleHandler,
-						io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler.Config.serializer())),
-		ESS_TIME_OF_USE_TARIFF("Controller.Ess.Time-Of-Use-Tariff",
-				new Factory<io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config>(
+		ESS_FIX_ACTIVE_POWER("Controller.Ess.FixActivePower", //
+				new Factory<>(//
+						EnergyScheduler::buildEnergyScheduleHandler,
+						io.openems.edge.controller.ess.fixactivepower.EnergyScheduler.Config.serializer())),
+		ESS_TIME_OF_USE_TARIFF("Controller.Ess.Time-Of-Use-Tariff", //
+				new Factory<>(//
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler::buildEnergyScheduleHandler,
 						io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler.Config.serializer())),
-		EVSE_CLUSTER("Evse.Controller.Cluster",
-				new Factory<io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig>(
+		EVSE_CLUSTER("Evse.Controller.Cluster", //
+				new Factory<>(//
 						(comp, conf) -> io.openems.edge.controller.evse.cluster.EnergyScheduler
 								.buildEnergyScheduleHandler(comp, () -> CLOCK, conf),
-						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK)));
+						io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig.serializer(CLOCK))),
+		HEAT_ASKOMA(HeatAskomaImpl.FACTORY_ID, //
+				new Factory<>(//
+						(comp, conf) -> io.openems.edge.heat.askoma.EnergyScheduler.buildEnergyScheduleHandler(comp,
+								() -> CLOCK, conf),
+						io.openems.edge.heat.askoma.EnergyScheduler.Config.serializer(CLOCK))),
+		BRAIINS_SINGLE("Controller.BraiinsOS.Single", //
+				new Factory<>(//
+						(comp, conf) -> io.openems.edge.braiinsos.EnergyScheduler.buildEnergyScheduleHandler(comp,
+								() -> CLOCK, conf),
+						io.openems.edge.braiinsos.EnergyScheduler.Config.serializer(CLOCK)));
 
 		public final String factoryPid;
 		public final Factory<?> factory;
@@ -173,47 +183,60 @@ public class EnergySchedulerTestUtils {
 	/**
 	 * Builds a {@link DummyEnergySchedulable} of Controller.Ess.FixActivePower.
 	 * 
-	 * @param componentId  the Component-ID
-	 * @param power        the configured power [W]
-	 * @param relationship the configured {@link Relationship}
+	 * @param componentId the Component-ID
+	 * @param mode        the
+	 *                    {@link io.openems.edge.controller.ess.fixactivepower.enums.Mode}
+	 * @param power       the configured power [W]
+	 * @param targetSoc   the target state of charge (SoC) for the modes
+	 *                    {@link io.openems.edge.controller.ess.fixactivepower.enums.Mode#CHARGE_ONCE}
+	 *                    and
+	 *                    {@link io.openems.edge.controller.ess.fixactivepower.enums.Mode#DISCHARGE_ONCE}
 	 * @return the {@link DummyEnergySchedulable}
 	 */
-	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssFixActivePower(String componentId,
-			int power, Relationship relationship) {
+	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssFixActivePower(//
+			String componentId, io.openems.edge.controller.ess.fixactivepower.enums.Mode mode, int power,
+			Integer targetSoc) {
 		return create(Controller.ESS_FIX_ACTIVE_POWER, componentId,
 				cmp -> io.openems.edge.controller.ess.fixactivepower.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.fixactivepower. //
-								EnergyScheduler.OptimizationContext(power, relationship)));
-	}
-
-	/**
-	 * Builds a {@link DummyEnergySchedulable} of Controller.Ess.GridOptimizedCharge
-	 * in MANUAL mode.
-	 * 
-	 * @param componentId the Component-ID
-	 * @param localTime   the configured {@link LocalTime}
-	 * @return the {@link DummyEnergySchedulable}
-	 */
-	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssGridOptimizedCharge(
-			String componentId, LocalTime localTime) {
-		return create(Controller.ESS_GRID_OPTIMIZED_CHARGE, componentId,
-				cmp -> io.openems.edge.controller.ess.gridoptimizedcharge.EnergyScheduler //
-						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.gridoptimizedcharge. //
-								EnergyScheduler.Config.Manual(localTime)));
+								EnergyScheduler.Config(mode, power, targetSoc)));
 	}
 
 	/**
 	 * Builds a {@link DummyEnergySchedulable} of Controller.Ess.Time-Of-Use-Tariff.
-	 * 
-	 * @param componentId the Component-ID
-	 * @param controlMode the configured {@link ControlMode}
+	 *
+	 * @param componentId      the Component-ID
+	 * @param activeModes      the active {@link StateMachine} modes
+	 * @param targetSocBuffer  the target SoC buffer for
+	 *                         {@link io.openems.edge.controller.ess.gridoptimizedcharge.Mode#AUTOMATIC}
+	 *                         mode (used by GridOptimizedCharge)
+	 * @param manualTargetTime the manual target time for
+	 *                         {@link io.openems.edge.controller.ess.gridoptimizedcharge.Mode#MANUAL}
+	 *                         mode (used by GridOptimizedCharge), or null for
+	 *                         automatic calculation
 	 * @return the {@link DummyEnergySchedulable}
 	 */
 	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEssTimeOfUseTariff(String componentId,
-			ControlMode controlMode) {
-		return create(Controller.ESS_GRID_OPTIMIZED_CHARGE, componentId,
+			List<StateMachine> activeModes, Double targetSocBuffer, LocalTime manualTargetTime) {
+		return create(Controller.ESS_TIME_OF_USE_TARIFF, componentId,
 				cmp -> io.openems.edge.controller.ess.timeofusetariff.EnergyScheduler //
 						.buildEnergyScheduleHandler(cmp, () -> new io.openems.edge.controller.ess.timeofusetariff. //
-								EnergyScheduler.Config(controlMode)));
+								EnergyScheduler.Config(activeModes, targetSocBuffer, manualTargetTime)));
+	}
+
+	/**
+	 * Builds a {@link DummyEnergySchedulable} of Evse.Controller.Cluster.
+	 *
+	 * @param componentId          the Component-ID
+	 * @param distributionStrategy the {@link DistributionStrategy}
+	 * @param singleParams         the {@link Params} of Evse.Controller.Single
+	 * @return the {@link DummyEnergySchedulable}
+	 */
+	public static DummyEnergySchedulable<? extends EnergyScheduleHandler> dummyEvseCluster(String componentId,
+			DistributionStrategy distributionStrategy, ImmutableMap<String, Params> singleParams) {
+		return create(Controller.EVSE_CLUSTER, componentId,
+				cmp -> io.openems.edge.controller.evse.cluster.EnergyScheduler //
+						.buildEnergyScheduleHandler(cmp, () -> CLOCK, () -> new io.openems.edge.controller.evse.cluster. //
+								EnergyScheduler.ClusterEshConfig(distributionStrategy, singleParams)));
 	}
 }
