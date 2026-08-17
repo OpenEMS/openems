@@ -56,9 +56,9 @@ public final class AppCenterHandler {
 			final String edgeId //
 	) throws OpenemsNamedException {
 		if (metadata == null) {
-			// OrbitEOS patch: no AppCenter metadata service in this deployment.
-			// Answer with benign empty results instead of an error so UIs and
-			// Edges degrade gracefully.
+			// No AppCenter metadata service in this deployment. Answer with
+			// benign empty results instead of an error so UIs and Edges degrade
+			// gracefully.
 			return handleWithoutMetadata(request);
 		}
 
@@ -138,7 +138,7 @@ public final class AppCenterHandler {
 			final String edgeId //
 	) throws OpenemsNamedException {
 		if (metadata == null) {
-			// OrbitEOS patch: see handleUserRequest.
+			// No AppCenter metadata service; see handleUserRequest.
 			return handleWithoutMetadata(request);
 		}
 
