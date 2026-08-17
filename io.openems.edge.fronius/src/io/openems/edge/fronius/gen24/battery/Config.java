@@ -7,7 +7,7 @@ import io.openems.edge.fronius.enums.BatteryPreset;
 
 @ObjectClassDefinition(//
 		name = "ESS Fronius Gen24 Battery", //
-		description = "Collects Some more Sunspec unrelated data.")
+		description = "")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")

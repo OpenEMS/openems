@@ -20,12 +20,12 @@ public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent {
 		 * Off/Sleeping/Starting/MPPT/Throttled/Shutting Down/Fault/Standby.
 		 *
 		 * <p>
-		 * Note: this is the whole-inverter status, not a per-PV-string status -
-		 * SunSpec Model S160's per-module {@code DCSt} point is explicitly marked
-		 * "not supported" in Fronius' own official Gen24 register map, so it cannot
-		 * be used here. This component reads {@code S103.St} independently (same
-		 * physical device the BatteryInverter also reads it from), since this
-		 * Charger holds no reference to the BatteryInverter.
+		 * Note: this is the whole-inverter status, not a per-PV-string status - SunSpec
+		 * Model S160's per-module {@code DCSt} point is explicitly marked "not
+		 * supported" in Fronius' own official Gen24 register map, so it cannot be used
+		 * here. This component reads {@code S103.St} independently (same physical
+		 * device the BatteryInverter also reads it from), since this Charger holds no
+		 * reference to the BatteryInverter.
 		 */
 		OPERATING_STATE(Doc.of(DefaultSunSpecModel.S103_St.values())), //
 		;
@@ -77,7 +77,8 @@ public interface FroniusGen24DcCharger extends EssDcCharger, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#OPERATING_STATE} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OPERATING_STATE}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */

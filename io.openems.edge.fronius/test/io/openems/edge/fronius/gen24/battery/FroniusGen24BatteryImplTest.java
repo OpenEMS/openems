@@ -9,7 +9,7 @@ import io.openems.edge.common.test.ComponentTest;
 public class FroniusGen24BatteryImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 
 		// Battery is now fully independent - no OSGi @Reference to the
 		// BatteryInverter. It performs its own SunSpec discovery against the

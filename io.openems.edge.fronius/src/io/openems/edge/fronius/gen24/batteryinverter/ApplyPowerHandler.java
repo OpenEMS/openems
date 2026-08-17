@@ -62,12 +62,8 @@ public class ApplyPowerHandler {
 	 * @param controlmode      the control mode
 	 * @throws OpenemsNamedException on error
 	 */
-	public synchronized void apply(
-			FroniusGen24Battery battery,
-			int setActivePower,
-			int setReactivePower,
-			ControlMode controlmode
-	) throws OpenemsNamedException {
+	public synchronized void apply(FroniusGen24Battery battery, int setActivePower, int setReactivePower,
+			ControlMode controlmode) throws OpenemsNamedException {
 
 		Result result = switch (controlmode) {
 		case INTERNAL -> this.handleInternalMode();
@@ -102,19 +98,16 @@ public class ApplyPowerHandler {
 
 		// Write StorCtl_Mod (40348) every cycle in REMOTE mode –
 		// so Fronius knows the mode immediately after restart or connection loss
-		EnumWriteChannel setControlMode =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
+		EnumWriteChannel setControlMode = battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
 		setControlMode.setNextWriteValue(result.controlMode());
 
 		if (!this.shouldWrite(result)) {
 			return;
 		}
 
-		IntegerWriteChannel setOutWRte =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
+		IntegerWriteChannel setOutWRte = battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
 
-		IntegerWriteChannel setInWRte =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
+		IntegerWriteChannel setInWRte = battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
 
 		setOutWRte.setNextWriteValue(result.outWRte());
 		setInWRte.setNextWriteValue(result.inWRte());
@@ -123,29 +116,25 @@ public class ApplyPowerHandler {
 	}
 
 	/**
-	 * Writes StorCtlMod, zero power, and a short watchdog revert timeout once,
-	 * on the transition into INTERNAL mode. Without this, the Fronius keeps
-	 * honoring the last REMOTE-mode limit for up to its 8h watchdog default,
-	 * since nothing else is written while INTERNAL is active.
+	 * Writes StorCtlMod, zero power, and a short watchdog revert timeout once, on
+	 * the transition into INTERNAL mode. Without this, the Fronius keeps honoring
+	 * the last REMOTE-mode limit for up to its 8h watchdog default, since nothing
+	 * else is written while INTERNAL is active.
 	 *
 	 * @param battery the Fronius Gen24 battery
 	 * @throws OpenemsNamedException on error
 	 */
 	private void writeInternalModeTransition(FroniusGen24Battery battery) throws OpenemsNamedException {
 
-		EnumWriteChannel setControlMode =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
+		EnumWriteChannel setControlMode = battery.channel(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE);
 		setControlMode.setNextWriteValue(SetControlMode.CHARGE_AND_DISCHARGE_LIMIT);
 
-		IntegerWriteChannel setOutWRte =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
-		IntegerWriteChannel setInWRte =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
+		IntegerWriteChannel setOutWRte = battery.channel(FroniusGen24Battery.ChannelId.SET_OUT_W_RTE);
+		IntegerWriteChannel setInWRte = battery.channel(FroniusGen24Battery.ChannelId.SET_IN_W_RTE);
 		setOutWRte.setNextWriteValue(0);
 		setInWRte.setNextWriteValue(0);
 
-		IntegerWriteChannel setRevertTimeout =
-				battery.channel(FroniusGen24Battery.ChannelId.SET_REVERT_TIMEOUT);
+		IntegerWriteChannel setRevertTimeout = battery.channel(FroniusGen24Battery.ChannelId.SET_REVERT_TIMEOUT);
 		setRevertTimeout.setNextWriteValue(SHORT_REVERT_TIMEOUT_SECONDS);
 	}
 
@@ -163,9 +152,7 @@ public class ApplyPowerHandler {
 
 		int limitedActivePower = clamp(setActivePower, -wChaMax, wChaMax);
 
-		int rate = (int) Math.round(
-				(double) limitedActivePower / (double) wChaMax * RATE_100_PERCENT
-		);
+		int rate = (int) Math.round((double) limitedActivePower / (double) wChaMax * RATE_100_PERCENT);
 		rate = clamp(rate, -RATE_100_PERCENT, RATE_100_PERCENT);
 
 		int outWRte = rate;
@@ -211,13 +198,11 @@ public class ApplyPowerHandler {
 			return false;
 		}
 
-		if (this.lastOutWRte == null
-				|| Math.abs(result.outWRte() - this.lastOutWRte) >= RATE_HYSTERESIS) {
+		if (this.lastOutWRte == null || Math.abs(result.outWRte() - this.lastOutWRte) >= RATE_HYSTERESIS) {
 			return true;
 		}
 
-		if (this.lastInWRte == null
-				|| Math.abs(result.inWRte() - this.lastInWRte) >= RATE_HYSTERESIS) {
+		if (this.lastInWRte == null || Math.abs(result.inWRte() - this.lastInWRte) >= RATE_HYSTERESIS) {
 			return true;
 		}
 
@@ -235,11 +220,7 @@ public class ApplyPowerHandler {
 		return Math.max(min, Math.min(max, value));
 	}
 
-	private static record Result(
-			SetControlMode controlMode,
-			int outWRte,
-			int inWRte
-	) {
+	private static record Result(SetControlMode controlMode, int outWRte, int inWRte) {
 	}
 
 	// =========================================================================
@@ -262,21 +243,14 @@ public class ApplyPowerHandler {
 	private Integer convertWattsToPct(int limitW) {
 		try {
 			var wMaxChannel = this.parent.getWMaxChannel();
-			Float wMax = wMaxChannel.getNextValue().isDefined()
-					? (Float) wMaxChannel.getNextValue().get()
-					: wMaxChannel.value().isDefined()
-							? (Float) wMaxChannel.value().get()
-							: null;
+			Float wMax = wMaxChannel.getNextValue().isDefined() ? (Float) wMaxChannel.getNextValue().get()
+					: wMaxChannel.value().isDefined() ? (Float) wMaxChannel.value().get() : null;
 
 			if (wMax == null || wMax <= 0) {
 				return null;
 			}
 
-			int pct = (int) Math.round(
-					(double) clamp(limitW, 0, Math.round(wMax))
-							/ wMax
-							* W_MAX_LIM_100_PERCENT
-			);
+			int pct = (int) Math.round((double) clamp(limitW, 0, Math.round(wMax)) / wMax * W_MAX_LIM_100_PERCENT);
 
 			return clamp(pct, 0, W_MAX_LIM_100_PERCENT);
 

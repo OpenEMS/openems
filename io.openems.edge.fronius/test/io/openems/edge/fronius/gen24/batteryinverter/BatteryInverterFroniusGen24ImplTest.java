@@ -14,7 +14,7 @@ import io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcChargerImpl;
 public class BatteryInverterFroniusGen24ImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		new ComponentTest(new BatteryInverterFroniusGen24Impl()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //
@@ -29,14 +29,15 @@ public class BatteryInverterFroniusGen24ImplTest {
 
 	/**
 	 * Verifies that {@code getDcPvPower()} sums the {@code ACTUAL_POWER} of all
-	 * registered {@link io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcCharger}s
-	 * - matching the GoodWe/FENECON Commercial40 pattern - instead of reading
-	 * SunSpec Module 1/2 registers directly. Chargers are registered by calling
+	 * registered
+	 * {@link io.openems.edge.fronius.gen24.dccharger.FroniusGen24DcCharger}s -
+	 * matching the GoodWe/FENECON Commercial40 pattern - instead of reading SunSpec
+	 * Module 1/2 registers directly. Chargers are registered by calling
 	 * addCharger() directly (as OSGi's dynamic Reference would), since Chargers
 	 * hold no reference back to the BatteryInverter.
 	 */
 	@Test
-	public void testGetDcPvPowerSumsRegisteredChargers() throws Exception {
+	void testGetDcPvPowerSumsRegisteredChargers() throws Exception {
 		var inverter = new BatteryInverterFroniusGen24Impl();
 		final ComponentTest inverterTest = new ComponentTest(inverter) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //

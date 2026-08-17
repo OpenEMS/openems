@@ -1,5 +1,9 @@
 package io.openems.edge.fronius.gen24.battery;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -9,9 +13,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,12 +48,12 @@ import io.openems.edge.fronius.gen24.batteryinverter.S160SunSpecModel;
  * The physical battery is connected to the inverter exclusively via RS485 -
  * there is no separate connection to the battery itself. All battery values
  * (SOC, module voltages/currents/power, capacity, charge power limit) are
- * exposed by the inverter's own SunSpec register map (Models S120, S124,
- * S160 - the same models {@code BatteryInverterFroniusGen24Impl} reads).
+ * exposed by the inverter's own SunSpec register map (Models S120, S124, S160 -
+ * the same models {@code BatteryInverterFroniusGen24Impl} reads).
  *
  * <p>
- * This component performs its own, independent SunSpec discovery against
- * that same physical Modbus device, rather than holding an OSGi
+ * This component performs its own, independent SunSpec discovery against that
+ * same physical Modbus device, rather than holding an OSGi
  * {@literal @Reference} to {@code BatteryInverterFroniusGen24Impl}.
  * {@code GenericEss} is the only component that needs both, and passes the
  * Battery into {@code BatteryInverterFroniusGen24Impl#run(Battery, int, int)}
@@ -64,18 +65,13 @@ import io.openems.edge.fronius.gen24.batteryinverter.S160SunSpecModel;
  * independently talk to the same physical inverter.
  */
 @Designate(ocd = Config.class, factory = true)
-@Component(
-		name = "Ess.Fronius.Gen24.Battery", //
+@Component(name = "Ess.Fronius.Gen24.Battery", //
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
 @GenerateTargetsFromReferences("Modbus")
-public class FroniusGen24BatteryImpl
-		extends AbstractOpenemsSunSpecComponent
-		implements Battery,
-		FroniusGen24Battery,
-		ModbusComponent,
-		OpenemsComponent {
+public class FroniusGen24BatteryImpl extends AbstractOpenemsSunSpecComponent
+		implements Battery, FroniusGen24Battery, ModbusComponent, OpenemsComponent {
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
@@ -87,49 +83,34 @@ public class FroniusGen24BatteryImpl
 			.put(S160SunSpecModel.S_160, Priority.HIGH) //
 			.build();
 
-	private final Logger log =
-			LoggerFactory.getLogger(FroniusGen24BatteryImpl.class);
+	private final Logger log = LoggerFactory.getLogger(FroniusGen24BatteryImpl.class);
 
 	private Config config;
 
 	public FroniusGen24BatteryImpl() {
-		super(
-				ACTIVE_MODELS,
-				OpenemsComponent.ChannelId.values(),
-				ModbusComponent.ChannelId.values(),
-				Battery.ChannelId.values(),
-				StartStoppable.ChannelId.values(),
-				FroniusGen24Battery.ChannelId.values()
+		super(ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				Battery.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
+				FroniusGen24Battery.ChannelId.values() //
 		);
 	}
 
 	@Override
-	@Reference(//
-			policy = ReferencePolicy.STATIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MANDATORY, //
-			target = "(&(id=${config.modbus_id})(enabled=true))" //
-	)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
 	@Activate
-	private void activate(
-			ComponentContext context,
-			Config config
-	) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) throws OpenemsException {
 
 		this.config = config;
 
-		super.activate(
-				context,
-				config.id(),
-				config.alias(),
-				config.enabled(),
-				config.modbusUnitId(),
-				READ_FROM_MODBUS_BLOCK
-		);
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(),
+				READ_FROM_MODBUS_BLOCK);
 
 		this.setConfiguredVoltageLimits();
 		this.addProprietaryWriteRegisters();
@@ -143,14 +124,15 @@ public class FroniusGen24BatteryImpl
 
 	/**
 	 * Adds the Fronius-proprietary (non-SunSpec) write registers for storage
-	 * control mode, charge/discharge power rate limiting, and the watchdog
-	 * revert timeout.
+	 * control mode, charge/discharge power rate limiting, and the watchdog revert
+	 * timeout.
 	 */
 	private void addProprietaryWriteRegisters() throws OpenemsException {
 
 		this.getModbusProtocol().addTask(//
 				new FC16WriteRegistersTask(40348, //
-						this.m(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE, new UnsignedWordElement(40348))));
+						this.m(FroniusGen24Battery.ChannelId.SET_STORAGE_CONTROL_MODE,
+								new UnsignedWordElement(40348))));
 
 		this.getModbusProtocol().addTask(//
 				new FC16WriteRegistersTask(40355, //
@@ -194,8 +176,8 @@ public class FroniusGen24BatteryImpl
 	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
 	 * passes the raw value through unchanged, so the target Channel would end up
 	 * holding a plain {@code Integer} instead of the declared enum constant -
-	 * causing a {@link ClassCastException} the moment anything reads the Channel
-	 * as its declared enum type.
+	 * causing a {@link ClassCastException} the moment anything reads the Channel as
+	 * its declared enum type.
 	 *
 	 * @param values the target enum's {@code values()}
 	 * @return the converter
@@ -258,14 +240,12 @@ public class FroniusGen24BatteryImpl
 		var currentModule3 = this.readFloat(this::getModule3DcaChannel);
 		var currentModule4 = this.readFloat(this::getModule4DcaChannel);
 
-		this.channel(Battery.ChannelId.CURRENT)
-				.setNextValue(this.maxAsInteger(currentModule3, currentModule4));
+		this.channel(Battery.ChannelId.CURRENT).setNextValue(this.maxAsInteger(currentModule3, currentModule4));
 
 		var voltageModule3 = this.readFloat(this::getModule3DcVChannel);
 		var voltageModule4 = this.readFloat(this::getModule4DcVChannel);
 
-		this.channel(Battery.ChannelId.VOLTAGE)
-				.setNextValue(this.maxAsInteger(voltageModule3, voltageModule4));
+		this.channel(Battery.ChannelId.VOLTAGE).setNextValue(this.maxAsInteger(voltageModule3, voltageModule4));
 	}
 
 	private void recalculateChargeDischargePower() {
@@ -302,8 +282,8 @@ public class FroniusGen24BatteryImpl
 		} else {
 			// CUSTOM preset or invalid module count - use manually configured values
 			if (preset != BatteryPreset.CUSTOM) {
-				this.logWarn(this.log, "Battery preset [" + preset.getName()
-						+ "] does not support [" + modules + "] modules. Falling back to CUSTOM values.");
+				this.logWarn(this.log, "Battery preset [" + preset.getName() + "] does not support [" + modules
+						+ "] modules. Falling back to CUSTOM values.");
 			}
 			this._setChargeMaxVoltage(Math.max(1, this.config.chargeMaxVoltage()));
 			this._setDischargeMinVoltage(Math.max(1, this.config.dischargeMinVoltage()));
@@ -440,14 +420,14 @@ public class FroniusGen24BatteryImpl
 	@Override
 	public String debugLog() {
 
-		return "Soc:" + this.getSoc().asString()
-				+ "|V:" + this.getVoltage().asString()
-				+ "|ChaMaxV:" + this.getChargeMaxVoltage().asString()
-				+ "|DschMinV:" + this.getDischargeMinVoltage().asString()
-				+ "|ChaMaxI:" + this.getChargeMaxCurrent().asString()
-				+ "|DschMaxI:" + this.getDischargeMaxCurrent().asString()
-				+ "|Modules:" + this.getNumberOfModules()
-				+ "|ChaMaxV/Mod:" + this.getChargeMaxVoltagePerModule()
+		return "Soc:" + this.getSoc().asString() //
+				+ "|V:" + this.getVoltage().asString() //
+				+ "|ChaMaxV:" + this.getChargeMaxVoltage().asString() //
+				+ "|DschMinV:" + this.getDischargeMinVoltage().asString() //
+				+ "|ChaMaxI:" + this.getChargeMaxCurrent().asString() //
+				+ "|DschMaxI:" + this.getDischargeMaxCurrent().asString() //
+				+ "|Modules:" + this.getNumberOfModules() //
+				+ "|ChaMaxV/Mod:" + this.getChargeMaxVoltagePerModule() //
 				+ "|DschMinV/Mod:" + this.getDischargeMinVoltagePerModule();
 	}
 

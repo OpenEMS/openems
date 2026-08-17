@@ -1,6 +1,8 @@
 = Fronius
 Solar PV inverter, smart meter and Gen24 hybrid inverter integration by Fronius.
+
 == Overview
+
 This bundle provides integration with Fronius photovoltaic (PV) inverter systems, Fronius Smart Meter devices, and the Fronius Symo Gen24 hybrid inverter with battery storage. Fronius is an Austrian manufacturer of solar inverters and energy management solutions. The integration enables monitoring of solar production via the PV inverter, energy measurement via the Smart Meter, and full battery inverter control via the Gen24 components, all using Modbus TCP communication.
 The bundle supports five main components:
 
@@ -11,51 +13,53 @@ Gen24 Battery - Reads battery state (SoC, voltage, current, capacity) from the G
 Gen24 DC Charger - Exposes individual PV string power/voltage/current from the Gen24 inverter
 
 == Supported Devices
-.Fronius PV Inverter
 
-Model: Fronius Symo (and compatible models)
-Type: Grid-connected solar inverter
-Communication: Modbus TCP/RTU via SunSpec register map
-Power Rating: 3-27 kW typical
-Features: Real-time power monitoring, active power limitation
-Firmware: Current versions supporting SunSpec protocol
+Fronius PV Inverter:
 
-.Fronius Smart Meter
+- Model: Fronius Symo (and compatible models)
+- Type: Grid-connected solar inverter
+- Communication: Modbus TCP/RTU via SunSpec register map
+- Power Rating: 3-27 kW typical
+- Features: Real-time power monitoring, active power limitation
+- Firmware: Current versions supporting SunSpec protocol
 
-Models: 63A-3, TS 65A-3
-Type: Three-phase AC electricity meter
-Communication: Modbus TCP/RTU via SunSpec register map
-Rated Current: 63-65 A per phase
-Features: Real-time power and energy measurement
-Configuration: Can use SunSpec Model Type float or integer
-Typical Use: Grid power measurement, export/import monitoring
+Fronius Smart Meter:
 
-.Fronius Symo Gen24 Hybrid Inverter
+- Models: 63A-3, TS 65A-3
+- Type: Three-phase AC electricity meter
+- Communication: Modbus TCP/RTU via SunSpec register map
+- Rated Current: 63-65 A per phase
+- Features: Real-time power and energy measurement
+- Configuration: Can use SunSpec Model Type float or integer
+- Typical Use: Grid power measurement, export/import monitoring
 
-Model: Fronius Symo Gen24 (Plus)
-Type: Hybrid grid-connected inverter with battery management
-Communication: Modbus TCP via integrated Modbus server (int+SF register format)
-Features: Battery charge/discharge control, PV string monitoring, SunSpec Model 123 power limiting
-Firmware: Current versions tested
+Fronius Symo Gen24 Hybrid Inverter:
 
-.Fronius Gen24 Battery
+- Model: Fronius Symo Gen24 (Plus)
+- Type: Hybrid grid-connected inverter with battery management
+- Communication: Modbus TCP via integrated Modbus server (int+SF register format)
+- Features: Battery charge/discharge control, PV string monitoring, SunSpec Model 123 power limiting
+- Firmware: Current versions tested
 
-Compatible batteries: BYD HVS, BYD HVM, Fronius Reserva, Fronius Reserva Pro, LG Battery Flex
-Communication: Data read directly from the Gen24 inverter via Modbus
-Features: State of charge, voltage, current, charge/discharge limits, module count
-Configuration: Modbus server must be set to int+SF format
+Fronius Gen24 Battery:
 
-.Fronius Gen24 DC Charger
+- Compatible batteries: BYD HVS, BYD HVM, Fronius Reserva, Fronius Reserva Pro, LG Battery Flex
+- Communication: Data read directly from the Gen24 inverter via Modbus
+- Features: State of charge, voltage, current, charge/discharge limits, module count
+- Configuration: Modbus server must be set to int+SF format
 
-Type: Virtual component exposing individual PV string data from the Gen24 inverter
-Communication: Data read directly from the Gen24 inverter (no separate Modbus connection)
-Features: Real-time DC power, voltage and current per PV string
-Strings: Supports PV string ONE and TWO
+Fronius Gen24 DC Charger:
+
+- Type: Virtual component exposing individual PV string data from the Gen24 inverter
+- Communication: Data read directly from the Gen24 inverter (no separate Modbus connection)
+- Features: Real-time DC power, voltage and current per PV string
+- Strings: Supports PV string ONE and TWO
 
 == Components
 [[_pv_inverter_fronius]]
 
 === PV-Inverter Fronius
+
 Name: PV-Inverter Fronius
 Factory-PID: PV-Inverter.Fronius
 .Implemented Natures/Interfaces

@@ -59,8 +59,8 @@ public interface FroniusGen24Battery extends OpenemsComponent {
 				.unit(Unit.SECONDS)), //
 
 		/**
-		 * Whole-inverter operating state (SunSpec S103.St), read independently
-		 * (same physical device the Inverter also reads it from) purely to derive
+		 * Whole-inverter operating state (SunSpec S103.St), read independently (same
+		 * physical device the Inverter also reads it from) purely to derive
 		 * {@link #BATTERY_WARNING}/{@link #BATTERY_ERROR} - S124 (Storage) has no
 		 * dedicated fault/event bitfield of its own. Internal/diagnostic only.
 		 */

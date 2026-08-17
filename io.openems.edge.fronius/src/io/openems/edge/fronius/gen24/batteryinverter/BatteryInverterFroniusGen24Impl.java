@@ -1,6 +1,8 @@
 package io.openems.edge.fronius.gen24.batteryinverter;
 
 import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
@@ -16,8 +18,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,16 +58,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Designate(ocd = Config.class, factory = true)
 @Component(name = "Ess.Fronius.Gen24.Inverter", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		service = { BatteryInverterFroniusGen24.class, //
-				HybridManagedSymmetricBatteryInverter.class, //
-				ManagedSymmetricBatteryInverter.class, //
-				SymmetricBatteryInverter.class, //
-				StartStoppable.class, //
-				ModbusComponent.class, //
-				ManagedSymmetricPvInverter.class, //
-				OpenemsComponent.class //
-		})
+		configurationPolicy = ConfigurationPolicy.REQUIRE) //
 @GenerateTargetsFromReferences("Modbus")
 public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInverter
 		implements BatteryInverterFroniusGen24, HybridManagedSymmetricBatteryInverter, ManagedSymmetricBatteryInverter,
@@ -77,18 +68,21 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 	private static final int READ_FROM_MODBUS_BLOCK = 1;
 
-	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder()
-			.put(DefaultSunSpecModel.S_1, Priority.LOW).put(DefaultSunSpecModel.S_103, Priority.HIGH)
-			.put(DefaultSunSpecModel.S_120, Priority.LOW).put(DefaultSunSpecModel.S_121, Priority.LOW)
-			.put(DefaultSunSpecModel.S_122, Priority.LOW).put(DefaultSunSpecModel.S_123, Priority.LOW)
-			.put(DefaultSunSpecModel.S_124, Priority.LOW).put(S160SunSpecModel.S_160, Priority.HIGH).build();
+	private static final Map<SunSpecModel, Priority> ACTIVE_MODELS = ImmutableMap.<SunSpecModel, Priority>builder() //
+			.put(DefaultSunSpecModel.S_1, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_103, Priority.HIGH) //
+			.put(DefaultSunSpecModel.S_120, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_121, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_122, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_123, Priority.LOW) //
+			.put(DefaultSunSpecModel.S_124, Priority.LOW) //
+			.put(S160SunSpecModel.S_160, Priority.HIGH) //
+			.build();
 
 	@Reference
 	protected Power power;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	private final CalculateEnergyFromPower calculateActiveChargeEnergy = new CalculateEnergyFromPower(this,
@@ -107,10 +101,10 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 	/**
 	 * Registered {@link FroniusGen24DcCharger}s, bound dynamically via
-	 * {@link #addCharger}/{@link #removeCharger} (OSGi dynamic multiple
-	 * Reference). Chargers hold no reference back to this BatteryInverter -
-	 * matches the pattern used by GoodWe ({@code AbstractGoodWe.chargers}) and
-	 * FENECON Commercial40 ({@code EssFeneconCommercial40Impl.chargers}).
+	 * {@link #addCharger}/{@link #removeCharger} (OSGi dynamic multiple Reference).
+	 * Chargers hold no reference back to this BatteryInverter - matches the pattern
+	 * used by GoodWe ({@code AbstractGoodWe.chargers}) and FENECON Commercial40
+	 * ({@code EssFeneconCommercial40Impl.chargers}).
 	 */
 	private final List<FroniusGen24DcCharger> chargers = new CopyOnWriteArrayList<>();
 
@@ -118,18 +112,20 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 	public BatteryInverterFroniusGen24Impl() throws OpenemsException {
 
-		super(ACTIVE_MODELS, OpenemsComponent.ChannelId.values(), ModbusComponent.ChannelId.values(),
-				SymmetricBatteryInverter.ChannelId.values(), ManagedSymmetricBatteryInverter.ChannelId.values(),
-				HybridManagedSymmetricBatteryInverter.ChannelId.values(), StartStoppable.ChannelId.values(),
+		super(ACTIVE_MODELS, //
+				OpenemsComponent.ChannelId.values(), //
+				ModbusComponent.ChannelId.values(), //
+				SymmetricBatteryInverter.ChannelId.values(), //
+				ManagedSymmetricBatteryInverter.ChannelId.values(), //
+				HybridManagedSymmetricBatteryInverter.ChannelId.values(), //
+				StartStoppable.ChannelId.values(), //
 				new io.openems.edge.common.channel.ChannelId[] {
 						ManagedSymmetricPvInverter.ChannelId.ACTIVE_POWER_LIMIT },
 				BatteryInverterFroniusGen24.ChannelId.values());
 	}
 
 	@Override
-	@Reference(policy = STATIC, //
-			policyOption = GREEDY, //
-			cardinality = MANDATORY, //
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
 			target = "(&(id=${config.modbus_id})(enabled=true))" //
 	)
 	protected void setModbus(BridgeModbus modbus) {
@@ -185,8 +181,8 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
 	 * passes the raw value through unchanged, so the target Channel would end up
 	 * holding a plain {@code Integer} instead of the declared enum constant -
-	 * causing a {@link ClassCastException} the moment anything reads the Channel
-	 * as its declared enum type.
+	 * causing a {@link ClassCastException} the moment anything reads the Channel as
+	 * its declared enum type.
 	 *
 	 * @param values the target enum's {@code values()}
 	 * @return the converter
@@ -338,8 +334,8 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 
 	@Override
 	@Reference(cardinality = ReferenceCardinality.MULTIPLE, //
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
+			policy = DYNAMIC, //
+			policyOption = GREEDY, //
 			unbind = "removeCharger")
 	public void addCharger(FroniusGen24DcCharger charger) {
 		this.chargers.add(charger);
@@ -353,11 +349,8 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	@Override
 	public Integer getDcPvPower() {
 
-		return this.chargers.stream()
-				.map(charger -> charger.getActualPower().get())
-				.filter(java.util.Objects::nonNull)
-				.reduce(Integer::sum)
-				.orElse(null);
+		return this.chargers.stream().map(charger -> charger.getActualPower().get()).filter(java.util.Objects::nonNull)
+				.reduce(Integer::sum).orElse(null);
 	}
 
 	@Override
@@ -474,22 +467,19 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	@SuppressWarnings("unchecked")
 	@Override
 	public Value<Integer> getActivePower() {
-		return (Value<Integer>) this
-				.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).value();
+		return (Value<Integer>) this.channel(SymmetricBatteryInverter.ChannelId.ACTIVE_POWER).value();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Value<Integer> getReactivePower() {
-		return (Value<Integer>) this
-				.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).value();
+		return (Value<Integer>) this.channel(SymmetricBatteryInverter.ChannelId.REACTIVE_POWER).value();
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public Value<Integer> getMaxApparentPower() {
-		return (Value<Integer>) this
-				.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).value();
+		return (Value<Integer>) this.channel(SymmetricBatteryInverter.ChannelId.MAX_APPARENT_POWER).value();
 	}
 
 	// -------------------------------------------------------------------------
@@ -515,8 +505,8 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	void writeWMaxLimPct(int value) throws OpenemsNamedException {
 		int pct = Math.max(0, Math.min(100, value));
 
-		((FloatWriteChannel) this
-				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT)).setNextWriteValue((float) pct);
+		((FloatWriteChannel) this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_PCT))
+				.setNextWriteValue((float) pct);
 	}
 
 	/**
@@ -528,7 +518,7 @@ public class BatteryInverterFroniusGen24Impl extends AbstractSunSpecBatteryInver
 	void writeWMaxLimEna(int value) throws OpenemsNamedException {
 		int ena = value == 0 ? 0 : 1;
 
-		((EnumWriteChannel) this
-				.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA)).setNextWriteValue(ena);
+		((EnumWriteChannel) this.getSunSpecChannelOrError(DefaultSunSpecModel.S123.W_MAX_LIM_ENA))
+				.setNextWriteValue(ena);
 	}
 }

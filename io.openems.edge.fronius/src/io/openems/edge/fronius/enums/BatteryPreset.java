@@ -11,7 +11,6 @@ import io.openems.common.types.OptionsEnum;
  * Select CUSTOM to enter voltage values manually in the configuration.
  */
 public enum BatteryPreset implements OptionsEnum {
-
 	CUSTOM(0, "Custom"), //
 	BYD_HVS(1, "BYD Battery-Box Premium HVS"), //
 	BYD_HVM(2, "BYD Battery-Box Premium HVM"), //
@@ -56,7 +55,7 @@ public enum BatteryPreset implements OptionsEnum {
 					4, new int[] { 384, 531 }) //
 	);
 
-	private BatteryPreset(int value, String name) {
+	BatteryPreset(int value, String name) {
 		this.value = value;
 		this.name = name;
 	}

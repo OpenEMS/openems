@@ -10,7 +10,7 @@ import io.openems.edge.fronius.enums.PvString;
 public class FroniusGen24DcChargerImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 
 		// DcCharger is now fully independent - no OSGi @Reference to the
 		// BatteryInverter. It performs its own SunSpec discovery against the

@@ -103,7 +103,8 @@ public interface BatteryInverterFroniusGen24
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#OPERATING_STATE} Channel.
+	 * Internal method to set the 'nextValue' on {@link ChannelId#OPERATING_STATE}
+	 * Channel.
 	 *
 	 * @param value the next value
 	 */
@@ -192,20 +193,18 @@ public interface BatteryInverterFroniusGen24
 	public boolean isInitialized();
 
 	/**
-	 * Registers a {@link FroniusGen24DcCharger}
-	 * with this BatteryInverter. Called by OSGi via a dynamic multiple
-	 * {@literal @Reference} when a matching Charger component activates - the
-	 * Charger itself holds no reference back to the BatteryInverter (matches
-	 * the pattern used by GoodWe and FENECON Commercial40).
+	 * Registers a {@link FroniusGen24DcCharger} with this BatteryInverter. Called
+	 * by OSGi via a dynamic multiple {@literal @Reference} when a matching Charger
+	 * component activates - the Charger itself holds no reference back to the
+	 * BatteryInverter (matches the pattern used by GoodWe and FENECON
+	 * Commercial40).
 	 *
 	 * @param charger the Charger
 	 */
 	public void addCharger(FroniusGen24DcCharger charger);
 
 	/**
-	 * Unregisters a
-	 * {@link FroniusGen24DcCharger} from
-	 * this BatteryInverter.
+	 * Unregisters a {@link FroniusGen24DcCharger} from this BatteryInverter.
 	 *
 	 * @param charger the Charger
 	 */

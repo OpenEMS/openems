@@ -58,7 +58,7 @@ public class MeterFroniusImplTest {
 	}
 
 	@Test
-	public void testNotInverted() throws Exception {
+	void testNotInverted() throws Exception {
 		prepareTest(false /* invert */) //
 				.next(new TestCase() //
 						.activateStrictMode() //
@@ -193,7 +193,7 @@ public class MeterFroniusImplTest {
 	}
 
 	@Test
-	public void testInverted() throws Exception {
+	void testInverted() throws Exception {
 		prepareTest(true /* invert */) //
 				.next(new TestCase() //
 						.output(ElectricityMeter.ChannelId.CURRENT, -10123) //

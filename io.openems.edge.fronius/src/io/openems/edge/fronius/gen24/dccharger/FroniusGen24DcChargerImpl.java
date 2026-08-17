@@ -1,6 +1,11 @@
 package io.openems.edge.fronius.gen24.dccharger;
 
 import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -11,9 +16,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -24,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.ImmutableMap;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.sunspec.AbstractOpenemsSunSpecComponent;
 import io.openems.edge.bridge.modbus.sunspec.DefaultSunSpecModel;
@@ -55,12 +57,11 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
  *
  * <p>
  * Like GoodWe/FENECON Commercial40, {@code BatteryInverterFroniusGen24Impl}
- * aggregates Chargers via {@code addCharger()}: its {@code getDcPvPower()}
- * sums the {@code ACTUAL_POWER} of all registered
- * {@link FroniusGen24DcCharger}s
+ * aggregates Chargers via {@code addCharger()}: its {@code getDcPvPower()} sums
+ * the {@code ACTUAL_POWER} of all registered {@link FroniusGen24DcCharger}s
  * rather than reading the SunSpec Module 1/2 registers itself. This Charger's
- * role is therefore twofold: it feeds {@code getDcPvPower()} via
- * registration, and separately exposes the individual PV string as its own
+ * role is therefore twofold: it feeds {@code getDcPvPower()} via registration,
+ * and separately exposes the individual PV string as its own
  * {@link EssDcCharger} component (e.g. for per-string monitoring/UI).
  *
  * <p>
@@ -72,9 +73,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @Component(//
 		name = "Ess.Fronius.Gen24.DcCharger", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE, //
-		service = { FroniusGen24DcCharger.class, EssDcCharger.class, OpenemsComponent.class, EventHandler.class,
-				TimedataProvider.class, ModbusComponent.class })
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 @EventTopics({ //
 		TOPIC_CYCLE_AFTER_PROCESS_IMAGE, //
 })
@@ -95,8 +94,7 @@ public class FroniusGen24DcChargerImpl extends AbstractOpenemsSunSpecComponent i
 	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this, //
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	private Config config;
@@ -107,10 +105,7 @@ public class FroniusGen24DcChargerImpl extends AbstractOpenemsSunSpecComponent i
 	}
 
 	@Override
-	@Reference(//
-			policy = ReferencePolicy.STATIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MANDATORY, //
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
 			target = "(&(id=${config.modbus_id})(enabled=true))" //
 	)
 	protected void setModbus(BridgeModbus modbus) {
@@ -151,8 +146,8 @@ public class FroniusGen24DcChargerImpl extends AbstractOpenemsSunSpecComponent i
 	 * {@link ElementToChannelConverter#DIRECT_1_TO_1} is not sufficient here: it
 	 * passes the raw value through unchanged, so the target Channel would end up
 	 * holding a plain {@code Integer} instead of the declared enum constant -
-	 * causing a {@link ClassCastException} the moment anything reads the Channel
-	 * as its declared enum type.
+	 * causing a {@link ClassCastException} the moment anything reads the Channel as
+	 * its declared enum type.
 	 *
 	 * @param values the target enum's {@code values()}
 	 * @return the converter
