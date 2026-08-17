@@ -45,9 +45,8 @@ import io.openems.edge.ess.power.api.Power;
 		configurationPolicy = REQUIRE //
 )
 @GenerateTargetsFromReferences("Modbus")
-public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
-		implements EssSmaSunnyBoyStorage, ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent,
-		ModbusSlave {
+public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent implements EssSmaSunnyBoyStorage,
+		ManagedSymmetricEss, SymmetricEss, ModbusComponent, OpenemsComponent, ModbusSlave {
 
 	/**
 	 * SBS 2.5 peak AC power in W.
@@ -102,7 +101,9 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 			return;
 		}
 
-		// 2289=Charge battery, 2290=Discharge battery, 2424=Presetting (self-consumption)
+		// 2289 = Charge battery
+		// 2290 = Discharge battery
+		// 2424 = Presetting (self-consumption)
 		int bmsMode = activePower < 0 ? 2289 : (activePower > 0 ? 2290 : 2424);
 		IntegerWriteChannel bmsModeChannel = this.channel(EssSmaSunnyBoyStorage.ChannelId.BMS_MODE);
 		bmsModeChannel.setNextWriteValue(bmsMode);
@@ -157,28 +158,27 @@ public class EssSmaSunnyBoyStorageImpl extends AbstractOpenemsModbusComponent
 
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
-		/*
-		 * The SMA Sunny Boy Storage uses the SMA register number directly as the
-		 * 0-based Modbus PDU address (non-standard but confirmed by live testing).
-		 *
-		 * Reads:
-		 *   FC3 @ 30775 : Battery Power [W]    int32  (2 words)
-		 *   FC3 @ 30513 : Energy Total [Wh]    uint64 (4 words)
-		 *   FC3 @ 30845 : State of Charge [%]  uint32 (2 words)
-		 *
-		 * Writes (all 6 must be refreshed within every 60 s window):
-		 *   FC16 @ 40236 : BMS Mode              uint32 (2289=Charge, 2290=Discharge, 2424=Presetting)
-		 *   FC16 @ 40793 : Min Charge Power [W]  uint32 (CmpBMS.BatChaMinW)
-		 *   FC16 @ 40795 : Max Charge Power [W]  uint32 (CmpBMS.BatChaMaxW)
-		 *   FC16 @ 40797 : Min Discharge Power [W] uint32 (CmpBMS.BatDschMinW)
-		 *   FC16 @ 40799 : Max Discharge Power [W] uint32 (CmpBMS.BatDschMaxW)
-		 *   FC16 @ 40801 : Grid Power Setpoint [W] int32  (CmpBMS.GridWSpt, positive=import/charge)
-		 *
-		 * Power limits (live from device, same register layout as SunnyIsland):
-		 *   FC3 @ 40189 : Allowed Charge Power [W]    uint32 (INVERT → negative)
-		 *   FC3 @ 40191 : Allowed Discharge Power [W] uint32
-		 *   Priority.LOW: initial safe defaults (-2500/+2500) set in activate(); these refine over time.
-		 */
+		// The SMA Sunny Boy Storage uses the SMA register number directly as the
+		// 0-based Modbus PDU address (non-standard but confirmed by live testing).
+		//
+		// Reads:
+		// FC3 @ 30775 : Battery Power [W] int32 (2 words)
+		// FC3 @ 30513 : Energy Total [Wh] uint64 (4 words)
+		// FC3 @ 30845 : State of Charge [%] uint32 (2 words)
+		//
+		// Writes (all 6 must be refreshed within every 60 s window):
+		// FC16 @ 40236 : BMS Mode uint32 (2289=Charge, 2290=Discharge, 2424=Presetting)
+		// FC16 @ 40793 : Min Charge Power [W] uint32 (CmpBMS.BatChaMinW)
+		// FC16 @ 40795 : Max Charge Power [W] uint32 (CmpBMS.BatChaMaxW)
+		// FC16 @ 40797 : Min Discharge Power [W] uint32 (CmpBMS.BatDschMinW)
+		// FC16 @ 40799 : Max Discharge Power [W] uint32 (CmpBMS.BatDschMaxW)
+		// FC16 @ 40801 : Grid Power Setpoint [W] int32 (CmpBMS.GridWSpt,
+		// positive=import/charge)
+		//
+		// Power limits (live from device, same register layout as SunnyIsland):
+		// FC3 @ 40189 : Allowed Charge Power [W] uint32 (INVERT → negative)
+		// FC3 @ 40191 : Allowed Discharge Power [W] uint32 Priority.LOW: initial safe
+		// defaults (-2500/+2500) set in activate(); these refine over time.
 		return new ModbusProtocol(this, //
 				new FC3ReadRegistersTask(30775, Priority.HIGH, //
 						m(SymmetricEss.ChannelId.ACTIVE_POWER, //

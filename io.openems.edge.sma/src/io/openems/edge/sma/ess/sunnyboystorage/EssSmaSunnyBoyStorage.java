@@ -17,7 +17,7 @@ public interface EssSmaSunnyBoyStorage {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_TOTAL(Doc.of(OpenemsType.LONG) //
+		ENERGY_TOTAL(Doc.of(OpenemsType.LONG)//
 				.unit(Unit.CUMULATED_WATT_HOURS)), //
 
 		// --- Write channels (mapped to Modbus holding registers 40xxx via FC16) ---
@@ -32,7 +32,7 @@ public interface EssSmaSunnyBoyStorage {
 		 * <li>2424 = Presetting (self-consumption, internal BMS)
 		 * </ul>
 		 */
-		BMS_MODE(Doc.of(OpenemsType.INTEGER) //
+		BMS_MODE(Doc.of(OpenemsType.INTEGER)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
@@ -44,8 +44,8 @@ public interface EssSmaSunnyBoyStorage {
 		 * force a fixed charge power.
 		 * </ul>
 		 */
-		MIN_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MIN_CHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
@@ -56,8 +56,8 @@ public interface EssSmaSunnyBoyStorage {
 		 * <li>Unit: W, Range: 0..2500
 		 * </ul>
 		 */
-		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MAX_CHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
@@ -68,8 +68,8 @@ public interface EssSmaSunnyBoyStorage {
 		 * <li>Unit: W. Typically 0 (no minimum discharge enforced).
 		 * </ul>
 		 */
-		MIN_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MIN_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
@@ -80,8 +80,8 @@ public interface EssSmaSunnyBoyStorage {
 		 * <li>Unit: W, Range: 0..2500
 		 * </ul>
 		 */
-		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		MAX_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)), //
 
 		/**
@@ -89,16 +89,16 @@ public interface EssSmaSunnyBoyStorage {
 		 *
 		 * <p>
 		 * SMA sign convention: positive = import from grid (charging), negative =
-		 * export to grid (discharging). This is the inverse of the OpenEMS
-		 * ACTIVE_POWER convention; write {@code -activePower}.
+		 * export to grid (discharging). This is the inverse of the OpenEMS ACTIVE_POWER
+		 * convention; write {@code -activePower}.
 		 *
 		 * <ul>
 		 * <li>Register 40801, int32, FC16
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		GRID_POWER_SETPOINT(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
+		GRID_POWER_SETPOINT(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
 				.accessMode(AccessMode.WRITE_ONLY)); //
 
 		private final Doc doc;

@@ -63,12 +63,10 @@ import io.openems.edge.core.appmanager.formly.enums.InputType;
  * </pre>
  */
 @Component(name = "App.Ess.Sma.SunnyBoyStorage")
-public class SmaEssSunnyBoyStorage
-		extends AbstractOpenemsAppWithProps<SmaEssSunnyBoyStorage, Property, Parameter.BundleParameter>
-		implements OpenemsApp {
+public class SmaEssSunnyBoyStorage extends
+		AbstractOpenemsAppWithProps<SmaEssSunnyBoyStorage, Property, Parameter.BundleParameter> implements OpenemsApp {
 
-	public static enum Property
-			implements Type<Property, SmaEssSunnyBoyStorage, Parameter.BundleParameter>, Nameable {
+	public static enum Property implements Type<Property, SmaEssSunnyBoyStorage, Parameter.BundleParameter>, Nameable {
 
 		// Component-IDs
 		ESS_ID(AppDef.componentId("ess0")), //
@@ -76,13 +74,13 @@ public class SmaEssSunnyBoyStorage
 
 		// User-visible properties
 		ALIAS(CommonProps.alias()), //
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def //
-				.setDefaultValue("192.168.178.85") //
+		IP(AppDef.copyOfGeneric(CommunicationProps.ip(), def -> def//
+				.setDefaultValue("192.168.178.85")//
 				.setRequired(true))), //
-		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), def -> def //
+		PORT(AppDef.copyOfGeneric(CommunicationProps.port(), def -> def//
 				.setRequired(true))), //
-		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommunicationProps.modbusUnitId(), def -> def //
-				.setDefaultValue(3) //
+		MODBUS_UNIT_ID(AppDef.copyOfGeneric(CommunicationProps.modbusUnitId(), def -> def//
+				.setDefaultValue(3)//
 				.setRequired(true))), //
 		CAPACITY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setLabel("Kapazität [Wh]") //
@@ -90,10 +88,10 @@ public class SmaEssSunnyBoyStorage
 				.setDefaultValue(2000) //
 				.setField(JsonFormlyUtil::buildInputFromNameable,
 						(app, prop, l, param, f) -> f.setInputType(InputType.NUMBER).setMin(0)))), //
-		READ_ONLY_MODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setLabel("Nur-Lesen-Modus") //
-				.setDescription("Aktiviert den Nur-Lesen-Modus; keine Sollwerte werden an das Gerät geschrieben.") //
-				.setDefaultValue(false) //
+		READ_ONLY_MODE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setLabel("Nur-Lesen-Modus")//
+				.setDescription("Aktiviert den Nur-Lesen-Modus; keine Sollwerte werden an das Gerät geschrieben.")//
+				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckboxFromNameable))), //
 		;
 
