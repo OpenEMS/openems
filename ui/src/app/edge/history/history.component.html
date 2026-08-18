@@ -5,14 +5,14 @@
     </ion-refresher>
     <oe-history-data-error [response]="errorResponse"></oe-history-data-error>
     <!-- Only displayed when history allowed to be seen -->
-    @if (isTimedataAvailable && widgets) {
+    @if (isTimedataAvailable() && widgets()) {
       <ion-grid>
         <ion-row>
           <!-- Energymonitor Chart -->
           <ion-col size="12">
             <energy (setErrorResponse)="setErrorResponse($event)" [style.height]="energyChartHeight"></energy>
           </ion-col>
-          @for (clazz of widgets.classes; track i; let i = $index) {
+          @for (clazz of widgets().classes; track i; let i = $index) {
             @switch (clazz) {
               @case ("Storage") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
@@ -57,7 +57,7 @@
               }
             }
           }
-          @for (widget of widgets.list; track i; let i = $index) {
+          @for (widget of widgets().list; track i; let i = $index) {
             @switch (widget.name) {
               @case ("Controller.Symmetric.PeakShaving") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
@@ -129,7 +129,7 @@
         </ion-row>
       </ion-grid>
     }
-    @if (!isTimedataAvailable) {
+    @if (!isTimedataAvailable()) {
       <ion-grid>
         <ion-row class="ion-justify-content-center">
           <ion-col size="12" size-md="8">

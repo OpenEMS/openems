@@ -9,6 +9,7 @@ import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthi
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
@@ -271,5 +272,9 @@ export class ChartComponent extends AbstractHistoryChart {
 
     public override getChartData() {
         return ChartComponent.getChartData(this.config, this.chartType, this.translate);
+    }
+
+    public override calculateViewHeight(): string {
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position()) / 1.5 + "dvh";
     }
 }
