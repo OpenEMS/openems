@@ -10,6 +10,7 @@ import { Service } from "../../../../shared/shared";
 import { Widgets } from "../../../../shared/type/widgets";
 import { RouteService } from "../../../service/route.service";
 import { EdgeConfig } from "../../edge/edgeconfig";
+import { DummyConfig } from "../../edge/edgeconfig.spec";
 import { NavigationService } from "../service/navigation.service";
 import { ControllerGroupListComponent } from "./group";
 
@@ -26,7 +27,9 @@ describe("ControllerGroupListComponent", () => {
     const factoryId = "Controller.Io.FixDigitalOutput";
 
     beforeEach(async () => {
-        service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {});
+        service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge", "currentEdge"], {
+            currentEdge: signal(DummyConfig.dummyEdge({})),
+        });
 
         router = jasmine.createSpyObj<Router>("Router", ["navigate"]);
 
@@ -69,12 +72,11 @@ describe("ControllerGroupListComponent", () => {
     });
 
     it("should not load the edge when factoryId is missing", async () => {
+        expect(service.currentEdge()).toBeDefined();
         routeService.getQueryParam.and.returnValue(null);
 
         fixture.detectChanges();
         await fixture.whenStable();
-
-        expect(service.getCurrentEdge).not.toHaveBeenCalled();
     });
 
     it("should render enabled components and the grouped title", async () => {
@@ -117,15 +119,8 @@ describe("ControllerGroupListComponent", () => {
             componentId == null ? null : (components.get(componentId) ?? null),
         );
 
-        const edge = jasmine.createSpyObj("Edge", ["getCurrentConfig"]);
-
-        edge.getCurrentConfig.and.returnValue(config);
-
         routeService.getQueryParam.and.returnValue(factoryId);
-        service.getCurrentEdge.and.resolveTo(edge as never);
-
         const groupedFactory = Widgets.GROUPED_FACTORIES[factoryId];
-
         expect(groupedFactory).toBeDefined();
     });
 
@@ -133,7 +128,6 @@ describe("ControllerGroupListComponent", () => {
         routeService.getCurrentUrl.and.returnValue("/controller/group?factoryId=Controller.Io.FixDigitalOutput");
 
         await component.navigateTo("component-1");
-
         expect(router.navigate).toHaveBeenCalledWith(["/controller/group", "component-1"]);
     });
 });

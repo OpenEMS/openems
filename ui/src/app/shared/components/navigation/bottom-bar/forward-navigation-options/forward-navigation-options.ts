@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { NavigationLabelLineComponent } from "../../label-line/label-line";
@@ -20,11 +20,17 @@ import { NavigationTree } from "../../shared";
     `,
 })
 export class ForwardNavigationOptions {
-    protected readonly navigationService = inject(NavigationService);
-    protected children = computed(() => {
+    public readonly navigationService = inject(NavigationService);
+    public shouldForceVisible = input<boolean | null>(null);
+    protected readonly isBottom = computed(() => this.navigationService.position() === "bottom");
+
+    protected readonly isAllowed = computed(() => {
+        return this.shouldForceVisible() != null ? this.shouldForceVisible() : this.isBottom();
+    });
+
+    protected readonly children = computed(() => {
         return this.filterVisibleNodes(this.navigationService.currentNode()?.getChildren() ?? []);
     });
-    protected isAllowed = computed(() => this.navigationService.position() === "bottom");
 
     /**
      * Filters out the nodes to hide in navigation.
