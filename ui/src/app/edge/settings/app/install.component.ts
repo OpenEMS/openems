@@ -102,6 +102,7 @@ export class InstallAppComponent implements OnInit, OnDestroy {
     }
 
     public init() {
+        this.key = null;
         this.isRunning = true;
         this.service.startSpinner(this.spinnerId);
         const state = history?.state;
