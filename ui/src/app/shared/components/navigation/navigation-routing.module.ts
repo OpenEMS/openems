@@ -20,6 +20,9 @@ import { CommonStorageSettingsComponent } from "src/app/edge/live/common/storage
 import { WeatherHomeComponent } from "src/app/edge/live/common/weather/new-navigation/new-navigation";
 import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
+import { ControllerChpHistoryComponent } from "src/app/edge/live/Controller/ChpSoc/history/new-navigation/new-navigation";
+import { ControllerChpHomeComponent } from "src/app/edge/live/Controller/ChpSoc/new-navigation/home";
+import { ControllerChpSettingsComponent } from "src/app/edge/live/Controller/ChpSoc/settings/settings";
 import { ControllerEnerixControlHistoryComponent } from "src/app/edge/live/Controller/EnerixControl/history/new-navigation/new-navigation";
 import { ControllerEnerixControlHomeComponent } from "src/app/edge/live/Controller/EnerixControl/new-navigation/new-navigation";
 import { ControllerEnerixControlSettingsComponent } from "src/app/edge/live/Controller/EnerixControl/settings/settings";
@@ -390,6 +393,20 @@ export const newNavigationRoutes: Routes = [
         path: "controller/enerix-control/:componentId/history",
         component: ControllerEnerixControlHistoryComponent,
     },
+
+    {
+        path: "controller/chp/:componentId",
+        component: ControllerChpHomeComponent,
+    },
+    {
+        path: "controller/chp/:componentId/settings",
+        component: ControllerChpSettingsComponent,
+    },
+    {
+        path: "controller/chp/:componentId/history",
+        component: ControllerChpHistoryComponent,
+    },
+
     {
         path: "controller/heat/:componentId",
         component: ControllerHeatHomeComponent,

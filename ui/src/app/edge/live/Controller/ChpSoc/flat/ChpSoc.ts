@@ -1,29 +1,32 @@
-// @ts-strict-ignore
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { IonicModule } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { ComponentsModule } from "src/app/shared/components/components.module";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { Icon } from "src/app/shared/type/widget";
 
-import { ChannelAddress, CurrentData } from "../../../../shared/shared";
-import { Controller_ChpSocModalComponent } from "./modal/modal.component";
+import { ChannelAddress, CurrentData } from "../../../../../shared/shared";
+import { Controller_ChpSocModalComponent } from "../modal/modal.component";
 
 @Component({
     selector: "Controller_ChpSocComponent",
     templateUrl: "./ChpSoc.html",
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false,
+    imports: [CommonModule, IonicModule, TranslateModule, ComponentsModule],
 })
-export class Controller_ChpSocComponent extends AbstractFlatWidget {
-    private static PROPERTY_MODE: string = "_PropertyMode";
+export class ControllerChpFlatComponent extends AbstractFlatWidget {
+    public static readonly PROPERTY_MODE: string = "_PropertyMode";
     public inputChannel: ChannelAddress | null = null;
     public outputChannel: ChannelAddress | null = null;
     public propertyModeChannel: ChannelAddress | null = null;
-    public highThresholdValue: number;
-    public lowThresholdValue: number;
-    public state: string;
-    public mode: string;
-    public modeChannelValue: string;
-    public inputChannelValue: number;
+    public highThresholdValue: number | null = null;
+    public lowThresholdValue: number | null = null;
+    public state: string | null = null;
+    public mode: string | null = null;
+    public modeChannelValue: string | null = null;
+    public inputChannelValue: number | null = null;
     public icon: Icon = {
         name: "",
         size: "large",
@@ -33,8 +36,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     protected modalComponent: Modal | null = null;
 
     protected get thresholdDelta() {
+        if (this.highThresholdValue == null || this.lowThresholdValue == null) {
+            return 0;
+        }
         const delta = this.highThresholdValue - this.lowThresholdValue;
-        return delta < 0 ? 0 : delta;
+        return Math.max(0, delta);
     }
 
     async presentModal() {
@@ -67,9 +73,13 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     }
 
     protected override getChannelAddresses() {
+        if (this.component == null) {
+            return [];
+        }
+
         this.outputChannel = ChannelAddress.fromString(this.component.properties["outputChannelAddress"]);
         this.inputChannel = ChannelAddress.fromString(this.component.properties["inputChannelAddress"]);
-        this.propertyModeChannel = new ChannelAddress(this.component.id, Controller_ChpSocComponent.PROPERTY_MODE);
+        this.propertyModeChannel = new ChannelAddress(this.component.id, ControllerChpFlatComponent.PROPERTY_MODE);
         return [
             this.outputChannel,
             this.inputChannel,
@@ -80,6 +90,14 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
     }
 
     protected override onCurrentData(currentData: CurrentData) {
+        if (
+            this.component == null ||
+            this.outputChannel == null ||
+            this.inputChannel == null ||
+            this.propertyModeChannel == null
+        ) {
+            return;
+        }
         // Mode
         this.modeChannelValue = currentData.allComponents[this.propertyModeChannel.toString()];
         switch (this.modeChannelValue) {
@@ -93,17 +111,11 @@ export class Controller_ChpSocComponent extends AbstractFlatWidget {
                 this.mode = this.translate.instant("GENERAL.AUTOMATIC");
         }
 
-        const outputChannelValue = currentData.allComponents[this.outputChannel.toString()];
+        const isActive = currentData.allComponents[this.outputChannel.toString()] === 1;
 
-        switch (outputChannelValue) {
-            case 0:
-                this.state = this.translate.instant("GENERAL.INACTIVE");
-                this.icon.name == "help-outline";
-                break;
-            case 1:
-                this.state = this.translate.instant("GENERAL.ACTIVE");
-                break;
-        }
+        this.state = this.translate.instant(isActive ? "GENERAL.ACTIVE" : "GENERAL.INACTIVE");
+
+        this.icon.name = isActive ? "" : "help-outline";
 
         this.inputChannelValue = currentData.allComponents[this.inputChannel.toString()];
         this.highThresholdValue = currentData.allComponents[this.component.id + "/_PropertyHighThreshold"];

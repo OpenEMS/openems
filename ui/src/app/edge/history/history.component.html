@@ -54,12 +54,12 @@
               <!-- Non-Common but showing only one widget for all components -->
               @case ("Controller_ChannelThreshold") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <channelthresholdWidget> </channelthresholdWidget>
+                  <channelthresholdWidget></channelthresholdWidget>
                 </ion-col>
               }
               @case ("Controller_Io_Digital_Outputs") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <DigitalOutputWidget> </DigitalOutputWidget>
+                  <DigitalOutputWidget></DigitalOutputWidget>
                 </ion-col>
               }
             }
@@ -68,7 +68,7 @@
             @switch (widget.name) {
               @case ("Controller.Symmetric.PeakShaving") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <oe-controller-peakshaving-symmetric [componentId]="widget.componentId"> </oe-controller-peakshaving-symmetric>
+                  <oe-controller-peakshaving-symmetric [componentId]="widget.componentId"></oe-controller-peakshaving-symmetric>
                 </ion-col>
               }
               @case ("Controller.Asymmetric.PeakShaving") {
@@ -78,7 +78,7 @@
               }
               @case ("Controller.TimeslotPeakshaving") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <oe-controller-peakshaving-timeslot [componentId]="widget.componentId"> </oe-controller-peakshaving-timeslot>
+                  <oe-controller-peakshaving-timeslot [componentId]="widget.componentId"></oe-controller-peakshaving-timeslot>
                 </ion-col>
               }
               @case ("Controller.Ess.DelayedSellToGrid") {
@@ -88,47 +88,47 @@
               }
               @case ("Controller.Ess.GridOptimizedCharge") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <gridOptimizedChargeWidget [componentId]="widget.componentId"> </gridOptimizedChargeWidget>
+                  <gridOptimizedChargeWidget [componentId]="widget.componentId"></gridOptimizedChargeWidget>
                 </ion-col>
               }
               @case ("Controller.Api.ModbusTcp.ReadWrite") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <modbusTcpApiWidget [componentId]="widget.componentId"> </modbusTcpApiWidget>
+                  <modbusTcpApiWidget [componentId]="widget.componentId"></modbusTcpApiWidget>
                 </ion-col>
               }
               @case ("Controller.Ess.Time-Of-Use-Tariff") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <timeOfUseTariffWidget [componentId]="widget.componentId"> </timeOfUseTariffWidget>
+                  <timeOfUseTariffWidget [componentId]="widget.componentId"></timeOfUseTariffWidget>
                 </ion-col>
               }
               @case ("Controller.Clever-PV") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <enerixControlWidget [componentId]="widget.componentId"> </enerixControlWidget>
+                  <enerixControlWidget [componentId]="widget.componentId"></enerixControlWidget>
                 </ion-col>
               }
               @case ("Controller.IO.HeatingElement") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <controller-io-heatingelement-widget [componentId]="widget.componentId"> </controller-io-heatingelement-widget>
+                  <controller-io-heatingelement-widget [componentId]="widget.componentId"></controller-io-heatingelement-widget>
                 </ion-col>
               }
               @case ("Heat.Askoma") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <controller-heat-widget [componentId]="widget.componentId"> </controller-heat-widget>
+                  <controller-heat-widget [componentId]="widget.componentId"></controller-heat-widget>
                 </ion-col>
               }
               @case ("Heat.MyPv.AcThor9s") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <controller-heat-widget [componentId]="widget.componentId"> </controller-heat-widget>
+                  <controller-heat-widget [componentId]="widget.componentId"></controller-heat-widget>
                 </ion-col>
               }
               @case ("Controller.Io.HeatPump.SgReady") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <controller-io-heatpump-widget [componentId]="widget.componentId"> </controller-io-heatpump-widget>
+                  <controller-io-heatpump-widget [componentId]="widget.componentId"></controller-io-heatpump-widget>
                 </ion-col>
               }
               @case ("Controller.CHP.SoC") {
                 <ion-col size="12" size-md="6" size-lg="4" size-xl="3">
-                  <chpsocWidget [componentId]="widget.componentId" [period]="service.historyPeriod.value"> </chpsocWidget>
+                  <oe-controller-chp-widget [componentId]="widget.componentId"></oe-controller-chp-widget>
                 </ion-col>
               }
             }

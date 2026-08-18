@@ -1,9 +1,7 @@
-import { inject } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { SharedEssFixDigitalPowerControl } from "./shared";
@@ -16,7 +14,6 @@ export abstract class FixPowerComponent extends AbstractFormlyComponent<FormMode
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
-    protected routeService: RouteService = inject(RouteService);
     protected abstract readonly powerConverter: (value: number | null) => string;
     protected abstract readonly unit: string;
 

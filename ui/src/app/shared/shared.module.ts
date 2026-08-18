@@ -14,6 +14,7 @@ import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/fo
 import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { DateTimeLineComponent } from "./components/datetime-picker/datetime-picker";
+import { DualKnobSliderComponent } from "./components/dual-knob-slider/dual-knob-slider";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FlatWidgetButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -209,6 +210,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         CommonModule,
         ComponentsModule,
         DirectiveModule,
+        DualKnobSliderComponent,
         FormlyModule.forRoot({
             wrappers: [
                 {

@@ -114,6 +114,11 @@
                       <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'RANGE', properties: line.properties }" [formGroup]="form"></oe-modal-line>
                     }
 
+                    <!-- OeFormlyField.Dual.Knob.RangeButtonFromFormControlLine -->
+                    @case ("dual-knob-range-button-from-form-control-line") {
+                      <oe-dual-knob-slider [formGroup]="form" [lowerControlName]="line.lowerControlName" [upperControlName]="line.upperControlName" [properties]="line.properties"></oe-dual-knob-slider>
+                    }
+
                     <!-- OeFormlyField.ToggleLine -->
                     @case ("toggle-line") {
                       <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>

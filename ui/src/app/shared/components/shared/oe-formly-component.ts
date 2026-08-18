@@ -5,6 +5,7 @@ import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, finalize, take, takeUntil } from "rxjs/operators";
+import { RouteService } from "../../service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { MultiLengthArray, TIntRange } from "../../type/utility";
@@ -26,6 +27,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
     protected readonly navigationService: NavigationService = inject(NavigationService);
+    protected readonly routeService: RouteService = inject(RouteService);
     protected SKIP_COUNT: number = 2;
     protected dataService: DataService;
     protected fields: FormlyFieldConfig[] = [];
@@ -114,6 +116,22 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
 
         this.dataService.subscribeChannels(channelAddresses, edge);
         this.fetchCurrentData(service);
+    }
+
+    /**
+     * Gets the component from the route params
+     *
+     * @returns {@link EdgeConfig.Component} The Component from the route params
+     */
+    protected getComponent(): EdgeConfig.Component {
+        const edge = this.service.currentEdge();
+        const config = edge.getCurrentConfig();
+        AssertionUtils.assertIsDefined(config);
+
+        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
+        AssertionUtils.assertIsDefined(component);
+
+        return component;
     }
 
     /**
@@ -423,6 +441,7 @@ export type OeFormlyField<T = any> = (
     | OeFormlyField.ButtonFromFormControlLine
     | OeFormlyField.ButtonsFromFormControlLine
     | OeFormlyField.RangeButtonFromFormControlLine
+    | OeFormlyField.DualKnobRangeButtonFromFormControlLine
     | OeFormlyField.RadioButtonsFromFormControlLine
     | OeFormlyField.PercentageBarFromFormControlLine
     | OeFormlyField.ValueLine
@@ -551,10 +570,19 @@ export namespace OeFormlyField {
         buttons: ButtonLabel[];
     };
 
+    export type RangeLineProperties = Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+
     export type RangeButtonFromFormControlLine = {
         type: "range-button-from-form-control-line";
         controlName: string;
         properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
+    };
+
+    export type DualKnobRangeButtonFromFormControlLine = {
+        type: "dual-knob-range-button-from-form-control-line";
+        lowerControlName: string;
+        upperControlName: string;
+        properties: RangeLineProperties & { dualKnobs: true };
     };
 
     export type ValueFromFormControlLine = {
