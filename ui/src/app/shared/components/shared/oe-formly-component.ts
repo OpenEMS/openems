@@ -94,6 +94,7 @@ export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy 
     }
 
     ionViewWillLeave() {
+        this.navigationService.headerTitle.set(null);
         this.ngOnDestroy();
     }
 

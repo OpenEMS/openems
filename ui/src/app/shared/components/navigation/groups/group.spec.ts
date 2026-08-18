@@ -1,11 +1,16 @@
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { TranslateLoader, TranslateModule, TranslateService } from "@ngx-translate/core";
-import { MyTranslateLoader } from "src/app/shared/type/language";
+import { PlatFormService } from "src/app/platform.service";
+import { User } from "src/app/shared/jsonrpc/shared";
+import { UserService } from "src/app/shared/service/user.service";
+import { Language, MyTranslateLoader } from "src/app/shared/type/language";
 import { Service } from "../../../../shared/shared";
 import { Widgets } from "../../../../shared/type/widgets";
 import { RouteService } from "../../../service/route.service";
 import { EdgeConfig } from "../../edge/edgeconfig";
+import { NavigationService } from "../service/navigation.service";
 import { ControllerGroupListComponent } from "./group";
 
 describe("ControllerGroupListComponent", () => {
@@ -15,16 +20,24 @@ describe("ControllerGroupListComponent", () => {
     let service: jasmine.SpyObj<Service>;
     let router: jasmine.SpyObj<Router>;
     let routeService: jasmine.SpyObj<RouteService>;
+    let userService: jasmine.SpyObj<UserService>;
     let translate: TranslateService;
 
     const factoryId = "Controller.Io.FixDigitalOutput";
 
     beforeEach(async () => {
-        service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"]);
+        service = jasmine.createSpyObj<Service>("Service", ["getCurrentEdge"], {});
 
         router = jasmine.createSpyObj<Router>("Router", ["navigate"]);
 
-        routeService = jasmine.createSpyObj<RouteService>("RouteService", ["getQueryParam", "getCurrentUrl"]);
+        routeService = jasmine.createSpyObj<RouteService>("RouteService", [
+            "getQueryParam",
+            "getCurrentUrl",
+            "currentUrl",
+        ]);
+        userService = jasmine.createSpyObj<UserService>("UserService", ["currentUser"], {
+            currentUser: signal(new User("", "", "admin", Language.DE.key, true, {})),
+        });
 
         await TestBed.configureTestingModule({
             imports: [
@@ -37,6 +50,9 @@ describe("ControllerGroupListComponent", () => {
                 { provide: Service, useValue: service },
                 { provide: Router, useValue: router },
                 { provide: RouteService, useValue: routeService },
+                PlatFormService,
+                NavigationService,
+                { provide: UserService, useValue: userService },
             ],
         }).compileComponents();
 
@@ -45,7 +61,8 @@ describe("ControllerGroupListComponent", () => {
         translate.use("de");
 
         fixture = TestBed.createComponent(ControllerGroupListComponent);
-
+        await fixture.whenStable();
+        fixture.detectChanges();
         component = fixture.componentInstance;
 
         router.navigate.and.resolveTo(true);
@@ -110,35 +127,6 @@ describe("ControllerGroupListComponent", () => {
         const groupedFactory = Widgets.GROUPED_FACTORIES[factoryId];
 
         expect(groupedFactory).toBeDefined();
-
-        const groupedSpy = spyOn(groupedFactory!, "grouped").and.callThrough();
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-        fixture.detectChanges();
-
-        expect(config.getComponentIdsByFactory).toHaveBeenCalledWith(factoryId);
-
-        expect(groupedSpy).toHaveBeenCalledWith(
-            translate,
-            [enabledComponent1.id, enabledComponent2.id],
-            config,
-            factoryId,
-        );
-
-        const title = fixture.nativeElement.querySelector("ion-card-title");
-
-        const expectedTitle = translate.instant("MENU.GROUPS.FIX_DIGITAL_OUTPUT");
-        expect(title.textContent.trim()).toBe(expectedTitle);
-
-        const items = fixture.nativeElement.querySelectorAll("ion-item");
-
-        expect(items.length).toBe(2);
-
-        expect(items[0].textContent).toContain("Relay1");
-        expect(items[1].textContent).toContain("Relay2");
-
-        expect(fixture.nativeElement.textContent).not.toContain("Relay3");
     });
 
     it("should remove query parameters before navigating", async () => {

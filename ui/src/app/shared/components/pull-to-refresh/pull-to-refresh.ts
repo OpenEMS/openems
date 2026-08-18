@@ -36,10 +36,6 @@ export class PullToRefreshComponent {
                 PlatFormService.handleRefresh();
             }
         });
-
-        // Rerender ion-content to use full available height
-        const hostElement = this.el.nativeElement;
-        this.renderer.addClass(hostElement, "ion-page");
     }
 
     @Input({ required: true }) public refresh: (ev: RefresherCustomEvent) => void = (ev: RefresherCustomEvent) => {};

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, untracked, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, untracked, ViewChild, ChangeDetectionStrategy, computed, } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -42,6 +42,13 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     protected showBackButton: boolean = false;
     protected isNewNavigation: boolean = false;
     protected edge = this.service.currentEdge;
+    protected readonly parentNodeLink = computed(() => {
+        const parentNode = this.navigationService.currentNode()?.parent ?? null;
+        if (parentNode?.parent == null) {
+            return null;
+        }
+        return parentNode?.routerLink?.baseString ?? null;
+    });
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;
@@ -61,7 +68,6 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         effect(() => {
             const currentNode = navigationService.currentNode();
             const _currentUrl = routeService.currentUrl();
-
             if (
                 currentNode &&
                 currentNode.getParents() &&
@@ -236,6 +242,7 @@ export class AppHeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
         if (backUrl === "/device") {
             backUrl = "/";
         }
+
         this.backUrl = backUrl;
     }
 

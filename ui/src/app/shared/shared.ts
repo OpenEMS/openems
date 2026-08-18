@@ -46,6 +46,7 @@ addIcons({
     "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
     "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
     "oe-wrap-up": environment.icons.WRAP_UP,
+    "oe-favorites": environment.icons.COMMON.FAVORITES,
 });
 
 export class Permission {}

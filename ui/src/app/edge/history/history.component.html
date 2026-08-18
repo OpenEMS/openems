@@ -1,12 +1,5 @@
 @if (edge) {
   <oe-navigation-view (ngDomChange)="onDomChange($event)" [ngDomChangeObserveAttributes]="false">
-    <ion-buttons #header header class="ion-justify-content-center">
-      @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
-        <ion-button size="small" fill="clear" class="ion-justify-content-center">
-          <pickdate></pickdate>
-        </ion-button>
-      }
-    </ion-buttons>
     <ion-refresher mode="ios" slot="fixed" (ionRefresh)="handleRefresh($event)">
       <ion-refresher-content refreshingSpinner="crescent"></ion-refresher-content>
     </ion-refresher>

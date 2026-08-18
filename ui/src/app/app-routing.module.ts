@@ -1,6 +1,7 @@
 import { inject, NgModule } from "@angular/core";
 import { NoPreloading, RedirectFunction, RouterModule, Routes } from "@angular/router";
 import { CookieService } from "ngx-cookie-service";
+import { EmptyPageComponent } from "src/app/shared/components/navigation/empty-page/empty-page";
 import { environment } from "src/environments";
 import { EdgeComponent } from "./edge/edge.component";
 import { DelayedSellToGridChartOverviewComponent } from "./edge/history/delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
@@ -208,6 +209,13 @@ export const routes: Routes = [
         children: [
             { path: "", redirectTo: "live", pathMatch: "full" },
             {
+                path: "",
+                loadChildren: () =>
+                    import("./shared/components/navigation/navigation-routing.module").then(
+                        (m) => m.NavigationRoutingModule,
+                    ),
+            },
+            {
                 path: "live",
                 data: { navbarTitle: environment.uiTitle },
                 providers: [
@@ -226,6 +234,39 @@ export const routes: Routes = [
                 path: "settings",
                 loadChildren: () =>
                     import("./edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
+            },
+            {
+                path: "favorites",
+                children: [
+                    { path: "", component: EmptyPageComponent, pathMatch: "full" },
+                    {
+                        path: "",
+                        loadChildren: () =>
+                            import("./shared/components/navigation/navigation-routing.module").then(
+                                (m) => m.NavigationRoutingModule,
+                            ),
+                    },
+                ],
+            },
+            {
+                path: "profile",
+                children: [
+                    { path: "", component: EmptyPageComponent, pathMatch: "full" },
+                    {
+                        path: "settings",
+                        loadChildren: () =>
+                            import("./edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
+                    },
+                    {
+                        path: "user",
+                        component: UserComponent,
+                        data: { navbarTitleToBeTranslated: "MENU.USER" },
+                    },
+                ],
+            },
+            {
+                path: "schedule",
+                children: [{ path: "", component: EmptyPageComponent, pathMatch: "full" }],
             },
         ],
     },

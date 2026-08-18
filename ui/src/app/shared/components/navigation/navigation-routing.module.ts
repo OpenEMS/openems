@@ -20,9 +20,6 @@ import { CommonStorageSettingsComponent } from "src/app/edge/live/common/storage
 import { WeatherHomeComponent } from "src/app/edge/live/common/weather/new-navigation/new-navigation";
 import { ControllerChannelthresholdHistoryComponent } from "src/app/edge/live/Controller/Channelthreshold/history/new-navigation/new-navigation";
 import { ChannelthresholdHomeComponent } from "src/app/edge/live/Controller/Channelthreshold/new-navigation/new-navigation";
-import { ControllerChpHistoryComponent } from "src/app/edge/live/Controller/ChpSoc/history/new-navigation/new-navigation";
-import { ControllerChpHomeComponent } from "src/app/edge/live/Controller/ChpSoc/new-navigation/home";
-import { ControllerChpSettingsComponent } from "src/app/edge/live/Controller/ChpSoc/settings/settings";
 import { ControllerEnerixControlHistoryComponent } from "src/app/edge/live/Controller/EnerixControl/history/new-navigation/new-navigation";
 import { ControllerEnerixControlHomeComponent } from "src/app/edge/live/Controller/EnerixControl/new-navigation/new-navigation";
 import { ControllerEnerixControlSettingsComponent } from "src/app/edge/live/Controller/EnerixControl/settings/settings";
@@ -98,54 +95,202 @@ import { LiveComponent as EdgeLiveComponent } from "../../../edge/live/live.comp
 import { suffixMatcher } from "../../guards/url-matcher";
 import { ControllerGroupListComponent } from "./groups/group";
 
-export const newNavigationRoutes: Routes = [
-    { path: "", component: EdgeLiveComponent },
-    { path: "evse/:componentId", component: EvseSingleComponent },
-    { path: "evse/:componentId/history", component: EvseHistoryComponent },
-    {
-        path: "evse/:componentId/energy-limit",
-        component: EvseEnergyLimitComponent,
-    },
-    { path: "evse/:componentId/forecast", component: EvseForecastComponent },
-    {
-        path: "evse/:componentId/phase-switching",
-        component: EvsePhaseSwitchingComponent,
-    },
-    { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
-    {
-        path: "evse/:componentId/schedule/edit-task",
-        component: EvseEditTaskComponent,
-    },
-    { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
-    {
-        path: "evse/:componentId/schedule/add-task",
-        component: EvseAddTaskComponent,
-    },
-    {
-        matcher: suffixMatcher("navigation-info"),
-        component: NavigationInfoComponent,
-    },
-    {
-        path: "evse/:componentId/car/update",
-        component: UpdateAppConfigComponent,
-        canActivate: [hasEdgeRole(Role.OWNER)],
-    },
-    {
-        path: "io-heating-room",
-        component: ControllerGroupListComponent,
-    },
-    {
-        path: "io-heating-room/:componentId",
-        component: IoHeatingRoomModalComponent,
-    },
+const controllerRoutes: (suffix: string | null) => Routes = (suffix: string | null = null) =>
+    [
+        { path: "evse/:componentId", component: EvseSingleComponent },
+        { path: "evse/:componentId/history", component: EvseHistoryComponent },
+        {
+            path: "evse/:componentId/energy-limit",
+            component: EvseEnergyLimitComponent,
+        },
+        { path: "evse/:componentId/forecast", component: EvseForecastComponent },
+        {
+            path: "evse/:componentId/phase-switching",
+            component: EvsePhaseSwitchingComponent,
+        },
+        { path: "evse/:componentId/schedule", component: EvseScheduleComponent },
+        {
+            path: "evse/:componentId/schedule/edit-task",
+            component: EvseEditTaskComponent,
+        },
+        { path: "evse/:componentId/charge-mode", component: ChargeModeComponent },
+        {
+            path: "evse/:componentId/schedule/add-task",
+            component: EvseAddTaskComponent,
+        },
+        {
+            path: "evse/:componentId/car/update",
+            component: UpdateAppConfigComponent,
+            canActivate: [hasEdgeRole(Role.OWNER)],
+        },
+        {
+            path: "io-heating-room",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "io-heating-room/:componentId",
+            component: IoHeatingRoomModalComponent,
+        },
+        {
+            path: "controller/io-fix-digital-output",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "controller/io-fix-digital-output/:componentId",
+            component: ControllerFixDigitalOutputHomeComponent,
+        },
+        {
+            path: "controller/io-fix-digital-output/:componentId/history",
+            component: FixDigitalDetailsComponent,
+        },
+        {
+            path: "controller/braiins",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "controller/braiins/:componentId",
+            component: ControllerBraiinsHomeComponent,
+        },
+        {
+            path: "controller/braiins/:componentId/mode",
+            component: ControllerBraiinsModeComponent,
+        },
+        {
+            path: "controller/braiins/:componentId/schedule",
+            component: ControllerBraiinsScheduleComponent,
+        },
+        {
+            path: "controller/braiins/:componentId/schedule/add-task",
+            component: ControllerBraiinsAddTaskComponent,
+        },
+        {
+            path: "controller/braiins/:componentId/schedule/edit-task",
+            component: ControllerBraiinsEditTaskComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId",
+            component: ControllerIoHeatpumpHomeComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/settings",
+            component: ControllerIoHeatpumpSettingsComponent,
+        },
+        {
+            path: "controller/heatpump/:componentId/history",
+            component: ControllerIoHeatpumpHistoryComponent,
+        },
+        {
+            path: "controller/io-channel-single-threshold",
+            component: ControllerGroupListComponent,
+        },
+        {
+            path: "controller/io-channel-single-threshold/:componentId",
+            component: ControllerIoChannelSingleThresholdHomeComponent,
+        },
+        {
+            path: "controller/io-channel-single-threshold/:componentId/settings",
+            component: ControllerIoChannelSingleThresholdSettingsComponent,
+        },
+        {
+            path: "controller/io-channel-single-threshold/:componentId/history",
+            component: ControllerIoChannelSingleThresholdHistoryComponent,
+        },
+        {
+            path: "controller/enerix-control/:componentId",
+            component: ControllerEnerixControlHomeComponent,
+        },
+        {
+            path: "controller/enerix-control/:componentId/settings",
+            component: ControllerEnerixControlSettingsComponent,
+        },
+        {
+            path: "controller/enerix-control/:componentId/history",
+            component: ControllerEnerixControlHistoryComponent,
+        },
+        {
+            path: "controller/heat/:componentId",
+            component: ControllerHeatHomeComponent,
+        },
+        {
+            path: "controller/heat/:componentId/forecast",
+            component: HeatForecastComponent,
+        },
+        {
+            path: "controller/heat/:componentId/history",
+            component: ControllerHeatHistoryComponent,
+        },
+        {
+            path: "controller/heatingelement/:componentId",
+            component: ControllerIoHeatingElementHomeComponent,
+        },
+        {
+            path: "controller/heatingelement/:componentId/settings",
+            component: ControllerIoHeatingElementSettingsComponent,
+        },
+        {
+            path: "controller/heatingelement/:componentId/history",
+            component: ControllerHeatingElementHistoryComponent,
+        },
+        {
+            path: "controller/ess-fix-active-power/:componentId",
+            component: ControllerEssFixActivePowerComponent,
+        },
+        {
+            path: "controller/ess-fix-reactive-power/:componentId",
+            component: ControllerEssFixReactivePowerComponent,
+        },
+        {
+            path: "controller/heat/:componentId/settings",
+            component: ControllerHeatSettingsComponent,
+        },
+        {
+            path: "controller/heat/:componentId/schedule",
+            component: HeatScheduleComponent,
+        },
+        {
+            path: "controller/heat/:componentId/schedule/add-task",
+            component: HeatAddTaskComponent,
+        },
+        {
+            path: "controller/heat/:componentId/schedule/edit-task",
+            component: HeatEditTaskComponent,
+        },
+        {
+            path: "controller/heat/:componentId/schedule/add-task",
+            component: HeatAddTaskComponent,
+        },
+        {
+            path: "controller/heat/:componentId/schedule/edit-task",
+            component: HeatEditTaskComponent,
+        },
+        {
+            path: "controller/channelthreshold/:componentId",
+            component: ChannelthresholdHomeComponent,
+        },
+        {
+            path: "controller/channelthreshold/:componentId/history",
+            component: ControllerChannelthresholdHistoryComponent,
+        },
+        {
+            path: "controller/channelthreshold/:componentId",
+            component: ChannelthresholdHomeComponent,
+        },
+        {
+            path: "controller/channelthreshold/:componentId/history",
+            component: ControllerChannelthresholdHistoryComponent,
+        },
+    ].map((el) => ({ ...el, path: suffix != null ? suffix + "/" + el.path : el.path }));
 
-    // Common navigation
+export const commonRoutes: Routes = [
     { path: "common/autarchy", component: CommonAutarchyHomeComponent },
     {
         path: "common/autarchy/history",
         component: CommonAutarchyHistoryComponent,
     },
-    { path: "common/consumption", component: CommonConsumptionHomeComponent },
+    {
+        path: "common/consumption",
+        component: CommonConsumptionHomeComponent,
+    },
     {
         path: "common/consumption/details",
         component: CommonConsumptionDetailsComponent,
@@ -162,6 +307,7 @@ export const newNavigationRoutes: Routes = [
         path: "common/consumption/history/:componentId/details/current-voltage",
         component: CurrentVoltageOverviewComponent,
     },
+    ...controllerRoutes("common/consumption"),
     { path: "common/grid", component: CommonGridHomeComponent },
     { path: "common/grid/history", component: CommonGridHistoryComponent },
     {
@@ -198,13 +344,6 @@ export const newNavigationRoutes: Routes = [
         path: "common/production/history/:componentId/phase-accurate/current-voltage",
         component: CurrentVoltageOverviewComponent,
     },
-
-    {
-        path: "settings",
-        loadChildren: () =>
-            import("src/app/edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
-    },
-
     {
         path: "common/selfconsumption",
         component: CommonSelfConsumptionHomeComponent,
@@ -281,54 +420,7 @@ export const newNavigationRoutes: Routes = [
         path: "common/storage/controller/modbus-tcp-api/:componentId/history",
         component: ControllerModbusTcpApiHistoryComponent,
     },
-    {
-        path: "controller/io-fix-digital-output",
-        component: ControllerGroupListComponent,
-    },
-    {
-        path: "controller/io-fix-digital-output/:componentId",
-        component: ControllerFixDigitalOutputHomeComponent,
-    },
-    {
-        path: "controller/io-fix-digital-output/:componentId/history",
-        component: FixDigitalDetailsComponent,
-    },
-    {
-        path: "controller/braiins",
-        component: ControllerGroupListComponent,
-    },
-    {
-        path: "controller/braiins/:componentId",
-        component: ControllerBraiinsHomeComponent,
-    },
-    {
-        path: "controller/braiins/:componentId/mode",
-        component: ControllerBraiinsModeComponent,
-    },
-    {
-        path: "controller/braiins/:componentId/schedule",
-        component: ControllerBraiinsScheduleComponent,
-    },
-    {
-        path: "controller/braiins/:componentId/schedule/add-task",
-        component: ControllerBraiinsAddTaskComponent,
-    },
-    {
-        path: "controller/braiins/:componentId/schedule/edit-task",
-        component: ControllerBraiinsEditTaskComponent,
-    },
-    {
-        path: "controller/heatpump/:componentId",
-        component: ControllerIoHeatpumpHomeComponent,
-    },
-    {
-        path: "controller/heatpump/:componentId/settings",
-        component: ControllerIoHeatpumpSettingsComponent,
-    },
-    {
-        path: "controller/heatpump/:componentId/history",
-        component: ControllerIoHeatpumpHistoryComponent,
-    },
+
     {
         path: "common/storage/controller/peak-shaving-symmetric/:componentId",
         component: ControllerPeakShavingSymmetricHomeComponent,
@@ -393,20 +485,6 @@ export const newNavigationRoutes: Routes = [
         path: "controller/enerix-control/:componentId/history",
         component: ControllerEnerixControlHistoryComponent,
     },
-
-    {
-        path: "controller/chp/:componentId",
-        component: ControllerChpHomeComponent,
-    },
-    {
-        path: "controller/chp/:componentId/settings",
-        component: ControllerChpSettingsComponent,
-    },
-    {
-        path: "controller/chp/:componentId/history",
-        component: ControllerChpHistoryComponent,
-    },
-
     {
         path: "controller/heat/:componentId",
         component: ControllerHeatHomeComponent,
@@ -479,6 +557,17 @@ export const newNavigationRoutes: Routes = [
         path: "common/storage/:componentId/scheduler-js-calendar/schedule/edit-task",
         component: SchedulerJsCalendarEditTaskComponent,
     },
+];
+
+export const newNavigationRoutes: Routes = [
+    { path: "", component: EdgeLiveComponent },
+    ...commonRoutes,
+    ...controllerRoutes(null),
+    {
+        path: "settings",
+        loadChildren: () =>
+            import("src/app/edge/settings/settings-routing.module").then((m) => m.SettingsRoutingModule),
+    },
     {
         path: "history",
         component: HistoryChartComponent,
@@ -486,6 +575,10 @@ export const newNavigationRoutes: Routes = [
     {
         path: "history/export",
         component: HistoryExcelExportComponent,
+    },
+    {
+        matcher: suffixMatcher("navigation-info"),
+        component: NavigationInfoComponent,
     },
 ];
 
