@@ -2,13 +2,26 @@ package io.openems.edge.evse.chargepoint.hardybarth;
 
 import static io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory.ofBridgeImpl;
 import static io.openems.edge.common.test.TestUtils.withValue;
-import static io.openems.edge.evse.chargepoint.hardybarth.common.Constants.API_RESPONSE;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.API_RESPONSE;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_MISSING;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_NULL;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_STATUS_IDLE;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_STATUS_NULL;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_STATUS_PROGRESS;
+import static io.openems.edge.evse.chargepoint.hardybarth.common.TestData.PHASE_SWITCHING_STATUS_UNKNOWN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.stream.Stream;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
@@ -122,6 +135,7 @@ class EvseChargePointHardyImplTest {
 						.output(HardyBarth.ChannelId.RAW_SALIA_FIRMWAREPROGRESS, "0") //
 						.output(HardyBarth.ChannelId.RAW_SALIA_FIRMWARESTATE, "idle") //
 						.output(HardyBarth.ChannelId.RAW_SALIA_PUBLISH, null) //
+						.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, "idle") //
 						.output(HardyBarth.ChannelId.RAW_SESSION_AUTHORIZATION_METHOD, null) //
 						.output(HardyBarth.ChannelId.RAW_SESSION_SLAC_STARTED, null) //
 						.output(HardyBarth.ChannelId.RAW_SESSION_STATUS_AUTHORIZATION, "") //
@@ -166,6 +180,62 @@ class EvseChargePointHardyImplTest {
 			var cpa = sut.obj.getChargePointAbilities();
 			assertTrue(cpa.isEvConnected());
 		}
+	}
+
+	@Nested
+	@DisplayName("hasPhaseSwitchingApi() / canStartPhaseSwitch()")
+	class PhaseSwitchingApiTest {
+
+		static Stream<Arguments> statusCases() {
+			return Stream.of(//
+					Arguments.of("idle", PHASE_SWITCHING_STATUS_IDLE, "idle", true, true), //
+					Arguments.of("progress", PHASE_SWITCHING_STATUS_PROGRESS, "progress", true, false), //
+					Arguments.of("missing phase_switching", PHASE_SWITCHING_MISSING, null, false, false), //
+					Arguments.of("phase_switching: null", PHASE_SWITCHING_NULL, null, false, false), //
+					Arguments.of("status: null", PHASE_SWITCHING_STATUS_NULL, null, false, false), //
+					Arguments.of("unknown status", PHASE_SWITCHING_STATUS_UNKNOWN, "error", false, false));
+		}
+
+		@ParameterizedTest(name = "[{index}] {0}")
+		@MethodSource("statusCases")
+		void testStatus(String name, String json, String expectedRawValue, boolean expectedSupport,
+				boolean expectedCanStart) throws Exception {
+			final var sut = generateSut();
+			sut.test.next(new TestCase() //
+					.onBeforeProcessImage(
+							() -> sut.evseHandler.handleGetApiCallResponse(HttpResponse.ok(json), PhaseRotation.L1_L2_L3)) //
+					.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, expectedRawValue) //
+					// An undefined or unknown value must not trigger a warning/fault channel.
+					.output(OpenemsComponent.ChannelId.STATE, Level.OK) //
+			);
+			assertEquals(expectedSupport, sut.obj.hasPhaseSwitchingApi());
+			assertEquals(expectedCanStart, sut.obj.canStartPhaseSwitch());
+		}
+
+		@Test
+		void testTransitionFromSupportedToUnsupported() throws Exception {
+			final var sut = generateSut();
+			sut.test //
+					.next(new TestCase() //
+							.onBeforeProcessImage(() -> sut.evseHandler.handleGetApiCallResponse(
+									HttpResponse.ok(PHASE_SWITCHING_STATUS_IDLE), PhaseRotation.L1_L2_L3)) //
+							.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, "idle") //
+					);
+			assertTrue(sut.obj.hasPhaseSwitchingApi());
+			assertTrue(sut.obj.canStartPhaseSwitch());
+
+			sut.test //
+					.next(new TestCase() //
+							.onBeforeProcessImage(() -> sut.evseHandler.handleGetApiCallResponse(
+									HttpResponse.ok(PHASE_SWITCHING_MISSING), PhaseRotation.L1_L2_L3)) //
+							.output(HardyBarth.ChannelId.RAW_SALIA_PHASE_SWITCHING_STATUS, null) //
+					);
+			assertFalse(sut.obj.hasPhaseSwitchingApi());
+			assertFalse(sut.obj.canStartPhaseSwitch());
+		}
+	}
+
+	private static record Sut(EvseChargePointHardyBarthImpl obj, ComponentTest test, EvseHandler evseHandler) {
 	}
 
 	@Test
@@ -217,9 +287,6 @@ class EvseChargePointHardyImplTest {
 
 	private static boolean isTargetRequest(Endpoint endpoint) {
 		return endpoint.body() != null && endpoint.body().contains("grid_current_limit");
-	}
-
-	private record Sut(EvseChargePointHardyBarthImpl obj, ComponentTest test, EvseHandler evseHandler) {
 	}
 
 	private static Sut generateSut() throws Exception {

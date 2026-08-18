@@ -1,6 +1,6 @@
 package io.openems.edge.evse.chargepoint.hardybarth.common;
 
-public class Constants {
+public class TestData {
 
 	public static final String API_RESPONSE = """
 			{
@@ -61,7 +61,10 @@ public class Constants {
 			            "pausecharging":"0",
 			            "socketminamp":"6",
 			            "socketmaxamp":"16",
-			            "intctrl_limit":"16"
+			            "intctrl_limit":"16",
+			            "phase_switching":{
+			               "status":"idle"
+			            }
 			         },
 			         "session":{
 			            "authorization_status":""
@@ -342,5 +345,84 @@ public class Constants {
 			   }
 			}
 			""";
+
+	public static final String PHASE_SWITCHING_STATUS_IDLE = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                     "phase_switching":{
+			                        "status":"idle"
+			                     }
+			                  }
+			               }
+			            }
+			         }
+			         """;
+
+	public static final String PHASE_SWITCHING_STATUS_PROGRESS = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                     "phase_switching":{
+			                        "status":"progress"
+			                     }
+			                  }
+			               }
+			            }
+			         }
+			         """;
+
+	public static final String PHASE_SWITCHING_STATUS_UNKNOWN = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                     "phase_switching":{
+			                        "status":"error"
+			                     }
+			                  }
+			               }
+			            }
+			         }
+			         """;
+
+	public static final String PHASE_SWITCHING_STATUS_NULL = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                     "phase_switching":{
+			                        "status":null
+			                     }
+			                  }
+			               }
+			            }
+			         }
+			         """;
+
+	public static final String PHASE_SWITCHING_NULL = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                     "phase_switching":null
+			                  }
+			               }
+			            }
+			         }
+			         """;
+
+	public static final String PHASE_SWITCHING_MISSING = """
+			         {
+			            "secc":{
+			               "port0":{
+			                  "salia":{
+			                  }
+			               }
+			            }
+			         }
+			         """;
 
 }
