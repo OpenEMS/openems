@@ -68,6 +68,7 @@ public class TariffEntsoeGridSellImpl extends AbstractOpenemsComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
+		this.priceCalculator = PriceCalculatorX.fromExpression(config.calculateExpression());
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
@@ -79,8 +80,6 @@ public class TariffEntsoeGridSellImpl extends AbstractOpenemsComponent
 
 		this.priceProvider.getMarketPrices().subscribe(this.onNewMarketPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
-
-		this.priceCalculator = PriceCalculatorX.fromExpression(config.calculateExpression());
 	}
 
 	@Deactivate

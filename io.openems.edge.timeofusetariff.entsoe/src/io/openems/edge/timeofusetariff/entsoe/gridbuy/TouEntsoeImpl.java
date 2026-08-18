@@ -76,7 +76,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 	}
 
 	private void reloadPricesDueToCurrencyChange() {
-		if (this.priceProvider != null && this.priceCalculator != null) {
+		if (this.priceProvider != null) {
 			this.logInfo(this.log, "Triggering price update due to currency change ...");
 			this.setPrices(this.priceProvider.getMarketPrices().getValue());
 		}
@@ -84,13 +84,14 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	@Override
 	public void triggerPriceUpdate() {
-		if (this.priceProvider != null && this.priceCalculator != null) {
+		if (this.priceProvider != null) {
 			this.priceProvider.triggerPriceUpdate();
 		}
 	}
 
 	@Activate
 	private synchronized void activate(ComponentContext context, Config config) {
+		this.priceCalculator = PriceCalculatorXY.fromExpression(config.calculateExpression());
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
 		if (!config.enabled()) {
@@ -101,11 +102,8 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 		this.priceProvider = this.entsoeMarketPriceProviderPool
 				.get(new EntsoeConfiguration(config.biddingZone(), config.securityToken()));
-
 		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
-
-		this.priceCalculator = PriceCalculatorXY.fromExpression(config.calculateExpression());
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
