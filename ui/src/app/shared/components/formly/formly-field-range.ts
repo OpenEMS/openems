@@ -29,21 +29,20 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
         </ion-range>
 
         <ion-text class="range-current-value">
-            {{ "GENERAL.CURRENT_VALUE" | translate }}:
-            {{ getCurrentValueLabel() }}
+            {{ "GENERAL.CURRENT_VALUE" | translate }}: {{ getCurrentValueLabel() }}
         </ion-text>
 
-        @if (props.description) {
-            <p class="description-text">
-                {{ props.description }}
-            </p>
-        }
-
         @if (props.info) {
-            <div class="info-inline ion-padding-top">
-                <ion-icon color="success" name="oe-info"></ion-icon>
-                <span class="description-text ion-padding-start">{{ props.info }}</span>
-            </div>
+            <ion-grid>
+                <ion-row class="ion-justify-content-center">
+                    <ion-col size="12" size-sm="12" size-md="10" size="8">
+                        <ion-item>
+                            <ion-icon slot="start" size="large" color="primary" name="oe-info"></ion-icon>
+                            <ion-text text-nowrap>{{ props.info }}</ion-text>
+                        </ion-item>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
         }
 
         <!-- Validation errors -->
