@@ -23,6 +23,7 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class ForceUpdateComponentConfig implements Runnable {
@@ -99,6 +100,10 @@ public class ForceUpdateComponentConfig implements Runnable {
 			return;
 		}
 
+		if (!hasAnyForceUpdateProperty(component)) {
+			return;
+		}
+
 		List<UpdateComponentConfigRequest.Property> properties = new ArrayList<>();
 
 		if (component.config().forceUpdateOrCreate()) {
@@ -133,12 +138,17 @@ public class ForceUpdateComponentConfig implements Runnable {
 		}
 
 		var isSameConfig = edgeConfigComponent //
-				.filter(value -> ComponentUtilImpl.isSameConfiguration(null, component, value)) //
+				.filter(value -> ComponentUtilImpl.isSameConfigurationWithoutAlias(null, component, value)) //
 				.isPresent();
 
 		if (!isSameConfig) {
 			sendUpdateComponentConfigRequest(systemUser, component.id(), properties, componentManager);
 		}
+	}
+
+	private static boolean hasAnyForceUpdateProperty(ComponentDef component) {
+		return component.config().forceUpdateOrCreate()
+				|| component.properties().values().stream().anyMatch(ComponentProperties.Property::forceUpdate);
 	}
 
 	private static void checkDependencyPropertyForceUpdate(AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil,
