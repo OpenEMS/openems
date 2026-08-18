@@ -143,4 +143,26 @@ export class ObjectUtils {
             return null;
         }
     }
+
+    /**
+     * Removes properties with a `null` or `undefined` value from a shallow object.
+     *
+     * Sending an explicit `null` (e.g. from a formly field reset via `resetOnHide`)
+     * instead of omitting the key can cause the backend to reject the value instead
+     * of falling back to its default, so this should be applied before sending
+     * request properties (e.g. app installation/estimation properties) to the backend.
+     *
+     * @param obj The object to strip `null`/`undefined` values from
+     * @returns A shallow copy of the object without `null`/`undefined` values
+     */
+    public static omitNullOrUndefinedValues<T extends object>(obj: T): Partial<T> {
+        const result: Partial<T> = {};
+        for (const key of Object.keys(obj) as (keyof T)[]) {
+            const value = obj[key];
+            if (value !== null && value !== undefined) {
+                result[key] = value;
+            }
+        }
+        return result;
+    }
 }

@@ -56,4 +56,46 @@ describe("ObjectUtils", () => {
             ).toEqual(null);
         });
     });
+    describe("+omitNullOrUndefinedValues", () => {
+        it("removes null and undefined values", () => {
+            const obj = {
+                a: 1,
+                b: null,
+                c: undefined,
+                d: "value",
+            };
+            expect(ObjectUtils.omitNullOrUndefinedValues(obj)).toEqual({
+                a: 1,
+                d: "value",
+            });
+        });
+        it("keeps falsy values that are not null/undefined", () => {
+            const obj = {
+                a: 0,
+                b: false,
+                c: "",
+            };
+            expect(ObjectUtils.omitNullOrUndefinedValues(obj)).toEqual({
+                a: 0,
+                b: false,
+                c: "",
+            });
+        });
+        it("obj without null/undefined values -> unchanged", () => {
+            expect(ObjectUtils.omitNullOrUndefinedValues(validObj)).toEqual(
+                validObj,
+            );
+        });
+        it("empty obj -> empty obj", () => {
+            expect(ObjectUtils.omitNullOrUndefinedValues({})).toEqual({});
+        });
+        it("obj with only null/undefined values -> empty obj", () => {
+            expect(
+                ObjectUtils.omitNullOrUndefinedValues({
+                    a: null,
+                    b: undefined,
+                }),
+            ).toEqual({});
+        });
+    });
 });
