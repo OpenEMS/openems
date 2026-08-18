@@ -78,7 +78,6 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            useDefaultPrefix: false,
             lines: lines,
             component: component,
         };

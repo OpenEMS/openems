@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -31,6 +31,7 @@ export class ControllerEnerixControlHomeComponent extends AbstractFormlyComponen
     ): OeFormlyView<SharedControllerEnerixControl.EnerixControlViewModel> {
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_CLEVER_PV",
             lines: SharedControllerEnerixControl.getFormlySharedModeAndStateLines(translate, component),
             component: component,
         };

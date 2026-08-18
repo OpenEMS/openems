@@ -1,12 +1,12 @@
 @if (isInitialized) {
-  <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" helpKey="REDIRECT.CONTROLLER_IO_HEATING_ELEMENT" useDefaultPrefix="false">
-    <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="runState" [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE"> </oe-modal-line>
+  <oe-modal [title]="this.component.alias" [component]="component" [formGroup]="formGroup" helpKey="REDIRECT.CONTROLLER_IO_HEATING_ELEMENT">
+    <oe-modal-line [name]="'GENERAL.STATE' | translate" [value]="runState" [converter]="CONVERT_HEATING_ELEMENT_RUNSTATE"></oe-modal-line>
     @if (level !== Level.LEVEL_0) {
-      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level"> </oe-modal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ACTIVE_LEVEL' | translate" [value]="'Level ' + level"></oe-modal-line>
     }
     @if (consumptionMeter) {
-      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate" [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT"> </oe-modal-line>
-      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'" [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"> </oe-modal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.HEATING_POWER' | translate" [channelAddress]="consumptionMeter.id + '/ActivePower'" [converter]="Utils.CONVERT_WATT_TO_KILOWATT"></oe-modal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.ENERGY_SINCE_BEGINNING' | translate" [channelAddress]="component.id + '/SessionEnergy'" [converter]="Utils.CONVERT_TO_KILO_WATTHOURS"></oe-modal-line>
     }
     <oe-modal-horizontal-line></oe-modal-horizontal-line>
     <oe-modal-line [name]="'GENERAL.MODE' | translate"></oe-modal-line>
@@ -28,7 +28,7 @@
         <tr>
           <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_MINIMUM_HEATING</td>
           <td style="width: 35%" class="align_right">
-            <ion-toggle (ionChange)="switchWorkMode($event, 'TIME')" [checked]="formGroup.controls['workMode'].value === WorkMode.TIME"> </ion-toggle>
+            <ion-toggle (ionChange)="switchWorkMode($event, 'TIME')" [checked]="formGroup.controls['workMode'].value === WorkMode.TIME"></ion-toggle>
           </td>
         </tr>
       </table>
@@ -70,8 +70,8 @@
         </tr>
       </table>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate" [value]="formGroup.controls['minTime'].value + ' h'"> </oe-modal-line>
-      <oe-modal-line controlName="minTime" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true } }" [formGroup]="formGroup"> </oe-modal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMUM_RUN_TIME' | translate" [value]="formGroup.controls['minTime'].value + ' h'"></oe-modal-line>
+      <oe-modal-line controlName="minTime" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: 10, unit: 'H', pinFormatter: pinFormatterTime, snaps: true } }" [formGroup]="formGroup"></oe-modal-line>
     }
     @if (formGroup.controls["mode"].value === Mode.AUTOMATIC && consumptionMeter && consumptionMeter.isEnabled) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
@@ -79,15 +79,15 @@
         <tr>
           <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.HEATINGELEMENT.GUARANTEE_HEATING</td>
           <td style="width: 35%" class="align_right">
-            <ion-toggle (ionChange)="switchWorkMode($event, 'ENERGY')" [checked]="formGroup.controls['workMode'].value === WorkMode.ENERGY"> </ion-toggle>
+            <ion-toggle (ionChange)="switchWorkMode($event, 'ENERGY')" [checked]="formGroup.controls['workMode'].value === WorkMode.ENERGY"></ion-toggle>
           </td>
         </tr>
       </table>
     }
     @if (formGroup.controls["mode"].value === Mode.AUTOMATIC && formGroup.controls["workMode"].value === WorkMode.ENERGY && consumptionMeter && consumptionMeter.isEnabled) {
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
-      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMAL_ENERGY_LIMIT' | translate" [value]="formGroup.controls['minEnergyLimitInKwh'].value + ' kWh'"> </oe-modal-line>
-      <oe-modal-line controlName="minEnergyLimitInKwh" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: maxPower, unit: 'kWh ', pinFormatter: pinFormatterEnergy, snaps: true } }" [formGroup]="formGroup"> </oe-modal-line>
+      <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.HEATINGELEMENT.MINIMAL_ENERGY_LIMIT' | translate" [value]="formGroup.controls['minEnergyLimitInKwh'].value + ' kWh'"></oe-modal-line>
+      <oe-modal-line controlName="minEnergyLimitInKwh" [control]="{ type: 'RANGE', properties: { tickMin: 1, tickMax: maxPower, unit: 'kWh ', pinFormatter: pinFormatterEnergy, snaps: true } }" [formGroup]="formGroup"></oe-modal-line>
       <oe-modal-horizontal-line></oe-modal-horizontal-line>
       <table style="width: 100%">
         <tr>

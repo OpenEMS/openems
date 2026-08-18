@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -26,6 +26,7 @@ export class ControllerPeakShavingSymmetricHomeComponent extends AbstractFormlyC
     public static getFormlyGeneralView(translate: TranslateService, component: EdgeConfig.Component): OeFormlyView {
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_SYMMETRIC_PEAKSHAVING",
             lines: SharedControllerPeakShaving.getFormlyFlatLines(translate, component),
             component: component,
         };

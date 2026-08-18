@@ -53,6 +53,7 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
 
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD",
             icon: { name: "aperture-outline", color: "primary", size: "large" },
             lines: lines,
             component: new EdgeConfig.Component(),

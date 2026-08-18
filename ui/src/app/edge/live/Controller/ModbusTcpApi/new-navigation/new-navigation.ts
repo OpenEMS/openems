@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -33,6 +33,7 @@ export class ControllerModbusTcpApiHomeComponent extends AbstractFormlyComponent
         const channel = new ChannelAddress(component.id, "OverrideStatus");
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_API_MODBUSTCP_READWRITE",
             lines: [
                 {
                     type: "value-from-channels-line",

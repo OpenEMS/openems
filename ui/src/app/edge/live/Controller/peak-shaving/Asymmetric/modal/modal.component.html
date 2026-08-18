@@ -2,6 +2,7 @@
   <ion-toolbar class="ion-justify-content-center" style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color)">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
+      <oe-help-button key="REDIRECT.CONTROLLER_ASYMMETRIC_PEAKSHAVING"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline" style="color: var(--ion-title-color)"></ion-icon>
       </ion-button>
@@ -64,7 +65,7 @@
               <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.PEAKSHAVING_POWER</td>
               <td style="width: 35%" class="align_right">
                 <ion-item lines="inset" class="noPadding">
-                  <ion-input class="regularFont" formControlName="peakShavingPower" style="text-align: end" type="number" label="&nbsp;W"> </ion-input>
+                  <ion-input class="regularFont" formControlName="peakShavingPower" style="text-align: end" type="number" label="&nbsp;W"></ion-input>
                 </ion-item>
               </td>
             </tr>
@@ -74,7 +75,7 @@
               <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.RECHARGE_POWER</td>
               <td style="width: 35%" class="align_right">
                 <ion-item lines="inset" class="noPadding">
-                  <ion-input class="regularFont" formControlName="rechargePower" style="text-align: end" type="number" label="&nbsp;W"> </ion-input>
+                  <ion-input class="regularFont" formControlName="rechargePower" style="text-align: end" type="number" label="&nbsp;W"></ion-input>
                 </ion-item>
               </td>
             </tr>
@@ -88,7 +89,7 @@
           <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
         </ion-col>
         <ion-col size="10">
-          <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.ASYMMETRIC_INFO</small> </ion-note>
+          <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PEAKSHAVING.ASYMMETRIC_INFO</small></ion-note>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -96,7 +97,7 @@
   @if (formGroup.dirty) {
     <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="end" slot="fixed">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="oe-checkmark"> </ion-icon>
+        <ion-icon size="large" name="oe-checkmark"></ion-icon>
       </ion-fab-button>
     </ion-fab>
   }

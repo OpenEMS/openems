@@ -1,13 +1,9 @@
-@if(isInitialized && currentHourlyForecast && currentDailyForecast ){
-  <oe-modal [title]="'TITLE_WITH_LOCATION' | translate : { location: placeName }" [component]="component"
-    [helpKey]="'REDIRECT.WEATHER_WIDGET'" [useDefaultPrefix]="false">
-    @if(gotData){
-      <oe-weather-content [currentHourlyForecast]="currentHourlyForecast" [currentDailyForecast]="currentDailyForecast"
-        [upcomingHourlyForecasts]="upcomingHourlyForecasts" [upcomingDailyForecasts]="upcomingDailyForecasts">
-      </oe-weather-content>
+@if (isInitialized && currentHourlyForecast && currentDailyForecast) {
+  <oe-modal [title]="'TITLE_WITH_LOCATION' | translate: { location: placeName }" [component]="component" [helpKey]="'REDIRECT.WEATHER_WIDGET'">
+    @if (gotData) {
+      <oe-weather-content [currentHourlyForecast]="currentHourlyForecast" [currentDailyForecast]="currentDailyForecast" [upcomingHourlyForecasts]="upcomingHourlyForecasts" [upcomingDailyForecasts]="upcomingDailyForecasts"></oe-weather-content>
     } @else {
-      <oe-modal-line style="font-style: italic;" leftColumnWidth="100" [name]="'NO_DATA_INFO' | translate">
-      </oe-modal-line>
+      <oe-modal-line style="font-style: italic" leftColumnWidth="100" [name]="'NO_DATA_INFO' | translate"></oe-modal-line>
     }
   </oe-modal>
 }

@@ -153,6 +153,7 @@ export namespace SharedStorage {
                 NavigationConstants.CommonNodes.PHASE_ACCURATE(translate, "details", "success"),
                 NavigationConstants.CommonNodes.HISTORY(translate, historyChildren),
                 NavigationConstants.CommonNodes.SETTINGS(translate, hasAtLeastOneController ? "LOW" : "HIDE"),
+                NavigationConstants.CommonNodes.INFO(translate, { source: "storage" }),
             ],
             null,
             { isCommonWidget: true },

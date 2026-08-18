@@ -1,11 +1,11 @@
-import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type, } from "@angular/core";
+import { Directive, effect, EffectRef, inject, Injector, OnDestroy, Type } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { IonInput } from "@ionic/angular";
 import { FormlyFieldConfig } from "@ngx-formly/core";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { filter, finalize, take, takeUntil } from "rxjs/operators";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket, } from "../../shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "../../shared";
 import { SharedModule } from "../../shared.module";
 import { MultiLengthArray, TIntRange } from "../../type/utility";
 import { Icon } from "../../type/widget";
@@ -13,7 +13,7 @@ import { AssertionUtils } from "../../utils/assertions/assertions.utils";
 import { FormUtils } from "../../utils/form/form.utils";
 import { AbstractModalLine } from "../modal/abstract-modal-line";
 import { ButtonLabel } from "../modal/modal-button/modal-button";
-import { ModalLineComponent, TextIndentation, } from "../modal/modal-line/modal-line";
+import { ModalLineComponent, TextIndentation } from "../modal/modal-line/modal-line";
 import { NavigationService } from "../navigation/service/navigation.service";
 import { OeImageComponent } from "../oe-img/oe-img";
 import { Stat } from "../stats/stats";
@@ -22,21 +22,16 @@ import { DataService } from "./dataservice";
 import { Filter } from "./filter";
 
 @Directive()
-export abstract class AbstractFormlyComponent<
-    T = unknown,
-> implements OnDestroy {
+export abstract class AbstractFormlyComponent<T = unknown> implements OnDestroy {
     protected readonly translate: TranslateService;
     protected readonly service: Service = inject(Service);
-    protected readonly navigationService: NavigationService =
-        inject(NavigationService);
+    protected readonly navigationService: NavigationService = inject(NavigationService);
     protected SKIP_COUNT: number = 2;
     protected dataService: DataService;
     protected fields: FormlyFieldConfig[] = [];
     protected form: FormGroup = new FormGroup({});
-    protected formlyWrapper:
-        | "formly-field-modal"
-        | "formly-field-navigation"
-        | "formly-field-waiting-spinner" = "formly-field-modal";
+    protected formlyWrapper: "formly-field-modal" | "formly-field-navigation" | "formly-field-waiting-spinner" =
+        "formly-field-modal";
 
     protected stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -49,10 +44,8 @@ export abstract class AbstractFormlyComponent<
     constructor() {
         this.initializeView();
 
-        this.translate =
-            SharedModule.injector.get<TranslateService>(TranslateService);
-        this.navigationService =
-            SharedModule.injector.get<NavigationService>(NavigationService);
+        this.translate = SharedModule.injector.get<TranslateService>(TranslateService);
+        this.navigationService = SharedModule.injector.get<NavigationService>(NavigationService);
         this.dataService = inject(DataService);
         const websocket = inject(Websocket);
 
@@ -86,8 +79,7 @@ export abstract class AbstractFormlyComponent<
         });
 
         effect(() => {
-            const isNavigationInitialized =
-                this.navigationService.getIsInitialized();
+            const isNavigationInitialized = this.navigationService.getIsInitialized();
             if (!isNavigationInitialized) {
                 return;
             }
@@ -96,9 +88,7 @@ export abstract class AbstractFormlyComponent<
     }
 
     ionViewWillEnter() {
-        this.navigationService.headerTitle.set(
-            this.view?.isCommonWidget ? this.view.title : null,
-        );
+        this.navigationService.headerTitle.set(this.view?.isCommonWidget ? this.view.title : null);
     }
 
     ionViewWillLeave() {
@@ -108,9 +98,7 @@ export abstract class AbstractFormlyComponent<
     public async ngOnDestroy() {
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
-        this.dataService?.unsubscribeFromChannels(
-            await this.getChannelAddresses(),
-        );
+        this.dataService?.unsubscribeFromChannels(await this.getChannelAddresses());
     }
 
     /**
@@ -193,24 +181,12 @@ export abstract class AbstractFormlyComponent<
         AssertionUtils.assertIsDefined(edge);
 
         service.startSpinner("formly-field-modal");
-        edge.updateComponentConfig(
-            websocket,
-            component.id,
-            this.buildUpdateComponentArr(fg),
-        )
+        edge.updateComponentConfig(websocket, component.id, this.buildUpdateComponentArr(fg))
             .then(() => {
-                service.toast(
-                    this.translate.instant("GENERAL.CHANGE_ACCEPTED"),
-                    "success",
-                );
+                service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
             })
             .catch((reason) => {
-                service.toast(
-                    this.translate.instant("GENERAL.CHANGE_FAILED") +
-                        "\n" +
-                        reason.error.message,
-                    "danger",
-                );
+                service.toast(this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message, "danger");
             })
             .finally(() => {
                 this.skipCurrentData = true;
@@ -220,15 +196,12 @@ export abstract class AbstractFormlyComponent<
     }
 
     /**
-     * Builds the update component array for the
-     * {@link Edge.updateComponentConfig} request.
+     * Builds the update component array for the {@link Edge.updateComponentConfig} request.
      *
      * @param fg The form group
      * @returns The update component array
      */
-    protected buildUpdateComponentArr(
-        fg: FormGroup<any>,
-    ): { name: string; value: any }[] {
+    protected buildUpdateComponentArr(fg: FormGroup<any>): { name: string; value: any }[] {
         const updateComponentArray: { name: string; value: any }[] = [];
         for (const key in fg.controls) {
             const control = fg.controls[key];
@@ -278,25 +251,14 @@ export abstract class AbstractFormlyComponent<
 
         const channelValue = currentData.allComponents[channel.toString()];
         const control = fg.controls[formControlName];
-        if (
-            this.skipCurrentData ||
-            fg.dirty ||
-            fg.touched ||
-            !channel ||
-            channelValue == null ||
-            control == null
-        ) {
+        if (this.skipCurrentData || fg.dirty || fg.touched || !channel || channelValue == null || control == null) {
             return;
         }
 
-        const prevFormControlValue: T | null =
-            FormUtils.findFormControlsValueSafely(fg, formControlName);
+        const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
         const currFormControlValue: T | null = channelValue;
 
-        if (
-            currFormControlValue != null &&
-            prevFormControlValue !== currFormControlValue
-        ) {
+        if (currFormControlValue != null && prevFormControlValue !== currFormControlValue) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
             this.form = fg;
@@ -312,24 +274,16 @@ export abstract class AbstractFormlyComponent<
      * @param channel The channel to use
      * @returns The new formGroup
      */
-    protected setFormControlSafelyWithValue<T>(
-        fg: FormGroup,
-        formControlName: string,
-        value: T | null,
-    ) {
+    protected setFormControlSafelyWithValue<T>(fg: FormGroup, formControlName: string, value: T | null) {
         const control = fg.controls[formControlName];
         if (control == null) {
             return;
         }
 
-        const prevFormControlValue: T | null =
-            FormUtils.findFormControlsValueSafely(fg, formControlName);
+        const prevFormControlValue: T | null = FormUtils.findFormControlsValueSafely(fg, formControlName);
         const currFormControlValue: T | null = value;
 
-        if (
-            currFormControlValue != null &&
-            prevFormControlValue !== currFormControlValue
-        ) {
+        if (currFormControlValue != null && prevFormControlValue !== currFormControlValue) {
             control.setValue(currFormControlValue);
             control.markAsPristine();
             this.form = fg;
@@ -345,22 +299,15 @@ export abstract class AbstractFormlyComponent<
             lines: [],
             title: "",
         };
-        this.setFields(
-            this.view,
-            this.form,
-            this.service.websocket,
-            "formly-field-waiting-spinner",
-        );
+        this.setFields(this.view, this.form, this.service.websocket, "formly-field-waiting-spinner");
     }
 
     private setFields(
         view: OeFormlyView<T>,
         fg: FormGroup,
         websocket: Websocket,
-        formlyWrapper:
-            | "formly-field-modal"
-            | "formly-field-navigation"
-            | "formly-field-waiting-spinner" = this.formlyWrapper,
+        formlyWrapper: "formly-field-modal" | "formly-field-navigation" | "formly-field-waiting-spinner" = this
+            .formlyWrapper,
     ) {
         this.ionViewWillEnter();
         this.fields = [
@@ -372,9 +319,7 @@ export abstract class AbstractFormlyComponent<
                                 title: view.title,
                                 ...(view.helpKey != null
                                     ? {
-                                          helpKey: view.helpKey as
-                                              | string
-                                              | number,
+                                          helpKey: view.helpKey as string | number,
                                       }
                                     : {}),
                             },
@@ -385,8 +330,7 @@ export abstract class AbstractFormlyComponent<
                             onInit: (field) => {
                                 // Evaluate hide immediately so fields are not all
                                 // briefly visible before the first valueChanges fires.
-                                field.hide =
-                                    el.hide?.(field.form?.value) ?? false;
+                                field.hide = el.hide?.(field.form?.value) ?? false;
                                 field.form?.valueChanges.subscribe((value) => {
                                     field.hide = el.hide?.(value) ?? false;
                                     if (
@@ -406,12 +350,8 @@ export abstract class AbstractFormlyComponent<
                 props: {
                     attributes: {
                         title: view.title,
-                        ...(view.icon != null && view.icon.name != null
-                            ? { icon: view.icon.name as string }
-                            : {}),
-                        ...(view.helpKey != null
-                            ? { helpKey: view.helpKey as string | number }
-                            : {}),
+                        ...(view.icon != null && view.icon.name != null ? { icon: view.icon.name as string } : {}),
+                        ...(view.helpKey != null ? { helpKey: view.helpKey as string | number } : {}),
                     },
                     required: true,
                     options: [
@@ -426,22 +366,11 @@ export abstract class AbstractFormlyComponent<
                                       },
                                   }
                                 : {}),
-                            ...(view.isCommonWidget != null
-                                ? { isCommonWidget: view.isCommonWidget }
-                                : {}),
-                            ...(view.useDefaultPrefix != null
-                                ? { useDefaultPrefix: view.useDefaultPrefix }
-                                : {}),
+                            ...(view.isCommonWidget != null ? { isCommonWidget: view.isCommonWidget } : {}),
                         },
                     ],
                     onSubmit: (fg: FormGroup) => {
-                        this.applyChanges(
-                            fg,
-                            this.service,
-                            websocket,
-                            view.component ?? null,
-                            view.edge ?? null,
-                        );
+                        this.applyChanges(fg, this.service, websocket, view.component ?? null, view.edge ?? null);
                     },
                 },
             },
@@ -455,9 +384,7 @@ export abstract class AbstractFormlyComponent<
      * @param role The Role of the User for this Edge
      * @param translate The Translate-Service
      */
-    protected abstract generateView(
-        viewContext: ViewContext,
-    ): Promise<OeFormlyView<T>> | OeFormlyView<T>;
+    protected abstract generateView(viewContext: ViewContext): Promise<OeFormlyView<T>> | OeFormlyView<T>;
 }
 
 export type ViewContext = Readonly<{
@@ -472,7 +399,6 @@ export type OeFormlyView<T = unknown> = {
     isCommonWidget?: boolean;
     helpKey?: string | null;
     icon?: Icon;
-    useDefaultPrefix?: boolean | null;
     component?: EdgeConfig.Component | null;
     edge?: Edge;
 };
@@ -514,11 +440,7 @@ export type OeFormlyField<T = any> = (
     /** Executes a applyable if according name field exists for this line type */
     nameCallback?: (field: T) => string;
     style?: AbstractModalLine["lineStyle"];
-    cssClass?:
-        | "ion-padding-top"
-        | "ion-padding-bottom"
-        | "ion-padding-left"
-        | "ion-padding-right";
+    cssClass?: "ion-padding-top" | "ion-padding-bottom" | "ion-padding-left" | "ion-padding-right";
     leftColumnWidth?: TIntRange<0, 101>;
 };
 
@@ -571,7 +493,8 @@ export namespace OeFormlyField {
 
     export type ChildrenLine = {
         type: "children-line";
-        name: /* actual name string */
+        name:
+            /* actual name string */
             | string
             | /* name string derived from channel value */ {
                   channel: ChannelAddress;
@@ -583,8 +506,7 @@ export namespace OeFormlyField {
 
     export type ChannelLine = {
         type: "channel-line";
-        name: /* actual name string */
-            string | /* name string derived from channel value */ Converter;
+        name: /* actual name string */ string | /* name string derived from channel value */ Converter;
         channel: string;
         filter?: (value: number | null) => boolean;
         converter?: (value: number | null) => string;
@@ -632,12 +554,7 @@ export namespace OeFormlyField {
     export type RangeButtonFromFormControlLine = {
         type: "range-button-from-form-control-line";
         controlName: string;
-        properties: Partial<
-            Extract<
-                ModalLineComponent["control"],
-                { type: "RANGE" }
-            >["properties"]
-        >;
+        properties: Partial<Extract<ModalLineComponent["control"], { type: "RANGE" }>["properties"]>;
     };
 
     export type ValueFromFormControlLine = {
@@ -659,9 +576,7 @@ export namespace OeFormlyField {
     };
     export type NameLine = {
         type: "name-line";
-        name:
-            | string
-            | { channel: ChannelAddress; converter: (value: any) => string };
+        name: string | { channel: ChannelAddress; converter: (value: any) => string };
         filter?: Filter;
     };
 

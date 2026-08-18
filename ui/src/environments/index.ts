@@ -120,17 +120,23 @@ export interface Environment {
             readonly COMMON_SELFCONSUMPTION: string | null;
             readonly OFFLINE_INSTRUCTIONS: string | null;
 
+            readonly CONTROLLER_CLEVER_PV: string | null;
             readonly CONTROLLER_CHP_SOC: string;
             readonly CONTROLLER_ESS_TIME_OF_USE_TARIFF: string;
             readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string;
             readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string;
             readonly CONTROLLER_IO_HEATING_ELEMENT: string;
+            readonly CONTROLLER_HEAT_ASKOMA: string | null;
+            readonly CONTROLLER_HEAT_MYPV: string | null;
             readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string;
             readonly CONTROLLER_IO_FIX_DIGITAL_OUTPUT: string;
             readonly CONTROLLER_API_MODBUSTCP_READ: string;
             readonly CONTROLLER_API_MODBUSTCP_READWRITE: string;
             readonly CONTROLLER_API_REST_READ: string;
             readonly CONTROLLER_API_REST_READWRITE: string;
+            readonly CONTROLLER_SYMMETRIC_PEAKSHAVING: string | null;
+            readonly CONTROLLER_ASYMMETRIC_PEAKSHAVING: string | null;
+            readonly CONTROLLER_TIMESLOT_PEAKSHAVING: string | null;
 
             readonly EVCS_KEBA: string | null;
             readonly EVCS_HARDY_BARTH: string | null;
@@ -196,6 +202,7 @@ export interface Environment {
                     readonly COMMERCIAL_50_GEN_3: string;
                     readonly COMMERCIAL_92: string;
                     readonly COMMERCIAL_92_CLUSTER: string;
+                    readonly COMMERCIAL_92_OVERVIEW: string;
                     readonly COMMERCIAL_100: string;
                 };
                 readonly INDUSTRIAL?: {

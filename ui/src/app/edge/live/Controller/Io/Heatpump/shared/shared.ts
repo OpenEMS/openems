@@ -26,7 +26,6 @@ export namespace SharedControllerIoHeatpump {
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEAT_PUMP_SG_READY",
-            useDefaultPrefix: true,
             lines: [
                 ...getFormlySharedLines(translate, component, config),
                 ...getFormlyAutomaticView(translate, component, HIDE_ON_MODE_MANUAL),
