@@ -110,7 +110,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 	private HttpBridgeAuthenticationService<HttpHeader> authenticationService;
 	private String customerNumber;
 	private String contractId;
-	private TimeEndpoint pricePollingEndpoint;
+	private TimeEndpoint<HttpResponse<String>> pricePollingEndpoint;
 
 	private record InitiatedConnectState(String state) {
 	}
@@ -412,7 +412,7 @@ public class TimeOfUseTariffRabotChargeImpl extends AbstractOpenemsComponent
 		return generateDebugLog(this, this.meta.getCurrency());
 	}
 
-	public class RabotChargeDelayTimeProvider implements DelayTimeProvider {
+	public static class RabotChargeDelayTimeProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 
