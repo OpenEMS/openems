@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.time.DefaultDelayTimeProvider;
 import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
@@ -136,7 +137,8 @@ public class ControllerCleverPvImpl extends AbstractOpenemsComponent
 	private void sendData() {
 
 		final var delay = DelayTimeProvider.Delay.of(Duration.ofSeconds(SEND_SECONDS));
-		final var delayTime = new DefaultDelayTimeProvider(DelayTimeProvider.Delay::immediate, t -> delay, t -> delay);
+		final var delayTime = new DefaultDelayTimeProvider<HttpResponse<String>>(DelayTimeProvider.Delay::immediate,
+				t -> delay, t -> delay);
 		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 
 		timeService.subscribeJsonTime(delayTime, () -> {

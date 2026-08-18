@@ -2,15 +2,15 @@ package io.openems.common.bridge.http.api;
 
 import static io.openems.common.bridge.http.time.DelayTimeProviderChain.fixedDelay;
 import static io.openems.common.test.TestUtils.createDummyClock;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.BridgeHttpImpl;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
@@ -20,13 +20,12 @@ import io.openems.common.test.TimeLeapClock;
 
 public class BridgeHttpTimeTest {
 
-	private BridgeHttp bridgeHttp;
+	private BridgeHttpImpl bridgeHttp;
 	private TimeLeapClock clock;
 	private DummyBridgeHttpExecutor pool;
 
-	@Before
-	public void before() throws Exception {
-
+	@BeforeEach
+	void before() throws Exception {
 		final var fetcher = new DummyEndpointFetcher();
 		fetcher.addEndpointHandler(endpoint -> {
 			return switch (endpoint.url()) {
@@ -41,13 +40,13 @@ public class BridgeHttpTimeTest {
 		this.bridgeHttp = new BridgeHttpImpl(fetcher, this.pool);
 	}
 
-	@After
-	public void after() throws Exception {
-		((BridgeHttpImpl) this.bridgeHttp).deactivate();
+	@AfterEach
+	void after() throws Exception {
+		this.bridgeHttp.deactivate();
 	}
 
 	@Test
-	public void testSubscribeTime() throws Exception {
+	void testSubscribeTime() throws Exception {
 		final var counter = new AtomicInteger(0);
 		final var httpTimeBridge = this.bridgeHttp.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		httpTimeBridge.subscribeTime(fixedDelay(Duration.ofMinutes(1)), "dummy", result -> {
@@ -70,5 +69,4 @@ public class BridgeHttpTimeTest {
 		this.pool.update();
 		assertEquals(2, counter.get());
 	}
-
 }

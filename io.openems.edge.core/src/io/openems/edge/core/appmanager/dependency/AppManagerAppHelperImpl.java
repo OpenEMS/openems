@@ -1485,7 +1485,7 @@ public class AppManagerAppHelperImpl implements AppManagerAppHelper {
 						continue;
 					}
 					var subApp = config.dependencies().stream().filter(t -> t.key.equals(dependency.key)).findFirst()
-							.get();
+							.orElse(null);
 					var dependencyConfig = this.foreachExistingDependency(dependencyApp, target, consumer, instance,
 							subApp, l, alreadyIteratedApps, includeInstance);
 					if (dependencyConfig != null) {

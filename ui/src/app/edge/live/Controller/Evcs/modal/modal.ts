@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, Inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject } from "@angular/core";
 import { FormBuilder, FormControl, FormGroup } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonRange, ModalController, PopoverController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractModal } from "src/app/shared/components/modal/abstractModal";
-import { HelpButtonComponent } from "src/app/shared/components/modal/help-button/help-button";
 import { Formatter } from "src/app/shared/components/shared/formatter";
 import { ChannelAddress, CurrentData, EdgeConfig, Service, Utils, Websocket } from "src/app/shared/shared";
 
@@ -23,6 +22,7 @@ type ChargeMode = "FORCE_CHARGE" | "EXCESS_POWER";
 export class ModalComponent extends AbstractModal {
     public readonly CONVERT_MANUAL_ON_OFF_AUTOMATIC = Utils.CONVERT_MODE_TO_MANUAL_OFF_AUTOMATIC(this.translate);
     public readonly CONVERT_MANUAL_ON_OFF = Utils.CONVERT_MANUAL_ON_OFF(this.translate);
+
     protected controller: EdgeConfig.Component | null = null;
     protected evcsComponent: EdgeConfig.Component | null = null;
     protected isConnectionSuccessful: boolean = false;
@@ -43,8 +43,8 @@ export class ModalComponent extends AbstractModal {
     protected sessionLimit: number | null = null;
     protected awaitingHysteresis: boolean | null = null;
     protected isReadWrite: boolean = true;
-    protected readonly useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = false;
     protected helpKey: string | null = null;
+
     private chargePoint: EvcsComponent | null = null;
 
     constructor(

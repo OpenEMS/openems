@@ -355,7 +355,7 @@
           "CURRENT_VALUE": "現在の価値",
           "DEPENDEND_ON": "に応じて",
           "MIN_SWITCHING_TIME": "最小スイッチ時間",
-          "MORE_THAN_MAX_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
+          "MORE_THAN_HP_POWER": "値が制御されたデバイスの最大電力よりも低くてはなりません",
           "OTHER": "他の",
           "RELATION_ERROR": "しきい値は、スイッチされた負荷電力よりも大きくなければなりません",
           "SWITCH_OFF_ABOVE": "上記のスイッチをオフにします",

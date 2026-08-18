@@ -10,7 +10,8 @@ Janitza meters are professional power quality analyzers with advanced measuremen
 
 == Supported Devices
 
-* https://www.janitza.com/[Janitza UMG 96RM-E icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 96-PQ-L icon:external-link[]]
+* https://www.janitza.com/[Janitza UMG 96-RM-E icon:external-link[]]
 * https://www.janitza.com/[Janitza UMG 104 icon:external-link[]]
 * https://www.janitza.com/[Janitza UMG 511 icon:external-link[]]
 * https://www.janitza.com/[Janitza UMG 604 icon:external-link[]]
@@ -22,9 +23,33 @@ Janitza meters are professional power quality analyzers with advanced measuremen
 
 This bundle implements the following OpenEMS Components for Janitza meters:
 
-=== Janitza UMG 96RM-E
+=== Janitza UMG 96-PQ-L
 
-*Name*: Meter Janitza UMG 96RM-E
+*Name*: Meter Janitza UMG 96-PQ-L
+
+*Factory-PID*: `Meter.Janitza.UMG96PQL`
+
+.Implemented Natures/Interfaces
+* MeterJanitzaUmg96pql
+* ElectricityMeter
+* ModbusComponent
+* OpenemsComponent
+* ModbusSlave
+
+*Description*: Power analyzer for energy measurement via Modbus protocol.
+
+.*Configuration*:
+* `id` (String): Component ID for unique identification (default: "meter0")
+* `alias` (String): Human-readable alias for the component
+* `enabled` (Boolean): Enable/disable this component (default: true)
+* `modbus_id` (String): ID of Modbus bridge for communication (default: "modbus0")
+* `modbusUnitId` (Integer): Modbus Unit ID of the meter device (default: 1)
+* `type` (Enum): Meter type - GRID, PRODUCTION, or CONSUMPTION (default: PRODUCTION)
+* `invert` (Boolean): Invert power values and swap production/consumption energy (default: false)
+
+=== Janitza UMG 96-RM-E
+
+*Name*: Meter Janitza UMG 96-RM-E
 
 *Factory-PID*: `Meter.Janitza.UMG96RME`
 

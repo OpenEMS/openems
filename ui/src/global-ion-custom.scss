@@ -30,6 +30,10 @@
     padding-top: calc(var(--ion-padding) / 2);
 }
 
+.ion-padding-right-half {
+    padding-right: calc(var(--ion-padding) / 2);
+}
+
 .ion-padding-top-double {
     padding-top: calc(var(--ion-padding) * 2);
 }
@@ -219,10 +223,20 @@
     justify-self: end;
 }
 
+.ion-justify-content-space-between {
+    justify-content: space-between !important;
+}
+.ion-justify-content-end {
+    justify-content: end !important;
+}
+
 .ion-margin-right {
     margin-right: var(--ion-margin);
 }
 
 .ion-no-margin-right {
     margin-right: 0;
+}
+.ion-no-margin-left {
+    margin-left: 0;
 }

@@ -1,19 +1,18 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationConstants, NavigationTree, } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { State } from "src/app/shared/components/shared/converter";
 import { Name } from "src/app/shared/components/shared/name";
 import { OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { RouteService } from "src/app/shared/service/route.service";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, } from "src/app/shared/shared";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { EnerixControlMode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { ControlMode } from "../flat/flat";
 
 export namespace SharedControllerEnerixControl {
     // hide automatic elements when mode is OFF
-    const HIDE_ON_MODE_OFF = (el: { controlMode: EnerixControlMode }) =>
-        el.controlMode === EnerixControlMode.OFF;
+    const HIDE_ON_MODE_OFF = (el: { controlMode: EnerixControlMode }) => el.controlMode === EnerixControlMode.OFF;
 
     export type EnerixControlViewModel = {
         controlMode: EnerixControlMode;
@@ -26,6 +25,7 @@ export namespace SharedControllerEnerixControl {
     ): OeFormlyView<EnerixControlViewModel> => {
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_CLEVER_PV",
             lines: [
                 ...getFormlySharedModeAndStateLines(translate, component),
                 ...getFormlySharedLines(translate),
@@ -48,9 +48,7 @@ export namespace SharedControllerEnerixControl {
         },
         {
             type: "info-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_INFO",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_INFO"),
             hide: hideCondition,
         },
     ];
@@ -60,25 +58,16 @@ export namespace SharedControllerEnerixControl {
         state: State;
     };
 
-    const getModeAndStateChannels = (
-        component: EdgeConfig.Component,
-    ): ChannelAddress[] => [
+    const getModeAndStateChannels = (component: EdgeConfig.Component): ChannelAddress[] => [
         new ChannelAddress(component.id, "RemoteControlMode"),
         new ChannelAddress(component.id, "UnableToSend"),
         new ChannelAddress(component.id, "_PropertyReadOnly"),
     ];
 
-    const getEnerixStatus = (
-        currentData: CurrentData,
-        component: EdgeConfig.Component,
-    ): EnerixStatus => {
-        const remoteControlMode =
-            currentData.allComponents[component.id + "/RemoteControlMode"] ??
-            null;
-        const unableToSend =
-            currentData.allComponents[component.id + "/UnableToSend"];
-        const readOnly =
-            currentData.allComponents[component.id + "/_PropertyReadOnly"];
+    const getEnerixStatus = (currentData: CurrentData, component: EdgeConfig.Component): EnerixStatus => {
+        const remoteControlMode = currentData.allComponents[component.id + "/RemoteControlMode"] ?? null;
+        const unableToSend = currentData.allComponents[component.id + "/UnableToSend"];
+        const readOnly = currentData.allComponents[component.id + "/_PropertyReadOnly"];
 
         if (readOnly) {
             return {
@@ -115,29 +104,19 @@ export namespace SharedControllerEnerixControl {
         },
         {
             type: "value-from-channels-line",
-            name: translate.instant(
-                "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_MODE",
-            ),
+            name: translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.OVERWRITE_MODE"),
             channelsToSubscribe: getModeAndStateChannels(component),
             value: (currentData: CurrentData) => {
                 const status = getEnerixStatus(currentData, component);
                 if (status.remoteControlMode == null) {
-                    return CONVERT_ENERIX_CONTROL_STATE(translate)(
-                        status.state,
-                    );
+                    return CONVERT_ENERIX_CONTROL_STATE(translate)(status.state);
                 }
-                return getOverwriteLabel(
-                    status.remoteControlMode,
-                    status.state,
-                    translate,
-                );
+                return getOverwriteLabel(status.remoteControlMode, status.state, translate);
             },
         },
     ];
 
-    const getFormlySharedLines = (
-        translate: TranslateService,
-    ): OeFormlyView<EnerixControlViewModel>["lines"] => [
+    const getFormlySharedLines = (translate: TranslateService): OeFormlyView<EnerixControlViewModel>["lines"] => [
         {
             type: "horizontal-line",
         },
@@ -181,18 +160,10 @@ export namespace SharedControllerEnerixControl {
         AssertionUtils.assertIsDefined(config);
 
         const enerixControlComponent =
-            component ??
-            config.getComponentSafely(
-                routeService.getRouteParam("componentId"),
-            );
+            component ?? config.getComponentSafely(routeService.getRouteParam("componentId"));
 
         AssertionUtils.assertIsDefined(enerixControlComponent);
-        return Promise.resolve([
-            new ChannelAddress(
-                enerixControlComponent.id,
-                "_PropertyControlMode",
-            ),
-        ]);
+        return Promise.resolve([new ChannelAddress(enerixControlComponent.id, "_PropertyControlMode")]);
     }
 
     export function getFormGroup(): FormGroup {
@@ -211,10 +182,7 @@ export namespace SharedControllerEnerixControl {
             { name: "swap-vertical-outline", color: "normal" },
             Name.METER_ALIAS_OR_ID(component),
             "label",
-            [
-                NavigationConstants.CommonNodes.HISTORY(translate),
-                NavigationConstants.CommonNodes.SETTINGS(translate),
-            ],
+            [NavigationConstants.CommonNodes.HISTORY(translate), NavigationConstants.CommonNodes.SETTINGS(translate)],
             null,
         ).toConstructorParams();
     }
@@ -225,29 +193,19 @@ export namespace SharedControllerEnerixControl {
      * @param translate The current language to be translated to
      * @returns Converted value
      */
-    export const CONVERT_ENERIX_CONTROL_STATE = (
-        translate: TranslateService,
-    ) => {
+    export const CONVERT_ENERIX_CONTROL_STATE = (translate: TranslateService) => {
         return (value: any): string => {
             switch (value) {
                 case State.ON:
                     return translate.instant("GENERAL.ON");
                 case State.NO_DISCHARGE:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_DISCHARGE");
                 case State.CHARGE_FROM_GRID:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CHARGE_FROM_GRID");
                 case State.DISCONNECTED:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCONNECTED",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.DISCONNECTED");
                 case State.CONNECTED:
-                    return translate.instant(
-                        "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CONNECTED",
-                    );
+                    return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.CONNECTED");
                 default:
                     return translate.instant("GENERAL.OFF");
             }
@@ -255,15 +213,10 @@ export namespace SharedControllerEnerixControl {
     };
 }
 
-export function mapControlMode(
-    mode: ControlMode,
-    component: EdgeConfig.Component,
-): State {
+export function mapControlMode(mode: ControlMode, component: EdgeConfig.Component): State {
     switch (mode) {
         case ControlMode.IDLE:
-            return component.properties.controlMode === "REMOTE_CONTROL"
-                ? State.ON
-                : State.OFF;
+            return component.properties.controlMode === "REMOTE_CONTROL" ? State.ON : State.OFF;
         case ControlMode.NO_DISCHARGE:
             return State.NO_DISCHARGE;
         case ControlMode.CHARGE_FROM_GRID:
@@ -273,15 +226,9 @@ export function mapControlMode(
     }
 }
 
-export function getOverwriteLabel(
-    mode: ControlMode,
-    state: State,
-    translate: TranslateService,
-): string {
+export function getOverwriteLabel(mode: ControlMode, state: State, translate: TranslateService): string {
     if (state === State.OFF || state === State.DISCONNECTED) {
-        return translate.instant(
-            "EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE",
-        );
+        return translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE");
     }
     return mode === ControlMode.IDLE
         ? translate.instant("EDGE.INDEX.WIDGETS.ENERIX_CONTROL.NO_OVERWRITE")

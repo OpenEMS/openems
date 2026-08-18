@@ -19,5 +19,5 @@ import { FixPowerComponent } from "../shared/shared-new-navigation";
 })
 export class ControllerEssFixActivePowerComponent extends FixPowerComponent {
     protected readonly powerConverter: (value: number | null) => string = Utils.CONVERT_WATT_TO_KILOWATT;
-    protected readonly unit: string = "kW";
+    protected readonly unit: string = "W";
 }

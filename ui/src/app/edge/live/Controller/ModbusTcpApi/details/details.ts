@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -9,7 +9,6 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Filter } from "src/app/shared/components/shared/filter";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, ChannelRegister, CurrentData, EdgeConfig, Service } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
@@ -24,7 +23,6 @@ import { SharedControllerModbusTcpApiReadWrite } from "../shared/shared";
 })
 export class ControllerModbusTcpApiDetailsComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-    private readonly routeService = inject(RouteService);
 
     public static getFormlyGeneralView(
         translate: TranslateService,

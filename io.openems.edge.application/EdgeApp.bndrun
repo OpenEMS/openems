@@ -197,6 +197,7 @@
 	bnd.identity;id='io.openems.edge.predictor.production.linearmodel',\
 	bnd.identity;id='io.openems.edge.predictor.profileclusteringmodel',\
 	bnd.identity;id='io.openems.edge.predictor.similardaymodel',\
+	bnd.identity;id='io.openems.edge.protectionrelay.telehaase',\
 	bnd.identity;id='io.openems.edge.pvinverter.cluster',\
 	bnd.identity;id='io.openems.edge.pvinverter.kaco.blueplanet',\
 	bnd.identity;id='io.openems.edge.pvinverter.kostal',\
@@ -410,6 +411,7 @@
 	io.openems.edge.predictor.production.linearmodel;version=snapshot,\
 	io.openems.edge.predictor.profileclusteringmodel;version=snapshot,\
 	io.openems.edge.predictor.similardaymodel;version=snapshot,\
+	io.openems.edge.protectionrelay.telehaase;version=snapshot,\
 	io.openems.edge.pvinverter.api;version=snapshot,\
 	io.openems.edge.pvinverter.cluster;version=snapshot,\
 	io.openems.edge.pvinverter.kaco.blueplanet;version=snapshot,\

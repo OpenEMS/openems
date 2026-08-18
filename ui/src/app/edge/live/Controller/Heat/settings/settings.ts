@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -10,7 +10,6 @@ import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyView, ViewContext, } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { RouteService } from "../../../../../shared/service/route.service";
 import { PropertyMode, SharedControllerHeat } from "../shared/shared";
 
 @Component({
@@ -31,8 +30,6 @@ export class ControllerHeatSettingsComponent extends AbstractFormlyComponent {
     public static readonly FORM_CONTROL_NAME = "mode";
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     protected component: EdgeConfig.Component | null = null;
-
-    private readonly routeService: RouteService = inject(RouteService);
 
     public static generateView(
         component: EdgeConfig.Component | null,

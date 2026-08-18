@@ -7,22 +7,17 @@ import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { DailyWeatherForecasts } from "../jsonrpc/daily-weather-forecasts";
 import { HourlyWeatherForecasts } from "../jsonrpc/hourly-weather-forecasts";
 import { WeatherModalComponent } from "../modal/modal";
-import { FORECAST_HOURS, isDayTime, WEATHER_CHANNEL_KEYS, } from "./weather.constants";
+import { FORECAST_HOURS, isDayTime, WEATHER_CHANNEL_KEYS } from "./weather.constants";
 
 @Directive()
-export abstract class AbstractWeatherWidget
-    extends AbstractFlatWidget
-    implements OnInit, OnDestroy
-{
+export abstract class AbstractWeatherWidget extends AbstractFlatWidget implements OnInit, OnDestroy {
     protected placeName: string | null = null;
     protected isSmartphone: boolean = false;
     protected gotData: boolean = false;
 
-    protected currentHourlyForecast: HourlyWeatherForecasts.Forecast | null =
-        null;
+    protected currentHourlyForecast: HourlyWeatherForecasts.Forecast | null = null;
     protected upcomingHourlyForecasts: HourlyWeatherForecasts.Forecast[] = [];
-    protected currentDailyForecast: DailyWeatherForecasts.Forecast | null =
-        null;
+    protected currentDailyForecast: DailyWeatherForecasts.Forecast | null = null;
     protected upcomingDailyForecasts: DailyWeatherForecasts.Forecast[] = [];
 
     private lastProcessedHourKey: string | null = null;
@@ -50,9 +45,7 @@ export abstract class AbstractWeatherWidget
         if (componentId == null) {
             return [];
         }
-        return WEATHER_CHANNEL_KEYS.map(
-            (key) => new ChannelAddress(componentId, key),
-        );
+        return WEATHER_CHANNEL_KEYS.map((key) => new ChannelAddress(componentId, key));
     }
 
     protected override onCurrentData(currentData: CurrentData) {
@@ -61,20 +54,15 @@ export abstract class AbstractWeatherWidget
         }
 
         const base = this.component.id;
-        const getChannelData = (k: string) =>
-            currentData.allComponents?.[`${base}/${k}`] ?? null;
+        const getChannelData = (k: string) => currentData.allComponents?.[`${base}/${k}`] ?? null;
         const now = new Date();
 
         const hourKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}`;
 
-        const snapshot = WEATHER_CHANNEL_KEYS.map((key) =>
-            String(getChannelData(key)),
-        ).join("|");
+        const snapshot = WEATHER_CHANNEL_KEYS.map((key) => String(getChannelData(key))).join("|");
 
         const shouldSkipUpdate =
-            this.gotData &&
-            this.lastProcessedHourKey === hourKey &&
-            this.lastWeatherSnapshot === snapshot;
+            this.gotData && this.lastProcessedHourKey === hourKey && this.lastWeatherSnapshot === snapshot;
 
         if (shouldSkipUpdate) {
             return;
@@ -88,10 +76,7 @@ export abstract class AbstractWeatherWidget
             minTemperature: getChannelData("TodaysMinTemperature"),
             maxTemperature: getChannelData("TodaysMaxTemperature"),
             weatherCode: getChannelData("CurrentWeatherCode"),
-            sunshineDuration: NumberUtils.divideSafely(
-                getChannelData("TodaysSunshineDuration"),
-                3600,
-            ),
+            sunshineDuration: NumberUtils.divideSafely(getChannelData("TodaysSunshineDuration"), 3600),
         };
 
         this.currentHourlyForecast = {
@@ -113,35 +98,22 @@ export abstract class AbstractWeatherWidget
         }).filter((f) => f.temperature !== null && f.weatherCode !== null);
 
         const hasDaily =
-            NumberUtils.isPresentNumber(
-                this.currentDailyForecast.minTemperature,
-            ) &&
-            NumberUtils.isPresentNumber(
-                this.currentDailyForecast.maxTemperature,
-            ) &&
-            NumberUtils.isPresentNumber(
-                this.currentDailyForecast.sunshineDuration,
-            ) &&
+            NumberUtils.isPresentNumber(this.currentDailyForecast.minTemperature) &&
+            NumberUtils.isPresentNumber(this.currentDailyForecast.maxTemperature) &&
+            NumberUtils.isPresentNumber(this.currentDailyForecast.sunshineDuration) &&
             NumberUtils.isPresentNumber(this.currentDailyForecast.weatherCode);
 
         const hasHourly =
-            NumberUtils.isPresentNumber(
-                this.currentHourlyForecast.temperature,
-            ) &&
+            NumberUtils.isPresentNumber(this.currentHourlyForecast.temperature) &&
             NumberUtils.isPresentNumber(this.currentHourlyForecast.weatherCode);
 
         const hasUpcomingFull =
             this.upcomingHourlyForecasts.length === FORECAST_HOURS.length &&
             this.upcomingHourlyForecasts.every(
-                (f) =>
-                    NumberUtils.isPresentNumber(f.temperature) &&
-                    NumberUtils.isPresentNumber(f.weatherCode),
+                (f) => NumberUtils.isPresentNumber(f.temperature) && NumberUtils.isPresentNumber(f.weatherCode),
             );
 
-        this.upcomingHourlyForecasts = this.upcomingHourlyForecasts.slice(
-            0,
-            this.isSmartphone ? 5 : 6,
-        );
+        this.upcomingHourlyForecasts = this.upcomingHourlyForecasts.slice(0, this.isSmartphone ? 5 : 6);
         this.gotData = hasDaily && hasHourly && hasUpcomingFull;
     }
 }

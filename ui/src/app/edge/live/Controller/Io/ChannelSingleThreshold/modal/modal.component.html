@@ -2,7 +2,7 @@
   <ion-toolbar mode="md" class="ion-justify-content-center" style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color)">
     <ion-title>{{ component.alias }}</ion-title>
     <ion-buttons slot="end">
-      <oe-help-button key="REDIRECT.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD" useDefaultPrefix="false"></oe-help-button>
+      <oe-help-button key="REDIRECT.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD"></oe-help-button>
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline" style="color: var(--ion-title-color)"></ion-icon>
       </ion-button>
@@ -52,7 +52,7 @@
                 <ion-label>
                   {{ "GENERAL.AUTOMATIC" | translate }}
                 </ion-label>
-                <ion-icon [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'" style="width: 40px" name="sunny-outline"> </ion-icon>
+                <ion-icon [color]="component.properties['mode'] === 'AUTOMATIC' ? 'primary' : 'normal'" style="width: 40px" name="sunny-outline"></ion-icon>
               </ion-segment-button>
               <ion-segment-button value="OFF">
                 <ion-label>
@@ -100,7 +100,7 @@
                       <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.SWITCHED_LOAD_POWER</td>
                       <td style="width: 35%" class="align_right">
                         <ion-item lines="inset" class="noPadding">
-                          <ion-input class="regularFont" type="number" formControlName="switchedLoadPower" style="text-align: end" label="&nbsp;W" class="regularFont"> </ion-input>
+                          <ion-input class="regularFont" type="number" formControlName="switchedLoadPower" style="text-align: end" label="&nbsp;W" class="regularFont"></ion-input>
                         </ion-item>
                       </td>
                     </tr>
@@ -109,7 +109,7 @@
                     <table class="full_width">
                       <tr>
                         <td style="width: 100%">
-                          <ion-text color="danger" translate> EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MORE_THAN_MAX_POWER </ion-text>
+                          <ion-text color="danger" translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MORE_THAN_HP_POWER</ion-text>
                         </td>
                       </tr>
                     </table>
@@ -183,7 +183,7 @@
                           @if (inputChannelUnit) {
                             <ion-label class="regularFont">&nbsp;{{ inputChannelUnit }}</ion-label>
                           }
-                          <ion-input class="regularFont" style="text-align: end" type="number" formControlName="threshold"> </ion-input>
+                          <ion-input class="regularFont" style="text-align: end" type="number" formControlName="threshold"></ion-input>
                         </ion-item>
                       </td>
                     </tr>
@@ -251,7 +251,7 @@
                     <td style="width: 65%" translate>EDGE.INDEX.WIDGETS.SINGLETHRESHOLD.MIN_SWITCHING_TIME</td>
                     <td style="width: 35%" class="align_right">
                       <ion-item lines="inset" class="noPadding">
-                        <ion-input class="regularFont" type="number" formControlName="minimumSwitchingTime" inputmode="decimal" style="text-align: end"> </ion-input>
+                        <ion-input class="regularFont" type="number" formControlName="minimumSwitchingTime" inputmode="decimal" style="text-align: end"></ion-input>
                         <ion-label class="regularFont">&nbsp;s</ion-label>
                       </ion-item>
                     </td>
@@ -262,7 +262,7 @@
             @if (formGroup.dirty) {
               <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
                 <ion-fab-button (click)="applyChanges()">
-                  <ion-icon size="large" name="oe-checkmark"> </ion-icon>
+                  <ion-icon size="large" name="oe-checkmark"></ion-icon>
                 </ion-fab-button>
               </ion-fab>
             }

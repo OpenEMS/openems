@@ -18,6 +18,7 @@ import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.function.ThrowingConsumer;
+import io.openems.common.function.ThrowingFunction;
 import io.openems.common.utils.FunctionUtils;
 import io.openems.common.utils.JsonUtils;
 
@@ -26,18 +27,17 @@ import io.openems.common.utils.JsonUtils;
  * 
  * <p>
  * The calculation when an endpoint gets called is provided in the
- * {@link DelayTimeProvider}. The
- * {@link DelayTimeProvider#nextRun(boolean, boolean)}
+ * {@link DelayTimeProvider}. The {@link DelayTimeProvider#onFirstRunDelay()}
  * gets called instantly when the initial method to add the endpoint gets called
  * and then every time after the last endpoint handle was finished.
  * 
  * <p>
- * So for e. g. if a fixed delay of 1 minute gets provided the time will shift
+ * So for e.g. if a fixed delay of 1 minute gets provided the time will shift
  * into the back a little bit every time an endpoint gets called because
  * fetching the endpoint and handling it also takes some time.
  * 
  * <p>
- * A simple example to subscribe to an endpoint with 1 minute delay in between
+ * A simple example to subscribe to an endpoint with 1-minute delay in between
  * would be:
  * 
  * <pre>
@@ -51,12 +51,12 @@ import io.openems.common.utils.JsonUtils;
  */
 public interface HttpBridgeTimeService extends HttpBridgeService {
 
-	public record TimeEndpoint(//
+	record TimeEndpoint<T>(//
 			/**
 			 * The delay time provider. Gives the time from the current time to the next
 			 * time when the endpoint should be fetched.
 			 */
-			DelayTimeProvider delayTimeProvider, //
+			DelayTimeProvider<? super T> delayTimeProvider, //
 			/**
 			 * The url which should be fetched.
 			 */
@@ -64,12 +64,37 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 			/**
 			 * The callback to execute on every successful result.
 			 */
-			Consumer<HttpResponse<String>> onResult, //
+			Function<HttpResponse<String>, T> onResult, //
 			/**
 			 * The callback to execute on every error.
 			 */
 			Consumer<HttpError> onError //
 	) {
+
+		/**
+		 * Creates a {@link TimeEndpoint} for a {@link HttpResponse}.
+		 * 
+		 * @param delayTimeProvider the {@link DelayTimeProvider}
+		 * @param endpointSupplier  the
+		 *                          {@link io.openems.common.bridge.http.api.BridgeHttp.Endpoint}
+		 *                          supplier to get the {@link BridgeHttp.Endpoint} to
+		 *                          fetch.
+		 * @param onResult          the result callback to execute on every successful
+		 *                          result.
+		 * @param onError           the error callback to execute on every error.
+		 * @return the created {@link TimeEndpoint}
+		 */
+		public static TimeEndpoint<HttpResponse<String>> of(//
+				DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
+				Supplier<BridgeHttp.Endpoint> endpointSupplier, //
+				Consumer<HttpResponse<String>> onResult, //
+				Consumer<HttpError> onError //
+		) {
+			return new TimeEndpoint<>(delayTimeProvider, endpointSupplier, t -> {
+				onResult.accept(t);
+				return t;
+			}, onError);
+		}
 
 		public TimeEndpoint {
 			Objects.requireNonNull(endpoint, "Endpoint of TimeEndpoint must not be null!");
@@ -93,11 +118,12 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * either the {@link TimeEndpoint#onResult} or the {@link TimeEndpoint#onError}
 	 * gets executed depending on the result.
 	 * 
+	 * @param <T>      the type of the result of the {@link TimeEndpoint}
 	 * @param endpoint the {@link TimeEndpoint} to add a subscription
 	 * @return the added {@link TimeEndpoint} (always the provided one); or null if
 	 *         the {@link TimeEndpoint} could not be added
 	 */
-	public TimeEndpoint subscribeTime(TimeEndpoint endpoint);
+	<T> TimeEndpoint<T> subscribeTime(TimeEndpoint<T> endpoint);
 
 	/**
 	 * Subscribes to an {@link BridgeHttp.Endpoint} with the delay provided by the
@@ -113,13 +139,48 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			BridgeHttp.Endpoint endpoint, //
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
 			Consumer<HttpError> onError //
 	) {
 		return this.subscribeTime(delayTimeProvider, () -> endpoint, onResult, onError);
+	}
+
+	/**
+	 * Subscribes to an {@link BridgeHttp.Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 *
+	 * @param <T>               the type of the result
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link BridgeHttp.Endpoint}
+	 *                          to fetch; the {@link Supplier} gets called right
+	 *                          before the fetch happens
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	default <T> TimeEndpoint<T> subscribeTime(//
+			DelayTimeProvider<? super T> delayTimeProvider, //
+			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
+			ThrowingFunction<HttpResponse<String>, T, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
+		return this.subscribeTime(new TimeEndpoint<>(delayTimeProvider, endpointSupplier, t -> {
+			try {
+				return onResult.apply(t);
+			} catch (HttpError e) {
+				onError.accept(e);
+			} catch (Exception e) {
+				onError.accept(new HttpError.UnknownError(e));
+			}
+			return null;
+		}, onError));
 	}
 
 	/**
@@ -138,21 +199,16 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
 			Consumer<HttpError> onError //
 	) {
-		return this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpointSupplier, t -> {
-			try {
-				onResult.accept(t);
-			} catch (HttpError e) {
-				onError.accept(e);
-			} catch (Exception e) {
-				onError.accept(new HttpError.UnknownError(e));
-			}
-		}, onError));
+		return this.subscribeTime(delayTimeProvider, endpointSupplier, t -> {
+			onResult.accept(t);
+			return t;
+		}, onError);
 	}
 
 	/**
@@ -171,8 +227,8 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			BridgeHttp.Endpoint endpoint, //
 			BiConsumer<HttpResponse<String>, HttpError> action //
 	) {
@@ -197,12 +253,12 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
 			BiConsumer<HttpResponse<String>, HttpError> action //
 	) {
-		return this.subscribeTime(new TimeEndpoint(delayTimeProvider, endpointSupplier, r -> action.accept(r, null),
+		return this.subscribeTime(TimeEndpoint.of(delayTimeProvider, endpointSupplier, r -> action.accept(r, null),
 				t -> action.accept(null, t)));
 	}
 
@@ -224,7 +280,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
 			Function<HttpError, DelayTimeProvider.Delay> onErrorDelay, //
 			Function<HttpResponse<String>, DelayTimeProvider.Delay> onSuccessDelay, //
 			String url, //
@@ -232,7 +288,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 			Consumer<HttpError> onError //
 	) {
 		return this.subscribeTime(
-				new DefaultDelayTimeProvider(() -> DelayTimeProviderChain.immediate().getDelay(), onErrorDelay,
+				new DefaultDelayTimeProvider<>(() -> DelayTimeProviderChain.immediate().getDelay(), onErrorDelay,
 						onSuccessDelay),
 				new BridgeHttp.Endpoint(url, //
 						HttpMethod.GET, //
@@ -259,7 +315,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
 			DelayTimeProviderChain delay, //
 			String url, //
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult, //
@@ -282,7 +338,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeTime(//
+	default TimeEndpoint<HttpResponse<String>> subscribeTime(//
 			DelayTimeProviderChain delay, //
 			String url, //
 			ThrowingConsumer<HttpResponse<String>, Exception> onResult //
@@ -309,7 +365,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeJsonTime(//
+	default TimeEndpoint<HttpResponse<String>> subscribeJsonTime(//
 			Function<HttpError, DelayTimeProvider.Delay> onErrorDelay, //
 			Function<HttpResponse<String>, DelayTimeProvider.Delay> onSuccessDelay, //
 			String url, //
@@ -334,8 +390,8 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeJsonTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<JsonElement>> subscribeJsonTime(//
+			DelayTimeProvider<? super HttpResponse<JsonElement>> delayTimeProvider, //
 			BridgeHttp.Endpoint endpoint, //
 			ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
 			Consumer<HttpError> onError //
@@ -359,14 +415,69 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeJsonTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<JsonElement>> subscribeJsonTime(//
+			DelayTimeProvider<? super HttpResponse<JsonElement>> delayTimeProvider, //
 			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
 			ThrowingConsumer<HttpResponse<JsonElement>, Exception> onResult, //
 			Consumer<HttpError> onError //
 	) {
+		return this.subscribeJsonTime(delayTimeProvider, endpointSupplier, t -> {
+			onResult.accept(t);
+			return t;
+		}, onError);
+	}
+
+	/**
+	 * Subscribes to an {@link BridgeHttp.Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 *
+	 * @param <T>               the type of the result of the {@link TimeEndpoint}
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpointSupplier  the supplier to get the {@link BridgeHttp.Endpoint}
+	 *                          to fetch; the {@link Supplier} gets called right
+	 *                          before the fetch happens
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	default <T> TimeEndpoint<T> subscribeJsonTime(//
+			DelayTimeProvider<? super T> delayTimeProvider, //
+			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
+			ThrowingFunction<HttpResponse<JsonElement>, T, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
 		return this.subscribeTime(delayTimeProvider, endpointSupplier,
-				t -> onResult.accept(t.withData(JsonUtils.parse(t.data()))), onError);
+				t -> onResult.apply(t.withData(JsonUtils.parse(t.data()))), onError);
+	}
+
+	/**
+	 * Subscribes to an {@link BridgeHttp.Endpoint} with the delay provided by the
+	 * {@link DelayTimeProvider} and after every endpoint fetch either the
+	 * <code>onResult</code> or the <code>onError</code> method gets called.
+	 *
+	 * @param <T>               the type of the result of the {@link TimeEndpoint}
+	 * @param delayTimeProvider the {@link DelayTimeProvider} to provided the delay
+	 *                          between the fetches
+	 * @param endpoint          the {@link BridgeHttp.Endpoint} to fetch; the
+	 *                          {@link Supplier} gets called right before the fetch
+	 *                          happens
+	 * @param onResult          the method to call on successful fetch
+	 * @param onError           the method to call if an error happens during
+	 *                          fetching or handling the result
+	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
+	 *         could not be added
+	 */
+	default <T> TimeEndpoint<T> subscribeJsonTime(//
+			DelayTimeProvider<T> delayTimeProvider, //
+			BridgeHttp.Endpoint endpoint, //
+			ThrowingFunction<HttpResponse<JsonElement>, T, Exception> onResult, //
+			Consumer<HttpError> onError //
+	) {
+		return this.subscribeJsonTime(delayTimeProvider, () -> endpoint, onResult, onError);
 	}
 
 	/**
@@ -385,8 +496,8 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeJsonTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeJsonTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			BridgeHttp.Endpoint endpoint, //
 			BiConsumer<HttpResponse<JsonElement>, HttpError> action //
 	) {
@@ -411,13 +522,14 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @return the added {@link TimeEndpoint}; or null if the {@link TimeEndpoint}
 	 *         could not be added
 	 */
-	public default TimeEndpoint subscribeJsonTime(//
-			DelayTimeProvider delayTimeProvider, //
+	default TimeEndpoint<HttpResponse<String>> subscribeJsonTime(//
+			DelayTimeProvider<HttpResponse<String>> delayTimeProvider, //
 			Supplier<BridgeHttp.Endpoint> endpointSupplier, //
 			BiConsumer<HttpResponse<JsonElement>, HttpError> action //
 	) {
-		return this.subscribeTime(delayTimeProvider, endpointSupplier,
-				t -> action.accept(t.withData(JsonUtils.parse(t.data())), null), e -> action.accept(null, e));
+		return this.subscribeTime(delayTimeProvider, endpointSupplier, t -> {
+			action.accept(t.withData(JsonUtils.parse(t.data())), null);
+		}, e -> action.accept(null, e));
 	}
 
 	/**
@@ -426,14 +538,14 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @param condition the {@link Predicate} to match
 	 * @return the removed {@link TimeEndpoint TimeEndpoints}
 	 */
-	public Collection<TimeEndpoint> removeTimeEndpointIf(Predicate<TimeEndpoint> condition);
+	Collection<TimeEndpoint<?>> removeTimeEndpointIf(Predicate<TimeEndpoint<?>> condition);
 
 	/**
 	 * Removes all active {@link TimeEndpoint TimeEndpoints}.
 	 * 
 	 * @return the removed {@link TimeEndpoint TimeEndpoints}
 	 */
-	public default Collection<TimeEndpoint> removeAllTimeEndpoints() {
+	default Collection<TimeEndpoint<?>> removeAllTimeEndpoints() {
 		return this.removeTimeEndpointIf(t -> true);
 	}
 
@@ -444,7 +556,7 @@ public interface HttpBridgeTimeService extends HttpBridgeService {
 	 * @param timeEndpoint the {@link TimeEndpoint} to match
 	 * @return the removed {@link TimeEndpoint TimeEndpoints}
 	 */
-	public default boolean removeTimeEndpoint(TimeEndpoint timeEndpoint) {
+	default boolean removeTimeEndpoint(TimeEndpoint<?> timeEndpoint) {
 		return !this.removeTimeEndpointIf(Predicate.isEqual(timeEndpoint)).isEmpty();
 	}
 

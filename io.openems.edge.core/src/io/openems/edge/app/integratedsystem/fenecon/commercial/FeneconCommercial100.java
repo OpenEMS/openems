@@ -146,7 +146,7 @@ public class FeneconCommercial100
 				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
 				.setDefaultValue(ConnectedBatterySystems.ONE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
+					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class, ConnectedBatterySystems.TWO), l);
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //

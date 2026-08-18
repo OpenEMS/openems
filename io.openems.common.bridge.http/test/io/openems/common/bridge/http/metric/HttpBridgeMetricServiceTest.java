@@ -1,9 +1,9 @@
 package io.openems.common.bridge.http.metric;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.AsyncBridgeHttpExecutor;
 import io.openems.common.bridge.http.BridgeHttpImpl;
@@ -13,8 +13,8 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 public class HttpBridgeMetricServiceTest {
 
 	@Test
-	@Ignore
-	public void sampleTest() throws Exception {
+	@Disabled
+	void sampleTest() throws Exception {
 		final var bridge = new BridgeHttpImpl(new NetworkEndpointFetcher(), new AsyncBridgeHttpExecutor());
 		final var metricService = bridge.createService(HttpBridgeMetricServiceDefinition.byUrl());
 
