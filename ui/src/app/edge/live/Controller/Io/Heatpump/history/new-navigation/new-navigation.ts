@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -42,7 +42,7 @@ export class ControllerIoHeatpumpHistoryComponent extends AbstractHistoryChartOv
         public override service: Service,
         protected override route: ActivatedRoute,
         public override modalCtrl: ModalController,
-        private translate: TranslateService,
+        private readonly translate: TranslateService,
     ) {
         super(service, route, modalCtrl);
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {

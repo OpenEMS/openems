@@ -55,8 +55,12 @@ import { ControllerFixDigitalOutputHomeComponent } from "src/app/edge/live/Contr
 import { ControllerHeatingElementHistoryComponent } from "src/app/edge/live/Controller/Io/HeatingElement/history/new-navigation/new-navigation";
 import { ControllerIoHeatingElementHomeComponent } from "src/app/edge/live/Controller/Io/HeatingElement/new-navigation/new-navigation";
 import { ControllerIoHeatingElementSettingsComponent } from "src/app/edge/live/Controller/Io/HeatingElement/settings/settings";
+import { ControllerIoHeatpumpBaseModeComponent } from "src/app/edge/live/Controller/Io/Heatpump/basemode/basemode";
 import { ControllerIoHeatpumpHistoryComponent } from "src/app/edge/live/Controller/Io/Heatpump/history/new-navigation/new-navigation";
 import { ControllerIoHeatpumpHomeComponent } from "src/app/edge/live/Controller/Io/Heatpump/new-navigation/new-navigation";
+import { HeatPumpScheduleComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/schedule.component";
+import { HeatPumpAddTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/add/add";
+import { HeatPumpEditTaskComponent } from "src/app/edge/live/Controller/Io/Heatpump/schedule/task/edit/edit";
 import { ControllerIoHeatpumpSettingsComponent } from "src/app/edge/live/Controller/Io/Heatpump/settings/settings";
 import { ControllerModbusTcpApiDetailsComponent } from "src/app/edge/live/Controller/ModbusTcpApi/details/details";
 import { ControllerModbusTcpApiHistoryComponent } from "src/app/edge/live/Controller/ModbusTcpApi/history/new-navigation/new-navigation";
@@ -421,6 +425,22 @@ export const commonRoutes: Routes = [
         component: ControllerModbusTcpApiHistoryComponent,
     },
 
+    {
+        path: "controller/heatpump/:componentId/schedule",
+        component: HeatPumpScheduleComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId/schedule/add-task",
+        component: HeatPumpAddTaskComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId/schedule/edit-task",
+        component: HeatPumpEditTaskComponent,
+    },
+    {
+        path: "controller/heatpump/:componentId/baseMode",
+        component: ControllerIoHeatpumpBaseModeComponent,
+    },
     {
         path: "common/storage/controller/peak-shaving-symmetric/:componentId",
         component: ControllerPeakShavingSymmetricHomeComponent,

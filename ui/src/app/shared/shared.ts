@@ -118,6 +118,17 @@ export class EdgePermission {
     public static hasSystemErrorAcknowledge(edge: Edge): boolean {
         return edge.isVersionAtLeast("2025.12.1");
     }
+
+    /**
+     * Checks if the edge version is at least 2026.8.2 to and temporally if the user is ADMIN to access the time
+     * schedule and base mode in the heatpump component.
+     *
+     * @param edge The edge to check
+     * @returns True if the edge is 2026.8.2
+     */
+    public static isHeatpumpTimeScheduleAndBaseModeAvailable(edge: Edge): boolean {
+        return edge.isVersionAtLeast("2026.8.2") && edge.roleIsAtLeast(Role.ADMIN);
+    }
 }
 
 export class UserPermission {

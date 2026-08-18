@@ -572,6 +572,8 @@ export namespace Converter {
                         return translate.instant("GENERAL.CHARGE_ONCE");
                     case Mode.DISCHARGE_ONCE:
                         return translate.instant("GENERAL.DISCHARGE_ONCE");
+                    case "TIME_SCHEDULE":
+                        return translate.instant("GENERAL.TIME_SCHEDULE");
                 }
             });
         };
