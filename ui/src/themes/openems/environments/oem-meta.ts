@@ -79,16 +79,66 @@ export const OemMeta: BaseMeta = {
                 HEATING_ELEMENT: null,
             },
         },
-        INSTALLATION: {
-            COMMERCIAL: {
-                COMMERCIAL_100: {
-                    BATTERY_INPUT_1: null,
-                    BATTERY_INPUT_2: null,
+    },
+    links: {
+        DOWNLOAD: {
+            INSTALLATION: {
+                HOME: {
+                    AVU_BOX: null,
+                    MPPT: {
+                        HOME_6_10: {
+                            1: null,
+                            2: null,
+                        },
+                        HOME_10_15: {
+                            1: null,
+                            2: null,
+                            3: null,
+                        },
+                        HOME_20: {
+                            1: null,
+                            2: null,
+                        },
+                        HOME_30: {
+                            1: null,
+                            2: null,
+                            3: null,
+                        },
+                    },
+                },
+                COMMERCIAL: {
+                    COMMERCIAL_50: {
+                        MPPT: {
+                            1: null,
+                            2: null,
+                            3: null,
+                            4: null,
+                        },
+                    },
+                    COMMERCIAL_100: {
+                        BATTERY_INPUT_1: null,
+                        BATTERY_INPUT_2: null,
+                        MPPT: {
+                            1: null,
+                            2: null,
+                            3: null,
+                            4: null,
+                            5: null,
+                            6: null,
+                            7: null,
+                            8: null,
+                        },
+                    },
+                    STS_BOX: null,
+                },
+                SHARED: {
+                    FEED_IN_LIMITATION: {
+                        DYN_EXTERNAL_LIMITATION: null,
+                        EXTERNAL_LIMITATION: null,
+                    },
                 },
             },
         },
-    },
-    links: {
         DATA_PROTECTION: null,
         REDIRECT: {
             BETA_SURVEY: null,

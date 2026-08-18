@@ -99,16 +99,38 @@ export interface Environment {
                 readonly HEATING_ELEMENT: string | null;
             };
         };
-        readonly INSTALLATION: {
-            readonly COMMERCIAL: {
-                readonly COMMERCIAL_100: {
-                    readonly BATTERY_INPUT_1: string | null;
-                    readonly BATTERY_INPUT_2: string | null;
+    };
+    readonly links: {
+        readonly DOWNLOAD: {
+            readonly INSTALLATION: {
+                readonly HOME: {
+                    readonly AVU_BOX: string | null;
+                    readonly MPPT: {
+                        readonly HOME_6_10: Record<1 | 2, string | null>;
+                        readonly HOME_10_15: Record<1 | 2 | 3, string | null>;
+                        readonly HOME_20: Record<1 | 2, string | null>;
+                        readonly HOME_30: Record<1 | 2 | 3, string | null>;
+                    };
+                };
+                readonly COMMERCIAL: {
+                    readonly COMMERCIAL_50: {
+                        readonly MPPT: Record<1 | 2 | 3 | 4, string | null>;
+                    };
+                    readonly COMMERCIAL_100: {
+                        readonly BATTERY_INPUT_1: string | null;
+                        readonly BATTERY_INPUT_2: string | null;
+                        readonly MPPT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, string | null>;
+                    };
+                    readonly STS_BOX: string | null;
+                };
+                readonly SHARED: {
+                    readonly FEED_IN_LIMITATION: {
+                        readonly DYN_EXTERNAL_LIMITATION: string | null;
+                        readonly EXTERNAL_LIMITATION: string | null;
+                    };
                 };
             };
         };
-    };
-    readonly links: {
         readonly REDIRECT: {
             readonly BETA_CHANGE_LOG: string | null;
             readonly BETA_SURVEY: string | null;

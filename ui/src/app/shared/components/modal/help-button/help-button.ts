@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChange } fr
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
 import { TFlattenKeys } from "src/app/shared/type/utility";
+import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
 
@@ -39,7 +40,7 @@ export class HelpButtonComponent implements OnChanges {
             return null;
         }
 
-        return link.replace("{language}", service.getDocsLang());
+        return DocsUtils.replaceDocsLanguage(link, service.getDocsLang());
     }
 
     ngOnChanges(changes: { key: SimpleChange }) {
