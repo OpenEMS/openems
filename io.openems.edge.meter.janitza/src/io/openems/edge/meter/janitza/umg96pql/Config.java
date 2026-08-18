@@ -1,4 +1,4 @@
-package io.openems.edge.meter.janitza.umg104;
+package io.openems.edge.meter.janitza.umg96pql;
 
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
@@ -6,8 +6,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
-		name = "Meter Janitza UMG 104", //
-		description = "Implements the Janitza UMG 104 power analyser.")
+		name = "Meter Janitza UMG 96-PQ-L", //
+		description = "Implements the Janitza UMG 96-PQ-L power analyser.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
@@ -31,5 +31,5 @@ import io.openems.common.types.MeterType;
 	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
 	boolean invert() default false;
 
-	String webconsole_configurationFactory_nameHint() default "Meter Janitza UMG 104 [{id}]";
+	String webconsole_configurationFactory_nameHint() default "Meter Janitza UMG 96-PQ-L [{id}]";
 }

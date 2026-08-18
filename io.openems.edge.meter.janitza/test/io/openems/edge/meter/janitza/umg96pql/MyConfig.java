@@ -1,4 +1,4 @@
-package io.openems.edge.meter.janitza.umg96rme;
+package io.openems.edge.meter.janitza.umg96pql;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.MeterType;

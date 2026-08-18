@@ -1,4 +1,4 @@
-package io.openems.edge.meter.janitza.umg511;
+package io.openems.edge.meter.janitza.umg96pql;
 
 import static io.openems.common.types.MeterType.GRID;
 
@@ -8,12 +8,13 @@ import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.meter.test.InvertTest;
 
-public class MeterJanitzaUmg511ImplTest {
+public class MeterJanitzaUmg96PqlImplTest {
 
 	private static ComponentTest prepareTest() throws Exception {
-		return new ComponentTest(new MeterJanitzaUmg511Impl()) //
-				.addReference("setModbus", new DummyModbusBridge("modbus0")//
-						.withRegisters(3845,
+		return new ComponentTest(new MeterJanitzaUmg96PqlImpl()) //
+				.addReference("setModbus", new DummyModbusBridge("modbus0") //
+						.withRegisters(19000,
+
 								// VOLTAGE_L1
 								0x3F80, 0x0000,
 								// VOLTAGE_L2
@@ -21,8 +22,8 @@ public class MeterJanitzaUmg511ImplTest {
 								// VOLTAGE_L3
 								0x3F80, 0x0000,
 
-								// DUMMY
-								0x0000, 0x0000,
+								// Dummy
+								0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, //
 
 								// CURRENT_L1
 								0x3F80, 0x0000,
@@ -30,9 +31,8 @@ public class MeterJanitzaUmg511ImplTest {
 								0x3F80, 0x0000,
 								// CURRENT_L3
 								0x3F80, 0x0000,
-
-								// DUMMY
-								0x0000, 0x0000,
+								// CURRENT
+								0x4040, 0x0001,
 
 								// ACTIVE_POWER_L1
 								0x461C, 0x4000,
@@ -40,24 +40,27 @@ public class MeterJanitzaUmg511ImplTest {
 								0x461C, 0x4000,
 								// ACTIVE_POWER_L3
 								0x461C, 0x4000,
+								// ACTIVE_POWER
+								0x464B, 0x2000,
 
-								// DUMMY
-								0x0000, 0x0000,
+								// Dummy
+								0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, //
 
 								// REACTIVE_POWER_L1
 								0x45DA, 0xC000,
 								// REACTIVE_POWER_L2
 								0x45DA, 0xC000,
 								// REACTIVE_POWER_L3
-								0x45DA, 0xC000)//
-						.withRegisters(3925,
-								// ACTIVE_POWER
-								0x464B, 0x2000,
+								0x45DA, 0xC000,
 								// REACTIVE_POWER
-								0x45DA, 0xC000)//
-						.withRegisters(3995,
+								0x45DA, 0xC000,
+
+								// Dummy
+								0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, //
+
 								// FREQUENCY
-								0x40A0, 0x0000)//
+								0x40A0, 0x0000)
+
 						.withRegisters(19068,
 								// ACTIVE_PRODUCTION_ENERGY
 								0x464B, 0x2000,
@@ -66,12 +69,11 @@ public class MeterJanitzaUmg511ImplTest {
 								0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 
 								// REACTIVE_PRODUCTION_ENERGY
-								0x0000, 0x0000)); //
-
+								0, 0));
 	}
 
 	@Test
-	void testNonInvert() throws Exception {
+	public void testNonInvert() throws Exception {
 		prepareTest() //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
@@ -83,13 +85,14 @@ public class MeterJanitzaUmg511ImplTest {
 	}
 
 	@Test
-	void testInvert() throws Exception {
+	public void testInvert() throws Exception {
 		prepareTest() //
 				.activate(MyConfig.create() //
 						.setId("meter0") //
 						.setModbusId("modbus0") //
 						.setType(GRID) //
-						.setInvert(true).build()) //
+						.setInvert(true) //
+						.build()) //
 				.next(InvertTest.testInvert(true))//
 				.next(InvertTest.testEnergyInvert(true));
 	}
