@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.entsoe.gridbuy;
 
 import io.openems.common.channel.Level;
 import io.openems.common.types.OpenemsType;

@@ -1,9 +1,10 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.entsoe.gridbuy;
 
-import io.openems.common.types.EntsoeBiddingZone;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.AttributeType;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+import io.openems.common.types.EntsoeBiddingZone;
 
 @ObjectClassDefinition(//
 		name = "Time-Of-Use Tariff ENTSO-E", //
@@ -18,7 +19,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Security Token", description = "Security token for the ENTSO-E Transparency Platform", type = AttributeType.PASSWORD, required = false)
 	String securityToken() default "";
 

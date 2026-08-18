@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.entsoe.gridbuy;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.types.EntsoeBiddingZone;
@@ -35,7 +35,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			this.ancillaryCosts = ancillaryCosts;
 			return this;
 		}
-		
+
 		public Builder setCalculateExpression(String calculateExpression) {
 			this.calculateExpression = calculateExpression;
 			return this;

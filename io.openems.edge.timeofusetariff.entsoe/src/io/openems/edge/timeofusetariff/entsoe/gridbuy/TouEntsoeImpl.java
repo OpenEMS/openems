@@ -1,4 +1,4 @@
-package io.openems.edge.timeofusetariff.entsoe;
+package io.openems.edge.timeofusetariff.entsoe.gridbuy;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.timeofusetariff.api.TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
@@ -31,6 +31,8 @@ import io.openems.edge.common.meta.Meta;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
 import io.openems.edge.timeofusetariff.api.TimeOfUseTariff;
 import io.openems.edge.timeofusetariff.api.TouManualHelper;
+import io.openems.edge.timeofusetariff.entsoe.PriceCalculatorXY;
+import io.openems.edge.timeofusetariff.entsoe.Utils;
 import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeConfiguration;
 import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProvider;
 import io.openems.edge.timeofusetariff.entsoe.priceprovider.EntsoeMarketPriceProviderPool;
@@ -59,7 +61,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 
 	private TouManualHelper helper = TouManualHelper.EMPTY_TOU_MANUAL_HELPER;
 	private EntsoeMarketPriceProvider priceProvider;
-	private PriceCalculator priceCalculator;
+	private PriceCalculatorXY priceCalculator;
 
 	private final Consumer<MarketPriceUpdateEvent> onUpdateEvent = this::onUpdateEvent;
 	private final Consumer<MarketPriceData> onNewPrices = this::setPrices;
@@ -103,15 +105,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		this.priceProvider.getMarketPrices().subscribe(this.onNewPrices);
 		this.priceProvider.getUpdateState().subscribe(this.onUpdateEvent);
 
-		try {
-			final var priceCalculator = new PriceCalculator(config.calculateExpression());
-			priceCalculator.calculate(1., 1.);
-			this.priceCalculator = priceCalculator;
-		} catch (Exception e) {
-			this.logWarn(this.log,
-					"Calculate expression [" + config.calculateExpression() + "] failed. Falling back to [x + y].");
-			this.priceCalculator = new PriceCalculator("");
-		}
+		this.priceCalculator = PriceCalculatorXY.fromExpression(config.calculateExpression());
 
 		// React on updates to Currency.
 		this.meta.getCurrencyChannel().onChange(this.onCurrencyChange);
@@ -176,7 +170,7 @@ public class TouEntsoeImpl extends AbstractOpenemsComponent implements TouEntsoe
 		final double exchangeRate = getExchangeRateOrElse(marketPriceData.getCurrency(), globalCurrency, 1.);
 		final var gridFees = this.helper.getPrices();
 
-		final var processedPrices = Utils.processPrices(this.componentManager.getClock(), this.priceCalculator,
+		final var processedPrices = GridBuyUtils.processPrices(this.componentManager.getClock(), this.priceCalculator,
 				marketPriceData.getValues(), exchangeRate, gridFees);
 		this.prices.set(processedPrices);
 	}
