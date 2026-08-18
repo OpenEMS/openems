@@ -67,11 +67,12 @@ public interface PredictorConfig {
 	public int maxTrainingSamples();
 
 	/**
-	 * The function used to fit a regressor.
+	 * The function used to fit a regressor for a given model complexity.
 	 *
+	 * @param modelComplexity the configured model complexity
 	 * @return the regressor fitter
 	 */
-	public RegressorFitter regressorFitter();
+	public RegressorFitter regressorFitter(ModelComplexity modelComplexity);
 
 	/**
 	 * The maximum allowed model age.
