@@ -171,11 +171,11 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         final var now = Instant.now();
 
         // Minimum write interval required by SAX battery (5 seconds)
-        if (lastWrite == null || Duration.between(this.lastWrite, now).toMillis() > 5000) {
+        if (this.lastWrite == null || Duration.between(this.lastWrite, now).toMillis() > 5000) {
             var setPoint = (int) TypeUtils.fitWithin(0, 0xFFFF, activePower + ACTIVE_POWER_OFFSET);
             this.setActivePowerSetPoint(setPoint);
 
-            lastWrite = now;
+            this.lastWrite = now;
         }
     }
 
