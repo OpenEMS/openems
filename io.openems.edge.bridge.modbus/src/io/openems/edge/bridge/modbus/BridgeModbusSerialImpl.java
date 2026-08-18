@@ -1,8 +1,8 @@
 package io.openems.edge.bridge.modbus;
 
 import java.time.Clock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -35,7 +35,6 @@ import io.openems.edge.bridge.modbus.api.Config;
 import io.openems.edge.bridge.modbus.api.Parity;
 import io.openems.edge.bridge.modbus.api.Stopbit;
 import io.openems.edge.bridge.modbus.api.task.Task;
-import io.openems.edge.bridge.modbus.api.task.WaitTask;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -59,6 +58,8 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		implements BridgeModbus, BridgeModbusSerial, OpenemsComponent, EventHandler, StartStoppable {
 
 	private final Logger log = LoggerFactory.getLogger(BridgeModbusSerialImpl.class);
+
+	private final Lock lock = new ReentrantLock();
 
 	@Reference
 	private ComponentManager componentManager;
@@ -119,8 +120,6 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		this.parity = config.parity();
 	}
 
-	private final ReadWriteLock lock = new ReentrantReadWriteLock();
-
 	@Override
 	@Deactivate
 	protected void deactivate() {
@@ -142,29 +141,33 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		// not handling close errors correctly.
 		// By synchronizing every time something is going on with the serial port, we
 		// can ensure that the port is not closed while it's used.
-		if (!(task instanceof WaitTask)) {
-			this.lock.readLock().lock();
+
+		final var shouldLock = task.requiresConnection();
+		if (shouldLock) {
+			this.lock.lock();
 		}
 		try {
 			return task.execute(this);
 		} finally {
-			if (!(task instanceof WaitTask)) {
-				this.lock.readLock().unlock();
+			if (shouldLock) {
+				this.lock.unlock();
 			}
 		}
 	}
 
 	@Override
 	public void closeModbusConnection() {
-		this.lock.writeLock().lock();
+		this.lock.lock();
 		try {
 			if (this._connection == null) {
 				return;
 			}
+
+			// Warning: close() can fail silently, see comment in executeTask() method
 			this._connection.close();
 			this._connection = null;
 		} finally {
-			this.lock.writeLock().unlock();
+			this.lock.unlock();
 		}
 	}
 
@@ -181,24 +184,28 @@ public class BridgeModbusSerialImpl extends AbstractModbusBridge
 		return transaction;
 	}
 
-	protected AbstractSerialConnection getModbusConnection() throws OpenemsException {
+	protected synchronized AbstractSerialConnection getModbusConnection() throws OpenemsException {
 		if (!this.activated) {
 			return this._connection;
 		}
-		if (this._connection == null) {
-			this.lock.writeLock().lock();
+
+		var connection = this._connection;
+		if (connection == null || !connection.isOpen()) {
+			this.lock.lock();
 			try {
 				if (this._connection == null) {
 					this._connection = this.createConnection();
 				}
+				if (!this._connection.isOpen()) {
+					this.tryOpenConnection();
+				}
+				connection = this._connection;
 			} finally {
-				this.lock.writeLock().unlock();
+				this.lock.unlock();
 			}
 		}
-		if (!this._connection.isOpen()) {
-			this.tryOpenConnection();
-		}
-		return this._connection;
+
+		return connection;
 	}
 
 	private SerialConnection createConnection() {
