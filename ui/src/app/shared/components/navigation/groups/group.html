@@ -1,17 +1,10 @@
 <ion-card>
   <ion-card-header>
-    <ion-card-title>{{ titleKey() | translate }}</ion-card-title>
+    <ion-card-title>
+      <oe-navigation-label-line [nodeLabel]="titleKey() | translate"></oe-navigation-label-line>
+    </ion-card-title>
   </ion-card-header>
   <ion-card-content>
-    @if (components().length > 0) {
-      <ion-list>
-        @for (component of components(); track component.id) {
-          <ion-item button (click)="navigateTo(component.id)" (keydown.enter)="navigateTo(component.id)">
-            <ion-label>{{ component.alias || component.id }}</ion-label>
-            <ion-icon name="chevron-forward" slot="end"></ion-icon>
-          </ion-item>
-        }
-      </ion-list>
-    }
+    <oe-forward-navigation-options [shouldForceVisible]="true"></oe-forward-navigation-options>
   </ion-card-content>
 </ion-card>

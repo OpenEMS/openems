@@ -1,0 +1,15 @@
+@if (isAllowed() && children().length > 0) {
+  <ion-grid>
+    <ion-list>
+      @for (child of children(); let i = $index; let last = $last; track child) {
+        <ion-item [lines]="last ? 'none' : 'full'" mode="md" button class="ion-full-width" (keydown.enter)="navigationService.navigateAbsolute(child)" (click)="navigationService.navigateAbsolute(child)">
+          @if (child.icon !== null) {
+            <ion-icon [name]="child.icon.name" [color]="child.icon.color" slot="start"></ion-icon>
+          }
+          <oe-navigation-label-line [nodeLabel]="child.label"></oe-navigation-label-line>
+          <ion-icon name="chevron-forward" slot="end"></ion-icon>
+        </ion-item>
+      }
+    </ion-list>
+  </ion-grid>
+}

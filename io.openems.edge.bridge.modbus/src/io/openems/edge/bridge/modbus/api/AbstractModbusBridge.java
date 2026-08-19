@@ -12,6 +12,7 @@ import org.osgi.service.event.EventHandler;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -47,7 +48,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 
 	protected final ModbusWorker worker = new ModbusWorker(
 			// Execute Task
-			task -> task.execute(this),
+			this::executeTask,
 			// Invalidate ModbusElements
 			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
 			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
@@ -98,6 +99,10 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
 		} else {
 			this.worker.deactivate();
 		}
+	}
+
+	protected Task.ExecuteState executeTask(Task task) {
+		return task.execute(this);
 	}
 
 	/**

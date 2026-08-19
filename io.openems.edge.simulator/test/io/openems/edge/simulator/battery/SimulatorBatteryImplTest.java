@@ -1,6 +1,6 @@
 package io.openems.edge.simulator.battery;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
@@ -8,7 +8,7 @@ import io.openems.edge.common.test.ComponentTest;
 public class SimulatorBatteryImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		new ComponentTest(new SimulatorBatteryImpl()) //
 				.activate(MyConfig.create() //
 						.setId("battery0") //
@@ -21,6 +21,6 @@ public class SimulatorBatteryImplTest {
 						.setNumberOfSlaves(1) //
 						.build()) //
 				.next(new TestCase()) //
-		;
+				.deactivate();
 	}
 }

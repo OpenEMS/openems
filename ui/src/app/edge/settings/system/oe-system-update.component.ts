@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy, signal, } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { AlertController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -29,7 +29,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
     public readonly spinnerId: string = OeSystemUpdateComponent.SELECTOR;
 
     protected executeUpdate: ExecuteSystemUpdate | null = null;
-    protected isWaiting: boolean;
+    protected isWaiting = signal<boolean>(false);
 
     constructor(
         private websocket: Websocket,
@@ -45,16 +45,16 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
             this.stateChanged.emit(systemUpdateState);
             if (systemUpdateState.updated) {
                 this.service.stopSpinner(this.spinnerId);
-                this.isWaiting = false;
+                this.isWaiting.set(false);
             }
         };
 
         this.service.startSpinnerTransparentBackground(this.spinnerId);
-        this.isWaiting = true;
+        this.isWaiting.set(true);
         this.executeUpdate.start().finally(() => {
             if (!this.executeUpdate.systemUpdateState.running) {
                 this.service.stopSpinner(this.spinnerId);
-                this.isWaiting = false;
+                this.isWaiting.set(false);
             }
             if (this.executeUpdate.systemUpdateState.available && this.executeUpdateInstantly) {
                 this.executeSystemUpdate();
@@ -68,7 +68,7 @@ export class OeSystemUpdateComponent implements OnInit, OnDestroy {
 
     public executeSystemUpdate() {
         this.service.startSpinnerTransparentBackground(this.spinnerId);
-        this.isWaiting = true;
+        this.isWaiting.set(true);
         this.executeUpdate.executeSystemUpdate();
     }
 

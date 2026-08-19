@@ -4,18 +4,17 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.openems.common.bridge.http.api.HttpError;
-import io.openems.common.bridge.http.api.HttpResponse;
 
-public class DefaultDelayTimeProvider implements DelayTimeProvider {
+public class DefaultDelayTimeProvider<T> implements DelayTimeProvider<T> {
 
 	private final Supplier<DelayTimeProvider.Delay> onFirstRunDelay;
 	private final Function<HttpError, DelayTimeProvider.Delay> onErrorDelay;
-	private final Function<HttpResponse<String>, Delay> onSuccessDelay;
+	private final Function<T, Delay> onSuccessDelay;
 
 	public DefaultDelayTimeProvider(//
 			Supplier<Delay> onFirstRunDelay, //
 			Function<HttpError, Delay> onErrorDelay, //
-			Function<HttpResponse<String>, Delay> onSuccessDelay //
+			Function<T, Delay> onSuccessDelay //
 	) {
 		this.onFirstRunDelay = onFirstRunDelay;
 		this.onErrorDelay = onErrorDelay;
@@ -33,7 +32,7 @@ public class DefaultDelayTimeProvider implements DelayTimeProvider {
 	}
 
 	@Override
-	public Delay onSuccessRunDelay(HttpResponse<String> result) {
+	public Delay onSuccessRunDelay(T result) {
 		return this.onSuccessDelay.apply(result);
 	}
 

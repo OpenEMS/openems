@@ -139,6 +139,19 @@ export class RouteService {
         this.router.navigate(["/overview"]);
     }
 
+    public getCurrentUrlRouteSegments(): string[] {
+        const currentUrl = this.currentUrl();
+        const cleanedCurrentUrl = currentUrl?.startsWith("/") ? currentUrl.substring(1) : currentUrl;
+        return (
+            cleanedCurrentUrl?.split("/")?.reduce((acc: string[], curr) => {
+                const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
+
+                acc.push(path);
+                return acc;
+            }, []) ?? []
+        );
+    }
+
     private getDeepestRoute(routeSnapshot: ActivatedRouteSnapshot): ActivatedRouteSnapshot {
         while (routeSnapshot.firstChild) {
             routeSnapshot = routeSnapshot.firstChild;

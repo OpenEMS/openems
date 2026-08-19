@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -8,33 +8,36 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Mode } from "src/app/shared/type/general";
+import { ChannelAddress, CurrentData, Edge, EdgeConfig, EdgePermission } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { SharedControllerIoHeatpump } from "../shared/shared";
+import { HeatpumpMode, SharedControllerIoHeatpump } from "../shared/shared";
 
 @Component({
+    selector: "oe-controller-io-heatpump-settings",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
-export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyComponent<{ mode: Mode }> {
+export class ControllerIoHeatpumpSettingsComponent extends AbstractFormlyComponent<{ mode: HeatpumpMode }> {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
     private component: EdgeConfig.Component | null = null;
-    private route: ActivatedRoute = inject(ActivatedRoute);
+    private readonly route: ActivatedRoute = inject(ActivatedRoute);
 
     public static getFormlyGeneralView(
         translate: TranslateService,
         component: EdgeConfig.Component,
         edge: Edge,
-    ): OeFormlyView<{ mode: Mode }> {
+    ): OeFormlyView<{ mode: HeatpumpMode }> {
+        if (EdgePermission.isHeatpumpTimeScheduleAndBaseModeAvailable(edge)) {
+            return SharedControllerIoHeatpump.getFormlySettingsView(translate, component, edge);
+        }
         return SharedControllerIoHeatpump.getFormlyView(translate, component, edge);
     }
 
-    protected override generateView(): OeFormlyView<{ mode: Mode }> {
+    protected override generateView(): OeFormlyView<{ mode: HeatpumpMode }> {
         const edge = this.service.currentEdge();
         const config = edge.getCurrentConfig();
         AssertionUtils.assertIsDefined(config);
