@@ -66,9 +66,14 @@ public class SaxPowerImplTest {
                         .output(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, 4600)
                 )
                 .next(new TestCase()
-                        .input(SymmetricEss.ChannelId.SOC, 5)
+                        .input(SymmetricEss.ChannelId.SOC, 10)
                         .output(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, -1400)
                         .output(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, 0)
+                )
+                .next(new TestCase()
+                        .input(SymmetricEss.ChannelId.SOC, null)
+                        .output(ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER, null)
+                        .output(ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER, null)
                 )
                 .deactivate();
     }
