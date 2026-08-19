@@ -128,7 +128,7 @@
 	bnd.identity;id='io.openems.edge.ess.fenecon.commercial40',\
 	bnd.identity;id='io.openems.edge.ess.generic',\
 	bnd.identity;id='io.openems.edge.ess.samsung',\
-    bnd.identity;id='io.openems.edge.ess.saxpower',\
+	bnd.identity;id='io.openems.edge.ess.saxpower',\
 	bnd.identity;id='io.openems.edge.evcs.abl',\
 	bnd.identity;id='io.openems.edge.evcs.cluster',\
 	bnd.identity;id='io.openems.edge.evcs.core',\
