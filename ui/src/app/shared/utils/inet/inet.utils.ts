@@ -9,6 +9,7 @@ export namespace InetUtils {
     export const IPV4_PATTERN: RegExp = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     export const IPV6_PATTERN: RegExp = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|:((:[0-9a-fA-F]{1,4}){1,7})|::|([0-9a-fA-F]{1,4}:){1}(:[0-9a-fA-F]{1,4}){1,6}|([0-9a-fA-F]{1,4}:){2}(:[0-9a-fA-F]{1,4}){1,5}|([0-9a-fA-F]{1,4}:){3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){6}:[0-9a-fA-F]{1,4})$/;
     export const HOSTNAME_PATTERN: RegExp = /^([A-Za-z0-9][A-Za-z0-9-]*\.)*[A-Za-z][A-Za-z0-9-]*\.?$/;
+    export const CIDR_PATTERN: RegExp = /^(?:[0-9]|[1-9][0-9]|1[01][0-9]|12[0-8])$/;
 
     /**
      * Checks whether a string is a valid IPv4 address.
@@ -46,7 +47,7 @@ export namespace InetUtils {
      * @param value the input string
      * @returns the detected IP type
      */
-    export function isIP(value: string): IpType {
+    export function detectIP(value: string): IpType {
         if (isIPv4(value)) {
             return IpType.IPv4;
         }
@@ -66,6 +67,13 @@ export namespace InetUtils {
         return isIPv4(value) || isIPv6(value);
     }
 
+    function parseIfCidr(value: string): number | null {
+        if (value == null || value.length === 0) {
+            return null;
+        }
+        return CIDR_PATTERN.test(value) ? Number.parseInt(value, 10) : null ;
+    }
+
     /**
      * Checks whether a string is a valid network address in CIDR notation.
      *
@@ -73,15 +81,21 @@ export namespace InetUtils {
      * @returns the detected network address type
      */
     export function isNetworkAddress(value: string): IpType {
-        if (value === null || value.length == 0) { return IpType.None; }
+        if (value == null || value.length == 0) {
+            return IpType.None;
+        }
 
         const parts: string[] = value.split("/");
-        if (parts.length != 2) { return IpType.None; }
+        if (parts.length != 2) {
+            return IpType.None;
+        }
 
-        const cidrNum: number = Number.parseInt(parts[1], 10);
-        if (Number.isNaN(cidrNum)) { return IpType.None; }
+        const cidrNum: number | null = parseIfCidr(parts[1]);
+        if (cidrNum == null) {
+            return IpType.None;
+        }
 
-        const ipType = isIP(parts[0]);
+        const ipType = detectIP(parts[0]);
         if (ipType === IpType.IPv4 && isValidIPv4Cidr(cidrNum)) {
             return IpType.IPv4;
         }
@@ -139,7 +153,6 @@ export namespace InetUtils {
     /**
      * Check if number is a valid CIDR.
      *
-     *
      * ```js
      * InetUtils.isValidIPv4Cidr(24); // returns true
      * InetUtils.isValidIPv4Cidr(-1); // returns false
@@ -155,7 +168,6 @@ export namespace InetUtils {
 
     /**
      * Check if number is a valid CIDR.
-     *
      *
      * ```js
      * InetUtils.isValidIPv6Cidr(24); // returns true

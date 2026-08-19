@@ -5,7 +5,6 @@ const VALID_IPV6 = "2001:0db8:1234:5678:9999::ABCD:EFff";
 const VALID_HOSTNAME = "openems.io";
 
 describe("InetUtils", () => {
-
     it("#isSubnetMask", () => {
         expect(InetUtils.isSubnetMask("255.255.255.255")).toBeTrue();
         expect(InetUtils.isSubnetMask("255.255.255.0")).toBeTrue();
@@ -51,19 +50,19 @@ describe("InetUtils", () => {
         expect(InetUtils.isIPv6("1111::2222::3333")).toBeFalse();
     });
 
-    it("#isIp", () => {
-        expect(InetUtils.isIP(VALID_IPV4)).toBe(InetUtils.IpType.IPv4);
-        expect(InetUtils.isIP(VALID_IPV6)).toBe(InetUtils.IpType.IPv6);
-        expect(InetUtils.isIP(VALID_HOSTNAME)).toBe(InetUtils.IpType.None);
+    it("#detectIP", () => {
+        expect(InetUtils.detectIP(VALID_IPV4)).toBe(InetUtils.IpType.IPv4);
+        expect(InetUtils.detectIP(VALID_IPV6)).toBe(InetUtils.IpType.IPv6);
+        expect(InetUtils.detectIP(VALID_HOSTNAME)).toBe(InetUtils.IpType.None);
 
-        expect(InetUtils.isIP("001.001.001.001")).toBe(InetUtils.IpType.IPv4);
-        expect(InetUtils.isIP("::")).toBe(InetUtils.IpType.IPv6);
-        expect(InetUtils.isIP("::1")).toBe(InetUtils.IpType.IPv6);
-        expect(InetUtils.isIP("1::1")).toBe(InetUtils.IpType.IPv6);
+        expect(InetUtils.detectIP("001.001.001.001")).toBe(InetUtils.IpType.IPv4);
+        expect(InetUtils.detectIP("::")).toBe(InetUtils.IpType.IPv6);
+        expect(InetUtils.detectIP("::1")).toBe(InetUtils.IpType.IPv6);
+        expect(InetUtils.detectIP("1::1")).toBe(InetUtils.IpType.IPv6);
 
-        expect(InetUtils.isIP("localhost")).toBe(InetUtils.IpType.None);
-        expect(InetUtils.isIP("")).toBe(InetUtils.IpType.None);
-        expect(InetUtils.isIP(null)).toBe(InetUtils.IpType.None);
+        expect(InetUtils.detectIP("localhost")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.detectIP("")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.detectIP(null)).toBe(InetUtils.IpType.None);
     });
 
     it("#isValidIp", () => {
@@ -127,7 +126,7 @@ describe("InetUtils", () => {
     it("#isNetworkAddress", () => {
         expect(InetUtils.isNetworkAddress("0.0.0.0/0")).toBe(InetUtils.IpType.IPv4);
         expect(InetUtils.isNetworkAddress("1.1.1.1/24")).toBe(InetUtils.IpType.IPv4);
-        expect(InetUtils.isNetworkAddress("1::1/64")).toBe(InetUtils.IpType.IPv6);;
+        expect(InetUtils.isNetworkAddress("1::1/64")).toBe(InetUtils.IpType.IPv6);
         expect(InetUtils.isNetworkAddress("::/0")).toBe(InetUtils.IpType.IPv6);
 
         expect(InetUtils.isNetworkAddress("1.1.1.1/64")).toBe(InetUtils.IpType.None);
@@ -135,24 +134,24 @@ describe("InetUtils", () => {
         expect(InetUtils.isNetworkAddress("1::1/200")).toBe(InetUtils.IpType.None);
         expect(InetUtils.isNetworkAddress("1.1.1.1/4/8")).toBe(InetUtils.IpType.None);
         expect(InetUtils.isNetworkAddress("1.1.1.1")).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress("1.1.1.1/24abc")).toBe(InetUtils.IpType.None);
         expect(InetUtils.isNetworkAddress("localhost")).toBe(InetUtils.IpType.None);
         expect(InetUtils.isNetworkAddress(null)).toBe(InetUtils.IpType.None);
+        expect(InetUtils.isNetworkAddress(undefined)).toBe(InetUtils.IpType.None);
     });
-
 
     it("#isValidNetworkAddress", () => {
         expect(InetUtils.isValidNetworkAddress("0.0.0.0/0")).toBeTrue();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1/24")).toBeTrue();
-        expect(InetUtils.isValidNetworkAddress("1::1/64")).toBeTrue();
+        expect(InetUtils.isValidNetworkAddress("1::1/128")).toBeTrue();
         expect(InetUtils.isValidNetworkAddress("::/0")).toBeTrue();
 
-        expect(InetUtils.isValidNetworkAddress("1.1.1.1/64")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/25")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1/test")).toBeFalse();
-        expect(InetUtils.isValidNetworkAddress("1::1/200")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1::1/129")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1/4/8")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("localhost")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress(null)).toBeFalse();
     });
-
 });
