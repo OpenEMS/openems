@@ -24,6 +24,7 @@ import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SinglePhaseEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.common.sum.GridMode;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,8 +33,6 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
-import io.openems.edge.common.sum.GridMode;
-
 import java.time.Duration;
 import java.time.Instant;
 
@@ -140,6 +139,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
                 new FC3ReadRegistersTask(45, Priority.HIGH,
 
                         m(SaxPower.ChannelId.OPERATING_STATE, this.operatingStateElement),
+
                         m(SymmetricEss.ChannelId.SOC, new UnsignedWordElement(46)),
 
                         m(activePowerChannelId(this.phase), new UnsignedWordElement(47),
@@ -156,7 +156,7 @@ public class SaxPowerImpl extends AbstractOpenemsModbusComponent
         );
     }
 
-    private static io.openems.edge.common.channel.ChannelId activePowerChannelId(SinglePhase phase) {
+    static io.openems.edge.common.channel.ChannelId activePowerChannelId(SinglePhase phase) {
         return switch (phase) {
             case L1 -> AsymmetricEss.ChannelId.ACTIVE_POWER_L1;
             case L2 -> AsymmetricEss.ChannelId.ACTIVE_POWER_L2;
