@@ -142,11 +142,11 @@ describe("InetUtils", () => {
 
     it("#isValidNetworkAddress", () => {
         expect(InetUtils.isValidNetworkAddress("0.0.0.0/0")).toBeTrue();
-        expect(InetUtils.isValidNetworkAddress("1.1.1.1/24")).toBeTrue();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/32")).toBeTrue();
         expect(InetUtils.isValidNetworkAddress("1::1/128")).toBeTrue();
         expect(InetUtils.isValidNetworkAddress("::/0")).toBeTrue();
 
-        expect(InetUtils.isValidNetworkAddress("1.1.1.1/25")).toBeFalse();
+        expect(InetUtils.isValidNetworkAddress("1.1.1.1/33")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1/test")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1::1/129")).toBeFalse();
         expect(InetUtils.isValidNetworkAddress("1.1.1.1/4/8")).toBeFalse();
