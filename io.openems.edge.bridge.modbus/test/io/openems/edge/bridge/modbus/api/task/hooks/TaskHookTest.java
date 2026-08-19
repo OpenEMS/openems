@@ -117,7 +117,7 @@ class TaskHookTest {
 
 		bridge = new BridgeModbusSerialImpl() {
 			@Override
-			protected synchronized AbstractSerialConnection getModbusConnection() throws OpenemsException {
+			protected AbstractSerialConnection getModbusConnection() throws OpenemsException {
 				return ports.getServer();
 			}
 

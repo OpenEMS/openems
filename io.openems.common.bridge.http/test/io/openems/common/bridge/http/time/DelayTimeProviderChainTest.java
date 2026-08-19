@@ -3,50 +3,50 @@ package io.openems.common.bridge.http.time;
 import static io.openems.common.bridge.http.time.DelayTimeProviderChain.fixedAtEveryFull;
 import static io.openems.common.bridge.http.time.DelayTimeProviderChain.fixedDelay;
 import static io.openems.common.bridge.http.time.DelayTimeProviderChain.immediate;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.timedata.DurationUnit;
 
-public class DelayTimeProviderChainTest {
+class DelayTimeProviderChainTest {
 
 	@Test
-	public void testImmediate() {
+	void testImmediate() {
 		final var delayProvider = immediate();
 		assertEquals(DelayTimeProvider.Delay.of(Duration.ofSeconds(0)), delayProvider.getDelay());
 	}
 
 	@Test
-	public void testFixedDelay() {
+	void testFixedDelay() {
 		final var delay = Duration.ofSeconds(9);
 		final var delayProvider = fixedDelay(delay);
 		assertEquals(DelayTimeProvider.Delay.of(delay), delayProvider.getDelay());
 	}
 
 	@Test
-	public void testFixedAtEveryFull() {
+	void testFixedAtEveryFull() {
 		final var clock = new TimeLeapClock(LocalDateTime.of(2000, 1, 1, 12, 30, 23).toInstant(ZoneOffset.UTC));
 		final var delayProvider = fixedAtEveryFull(clock, DurationUnit.ofMinutes(1));
 		assertEquals(DelayTimeProvider.Delay.of(Duration.ofSeconds(60 - 23)), delayProvider.getDelay());
 	}
 
 	@Test
-	public void testPlusFixedAmountDelayTimeProviderChainIntTimeUnit() {
+	void testPlusFixedAmountDelayTimeProviderChainIntTimeUnit() {
 		final var delayProvider = fixedDelay(Duration.ofSeconds(5)) //
 				.plusFixedAmount(Duration.ofSeconds(3));
 		assertEquals(DelayTimeProvider.Delay.of(Duration.ofSeconds(8)), delayProvider.getDelay());
 	}
 
 	@Test
-	public void testPlusRandomDelayDelayTimeProviderChainIntTimeUnit() {
+	void testPlusRandomDelayDelayTimeProviderChainIntTimeUnit() {
 		final var delayProvider = fixedDelay(Duration.ofSeconds(5)) //
 				.plusRandomDelay(10, ChronoUnit.SECONDS);
 		final var createdDelay = delayProvider.getDelay();

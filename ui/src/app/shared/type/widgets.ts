@@ -5,6 +5,7 @@ import { SharedProduction } from "src/app/edge/live/common/production/shared/sha
 import { SharedStorage } from "src/app/edge/live/common/storage/shared/shared";
 import { SharedWeather } from "src/app/edge/live/common/weather/shared/shared";
 import { SharedControllerChannelThreshold } from "src/app/edge/live/Controller/Channelthreshold/shared/shared";
+import { SharedControllerChpSoc } from "src/app/edge/live/Controller/ChpSoc/shared/shared";
 import { SharedControllerEnerixControl } from "src/app/edge/live/Controller/EnerixControl/shared/shared";
 import { ControllerEvseSingleShared } from "src/app/edge/live/Controller/Evse/shared/shared";
 import { SharedControllerHeat } from "src/app/edge/live/Controller/Heat/shared/shared";
@@ -17,12 +18,11 @@ import { SharedControllerIoHeatingRoom } from "../../edge/live/Controller/Io/Hea
 import { Edge } from "../components/edge/edge";
 import { EdgeConfig } from "../components/edge/edgeconfig";
 import { NavigationTree } from "../components/navigation/shared";
-import { EdgePermission } from "../shared";
 import { TEnumKeys } from "./utility";
 import { Widget, WidgetClass, WidgetFactory, WidgetNature } from "./widget";
 
 export class Widgets {
-    private static readonly GROUPED_FACTORIES: Partial<
+    public static readonly GROUPED_FACTORIES: Partial<
         Record<
             Widget["name"],
             {
@@ -30,7 +30,8 @@ export class Widgets {
                     translate: TranslateService,
                     componentIds: Widget["componentId"][],
                     config: EdgeConfig,
-                ) => ConstructorParameters<typeof NavigationTree> | null;
+                    factoryId: EdgeConfig.Factory["id"],
+                ) => NavigationTree | null;
                 single: (
                     translate: TranslateService,
                     componentId: Widget["componentId"],
@@ -110,6 +111,8 @@ export class Widgets {
         }
 
         switch (widget.name) {
+            case "Controller.CHP.SoC":
+                return SharedControllerChpSoc.getNavigationTree(translate, component);
             case "Controller.Clever-PV":
                 return SharedControllerEnerixControl.getNavigationTree(translate, component);
             case "Weather.OpenMeteo":
@@ -117,7 +120,7 @@ export class Widgets {
             case "Controller.IO.HeatingElement":
                 return SharedControllerIoHeatingElement.getNavigationTree(translate, component);
             case "Controller.Io.HeatPump.SgReady":
-                return SharedControllerIoHeatpump.getNavigationTree(translate, component);
+                return SharedControllerIoHeatpump.getNavigationTree(translate, component, edge);
             case "Heat.Askoma":
                 return SharedControllerHeat.getNavigationTree(translate, component, true);
             case "Heat.MyPv":
@@ -161,7 +164,7 @@ export class Widgets {
                         )?.length > 0
                     );
                 case "Controller.Api.ModbusTcp.ReadWrite":
-                    return EdgePermission.isModbusTcpApiWidgetAllowed(edge);
+                    return true;
                 default:
                     return false;
             }
@@ -281,9 +284,9 @@ export class Widgets {
                 continue;
             }
 
-            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config);
+            const groupedNavigationTree = groupedFactory.grouped(translate, componentIds, config, groupedWidgetName);
             if (groupedNavigationTree != null) {
-                navigationTrees.push(groupedNavigationTree);
+                navigationTrees.push(groupedNavigationTree.toConstructorParams());
             }
         }
 

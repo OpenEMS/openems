@@ -135,12 +135,18 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 		public Function<GetParameterValues<HeatPump>, HeatPumpParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new HeatPumpParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false),
-										RelayProps.gpioFilter(), RelayProps.shellyFilter()), //
+								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false,
+										deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, false, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5, 6 }), //
 										PreferredRelay.of(4, new int[] { 2, 3 }), //
 										PreferredRelay.of(8, new int[] { 2, 3 }))) //
@@ -176,12 +182,15 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 			final var howMeasured = this.getEnum(p, MeterIntegration.class, Property.HOW_MEASURED);
 			var meterId = "";
 
+			final var deviceHardware = this.appManagerUtil
+					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
 			final var dependencies = new ArrayList<DependencyDeclaration>();
 
 			if (isElementMeasured) {
 
 				if (howMeasured == MeterIntegration.INTERN) {
-					meterId = resolveInternMeterDependencyAndGetMeterId(this, l, t, dependencies);
+					meterId = resolveInternMeterDependencyAndGetMeterId(this, l, t, deviceHardware, dependencies);
 				} else {
 					meterId = this.getString(p, l, Property.METER_ID);
 					dependencies.add(retrieveExternMeterDependency(this, meterId));
@@ -235,9 +244,14 @@ public class HeatPump extends AbstractOpenemsAppWithProps<HeatPump, Property, He
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(2, CheckRelayCountFilters.feneconHome(false),
-						CheckRelayCountFilters.deviceHardware()));
+				.setInstallableCheckableConfigs(checkRelayCount(2, //
+						CheckRelayCountFilters.feneconHome(false, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(false, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override

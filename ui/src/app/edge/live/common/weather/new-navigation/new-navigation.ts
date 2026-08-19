@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
@@ -42,6 +42,7 @@ export class WeatherHomeComponent extends AbstractFormlyComponent {
         return {
             title: pageTitle,
             icon: { name: "oe-partly-cloudy-day", color: "normal", size: "large" },
+            helpKey: "REDIRECT.WEATHER_WIDGET",
             lines: lines,
             component: component,
         };

@@ -46,6 +46,7 @@ addIcons({
     "oe-energy-journey": environment.icons.ENERGY_JOURNEY,
     "oe-battery-extension": environment.icons.BATTERY_EXTENSION,
     "oe-wrap-up": environment.icons.WRAP_UP,
+    "oe-favorites": environment.icons.COMMON.FAVORITES,
 });
 
 export class Permission {}
@@ -108,35 +109,6 @@ export class EdgePermission {
         }, []);
     }
 
-    public static isModbusTcpApiWidgetAllowed(edge: Edge): boolean {
-        return edge?.isVersionAtLeast("2024.9.1");
-    }
-
-    /**
-     * Determines if the edge has its channels in the edgeconfig or if they should be obtained with a separate request.
-     *
-     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
-     * network, backend, ui, edge.
-     *
-     * @returns True if the channels are included in the edgeconfig
-     */
-    public static hasChannelsInEdgeConfig(edge: Edge): boolean {
-        return !edge.isVersionAtLeast("2024.6.1");
-    }
-
-    /**
-     * Determines if the edge has only the factories which are used by the active components in the edgeconfig or if all
-     * factories are inlcuded.
-     *
-     * The reason this was introduced is to reduce the size of the EdgeConfig and therefore improve performance in
-     * network, backend, ui, edge.
-     *
-     * @returns True if only the factories of the used components are in the edgeconfig
-     */
-    public static hasReducedFactories(edge: Edge): boolean {
-        return edge.isVersionAtLeast("2024.6.1");
-    }
-
     /**
      * Checks if the edge version is at least 2025.12.1 to cover systemErrorAcknowledge JSON-RPC request.
      *
@@ -145,6 +117,17 @@ export class EdgePermission {
      */
     public static hasSystemErrorAcknowledge(edge: Edge): boolean {
         return edge.isVersionAtLeast("2025.12.1");
+    }
+
+    /**
+     * Checks if the edge version is at least 2026.8.2 to and temporally if the user is ADMIN to access the time
+     * schedule and base mode in the heatpump component.
+     *
+     * @param edge The edge to check
+     * @returns True if the edge is 2026.8.2
+     */
+    public static isHeatpumpTimeScheduleAndBaseModeAvailable(edge: Edge): boolean {
+        return edge.isVersionAtLeast("2026.8.2") && edge.roleIsAtLeast(Role.ADMIN);
     }
 }
 
@@ -185,8 +168,7 @@ export class UserPermission {
      * @returns True, if user is at least {@link Role.ADMIN} and edge version is at least 2024.2.2
      */
     public static isAllowedToSeeSystemRestart(user: User, edge: Edge) {
-        const isAllowed = edge?.isVersionAtLeast("2024.2.2");
-        return Role.isAtLeast(user?.globalRole, Role.OWNER) && isAllowed;
+        return Role.isAtLeast(user?.globalRole, Role.OWNER);
     }
 
     /**

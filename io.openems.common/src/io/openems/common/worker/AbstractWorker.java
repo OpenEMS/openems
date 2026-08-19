@@ -1,11 +1,11 @@
 package io.openems.common.worker;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.utils.CancellationToken;
 import io.openems.common.utils.Mutex;
 
 /**
@@ -32,8 +32,11 @@ public abstract class AbstractWorker {
 
 	private final Logger log = LoggerFactory.getLogger(AbstractWorker.class);
 
-	private final AtomicBoolean isStopped = new AtomicBoolean(false);
 	private final Mutex cycleMutex = new Mutex(false);
+
+	private Integer threadPriority;
+	private Thread thread;
+	private CancellationToken threadCancel;
 
 	/**
 	 * Initializes the worker and starts the worker thread.
@@ -78,23 +81,44 @@ public abstract class AbstractWorker {
 	}
 
 	private synchronized void startWorker(String name, boolean autoTriggerNextRun) {
-		if (name != null) {
-			this.thread.setName(name);
-		}
-		if (!this.thread.isAlive() && !this.thread.isInterrupted() && !this.isStopped.get()) {
+		if (!this.isCurrentThreadStillAlive()) {
+			this.threadCancel = new CancellationToken();
+			this.thread = new Thread(this::threadRun);
+			if (name != null) {
+				this.thread.setName(name);
+			}
+			if (this.threadPriority != null) {
+				this.thread.setPriority(this.threadPriority);
+			}
 			this.thread.start();
 		}
+
 		if (autoTriggerNextRun) {
 			this.triggerNextRun();
 		}
 	}
 
+	private boolean isCurrentThreadStillAlive() {
+		return this.thread != null && this.thread.isAlive() && !this.threadCancel.isCancelled();
+	}
+
+	public String getThreadName() {
+		return this.thread != null ? this.thread.getName() : null;
+	}
+
 	/**
 	 * Stops the worker thread.
 	 */
-	public void deactivate() {
-		this.isStopped.set(true);
-		this.thread.interrupt();
+	public synchronized void deactivate() {
+		if (this.thread != null) {
+			this.threadCancel.cancel();
+			this.thread.interrupt();
+			try {
+				this.thread.join();
+			} catch (InterruptedException ex) {
+				// Should not be handled
+			}
+		}
 	}
 
 	/**
@@ -122,58 +146,57 @@ public abstract class AbstractWorker {
 		this.cycleMutex.release();
 	}
 
-	protected final Thread thread = new Thread() {
-		@Override
-		public void run() {
-			var onWorkerExceptionSleep = 1L; // seconds
-			var cycleStart = System.currentTimeMillis();
-			while (!AbstractWorker.this.isStopped.get()) {
-				try {
-					/*
-					 * Wait for next cycle
-					 */
-					var cycleTime = AbstractWorker.this.getCycleTime();
-					if (cycleTime == AbstractWorker.DO_NOT_WAIT) {
-						// no wait
-					} else if (cycleTime > 0) {
-						// wait remaining cycleTime
-						var sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
-						if (sleep > 0) {
-							AbstractWorker.this.cycleMutex.awaitOrTimeout(sleep, TimeUnit.MILLISECONDS);
-						}
-					} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
-						// wait till next run is triggered
-						AbstractWorker.this.cycleMutex.await();
+	protected void threadRun() {
+		final var cancellationToken = this.threadCancel;
+
+		var onWorkerExceptionSleep = 1L; // seconds
+		var cycleStart = System.currentTimeMillis();
+		while (!cancellationToken.isCancelled()) {
+			try {
+				/*
+				 * Wait for next cycle
+				 */
+				var cycleTime = AbstractWorker.this.getCycleTime();
+				if (cycleTime == AbstractWorker.DO_NOT_WAIT) {
+					// no wait
+				} else if (cycleTime > 0) {
+					// wait remaining cycleTime
+					var sleep = cycleTime - (System.currentTimeMillis() - cycleStart);
+					if (sleep > 0) {
+						AbstractWorker.this.cycleMutex.awaitOrTimeout(sleep, TimeUnit.MILLISECONDS);
 					}
-
-					// store start time
-					cycleStart = System.currentTimeMillis();
-
-					/*
-					 * Call forever() forever.
-					 */
-					AbstractWorker.this.forever();
-
-					// Everything went ok -> decrease onWorkerExceptionSleep
-					onWorkerExceptionSleep = Math.max(onWorkerExceptionSleep - 5, 1);
-
-				} catch (Throwable e) {
-					if (e instanceof InterruptedException && AbstractWorker.this.isStopped.get()) {
-						// nothing
-					} else {
-						/*
-						 * Handle Worker-Exceptions
-						 */
-						AbstractWorker.this.log
-								.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
-										+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
-						e.printStackTrace();
-					}
-					onWorkerExceptionSleep = AbstractWorker.this.onWorkerExceptionSleep(onWorkerExceptionSleep);
+				} else { // < 0 (ALWAYS_WAIT_FOR_TRIGGER_NEXT_RUN)
+					// wait till next run is triggered
+					AbstractWorker.this.cycleMutex.await();
 				}
+
+				// store start time
+				cycleStart = System.currentTimeMillis();
+
+				/*
+				 * Call forever() forever.
+				 */
+				AbstractWorker.this.forever();
+
+				// Everything went ok -> decrease onWorkerExceptionSleep
+				onWorkerExceptionSleep = Math.max(onWorkerExceptionSleep - 5, 1);
+
+			} catch (Throwable e) {
+				if (e instanceof InterruptedException && cancellationToken.isCancelled()) {
+					// nothing
+				} else {
+					/*
+					 * Handle Worker-Exceptions
+					 */
+					AbstractWorker.this.log
+							.error("Worker error. " + e.getClass().getSimpleName() + ": " + e.getMessage() //
+									+ (e.getCause() != null ? " - Caused by: " + e.getCause().getMessage() : ""));
+					e.printStackTrace();
+				}
+				onWorkerExceptionSleep = AbstractWorker.this.onWorkerExceptionSleep(onWorkerExceptionSleep);
 			}
 		}
-	};
+	}
 
 	/**
 	 * Little helper method: Sleep and don't let yourself interrupt by a
@@ -215,7 +238,10 @@ public abstract class AbstractWorker {
 	 * @throws SecurityException        if the current thread cannot modify this
 	 *                                  thread.
 	 */
-	public final void setPriority(int newPriority) {
-		this.thread.setPriority(newPriority);
+	public synchronized void setPriority(int newPriority) {
+		this.threadPriority = newPriority;
+		if (this.thread != null) {
+			this.thread.setPriority(newPriority);
+		}
 	}
 }

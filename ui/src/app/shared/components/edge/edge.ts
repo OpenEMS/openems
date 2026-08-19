@@ -4,9 +4,8 @@ import { TranslateService } from "@ngx-translate/core";
 import { compareVersions } from "compare-versions";
 import { BehaviorSubject, Subject } from "rxjs";
 import { filter, first } from "rxjs/operators";
-import { hasUpdateAppVersion } from "src/app/edge/settings/app/permissions";
 import { SumState } from "src/app/index/shared/sumState";
-import { UserComponent } from "src/app/user/user.component";
+import { PlatFormService } from "src/app/platform.service";
 import { JsonrpcRequest, JsonrpcResponseSuccess } from "../../jsonrpc/base";
 import { CurrentDataNotification } from "../../jsonrpc/notification/currentDataNotification";
 import { EdgeConfigNotification } from "../../jsonrpc/notification/edgeConfigNotification";
@@ -27,13 +26,15 @@ import { GetChannelResponse } from "../../jsonrpc/response/getChannelResponse";
 import { Channel, GetChannelsOfComponentResponse } from "../../jsonrpc/response/getChannelsOfComponentResponse";
 import { GetEdgeConfigResponse } from "../../jsonrpc/response/getEdgeConfigResponse";
 import { GetPropertiesOfFactoryResponse } from "../../jsonrpc/response/getPropertiesOfFactoryResponse";
-import { ChannelAddress, EdgePermission, Service, SystemLog, Websocket } from "../../shared";
+import { User } from "../../jsonrpc/shared";
+import { ChannelAddress, Service, SystemLog, Websocket } from "../../shared";
 import { Role } from "../../type/role";
 import { Widgets } from "../../type/widgets";
 import { ArrayUtils } from "../../utils/array/array.utils";
 import { ObjectUtils } from "../../utils/object/object-utils";
 import { StringUtils } from "../../utils/string/string.utils";
-import { AvailableScope, NavigationId, NavigationTree, PageFilterCombineMode, PageFilterMode, PageFilterSet, } from "../navigation/shared";
+import { SharedBottomNavigationBar } from "../navigation/bottom-bar/shared";
+import { NavigationId, NavigationTree } from "../navigation/shared";
 import { CurrentData } from "./currentdata";
 import { EdgeConfig } from "./edgeconfig";
 
@@ -143,15 +144,6 @@ export class Edge {
      * @returns A promise of the found channel
      */
     public async getChannel(websocket: Websocket, channel: ChannelAddress): Promise<Channel> {
-        if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-            const config = await this.getFirstValidConfig(websocket);
-            const foundChannel = config.getChannel(channel);
-            if (!foundChannel) {
-                throw new Error("Channel not found: " + channel);
-            }
-            return { id: channel.channelId, ...foundChannel };
-        }
-
         const response = await this.sendRequest<GetChannelResponse>(
             websocket,
             new ComponentJsonApiRequest({
@@ -174,17 +166,6 @@ export class Edge {
      * @returns A promise with the reuslt channels
      */
     public async getChannels(websocket: Websocket, componentId: string): Promise<Channel[]> {
-        if (EdgePermission.hasChannelsInEdgeConfig(this)) {
-            const config = await this.getFirstValidConfig(websocket);
-            const component = config.components[componentId];
-            if (!component) {
-                throw new Error("Component not found");
-            }
-            return Object.entries(component.channels).reduce((p, c) => {
-                return [...p, { id: c[0], ...c[1] }];
-            }, []);
-        }
-
         const response = await this.sendRequest<GetChannelsOfComponentResponse>(
             websocket,
             new ComponentJsonApiRequest({
@@ -202,21 +183,16 @@ export class Edge {
         websocket: Websocket,
         factoryId: string,
     ): Promise<[EdgeConfig.Factory, EdgeConfig.FactoryProperty[]]> {
-        if (EdgePermission.hasReducedFactories(this)) {
-            const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(
-                websocket,
-                new ComponentJsonApiRequest({
-                    componentId: "_componentManager",
-                    payload: new GetPropertiesOfFactoryRequest({
-                        factoryId,
-                    }),
+        const response = await this.sendRequest<GetPropertiesOfFactoryResponse>(
+            websocket,
+            new ComponentJsonApiRequest({
+                componentId: "_componentManager",
+                payload: new GetPropertiesOfFactoryRequest({
+                    factoryId,
                 }),
-            );
-            return [response.result.factory, response.result.properties];
-        }
-
-        const factory = (await this.getFirstValidConfig(websocket)).factories[factoryId];
-        return [factory, factory.properties];
+            }),
+        );
+        return [response.result.factory, response.result.properties];
     }
 
     /** Called by Service, when this Edge is set as currentEdge. */
@@ -570,26 +546,18 @@ export class Edge {
         componentId: string,
         properties: { name: string; value: string | number | boolean }[],
     ): Promise<JsonrpcResponseSuccess> {
-        let request;
-        if (!hasUpdateAppVersion(this)) {
-            request = new UpdateComponentConfigRequest({
-                componentId: componentId,
-                properties: properties,
-            });
-        } else {
-            const jsonObject = properties.reduce((acc, current) => {
-                acc[current.name] = current.value;
-                return acc;
-            }, {});
-            const payload = new UpdateAppConfigRequest({
-                componentId: componentId,
-                properties: jsonObject,
-            });
-            request = new ComponentJsonApiRequest({
-                componentId: "_appManager",
-                payload: payload,
-            });
-        }
+        const jsonObject = properties.reduce((acc, current) => {
+            acc[current.name] = current.value;
+            return acc;
+        }, {});
+        const payload = new UpdateAppConfigRequest({
+            componentId: componentId,
+            properties: jsonObject,
+        });
+        const request = new ComponentJsonApiRequest({
+            componentId: "_appManager",
+            payload: payload,
+        });
         return this.sendRequest(ws, request);
     }
 
@@ -653,58 +621,27 @@ export class Edge {
         translate: TranslateService,
         edge: Edge,
         service: Service,
+        user: User,
+        platFormService: PlatFormService,
     ): Promise<NavigationTree> {
+        const config = this.getConfigSignal()();
         const baseNavigationTree: (translate: TranslateService) => ConstructorParameters<typeof NavigationTree> = (
             translate,
         ) => [
-            NavigationId.LIVE,
-            { baseString: "device/" + edge.id + "/live" },
+            NavigationId.ROOT,
+            { baseString: "device/" + edge.id },
             { name: "home-outline" },
-            "live",
+            "root",
             "icon",
-            [],
+            SharedBottomNavigationBar.getNavigationTree(edge, config, translate, service, user, platFormService),
             null,
         ];
 
         const _baseNavigationTree: ConstructorParameters<typeof NavigationTree> = baseNavigationTree(
             translate,
         ).slice() as ConstructorParameters<typeof NavigationTree>;
-        const navigationTree = new NavigationTree(..._baseNavigationTree);
-
-        // TODO find automated way to create reference for parents
-
-        if (edge.isOnline === false) {
-            return navigationTree;
-        }
-
-        const config = this.config.getValue();
-        this.addCommonWidgetNavigation(edge, config, navigationTree, translate);
-        this.addControllerNavigation(edge, config, navigationTree, translate);
-        navigationTree.setChild(
-            NavigationId.LIVE,
-            new NavigationTree(
-                NavigationId.HISTORY,
-                { baseString: "history" },
-                { name: "stats-chart-outline" },
-                translate.instant("GENERAL.HISTORY"),
-                "label",
-                [
-                    new NavigationTree(
-                        "export",
-                        { baseString: "export" },
-                        { name: "download-outline" },
-                        translate.instant("EDGE.CONFIG.INDEX.EXPORT"),
-                        "label",
-                        [],
-                        null,
-                    ),
-                ],
-                null,
-                { showOrder: "LOW" },
-            ),
-        );
-        this.addGlobalNavigation(service, navigationTree, translate);
-        navigationTree.setChild(NavigationId.LIVE, UserComponent.getNavigationTree(service, translate));
+        let navigationTree = new NavigationTree(..._baseNavigationTree);
+        navigationTree = navigationTree.setParentRecursively();
         navigationTree.reorderByShowOrder(navigationTree);
         return navigationTree;
     }
@@ -716,7 +653,7 @@ export class Edge {
         );
     }
 
-    private addCommonWidgetNavigation(
+    protected addCommonWidgetNavigation(
         edge: Edge,
         config: EdgeConfig,
         currentNavigationTree: NavigationTree,
@@ -737,91 +674,6 @@ export class Edge {
             }
             currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
         }
-    }
-
-    private addControllerNavigation(
-        edge: Edge,
-        config: EdgeConfig,
-        currentNavigationTree: NavigationTree,
-        translate: TranslateService,
-    ): void {
-        const controllerNavigationTrees = Widgets.getControllerNavigationTrees(edge, translate, config);
-
-        for (const navigationTree of controllerNavigationTrees) {
-            if (navigationTree == null) {
-                continue;
-            }
-
-            currentNavigationTree.setChild(NavigationId.LIVE, new NavigationTree(...navigationTree));
-        }
-    }
-
-    private addGlobalNavigation(
-        service: Service,
-        currentNavigationTree: NavigationTree,
-        translate: TranslateService,
-    ): void {
-        const settingsFilter: PageFilterSet = {
-            combine: PageFilterCombineMode.ANY,
-            rules: [{ navigationId: "system-overview", mode: PageFilterMode.HIDE }],
-        };
-
-        currentNavigationTree.setChild(
-            NavigationId.LIVE,
-            new NavigationTree(
-                "settings",
-                { baseString: "settings" },
-                { name: "cog-outline" },
-                translate.instant("MENU.EDGE_SYSTEM_SETTINGS"),
-                "label",
-                [],
-                null,
-                {
-                    availableScope: AvailableScope.LOCAL,
-                    pageFilter: settingsFilter,
-                },
-            ),
-        );
-        currentNavigationTree.setChild(NavigationId.LIVE, UserComponent.getNavigationTree(service, translate));
-        currentNavigationTree.setChild(
-            NavigationId.LIVE,
-            new NavigationTree(
-                "navigation-info",
-                { baseString: "navigation-info" },
-                { name: "information-outline" },
-                translate.instant("GENERAL.HELP"),
-                "label",
-                [],
-                null,
-                { availableScope: AvailableScope.LOCAL },
-            ),
-        );
-
-        const rootNavigationTree = new NavigationTree(
-            NavigationId.ROOT,
-            { baseString: "" },
-            { name: "menu-outline" },
-            "",
-            "hidden",
-            [],
-            null,
-            { availableScope: AvailableScope.LOCAL },
-        );
-        rootNavigationTree.setChild(
-            NavigationId.ROOT,
-            new NavigationTree(
-                "system-overview",
-                { baseString: "overview" },
-                { name: "menu-outline" },
-                translate.instant("MENU.OVERVIEW"),
-                "label",
-                [],
-                null,
-                { customLink: "/overview" },
-            ),
-        );
-
-        currentNavigationTree.parent = rootNavigationTree;
     }
 
     /** Refresh the config. */

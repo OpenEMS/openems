@@ -1,13 +1,13 @@
 package io.openems.common.bridge.http.time.periodic;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Stopwatch;
 
@@ -15,8 +15,9 @@ import io.openems.common.bridge.http.time.DelayTimeProvider;
 import io.openems.common.utils.FunctionUtils;
 
 public class PeriodicExecutorTest {
+
 	@Test
-	public void testReal() {
+	void testReal() {
 		var factory = new PeriodicExecutorFactory();
 		var watch = Stopwatch.createStarted();
 		var tester = new CallTester(DelayTimeProvider.Delay.of(Duration.ofSeconds(2)));
@@ -31,7 +32,7 @@ public class PeriodicExecutorTest {
 	}
 
 	@Test
-	public void testDummy() {
+	void testDummy() {
 		var factory = new DummyPeriodicExecutorFactory();
 		var tester = new CallTester(DelayTimeProvider.Delay.of(Duration.ofSeconds(2)));
 		var executor = factory.execute("Test Dummy", tester, DelayTimeProvider.Delay.immediate());
@@ -42,7 +43,7 @@ public class PeriodicExecutorTest {
 	}
 
 	@Test
-	public void testDummyException() {
+	void testDummyException() {
 		var factory = new DummyPeriodicExecutorFactory();
 		var tester = new CallTester(DelayTimeProvider.Delay.of(Duration.ofSeconds(2)));
 		tester.task = () -> {

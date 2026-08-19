@@ -15,6 +15,7 @@ The Controller distinguishes the definition of Phase and Level.
 == Channels
 
 Example:
+
 * the power of the heating element per phase is 1000 W
 * each "x" below represents one hour
 

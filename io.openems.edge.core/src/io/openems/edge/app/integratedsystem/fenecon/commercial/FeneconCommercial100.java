@@ -14,6 +14,8 @@ import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.essLimi
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.getGpioId;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridMeter;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.gridOptimizedCharge;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.io;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusExternal;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusForExternalMeters;
 import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.modbusInternal;
@@ -34,6 +36,7 @@ import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.hasEssL
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.shadowManagementDisabled;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.genset;
+import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.ioForSecondBattery;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialComponents.stsBox;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocEnd;
 import static io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercialProps.gensetChargeSocGroup;
@@ -143,7 +146,7 @@ public class FeneconCommercial100
 				.setTranslatedLabelWithAppPrefix(".connectedBatterySystems.label") //
 				.setDefaultValue(ConnectedBatterySystems.ONE) //
 				.setField(JsonFormlyUtil::buildSelectFromNameable, (app, property, l, parameter, field) -> {
-					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class), l);
+					field.setOptions(OptionsFactory.of(ConnectedBatterySystems.class, ConnectedBatterySystems.TWO), l);
 				}))),
 
 		LINK_FEED_IN(feedInLink()), //
@@ -336,11 +339,9 @@ public class FeneconCommercial100
 					ComponentDef.from(ess(bundle, essId, batteryId, batteryInverterId)), //
 					ComponentDef
 							.from(gridMeter(bundle, gridMeterId, modbusIdExternal, gridMeterCategory, ctRatioFirst)), //
-					ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)), //
 					ComponentDef.from(modbusExternal(bundle, t, modbusIdExternal)), //
 					ComponentDef.from(ctrlEssSurplusFeedToGrid(bundle, essId)), //
-					ComponentDef.from(power()) //
-			);
+					ComponentDef.from(power())); //
 
 			switch (connectedBatterySystems) {
 			case ONE -> {
@@ -361,7 +362,16 @@ public class FeneconCommercial100
 				components.add(FeneconCommercialComponents.clusterBatterySlave2(bundle, battery2Id));
 				components.add(FeneconCommercialComponents.modbusForClusterSlaveBattery2(bundle, t,
 						modbusIdExternalMeters, deviceHardware));
+
+				if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+					components.add(ComponentDef.from(io(bundle, modbusIdInternal)));
+				}
+				components.add(ioForSecondBattery(bundle, modbusIdExternalMeters));
 			}
+			}
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(ComponentDef.from(modbusInternal(bundle, t, modbusIdInternal)));
 			}
 
 			if (hasEmergencyReserve) {

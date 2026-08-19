@@ -1,5 +1,27 @@
 @if (gotData) {
-  <ng-container>
+  @if (isSmartPhone()) {
+    <ion-grid class="ion-no-margin-left ion-padding ion-no-padding-bottom" (click)="navigateToWeather()">
+      <ion-row class="ion-align-items-end ion-justify-content-end ion-text-align-center">
+        <ion-col style="text-align: center">
+          <ion-row class="ion-align-items-center ion-justify-content-end">
+            <ion-col size="auto">
+              <ion-icon [name]="currentHourlyForecast.weatherCode | weatherCodeIcon: currentHourlyForecast.isDay" style="font-size: 3em !important" class="ion-padding-right-half"></ion-icon>
+            </ion-col>
+            <ion-col size="auto">
+              <ion-row>
+                <ion-text style="font-size: large">{{ currentHourlyForecast.temperature | number: "1.0-0" }}°&nbsp;</ion-text>
+              </ion-row>
+              <ion-row>
+                <ion-text [translate]="'SUNSHINE_DURATION_HOURS'" [translateParams]="{ duration: currentDailyForecast.sunshineDuration | numberFormat: '1.0-0' }"></ion-text>
+                <ion-icon name="oe-sunshine-duration" color="primary" class="sunshine-duration-icon"></ion-icon>
+              </ion-row>
+            </ion-col>
+          </ion-row>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  } @else {
+    <!-- TODO: should use ionic grid -->
     <div class="weather-widget">
       <div class="weather-main ion-padding-top">
         <ion-icon [name]="currentHourlyForecast.weatherCode | weatherCodeIcon: currentHourlyForecast.isDay" class="weather-icon"></ion-icon>
@@ -15,5 +37,5 @@
         <ion-text [translate]="'SUNSHINE_DURATION_LABEL'"></ion-text>
       </div>
     </div>
-  </ng-container>
+  }
 }

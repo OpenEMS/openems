@@ -1,12 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { TimeLineChartComponent } from "../../../../../shared/components/chart/timeline-chart/timeline-chart";
@@ -24,13 +23,12 @@ import { HeatConverter } from "./converter";
     selector: "oe-controller-heat-new-navigation",
     templateUrl: "../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     providers: [{ provide: DataService, useClass: LiveDataService }],
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
 export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-
-    private readonly routeService: RouteService = inject(RouteService);
 
     public static generateView(
         translate: TranslateService,
@@ -41,8 +39,7 @@ export class ControllerHeatHomeComponent extends AbstractFormlyComponent {
         return {
             title: component.alias,
             icon: { name: "oe-heating-element", color: "normal", size: "normal" },
-            helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            useDefaultPrefix: false,
+            helpKey: SharedControllerHeat.getHelpKey(component),
             lines: ControllerHeatHomeComponent.getLines(translate, component, edge, energyScheduler),
             component: component,
             edge: edge,

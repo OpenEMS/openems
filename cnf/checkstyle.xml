@@ -205,8 +205,8 @@
     </module>
     <module name="MissingJavadocMethod">
       <property name="allowMissingPropertyJavadoc" value="true"/>
-      <property name="allowedAnnotations" value="Before,BeforeEach,BeforeAll,Test,After,Override,Parameters"/>
-      <property name="ignoreMethodNamesRegex" value="doc|set.+|build"/>
+      <property name="allowedAnnotations" value="Before,BeforeEach,BeforeAll,Test,After,Override,Parameters,Activate,Deactivate,Modified"/>
+      <property name="ignoreMethodNamesRegex" value="doc|set.+|build|serializer|bind.+|unbind.+"/>
       <property name="tokens" value="METHOD_DEF"/>
     </module>
     <module name="VisibilityModifier">

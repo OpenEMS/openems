@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -7,7 +7,6 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, EdgeConfig } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -19,13 +18,12 @@ import { SharedControllerIoHeatingElement } from "../shared/shared";
     selector: "oe-controller-io-heating-element-home",
     templateUrl: "../../../../../../shared/components/formly/formly-field-modal/template.html",
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
     providers: [{ provide: DataService, useClass: LiveDataService }],
 })
 export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-
-    private routeService: RouteService = inject(RouteService);
 
     public static generateView(translate: TranslateService, component: EdgeConfig.Component, mode: Mode): OeFormlyView {
         const lines: OeFormlyField[] = [];
@@ -77,7 +75,6 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
         return {
             title: component.alias,
             helpKey: "REDIRECT.CONTROLLER_IO_HEATING_ELEMENT",
-            useDefaultPrefix: false,
             lines: lines,
             component: component,
         };
@@ -95,16 +92,5 @@ export class ControllerIoHeatingElementHomeComponent extends AbstractFormlyCompo
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
         const component = this.getComponent();
         return SharedControllerIoHeatingElement.getChannelAddresses(component);
-    }
-
-    private getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
-        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
-        AssertionUtils.assertIsDefined(component);
-
-        return component;
     }
 }

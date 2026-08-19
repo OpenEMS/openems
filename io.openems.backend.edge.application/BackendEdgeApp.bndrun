@@ -5,6 +5,7 @@
 -resolve.effective: active
 
 -runproperties: \
+	java.awt.headless=true,\
 	org.osgi.service.http.port=8078,\
 	felix.cm.dir=c:/openems-backend-edge/config,\
 	org.apache.felix.eventadmin.Timeout=0,\
@@ -76,15 +77,15 @@
 	org.apache.felix.configadmin;version='[1.9.26,1.9.27)';startlevel=11,\
 	org.apache.felix.eventadmin;version='[1.6.4,1.6.5)';startlevel=12,\
 	org.apache.felix.fileinstall;version='[3.7.4,3.7.5)';startlevel=13,\
-	org.apache.felix.http.jetty12;version='[2.0.2,2.0.3)',\
+	org.apache.felix.http.jetty12;version='[2.0.4,2.0.5)',\
 	org.apache.felix.http.servlet-api;version='[6.1.0,6.1.1)',\
 	org.apache.felix.inventory;version='[2.0.0,2.0.1)',\
 	org.apache.felix.metatype;version='[1.2.4,1.2.5)',\
 	org.apache.felix.scr;version='[2.2.18,2.2.19)';startlevel=10,\
 	org.apache.felix.webconsole;version='[5.0.18,5.0.19)',\
 	org.apache.felix.webconsole.plugins.ds;version='[2.3.0,2.3.1)',\
-	org.ops4j.pax.logging.pax-logging-api;version='[2.3.4,2.3.5)';startlevel=14,\
-	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.4,2.3.5)';startlevel=15,\
+	org.ops4j.pax.logging.pax-logging-api;version='[2.3.5,2.3.6)';startlevel=14,\
+	org.ops4j.pax.logging.pax-logging-log4j2;version='[2.3.5,2.3.6)';startlevel=15,\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
 	org.osgi.util.function;version='[1.2.0,1.2.1)',\
 	org.osgi.util.promise;version='[1.3.0,1.3.1)',\

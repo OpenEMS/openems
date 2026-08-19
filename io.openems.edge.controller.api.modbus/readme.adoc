@@ -160,6 +160,7 @@ To read/write specific channels:
 3. Read/write to register address = component_start + channel_offset
 
 Example:
+
 * Read register `302` to get `_sum/EssSoc` (total ESS state of charge)
 * Write to register `806` to set `ess0/SetActivePowerEquals` (control charging/discharging)
 

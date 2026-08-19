@@ -1,11 +1,11 @@
 package io.openems.common.bridge.http.metric;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Duration;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class MetricGroupTest {
 
@@ -15,89 +15,89 @@ public class MetricGroupTest {
 	private static final long DEFAULT_REQUEST_FAILED_COUNT = 10;
 	private static final Duration DEFAULT_DURATION = Duration.ofSeconds(10);
 
-	private MetricGroup metricGroup;
+	private static MetricGroup metricGroup;
 
-	@Before
-	public void setUp() throws Exception {
-		this.metricGroup = new MetricGroup(DEFAULT_REQUEST_COUNT, DEFAULT_REQUEST_FINISHED_COUNT,
+	@BeforeAll
+	static void setUp() throws Exception {
+		metricGroup = new MetricGroup(DEFAULT_REQUEST_COUNT, DEFAULT_REQUEST_FINISHED_COUNT,
 				DEFAULT_REQUEST_SUCCESS_COUNT, DEFAULT_REQUEST_FAILED_COUNT, DEFAULT_DURATION, DEFAULT_DURATION);
 	}
 
 	@Test
-	public void withRequestStartetCount() {
-		this.metricGroup = this.metricGroup.withRequestStartetCount(100);
+	void withRequestStartetCount() {
+		var metricGroup = MetricGroupTest.metricGroup.withRequestStartetCount(100);
 
-		assertEquals(100, this.metricGroup.requestStartetCount());
-		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, this.metricGroup.requestFinishedCount());
-		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, this.metricGroup.requestSuccessCount());
-		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, this.metricGroup.requestFailedCount());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.wholeDuration());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.maxDuration());
+		assertEquals(100, metricGroup.requestStartetCount());
+		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, metricGroup.requestFinishedCount());
+		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, metricGroup.requestSuccessCount());
+		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, metricGroup.requestFailedCount());
+		assertEquals(DEFAULT_DURATION, metricGroup.wholeDuration());
+		assertEquals(DEFAULT_DURATION, metricGroup.maxDuration());
 	}
 
 	@Test
-	public void withRequestFinishedCount() {
-		this.metricGroup = this.metricGroup.withRequestFinishedCount(100);
+	void withRequestFinishedCount() {
+		var metricGroup = MetricGroupTest.metricGroup.withRequestFinishedCount(100);
 
-		assertEquals(DEFAULT_REQUEST_COUNT, this.metricGroup.requestStartetCount());
-		assertEquals(100, this.metricGroup.requestFinishedCount());
-		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, this.metricGroup.requestSuccessCount());
-		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, this.metricGroup.requestFailedCount());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.wholeDuration());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.maxDuration());
+		assertEquals(DEFAULT_REQUEST_COUNT, metricGroup.requestStartetCount());
+		assertEquals(100, metricGroup.requestFinishedCount());
+		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, metricGroup.requestSuccessCount());
+		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, metricGroup.requestFailedCount());
+		assertEquals(DEFAULT_DURATION, metricGroup.wholeDuration());
+		assertEquals(DEFAULT_DURATION, metricGroup.maxDuration());
 	}
 
 	@Test
-	public void withRequestSuccessCount() {
-		this.metricGroup = this.metricGroup.withRequestSuccessCount(100);
+	void withRequestSuccessCount() {
+		var metricGroup = MetricGroupTest.metricGroup.withRequestSuccessCount(100);
 
-		assertEquals(DEFAULT_REQUEST_COUNT, this.metricGroup.requestStartetCount());
-		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, this.metricGroup.requestFinishedCount());
-		assertEquals(100, this.metricGroup.requestSuccessCount());
-		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, this.metricGroup.requestFailedCount());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.wholeDuration());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.maxDuration());
+		assertEquals(DEFAULT_REQUEST_COUNT, metricGroup.requestStartetCount());
+		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, metricGroup.requestFinishedCount());
+		assertEquals(100, metricGroup.requestSuccessCount());
+		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, metricGroup.requestFailedCount());
+		assertEquals(DEFAULT_DURATION, metricGroup.wholeDuration());
+		assertEquals(DEFAULT_DURATION, metricGroup.maxDuration());
 	}
 
 	@Test
-	public void withRequestFailedCount() {
-		this.metricGroup = this.metricGroup.withRequestFailedCount(100);
+	void withRequestFailedCount() {
+		var metricGroup = MetricGroupTest.metricGroup.withRequestFailedCount(100);
 
-		assertEquals(DEFAULT_REQUEST_COUNT, this.metricGroup.requestStartetCount());
-		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, this.metricGroup.requestFinishedCount());
-		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, this.metricGroup.requestSuccessCount());
-		assertEquals(100, this.metricGroup.requestFailedCount());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.wholeDuration());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.maxDuration());
+		assertEquals(DEFAULT_REQUEST_COUNT, metricGroup.requestStartetCount());
+		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, metricGroup.requestFinishedCount());
+		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, metricGroup.requestSuccessCount());
+		assertEquals(100, metricGroup.requestFailedCount());
+		assertEquals(DEFAULT_DURATION, metricGroup.wholeDuration());
+		assertEquals(DEFAULT_DURATION, metricGroup.maxDuration());
 	}
 
 	@Test
-	public void withWholeDuration() {
-		this.metricGroup = this.metricGroup.withWholeDuration(Duration.ofSeconds(200));
+	void withWholeDuration() {
+		var metricGroup = MetricGroupTest.metricGroup.withWholeDuration(Duration.ofSeconds(200));
 
-		assertEquals(DEFAULT_REQUEST_COUNT, this.metricGroup.requestStartetCount());
-		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, this.metricGroup.requestFinishedCount());
-		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, this.metricGroup.requestSuccessCount());
-		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, this.metricGroup.requestFailedCount());
-		assertEquals(Duration.ofSeconds(200), this.metricGroup.wholeDuration());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.maxDuration());
+		assertEquals(DEFAULT_REQUEST_COUNT, metricGroup.requestStartetCount());
+		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, metricGroup.requestFinishedCount());
+		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, metricGroup.requestSuccessCount());
+		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, metricGroup.requestFailedCount());
+		assertEquals(Duration.ofSeconds(200), metricGroup.wholeDuration());
+		assertEquals(DEFAULT_DURATION, metricGroup.maxDuration());
 	}
 
 	@Test
-	public void withMaxDuration() {
-		this.metricGroup = this.metricGroup.withMaxDuration(Duration.ofSeconds(200));
+	void withMaxDuration() {
+		var metricGroup = MetricGroupTest.metricGroup.withMaxDuration(Duration.ofSeconds(200));
 
-		assertEquals(DEFAULT_REQUEST_COUNT, this.metricGroup.requestStartetCount());
-		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, this.metricGroup.requestFinishedCount());
-		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, this.metricGroup.requestSuccessCount());
-		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, this.metricGroup.requestFailedCount());
-		assertEquals(DEFAULT_DURATION, this.metricGroup.wholeDuration());
-		assertEquals(Duration.ofSeconds(200), this.metricGroup.maxDuration());
+		assertEquals(DEFAULT_REQUEST_COUNT, metricGroup.requestStartetCount());
+		assertEquals(DEFAULT_REQUEST_FINISHED_COUNT, metricGroup.requestFinishedCount());
+		assertEquals(DEFAULT_REQUEST_SUCCESS_COUNT, metricGroup.requestSuccessCount());
+		assertEquals(DEFAULT_REQUEST_FAILED_COUNT, metricGroup.requestFailedCount());
+		assertEquals(DEFAULT_DURATION, metricGroup.wholeDuration());
+		assertEquals(Duration.ofSeconds(200), metricGroup.maxDuration());
 	}
 
 	@Test
-	public void averageDuration() {
-		final var averageDuration = this.metricGroup//
+	void averageDuration() {
+		final var averageDuration = metricGroup//
 				.withRequestFinishedCount(10) //
 				.withWholeDuration(Duration.ofSeconds(10)) //
 				.averageDuration();

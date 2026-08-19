@@ -1,13 +1,12 @@
-import { Component, effect, EventEmitter, inject, Input, OnChanges, Output, signal, SimpleChange, WritableSignal, ChangeDetectionStrategy, } from "@angular/core";
-import { filter, Subscription } from "rxjs";
+import { ChangeDetectionStrategy, Component, effect, EventEmitter, inject, Input, Output, signal, untracked, WritableSignal, } from "@angular/core";
 import { PlatFormService } from "src/app/platform.service";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
-import { Service, UserPermission } from "src/app/shared/shared";
-import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { NavigationService } from "../service/navigation.service";
-import { AvailableScope, NavigationId, NavigationTree, PageFilterMode } from "../shared";
+import { AvailableScope, NavigationTree, PageFilterMode } from "../shared";
 
 @Component({
     selector: "oe-navigation-chips",
@@ -37,55 +36,29 @@ import { AvailableScope, NavigationId, NavigationTree, PageFilterMode } from "..
         `,
     ],
 })
-export class NavigationChipsComponent implements OnChanges {
+export class NavigationChipsComponent {
     @Output() public navigate: EventEmitter<any> = new EventEmitter();
     @Output() public navigateAbsolute: EventEmitter<any> = new EventEmitter();
     @Input({ required: true }) public children: (NavigationTree | null)[] = [];
 
     protected absoluteChildren: NavigationTree[] | null = null;
-    protected isVisible: boolean = false;
 
-    protected isSmartphone: boolean = false;
-    protected isNewNavigation: boolean = false;
-    protected currentUrl: string[] = [];
-    protected isUserAllowedToSeeOverview: boolean = false;
-    protected isLive: WritableSignal<boolean> = signal(false);
+    protected hasAnyAccordionBeenTouched: WritableSignal<boolean> = signal(false);
+    protected openedAccordionIds = signal<string[] | null>(null);
+    protected currentUrl = signal<string[] | null>(null);
 
-    protected userService: UserService = inject(UserService);
-    private subscription: Subscription = new Subscription();
-
-    private platFormService = inject(PlatFormService);
-    private routeService = inject(RouteService);
+    protected readonly userService: UserService = inject(UserService);
+    private readonly platFormService = inject(PlatFormService);
+    private readonly routeService = inject(RouteService);
 
     constructor(
         protected navigationService: NavigationService,
-        private service: Service,
         private layoutRefresh: LayoutRefreshService,
     ) {
-        this.isNewNavigation = NavigationService.isNewNavigation(
-            this.userService.currentUser(),
-            this.service.currentEdge()?.getConfigSignal()(),
-        );
-        const device = this.platFormService.getDevice();
-        this.isSmartphone = device.isSmartphone();
-
         effect(() => {
             const currentNode = navigationService.currentNode();
-            if (currentNode == null) {
-                this.isLive.set(false);
-                return;
-            }
-            const isLive = currentNode.id === NavigationId.LIVE;
-
-            this.isLive.set(isLive);
-
-            this.currentUrl =
-                currentNode?.routerLink.baseString.split("/").reduce((acc: string[], curr) => {
-                    const path = acc.length > 0 ? `${acc[acc.length - 1]}/${curr}` : curr;
-                    acc.push(path);
-                    return acc;
-                }, []) ?? [];
-            this.isVisible = this.children.length > 0;
+            const _hasAnyAccordionBeenTouched = this.hasAnyAccordionBeenTouched();
+            untracked(() => this.openedAccordionIds.set(this.getDefaultOpenedAccordions(currentNode)));
         });
 
         effect(() => {
@@ -104,21 +77,6 @@ export class NavigationChipsComponent implements OnChanges {
                 this.absoluteChildren?.push(...this.filterIsLiveAndOverview(absoluteNavigationTree));
             }
         });
-
-        this.subscription.add(
-            this.service.metadata.pipe(filter((metadata) => !!metadata)).subscribe((metadata) => {
-                this.isUserAllowedToSeeOverview = UserPermission.isUserAllowedToSeeOverview(metadata.user);
-            }),
-        );
-    }
-
-    ngOnChanges(changes: { children: SimpleChange; useDefaultPrefix: SimpleChange }) {
-        const currentValue = changes.children.currentValue;
-
-        if (ObjectUtils.isObjectNullOrEmpty(currentValue)) {
-            this.isVisible = false;
-            return;
-        }
     }
 
     /**
@@ -207,23 +165,24 @@ export class NavigationChipsComponent implements OnChanges {
     /**
      * Navigates absolutely to passed link.
      *
-     * @param link The link segment to navigate to
-     * @returns
-     */
-    public async navigateAbsolutly(node: NavigationTree): Promise<void> {
-        this.navigateAbsolute.emit(node);
-        this.layoutRefresh.request(500);
-    }
-
-    /**
-     * Navigates absolutely to passed link.
+     * Also Handles the click event on the accordion header. If the clicked accordion is already opened, it prevents the
+     * default behavior and stops the default event from closing the accordion.
      *
      * @param link The link segment to navigate to
      * @returns
      */
-    public async navigateToRoot(): Promise<void> {
-        const node = this.navigationService.navigationTree();
+    public async navigateAbsolutly(event: PointerEvent, node: NavigationTree): Promise<void> {
+        AssertionUtils.assertIsDefined(this);
+        this.accordionChanged();
         this.navigateAbsolute.emit(node);
+        this.layoutRefresh.request(100);
+    }
+
+    protected accordionChanged(): void {
+        if (this.hasAnyAccordionBeenTouched() == true) {
+            return;
+        }
+        this.hasAnyAccordionBeenTouched.set(true);
     }
 
     private isNodeAllowedByPageFilter(node: NavigationTree): boolean {
@@ -263,5 +222,36 @@ export class NavigationChipsComponent implements OnChanges {
         }
 
         return isMatch;
+    }
+
+    private getDefaultOpenedAccordions(currentNode: NavigationTree | null): string[] | null {
+        if (currentNode == null) {
+            return null;
+        }
+        const currentUrl = this.routeService.getCurrentUrlRouteSegments();
+        this.currentUrl.set(currentUrl);
+
+        const hasAnyAccordionBeenTouched = untracked(() => this.hasAnyAccordionBeenTouched());
+        if (hasAnyAccordionBeenTouched) {
+            return currentUrl;
+        }
+
+        const navigationTree = untracked(() => this.navigationService.navigationTree());
+        const absoluteNavigationTree = NavigationTree.of(
+            NavigationService.convertRelativeToAbsoluteLink(structuredClone(navigationTree)),
+        );
+
+        const defaultOpenAccordions =
+            absoluteNavigationTree
+                ?.getChildren()
+                ?.filter((el) => el.accordionOpenedOnDefault)
+                ?.map((el) => el.routerLink.baseString) ?? [];
+
+        /** Do not open default opened accordions if the current url is not in the list */
+        if (StringUtils.isNotInArr(currentNode.routerLink.baseString, defaultOpenAccordions)) {
+            return currentUrl;
+        }
+
+        return [...currentUrl, ...defaultOpenAccordions];
     }
 }

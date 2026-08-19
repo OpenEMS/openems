@@ -1,5 +1,6 @@
 import { NgModule } from "@angular/core";
 import { ChannelThreshold } from "../../live/Controller/Channelthreshold/history/channelThreshold.module";
+import { ControllerChpHistory } from "../../live/Controller/ChpSoc/history/chp.module";
 import { ControllerEnerixControlControlHistory } from "../../live/Controller/EnerixControl/history/enerixControl.module";
 import { ControllerEssGridOptimizedCharge } from "../../live/Controller/Ess/GridOptimizedCharge/history/gridOptimizeCharge.module";
 import { ControllerHeat } from "../../live/Controller/Heat/history/heat-history";
@@ -11,28 +12,28 @@ import { ControllerIo } from "./Io/Io.module";
 
 @NgModule({
     imports: [
-        ControllerEss,
-        ControllerIo,
-        ControllerIoSingleThreshold,
         ChannelThreshold,
+        ControllerChpHistory,
         ControllerEnerixControlControlHistory,
-        ControllerModbusTcpApi,
-        FixDigitalOutputHistory,
+        ControllerEss,
         ControllerEssGridOptimizedCharge,
         ControllerHeat,
-        ChannelThreshold,
+        ControllerIo,
+        ControllerIoSingleThreshold,
+        ControllerModbusTcpApi,
+        FixDigitalOutputHistory,
     ],
     exports: [
-        ControllerEss,
-        ControllerIo,
-        ControllerIoSingleThreshold,
         ChannelThreshold,
+        ControllerChpHistory,
         ControllerEnerixControlControlHistory,
-        ControllerModbusTcpApi,
-        FixDigitalOutputHistory,
+        ControllerEss,
         ControllerEssGridOptimizedCharge,
         ControllerHeat,
-        ChannelThreshold,
+        ControllerIo,
+        ControllerIoSingleThreshold,
+        ControllerModbusTcpApi,
+        FixDigitalOutputHistory,
     ],
 })
 export class Controller {}

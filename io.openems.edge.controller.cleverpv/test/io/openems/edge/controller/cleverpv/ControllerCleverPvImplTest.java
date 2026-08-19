@@ -237,7 +237,7 @@ public class ControllerCleverPvImplTest {
 						.setReadOnly(true) //
 						.setUrl("127.0.0.1") //
 						.setMode(ControlMode.OFF) //
-						.setDebugMode(DebugMode.OFF) //
+						.setDebugMode(DebugMode.DETAILED) //
 						.build())
 				.next(new TestCase() //
 						.input("_sum", GRID_ACTIVE_POWER, 1000) //
@@ -248,6 +248,8 @@ public class ControllerCleverPvImplTest {
 				.next(new TestCase() //
 						.also(testCase -> {
 							executor.update();
+							assertEquals("HTTP:200 OK|watt=1000, producingWatt=500, soc=25, powerStorageState=1, "
+									+ "chargingPower=-300", sut.debugLog());
 						}).onAfterWriteCallbacks(executor::update) //
 						.output("ctrlCleverPv0", REMOTE_CONTROL_MODE, OFF) //
 						.output("ctrlCleverPv0", UNABLE_TO_SEND, false)) //

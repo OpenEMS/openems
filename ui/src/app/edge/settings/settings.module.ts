@@ -37,12 +37,10 @@ import { SystemExecuteComponent } from "./systemexecute/systemexecute.component"
         ComponentUpdateIndexComponent,
         SystemExecuteComponent,
     ],
-    exports: [
-    ],
+    exports: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SettingsModule {
-
     constructor(private translate: TranslateService) {
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {

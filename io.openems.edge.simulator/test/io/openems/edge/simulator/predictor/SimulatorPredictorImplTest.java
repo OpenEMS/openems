@@ -1,15 +1,14 @@
 package io.openems.edge.simulator.predictor;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.test.ComponentTest;
@@ -19,14 +18,12 @@ import io.openems.edge.simulator.datasource.csv.direct.SimulatorDatasourceCsvDir
 
 public class SimulatorPredictorImplTest {
 
-	private static final TimeLeapClock CLOCK = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
-	private static final String COMPONENT_ID = "predictor0";
-	private static final String DATASOURCE_ID = "datasource0";
 	private static final ChannelAddress SUM_PRODUCTION = new ChannelAddress("_sum", "ProductionActivePower");
 
 	@Test
-	public void test() throws OpenemsException, Exception {
-		final var datasource = SimulatorDatasourceCsvDirectImplTest.create(DATASOURCE_ID, """
+	void test() throws OpenemsException, Exception {
+		final var clock = new TimeLeapClock(Instant.ofEpochSecond(946684800), ZoneId.of("UTC"));
+		final var datasource = SimulatorDatasourceCsvDirectImplTest.create("datasource0", """
 				10
 				20
 				30
@@ -34,15 +31,15 @@ public class SimulatorPredictorImplTest {
 				""");
 		final var sut = new SimulatorPredictorImpl();
 		new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("datasource", datasource) //
-				.addReference("componentManager", new DummyComponentManager(CLOCK)) //
+				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setDatasourceId(DATASOURCE_ID) //
+						.setId("predictor0") //
+						.setDatasourceId("datasource0") //
 						.setChannelAddresses(SUM_PRODUCTION.toString()) //
 						.setLogVerbosity(LogVerbosity.REQUESTED_PREDICTIONS) //
-						.build()); //
+						.build()) //
+				.deactivate();
 
 		var p = sut.createNewPrediction(SUM_PRODUCTION);
 		assertEquals(192, p.asArray().length);
@@ -51,5 +48,4 @@ public class SimulatorPredictorImplTest {
 		assertEquals(Integer.valueOf(27), p.asArray()[2]);
 		assertEquals(ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant(), p.getFirstTime());
 	}
-
 }

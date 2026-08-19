@@ -2,9 +2,8 @@ package io.openems.edge.simulator.ess.symmetric.reacting;
 
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.test.TestUtils;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.GridMode;
@@ -20,10 +19,9 @@ public class SimulatorEssSymmetricReactingImplTest {
 			"SetActivePowerEquals");
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		final var clock = TestUtils.createDummyClock();
 		new ManagedSymmetricEssTest(new SimulatorEssSymmetricReactingImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("componentManager", new DummyComponentManager(clock)) //
 				.addReference("power", new DummyPower()) //
 				.activate(MyConfig.create() //
@@ -53,5 +51,4 @@ public class SimulatorEssSymmetricReactingImplTest {
 						.output(ESS_SOC, 25)) //
 				.deactivate();
 	}
-
 }

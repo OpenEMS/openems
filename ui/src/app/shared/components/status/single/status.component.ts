@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { IonicModule, ModalController } from "@ionic/angular";
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
@@ -7,7 +7,7 @@ import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { GetStateChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/getStateChannelsOfComponentRequest";
 import { GetChannelsOfComponentResponse } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
-import { ChannelAddress, EdgePermission, Service, Websocket } from "src/app/shared/shared";
+import { ChannelAddress, Service, Websocket } from "src/app/shared/shared";
 
 import { Edge } from "../../edge/edge";
 import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
@@ -91,26 +91,6 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
         return new Promise((resolve, reject) => {
             if (this.edge == null) {
                 reject("No edge selected");
-                return;
-            }
-            if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-                const channels: (typeof this.channels)["componentId"] = {};
-                if (this.config == null || this.config.components[componentId] == null) {
-                    reject("Component not found in EdgeConfig");
-                    return;
-                }
-
-                const configChannels = this.config.components[componentId].channels ?? {};
-
-                for (const [key, value] of Object.entries(configChannels)) {
-                    // show only state channels
-                    if (value.category !== "STATE") {
-                        continue;
-                    }
-
-                    channels[key] = { text: value.text, level: value.level };
-                }
-                resolve(channels);
                 return;
             }
 

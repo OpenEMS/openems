@@ -14,6 +14,7 @@ import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/fo
 import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
 import { ComponentsModule } from "./components/components.module";
 import { DateTimeLineComponent } from "./components/datetime-picker/datetime-picker";
+import { DualKnobSliderComponent } from "./components/dual-knob-slider/dual-knob-slider";
 import { MeterModule } from "./components/edge/meter/meter.module";
 import { FlatWidgetButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
 import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
@@ -80,6 +81,12 @@ export function registerTranslateExtension(translate: TranslateService) {
                     });
                 },
             },
+            {
+                name: "checkbox-required-checked",
+                message() {
+                    return translate.stream("SHARED_MODULE.CHECKBOX_REQUIRED_TO_BE_CHECKED");
+                },
+            },
         ],
     };
 }
@@ -109,12 +116,17 @@ export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
 }
 
 /**
- * Angular's Validators.required treats `false` as a valid value, so a checkbox with `props.required: true` would pass
- * validation while unchecked. This validator makes `required: true` behave as expected for checkbox fields: the control
- * must be checked.
+ * Angular's Validators.required treats `false` as a valid value, so a checkbox with `props.required: true` still passes
+ * validation while unchecked. This is the correct default for most boolean fields (e.g. "readOnly",
+ * "isElementMeasured"), where `false` is a legitimate, explicitly required value.
+ *
+ * Some checkboxes however represent an explicit consent/confirmation (e.g. "I confirm my selection") and must be
+ * checked to proceed. For those, opt in explicitly by adding `validators: { validation: ["checkbox-required-checked"]
+ * }` to the field config - do NOT apply this globally to the "checkbox" type, as that would incorrectly require every
+ * boolean field in the app to be `true`.
  */
-export function checkboxRequiredValidator(control: FormControl, field: FormlyFieldConfig): boolean {
-    return !field.props?.required || control.value === true;
+export function checkboxRequiredValidator(control: FormControl): ValidationErrors {
+    return control.value === true ? null : { "checkbox-required-checked": true };
 }
 
 export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
@@ -198,6 +210,7 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
         CommonModule,
         ComponentsModule,
         DirectiveModule,
+        DualKnobSliderComponent,
         FormlyModule.forRoot({
             wrappers: [
                 {
@@ -272,16 +285,6 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                     name: "weekday-checkbox",
                     component: FormlyFieldWeekdaysComponent,
                 },
-                {
-                    // Overrides the "checkbox" type's built-in "required" behaviour so that
-                    // `props.required: true` actually enforces the checkbox being checked.
-                    name: "checkbox",
-                    defaultOptions: {
-                        validators: {
-                            required: checkboxRequiredValidator,
-                        },
-                    },
-                },
             ],
             validators: [
                 { name: "ip", validation: IpValidator },
@@ -289,6 +292,10 @@ export function PersonNameProhibitedCharactersValidator(control: FormControl): V
                 {
                     name: "person-name-prohibited-characters",
                     validation: PersonNameProhibitedCharactersValidator,
+                },
+                {
+                    name: "checkbox-required-checked",
+                    validation: checkboxRequiredValidator,
                 },
             ],
             validationMessages: [

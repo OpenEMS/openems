@@ -49,7 +49,7 @@ export namespace SharedWeather {
             "icon",
             [],
             null,
-            { showOrder: "VERY_HIGH", isCommonWidget: true },
+            { showOrder: "HIGH", isCommonWidget: true },
         ).toConstructorParams();
     }
 }

@@ -4,10 +4,10 @@
       <!-- SoH Status Banner Component -->
       <soh-status-banner></soh-status-banner>
 
-      <ion-grid *ngIf="edge.isOnline" class="ion-no-padding ion-full-height">
+      <ion-grid *ngIf="edge.isOnline" class="ion-no-padding">
         @if (navigationService.position() !== null && navigationService.position() !== "disabled") {
-          <ion-row class="ion-justify-content-center ion-padding-top ion-full-height">
-            <ion-col size-xl="2" size-lg="1" class="ion-hide-xl-down">
+          <ion-row class="ion-padding-top-half">
+            <ion-col size-xl="2" size-lg="1">
               <mini-weather componentId="weather0"></mini-weather>
             </ion-col>
             <!--
@@ -16,11 +16,11 @@
             On medium (md): [7] - [5]
             On small and below: [12] / [12]
             -->
-            <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding">
+            <ion-col size-xl="5" size-lg="6" size-md="7" size="12" class="ion-margin-bottom no-margin-md-bottom live-small-padding ion-justify-content-center">
               <energymonitor tabindex="0"></energymonitor>
             </ion-col>
 
-            <ion-col size-xl="4" offset-xl="1" size-md="5" size="12" class="ion-align-self-end ion-no-padding">
+            <ion-col size-xl="4" offset-xl="1" size-md="5" size="12" class="ion-align-self-end ion-no-padding ion-justify-content-center">
               <oe-fena></oe-fena>
             </ion-col>
           </ion-row>
@@ -146,11 +146,9 @@
                       <oe-controller-io-fix-digital-output [componentId]="widget.componentId"></oe-controller-io-fix-digital-output>
                     </ion-col>
 
-                    <ng-container *ngIf="isModbusTcpWidgetAllowed">
-                      <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
-                        <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
-                      </ion-col>
-                    </ng-container>
+                    <ion-col *ngSwitchCase="'Controller.Api.ModbusTcp.ReadWrite'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
+                      <Controller_Api_ModbusTcp [componentId]="widget.componentId"></Controller_Api_ModbusTcp>
+                    </ion-col>
 
                     <!-- Widgets that are likely to be configured seldomly -->
                     <ion-col *ngSwitchCase="'Controller.CHP.SoC'" size="12" [attr.size-lg]="widgetColumnSize" class="ion-no-padding">
@@ -229,12 +227,6 @@
           </ion-row>
         }
       </ion-grid>
-
-      @if (edge.isOnline && !edge.subscribeChannelsSuccessful) {
-        <ion-grid>
-          <ion-progress-bar type="indeterminate"></ion-progress-bar>
-        </ion-grid>
-      }
 
       @if (!edge.isOnline) {
         <ion-grid>

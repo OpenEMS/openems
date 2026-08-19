@@ -2,7 +2,7 @@
   <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color)">
     <ion-title translate class="oe-ci-font-family-bold">GENERAL.STORAGE_SYSTEM</ion-title>
     <ion-buttons slot="end">
-      <oe-help-button key="REDIRECT.COMMON_STORAGE" useDefaultPrefix="false"></oe-help-button>
+      <oe-help-button key="REDIRECT.COMMON_STORAGE"></oe-help-button>
 
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline" style="color: var(--ion-title-color)"></ion-icon>
@@ -36,7 +36,7 @@
                             <td style="width: 15%" class="align_right">
                               <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                               @if (formGroup.controls[component.id].value["emergencyReserveController"].hasOwnProperty("isReserveSocEnabled")) {
-                                <ion-toggle tabindex="0" mode="md" [formControlName]="'isReserveSocEnabled'"> </ion-toggle>
+                                <ion-toggle tabindex="0" mode="md" [formControlName]="'isReserveSocEnabled'"></ion-toggle>
                               }
                             </td>
                           </ion-item-divider>
@@ -76,10 +76,8 @@
                             <ion-label>{{"EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION" | translate}}</ion-label>
                           </ion-segment-button>
                         </ion-segment> -->
-                          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE' | translate" [formGroup]="this.formGroup.controls['_meta']" controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"> </oe-modal-line>
-                          @if (hasRequiredEdgeVersion) {
-                            <oe-modal-line [innerHtml]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING' | translate"> </oe-modal-line>
-                          }
+                          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE' | translate" [formGroup]="this.formGroup.controls['_meta']" controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"></oe-modal-line>
+                          <oe-modal-line [innerHtml]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING' | translate"></oe-modal-line>
                           <oe-modal-horizontal-line></oe-modal-horizontal-line>
                           <!-- Date picker -->
                           @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
@@ -123,7 +121,7 @@
                         <ion-item-divider color="light">
                           <td style="width: 90%" translate>EDGE.INDEX.RETROFITTING.OPTIMAL</td>
                           <td style="width: 15%" class="align_right">
-                            <ion-toggle mode="md" formControlName="isRunning"> </ion-toggle>
+                            <ion-toggle mode="md" formControlName="isRunning"></ion-toggle>
                           </td>
                         </ion-item-divider>
                       </tr>
@@ -249,7 +247,7 @@
               </ng-container>
             }
             <!-- ESS SoH Cycle Controller Section -->
-            <soh-cycle-section [component]="component" [formGroup]="formGroup" [spinnerId]="spinnerId" [edge]="edge"> </soh-cycle-section>
+            <soh-cycle-section [component]="component" [formGroup]="formGroup" [spinnerId]="spinnerId" [edge]="edge"></soh-cycle-section>
           </ion-card-content>
         }
       }
@@ -359,10 +357,10 @@
                         <ion-grid class="ion-padding-top">
                           <ion-row class="ion-justify-content-center ion-align-items-center">
                             <ion-col size="2" class="ion-text-center">
-                              <ion-icon padding-right color="primary" size="large" name="alert-outline"> </ion-icon>
+                              <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
                             </ion-col>
                             <ion-col size="10">
-                              <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small> </ion-note>
+                              <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small></ion-note>
                             </ion-col>
                           </ion-row>
                         </ion-grid>
@@ -445,110 +443,96 @@
                               </tr>
                             </table>
                             @if (this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"]["isRunning"]) {
-                              @if (controllerIsRequiredEdgeVersion) {
-                                @if (this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"] !== null) {
-                                  @if (this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"]; as prepareBatteryExtensionController) {
-                                    <!-- Debug: Reference Cycle status (visible for installer and above) -->
-                                    @if (prepareBatteryExtensionController["isInReferenceCycle"]) {
-                                      <table class="full_width" style="margin-top: 2%">
-                                        <tr>
-                                          <td style="width: 10%">
-                                            <ion-icon name="information-outline" size="large"></ion-icon>
-                                          </td>
-                                          <td style="width: 90%">
-                                            <ion-note class="ion-text-wrap ion-align-items-center">
-                                              <ion-text>
-                                                <small translate>EDGE.INDEX.RETROFITTING.IN_REFERENCE_CYCLE</small>
-                                              </ion-text>
-                                            </ion-note>
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    }
-                                    <ion-segment [formControlName]="'targetTimeSpecified'">
-                                      <ion-segment-button value="false">
-                                        <ion-label>{{ "EDGE.INDEX.RETROFITTING.INSTANT_START" | translate }}</ion-label>
-                                      </ion-segment-button>
-                                      <ion-segment-button value="true">
-                                        <ion-label>{{ "EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION" | translate }}</ion-label>
-                                      </ion-segment-button>
-                                    </ion-segment>
-                                    @if (prepareBatteryExtensionController["targetTimeSpecified"] === "false" && prepareBatteryExtensionController["targetTime"] && prepareBatteryExtensionController["targetSoc"] && prepareBatteryExtensionController["targetTimeBuffer"]) {
-                                      <table class="full_width" style="margin-top: 2%">
-                                        <tr>
-                                          <td style="width: 10%">
-                                            <ion-icon name="information-outline" size="large"></ion-icon>
-                                          </td>
-                                          <td style="width: 90%">
-                                            <ion-note class="ion-text-wrap ion-align-items-center">
-                                              <ion-text>
-                                                <small [translateParams]="{ targetSoc: prepareBatteryExtensionController['targetSoc'], targetTime: prepareBatteryExtensionController['targetTime'], targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START </small>
-                                              </ion-text>
-                                            </ion-note>
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    }
-                                    @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
-                                      <table class="full_width">
-                                        <tr style="display: block; width: 75%; margin-left: 12.5%; margin-top: 2%">
-                                          <td style="width: 20%; text-align: center">
-                                            <ion-item button="true" id="open-date-input-{{ component.id }}">
-                                              @if (prepareBatteryExtensionController["targetTime"]; as targetTime) {
-                                                <ion-label style="text-align: center">
-                                                  {{ "EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME" | translate: { date: targetTime | date: "dd.MM.yyyy", time: targetTime | date: "HH:mm" } }}
-                                                </ion-label>
-                                              } @else {
-                                                <ion-icon name="oe-warning" color="warning"></ion-icon>
-                                                <ion-label style="text-align: center">
-                                                  {{ "EDGE.INDEX.RETROFITTING.SELECT_A_DATE" | translate }}
-                                                </ion-label>
+                              @if (this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"] !== null) {
+                                @if (this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"]; as prepareBatteryExtensionController) {
+                                  <!-- Debug: Reference Cycle status (visible for installer and above) -->
+                                  @if (prepareBatteryExtensionController["isInReferenceCycle"]) {
+                                    <table class="full_width" style="margin-top: 2%">
+                                      <tr>
+                                        <td style="width: 10%">
+                                          <ion-icon name="information-outline" size="large"></ion-icon>
+                                        </td>
+                                        <td style="width: 90%">
+                                          <ion-note class="ion-text-wrap ion-align-items-center">
+                                            <ion-text>
+                                              <small translate>EDGE.INDEX.RETROFITTING.IN_REFERENCE_CYCLE</small>
+                                            </ion-text>
+                                          </ion-note>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  }
+                                  <ion-segment [formControlName]="'targetTimeSpecified'">
+                                    <ion-segment-button value="false">
+                                      <ion-label>{{ "EDGE.INDEX.RETROFITTING.INSTANT_START" | translate }}</ion-label>
+                                    </ion-segment-button>
+                                    <ion-segment-button value="true">
+                                      <ion-label>{{ "EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION" | translate }}</ion-label>
+                                    </ion-segment-button>
+                                  </ion-segment>
+                                  @if (prepareBatteryExtensionController["targetTimeSpecified"] === "false" && prepareBatteryExtensionController["targetTime"] && prepareBatteryExtensionController["targetSoc"] && prepareBatteryExtensionController["targetTimeBuffer"]) {
+                                    <table class="full_width" style="margin-top: 2%">
+                                      <tr>
+                                        <td style="width: 10%">
+                                          <ion-icon name="information-outline" size="large"></ion-icon>
+                                        </td>
+                                        <td style="width: 90%">
+                                          <ion-note class="ion-text-wrap ion-align-items-center">
+                                            <ion-text>
+                                              <small [translateParams]="{ targetSoc: prepareBatteryExtensionController['targetSoc'], targetTime: prepareBatteryExtensionController['targetTime'], targetTimeBuffer: prepareBatteryExtensionController['targetTimeBuffer'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_INSTANT_START </small>
+                                            </ion-text>
+                                          </ion-note>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  }
+                                  @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
+                                    <table class="full_width">
+                                      <tr style="display: block; width: 75%; margin-left: 12.5%; margin-top: 2%">
+                                        <td style="width: 20%; text-align: center">
+                                          <ion-item button="true" id="open-date-input-{{ component.id }}">
+                                            @if (prepareBatteryExtensionController["targetTime"]; as targetTime) {
+                                              <ion-label style="text-align: center">
+                                                {{ "EDGE.INDEX.RETROFITTING.ON_DATE_AT_TIME" | translate: { date: targetTime | date: "dd.MM.yyyy", time: targetTime | date: "HH:mm" } }}
+                                              </ion-label>
+                                            } @else {
+                                              <ion-icon name="oe-warning" color="warning"></ion-icon>
+                                              <ion-label style="text-align: center">
+                                                {{ "EDGE.INDEX.RETROFITTING.SELECT_A_DATE" | translate }}
+                                              </ion-label>
+                                            }
+                                            <ion-popover [trigger]="'open-date-input-' + component.id" show-backdrop="false" side="top" style="--offset-y: 0px !important; --height: 50%">
+                                              <ng-template>
+                                                <ion-datetime [showDefaultButtons]="true" style="overflow-y: auto" presentation="date-time" [doneText]="translate.instant('GENERAL.OK')" [cancelText]="translate.instant('GENERAL.CANCEL')" [FORMCONTROLNAME]="'targetTime'"></ion-datetime>
+                                              </ng-template>
+                                            </ion-popover>
+                                          </ion-item>
+                                        </td>
+                                      </tr>
+                                    </table>
+                                  }
+                                  @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
+                                    <table class="full_width" style="margin-top: 2%">
+                                      <tr>
+                                        <td style="width: 10%">
+                                          <ion-icon name="information-outline" size="large"></ion-icon>
+                                        </td>
+                                        <td style="width: 90%">
+                                          <ion-note class="ion-text-wrap ion-align-items-center">
+                                            <ion-text>
+                                              @if (!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"]["targetTimeBuffer"]) {
+                                                <small [translateParams]="{ targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy', targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm', targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'], targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PLANNED_EXPANSION </small>
                                               }
-                                              <ion-popover [trigger]="'open-date-input-' + component.id" show-backdrop="false" side="top" style="--offset-y: 0px !important; --height: 50%">
-                                                <ng-template>
-                                                  <ion-datetime [showDefaultButtons]="true" style="overflow-y: auto" presentation="date-time" [doneText]="translate.instant('GENERAL.OK')" [cancelText]="translate.instant('GENERAL.CANCEL')" [FORMCONTROLNAME]="'targetTime'"></ion-datetime>
-                                                </ng-template>
-                                              </ion-popover>
-                                            </ion-item>
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    }
-                                    @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
-                                      <table class="full_width" style="margin-top: 2%">
-                                        <tr>
-                                          <td style="width: 10%">
-                                            <ion-icon name="information-outline" size="large"></ion-icon>
-                                          </td>
-                                          <td style="width: 90%">
-                                            <ion-note class="ion-text-wrap ion-align-items-center">
-                                              <ion-text>
-                                                @if (!isTargetTimeInValid.get(component.id) && this.formGroup.controls[component.id]?.value["prepareBatteryExtensionController"]["targetTimeBuffer"]) {
-                                                  <small [translateParams]="{ targetDate: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'dd.MM.yyyy', targetTime: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['expectedStartOfPreparation'] | date: 'HH:mm', targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'], targetTimeBuffer: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetTimeBuffer'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PLANNED_EXPANSION </small>
-                                                }
-                                                @if (isTargetTimeInValid.get(component.id)) {
-                                                  <small [translateParams]="{ targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE </small>
-                                                }
-                                              </ion-text>
-                                            </ion-note>
-                                          </td>
-                                        </tr>
-                                      </table>
-                                    }
+                                              @if (isTargetTimeInValid.get(component.id)) {
+                                                <small [translateParams]="{ targetSoc: this.formGroup.controls[component.id]?.value['prepareBatteryExtensionController']['targetSoc'] }" translate> EDGE.INDEX.RETROFITTING.INFORMATION_FOR_PLANNED_EXPANSION_INVALID_TARGET_DATE </small>
+                                              }
+                                            </ion-text>
+                                          </ion-note>
+                                        </td>
+                                      </tr>
+                                    </table>
                                   }
                                 }
-                              } @else {
-                                <table class="full_width" style="margin-top: 2%">
-                                  <tr>
-                                    <td>
-                                      <ion-text>
-                                        <span translate> EDGE.INDEX.RETROFITTING.UPDATE_TO_NEW_VERSION </span>
-                                        →
-                                        <a (click)="modalCtrl.dismiss()" routerLink="/device/{{ edge.id }}/settings/system" [innerHtml]="'EDGE.INDEX.SYSTEMUPDATE' | translate"></a>
-                                      </ion-text>
-                                    </td>
-                                  </tr>
-                                </table>
                               }
                             }
                           </ng-container>
@@ -607,7 +591,7 @@
                           <td style="width: 15%" class="align_right">
                             <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                             @if (formGroup.controls[component.id].value["emergencyReserveController"].hasOwnProperty("isReserveSocEnabled")) {
-                              <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'"> </ion-toggle>
+                              <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'"></ion-toggle>
                             }
                           </td>
                         </ion-item-divider>
@@ -647,7 +631,7 @@
                         <ion-item-divider color="light">
                           <td style="width: 90%" translate>EDGE.INDEX.RETROFITTING.OPTIMAL</td>
                           <td style="width: 15%" class="align_right">
-                            <ion-toggle mode="md" formControlName="isRunning"> </ion-toggle>
+                            <ion-toggle mode="md" formControlName="isRunning"></ion-toggle>
                           </td>
                         </ion-item-divider>
                       </tr>
@@ -764,7 +748,7 @@
   @if (formGroup?.dirty) {
     <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="oe-checkmark"> </ion-icon>
+        <ion-icon size="large" name="oe-checkmark"></ion-icon>
       </ion-fab-button>
     </ion-fab>
   }

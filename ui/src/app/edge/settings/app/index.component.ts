@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, inject, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, model, OnDestroy, OnInit, signal, viewChild, } from "@angular/core";
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router, RouterModule } from "@angular/router";
 import { IonPopover, ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -8,7 +8,6 @@ import { Subject } from "rxjs";
 import { filter, switchMap, takeUntil } from "rxjs/operators";
 import { ChosenFilter, Filter, FilterComponent, FilterOption } from "src/app/index/filter/filter.component";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
 import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
 import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
@@ -42,12 +41,12 @@ import { canEnterKey } from "./permissions";
         DomChangeDirective,
         FilterComponent,
     ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IndexComponent implements OnInit, OnDestroy {
     private static readonly SELECTOR = "app-index";
     /** E. g. if more than 4 apps are in a list the apps are displayed in their categories */
     private static readonly MAX_APPS_IN_LIST: number = 4;
-    @ViewChild("hasKeyPopover") private hasKeyPopover: IonPopover;
     public readonly spinnerId: string = IndexComponent.SELECTOR;
 
     public apps: GetApps.App[] = [];
@@ -68,7 +67,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         shouldBeShown: () => this.edge.roleIsAtLeast(Role.ADMIN), // only show incompatible apps for admins
     };
 
-    public appLists: AppList[] = [this.installedApps, this.availableApps, this.incompatibleApps];
+    public appLists = signal<AppList[]>([this.installedApps, this.availableApps, this.incompatibleApps]);
     public categories: { val: GetApps.Category; isChecked: boolean }[] = [];
 
     protected readonly environment: Environment = environment;
@@ -78,16 +77,18 @@ export class IndexComponent implements OnInit, OnDestroy {
     protected selectedBundle: number | null = null;
     protected isUpdateAvailable: boolean = false;
     protected canEnterKey: boolean = false;
-    protected numberOfUnusedRegisteredKeys: number = 0;
-    protected showPopover: boolean = false;
+    protected numberOfUnusedRegisteredKeys = signal<number>(0);
+    protected showPopover = model<boolean>(false);
     protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
+    protected hasKeyPopover = viewChild<IonPopover>("hasKeyPopover");
 
     private useMasterKey: boolean = false;
     private hasSeenPopover: boolean = false;
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private inputValue: string;
 
-    private navigationService: NavigationService = inject(NavigationService);
+    private readonly navigationService: NavigationService = inject(NavigationService);
+    private readonly cdRef: ChangeDetectorRef = inject(ChangeDetectorRef);
 
     public constructor(
         private route: ActivatedRoute,
@@ -205,22 +206,24 @@ export class IndexComponent implements OnInit, OnDestroy {
             }
         });
 
-        this.appLists = [];
+        const nextAppLists: AppList[] = [];
         const selectedStatuses =
             this.searchParams.get("appStatus") ?? this.statusFilter().options.map((el) => el.option.value);
         if (Array.isArray(selectedStatuses)) {
             if (StringUtils.isInArr(AppStatusName.INSTALLABLE, selectedStatuses)) {
-                this.appLists.push(this.installedApps);
+                nextAppLists.push(this.installedApps);
             }
             if (StringUtils.isInArr(AppStatusName.COMPATIBLE, selectedStatuses)) {
-                this.appLists.push(this.availableApps);
+                nextAppLists.push(this.availableApps);
             }
             if (StringUtils.isInArr(AppStatusName.INCOMPATIBLE, selectedStatuses)) {
-                this.appLists.push(this.incompatibleApps);
+                nextAppLists.push(this.incompatibleApps);
             }
         } else {
-            this.appLists = [this.installedApps, this.availableApps, this.incompatibleApps];
+            nextAppLists.push(this.installedApps, this.availableApps, this.incompatibleApps);
         }
+
+        this.appLists.set(nextAppLists);
     }
 
     protected showCategories(app: AppList): boolean {
@@ -296,18 +299,6 @@ export class IndexComponent implements OnInit, OnDestroy {
 
     protected onAppClicked(app: GetApps.App): void {
         // navigate
-        this.navigationService.setChildToCurrentNavigation(
-            new NavigationTree(
-                "single",
-                { baseString: "single", queryParams: { appId: app.appId } },
-                { name: "add-outline" },
-                "AppCenter",
-                "label",
-                [],
-                null,
-            ),
-        );
-
         if (this.key != null || this.useMasterKey) {
             this.router.navigate(["single"], {
                 queryParams: { name: app.name, appId: app.appId },
@@ -349,20 +340,26 @@ export class IndexComponent implements OnInit, OnDestroy {
         if (this.hasSeenPopover) {
             return;
         }
+
         if (!this.canEnterKey) {
             return;
         }
-        if (this.numberOfUnusedRegisteredKeys === 0) {
+        if (this.numberOfUnusedRegisteredKeys() === 0) {
             return;
         }
 
         this.hasSeenPopover = true;
+        const popover = this.hasKeyPopover();
 
-        this.hasKeyPopover.event = {
+        if (popover == null) {
+            return;
+        }
+
+        popover.event = {
             type: "willPresent",
             target: document.querySelector("#redeemKeyCard"),
         };
-        this.showPopover = true;
+        this.showPopover.set(true);
     }
 
     private pushIntoCategory(app: GetApps.App, list: AppList): void {
@@ -423,7 +420,7 @@ export class IndexComponent implements OnInit, OnDestroy {
         this.key = null;
         this.selectedBundle = null;
 
-        this.appLists.forEach((element) => {
+        this.appLists().forEach((element) => {
             element.appCategories = [];
         });
 
@@ -452,8 +449,6 @@ export class IndexComponent implements OnInit, OnDestroy {
                     }),
                 )
                     .then((response) => {
-                        this.service.stopSpinner(this.spinnerId);
-
                         this.apps = (response as GetApps.Response).result.apps.map((app) => {
                             app.imageUrl = environment.links.APP_CENTER.APP_IMAGE(
                                 this.translate.getCurrentLang(),
@@ -492,8 +487,9 @@ export class IndexComponent implements OnInit, OnDestroy {
                         )
                             .then((response) => {
                                 const result = (response as AppCenterGetRegisteredKeys.Response).result;
-                                this.numberOfUnusedRegisteredKeys = result.keys.length;
+                                this.numberOfUnusedRegisteredKeys.set(result.keys.length);
                                 this.updateHasUnusedKeysPopover();
+                                this.service.stopSpinner(this.spinnerId);
                             })
                             .catch(this.service.handleError);
                     })
@@ -502,7 +498,10 @@ export class IndexComponent implements OnInit, OnDestroy {
                             this.service,
                             (error) => "Error while receiving available apps: " + error,
                         ),
-                    );
+                    )
+                    .finally(() => {
+                        this.cdRef.markForCheck();
+                    });
 
                 const systemUpdate = new ExecuteSystemUpdate(edge, this.websocket);
                 systemUpdate.systemUpdateStateChange = (updateState) => {

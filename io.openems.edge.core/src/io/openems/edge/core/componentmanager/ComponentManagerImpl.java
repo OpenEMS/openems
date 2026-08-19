@@ -469,8 +469,8 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Get Component-ID from Request
 		String componentId = null;
 		for (Property property : request.properties()) {
-			if (property.getName().equals("id")) {
-				componentId = JsonUtils.getAsString(property.getValue());
+			if (property.name().equals("id")) {
+				componentId = JsonUtils.getAsString(property.value());
 			}
 		}
 
@@ -479,11 +479,11 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		// Create map with configuration attributes
 		Dictionary<String, Object> properties = new Hashtable<>();
 		for (Property property : request.properties()) {
-			var value = JsonUtils.getAsBestType(property.getValue());
+			var value = JsonUtils.getAsBestType(property.value());
 			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
-			properties.put(property.getName(), value);
+			properties.put(property.name(), value);
 		}
 
 		// Update Configuration
@@ -513,18 +513,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 		for (Property property : request.properties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
-			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
-				var jValue = property.getValue();
+			if (!EdgeConfig.ignorePropertyKey(property.name())) {
+				var jValue = property.value();
 				if (jValue == null || jValue == JsonNull.INSTANCE) {
 					// Remove NULL property
-					properties.remove(property.getName());
+					properties.remove(property.name());
 				} else {
 					// Add updated Property
-					var value = JsonUtils.getAsBestType(property.getValue());
+					var value = JsonUtils.getAsBestType(property.value());
 					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
-					properties.put(property.getName(), value);
+					properties.put(property.name(), value);
 				}
 			}
 		}
@@ -558,7 +558,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 							- "target".length()) // keep the final dot, e.g. 'battery.'
 							.toLowerCase(); // match case-insensitive
 					return request.stream() //
-							.map(Property::getName) //
+							.map(Property::name) //
 							// matches 'battery.id' but not 'batteryInverter.id'
 							.anyMatch(n -> n.toLowerCase().startsWith(base));
 				}) //

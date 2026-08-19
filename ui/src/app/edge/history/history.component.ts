@@ -1,13 +1,12 @@
 // @ts-strict-ignore
-import { Component, effect, OnInit, ChangeDetectionStrategy } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ChangeDetectionStrategy, Component, effect, OnInit, signal } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
 import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
 import { UserService } from "src/app/shared/service/user.service";
-import { Edge, EdgeConfig, EdgePermission, Service } from "src/app/shared/shared";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
 import { Widgets } from "src/app/shared/type/widgets";
 import { environment } from "src/environments";
 
@@ -19,26 +18,24 @@ import { environment } from "src/environments";
 })
 export class HistoryComponent implements OnInit {
     // is a Timedata service available, i.e. can historic data be queried.
-    public isTimedataAvailable: boolean = true;
+    public isTimedataAvailable = signal<boolean>(true);
 
     // sets the height for a chart. This is recalculated on every window resize.
     public socChartHeight: string = "250px";
     public energyChartHeight: string = "250px";
 
     // holds the Widgets
-    public widgets: Widgets | null = null;
+    public widgets = signal<Widgets | null>(null);
 
     // holds the current Edge
     public edge: Edge | null = null;
 
     public config: EdgeConfig | null = null;
     protected errorResponse: JsonrpcResponseError | null = null;
-    protected isModbusTcpWidgetAllowed: boolean = false;
 
     constructor(
         public service: Service,
         public translate: TranslateService,
-        private route: ActivatedRoute,
         private dataService: DataService,
         private userService: UserService,
         protected navigationService: NavigationService,
@@ -47,7 +44,6 @@ export class HistoryComponent implements OnInit {
         effect(() => {
             const edge = this.service.currentEdge();
             this.edge = edge;
-            this.isModbusTcpWidgetAllowed = EdgePermission.isModbusTcpApiWidgetAllowed(edge);
         });
     }
 
@@ -55,10 +51,8 @@ export class HistoryComponent implements OnInit {
         this.service.getConfig().then(async (config) => {
             this.config = config;
             config.hasStorage();
-            this.widgets = await this.navigationService.getWidgets(
-                config.widgets,
-                this.userService.currentUser(),
-                this.edge,
+            this.widgets.set(
+                await this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge),
             );
             // Are we connected to OpenEMS Edge and is a timedata service available?
             if (
@@ -67,7 +61,7 @@ export class HistoryComponent implements OnInit {
                     .getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata")
                     .filter((c) => c.isEnabled).length == 0
             ) {
-                this.isTimedataAvailable = false;
+                this.isTimedataAvailable.set(false);
             }
         });
     }
