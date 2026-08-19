@@ -30,6 +30,7 @@ export interface Environment {
     };
     readonly icons: {
         readonly COMMON: {
+            readonly FAVORITES: string;
             readonly CONSUMPTION: string;
             readonly SELFCONSUMPTION: string;
             readonly GENERATOR: string;
@@ -99,16 +100,38 @@ export interface Environment {
                 readonly HEATING_ELEMENT: string | null;
             };
         };
-        readonly INSTALLATION: {
-            readonly COMMERCIAL: {
-                readonly COMMERCIAL_100: {
-                    readonly BATTERY_INPUT_1: string | null;
-                    readonly BATTERY_INPUT_2: string | null;
+    };
+    readonly links: {
+        readonly DOWNLOAD: {
+            readonly INSTALLATION: {
+                readonly HOME: {
+                    readonly AVU_BOX: string | null;
+                    readonly MPPT: {
+                        readonly HOME_6_10: Record<1 | 2, string | null>;
+                        readonly HOME_10_15: Record<1 | 2 | 3, string | null>;
+                        readonly HOME_20: Record<1 | 2, string | null>;
+                        readonly HOME_30: Record<1 | 2 | 3, string | null>;
+                    };
+                };
+                readonly COMMERCIAL: {
+                    readonly COMMERCIAL_50: {
+                        readonly MPPT: Record<1 | 2 | 3 | 4, string | null>;
+                    };
+                    readonly COMMERCIAL_100: {
+                        readonly BATTERY_INPUT_1: string | null;
+                        readonly BATTERY_INPUT_2: string | null;
+                        readonly MPPT: Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, string | null>;
+                    };
+                    readonly STS_BOX: string | null;
+                };
+                readonly SHARED: {
+                    readonly FEED_IN_LIMITATION: {
+                        readonly DYN_EXTERNAL_LIMITATION: string | null;
+                        readonly EXTERNAL_LIMITATION: string | null;
+                    };
                 };
             };
         };
-    };
-    readonly links: {
         readonly REDIRECT: {
             readonly BETA_CHANGE_LOG: string | null;
             readonly BETA_SURVEY: string | null;
@@ -120,17 +143,23 @@ export interface Environment {
             readonly COMMON_SELFCONSUMPTION: string | null;
             readonly OFFLINE_INSTRUCTIONS: string | null;
 
+            readonly CONTROLLER_CLEVER_PV: string | null;
             readonly CONTROLLER_CHP_SOC: string;
             readonly CONTROLLER_ESS_TIME_OF_USE_TARIFF: string;
             readonly CONTROLLER_ESS_GRID_OPTIMIZED_CHARGE: string;
             readonly CONTROLLER_IO_HEAT_PUMP_SG_READY: string;
             readonly CONTROLLER_IO_HEATING_ELEMENT: string;
+            readonly CONTROLLER_HEAT_ASKOMA: string | null;
+            readonly CONTROLLER_HEAT_MYPV: string | null;
             readonly CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD: string;
             readonly CONTROLLER_IO_FIX_DIGITAL_OUTPUT: string;
             readonly CONTROLLER_API_MODBUSTCP_READ: string;
             readonly CONTROLLER_API_MODBUSTCP_READWRITE: string;
             readonly CONTROLLER_API_REST_READ: string;
             readonly CONTROLLER_API_REST_READWRITE: string;
+            readonly CONTROLLER_SYMMETRIC_PEAKSHAVING: string | null;
+            readonly CONTROLLER_ASYMMETRIC_PEAKSHAVING: string | null;
+            readonly CONTROLLER_TIMESLOT_PEAKSHAVING: string | null;
 
             readonly EVCS_KEBA: string | null;
             readonly EVCS_HARDY_BARTH: string | null;
@@ -196,6 +225,7 @@ export interface Environment {
                     readonly COMMERCIAL_50_GEN_3: string;
                     readonly COMMERCIAL_92: string;
                     readonly COMMERCIAL_92_CLUSTER: string;
+                    readonly COMMERCIAL_92_OVERVIEW: string;
                     readonly COMMERCIAL_100: string;
                 };
                 readonly INDUSTRIAL?: {

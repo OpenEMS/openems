@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Input, Type, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, Type } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -7,7 +7,6 @@ import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { MetaComponent } from "src/app/shared/components/edge/config-components/meta/meta";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, Currency, CurrentData, Edge, EdgeConfig, Utils } from "src/app/shared/shared";
 import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -36,8 +35,6 @@ export class ControllerEssTimeOfUseTariffHomeComponent extends AbstractFormlyCom
     protected readonly CONVERT_TIME_OF_USE_TARIFF_STATE = Utils.CONVERT_TIME_OF_USE_TARIFF_STATE(this.translate);
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-
-    private routeService: RouteService = inject(RouteService);
 
     public static generateView(
         translate: TranslateService,

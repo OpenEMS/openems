@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
@@ -42,7 +42,6 @@ export class CommonStorageHomeComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_STORAGE",
             lines: await CommonStorageHomeComponent.getLines(translate, service, edge, config, energyScheduler),
             component: new EdgeConfig.Component(),
-            useDefaultPrefix: false,
             isCommonWidget: true,
         };
     }

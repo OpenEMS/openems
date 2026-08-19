@@ -1,7 +1,7 @@
-<ion-content>
-  <ngx-spinner [name]="spinnerId"></ngx-spinner>
-  <oe-navigation-back-button></oe-navigation-back-button>
+<ngx-spinner [name]="spinnerId"></ngx-spinner>
+<oe-navigation-back-button></oe-navigation-back-button>
 
+<ion-content>
   <ion-grid>
     @for (varinstance of instances(); track varinstance.instanceId; let appIndex = $index) {
       <ion-row class="ion-justify-content-center">
@@ -19,7 +19,7 @@
 
                       <!--
                         only show inside the card of the first app of all instances
-                      -->
+                        -->
                       @if (appIndex === 0 && showSwitchArchitecture) {
                         <div class="ion-padding-horizontal ion-margin-top ion-display-flex ion-align-items-center ion-justify-content-between">
                           <div class="ion-text-sm" translate>

@@ -9,7 +9,7 @@ import io.openems.edge.common.test.ComponentTest;
 public class PvInverterFroniusImplTest {
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		new ComponentTest(new PvInverterFroniusImpl()) //
 				.addReference("setModbus", new DummyModbusBridge("modbus0")) //
 				.activate(MyConfig.create() //

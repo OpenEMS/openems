@@ -331,7 +331,7 @@
           "CURRENT_VALUE": "Huidige waarde",
           "DEPENDEND_ON": "Afhankelijk van",
           "MIN_SWITCHING_TIME": "Minimum omschakeling",
-          "MORE_THAN_MAX_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat",
+          "MORE_THAN_HP_POWER": "De waarde mag niet lager zijn dan het maximale vermogen van het gecontroleerde apparaat",
           "OTHER": "Anders",
           "RELATION_ERROR": "Drempel moet groter zijn dan de geschakelde belasting",
           "SWITCH_OFF_ABOVE": "Uitschakelen via",

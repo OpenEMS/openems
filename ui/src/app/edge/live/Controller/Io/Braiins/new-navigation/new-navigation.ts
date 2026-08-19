@@ -11,7 +11,6 @@ import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { Name } from "src/app/shared/components/shared/name";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { UserService } from "src/app/shared/service/user.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
@@ -31,8 +30,6 @@ import { ControllerBraiinsManagedConsumptionChartComponent } from "./chart/power
 export class ControllerBraiinsHomeComponent extends AbstractFormlyComponent {
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
     private component: EdgeConfig.Component | null = null;
-
-    private readonly routeService: RouteService = inject(RouteService);
     private readonly userService = inject(UserService);
 
     protected override async generateView(): Promise<OeFormlyView> {

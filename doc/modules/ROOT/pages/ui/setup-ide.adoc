@@ -8,7 +8,7 @@
 :source-highlighter: highlight.js
 :icons: font
 
-NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the prebuilt UI or [deploy the OpenEMS UI as docker image](https://openems.github.io/openems.io/openems/latest/edge/deploy/docker.html#_openems_edge_ui).
+NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the prebuilt UI or https://openems.github.io/openems.io/openems/latest/edge/deploy/docker.html#_openems_edge_ui[deploy the OpenEMS UI as docker image].
 
 
 == Setup Visual Studio Code

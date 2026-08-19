@@ -134,12 +134,16 @@ export class Service extends AbstractService {
         // TODO set locale for date-fns: https://date-fns.org/docs/I18n
     }
 
+    /**
+     * Gets the current language, mapped to the reduced set of documentation languages.
+     *
+     * Only a subset of languages is available for documentation, falls back to the default documentation language
+     * otherwise. See {@link Language.getDocsLang}.
+     *
+     * @returns {@link Language.DE.key} Or {@link Language.EN.key}
+     */
     public getDocsLang(): string {
-        if (this.translate.getCurrentLang() == "de") {
-            return "de";
-        } else {
-            return "en";
-        }
+        return Language.getDocsLang(this.translate.getCurrentLang());
     }
 
     public notify(notification: DefaultTypes.Notification) {

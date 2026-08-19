@@ -1,4 +1,4 @@
-import { Component, effect, inject, ChangeDetectionStrategy } from "@angular/core";
+import { Component, effect, inject, ChangeDetectionStrategy, computed } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { v4 as uuidv4 } from "uuid";
 
@@ -32,6 +32,13 @@ export class AppHeaderContentComponent {
     protected image: OeImageComponent["img"] | null = null;
     protected service = inject(Service);
     protected navigationService = inject(NavigationService);
+    protected readonly parentNodeLink = computed(() => {
+        const parentNode = this.navigationService.currentNode()?.parent ?? null;
+        if (parentNode?.parent == null) {
+            return null;
+        }
+        return parentNode ?? null;
+    });
 
     private liveDataService = inject(DataService);
     private translate = inject(TranslateService);

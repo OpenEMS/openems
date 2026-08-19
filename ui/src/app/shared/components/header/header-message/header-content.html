@@ -2,7 +2,7 @@
   @if (message !== null) {
     <ion-row class="ion-padding-half" style="width: 100vw">
       <ion-col size-sm="12" size-md="6" class="ion-align-content-center">
-        <img [src]="image.url" [style]="'height: 2.5vh; justify-self: start'"/>
+        <img [src]="image.url" [style]="'height: 2.5vh; justify-self: start'" />
       </ion-col>
     </ion-row>
   }
@@ -10,11 +10,19 @@
     <ion-col size-md="12" class="ion-align-content-center">
       <ion-grid class="ion-no-padding-left-right">
         <ion-row class="ion-align-items-center" [class.ion-justify-content-end]="message !== null">
+          @let showBackNavigation = navigationService.position() === "bottom" && parentNodeLink() !== null;
+          @if (showBackNavigation) {
+            <ion-col size="1">
+              <ion-button fill="none" (click)="navigationService.navigateAbsolute(parentNodeLink())" class="custom-menu-button">
+                <ion-icon [ngStyle]="{ color: 'var(--ion-menu-color)' }" name="arrow-back-outline"></ion-icon>
+              </ion-button>
+            </ion-col>
+          }
           @let alignLeft = isSmartphone;
           @let alignRight = !alignLeft && message !== null;
           @let alignCenter = !alignLeft && !alignRight;
-          <ion-col class="ion-no-padding-top ion-padding-left" [class.ion-text-align-left]="alignLeft" [class.ion-text-align-center]="alignCenter" [class.ion-text-align-right]="alignRight">
-            <ion-label style="line-height: 1.2" [class.ion-font-size-xx-large]="message !== null" [class.ion-font-size-x-large]="message === null" class="oe-ci-font-family ion-text-wrap ion-no-padding-top">
+          <ion-col [size]="showBackNavigation ? 9 : 10" class="ion-no-padding-top ion-padding-left" [class.ion-text-align-left]="alignLeft" [class.ion-text-align-center]="alignCenter" [class.ion-text-align-right]="alignRight">
+            <ion-label style="line-height: 1.2" [class.ion-font-size-x-large]="showBackNavigation == false && (message !== null || navigationService.headerTitle())" class="oe-ci-font-family ion-text-wrap ion-no-padding-top">
               @if (message !== null) {
                 <span [innerHTML]="message"></span>
               } @else {
@@ -22,7 +30,7 @@
               }
             </ion-label>
           </ion-col>
-          <ion-col size="auto" class="ion-padding-left ion-no-padding-top ion-text-end" style="align-self: start">
+          <ion-col size="2" class="ion-padding-left ion-no-padding-top ion-text-end" style="align-self: start">
             <oe-system-status></oe-system-status>
           </ion-col>
         </ion-row>

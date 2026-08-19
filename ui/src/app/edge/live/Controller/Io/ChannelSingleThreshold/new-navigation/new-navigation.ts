@@ -6,7 +6,6 @@ import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyField, OeFormlyView, } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, Edge, EdgeConfig, Websocket } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../../livedataservice";
@@ -24,7 +23,6 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
 
     private component: EdgeConfig.Component | null = null;
     private readonly websocket: Websocket = inject(Websocket);
-    private readonly routeService: RouteService = inject(RouteService);
 
     public static async generateView(
         translate: TranslateService,
@@ -53,6 +51,7 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
 
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_IO_CHANNEL_SINGLE_THRESHOLD",
             icon: { name: "aperture-outline", color: "primary", size: "large" },
             lines: lines,
             component: new EdgeConfig.Component(),
@@ -75,17 +74,5 @@ export class ControllerIoChannelSingleThresholdHomeComponent extends AbstractFor
     protected override async getChannelAddresses(): Promise<ChannelAddress[]> {
         this.component ??= this.getComponent();
         return SharedIoChannelSingleThreshold.getChannelAddresses(this.service, this.routeService, this.component);
-    }
-
-    private getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        AssertionUtils.assertIsDefined(edge);
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
-        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
-        AssertionUtils.assertIsDefined(component);
-
-        return component;
     }
 }

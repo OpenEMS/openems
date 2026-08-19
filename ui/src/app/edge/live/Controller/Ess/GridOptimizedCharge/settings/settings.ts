@@ -1,9 +1,8 @@
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../../livedataservice";
@@ -22,8 +21,6 @@ export class ControllerEssGridOptimizedChargeSettingsComponent extends AbstractF
     public chargeStartEpochSeconds: number | null = null;
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
-
-    private routeService: RouteService = inject(RouteService);
 
     public static generateView(
         translate: TranslateService,

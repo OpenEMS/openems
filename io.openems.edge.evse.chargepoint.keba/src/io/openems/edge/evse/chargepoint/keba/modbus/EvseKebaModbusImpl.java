@@ -1,5 +1,6 @@
 package io.openems.edge.evse.chargepoint.keba.modbus;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_3;
@@ -201,8 +202,8 @@ public class EvseKebaModbusImpl extends KebaModbus implements EvseKeba, EvseChar
 			modbusProtocol.addTasks(//
 					new FC6WriteRegisterTask(5004,
 							m(Keba.ChannelId.SET_CHARGING_CURRENT, new UnsignedWordElement(5004))),
-					new FC6WriteRegisterTask(5010, // TODO Scalefactor for Unit: 10 Wh
-							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010))),
+					new FC6WriteRegisterTask(5010,
+							m(EvseKeba.ChannelId.SET_ENERGY_LIMIT, new UnsignedWordElement(5010), SCALE_FACTOR_1)),
 					new FC6WriteRegisterTask(5012, m(Keba.ChannelId.SET_UNLOCK_PLUG, new UnsignedWordElement(5012))),
 					new FC6WriteRegisterTask(5014, m(Keba.ChannelId.SET_ENABLE, new UnsignedWordElement(5014))),
 					new FC6WriteRegisterTask(5050,

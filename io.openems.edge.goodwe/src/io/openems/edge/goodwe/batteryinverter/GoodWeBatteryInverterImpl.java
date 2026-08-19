@@ -838,7 +838,6 @@ public class GoodWeBatteryInverterImpl extends AbstractGoodWe implements GoodWeB
 
 			switch (batteryPort) {
 			case PORT_1 -> this.setBattery1Limits(battery, clusterInfo);
-			case PORT_2 -> this.setBattery2Limits(battery, clusterInfo);
 			}
 		}
 	}

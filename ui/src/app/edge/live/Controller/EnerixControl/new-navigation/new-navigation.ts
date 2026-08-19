@@ -1,12 +1,11 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { IonicModule } from "@ionic/angular";
 import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { LiveDataService } from "../../../livedataservice";
@@ -23,14 +22,13 @@ export class ControllerEnerixControlHomeComponent extends AbstractFormlyComponen
     public component: EdgeConfig.Component | null = null;
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
 
-    private readonly routeService: RouteService = inject(RouteService);
-
     public static generateView(
         translate: TranslateService,
         component: EdgeConfig.Component,
     ): OeFormlyView<SharedControllerEnerixControl.EnerixControlViewModel> {
         return {
             title: component.alias,
+            helpKey: "REDIRECT.CONTROLLER_CLEVER_PV",
             lines: SharedControllerEnerixControl.getFormlySharedModeAndStateLines(translate, component),
             component: component,
         };
@@ -48,16 +46,5 @@ export class ControllerEnerixControlHomeComponent extends AbstractFormlyComponen
         AssertionUtils.assertIsDefined(component);
 
         return SharedControllerEnerixControl.getChannelAddresses(this.service, this.routeService, component);
-    }
-
-    private getComponent(): EdgeConfig.Component {
-        const edge = this.service.currentEdge();
-        const config = edge.getCurrentConfig();
-        AssertionUtils.assertIsDefined(config);
-
-        const component = config.getComponentSafely(this.routeService.getRouteParam("componentId"));
-        AssertionUtils.assertIsDefined(component);
-
-        return component;
     }
 }

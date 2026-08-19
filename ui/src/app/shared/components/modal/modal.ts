@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ModalController } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
@@ -45,7 +45,6 @@ export class ModalComponent {
         | null = null;
     @Input() protected helpKey: HelpButtonComponent["key"] | null = null;
 
-    @Input() protected useDefaultPrefix: HelpButtonComponent["useDefaultPrefix"] = true;
     public readonly Role = Role;
 
     private edge: Edge | null = null;

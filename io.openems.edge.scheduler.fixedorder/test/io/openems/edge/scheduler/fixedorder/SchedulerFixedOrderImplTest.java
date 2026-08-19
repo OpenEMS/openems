@@ -1,11 +1,11 @@
 package io.openems.edge.scheduler.fixedorder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -35,13 +35,12 @@ public class SchedulerFixedOrderImplTest {
 				.activate(MyConfig.create() //
 						.setId(SCHEDULER_ID) //
 						.setControllersIds(CTRL3_ID, CTRL1_ID) //
-						.build()); //
-
-		test.next(new TestCase()); //
+						.build()) //
+				.next(new TestCase()); //
 		assertEquals(//
 				List.of(CTRL3_ID, CTRL1_ID), //
 				getControllerIds(sut));
-
+		test.deactivate();
 	}
 
 	private static List<String> getControllerIds(Scheduler scheduler) throws OpenemsNamedException {

@@ -99,8 +99,9 @@ public abstract class AbstractHardyBarthHandler<T extends HardyBarth> {
 		this.timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
 		var delay = Delay.of(Duration.ofSeconds(HEART_BEAT_TIME));
 		var heartBeat = parent.isReadOnly() ? "off" : "on";
-		this.timeService.subscribeTime(new DefaultDelayTimeProvider(() -> Delay.immediate(), //
-				t -> delay, error -> delay),
+		this.timeService.subscribeTime(//
+				new DefaultDelayTimeProvider<>(() -> Delay.immediate(), //
+						t -> delay, error -> delay),
 				this.createEndpoint(PUT, "/api/secc", buildJsonObject() //
 						.addProperty("salia/heartbeat", heartBeat) //
 						.build()),

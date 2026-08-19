@@ -8,7 +8,7 @@
           <ion-row class="ion-justify-content-center ion-align-items-center">
             @if (props.attributes.title) {
               <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
-                <ion-row class="ion-justify-content-end ion-align-items-end"> </ion-row>
+                <ion-row class="ion-justify-content-end ion-align-items-end"></ion-row>
               </ion-col>
               <ion-col [size]="service.isSmartphoneResolution ? 10 : 5.4">
                 <ion-row class="custom-title ion-align-items-center ion-justify-content-center ion-nowrap ion-text-center">
@@ -23,7 +23,7 @@
             <ion-col [size]="service.isSmartphoneResolution ? 1 : 3.3">
               @if (props.attributes.helpKey) {
                 <ion-buttons [ngClass]="service.isSmartphoneResolution ? 'ion-justify-content-end' : 'ion-justify-content-start'">
-                  <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear" style="color: var(--ion-text-color)" [useDefaultPrefix]="props.options[0].useDefaultPrefix ?? true"></oe-help-button>
+                  <oe-help-button color="var(--ion-text-color)" [key]="props.attributes.helpKey" fill="clear" style="color: var(--ion-text-color)"></oe-help-button>
                 </ion-buttons>
               }
             </ion-col>
@@ -52,7 +52,7 @@
 
                     <!-- OeFormlyField.ChannelLine -->
                     @case ("channel-line") {
-                      <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter" [leftColumnWidth]="line.leftColumnWidth"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name" [channelAddress]="line.channel" [converter]="line.converter" [leftColumnWidth]="line.leftColumnWidth"></oe-modal-line>
                     }
 
                     <!-- OeFormlyField.ChildrenLine -->
@@ -60,23 +60,23 @@
                       <oe-modal-line [lineStyle]="line.style" [filter]="line.filter" [textIndent]="line.indentation ?? '0%'" [name]="line.name" [hideValue]="true">
                         @for (lineItem of line.children; track lineItem) {
                           <!-- OeFormlyField.Item -->
-                          <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter" [converter]="lineItem.converter"> </oe-modal-line-item>
+                          <oe-modal-line-item [channelAddress]="lineItem.channel" [filter]="lineItem.filter" [converter]="lineItem.converter"></oe-modal-line-item>
                         }
                       </oe-modal-line>
                     }
 
                     <!-- OeFormlyField.SvgLine -->
                     @case ("image-line") {
-                      <oe-img [img]="line.img"> </oe-img>
+                      <oe-img [img]="line.img"></oe-img>
                     }
 
                     @case ("button-line") {
-                      <oe-modal-line [name]="line.name" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"> </oe-modal-line>
+                      <oe-modal-line [name]="line.name" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"></oe-modal-line>
                     }
 
                     <!-- OeFormlyField.InfoLine -->
                     @case ("info-line") {
-                      <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html"> </oe-modal-info-line>
+                      <oe-modal-info-line [info]="line.name" [icon]="line.icon" [html]="line.html"></oe-modal-info-line>
                     }
 
                     <!-- OeFormlyField.HorizontalLine -->
@@ -85,73 +85,78 @@
                     }
 
                     @case ("value-from-channels-line") {
-                      <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null" [name]="line.name" [singleLine]="line.singleLine ?? false"> </oe-modal-value-line>
+                      <oe-modal-value-line [channelsToSubscribe]="line.channelsToSubscribe" [textIndent]="line.indentation ?? '0%'" [valueCallback]="line.value" [filters]="line.filter ?? null" [name]="line.name" [singleLine]="line.singleLine ?? false"></oe-modal-value-line>
                     }
 
                     <!-- FormGrouped -->
                     @case ("value-from-form-control-line") {
-                      <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [formGroup]="form" [name]="line.name" [control]="{ type: 'TEXT', valueConverter: line.converter }"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [formGroup]="form" [name]="line.name" [control]="{ type: 'TEXT', valueConverter: line.converter }"></oe-modal-line>
                     }
 
                     @case ("radio-buttons-from-form-control-line") {
                       @if (form.controls[line.controlName] !== null) {
-                        <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component" [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null" [control]="{ type: 'RADIO' }"> </oe-modal-buttons>
+                        <oe-modal-buttons [formGroup]="form" [controlName]="line.controlName" [component]="component" [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null" [control]="{ type: 'RADIO' }"></oe-modal-buttons>
                       }
                     }
 
                     @case ("button-from-form-control-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [formGroup]="form" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [formGroup]="form" [component]="component" [control]="{ type: 'BUTTON', button: line.button }"></oe-modal-line>
                     }
 
                     @case ("buttons-from-form-control-line") {
                       @if (form.controls[line.controlName] !== null) {
-                        <oe-modal-buttons [lineStyle]="line.style" [formGroup]="form" [controlName]="line.controlName" [component]="component" [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null"> </oe-modal-buttons>
+                        <oe-modal-buttons [lineStyle]="line.style" [formGroup]="form" [controlName]="line.controlName" [component]="component" [buttons]="line.buttons" [channelAddress]="line.channel?.toString() ?? null"></oe-modal-buttons>
                       }
                     }
 
                     <!-- OeFormlyField.RangeButtonFromFormControlLine -->
                     @case ("range-button-from-form-control-line") {
-                      <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'RANGE', properties: line.properties }" [formGroup]="form"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [controlName]="line.controlName" [control]="{ type: 'RANGE', properties: line.properties }" [formGroup]="form"></oe-modal-line>
+                    }
+
+                    <!-- OeFormlyField.Dual.Knob.RangeButtonFromFormControlLine -->
+                    @case ("dual-knob-range-button-from-form-control-line") {
+                      <oe-dual-knob-slider [formGroup]="form" [lowerControlName]="line.lowerControlName" [upperControlName]="line.upperControlName" [properties]="line.properties"></oe-dual-knob-slider>
                     }
 
                     <!-- OeFormlyField.ToggleLine -->
                     @case ("toggle-line") {
-                      <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"> </oe-modal-line>
+                      <oe-modal-line [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'TOGGLE' }" [formGroup]="form" leftColumnWidth="100"></oe-modal-line>
                     }
 
                     @case ("toggle-line-with-formcontrol-value") {
-                      <oe-modal-toggle-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [formGroup]="form" [channelAddress]="line.channel" [togglePrefix]="line.togglePrefix"> </oe-modal-toggle-line>
+                      <oe-modal-toggle-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [formGroup]="form" [channelAddress]="line.channel" [togglePrefix]="line.togglePrefix"></oe-modal-toggle-line>
                     }
 
                     @case ("input-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'INPUT', properties: line.properties }" [formGroup]="form" leftColumnWidth="50"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'INPUT', properties: line.properties }" [formGroup]="form" leftColumnWidth="50"></oe-modal-line>
                     }
 
                     @case ("select-line") {
-                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'SELECT', options: line.options }" [formGroup]="form" leftColumnWidth="50"> </oe-modal-line>
+                      <oe-modal-line [lineStyle]="line.style" [name]="line.name" [controlName]="line.controlName" [control]="{ type: 'SELECT', options: line.options }" [formGroup]="form" leftColumnWidth="50"></oe-modal-line>
                     }
 
                     @case ("weekday-checkbox-line") {
-                      <oe-weekday-checkbox [formGroup]="form"> </oe-weekday-checkbox>
+                      <oe-weekday-checkbox [formGroup]="form"></oe-weekday-checkbox>
                     }
 
                     @case ("name-line") {
                       <oe-modal-line [lineStyle]="line.style" [name]="line.name"></oe-modal-line>
                     }
                     @case ("time-line") {
-                      <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form"> </oe-time-line>
+                      <oe-time-line [name]="line.name" [controlName]="line.controlName" [formGroup]="form"></oe-time-line>
                     }
 
                     @case ("date-time-line") {
-                      <oe-date-time-line [defaultLabel]="line.defaultLabel" [controlName]="line.controlName" [formGroup]="form" [label]="line.label"> </oe-date-time-line>
+                      <oe-date-time-line [defaultLabel]="line.defaultLabel" [controlName]="line.controlName" [formGroup]="form" [label]="line.label"></oe-date-time-line>
                     }
 
                     @case ("percentage-bar-line") {
-                      <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value"> </oe-flat-widget-percentagebar>
+                      <oe-flat-widget-percentagebar [value]="form.controls[line.controlName].value"></oe-flat-widget-percentagebar>
                     }
                     <!-- OeFormlyField.ComponentLine -->
                     @case ("component-line") {
-                      <ng-container *ngComponentOutlet="line.component; inputs: line.inputs"> </ng-container>
+                      <ng-container *ngComponentOutlet="line.component; inputs: line.inputs"></ng-container>
                     }
 
                     @case ("name-line") {
