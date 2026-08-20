@@ -1,9 +1,17 @@
 package io.openems.edge.evse.chargepoint.keba.common;
 
+import static io.openems.common.utils.ReflectionUtils.getValueViaReflection;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
+import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
+import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
@@ -96,5 +104,28 @@ public class KebaModbusTest {
 				.output(KebaModbus.ChannelId.PTAF_RFID, ProductTypeAndFeatures.Rfid.WITH_RFID) //
 				.output(KebaModbus.ChannelId.PTAF_BUTTON, ProductTypeAndFeatures.Button.WITH_BUTTON) //
 		;
+	}
+
+	/**
+	 * Writes SET_ENERGY_LIMIT in Wh and asserts the scaled FC6 value on register
+	 * 5010.
+	 *
+	 * @param sut the {@link KebaModbus} implementation
+	 * @param energyLimitWh the channel write in Wh
+	 * @param expectedRegister the expected register 5010 value
+	 * @throws Exception on error
+	 */
+	public static void testEnergyLimitWriteScale(KebaModbus sut, int energyLimitWh, int expectedRegister)
+			throws Exception {
+		((WriteChannel<?>) sut.channel(EvseKeba.ChannelId.SET_ENERGY_LIMIT))
+				.setNextWriteValueFromObject(energyLimitWh);
+		ModbusProtocol protocol = getValueViaReflection(sut, "protocol");
+		var task = protocol.getTaskManager().getTasks().stream() //
+				.filter(t -> t instanceof FC6WriteRegisterTask && t.getStartAddress() == 5010) //
+				.findFirst() //
+				.orElseThrow();
+		var registers = ((UnsignedWordElement) task.getElements()[0]).getNextWriteValueAndReset();
+		assertNotNull(registers);
+		assertEquals(expectedRegister, registers[0].getValue());
 	}
 }

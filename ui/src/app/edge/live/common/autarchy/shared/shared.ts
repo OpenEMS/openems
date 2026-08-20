@@ -1,6 +1,6 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
-import { NavigationTree } from "src/app/shared/components/navigation/shared";
+import { NavigationConstants, NavigationTree } from "src/app/shared/components/navigation/shared";
 import { OeFormlyField, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, EdgeConfig, Utils } from "src/app/shared/shared";
 
@@ -13,7 +13,6 @@ export namespace SharedAutarchy {
     export const getFormlyView = (translate: TranslateService): OeFormlyView => ({
         title: translate.instant("GENERAL.AUTARCHY"),
         helpKey: "REDIRECT.COMMON_AUTARCHY",
-        useDefaultPrefix: false,
         lines: [
             {
                 type: "percentage-bar-line",
@@ -59,6 +58,7 @@ export namespace SharedAutarchy {
                     [],
                     null,
                 ),
+                NavigationConstants.CommonNodes.INFO(translate, { source: "autarchy" }),
             ],
             null,
         ).toConstructorParams();

@@ -1,6 +1,6 @@
 package io.openems.common.bridge.http.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
@@ -24,39 +24,38 @@ import io.openems.common.utils.ReflectionUtils;
 
 class HttpBridgeLoggingServiceTest {
 
-	private BridgeHttp bridge;
-	private Logger logger;
+	private static BridgeHttp bridge;
+	private static Logger logger;
 
 	@BeforeEach
 	void setup() {
-		this.bridge = new BridgeHttpImpl(mock(), mock());
-		this.bridge.setDebugMode(DebugMode.DETAILED);
+		bridge = new BridgeHttpImpl(mock(), mock());
+		bridge.setDebugMode(DebugMode.DETAILED);
 
-		final var service = new HttpBridgeLoggingService(this.bridge, HttpBridgeLoggingServiceConfiguration.DEFAULT);
+		final var service = new HttpBridgeLoggingService(bridge, HttpBridgeLoggingServiceConfiguration.DEFAULT);
 
-		this.logger = mock();
-		ReflectionUtils.setAttributeViaReflection(service, "log", this.logger);
+		logger = mock();
+		ReflectionUtils.setAttributeViaReflection(service, "log", logger);
 	}
 
 	@Test
 	void testRequestStartEvent() {
-		this.bridge.raiseEvent(EndpointFetcherEvents.REQUEST_START,
-				new EndpointFetcherEvents.RequestStartEvent(0L, mock()));
-		verify(this.logger, times(1)).info(startsWith("Request[{}] started"), eq(0L), any());
+		bridge.raiseEvent(EndpointFetcherEvents.REQUEST_START, new EndpointFetcherEvents.RequestStartEvent(0L, mock()));
+		verify(logger, times(1)).info(startsWith("Request[{}] started"), eq(0L), any());
 	}
 
 	@Test
 	void testRequestSuccessEvent() {
-		this.bridge.raiseEvent(EndpointFetcherEvents.REQUEST_SUCCESS,
+		bridge.raiseEvent(EndpointFetcherEvents.REQUEST_SUCCESS,
 				new EndpointFetcherEvents.RequestSuccessEvent(0L, mock(), mock()));
-		verify(this.logger, times(1)).info(startsWith("Request[{}] success"), eq(0L), any());
+		verify(logger, times(1)).info(startsWith("Request[{}] success"), eq(0L), any());
 	}
 
 	@Test
 	void testRequestFailedEvent() {
-		this.bridge.raiseEvent(EndpointFetcherEvents.REQUEST_FAILED,
+		bridge.raiseEvent(EndpointFetcherEvents.REQUEST_FAILED,
 				new EndpointFetcherEvents.RequestFailedEvent(0L, mock(), mock()));
-		verify(this.logger, times(1)).error(startsWith("Request[{}] failed"), eq(0L), any(), any());
+		verify(logger, times(1)).error(startsWith("Request[{}] failed"), eq(0L), any(), any());
 	}
 
 	@Test

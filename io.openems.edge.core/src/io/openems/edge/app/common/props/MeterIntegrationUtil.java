@@ -123,7 +123,7 @@ public final class MeterIntegrationUtil {
 	 * already used, it returns the corresponding meter id. Otherwise, it generates
 	 * a new meter id with the prefix "meter" and a number that is not used by any
 	 * existing meter.
-	 * 
+	 *
 	 * @param app   the app
 	 * @param <APP> the type of the app, which must implement OpenemsApp,
 	 *              ComponentUtilSupplier and ComponentManagerSupplier
@@ -268,7 +268,7 @@ public final class MeterIntegrationUtil {
 	/**
 	 * Gets the meter id corresponding to the given alias. If there is no meter with
 	 * the given alias, it returns null.
-	 * 
+	 *
 	 * @param componentUtil the ComponentUtil
 	 * @param meterAlias    the alias of the meter to get the id for
 	 * @return the meter id corresponding to the given alias, or an empty string if

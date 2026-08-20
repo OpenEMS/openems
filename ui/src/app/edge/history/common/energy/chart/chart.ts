@@ -12,8 +12,6 @@ import { HistoryDataErrorModule } from "src/app/shared/components/history-data-e
 import { ViewUtils } from "src/app/shared/components/navigation/view/shared/shared";
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig, Utils } from "src/app/shared/shared";
-import { NumberUtils } from "src/app/shared/utils/number/number-utils";
-import { StringUtils } from "src/app/shared/utils/string/string.utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 
 @Component({
@@ -276,17 +274,7 @@ export class ChartComponent extends AbstractHistoryChart {
         return ChartComponent.getChartData(this.config, this.chartType, this.translate);
     }
 
-    public override ngAfterViewInit(): void {
-        if (StringUtils.isInArr(this.navigationService.position(), ["bottom", "left"])) {
-            return;
-        }
-
-        setTimeout(() => {
-            this.viewHeight =
-                NumberUtils.divideSafely(ViewUtils.getChartContentHeightInVh(this.navigationService.position()), 2) +
-                "dvh";
-            this.chart?.chart?.resize();
-            this.chart?.update();
-        }, 100);
+    public override calculateViewHeight(): string {
+        return ViewUtils.getChartContentHeightInVh(this.navigationService.position()) / 1.5 + "dvh";
     }
 }

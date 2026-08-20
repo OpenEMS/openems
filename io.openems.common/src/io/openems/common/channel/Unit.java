@@ -1,6 +1,7 @@
 package io.openems.common.channel;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.function.Function;
 import java.util.stream.DoubleStream;
@@ -430,6 +431,17 @@ public enum Unit {
 
 	;
 
+	/**
+	 * This map contains all symbols that were changed at some time. It's important
+	 * to add changed symbols here to ensure that the communication between master
+	 * and slave works correctly when there is a version mismatch. The key is the
+	 * old symbol and the value is the new one.
+	 */
+	private static final Map<String, Unit> CHANGED_SYMBOL_MAPPING = Map.of(//
+			"C", Unit.DEGREE_CELSIUS, //
+			"dC", Unit.DEZIDEGREE_CELSIUS //
+	);
+
 	public final String symbol;
 	public final Unit baseUnit;
 	public final int scaleFactor;
@@ -538,7 +550,7 @@ public enum Unit {
 		return Stream.of(Unit.values()) //
 				.filter(u -> u.symbol.equals(symbol)) //
 				.findFirst() //
-				.orElse(defaultUnit);
+				.orElseGet(() -> CHANGED_SYMBOL_MAPPING.getOrDefault(symbol, defaultUnit));
 	}
 
 	/**

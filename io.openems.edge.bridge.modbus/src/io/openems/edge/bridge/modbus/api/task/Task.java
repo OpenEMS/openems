@@ -57,6 +57,14 @@ public sealed interface Task extends ManagedTask permits AbstractTask, ReadTask,
 	public void deactivate();
 
 	/**
+	 * Should return true when the task requires an open modbus connection to
+	 * execute and it's doing something with modbus while executing.
+	 *
+	 * @return true or false
+	 */
+	public boolean requiresConnection();
+
+	/**
 	 * Executes the tasks - i.e. sends the query of a ReadTask or writes a
 	 * WriteTask.
 	 *

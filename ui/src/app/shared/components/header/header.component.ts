@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, } from "@angular/core";
+import { AfterViewChecked, ChangeDetectorRef, Component, effect, inject, Input, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, computed, } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { MenuController, ModalController, NavController } from "@ionic/angular";
 import { Subject } from "rxjs";
@@ -30,6 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy, AfterViewChecked {
     protected isHeaderAllowed: boolean = true;
     protected showBackButton: boolean = false;
     protected edge = this.service.currentEdge;
+    protected readonly parentNodeLink = computed(() => this.navigationService.currentNode().parent ?? "../");
 
     private ngUnsubscribe: Subject<void> = new Subject<void>();
     private _customBackUrl: string | null = null;

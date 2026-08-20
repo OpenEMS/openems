@@ -1,10 +1,9 @@
-import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { LiveDataService } from "src/app/edge/live/livedataservice";
 import { DataService } from "src/app/shared/components/shared/dataservice";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
-import { RouteService } from "src/app/shared/service/route.service";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { SharedControllerIoFixDigitalOutput } from "../shared/shared";
@@ -18,8 +17,6 @@ import { SharedControllerIoFixDigitalOutput } from "../shared/shared";
 export class ControllerFixDigitalOutputModalComponent extends AbstractFormlyComponent {
     @Input() public component: EdgeConfig.Component | null = null;
     @Input() public edge: Edge | null = null;
-
-    private routeService: RouteService = inject(RouteService);
 
     public static generateView(translate: TranslateService, component: EdgeConfig.Component, edge: Edge): OeFormlyView {
         return SharedControllerIoFixDigitalOutput.getFormlyView(translate, component, edge);

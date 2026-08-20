@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Input, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, Input } from "@angular/core";
 import { FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
@@ -7,9 +7,8 @@ import { FormlyModule } from "@ngx-formly/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { AbstractFormlyComponent, OeFormlyView } from "src/app/shared/components/shared/oe-formly-component";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig } from "src/app/shared/shared";
-import { Mode } from "src/app/shared/type/general";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
-import { SharedControllerIoHeatpump } from "../shared/shared";
+import { HeatpumpMode, SharedControllerIoHeatpump } from "../shared/shared";
 
 @Component({
     selector: "heatpump-modal",
@@ -18,13 +17,13 @@ import { SharedControllerIoHeatpump } from "../shared/shared";
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [CommonModule, IonicModule, ReactiveFormsModule, FormlyModule, TranslateModule],
 })
-export class ControllerIoHeatpumpModalComponent extends AbstractFormlyComponent<{ mode: Mode }> {
+export class ControllerIoHeatpumpModalComponent extends AbstractFormlyComponent<{ mode: HeatpumpMode }> {
     @Input() public edge: Edge | null = null;
     @Input() public component: EdgeConfig.Component | null = null;
 
-    private route: ActivatedRoute = inject(ActivatedRoute);
+    private readonly route: ActivatedRoute = inject(ActivatedRoute);
 
-    protected override generateView(): OeFormlyView<{ mode: Mode }> {
+    protected override generateView(): OeFormlyView<{ mode: HeatpumpMode }> {
         AssertionUtils.assertIsDefined(this.edge);
         AssertionUtils.assertIsDefined(this.component);
         return SharedControllerIoHeatpump.getFormlyView(this.translate, this.component, this.edge);

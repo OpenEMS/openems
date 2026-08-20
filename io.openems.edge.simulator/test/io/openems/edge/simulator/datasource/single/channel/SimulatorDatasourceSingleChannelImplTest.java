@@ -1,11 +1,11 @@
 package io.openems.edge.simulator.datasource.single.channel;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.test.TimeLeapClock;
 import io.openems.common.types.ChannelAddress;
@@ -20,7 +20,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	private static final ChannelAddress DATA = new ChannelAddress(COMPONENT_ID, "Data");
 
 	@Test
-	public void test() throws Exception {
+	void test() throws Exception {
 		new ComponentTest(new SimulatorDatasourceSingleChannelImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
@@ -28,11 +28,11 @@ public class SimulatorDatasourceSingleChannelImplTest {
 						.setTimeDelta(-1) //
 						.build()) //
 				.next(new TestCase()) //
-		;
+				.deactivate();
 	}
 
 	@Test
-	public void testGetValueReturnsDefaultWhenEmpty() throws Exception {
+	void testGetValueReturnsDefaultWhenEmpty() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -49,7 +49,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetValueReturnsSetValue() throws Exception {
+	void testGetValueReturnsSetValue() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -69,7 +69,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetValueUpdatesOnNewValue() throws Exception {
+	void testGetValueUpdatesOnNewValue() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -90,7 +90,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetValuesReturnsDefaultWhenEmpty() throws Exception {
+	void testGetValuesReturnsDefaultWhenEmpty() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -108,7 +108,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetValuesReturnsSetValue() throws Exception {
+	void testGetValuesReturnsSetValue() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -129,7 +129,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetKeysReturnsEmptySet() throws Exception {
+	void testGetKeysReturnsEmptySet() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -145,7 +145,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetTimeDelta() throws Exception {
+	void testGetTimeDelta() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -161,7 +161,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testNullValueIsIgnored() throws Exception {
+	void testNullValueIsIgnored() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -182,7 +182,7 @@ public class SimulatorDatasourceSingleChannelImplTest {
 	}
 
 	@Test
-	public void testGetDataChannel() throws Exception {
+	void testGetDataChannel() throws Exception {
 		var sut = new SimulatorDatasourceSingleChannelImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager(new TimeLeapClock())) //
@@ -200,5 +200,4 @@ public class SimulatorDatasourceSingleChannelImplTest {
 		assertEquals(readChannel.channelId(), writeChannel.channelId());
 		assertEquals("Data", readChannel.channelId().id());
 	}
-
 }
