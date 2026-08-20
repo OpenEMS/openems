@@ -1,6 +1,7 @@
 package io.openems.edge.controller.ess.emergencycapacityreserve;
 
 import io.openems.common.test.AbstractComponentConfig;
+
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
 
