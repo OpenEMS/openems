@@ -2,9 +2,8 @@ package io.openems.edge.controller.ess.delayedselltogrid;
 
 import static io.openems.edge.ess.api.ManagedSymmetricEss.ChannelId.SET_ACTIVE_POWER_EQUALS;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.controller.test.ControllerTest;
 import io.openems.edge.ess.api.SymmetricEss;
@@ -16,7 +15,6 @@ public class ControllerEssDelayedSellToGridImplTest {
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerEssDelayedSellToGridImpl())//
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("meter", new DummyElectricityMeter("meter0")) //
 				.addReference("ess", new DummyManagedSymmetricEss("ess0")) //
 				.activate(MyConfig.create()//
