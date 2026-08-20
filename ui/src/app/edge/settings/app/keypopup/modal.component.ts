@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject, Input, OnInit, signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
@@ -44,7 +44,7 @@ export class KeyModalComponent implements OnInit {
     };
     protected options: FormlyFormOptions;
 
-    private lastValidKey: AppCenterIsKeyApplicable.Response | null = null;
+    private lastValidKey = signal<AppCenterIsKeyApplicable.Response | null>(null);
     private registeredKeys: Key[] = [];
 
     private readonly cdRef = inject(ChangeDetectorRef);
@@ -237,7 +237,7 @@ export class KeyModalComponent implements OnInit {
             .then((response) => {
                 const result = (response as AppCenterIsKeyApplicable.Response).result;
                 if (result.isKeyApplicable) {
-                    this.lastValidKey = response as AppCenterIsKeyApplicable.Response;
+                    this.lastValidKey.set(response as AppCenterIsKeyApplicable.Response);
 
                     if (
                         result.additionalInfo.registrations.length !== 0 &&
@@ -292,7 +292,8 @@ export class KeyModalComponent implements OnInit {
         if (this.model.useRegisteredKeys || this.model.useMasterKey) {
             return true;
         }
-        return this.lastValidKey !== null && this.getRawAppKey() === this.lastValidKey.result.additionalInfo.keyId;
+        const key = this.lastValidKey();
+        return key !== null && this.getRawAppKey() === key.result.additionalInfo.keyId;
     }
 
     private getDescription(key: Key): string | null {
@@ -315,11 +316,10 @@ export class KeyModalComponent implements OnInit {
             // if multiple apps are in bundle find category which has all the apps
             // and set the category name as the description
             for (const [catName, apps] of Object.entries(this.getAppsByCategory())) {
+                const consideredApps = apps.filter((app) => !Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM));
                 if (
-                    apps.every((app) => {
-                        if (Flags.getByType(app.flags, Flags.SHOW_AFTER_KEY_REDEEM) && environment.production) {
-                            return true;
-                        }
+                    consideredApps.length > 0 &&
+                    consideredApps.every((app) => {
                         for (const appFromBundle of bundle) {
                             if (appFromBundle.appId === app.appId) {
                                 return true;
@@ -466,8 +466,8 @@ export class KeyModalComponent implements OnInit {
         return new Promise((resolve, reject) => {
             // key already registered
             if (
-                this.lastValidKey?.result.additionalInfo.keyId === this.getRawAppKey() &&
-                this.lastValidKey.result.additionalInfo.registrations.some((registration) => {
+                this.lastValidKey()?.result.additionalInfo.keyId === this.getRawAppKey() &&
+                this.lastValidKey().result.additionalInfo.registrations.some((registration) => {
                     return registration.edgeId === this.edge.id && registration.appId === this.appId;
                 })
             ) {

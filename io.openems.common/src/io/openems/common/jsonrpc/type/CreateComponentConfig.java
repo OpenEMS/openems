@@ -71,9 +71,9 @@ public class CreateComponentConfig implements EndpointRequestType<Request, Empty
 
 		public String getComponentId() {
 			return this.properties().stream() //
-					.filter(t -> t.getName().equals("id")) //
+					.filter(t -> t.name().equals("id")) //
 					.findFirst() //
-					.map(Property::getValue) //
+					.map(Property::value) //
 					.map(JsonElement::getAsString) //
 					.orElse(null);
 		}

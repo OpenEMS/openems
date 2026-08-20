@@ -4,9 +4,8 @@ import java.time.Duration;
 import java.util.Objects;
 
 import io.openems.common.bridge.http.api.HttpError;
-import io.openems.common.bridge.http.api.HttpResponse;
 
-public interface DelayTimeProvider {
+public interface DelayTimeProvider<T> {
 
 	public static sealed interface Delay {
 
@@ -110,7 +109,7 @@ public interface DelayTimeProvider {
 	 * 
 	 * @return the {@link DelayTimeProvider}
 	 */
-	static DelayTimeProvider abortOnSuccess() {
+	static DelayTimeProvider<Object> abortOnSuccess() {
 		return abortOnSuccess(Delay.immediate());
 	}
 
@@ -121,8 +120,8 @@ public interface DelayTimeProvider {
 	 * @param onErrorDelay the {@link Delay} to wait before the next run if the last
 	 * @return the {@link DelayTimeProvider}
 	 */
-	static DelayTimeProvider abortOnSuccess(Delay onErrorDelay) {
-		return new DefaultDelayTimeProvider(//
+	static DelayTimeProvider<Object> abortOnSuccess(Delay onErrorDelay) {
+		return new DefaultDelayTimeProvider<>(//
 				Delay::immediate, // onFirstRunDelay
 				(error) -> onErrorDelay, //
 				(result) -> Delay.infinite() // onSuccessRunDelay
@@ -153,6 +152,6 @@ public interface DelayTimeProvider {
 	 * @param result the result of the last run
 	 * @return the {@link Delay} till the next run
 	 */
-	public Delay onSuccessRunDelay(HttpResponse<String> result);
+	public Delay onSuccessRunDelay(T result);
 
 }

@@ -5,6 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 
@@ -14,32 +20,36 @@ import com.google.common.collect.ImmutableList;
 
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
 import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestForceUpdatingConfigComponent;
 import io.openems.edge.app.TestForceUpdatingConfigProperties;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.meter.api.PhaseRotation;
 
-public class ForceUpdateComponentConfigTest {
+class ForceUpdateComponentConfigTest {
 
 	private AppManagerTestBundle testBundle;
 	private OpenemsApp app;
 
 	@Test
-	public void testForceUpdateComponent() throws Exception {
+	void testForceUpdateComponent() throws Exception {
 		this.testUpdatingOrCreatingComponent(true);
 	}
 
 	@Test
-	public void testForceCreatingComponent() throws Exception {
+	void testForceCreatingComponent() throws Exception {
 		this.testUpdatingOrCreatingComponent(false);
 	}
 
 	@Test
-	public void testForceUpdateProperties() throws Exception {
+	void testForceUpdateProperties() throws Exception {
 		var component = this.getComponentForUpdatingProperties(true);
 		assertNotNull(component);
 		assertEquals(0, component.getProperties().get("minPower").getAsInt());
@@ -48,13 +58,13 @@ public class ForceUpdateComponentConfigTest {
 	}
 
 	@Test
-	public void testForceUpdatePropertiesWithoutComponentExisting() throws Exception {
+	void testForceUpdatePropertiesWithoutComponentExisting() throws Exception {
 		var component = this.getComponentForUpdatingProperties(false);
 		assertNull(component);
 	}
 
 	@Test
-	public void testForceUpdateIgnoreInitialProperties() throws Exception {
+	void testForceUpdateIgnoreInitialProperties() throws Exception {
 		this.testBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(Apps.testForceUpdatingConfigProperties(t),
 					this.app = Apps.testForceUpdatingConfigComponent(t));
@@ -97,7 +107,7 @@ public class ForceUpdateComponentConfigTest {
 	}
 
 	@Test
-	public void testForceUpdateDependencyProperties() throws Exception {
+	void testForceUpdateDependencyProperties() throws Exception {
 		this.testBundle = new AppManagerTestBundle(null, MyConfig.create() //
 				.setApps("""
 						[
@@ -233,4 +243,82 @@ public class ForceUpdateComponentConfigTest {
 
 		return this.testBundle.componentManger.getEdgeConfig().getComponent("test0").orElse(null);
 	}
+
+	@Test
+	void testCheckConfigForceUpdateForceUpdateOfDifferentProperty() throws Exception {
+
+		final ComponentManager componentManager = mock();
+
+		when(componentManager.getEdgeConfig()).thenReturn(EdgeConfig.ActualEdgeConfig.create() //
+				.addComponent("modbus0",
+						new EdgeConfig.Component("modbus0", "Alias", "modbus.factory.id", JsonUtils.buildJsonObject() //
+								.addProperty("property1", "a") //
+								.addProperty("property2", 1) //
+								.build()))
+				.buildEdgeConfig());
+
+		final var expected = new ComponentDef("modbus0", "Alias", "modbus.factory.id", new ComponentProperties(List.of(//
+				ComponentProperties.Property.of("property1") //
+						.withForceUpdate(true) //
+						.withValue("a"), //
+				ComponentProperties.Property.of("property2") //
+						.withValue(2) //
+		)), ComponentDef.Configuration.defaultConfig());
+
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+
+		verify(componentManager, times(0)).handleUpdateComponentConfigRequest(any(), any());
+	}
+
+	@Test
+	void testCheckConfigForceUpdateDifferentAlias() throws Exception {
+
+		final ComponentManager componentManager = mock();
+
+		when(componentManager.getEdgeConfig()).thenReturn(EdgeConfig.ActualEdgeConfig.create() //
+				.addComponent("modbus0",
+						new EdgeConfig.Component("modbus0", "Alias", "modbus.factory.id", JsonUtils.buildJsonObject() //
+								.build()))
+				.buildEdgeConfig());
+
+		final var expected = new ComponentDef("modbus0", "different Alias", "modbus.factory.id",
+				new ComponentProperties(List.of()), ComponentDef.Configuration.defaultConfig());
+
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+
+		verify(componentManager, times(0)).handleUpdateComponentConfigRequest(any(), any());
+	}
+
+	@Test
+	void testCheckConfigForceUpdateForceUpdateOnlyRequiredProperties() throws Exception {
+
+		final ComponentManager componentManager = mock();
+
+		when(componentManager.getEdgeConfig()).thenReturn(EdgeConfig.ActualEdgeConfig.create() //
+				.addComponent("modbus0",
+						new EdgeConfig.Component("modbus0", "Alias", "modbus.factory.id", JsonUtils.buildJsonObject() //
+								.addProperty("property1", "a") //
+								.addProperty("property2", 1) //
+								.build()))
+				.buildEdgeConfig());
+
+		final var expected = new ComponentDef("modbus0", "Alias 1", "modbus.factory.id",
+				new ComponentProperties(List.of(//
+						ComponentProperties.Property.of("property1") //
+								.withForceUpdate(true) //
+								.withValue("b"), //
+						ComponentProperties.Property.of("property2") //
+								.withValue(2) //
+				)), ComponentDef.Configuration.defaultConfig());
+
+		ForceUpdateComponentConfig.checkConfigForceUpdate(componentManager, expected, DUMMY_ADMIN);
+
+		verify(componentManager, times(1)).handleUpdateComponentConfigRequest(any(),
+				eq(new UpdateComponentConfig.Request("modbus0", List.of(//
+						new UpdateComponentConfigRequest.Property("id", "modbus0"), //
+						new UpdateComponentConfigRequest.Property("alias", "Alias"), //
+						new UpdateComponentConfigRequest.Property("property1", "b") //
+				))));
+	}
+
 }

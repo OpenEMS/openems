@@ -122,7 +122,7 @@ export class NavigationInfoComponent extends AbstractModal {
                 "storage",
                 {
                     displayName: translate.instant("NAVIGATION_INFO_MANUAL", {
-                        source: translate.instant("GENERAL.STORAGE"),
+                        source: translate.instant("GENERAL.STORAGE_SYSTEM"),
                     }),
                     link: "REDIRECT.COMMON_STORAGE",
                     icon: { name: "oe-storage" },
@@ -138,6 +138,26 @@ export class NavigationInfoComponent extends AbstractModal {
                     icon: { name: "oe-consumption" },
                 },
             ],
+            [
+                "autarchy",
+                {
+                    displayName: translate.instant("NAVIGATION_INFO_MANUAL", {
+                        source: translate.instant("GENERAL.AUTARCHY"),
+                    }),
+                    link: "REDIRECT.COMMON_AUTARCHY",
+                    icon: { name: "oe-grid" },
+                },
+            ],
+            [
+                "selfconsumption",
+                {
+                    displayName: translate.instant("NAVIGATION_INFO_MANUAL", {
+                        source: translate.instant("GENERAL.SELF_CONSUMPTION"),
+                    }),
+                    link: "REDIRECT.COMMON_SELFCONSUMPTION",
+                    icon: { name: "oe-selfconsumption" },
+                },
+            ],
         ]);
 
     ionViewWillLeave() {
@@ -145,6 +165,33 @@ export class NavigationInfoComponent extends AbstractModal {
     }
 
     ionViewWillEnter() {
-        this.navigationService.headerTitle.set(this.translate.instant("GENERAL.INFO"));
+        this.resolveSourceAndMode();
+        this.setHeaderTitle();
+    }
+
+    protected override onIsInitialized(): void {
+        this.setHeaderTitle();
+    }
+
+    private resolveSourceAndMode(): void {
+        const source = this.route.snapshot.queryParamMap.get("source");
+        this.isGlobalInfo.set(source === "global");
+
+        if (source && source !== "global") {
+            const page = NavigationInfoComponent.DOCS_LINKS(this.translate).get(source);
+            if (page != null) {
+                this.docs = {
+                    displayName: page.displayName,
+                    icon: page.icon,
+                    link: HelpButtonComponent.getLink(page.link, this.service) ?? null,
+                };
+            }
+        }
+    }
+
+    private setHeaderTitle(): void {
+        this.navigationService.headerTitle.set(
+            this.translate.instant(this.isGlobalInfo() ? "GENERAL.HELP" : "GENERAL.INFO"),
+        );
     }
 }

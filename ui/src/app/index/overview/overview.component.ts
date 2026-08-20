@@ -5,7 +5,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { InfiniteScrollCustomEvent, Platform, ViewWillEnter } from "@ionic/angular";
 import { TranslateService } from "@ngx-translate/core";
 import { Subject, Subscription } from "rxjs";
+import { NavigationTree } from "src/app/shared/components/navigation/shared";
 import { GetEdgesRequest } from "src/app/shared/jsonrpc/request/getEdgesRequest";
+import { User } from "src/app/shared/jsonrpc/shared";
 import { Pagination } from "src/app/shared/service/pagination";
 import { UserService } from "src/app/shared/service/user.service";
 import { Edge, Service, UserPermission, Utils, Websocket } from "src/app/shared/shared";
@@ -79,6 +81,24 @@ export class OverViewComponent implements ViewWillEnter, OnDestroy {
                 // this.filteredEdges.set(await this.loadNextPage());
             }
         });
+    }
+
+    static getNavigationTree(user: User, translate: TranslateService): NavigationTree[] {
+        if (!user?.hasMultipleEdges) {
+            return [];
+        }
+        return [
+            new NavigationTree(
+                "overview",
+                { baseString: "overview" },
+                { name: "apps-outline" },
+                { desktop: translate.instant("MENU.OVERVIEW"), mobile: translate.instant("MENU.SYSTEMS") },
+                "icon",
+                [],
+                null,
+                { customLink: "/overview" },
+            ),
+        ];
     }
 
     ionViewWillEnter() {

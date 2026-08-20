@@ -103,8 +103,8 @@ public class CreateComponentConfigRequest extends JsonrpcRequest {
 	 */
 	public String getComponentId() {
 		for (UpdateComponentConfigRequest.Property property : this.properties) {
-			if (property.getName().equals("id")) {
-				return property.getValue().getAsString();
+			if (property.name().equals("id")) {
+				return property.value().getAsString();
 			}
 		}
 		return "";

@@ -36,7 +36,9 @@ public interface ControllerIoHeatPumpSgReady extends OpenemsComponent {
 		STATE_OF_CHARGE_NOT_PRESENT(Doc.of(Level.WARNING)//
 				.text("There is no state of charge present.")), //
 		ESS_DISCHARGE_POWER_NOT_PRESENT(Doc.of(Level.WARNING)//
-				.text("There is no ess discharge power present.")); //
+				.text("There is no ess discharge power present.")),
+		IS_TIME_SCHEDULE_TASK_ACTIVE(Doc.of(OpenemsType.BOOLEAN)//
+				.persistencePriority(PersistencePriority.HIGH)); //
 
 		private final Doc doc;
 

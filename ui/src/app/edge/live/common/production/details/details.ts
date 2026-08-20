@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TextIndentation } from "src/app/shared/components/modal/modal-line/modal-line";
 import { Converter } from "src/app/shared/components/shared/converter";
 import { DataService } from "src/app/shared/components/shared/dataservice";
@@ -99,7 +99,6 @@ export class CommonProductionDetailsComponent extends AbstractFormlyComponent {
             helpKey: "REDIRECT.COMMON_PRODUCTION",
             lines: lines,
             component: new EdgeConfig.Component(),
-            useDefaultPrefix: false,
             isCommonWidget: true,
         };
     }

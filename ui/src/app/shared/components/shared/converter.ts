@@ -2,7 +2,7 @@ import { formatNumber } from "@angular/common";
 import { TranslateService } from "@ngx-translate/core";
 import { Currency, CurrentData, EdgeConfig, GridMode, Limiter14aRestriction, RippleControlReceiverRestrictionLevel, Utils, } from "../../shared";
 
-import { EnabledDisabledState } from "../../type/general";
+import { EnabledDisabledState, Mode } from "../../type/general";
 import { Language } from "../../type/language";
 import { NumberUtils } from "../../utils/number/number-utils";
 import { TimeUtils } from "../../utils/time/timeutils";
@@ -558,20 +558,22 @@ export namespace Converter {
         return (raw): string => {
             return IF_STRING(raw, (value) => {
                 switch (value) {
-                    case "AUTOMATIC":
+                    case Mode.AUTOMATIC:
                         return translate.instant("GENERAL.AUTOMATIC");
-                    case "MANUAL":
+                    case Mode.MANUAL:
                         return translate.instant("GENERAL.MANUALLY");
-                    case "MANUAL_ON":
-                    case "ON":
+                    case Mode.MANUAL_ON:
+                    case Mode.ON:
                         return translate.instant("GENERAL.ON");
-                    case "MANUAL_OFF":
-                    case "OFF":
+                    case Mode.MANUAL_OFF:
+                    case Mode.OFF:
                         return translate.instant("GENERAL.OFF");
-                    case "CHARGE_ONCE":
+                    case Mode.CHARGE_ONCE:
                         return translate.instant("GENERAL.CHARGE_ONCE");
-                    case "DISCHARGE_ONCE":
+                    case Mode.DISCHARGE_ONCE:
                         return translate.instant("GENERAL.DISCHARGE_ONCE");
+                    case "TIME_SCHEDULE":
+                        return translate.instant("GENERAL.TIME_SCHEDULE");
                 }
             });
         };

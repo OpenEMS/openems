@@ -12,12 +12,14 @@ public interface MarketPriceProvider {
 
 	/**
 	 * Returns the current stored market prices of the last successful price fetch.
+	 * 
 	 * @return Market prices
 	 */
 	BehaviorSubject<MarketPriceData> getMarketPrices();
 
 	/**
 	 * Returns the result of the last price fetch.
+	 * 
 	 * @return Update state
 	 */
 	BehaviorSubject<MarketPriceUpdateEvent> getUpdateState();

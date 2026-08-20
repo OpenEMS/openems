@@ -1,21 +1,14 @@
 // @ts-strict-ignore
-import { DATA, LABELS, } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
-
+import { DATA, LABELS } from "src/app/edge/history/common/energy/chart/chart.constants.spec";
 import { DummyConfig } from "src/app/shared/components/edge/edgeconfig.spec";
 import { OeTester } from "src/app/shared/components/shared/testing/common";
-import { TestContext, TestingUtils, } from "src/app/shared/components/shared/testing/utils.spec";
+import { TestContext, TestingUtils } from "src/app/shared/components/shared/testing/utils.spec";
 import { ChartAxis } from "src/app/shared/utils/utils";
 import { History, expectView } from "./chart.constants.spec";
 
 describe("History Heatpump", () => {
-    const heatpumpComponent = DummyConfig.Component.HEAT_PUMP_SG_READY(
-        "ctrlIoHeatPump0",
-        "Wärmepumpe",
-    );
-    const meterComponent = DummyConfig.Component.SOCOMEC_CONSUMPTION_METER(
-        "meter3",
-        "Verbrauchszähler",
-    );
+    const heatpumpComponent = DummyConfig.Component.HEAT_PUMP_SG_READY("ctrlIoHeatPump0", "Wärmepumpe");
+    const meterComponent = DummyConfig.Component.SOCOMEC_CONSUMPTION_METER("meter3", "Verbrauchszähler");
 
     const config = DummyConfig.from(heatpumpComponent, meterComponent);
 
@@ -25,248 +18,86 @@ describe("History Heatpump", () => {
     it("#getChartData()", () => {
         {
             // Line-Chart
-            expectView(
-                config,
-                Object.values(config.components)[0],
-                TEST_CONTEXT,
-                "line",
-                History.DAY,
-                {
-                    datasets: {
-                        data: [
-                            DATA("Gesamt: 36 kWh", Array(288).fill(1.5)),
-                            DATA(
-                                "Zustand",
-                                [
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                                    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                                    1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 3, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2,
-                                    3, 2, 3, 3, 3, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4,
-                                    4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-                                    4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                                    2, 2, 2,
-                                ],
-                            ),
-                        ],
-                        labels: LABELS(
-                            History.DAY.dataChannelWithValues.result.timestamps,
+            expectView(config, Object.values(config.components)[0], TEST_CONTEXT, "line", History.DAY, {
+                datasets: {
+                    data: [
+                        DATA("Gesamt: 36 kWh", Array(288).fill(1.5)),
+                        DATA(
+                            "Zustand",
+                            [
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                                2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1,
+                                1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 1,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 2, 3, 2, 3, 3, 3, 2, 3, 3, 3,
+                                4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                                2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+                            ],
                         ),
-                        options: (() => {
-                            const options =
-                                OeTester.ChartOptions.MULTI_LINE_OPTIONS(
-                                    "hour",
-                                    "line",
-                                    {
-                                        [ChartAxis.RIGHT]: {
-                                            scale: {
-                                                beginAtZero: true,
-                                                title: { text: "kW" },
-                                                grid: { display: true },
-                                            },
-                                        },
-                                    },
-                                );
-                            (
-                                options.options.scales[ChartAxis.LEFT] as any
-                            ).title.text = "Zustand";
-                            return options;
-                        })(),
-                    },
+                    ],
+                    labels: LABELS(History.DAY.dataChannelWithValues.result.timestamps),
+                    options: (() => {
+                        const options = OeTester.ChartOptions.MULTI_LINE_OPTIONS("hour", "line", {
+                            [ChartAxis.RIGHT]: {
+                                scale: { beginAtZero: true, title: { text: "kW" }, grid: { display: true } },
+                            },
+                        });
+                        (options.options.scales[ChartAxis.LEFT] as any).title.text = "Zustand";
+                        return options;
+                    })(),
                 },
-            );
+            });
         }
         {
             // Bar-Chart
-            expectView(
-                config,
-                Object.values(config.components)[0],
-                TEST_CONTEXT,
-                "bar",
-                History.MONTH,
-                {
-                    datasets: {
-                        data: [
-                            DATA("Sperre", [
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                null,
-                            ]),
-                            DATA("Normalbetrieb", [
-                                86353,
-                                86353,
-                                86354,
-                                86353,
-                                86352,
-                                71428,
-                                86353,
-                                86352,
-                                86354,
-                                85866,
-                                77027,
-                                86353,
-                                86352,
-                                86352,
-                                76953,
-                                74238,
-                                85915,
-                                86352,
-                                86352,
-                                86354,
-                                82752,
-                                86353,
-                                86352,
-                                86353,
-                                73268,
-                                86352,
-                                89950,
-                                86353,
-                                86352,
-                                35419,
-                                null,
-                            ]),
-                            DATA("Einschaltempfehlung", [
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                5396,
-                                0,
-                                0,
-                                0,
-                                0,
-                                5395,
-                                0,
-                                0,
-                                0,
-                                3597,
-                                3597,
-                                0,
-                                0,
-                                0,
-                                0,
-                                1798,
-                                0,
-                                0,
-                                0,
-                                7194,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                null,
-                            ]),
-                            DATA("Einschaltbefehl", [
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                9519,
-                                0,
-                                0,
-                                0,
-                                0,
-                                3921,
-                                0,
-                                0,
-                                0,
-                                5795,
-                                8510,
-                                0,
-                                0,
-                                0,
-                                0,
-                                1798,
-                                0,
-                                0,
-                                0,
-                                5883,
-                                0,
-                                0,
-                                0,
-                                0,
-                                0,
-                                null,
-                            ]),
-                        ],
-                        labels: LABELS(
-                            History.MONTH.energyPerPeriodChannelWithValues
-                                .result.timestamps,
-                        ),
-                        options: (() => {
-                            const options =
-                                OeTester.ChartOptions.BAR_CHART_OPTIONS(
-                                    "day",
-                                    "bar",
-                                    {},
-                                    "Aktive Zeit",
-                                );
-                            options.options.scales[ChartAxis.RIGHT] = {
-                                title: {
-                                    padding: 5,
-                                    text: "kWh",
-                                    display: false,
-                                    font: { size: 11 },
-                                },
-                                stacked: true,
-                                beginAtZero: true,
-                                position: "right",
-                                grid: { display: true },
-                                ticks: {
-                                    color: "",
-                                    padding: 5,
-                                    maxTicksLimit: 7,
-                                },
-                                display: false,
-                            };
-                            return options;
-                        })(),
-                    },
+            expectView(config, Object.values(config.components)[0], TEST_CONTEXT, "bar", History.MONTH, {
+                datasets: {
+                    // prettier-ignore
+                    data: [
+                        DATA("Sperre", [
+                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                            null,
+                        ]),
+                        DATA("Normalbetrieb", [
+                            86353, 86353, 86354, 86353, 86352, 71428, 86353, 86352, 86354, 85866,
+                            77027, 86353, 86352, 86352, 76953, 74238, 85915, 86352, 86352, 86354,
+                            82752, 86353, 86352, 86353, 73268, 86352, 89950, 86353, 86352, 35419,
+                            null,
+                        ]),
+                        DATA("Einschaltempfehlung", [
+                            0, 0, 0, 0, 0, 5396, 0, 0, 0, 0,
+                            5395, 0, 0, 0, 3597, 3597, 0, 0, 0, 0,
+                            1798, 0, 0, 0, 7194, 0, 0, 0, 0, 0,
+                            null,
+                        ]),
+                        DATA("Einschaltbefehl", [
+                            0, 0, 0, 0, 0, 9519, 0, 0, 0, 0,
+                            3921, 0, 0, 0, 5795, 8510, 0, 0, 0, 0,
+                            1798, 0, 0, 0, 5883, 0, 0, 0, 0, 0,
+                            null,
+                        ]),
+                    ],
+                    labels: LABELS(History.MONTH.energyPerPeriodChannelWithValues.result.timestamps),
+                    options: (() => {
+                        const options = OeTester.ChartOptions.BAR_CHART_OPTIONS("day", "bar", {}, "Aktive Zeit");
+                        options.options.scales[ChartAxis.RIGHT] = {
+                            title: { padding: 5, text: "kWh", display: false, font: { size: 11 } },
+                            stacked: true,
+                            beginAtZero: true,
+                            position: "right",
+                            grid: { display: true },
+                            ticks: { color: "", padding: 5, maxTicksLimit: 7 },
+                            display: false,
+                        };
+                        return options;
+                    })(),
                 },
-            );
+            });
         }
     });
 });

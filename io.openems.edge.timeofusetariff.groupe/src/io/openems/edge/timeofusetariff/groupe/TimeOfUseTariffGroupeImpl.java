@@ -131,7 +131,7 @@ public class TimeOfUseTariffGroupeImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 	}
 
-	public static class GroupeDelayTimeProvider implements DelayTimeProvider {
+	public static class GroupeDelayTimeProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 

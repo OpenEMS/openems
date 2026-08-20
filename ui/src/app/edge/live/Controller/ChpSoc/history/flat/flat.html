@@ -1,0 +1,3 @@
+<oe-flat-widget button [title]="component.alias" button [link]="'/device/' + edge.id + '/history/' + component.id + '/chpchart'" [icon]="{ name: 'swap-vertical-outline', color: 'normal' }">
+  <oe-flat-widget-line [name]="'EDGE.HISTORY.ACTIVE_DURATION' | translate" [channelAddress]="this.component.id + '/CumulatedActiveTime'" [converter]="TIME_CONVERTER"></oe-flat-widget-line>
+</oe-flat-widget>

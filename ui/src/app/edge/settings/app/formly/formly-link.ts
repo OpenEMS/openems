@@ -47,6 +47,7 @@ export class FormlyLinkComponent
         this.router.navigate([this.urlToNavigate.baseUrl], {
             relativeTo: this.route,
             queryParams: this.urlToNavigate.queryParams,
+            replaceUrl: true,
         });
     }
 

@@ -2,7 +2,7 @@
   <ion-toolbar style="--background: var(--ion-color-toolbar-primary); color: var(--ion-title-color)">
     <ion-title translate class="oe-ci-font-family-bold">GENERAL.STORAGE_SYSTEM</ion-title>
     <ion-buttons slot="end">
-      <oe-help-button key="REDIRECT.COMMON_STORAGE" useDefaultPrefix="false"></oe-help-button>
+      <oe-help-button key="REDIRECT.COMMON_STORAGE"></oe-help-button>
 
       <ion-button (click)="modalCtrl.dismiss()">
         <ion-icon name="close-outline" style="color: var(--ion-title-color)"></ion-icon>
@@ -36,7 +36,7 @@
                             <td style="width: 15%" class="align_right">
                               <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                               @if (formGroup.controls[component.id].value["emergencyReserveController"].hasOwnProperty("isReserveSocEnabled")) {
-                                <ion-toggle tabindex="0" mode="md" [formControlName]="'isReserveSocEnabled'"> </ion-toggle>
+                                <ion-toggle tabindex="0" mode="md" [formControlName]="'isReserveSocEnabled'"></ion-toggle>
                               }
                             </td>
                           </ion-item-divider>
@@ -76,8 +76,8 @@
                             <ion-label>{{"EDGE.INDEX.RETROFITTING.PLANNED_EXPANSION" | translate}}</ion-label>
                           </ion-segment-button>
                         </ion-segment> -->
-                          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE' | translate" [formGroup]="this.formGroup.controls['_meta']" controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"> </oe-modal-line>
-                          <oe-modal-line [innerHtml]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING' | translate"> </oe-modal-line>
+                          <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE' | translate" [formGroup]="this.formGroup.controls['_meta']" controlName="isEssChargeFromGridAllowed" [control]="{ type: 'TOGGLE' }" leftColumnWidth="100"></oe-modal-line>
+                          <oe-modal-line [innerHtml]="'EDGE.INDEX.WIDGETS.STORAGE.GRID_CHARGE_WARNING' | translate"></oe-modal-line>
                           <oe-modal-horizontal-line></oe-modal-horizontal-line>
                           <!-- Date picker -->
                           @if (prepareBatteryExtensionController["targetTimeSpecified"] === "true") {
@@ -121,7 +121,7 @@
                         <ion-item-divider color="light">
                           <td style="width: 90%" translate>EDGE.INDEX.RETROFITTING.OPTIMAL</td>
                           <td style="width: 15%" class="align_right">
-                            <ion-toggle mode="md" formControlName="isRunning"> </ion-toggle>
+                            <ion-toggle mode="md" formControlName="isRunning"></ion-toggle>
                           </td>
                         </ion-item-divider>
                       </tr>
@@ -247,7 +247,7 @@
               </ng-container>
             }
             <!-- ESS SoH Cycle Controller Section -->
-            <soh-cycle-section [component]="component" [formGroup]="formGroup" [spinnerId]="spinnerId" [edge]="edge"> </soh-cycle-section>
+            <soh-cycle-section [component]="component" [formGroup]="formGroup" [spinnerId]="spinnerId" [edge]="edge"></soh-cycle-section>
           </ion-card-content>
         }
       }
@@ -357,10 +357,10 @@
                         <ion-grid class="ion-padding-top">
                           <ion-row class="ion-justify-content-center ion-align-items-center">
                             <ion-col size="2" class="ion-text-center">
-                              <ion-icon padding-right color="primary" size="large" name="alert-outline"> </ion-icon>
+                              <ion-icon padding-right color="primary" size="large" name="alert-outline"></ion-icon>
                             </ion-col>
                             <ion-col size="10">
-                              <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small> </ion-note>
+                              <ion-note class="ion-text-wrap"><small translate>EDGE.INDEX.WIDGETS.PHASES_INFO</small></ion-note>
                             </ion-col>
                           </ion-row>
                         </ion-grid>
@@ -591,7 +591,7 @@
                           <td style="width: 15%" class="align_right">
                             <!-- Sets the emergencyEnabled temporarily, to show the slider without changing config  -->
                             @if (formGroup.controls[component.id].value["emergencyReserveController"].hasOwnProperty("isReserveSocEnabled")) {
-                              <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'"> </ion-toggle>
+                              <ion-toggle mode="md" [formControlName]="'isReserveSocEnabled'"></ion-toggle>
                             }
                           </td>
                         </ion-item-divider>
@@ -631,7 +631,7 @@
                         <ion-item-divider color="light">
                           <td style="width: 90%" translate>EDGE.INDEX.RETROFITTING.OPTIMAL</td>
                           <td style="width: 15%" class="align_right">
-                            <ion-toggle mode="md" formControlName="isRunning"> </ion-toggle>
+                            <ion-toggle mode="md" formControlName="isRunning"></ion-toggle>
                           </td>
                         </ion-item-divider>
                       </tr>
@@ -748,7 +748,7 @@
   @if (formGroup?.dirty) {
     <ion-fab class="ion-padding-bottom" vertical="bottom" horizontal="center" slot="fixed">
       <ion-fab-button (click)="applyChanges()">
-        <ion-icon size="large" name="oe-checkmark"> </ion-icon>
+        <ion-icon size="large" name="oe-checkmark"></ion-icon>
       </ion-fab-button>
     </ion-fab>
   }

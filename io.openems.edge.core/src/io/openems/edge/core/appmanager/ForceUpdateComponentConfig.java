@@ -10,6 +10,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError;
@@ -18,11 +19,13 @@ import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
+import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.ServiceUtils;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.Dependency;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.appmanager.jsonrpc.UpdateAppInstance;
 
 public class ForceUpdateComponentConfig implements Runnable {
@@ -90,8 +93,8 @@ public class ForceUpdateComponentConfig implements Runnable {
 		}
 	}
 
-	private static void checkConfigForceUpdate(ComponentManager componentManager, ComponentDef component,
-			User systemUser) {
+	@VisibleForTesting
+	static void checkConfigForceUpdate(ComponentManager componentManager, ComponentDef component, User systemUser) {
 		var edgeConfigComponent = componentManager.getEdgeConfig().getComponent(component.id());
 
 		if (edgeConfigComponent.isPresent()
@@ -99,46 +102,55 @@ public class ForceUpdateComponentConfig implements Runnable {
 			return;
 		}
 
-		List<UpdateComponentConfigRequest.Property> properties = new ArrayList<>();
-
-		if (component.config().forceUpdateOrCreate()) {
-
-			properties = new ArrayList<>(component.properties().values().stream().map(prop -> {
-				return new UpdateComponentConfigRequest.Property(prop.name(), prop.value());
-			}) //
-					.toList());
-
-			if (edgeConfigComponent.isEmpty()) {
-				// Component doesn't exist, so it will be created
-				properties.addAll(List.of(//
-						new UpdateComponentConfigRequest.Property("id", component.id()), //
-						new UpdateComponentConfigRequest.Property("alias", component.alias())));
-				sendCreateComponentRequest(null, component.id(), component.factoryId(), properties, componentManager);
-				return;
-			}
-
-		} else if (edgeConfigComponent.isPresent()) {
-			properties = component.properties().values().stream() //
-					.flatMap(property -> {
-						if (property.forceUpdate()) {
-							return Stream
-									.of(new UpdateComponentConfigRequest.Property(property.name(), property.value()));
-						}
-						return edgeConfigComponent.flatMap(edgeComponent -> edgeComponent.getProperty(property.name())) //
-								.map(prop -> new UpdateComponentConfigRequest.Property(//
-										property.name(), prop)) //
-								.stream();
-					}) //
-					.toList();
+		if (!hasAnyForceUpdateProperty(component)) {
+			return;
 		}
 
-		var isSameConfig = edgeConfigComponent //
-				.filter(value -> ComponentUtilImpl.isSameConfiguration(null, component, value)) //
+		if (component.config().forceUpdateOrCreate() && edgeConfigComponent.isEmpty()) {
+			final var props = mapToUpdateProperties(component.properties().values(), component.id(), component.alias());
+			sendCreateComponentRequest(systemUser, component.id(), component.factoryId(), props, componentManager);
+			return;
+		}
+
+		final var properties = new ArrayList<ComponentProperties.Property>();
+
+		if (component.config().forceUpdateOrCreate()) {
+			properties.addAll(component.properties().values());
+		} else if (edgeConfigComponent.isPresent()) {
+			properties.addAll(component.properties().values().stream() //
+					.filter(ComponentProperties.Property::forceUpdate) //
+					.toList());
+		}
+
+		final var isSameConfig = edgeConfigComponent //
+				.filter(value -> ComponentUtilImpl.isSameConfigurationWithoutAlias(null,
+						component.withProperties(new ComponentProperties(properties)), value)) //
 				.isPresent();
 
 		if (!isSameConfig) {
-			sendUpdateComponentConfigRequest(systemUser, component.id(), properties, componentManager);
+			final var props = mapToUpdateProperties(properties, component.id(),
+					edgeConfigComponent.map(EdgeConfig.Component::getAlias) //
+							.orElse(component.alias()));
+			sendUpdateComponentConfigRequest(systemUser, component.id(), props, componentManager);
 		}
+	}
+
+	private static List<UpdateComponentConfigRequest.Property> mapToUpdateProperties(//
+			List<ComponentProperties.Property> properties, //
+			String componentId, //
+			String defaultAlias //
+	) {
+		return Stream.concat(//
+				Stream.of(new UpdateComponentConfigRequest.Property("id", componentId),
+						new UpdateComponentConfigRequest.Property("alias", defaultAlias)), //
+				properties.stream() //
+						.map(prop -> new UpdateComponentConfigRequest.Property(prop.name(), prop.value())) //
+		).toList();
+	}
+
+	private static boolean hasAnyForceUpdateProperty(ComponentDef component) {
+		return component.config().forceUpdateOrCreate()
+				|| component.properties().values().stream().anyMatch(ComponentProperties.Property::forceUpdate);
 	}
 
 	private static void checkDependencyPropertyForceUpdate(AppManagerImpl appManagerImpl, AppManagerUtil appManagerUtil,
