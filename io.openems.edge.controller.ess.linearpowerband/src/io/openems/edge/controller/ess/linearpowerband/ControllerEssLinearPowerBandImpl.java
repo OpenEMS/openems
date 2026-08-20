@@ -1,8 +1,8 @@
 package io.openems.edge.controller.ess.linearpowerband;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
 import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
-import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;

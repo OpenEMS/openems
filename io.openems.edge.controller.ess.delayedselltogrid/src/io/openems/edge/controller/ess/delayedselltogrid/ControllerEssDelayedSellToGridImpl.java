@@ -28,7 +28,7 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-@GenerateTargetsFromReferences({"ess","meter"})
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerEssDelayedSellToGridImpl extends AbstractOpenemsComponent
 		implements ControllerEssDelayedSellToGrid, Controller, OpenemsComponent {
 
