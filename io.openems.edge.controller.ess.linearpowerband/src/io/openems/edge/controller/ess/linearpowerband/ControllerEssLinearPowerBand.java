@@ -10,7 +10,7 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssLinearPowerBand extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
 		TARGET_POWER(Doc.of(OpenemsType.INTEGER)) //
 		;
