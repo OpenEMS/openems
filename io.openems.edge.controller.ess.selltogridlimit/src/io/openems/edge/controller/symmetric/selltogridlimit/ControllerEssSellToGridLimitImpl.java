@@ -1,20 +1,21 @@
 package io.openems.edge.controller.symmetric.selltogridlimit;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
@@ -27,18 +28,18 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerEssSellToGridLimitImpl extends AbstractOpenemsComponent
 		implements ControllerEssSellToGridLimit, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssSellToGridLimitImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	private ElectricityMeter meter;
 
 	private Config config = null;
@@ -54,16 +55,6 @@ public class ControllerEssSellToGridLimitImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
 	}
 
 	@Override
