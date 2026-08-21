@@ -6,12 +6,15 @@ import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
+import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.test.AbstractComponentTest;
 import io.openems.edge.common.test.ComponentTest;
 import io.openems.edge.ess.api.SymmetricEss;
 import org.junit.Test;
 import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SaxPowerEssGridMeterImplTest {
@@ -86,5 +89,11 @@ public class SaxPowerEssGridMeterImplTest {
         assertEquals("L:1500 W", log);
 
         sut.deactivate();
+    }
+
+    @Test
+    public void testChannelIdDoc() {
+        Doc doc = SaxPowerEssGridMeter.ChannelId.TEST_DUMMY.doc();
+        assertNotNull(doc);
     }
 }
