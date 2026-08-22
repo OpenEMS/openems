@@ -168,7 +168,7 @@
 			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.4.0</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
 			<!--
@@ -178,7 +178,7 @@
 			-->
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp-jvm</artifactId>
-			<version>5.4.0</version>
+			<version>5.5.0</version>
 		</dependency>
 		<dependency>
 			<!--
