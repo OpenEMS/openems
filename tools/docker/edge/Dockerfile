@@ -1,4 +1,4 @@
-ARG JAVA_VERSION=21
+ARG JAVA_VERSION=25
 
 ### Build edge binary
 FROM --platform=$BUILDPLATFORM eclipse-temurin:${JAVA_VERSION}-alpine AS build_edge

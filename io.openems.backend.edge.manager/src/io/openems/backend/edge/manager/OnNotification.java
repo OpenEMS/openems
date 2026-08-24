@@ -201,7 +201,7 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 
 		final var timedataManager = this.timedataManager.get();
 		if (timedataManager != null) {
-			// TODO java 21 switch case with type
+			// TODO java 25 switch case with type
 			if (message instanceof TimestampedDataNotification timestampNotification) {
 				edgeCache.updateCurrentData(timestampNotification);
 				timedataManager.write(edgeId, timestampNotification);

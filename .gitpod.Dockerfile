@@ -1,7 +1,7 @@
 FROM gitpod/workspace-postgres
 
 RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh \
-             && sdk install java 21.0.2-tem"
+             && sdk install java 25.0.1-tem"
 
 # disable angular analytics
 ENV NG_CLI_ANALYTICS=false
