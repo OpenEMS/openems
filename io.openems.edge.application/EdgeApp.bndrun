@@ -142,6 +142,7 @@
 	bnd.identity;id='io.openems.edge.evcs.spelsberg',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.next',\
 	bnd.identity;id='io.openems.edge.evcs.webasto.unite',\
+	bnd.identity;id='io.openems.edge.evse.chargepoint.alfen',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.alpitronic',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.bender',\
 	bnd.identity;id='io.openems.edge.evse.chargepoint.hardybarth',\
@@ -352,6 +353,7 @@
 	io.openems.edge.evcs.webasto.next;version=snapshot,\
 	io.openems.edge.evcs.webasto.unite;version=snapshot,\
 	io.openems.edge.evse.api;version=snapshot,\
+	io.openems.edge.evse.chargepoint.alfen;version=snapshot,\
 	io.openems.edge.evse.chargepoint.alpitronic;version=snapshot,\
 	io.openems.edge.evse.chargepoint.bender;version=snapshot,\
 	io.openems.edge.evse.chargepoint.hardybarth;version=snapshot,\
