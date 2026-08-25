@@ -15,7 +15,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.battery.api.Battery;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
@@ -54,7 +54,8 @@ import io.openems.edge.victron.ess.VictronEss;
 		name = "Victron.Battery", //
 		immediate = true, //
 		configurationPolicy = REQUIRE //
-) //
+)
+@GenerateTargetsFromReferences({ "Modbus", "ess" })
 public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 		implements Battery, VictronBattery, ModbusComponent, OpenemsComponent, ModbusSlave {
 
@@ -62,9 +63,6 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	public static final int BATTERY_VOLTAGE = 48;
 
 	private int minSocPercentage;
-
-	@Reference
-	protected ConfigurationAdmin cm;
 
 	private final Logger log = LoggerFactory.getLogger(VictronBatteryInverterImpl.class);
 
@@ -81,12 +79,16 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	}
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	@Reference(//
+			policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private volatile VictronEss ess;
 
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = MULTIPLE, target = "(&(enabled=true)(isReserveSocEnabled=true))")
@@ -100,12 +102,7 @@ public class VictronBatteryImpl extends AbstractOpenemsModbusComponent
 	@Activate
 	protected void activate(ComponentContext context, Config config) throws OpenemsNamedException {
 		this.config = config;
-
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID, this.cm, "Modbus",
-				config.modbus_id())
-				|| OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), DEFAULT_UNIT_ID);
 
 		if (this.ess != null) {
 			this.ess.setBattery(this);
