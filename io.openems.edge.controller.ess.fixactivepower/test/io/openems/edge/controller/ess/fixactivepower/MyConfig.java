@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.fixactivepower;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 import io.openems.edge.controller.ess.fixactivepower.enums.HybridEssMode;
 import io.openems.edge.controller.ess.fixactivepower.enums.Mode;
@@ -129,11 +128,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String ess_id() {
 		return this.builder.essId;
-	}
-
-	@Override
-	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
 	}
 
 	@Override
