@@ -147,10 +147,8 @@ public class EvseAlfenImplTest {
 						.withRegisters(1210, setCurrent) // SET_CURRENT
 						.withRegisters(1212, activeLoadBalancingSafeCurrent) // ACTIVE_LOAD_BALANCING_SAFE_CURRENT
 						// MODBUS_SLAVE_RECEIVED_SETPOINT_ACCOUNTED_FOR (true)
-						.withRegisters(1214, new int[] { 0x0001 }).withRegisters(1215, new int[] { 0x0003 }) // SET_PHASES
-																												// (3
-																												// phases)
-				) //
+						// SET_PHASES (3 phases)
+						.withRegisters(1214, new int[] { 0x0001 }).withRegisters(1215, new int[] { 0x0003 })) //
 				.activate(MyConfig.create() //
 						.setId(COMPONENT_ID) //
 						.setModbusId(MODBUS_ID) //
