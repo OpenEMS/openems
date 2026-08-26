@@ -13,6 +13,7 @@ import static io.openems.edge.controller.evse.single.Mode.ZERO;
 import static io.openems.edge.controller.evse.single.PhaseSwitching.DISABLE;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,6 +38,7 @@ import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.PhaseSwitching;
 import io.openems.edge.controller.evse.single.Types.History;
 import io.openems.edge.energy.api.handler.DifferentModes.Modes.JointModes;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
 import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
@@ -49,7 +51,7 @@ class RunUtilsTest {
 
 			// Add History with high value to tick Utils::applyChangeLimit.
 			final var history = new History();
-			history.addEntry(Instant.now(clock), null, 22000 /* [W] */, false);
+			history.addEntry(Instant.now(clock), null, 22000 /* [W] */, null, false);
 			clock.leap(500, ChronoUnit.MILLIS);
 
 			return new CalculateTester(clock, IntStream.range(0, count) //
@@ -126,6 +128,10 @@ class RunUtilsTest {
 
 		protected static record PowerDistributionTester(PowerDistribution powerDistribution) {
 			protected static record EntryTester(PowerDistribution.Entry entry) {
+				protected int getSetPointInWatt() {
+					return this.entry.setPointInWatt;
+				}
+
 				protected int getApplySetPointInMilliAmpere() {
 					return ((ApplySetPoint.Action.MilliAmpere) this.entry.actions.build().applySetPoint()).value();
 				}
@@ -136,6 +142,16 @@ class RunUtilsTest {
 
 				protected int getApplySetPointInWatt() {
 					return ((ApplySetPoint.Action.Watt) this.entry.actions.build().applySetPoint()).value();
+				}
+
+				protected Integer getPvLimitInWatt() {
+					return this.entry.actions.build().setPointWithoutPhaseLimitation();
+				}
+
+				protected Long getProbableNextPhaseSwitchEpochSeconds() {
+					return (Long) this.entry.ctrl
+							.channel(ControllerEvseSingle.ChannelId.PROBABLE_NEXT_PHASE_SWITCH_EPOCH_SECONDS)
+							.getNextValue().get();
 				}
 
 				protected PhaseSwitchDirection getPhaseSwitchDirection() {
@@ -164,7 +180,7 @@ class RunUtilsTest {
 	void test1() {
 		var ct = CalculateTester.generateControllers(5); //
 		final var history = new History();
-		history.addEntry(Instant.now(ct.clock), null, 10000 /* [W] */, false);
+		history.addEntry(Instant.now(ct.clock), null, 10000 /* [W] */, null, false);
 		ct.clock.leap(500, ChronoUnit.MILLIS);
 
 		ct //
@@ -189,21 +205,21 @@ class RunUtilsTest {
 
 		// #2 apply ramp on [2]
 
-		history.addEntry(Instant.now(ct.clock), null, 10150 /* [W] */, false);
+		history.addEntry(Instant.now(ct.clock), null, 10150 /* [W] */, null, false);
 		ct.clock.leap(1000, ChronoUnit.MILLIS);
 		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
 		assertArrayEquals(new int[] { 0, 15, 15152, 15458, 0 }, sut.getApplySetPoints());
 
 		// #3 apply ramp on [2]
 
-		history.addEntry(Instant.now(ct.clock), null, 10455 /* [W] */, false);
+		history.addEntry(Instant.now(ct.clock), null, 10455 /* [W] */, null, false);
 		ct.clock.leap(1000, ChronoUnit.MILLIS);
 		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
 		assertArrayEquals(new int[] { 0, 15, 15607, 15458, 0 }, sut.getApplySetPoints());
 
 		// #4 finished ramp on [2]
 
-		history.addEntry(Instant.now(ct.clock), null, 10769 /* [W] */, false);
+		history.addEntry(Instant.now(ct.clock), null, 10769 /* [W] */, null, false);
 		ct.clock.leap(1000, ChronoUnit.MILLIS);
 		sut = ct.execute(DistributionStrategy.EQUAL_POWER);
 		assertArrayEquals(new int[] { 0, 15, 15916, 15458, 0 }, sut.getApplySetPoints());
@@ -324,6 +340,695 @@ class RunUtilsTest {
 	}
 
 	@Test
+	void testAutomaticPhaseSwitchToSingleAtLowSurplus() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1380)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		// Switch happens after enough pvLimit samples are present in the rolling
+		// window.
+		// During the switching cycle the 3p charger keeps charging at 3p-min.
+		assertEquals(4140, sut.get(0).getSetPointInWatt());
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testZeroModeNeverInitiatesPhaseSwitch() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(ZERO) //
+						.setPhaseSwitching(PhaseSwitching.FORCE_THREE_PHASE) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getSetPointInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToSingleKeepsThreePhaseAboveThreePhaseMinimum() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-5000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(5000, sut.get(0).getSetPointInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToThreeAtSinglePhaseMaximum() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		// Switch happens after enough pvLimit samples are present in the rolling
+		// window.
+		assertEquals(7360, sut.get(0).getSetPointInWatt());
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, sut.get(0).getPhaseSwitchDirection());
+		assertNull(sut.get(0).getProbableNextPhaseSwitchEpochSeconds());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToThreeAtSinglePhaseMaximumInMinimumMode() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(7360, sut.get(0).getSetPointInWatt());
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, sut.get(0).getPhaseSwitchDirection());
+		assertNull(sut.get(0).getProbableNextPhaseSwitchEpochSeconds());
+	}
+
+	@Test
+	void testAutomaticMinimumUsesRawSurplusAboveSinglePhaseMinimum() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-3000)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(3000, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(3000), sut.get(0).getPvLimitInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticMinimumUsesSinglePhaseMinimumBelowSinglePhaseMinimum() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1000)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(1380, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(1000), sut.get(0).getPvLimitInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticMinimumKeepsRawPvLimitAndThreePhaseMinimumSetPointBelowThreePhaseMinimum() {
+		final var history = new History();
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-3200)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInMilliAmpere(6000, 16000))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		// pvLimit(3200) is above single-phase minimum, so MINIMUM uses the regular
+		// 90avg path instead of switching immediately. While still in 3p, it keeps the
+		// three-phase minimum setpoint.
+		assertEquals(4140, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(3200), sut.get(0).getPvLimitInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticMinimumSwitchesFromThreePhaseToSinglePhaseWhenRawPvLimitSupportsSinglePhase() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-2000)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+		;
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(4140, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(2000), sut.get(0).getPvLimitInWatt());
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticMinimumThreeToSinglePhaseImmediateSwitchBoundaryAtSinglePhaseMinimum() {
+		var belowSinglePhaseMinimum = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1379)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(4140, belowSinglePhaseMinimum.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(1379), belowSinglePhaseMinimum.get(0).getPvLimitInWatt());
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, belowSinglePhaseMinimum.get(0).getPhaseSwitchDirection());
+
+		final var history = new History();
+		var atSinglePhaseMinimum = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1380)) //
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(4140, atSinglePhaseMinimum.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(1380), atSinglePhaseMinimum.get(0).getPvLimitInWatt());
+		assertNull(atSinglePhaseMinimum.get(0).getPhaseSwitchDirection());
+	}
+
+	/**
+	 * MINIMUM mode must always switch from three-phase to single-phase even when
+	 * there is no PV at all (pvLimit=0). MINIMUM mode is explicitly allowed to draw
+	 * from the grid at minimum power, so no history build-up is needed.
+	 */
+	@Test
+	void testAutomaticMinimumSwitchesFromThreePhaseToSinglePhaseWithoutPv() {
+		// No PV: gridActivePower=0 → pvLimit=0 < singlePhaseMin(1380): immediate switch
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(0)) // no PV
+				.set(0, c -> c //
+						.setMode(MINIMUM) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		// While phase switch is pending (charger still 3p), MINIMUM keeps 3p minimum.
+		assertEquals(4140, sut.get(0).getSetPointInWatt());
+		// Switch to single-phase happens immediately so next cycle delivers
+		// single-phase minimum
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToSingleSkipsSwitchWhenRecentWindowCannotSustainSinglePhase() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(0, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(1000), sut.get(0).getPvLimitInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+		assertNull(sut.get(0).getProbableNextPhaseSwitchEpochSeconds());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToThreeStaysSingleBelowSinglePhaseMaximum() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-3700)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(3700, sut.get(0).getSetPointInWatt());
+		assertNull(sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToThreeSwitchesAtConfiguredThreshold() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-4100)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		// Switch happens after enough pvLimit samples are present in the rolling
+		// window.
+		assertEquals(4100, sut.get(0).getSetPointInWatt());
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchToThreeWithAmpereSetPointAbility() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Ampere(SINGLE_PHASE, 6, 32)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var sut = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(7360, sut.get(0).getSetPointInWatt());
+		assertEquals(32, sut.get(0).getApplySetPointInAmpere());
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, sut.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchCooldownBlocksImmediateReswitch() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var firstSwitch = ct.execute(DistributionStrategy.EQUAL_POWER);
+		appendHistoryEntry(ct, history, firstSwitch, 0);
+		ct.clock.leap(1, ChronoUnit.SECONDS);
+		var second = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, firstSwitch.get(0).getPhaseSwitchDirection());
+		assertNull(second.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchCooldownRespectsCurrentSinglePhaseMaximum() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var firstSwitch = ct.execute(DistributionStrategy.EQUAL_POWER);
+		appendHistoryEntry(ct, history, firstSwitch, 0);
+		ct.clock.leap(1, ChronoUnit.SECONDS);
+		var second = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, firstSwitch.get(0).getPhaseSwitchDirection());
+		assertEquals(7360, second.get(0).getSetPointInWatt());
+		assertNull(second.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchProbableTimestampSetAndNotOverwritten() {
+		final var history = new History();
+		final var presetEpochSeconds = 2_000_000_000L;
+
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000));
+		ct.set(0, c -> c //
+				.setMode(SURPLUS) //
+				.setHistory(history) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setProbableNextPhaseSwitchEpochSeconds(presetEpochSeconds) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 7360) //
+						.setThreePhaseLimitInWatt(4140, 11040)));
+		history.setAutomaticPhaseSwitchCooldown(Instant.now(ct.clock));
+
+		var result = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertNull(result.get(0).getPhaseSwitchDirection());
+		assertEquals(presetEpochSeconds, result.get(0).getProbableNextPhaseSwitchEpochSeconds());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchProbableTimestampResetsWhenOutdated() {
+		final var history = new History();
+
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000));
+		final var outdatedEpochSeconds = Instant.now(ct.clock).minusSeconds(1).getEpochSecond();
+		ct.set(0, c -> c //
+				.setMode(SURPLUS) //
+				.setHistory(history) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setProbableNextPhaseSwitchEpochSeconds(outdatedEpochSeconds) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 7360) //
+						.setThreePhaseLimitInWatt(4140, 11040)));
+		history.setAutomaticPhaseSwitchCooldown(Instant.now(ct.clock));
+
+		var result = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertNull(result.get(0).getPhaseSwitchDirection());
+		assertNull(result.get(0).getProbableNextPhaseSwitchEpochSeconds());
+	}
+
+	@Test
+	void testAutomaticSurplusKeepsRawPvLimitBeforeFinalClamp() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-3200)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setThreePhaseLimitInMilliAmpere(6000, 16000))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(Integer.valueOf(3200), sut.get(0).getPvLimitInWatt());
+	}
+
+	@Test
+	void testSurplusBelowThreePhaseMinimumSetsSetpointZeroAndKeepsPvLimit() {
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-3200)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setThreePhaseLimitInMilliAmpere(6000, 16000))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		// Automatic SURPLUS with pvLimit(3200) above single-phase min but below 3p-min:
+		// charger keeps charging at 3p-min until phase switch is possible.
+		assertEquals(4140, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(3200), sut.get(0).getPvLimitInWatt());
+	}
+
+	@Test
+	void testSurplusBelowSinglePhaseMinimumKeepChargingMaintainsMinSetPoint() {
+		// pvLimit(1000W) < 1p-min(1380W), KEEP_CHARGING active (default history has
+		// isReadyForCharging=false).
+		// KEEP_CHARGING overrides the zero-clamp when already in single-phase mode;
+		// setPointWithoutPhaseLimitation is preserved
+		// for the phase-switch evaluation and must not be affected.
+		var sut = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(SINGLE_PHASE, 6000, 32000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE) //
+								.setIsReadyForCharging(true)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInMilliAmpere(6000, 32000) //
+								.setThreePhaseLimitInMilliAmpere(6000, 16000))) //
+				.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(1380, sut.get(0).getSetPointInWatt());
+		assertEquals(Integer.valueOf(1000), sut.get(0).getPvLimitInWatt());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchCooldownDoesNotUseRelaxedThreeToSingleMinimum() {
+		final var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-1380)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setHistory(history) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(THREE_PHASE, 6000, 16000)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var firstSwitch = ct.execute(DistributionStrategy.EQUAL_POWER);
+		appendHistoryEntry(ct, history, firstSwitch, 0);
+		ct.clock.leap(1, ChronoUnit.SECONDS);
+		var second = ct.execute(DistributionStrategy.EQUAL_POWER);
+
+		assertEquals(4140, firstSwitch.get(0).getSetPointInWatt());
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, firstSwitch.get(0).getPhaseSwitchDirection());
+		// During cooldown: 3p charger keeps charging at 3p-min, no phase switch.
+		assertEquals(4140, second.get(0).getSetPointInWatt());
+		assertNull(second.get(0).getPhaseSwitchDirection());
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchFullUseCase() {
+		var history = new History();
+		var ct = CalculateTester.generateControllers(1) //
+				.sum(s -> s //
+						.withGridActivePower(-8000)) //
+				.set(0, c -> c //
+						.setMode(SURPLUS) //
+						.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+						.setHistory(history) //
+						.setChargePointAbilities(cp -> cp //
+								.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+								.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+						.setElectricVehicleAbilities(ev -> ev //
+								.setCanInterrupt(true) //
+								.setSinglePhaseLimitInWatt(1380, 7360) //
+								.setThreePhaseLimitInWatt(4140, 11040)));
+
+		executeAutomaticPhaseSwitchWarmup(ct, history, 0);
+		var firstSwitch = ct.execute(DistributionStrategy.EQUAL_POWER);
+		appendHistoryEntry(ct, history, firstSwitch, 0);
+		assertEquals(PhaseSwitchDirection.TO_THREE_PHASE, firstSwitch.get(0).getPhaseSwitchDirection());
+
+		ct.set(0, c -> c //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setHistory(history) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 4140, 11040)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_SINGLE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 7360) //
+						.setThreePhaseLimitInWatt(4140, 11040)));
+
+		// no switch -> still three phase (8kW)
+		var exec = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertTrue(exec.get(0).getSetPointInWatt() >= 4140); // stays within 3p operating range
+		assertEquals(8000, exec.get(0).getPvLimitInWatt());
+		appendHistoryEntry(ct, history, exec, 0);
+
+		// pv drops to 2000
+		ct.sum(s -> s //
+				.withGridActivePower(-2000)); //
+		exec = ct.execute(DistributionStrategy.EQUAL_POWER);
+		// pvLimit(2000) > singlePhaseMin(1380): 3p charger keeps charging at 3p-min.
+		assertTrue(exec.get(0).getSetPointInWatt() >= 4140);
+		assertEquals(2000, exec.get(0).getPvLimitInWatt());
+		appendHistoryEntry(ct, history, exec, 0);
+
+		// Keep sampling below threshold. During cooldown no switch is allowed.
+		for (int i = 0; i < 299; i++) {
+			exec = ct.execute(DistributionStrategy.EQUAL_POWER);
+			assertNull(exec.get(0).getPhaseSwitchDirection());
+			appendHistoryEntry(ct, history, exec, 0);
+			ct.clock.leap(1, ChronoUnit.SECONDS);
+		}
+
+		// Cooldown elapsed and enough samples are present -> switch back to single
+		// phase.
+		ct.clock.leap(1, ChronoUnit.SECONDS);
+		exec = ct.execute(DistributionStrategy.EQUAL_POWER);
+		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, exec.get(0).getPhaseSwitchDirection());
+	}
+
+	private static void executeAutomaticPhaseSwitchWarmup(CalculateTester ct, History history, int index) {
+		IntStream.range(0, 59).forEach(i -> {
+			var warmup = ct.execute(DistributionStrategy.EQUAL_POWER);
+			assertNull(warmup.get(index).getPhaseSwitchDirection());
+			appendHistoryEntry(ct, history, warmup, index);
+			ct.clock.leap(1, ChronoUnit.SECONDS);
+		});
+	}
+
+	private static void appendHistoryEntry(CalculateTester ct, History history,
+			CalculateTester.PowerDistributionTester result, int index) {
+		history.addEntry(Instant.now(ct.clock), 1_000, result.get(index).getSetPointInWatt(),
+				result.get(index).getPvLimitInWatt(), true);
+	}
+
+	@Test
 	void test7() {
 		final var history = new History();
 		var sut = CalculateTester.generateControllers(5) //
@@ -394,11 +1099,107 @@ class RunUtilsTest {
 	}
 
 	@Test
+	void testAutomaticPhaseSwitchDistributionUsesOppositePhaseMaximum() {
+		final var automaticCtrl = TestUtils.createSingleCtrl() //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 7360)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 7360) //
+						.setThreePhaseLimitInWatt(4140, 11040)) //
+				.build();
+		final var minimumCtrl = TestUtils.createSingleCtrl() //
+				.setMode(MINIMUM) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(THREE_PHASE, 4140, 11040))) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setSinglePhaseLimitInWatt(1380, 7360) //
+						.setThreePhaseLimitInWatt(4140, 11040)) //
+				.build();
+
+		var automaticEntry = new PowerDistribution.Entry(null, automaticCtrl, automaticCtrl.getParams());
+		var minimumEntry = new PowerDistribution.Entry(null, minimumCtrl, minimumCtrl.getParams());
+		minimumEntry.setPointInWatt = 4140;
+
+		var powerDistribution = new PowerDistribution(ImmutableList.of(automaticEntry, minimumEntry));
+		RunUtils.distributeSurplusRemainingPower(powerDistribution, DistributionStrategy.EQUAL_POWER, 20_000);
+
+		assertEquals(11040,
+				automaticCtrl.getParams().combinedAbilities().phaseSwitch().oppositePhaseApplySetPoint().max());
+		assertEquals(11040, automaticEntry.setPointInWatt);
+		assertEquals(11040, minimumEntry.setPointInWatt);
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchDistributionSkipsGapBetweenPhaseRanges() {
+		final var automaticCtrl = TestUtils.createSingleCtrl() //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 3680) //
+						.setThreePhaseLimitInWatt(4140, 11040)) //
+				.build();
+
+		var automaticEntry = new PowerDistribution.Entry(null, automaticCtrl, automaticCtrl.getParams());
+
+		RunUtils.distributePowerEqual(List.of(automaticEntry), 3900);
+
+		assertEquals(3680, automaticEntry.setPointInWatt);
+	}
+
+	@Test
+	void testAutomaticPhaseSwitchDistributionWithTwoAutomaticEntriesAndOppositePhaseAbility() {
+		final var automaticCtrl0 = TestUtils.createSingleCtrl() //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 3680) //
+						.setThreePhaseLimitInWatt(4140, 11040)) //
+				.build();
+
+		final var automaticCtrl1 = TestUtils.createSingleCtrl() //
+				.setMode(SURPLUS) //
+				.setPhaseSwitching(PhaseSwitching.AUTOMATIC) //
+				.setChargePointAbilities(cp -> cp //
+						.setApplySetPoint(new ApplySetPoint.Ability.Watt(SINGLE_PHASE, 1380, 3680)) //
+						.setPhaseSwitchManual(PhaseSwitchDirection.TO_THREE_PHASE)) //
+				.setElectricVehicleAbilities(ev -> ev //
+						.setCanInterrupt(true) //
+						.setSinglePhaseLimitInWatt(1380, 3680) //
+						.setThreePhaseLimitInWatt(4140, 11040)) //
+				.build();
+
+		var automaticEntry0 = new PowerDistribution.Entry(null, automaticCtrl0, automaticCtrl0.getParams());
+		var automaticEntry1 = new PowerDistribution.Entry(null, automaticCtrl1, automaticCtrl1.getParams());
+
+		assertNotNull(automaticCtrl0.getParams().combinedAbilities().phaseSwitch().oppositePhaseApplySetPoint());
+		assertNotNull(automaticCtrl1.getParams().combinedAbilities().phaseSwitch().oppositePhaseApplySetPoint());
+
+		RunUtils.distributePowerEqual(List.of(automaticEntry0, automaticEntry1), 7800);
+
+		// Equal share is 3900 W, but this lies in the 1p->3p gap (3680..4139), so both
+		// stay on current phase maximum.
+		assertEquals(3680, automaticEntry0.setPointInWatt);
+		assertEquals(3680, automaticEntry1.setPointInWatt);
+	}
+
+	@Test
 	void testApplyChangeLimitWithHistory() {
 		final var clock = createDummyClock();
 		final var history = new History();
 		var setPointInWatt = 10_000; // 10kW
-		history.addEntry(Instant.now(clock), null, setPointInWatt, true);
+		history.addEntry(Instant.now(clock), null, setPointInWatt, null, true);
 
 		clock.leap(1, ChronoUnit.SECONDS);
 
@@ -438,22 +1239,34 @@ class RunUtilsTest {
 		assertEquals(minSetPoint, entry.setPointInWatt);
 	}
 
+	@Test
+	void testResolveAutomaticPhaseSwitchTargetPhaseMinPowerInWattFallsBackWhenPhaseSwitchAbilityIsNull()
+			throws Exception {
+		var method = RunUtils.class.getDeclaredMethod("resolveAutomaticPhaseSwitchTargetPhaseMinPowerInWatt",
+				ApplyPhaseSwitch.class, PhaseSwitchDirection.class);
+		method.setAccessible(true);
+
+		assertEquals(ApplySetPoint.MIN_POWER_SINGLE_PHASE,
+				method.invoke(null, null, PhaseSwitchDirection.TO_SINGLE_PHASE));
+		assertEquals(ApplySetPoint.MIN_POWER_THREE_PHASE,
+				method.invoke(null, null, PhaseSwitchDirection.TO_THREE_PHASE));
+	}
+
 	/**
 	 * test verifies that the first entry with same set point as the last one is
 	 * returned.
 	 */
 	@Test
 	void testFindFirstEntryWithSameSetPoint_1() {
-		// GIVEN
 		final var clock = createDummyClock();
 		final var activePower = 123;
 		History history = new History();
 		var firstNow = Instant.now(clock);
-		history.addEntry(firstNow, activePower, 6, true);
+		history.addEntry(firstNow, activePower, 6, null, true);
 		addEntriesToTheHistory(clock, history, 10, 6, activePower);
 		clock.leap(1, ChronoUnit.SECONDS);
 		var lastNow = Instant.now(clock);
-		history.addEntry(lastNow, activePower, 6, true);
+		history.addEntry(lastNow, activePower, 6, null, true);
 		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
 		// THEN
@@ -466,16 +1279,15 @@ class RunUtilsTest {
 	 */
 	@Test
 	void testFindFirstEntryWithSameSetPoint_2() {
-		// GIVEN
 		final var activePower = 123;
 		final var clock = createDummyClock();
 		History history = new History();
 		var firstNow = Instant.now(clock);
-		history.addEntry(firstNow, activePower, 6, true);
+		history.addEntry(firstNow, activePower, 6, null, true);
 		addEntriesToTheHistory(clock, history, 10, 6, activePower);
 		clock.leap(1, ChronoUnit.SECONDS);
 		var lastNow = Instant.now(clock);
-		history.addEntry(lastNow, activePower, 7, true);
+		history.addEntry(lastNow, activePower, 7, null, true);
 		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
 		// THEN
@@ -488,12 +1300,11 @@ class RunUtilsTest {
 	 */
 	@Test
 	void testFindFirstEntryWithSameSetPoint_3() {
-		// GIVEN
 		final var activePower = 123;
 		final var clock = createDummyClock();
 		History history = new History();
 		var firstNow = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
-		history.addEntry(firstNow, null, 6, true);
+		history.addEntry(firstNow, null, 6, null, true);
 		addEntriesToTheHistory(clock, history, 10, 6, activePower);
 		addEntriesToTheHistory(clock, history, 10, 7, activePower);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
@@ -552,7 +1363,7 @@ class RunUtilsTest {
 		History history = new History();
 		addEntriesToTheHistory(clock, history, 300, 6, nullActivePower);
 		clock.leap(1, ChronoUnit.SECONDS);
-		history.addEntry(Instant.now(clock), activePower, 6, isReadyForCharging);
+		history.addEntry(Instant.now(clock), activePower, 6, null, isReadyForCharging);
 		var now = this.addEntryToTheHistoryAfterOneSecond(clock, history, 6, activePower);
 		// WHEN
 		var firstEntryWithSameSetPoint = findFirstEntryWithSameSetPoint(history);
@@ -564,7 +1375,7 @@ class RunUtilsTest {
 			Integer activePower) {
 		clock.leap(1, ChronoUnit.SECONDS);
 		var now = Instant.now(clock);
-		history.addEntry(now, activePower, setPoint, true);
+		history.addEntry(now, activePower, setPoint, null, true);
 		return now;
 	}
 
@@ -572,7 +1383,7 @@ class RunUtilsTest {
 			int setPointInWatt, Integer activePower) {
 		for (int cycle = 0; cycle < amountOfEntries; cycle++) {
 			clock.leap(1, ChronoUnit.SECONDS);
-			history.addEntry(Instant.now(clock), activePower, setPointInWatt, true);
+			history.addEntry(Instant.now(clock), activePower, setPointInWatt, null, true);
 		}
 	}
 }

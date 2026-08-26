@@ -512,7 +512,27 @@ export namespace DummyConfig {
                 invert: false,
                 modbusUnitId: 5,
                 type: "PRODUCTION",
-                writeChannels: ["Ess0SetActivePowerEquals"],
+                writeChannels: [
+                    "Ess0SetActivePowerEquals",
+                    "Ess0SetActivePowerGreaterOrEquals",
+                    "Ess0SetActivePowerLessOrEquals",
+                    "Ess0SetReactivePowerEquals",
+                    "Ess0SetReactivePowerGreaterOrEquals",
+                    "Ess0SetReactivePowerLessOrEquals",
+                ],
+            },
+            channels: {},
+        });
+
+        export const EMPPTY_MODBUS_TCP_READWRITE = (id: string, alias?: string): Component => ({
+            id: id,
+            alias: alias ?? id,
+            factory: Factory.MODBUS_TCP_READWRITE,
+            properties: {
+                invert: false,
+                modbusUnitId: 5,
+                type: "PRODUCTION",
+                writeChannels: [],
             },
             channels: {},
         });

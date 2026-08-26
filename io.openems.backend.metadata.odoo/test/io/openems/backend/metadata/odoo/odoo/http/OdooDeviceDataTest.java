@@ -1,23 +1,24 @@
 package io.openems.backend.metadata.odoo.odoo.http;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 
-public class OdooDeviceDataTest {
+class OdooDeviceDataTest {
 
 	@Test
-	public void testSerializationCommentFalse() throws OpenemsError.OpenemsNamedException {
+	void testSerializationCommentFalse() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -42,7 +43,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationCommentString() throws OpenemsError.OpenemsNamedException {
+	void testSerializationCommentString() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -67,7 +68,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationLevelFalse() throws OpenemsError.OpenemsNamedException {
+	void testSerializationLevelFalse() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -92,7 +93,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationLevelString() throws OpenemsError.OpenemsNamedException {
+	void testSerializationLevelString() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -117,7 +118,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationLastMessageFalse() throws OpenemsError.OpenemsNamedException {
+	void testSerializationLastMessageFalse() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -143,7 +144,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationLastMessageString() throws OpenemsError.OpenemsNamedException {
+	void testSerializationLastMessageString() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -169,7 +170,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationProductTypeFalse() throws Exception {
+	void testSerializationProductTypeFalse() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -194,7 +195,7 @@ public class OdooDeviceDataTest {
 	}
 
 	@Test
-	public void testSerializationProductTypeString() throws Exception {
+	void testSerializationProductTypeString() throws Exception {
 		final var deviceData = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
@@ -218,18 +219,56 @@ public class OdooDeviceDataTest {
 		), deviceData);
 	}
 
-	@Test(expected = OpenemsException.class)
-	public void testSerializationProductTypeError() throws Exception {
-		OdooDeviceData.serializer().deserialize("""
+	@Test
+	void testSerializationProductTypeError() {
+		assertThrows(OpenemsException.class, () -> {
+			OdooDeviceData.serializer().deserialize("""
+					        {
+					            "id": 1,
+					            "name": "edge0",
+					            "comment": "edge0 - Very Great Edge",
+					            "producttype": 123,
+					            "role": "guest",
+					            "openems_sum_state_level": "ok"
+					        }
+					""".stripIndent());
+		});
+	}
+
+	@Test
+	void testParseInvalidSettings() {
+		assertThrows(OpenemsException.class, () -> {
+			OdooDeviceData.serializer().deserialize("""
+					        {
+					            "id": 1,
+					            "name": "edge0",
+					            "comment": "edge0 - Very Great Edge",
+					            "producttype": "home",
+					            "role": "guest",
+					            "openems_sum_state_level": "ok",
+					            "settings": ""
+					        }
+					""".stripIndent());
+		});
+	}
+
+	@Test
+	void testParseSettings() throws Exception {
+		var settings = OdooDeviceData.serializer().deserialize("""
 				        {
 				            "id": 1,
 				            "name": "edge0",
 				            "comment": "edge0 - Very Great Edge",
-				            "producttype": 123,
+				            "producttype": "home",
 				            "role": "guest",
-				            "openems_sum_state_level": "ok"
+				            "openems_sum_state_level": "ok",
+				            "settings": {"annualReview": ""}
 				        }
-				""".stripIndent());
+				""".stripIndent()).settings();
+
+		assertEquals(JsonUtils.buildJsonObject() //
+				.addProperty("annualReview", "") //
+				.build(), settings);
 	}
 
 }

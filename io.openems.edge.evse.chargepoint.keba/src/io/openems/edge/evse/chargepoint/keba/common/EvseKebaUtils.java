@@ -2,6 +2,7 @@ package io.openems.edge.evse.chargepoint.keba.common;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.MIN_CURRENT;
 
 import java.time.Duration;
@@ -148,14 +149,30 @@ public class EvseKebaUtils {
 		case UNDEFINED, UNPLUGGED, PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED -> false;
 		case PLUGGED_EV_NOT_LOCKED, PLUGGED_AND_LOCKED -> true;
 		};
+		final var phaseSwitchDirection = this.getPhaseSwitchAbility(config);
 
 		return ChargePointAbilities.create() //
 				// TODO apply actual hardware limit from protocol and/or config
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxSupportedCurrent)) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
-				.setPhaseSwitchManual(this.getPhaseSwitchAbility(config)) //
+				.setPhaseSwitchManual(phaseSwitchDirection,
+						getOppositePhaseApplySetPointAbility(phaseSwitchDirection, maxSupportedCurrent)) //
 				.build();
+	}
+
+	private static ApplySetPoint.Ability.Watt getOppositePhaseApplySetPointAbility(
+			PhaseSwitchDirection phaseSwitchDirection, int maxSupportedCurrent) {
+		if (phaseSwitchDirection == null) {
+			return null;
+		}
+		final var oppositePhase = switch (phaseSwitchDirection) {
+		case TO_THREE_PHASE -> THREE_PHASE;
+		case TO_SINGLE_PHASE -> SINGLE_PHASE;
+		};
+		return new ApplySetPoint.Ability.Watt(oppositePhase,
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, MIN_CURRENT),
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, maxSupportedCurrent));
 	}
 
 	private PhaseSwitchDirection getPhaseSwitchAbility(CommonConfig config) {
