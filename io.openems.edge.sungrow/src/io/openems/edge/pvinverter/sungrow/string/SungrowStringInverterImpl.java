@@ -1,7 +1,6 @@
 package io.openems.edge.pvinverter.sungrow.string;
 
 import org.osgi.service.cm.ConfigurationAdmin;
-
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -17,6 +16,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
@@ -33,10 +33,9 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC6WriteRegisterTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.common.event.EdgeEventConstants;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.pvinverter.api.ManagedSymmetricPvInverter;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -133,8 +132,7 @@ public class SungrowStringInverterImpl extends AbstractOpenemsModbusComponent im
 	}
 
 	@Override
-	protected ModbusProtocol defineModbusProtocol() throws OpenemsException {
-
+	protected ModbusProtocol defineModbusProtocol() {
 		return new ModbusProtocol(this, new FC4ReadInputRegistersTask(4989, Priority.HIGH,
 
 				m(SungrowStringInverter.ChannelId.SERIAL_NUMBER, new StringWordElement(4989, 10)),

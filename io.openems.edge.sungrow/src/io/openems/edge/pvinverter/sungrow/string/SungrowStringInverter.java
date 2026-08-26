@@ -1,7 +1,6 @@
 package io.openems.edge.pvinverter.sungrow.string;
 
 import io.openems.common.channel.AccessMode;
-
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
@@ -27,28 +26,19 @@ public interface SungrowStringInverter extends OpenemsComponent {
 				.persistencePriority(PersistencePriority.VERY_LOW)),
 		APPARENT_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT_AMPERE).accessMode(AccessMode.READ_ONLY)
 				.persistencePriority(PersistencePriority.MEDIUM)),
-		DC_VOLTAGE_1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		DC_CURRENT_1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		DC_VOLTAGE_2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		DC_CURRENT_2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		DC_VOLTAGE_3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		DC_CURRENT_3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
+		DC_VOLTAGE_1(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
+		DC_CURRENT_1(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
+		DC_VOLTAGE_2(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
+		DC_CURRENT_2(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
+		DC_VOLTAGE_3(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
+		DC_CURRENT_3(Doc.of(OpenemsType.INTEGER).unit(Unit.MILLIAMPERE).accessMode(AccessMode.READ_ONLY)),
 		DC_POWER(Doc.of(OpenemsType.INTEGER).unit(Unit.WATT).accessMode(AccessMode.READ_ONLY)
 				.persistencePriority(PersistencePriority.HIGH)),
-		POWER_FACTOR(Doc.of(OpenemsType.INTEGER).unit(Unit.THOUSANDTH).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
-		WORK_STATE(Doc.of(WorkState.values()).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
+		POWER_FACTOR(Doc.of(OpenemsType.INTEGER).unit(Unit.THOUSANDTH).accessMode(AccessMode.READ_ONLY)),
+		WORK_STATE(Doc.of(WorkState.values()).accessMode(AccessMode.READ_ONLY)),
 		NEGATIVE_VOLTAGE_TO_THE_GROUND(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)
 				.persistencePriority(PersistencePriority.VERY_LOW)),
-		BUS_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)
-				.persistencePriority(PersistencePriority.LOW)),
+		BUS_VOLTAGE(Doc.of(OpenemsType.INTEGER).unit(Unit.VOLT).accessMode(AccessMode.READ_ONLY)),
 		DEVICE_TYPE(Doc.of(OpenemsType.STRING).accessMode(AccessMode.READ_ONLY)
 				.persistencePriority(PersistencePriority.VERY_LOW)),
 
