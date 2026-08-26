@@ -14,8 +14,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private PhaseRotation phaseRotation = PhaseRotation.L1_L2_L3;
 		private SingleOrThreePhase wiring = SingleOrThreePhase.THREE_PHASE;
 		private int modbusUnitId = 1;
-		private int minCurrent = 6000;
-		private int maxCurrent = 32000;
 
 		private Builder() {
 		}
@@ -47,16 +45,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
-			return this;
-		}
-
-		public Builder setMinCurrent(int minCurrent) {
-			this.minCurrent = minCurrent;
-			return this;
-		}
-
-		public Builder setMaxCurrent(int maxCurrent) {
-			this.maxCurrent = maxCurrent;
 			return this;
 		}
 
@@ -104,15 +92,5 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public int modbusUnitId() {
 		return this.builder.modbusUnitId;
-	}
-
-	@Override
-	public int minCurrent() {
-		return this.builder.minCurrent;
-	}
-
-	@Override
-	public int maxCurrent() {
-		return this.builder.maxCurrent;
 	}
 }

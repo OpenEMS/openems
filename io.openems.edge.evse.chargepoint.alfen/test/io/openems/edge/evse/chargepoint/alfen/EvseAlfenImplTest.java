@@ -57,26 +57,26 @@ public class EvseAlfenImplTest {
 						// METER_LAST_VALUE_TIMESTAMP (1000ms)
 						.withRegisters(301, new int[] { 0x0000, 0x0000, 0x0000, 0x03E8 })
 						.withRegisters(305, new int[] { 0x0002 }) // METER_TYPE
-						.withRegistersFloat32(306, 230.5f /* V */) // VOLTAGE_L1_RAW
-						.withRegistersFloat32(308, 231.2f /* V */) // VOLTAGE_L2_RAW
-						.withRegistersFloat32(310, 229.8f /* V */) // VOLTAGE_L3_RAW
+						.withRegistersFloat32(306, 230.5f /* V */) // VOLTAGE_L1
+						.withRegistersFloat32(308, 231.2f /* V */) // VOLTAGE_L2
+						.withRegistersFloat32(310, 229.8f /* V */) // VOLTAGE_L3
 						.withRegistersFloat32(312, 399.5f /* V */) // VOLTAGE_L1_L2
 						.withRegistersFloat32(314, 400.1f /* V */) // VOLTAGE_L2_L3
 						.withRegistersFloat32(316, 398.8f /* V */) // VOLTAGE_L3_L1
 						.withRegistersFloat32(318, 0.5f /* A */) // CURRENT_N
-						.withRegistersFloat32(320, 10.5f /* A (will be scaled to mA) */) // CURRENT_L1_RAW
-						.withRegistersFloat32(322, 10.3f) // CURRENT_L2_RAW
-						.withRegistersFloat32(324, 10.7f) // CURRENT_L3_RAW
-						.withRegistersFloat32(326, 31.5f) // CURRENT_SUM
+						.withRegistersFloat32(320, 10.5f /* A (will be scaled to mA) */) // CURRENT_L1
+						.withRegistersFloat32(322, 10.3f) // CURRENT_L2
+						.withRegistersFloat32(324, 10.7f) // CURRENT_L3
+						.withRegistersFloat32(326, 31.5f) // CURRENT
 						.withRegistersFloat32(328, 0.98f) // POWER_FACTOR_L1
 						.withRegistersFloat32(330, 0.97f) // POWER_FACTOR_L2
 						.withRegistersFloat32(332, 0.99f) // POWER_FACTOR_L3
 						.withRegistersFloat32(334, 0.98f) // POWER_FACTOR_SUM
-						.withRegistersFloat32(336, 50.01f /* Hz */) // Frequency
-						.withRegistersFloat32(338, 2300.0f /* W */) // CHARGE_POWER_L1
-						.withRegistersFloat32(340, 2280.0f /* W */) // CHARGE_POWER_L2
-						.withRegistersFloat32(342, 2320.0f /* W */) // CHARGE_POWER_L3
-						.withRegistersFloat32(344, 6900.0f /* W */) // CHARGE_POWER (total)
+						.withRegistersFloat32(336, 50.01f /* Hz */) // FREQUENCY
+						.withRegistersFloat32(338, 2300.0f /* W */) // ACTIVE_POWER_L1
+						.withRegistersFloat32(340, 2280.0f /* W */) // ACTIVE_POWER_L2
+						.withRegistersFloat32(342, 2320.0f /* W */) // ACTIVE_POWER_L3
+						.withRegistersFloat32(344, 6900.0f /* W */) // ACTIVE_POWER
 						.withRegistersFloat32(346, 2350.0f) // APPARENT_POWER_L1
 						.withRegistersFloat32(348, 2330.0f) // APPARENT_POWER_L2
 						.withRegistersFloat32(350, 2370.0f) // APPARENT_POWER_L3
@@ -84,18 +84,18 @@ public class EvseAlfenImplTest {
 						.withRegistersFloat32(354, 170.0f) // REACTIVE_POWER_L1
 						.withRegistersFloat32(356, 160.0f) // REACTIVE_POWER_L2
 						.withRegistersFloat32(358, 170.0f) // REACTIVE_POWER_L3
-						.withRegistersFloat32(360, 500.0f /* var */) // REACTIVE_POWER_SUM
+						.withRegistersFloat32(360, 500.0f /* var */) // REACTIVE_POWER
 						// Energy registers (362-425) - FloatQuadrupleword (4 registers each)
-						// ENERGY_DELIVERED_L1 (~20000 Wh)
+						// ACTIVE_PRODUCTION_ENERGY_L1 (~20000 Wh)
 						.withRegisters(362, new int[] { 0x40D3, 0x8800, 0x0000, 0x0000 })
-						.withRegisters(366, new int[] { 0x40D3, 0x8800, 0x0000, 0x0000 }) // ENERGY_DELIVERED_L2
-						.withRegisters(370, new int[] { 0x40D3, 0x8800, 0x0000, 0x0000 }) // ENERGY_DELIVERED_L3
-						// ENERGY_DELIVERED_SUM (~60000 Wh)
+						.withRegisters(366, new int[] { 0x40D3, 0x8800, 0x0000, 0x0000 }) // ..._L2
+						.withRegisters(370, new int[] { 0x40D3, 0x8800, 0x0000, 0x0000 }) // ..._L3
+						// ACTIVE_PRODUCTION_ENERGY (~60000 Wh)
 						.withRegisters(374, new int[] { 0x40ED, 0x4C00, 0x0000, 0x0000 })
-						.withRegisters(378, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ENERGY_CONSUMED_L1
-						.withRegisters(382, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ENERGY_CONSUMED_L2
-						.withRegisters(386, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ENERGY_CONSUMED_L3
-						.withRegisters(390, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ENERGY_CONSUMED_SUM
+						.withRegisters(378, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ACTIVE_CONS._ENERGY_L1
+						.withRegisters(382, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ACTIVE_CONS._ENERGY_L2
+						.withRegisters(386, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ACTIVE_CONS._ENERGY_L3
+						.withRegisters(390, new int[] { 0x0000, 0x0000, 0x0000, 0x0000 }) // ACTIVE_CONSUMPTION_ENERGY
 						.withRegisters(394, new int[] { 0x40D4, 0x0000, 0x0000, 0x0000 }) // APPARENT_ENERGY_L1
 						.withRegisters(398, new int[] { 0x40D4, 0x0000, 0x0000, 0x0000 }) // APPARENT_ENERGY_L2
 						.withRegisters(402, new int[] { 0x40D4, 0x0000, 0x0000, 0x0000 }) // APPARENT_ENERGY_L3
@@ -124,8 +124,6 @@ public class EvseAlfenImplTest {
 						case READ_ONLY -> false;
 						case READ_WRITE -> true;
 						}) //
-						.setMinCurrent(6000) //
-						.setMaxCurrent(32000) //
 						.build());
 	}
 
@@ -140,20 +138,24 @@ public class EvseAlfenImplTest {
 						.output(EvseAlfen.ChannelId.METER_TYPE, 2) //
 						.output(EvseAlfen.ChannelId.AVAILABILITY, true))
 
-				.next(new TestCase(
-						"Verify voltage values (raw floats converted to mV in listeners): 230.5V -> 230500 mV") //
+				.next(new TestCase("Verify voltage values (raw floats in V, scaled to mV): 230.5V -> 230500 mV") //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L1, 230500) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L2, 231200) //
 						.output(ElectricityMeter.ChannelId.VOLTAGE_L3, 229800))
 
-				.next(new TestCase("Verify current values (raw floats in A, scaled by 1000 to mA): 10.5A -> 10500 mA") //
+				.next(new TestCase("Verify current values (raw floats in A, scaled to mA): 10.5A -> 10500 mA") //
 						.output(ElectricityMeter.ChannelId.CURRENT_L1, 10500) //
 						.output(ElectricityMeter.ChannelId.CURRENT_L2, 10300) //
-						.output(ElectricityMeter.ChannelId.CURRENT_L3, 10700)) //
+						.output(ElectricityMeter.ChannelId.CURRENT_L3, 10700) //
+						.output(ElectricityMeter.ChannelId.CURRENT, 31500)) //
 
-				.next(new TestCase("Verify power values") //
-						.output(EvseAlfen.ChannelId.CHARGE_POWER, 6900.0f) //
-						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 6900))
+				.next(new TestCase("Verify power values are mapped directly to ElectricityMeter") //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L1, 2300) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L2, 2280) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER_L3, 2320) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_POWER, 6900) //
+						.output(ElectricityMeter.ChannelId.REACTIVE_POWER, 500) //
+						.output(ElectricityMeter.ChannelId.FREQUENCY, 50010))
 
 				.deactivate();
 	}
@@ -167,6 +169,7 @@ public class EvseAlfenImplTest {
 		test //
 				.next(new TestCase(), 20) //
 				.next(new TestCase("Initial state: 'C2' = Charging") //
+						.output(EvseAlfen.ChannelId.MODE_3_STATE, Mode3State.C2) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true))
 
 				.next(new TestCase("Change to 'A' = Not connected") //
@@ -175,18 +178,53 @@ public class EvseAlfenImplTest {
 						)) //
 				.next(new TestCase(), 10) //
 				.next(new TestCase() //
+						.output(EvseAlfen.ChannelId.MODE_3_STATE, Mode3State.A) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, false))
 
-				.next(new TestCase("Change to 'B1' = Connected, not ready") //
+				.next(new TestCase("Change to 'B1' = Connected, charging not allowed") //
 						.onBeforeProcessImage(() -> bridge //
 								.withRegisters(1201, new int[] { 0x4231, 0x0000, 0x0000, 0x0000, 0x0000 }) // "B1"
 						))
 
 				.next(new TestCase(), 10) //
 				.next(new TestCase() //
+						.output(EvseAlfen.ChannelId.MODE_3_STATE, Mode3State.B1) //
 						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, true))
 
+				.next(new TestCase("Change to 'F' = Error") //
+						.onBeforeProcessImage(() -> bridge //
+								.withRegisters(1201, new int[] { 0x4600, 0x0000, 0x0000, 0x0000, 0x0000 }) // "F"
+						))
+
+				.next(new TestCase(), 10) //
+				.next(new TestCase() //
+						.output(EvseAlfen.ChannelId.MODE_3_STATE, Mode3State.F) //
+						.output(EvseChargePoint.ChannelId.IS_READY_FOR_CHARGING, false))
+
 				.deactivate();
+	}
+
+	@Test
+	public void testIsEvConnected() throws Exception {
+		final var sut = new EvseAlfenImpl();
+		final var test = prepareAlfenTest(sut, AccessMode.READ_ONLY) //
+				.next(new TestCase(), 20);
+		final var bridge = (DummyModbusBridge) sut.getBridgeModbus();
+
+		assertTrue(sut.getChargePointAbilities().isEvConnected(), "'C2' means an EV is connected");
+
+		test.next(new TestCase().onBeforeProcessImage(() -> bridge //
+				.withRegisters(1201, new int[] { 0x4100, 0x0000, 0x0000, 0x0000, 0x0000 }))); // "A"
+		test.next(new TestCase(), 10);
+		assertFalse(sut.getChargePointAbilities().isEvConnected(), "'A' means no EV is connected");
+
+		test.next(new TestCase().onBeforeProcessImage(() -> bridge //
+				.withRegisters(1201, new int[] { 0x4531, 0x0000, 0x0000, 0x0000, 0x0000 }))); // "E1" -> unknown
+		test.next(new TestCase(), 10);
+		assertEquals(Mode3State.UNDEFINED, sut.getMode3State(), "Unknown states must not be guessed");
+		assertFalse(sut.getChargePointAbilities().isEvConnected());
+
+		test.deactivate();
 	}
 
 	@Test
@@ -243,33 +281,6 @@ public class EvseAlfenImplTest {
 	}
 
 	@Test
-	public void testPhaseDetection() throws Exception {
-		final var sut = new EvseAlfenImpl();
-		final var test = prepareAlfenTest(sut, AccessMode.READ_ONLY);
-		final var bridge = (DummyModbusBridge) sut.getBridgeModbus();
-
-		// Initial state: all phases have current > 400mA -> THREE_PHASE
-		test.next(new TestCase(), 20);
-
-		var abilities = sut.getChargePointAbilities();
-		assertTrue(abilities.applySetPoint().max() > 0, "Should detect three-phase charging with valid max current");
-
-		test.next(new TestCase("Change to single-phase (only L1 has current)") //
-				.onBeforeProcessImage(() -> bridge //
-						.withRegistersFloat32(320, 10.5f) // CURRENT_L1_RAW: 10.5A
-						.withRegistersFloat32(322, 0.1f) // CURRENT_L2_RAW: 0.1A (below threshold)
-						.withRegistersFloat32(324, 0.1f) // CURRENT_L3_RAW: 0.1A (below threshold)
-				)) //
-				.next(new TestCase(), 15);
-
-		// The phase detection should now show single-phase
-		abilities = sut.getChargePointAbilities();
-		assertTrue(abilities.applySetPoint().max() > 0, "Should still have setpoint ability with valid max current");
-
-		test.deactivate();
-	}
-
-	@Test
 	public void testPhaseSwitchAbility() throws Exception {
 		final var sut = new EvseAlfenImpl();
 		final var test = prepareAlfenTest(sut, AccessMode.READ_ONLY);
@@ -279,6 +290,7 @@ public class EvseAlfenImplTest {
 		test.next(new TestCase(), 20);
 		var abilities = sut.getChargePointAbilities();
 		assertEquals(THREE_PHASE, abilities.applySetPoint().phase());
+		assertEquals(EvseAlfenImpl.MAX_CURRENT, abilities.applySetPoint().max());
 		assertEquals(PhaseSwitchDirection.TO_SINGLE_PHASE, abilities.phaseSwitch().direction());
 
 		// Register 1215 reads "1" -> single-phase, even while no current flows
@@ -318,19 +330,17 @@ public class EvseAlfenImplTest {
 
 	@Test
 	public void testEnergyValues() throws Exception {
-		final var sut = new EvseAlfenImpl();
-		final var test = prepareAlfenTest(sut, AccessMode.READ_ONLY) //
-				.next(new TestCase(), 20);
+		prepareAlfenTest(new EvseAlfenImpl(), AccessMode.READ_ONLY) //
+				.next(new TestCase(), 20) //
 
-		// Verify energy values are mapped correctly
-		// The ENERGY_DELIVERED_SUM should be mapped to ACTIVE_PRODUCTION_ENERGY
-		// Check the float value is approximately 60000 Wh
-		var energyChannel = sut.channel(EvseAlfen.ChannelId.ENERGY_DELIVERED_SUM);
-		var energyObj = energyChannel.value().get();
-		float energyValue = energyObj != null ? (Float) energyObj : 0.0f;
-		assertTrue(energyValue > 59000.0f && energyValue < 61000.0f, "Energy should be approximately 60000 Wh");
+				// "Energy delivered" (register 374, ~60000 Wh) is the energy that was charged
+				// into the EV; "Energy consumed" (register 390) is what the EV fed back
+				.next(new TestCase("Verify energy is mapped to the correct direction") //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, 60000L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, 0L) //
+						.output(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, 20000L)) //
 
-		test.deactivate();
+				.deactivate();
 	}
 
 	@Test
