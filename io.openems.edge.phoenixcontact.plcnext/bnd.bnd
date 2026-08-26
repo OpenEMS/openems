@@ -6,14 +6,14 @@ Bundle-Version: 0.1.0.${tstamp}
 -buildpath: \
 	${buildpath},\
 	io.openems.common,\
+	io.openems.common.bridge.http,\
+	io.openems.edge.bridge.http,\
+	io.openems.edge.bridge.modbus,\
 	io.openems.edge.common,\
-	io.openems.edge.meter.api;version=snapshot,\
-	io.openems.edge.bridge.http;version=snapshot,\
-	io.openems.common.bridge.http;version=snapshot,\
-	io.openems.edge.ess.api;version=snapshot,\
-	io.openems.edge.pvinverter.api;version=snapshot,\
-	io.openems.edge.bridge.modbus;version=snapshot,\
-	io.openems.j2mod
+	io.openems.edge.ess.api,\
+	io.openems.edge.meter.api,\
+	io.openems.edge.pvinverter.api,\
+	io.openems.j2mod,\
 
 -testpath: \
 	${testpath}
