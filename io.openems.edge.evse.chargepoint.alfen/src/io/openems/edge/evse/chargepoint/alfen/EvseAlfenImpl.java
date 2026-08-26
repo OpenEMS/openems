@@ -137,7 +137,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 		final Channel<Integer> volL2 = this.channel(phaseRotation.channelVoltageL2());
 		final Channel<Integer> volL3 = this.channel(phaseRotation.channelVoltageL3());
 
-		this.getChannel(EvseAlfen.ChannelId.CURRENT_L1_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CURRENT_L1_RAW).onUpdate(newValue -> {
 			int current = 0;
 			var rawCurrent = asFloatOrNull(newValue);
 			if (rawCurrent != null) {
@@ -152,7 +152,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 			}
 			curL1.setNextValue(current);
 		});
-		this.getChannel(EvseAlfen.ChannelId.CURRENT_L2_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CURRENT_L2_RAW).onUpdate(newValue -> {
 			int current = 0;
 			var rawCurrent = asFloatOrNull(newValue);
 			if (rawCurrent != null) {
@@ -167,7 +167,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 			}
 			curL2.setNextValue(current);
 		});
-		this.getChannel(EvseAlfen.ChannelId.CURRENT_L3_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CURRENT_L3_RAW).onUpdate(newValue -> {
 			int current = 0;
 			var rawCurrent = asFloatOrNull(newValue);
 			if (rawCurrent != null) {
@@ -183,19 +183,19 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 			curL3.setNextValue(current);
 		});
 
-		this.getChannel(EvseAlfen.ChannelId.VOLTAGE_L1_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.VOLTAGE_L1_RAW).onUpdate(newValue -> {
 			var voltage = asFloatOrNull(newValue);
 			volL1.setNextValue(voltage != null //
 					? Math.round(voltage * 1000) // Convert V to mV
 					: null);
 		});
-		this.getChannel(EvseAlfen.ChannelId.VOLTAGE_L2_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.VOLTAGE_L2_RAW).onUpdate(newValue -> {
 			var voltage = asFloatOrNull(newValue);
 			volL2.setNextValue(voltage != null //
 					? Math.round(voltage * 1000) // Convert V to mV
 					: null);
 		});
-		this.getChannel(EvseAlfen.ChannelId.VOLTAGE_L3_RAW).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.VOLTAGE_L3_RAW).onUpdate(newValue -> {
 			var voltage = asFloatOrNull(newValue);
 			volL3.setNextValue(voltage != null //
 					? Math.round(voltage * 1000) // Convert V to mV
@@ -203,7 +203,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 		});
 
 		// Map charge power to active power
-		this.getChannel(EvseAlfen.ChannelId.CHARGE_POWER).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CHARGE_POWER).onUpdate(newValue -> {
 			var power = asFloatOrNull(newValue);
 			this._setActivePower(power != null ? Math.round(power) : null);
 		});
@@ -211,7 +211,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 		// Map energy delivered to production + consumption energy
 		// "Energy Delivered" in Alfen context = energy delivered to EV = consumption
 		// from grid perspective
-		this.getChannel(EvseAlfen.ChannelId.ENERGY_DELIVERED_SUM).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.ENERGY_DELIVERED_SUM).onUpdate(newValue -> {
 			var rawEnergy = asFloatOrNull(newValue);
 			var energy = rawEnergy != null ? (Long) (long) Math.round(rawEnergy) : null;
 			this._setActiveProductionEnergy(energy);
@@ -219,22 +219,18 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 		});
 
 		// Map per-phase charge power to ElectricityMeter active power channels
-		this.getChannel(EvseAlfen.ChannelId.CHARGE_POWER_L1).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CHARGE_POWER_L1).onUpdate(newValue -> {
 			var power = asFloatOrNull(newValue);
 			this._setActivePowerL1(power != null ? Math.round(power) : null);
 		});
-		this.getChannel(EvseAlfen.ChannelId.CHARGE_POWER_L2).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CHARGE_POWER_L2).onUpdate(newValue -> {
 			var power = asFloatOrNull(newValue);
 			this._setActivePowerL2(power != null ? Math.round(power) : null);
 		});
-		this.getChannel(EvseAlfen.ChannelId.CHARGE_POWER_L3).onUpdate(newValue -> {
+		this.channel(EvseAlfen.ChannelId.CHARGE_POWER_L3).onUpdate(newValue -> {
 			var power = asFloatOrNull(newValue);
 			this._setActivePowerL3(power != null ? Math.round(power) : null);
 		});
-	}
-
-	private Channel<?> getChannel(EvseAlfen.ChannelId channelId) {
-		return this.channel(channelId);
 	}
 
 	/**
