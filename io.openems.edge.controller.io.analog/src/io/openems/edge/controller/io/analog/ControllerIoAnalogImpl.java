@@ -1,12 +1,14 @@
 package io.openems.edge.controller.io.analog;
 
 import static io.openems.common.utils.IntUtils.fitWithin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -22,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.sum.Sum;
@@ -37,6 +40,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("analogOutput")
 public class ControllerIoAnalogImpl extends AbstractOpenemsComponent
 		implements ControllerIoAnalog, Controller, OpenemsComponent, TimedataProvider {
 
@@ -52,15 +56,13 @@ public class ControllerIoAnalogImpl extends AbstractOpenemsComponent
 			ControllerIoAnalog.ChannelId.CUMULATED_ACTIVE_ENERGY);
 
 	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
 	private Sum sum;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.analogOutput_id})(enabled=true))")
 	private AnalogOutput analogOutput;
 
 	private Instant nextTarget = Instant.MIN;
@@ -85,11 +87,6 @@ public class ControllerIoAnalogImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) {
 		this.config = config;
 		super.activate(context, config.id(), config.alias(), config.enabled());
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "analogOutput",
-				config.analogOutput_id())) {
-			return;
-		}
 	}
 
 	@Modified

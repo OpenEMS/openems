@@ -4,9 +4,8 @@ import static io.openems.common.test.TestUtils.createDummyClock;
 
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
 import io.openems.edge.common.sum.Sum;
@@ -27,7 +26,6 @@ public class MyControllerTest {
 	public void testOff() throws Exception {
 		final var clock = createDummyClock();
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("analogOutput", new DummyAnalogVoltageOutput("analogIo0")) //
@@ -51,7 +49,6 @@ public class MyControllerTest {
 	public void testOn() throws Exception {
 		final var clock = createDummyClock();
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("analogOutput", new DummyAnalogVoltageOutput("analogIo0") //
@@ -72,7 +69,6 @@ public class MyControllerTest {
 				.deactivate();
 
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("analogOutput", new DummyAnalogVoltageOutput("analogIo0") //
@@ -97,7 +93,6 @@ public class MyControllerTest {
 	public void testAutomatic() throws Exception {
 		final var clock = createDummyClock();
 		new ControllerTest(new ControllerIoAnalogImpl(clock)) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("sum", new DummySum()) //
 				.addReference("timedata", new DummyTimedata("timedata0")) //
 				.addReference("analogOutput", new DummyAnalogVoltageOutput("analogIo0")) //
