@@ -38,12 +38,6 @@ import io.openems.edge.meter.api.PhaseRotation;
 	@AttributeDefinition(name = "Wiring", description = "Is the charge point wired with one or three phases?")
 	SingleOrThreePhase wiring() default SingleOrThreePhase.THREE_PHASE;
 
-	@AttributeDefinition(name = "Minimum current", description = "Minimum charging current in mA.", required = true)
-	int minCurrent() default 6000;
-
-	@AttributeDefinition(name = "Maximum current", description = "Maximum charging current in mA.", required = true)
-	int maxCurrent() default 32000;
-
 	String webconsole_configurationFactory_nameHint() default "EVSE Charge-Point Alfen [{id}]";
 
 }

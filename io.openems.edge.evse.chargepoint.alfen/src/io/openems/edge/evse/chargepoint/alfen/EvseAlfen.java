@@ -10,8 +10,10 @@ import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.FloatWriteChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -20,6 +22,11 @@ import io.openems.edge.timedata.api.TimedataProvider;
 /**
  * Interface for the Alfen NG9xx charging station (Eve Single S-line, Eve Single
  * Pro-line, Eve Double Pro-line).
+ *
+ * <p>
+ * Values that have a matching {@link ElectricityMeter} Channel - voltages,
+ * currents, frequency, active power and energy - are mapped directly to that
+ * Channel and are therefore intentionally missing here.
  */
 public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsComponent, TimedataProvider {
 
@@ -35,30 +42,6 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 		METER_TYPE(Doc.of(INTEGER)//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Meter type")), //
-		VOLTAGE_L1_RAW(Doc.of(FLOAT)//
-				.unit(Unit.VOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Voltage Phase L1 (raw)")), //
-		VOLTAGE_L2_RAW(Doc.of(FLOAT)//
-				.unit(Unit.VOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Voltage Phase L2 (raw)")), //
-		VOLTAGE_L3_RAW(Doc.of(FLOAT)//
-				.unit(Unit.VOLT)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Voltage Phase L3 (raw)")), //
-		CURRENT_L1_RAW(Doc.of(FLOAT)//
-				.unit(Unit.MILLIAMPERE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Current as metered on Input Phase L1")), //
-		CURRENT_L2_RAW(Doc.of(FLOAT)//
-				.unit(Unit.MILLIAMPERE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Current as metered on Input Phase L2")), //
-		CURRENT_L3_RAW(Doc.of(FLOAT)//
-				.unit(Unit.MILLIAMPERE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Current as metered on Input Phase L3")), //
 		CURRENT_N(Doc.of(FLOAT)//
 				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.LOW)//
@@ -79,30 +62,6 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 				.unit(Unit.NONE)//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Power factor sum")), //
-		CHARGE_POWER_L1(Doc.of(FLOAT)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Charge Power L1")), //
-		CHARGE_POWER_L2(Doc.of(FLOAT)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Charge Power L2")), //
-		CHARGE_POWER_L3(Doc.of(FLOAT)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Charge Power L3")), //
-		CHARGE_POWER(Doc.of(FLOAT)//
-				.unit(Unit.WATT)//
-				.persistencePriority(PersistencePriority.HIGH)//
-				.text("Charge Power Total")), //
-		APPARENT_POWER_SUM(Doc.of(FLOAT)//
-				.unit(Unit.VOLT_AMPERE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Apparent Power sum")), //
-		REACTIVE_POWER_SUM(Doc.of(FLOAT)//
-				.unit(Unit.VOLT_AMPERE_REACTIVE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Reactive Power sum")), //
 		// Line-to-line voltages from PDF register map section 3.4
 		VOLTAGE_L1_L2(Doc.of(FLOAT)//
 				.unit(Unit.VOLT)//
@@ -116,11 +75,6 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 				.unit(Unit.VOLT)//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Voltage Phase L3-L1")), //
-		// Current sum from PDF register 326-327
-		CURRENT_SUM(Doc.of(FLOAT)//
-				.unit(Unit.AMPERE)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Current Sum")), //
 		// Apparent power per phase from PDF register 346-351
 		APPARENT_POWER_L1(Doc.of(FLOAT)//
 				.unit(Unit.VOLT_AMPERE)//
@@ -134,42 +88,10 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 				.unit(Unit.VOLT_AMPERE)//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Apparent Power L3")), //
-		// Note: Reactive Power L1/L2/L3 are mapped directly to ElectricityMeter
-		// channels
-		// Energy delivered per phase from PDF register 362-373
-		ENERGY_DELIVERED_L1(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
+		APPARENT_POWER_SUM(Doc.of(FLOAT)//
+				.unit(Unit.VOLT_AMPERE)//
 				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy delivered L1")), //
-		ENERGY_DELIVERED_L2(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy delivered L2")), //
-		ENERGY_DELIVERED_L3(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy delivered L3")), //
-		ENERGY_DELIVERED_SUM(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy delivered sum")), //
-		// Energy consumed per phase + sum from PDF register 378-393
-		ENERGY_CONSUMED_L1(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy consumed L1")), //
-		ENERGY_CONSUMED_L2(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy consumed L2")), //
-		ENERGY_CONSUMED_L3(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy consumed L3")), //
-		ENERGY_CONSUMED_SUM(Doc.of(FLOAT)//
-				.unit(Unit.WATT_HOURS)//
-				.persistencePriority(PersistencePriority.LOW)//
-				.text("Real energy consumed sum")), //
+				.text("Apparent Power sum")), //
 		// Apparent energy per phase + sum from PDF register 394-409
 		APPARENT_ENERGY_L1(Doc.of(FLOAT)//
 				.unit(Unit.VOLT_AMPERE_HOURS)//
@@ -207,13 +129,11 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 		AVAILABILITY(Doc.of(OpenemsType.BOOLEAN)//
 				.persistencePriority(PersistencePriority.MEDIUM)//
 				.text("Availability")), //
-		/**
-		 * See Modbus specification for details on the Mode 3 state.
-		 */
-		MODE_3_STATE(Doc.of(OpenemsType.STRING)//
+		MODE_3_STATE(Doc.of(Mode3State.values())//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Mode 3 state")), //
 		ACTUAL_APPLIED_MAX_CURRENT(Doc.of(FLOAT)//
+				.unit(Unit.AMPERE)//
 				.persistencePriority(PersistencePriority.LOW)//
 				.text("Actual applied max current")), //
 		MODBUS_SLAVE_MAX_CURRENT_VALID_TIME(Doc.of(INTEGER)//
@@ -261,6 +181,24 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 	}
 
 	/**
+	 * Gets the Channel for {@link ChannelId#MODE_3_STATE}.
+	 *
+	 * @return the Channel
+	 */
+	public default EnumReadChannel getMode3StateChannel() {
+		return this.channel(ChannelId.MODE_3_STATE);
+	}
+
+	/**
+	 * Gets the {@link Mode3State}.
+	 *
+	 * @return the {@link Mode3State}
+	 */
+	public default Mode3State getMode3State() {
+		return this.getMode3StateChannel().value().asEnum();
+	}
+
+	/**
 	 * Gets the Channel for {@link ChannelId#SET_CURRENT}.
 	 *
 	 * @return the Channel
@@ -286,6 +224,16 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 	 */
 	public default IntegerWriteChannel getSetPhasesChannel() {
 		return this.channel(ChannelId.SET_PHASES);
+	}
+
+	/**
+	 * Gets the currently configured phase mode. See
+	 * {@link ChannelId#SET_PHASES}.
+	 *
+	 * @return the Channel {@link Value}; 1 or 3 phases
+	 */
+	public default Value<Integer> getSetPhases() {
+		return this.getSetPhasesChannel().value();
 	}
 
 	/**
