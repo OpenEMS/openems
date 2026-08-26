@@ -2,6 +2,9 @@ package io.openems.edge.controller.evcs;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 import static java.lang.Math.max;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -16,7 +19,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusSlave;
@@ -40,6 +43,7 @@ import io.openems.edge.evcs.api.ManagedEvcs;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("evcs")
 public class ControllerEvcsImpl extends AbstractOpenemsComponent
 		implements Controller, ControllerEvcs, OpenemsComponent, ModbusSlave {
 
@@ -65,7 +69,8 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 	@Reference
 	private Sum sum;
 
-	@Reference(policyOption = ReferencePolicyOption.GREEDY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.evcs_id})(enabled=true))")
 	private ManagedEvcs evcs;
 
 	private Config config;
@@ -98,10 +103,6 @@ public class ControllerEvcsImpl extends AbstractOpenemsComponent
 		}
 
 		this.config = config;
-
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "evcs", config.evcs_id())) {
-			return;
-		}
 
 		this.evcs._setChargeMode(config.chargeMode());
 		this.evcs._setMaximumPower(null);
