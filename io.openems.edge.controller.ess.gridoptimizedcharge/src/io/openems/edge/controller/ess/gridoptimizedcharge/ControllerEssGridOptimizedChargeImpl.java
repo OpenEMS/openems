@@ -4,6 +4,9 @@ import static io.openems.common.utils.IntUtils.minInt;
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.RUN_ENABLED;
 import static io.openems.edge.controller.ess.gridoptimizedcharge.DelayCharge.parseTime;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -31,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -56,6 +60,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences({ "ess", "meter" })
 public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent implements
 		ControllerEssGridOptimizedCharge, Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
 
@@ -108,10 +113,12 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Reference
 	protected PredictorManager predictorManager;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	protected ManagedSymmetricEss ess;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	protected ElectricityMeter meter;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -160,16 +167,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		this.delayCharge = new DelayCharge(this);
 		this.updateMaximumSellToGridPower();
 		this.sellToGridLimit = new SellToGridLimit(this);
-
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
 	}
 
 	@Override

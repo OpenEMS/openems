@@ -1,21 +1,24 @@
 package io.openems.edge.kaco.blueplanet.hybrid10.ess.charger;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -37,19 +40,18 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("core")
 public class KacoBlueplanetHybrid10ChargerImpl extends AbstractOpenemsComponent implements
 		KacoBlueplanetHybrid10Charger, EssDcCharger, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final CalculateEnergyFromPower calculateActualEnergy = new CalculateEnergyFromPower(this,
 			EssDcCharger.ChannelId.ACTUAL_ENERGY);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.core_id})(enabled=true))")
 	private KacoBlueplanetHybrid10Core core;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	public KacoBlueplanetHybrid10ChargerImpl() {
@@ -63,10 +65,6 @@ public class KacoBlueplanetHybrid10ChargerImpl extends AbstractOpenemsComponent 
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "core", config.core_id())) {
-			return;
-		}
 	}
 
 	@Deactivate

@@ -191,10 +191,7 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 						}
 						// Callback: forward actions
 						this.chargePoint.apply(actions);
-						this.history.addEntry(Instant.now(this.componentManager.getClock()),
-								this.chargePoint.getActivePower().get(),
-								actions.abilities().applySetPoint().toPower(actions.applySetPoint().value()),
-								actions.abilities().isReadyForCharging());
+						this.addHistoryEntry(actions);
 					}, //
 					b -> setValue(this, ControllerEvseSingle.ChannelId.PHASE_SWITCH_FAILED, b));
 
@@ -205,6 +202,13 @@ public class ControllerEvseSingleImpl extends AbstractOpenemsComponent
 			this._setRunFailed(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+	}
+
+	void addHistoryEntry(ChargePointActions actions) {
+		final var setPointInWatt = actions.abilities().applySetPoint().toPower(actions.applySetPoint().value());
+		final var setPointWithoutPhaseLimitation = actions.setPointWithoutPhaseLimitation();
+		this.history.addEntry(Instant.now(this.componentManager.getClock()), this.chargePoint.getActivePower().get(),
+				setPointInWatt, setPointWithoutPhaseLimitation, actions.abilities().isReadyForCharging());
 	}
 
 	private State getForceNextState(ChargePointActions input, State state) {

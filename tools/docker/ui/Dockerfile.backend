@@ -1,6 +1,6 @@
 ARG NODE=24
 ARG NPM=11
-ARG VERSION="openems,openems-backend-docker"
+ARG VERSION="openems,openems-backend-docker,prod"
 
 ### Build ui files
 FROM --platform=$BUILDPLATFORM node:${NODE}-alpine AS build_ui

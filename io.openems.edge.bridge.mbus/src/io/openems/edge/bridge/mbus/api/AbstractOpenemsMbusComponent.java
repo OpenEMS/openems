@@ -3,11 +3,9 @@ package io.openems.edge.bridge.mbus.api;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
 import io.openems.edge.common.component.AbstractOpenemsComponent;
-import io.openems.edge.common.component.OpenemsComponent;
 
 public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsComponent {
 
@@ -40,25 +38,11 @@ public abstract class AbstractOpenemsMbusComponent extends AbstractOpenemsCompon
 	 *                       'config.enabled()'
 	 * @param primaryAddress Primary address of the M-Bus device. Typically
 	 *                       'config.primaryAddress'
-	 * @param cm             An instance of ConfigurationAdmin. Receive it
-	 *                       using @Reference
-	 * @param mbusReference  The name of the @Reference setter method for the M-Bus
-	 *                       bridge
-	 * @param mbusId         The ID of the M-Bus bridge. Typically
-	 *                       'config.mbus_id()'
-	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
 	 */
-	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int primaryAddress,
-			ConfigurationAdmin cm, String mbusReference, String mbusId) {
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int primaryAddress) {
 		super.activate(context, id, alias, enabled);
 		this.primaryAddress = primaryAddress;
-
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "mbus", mbusId)) {
-			return true;
-		}
 		this.addChannelDataRecords();
-		return false;
 	}
 
 	/**

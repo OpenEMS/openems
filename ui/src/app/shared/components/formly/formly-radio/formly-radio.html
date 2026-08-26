@@ -1,9 +1,8 @@
-<ion-radio-group [formControl]="formControl" [formlyAttributes]="field" [value]="defaultOption">
+<ion-radio-group [formControl]="formControl" [formlyAttributes]="field">
   @if (to.label || to.description){
     <ion-item class="ion-no-padding" lines="none">
       <ion-label>
         {{ to.label }}
-
         @if (to.description) {
           <p class="ion-padding-left ion-text-secondary">
             {{ to.description }}

@@ -3,11 +3,12 @@ import angularTemplateParser from "@angular-eslint/template-parser";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
 import checkFile from "eslint-plugin-check-file";
-import importPlugin from "eslint-plugin-import";
+import importPlugin from "eslint-plugin-import-x";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import angular from "angular-eslint";
 import { defineConfig } from "eslint/config";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
 
 export default defineConfig([
     {
@@ -49,7 +50,7 @@ export default defineConfig([
             ],
             curly: "error",
             "unused-imports/no-unused-imports": "error",
-            "import/order": [
+            "import-x/order": [
                 "error",
                 {
                     groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
@@ -132,9 +133,9 @@ export default defineConfig([
             "no-undef": "off",
         },
         settings: {
-            "import/resolver": {
-                typescript: {},
-            },
+            "import-x/resolver-next": [
+                createTypeScriptImportResolver({ project: "./tsconfig.json" }),
+            ]
         },
     },
     {
