@@ -2,9 +2,9 @@ package io.openems.edge.phoenixcontact.plcnext.loadcircuit;
 
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -17,7 +17,7 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 	private PlcNextGdsDataToChannelMapperImpl dataMapper;
 	private String instanceName;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() {
 		dataMapper = new PlcNextGdsDataToChannelMapperImpl();
 		instanceName = "LoadCircuit.";
@@ -33,14 +33,14 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		primitiveVariable.addProperty("value", expectedValue);
 
 		// test
-		PlcNextGdsDataMappedValue mappedValue = dataMapper.mapSingleValueToChannel(primitiveVariable, 
-				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		PlcNextGdsDataMappedValue mappedValue = dataMapper.mapSingleValueToChannel(primitiveVariable, instanceName,
+				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
-		Assert.assertNotNull(mappedValue);
+		Assertions.assertNotNull(mappedValue);
 
-		Assert.assertEquals(PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT, mappedValue.getChannelId());
-		Assert.assertEquals(expectedValue, mappedValue.getValue());
+		Assertions.assertEquals(PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT, mappedValue.getChannelId());
+		Assertions.assertEquals(expectedValue, mappedValue.getValue());
 	}
 
 	@Test
@@ -61,16 +61,16 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		apiResponse.add("variables", variables);
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, 
-				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName,
+				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
-		Assert.assertNotNull(mappedValues);
-		Assert.assertEquals(1, mappedValues.size());
+		Assertions.assertNotNull(mappedValues);
+		Assertions.assertEquals(1, mappedValues.size());
 
 		PlcNextGdsDataMappedValue mappedValue = mappedValues.get(0);
-		Assert.assertEquals(PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER, mappedValue.getChannelId());
-		Assert.assertEquals(expectedValue, mappedValue.getValue());
+		Assertions.assertEquals(PlcNextLoadCircuit.ChannelId.MAX_REACTIVE_POWER, mappedValue.getChannelId());
+		Assertions.assertEquals(expectedValue, mappedValue.getValue());
 	}
 
 	@Test
@@ -94,23 +94,23 @@ public class PlcNextGdsLoadCircuitDataToChannelMapperTest {
 		int mappedVariableCount = 2;
 
 		// test
-		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, 
-				instanceName, "jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
+		List<PlcNextGdsDataMappedValue> mappedValues = dataMapper.mapAllValuesToChannels(variables, instanceName,
+				"jUnit", PlcNextLoadCircuitGdsDataReadMappingDefinition.values());
 
 		// check
-		Assert.assertNotNull(mappedValues);
-		Assert.assertEquals(mappedVariableCount, mappedValues.size());
+		Assertions.assertNotNull(mappedValues);
+		Assertions.assertEquals(mappedVariableCount, mappedValues.size());
 
 		PlcNextGdsDataMappedValue maxPowerExport = mappedValues.stream()//
 				.filter(item -> PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_EXPORT == item.getChannelId())//
 				.findFirst().orElse(null);
-		Assert.assertNotNull(maxPowerExport);
-		Assert.assertEquals((Object) expectedValueMaxPowerExport, maxPowerExport.getValue());
+		Assertions.assertNotNull(maxPowerExport);
+		Assertions.assertEquals((Object) expectedValueMaxPowerExport, maxPowerExport.getValue());
 
 		PlcNextGdsDataMappedValue maxPowerImport = mappedValues.stream()//
 				.filter(item -> PlcNextLoadCircuit.ChannelId.MAX_ACTIVE_POWER_IMPORT == item.getChannelId())//
 				.findFirst().orElse(null);
-		Assert.assertNotNull(maxPowerImport);
-		Assert.assertEquals((Object) expectedValueMaxPowerImport, maxPowerImport.getValue());
+		Assertions.assertNotNull(maxPowerImport);
+		Assertions.assertEquals((Object) expectedValueMaxPowerImport, maxPowerImport.getValue());
 	}
 }

@@ -23,7 +23,7 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 			this.meterType = meterType;
 			return this;
 		}
-		
+
 		public Builder setNamespaceVariables(String namespace) {
 			this.namespaceVariables = namespace;
 			return this;
@@ -45,7 +45,6 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 	}
 
 	private final Builder builder;
-	
 
 	private TestConfig(Builder builder) {
 		super(Config.class, builder.id);
@@ -63,7 +62,9 @@ public class TestConfig extends AbstractComponentConfig implements io.openems.ed
 	}
 
 	@Override
-	public String pathAuthApi() { return "/v1.3/auth"; }
+	public String pathAuthApi() {
+		return "/v1.3/auth";
+	}
 
 	@Override
 	public String username() {

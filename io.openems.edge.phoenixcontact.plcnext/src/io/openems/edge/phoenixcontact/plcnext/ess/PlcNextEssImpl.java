@@ -108,7 +108,8 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 	private void applyConfig(Config config) {
 		log.info("StationID '{}': Applying config", config.id());
 		this.config = config;
-		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(), config.password());
+		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(),
+				config.password());
 		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), config.dataInstanceName(),
 				config.id());
 	}
@@ -150,41 +151,42 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
-		
+
 		gdsDataProvider.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
-			.thenApply(apiResponseBody -> {
-				if (Objects.isNull(apiResponseBody)) {
-					apiResponseBody = DEFAULT_RESPONSE;
-				}
-				
-				try {
-					log.info("StationID '{}': Mapping ESS data", this.gdsDataAccessConfig.stationId());
-					List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
-							apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-							gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), 
-							readDataMappingDefinition);
-					
-					if (!mappedValues.isEmpty()) {
-						log.info("StationID '{}': Pushing ESS data to channels", this.gdsDataAccessConfig.stationId());
-						setNextValuesToChannels(mappedValues);
+				.thenApply(apiResponseBody -> {
+					if (Objects.isNull(apiResponseBody)) {
+						apiResponseBody = DEFAULT_RESPONSE;
 					}
-				} catch (PlcNextGdsDataMappingException e) {
-					log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
-				}
-				return null;
-			});
+
+					try {
+						log.info("StationID '{}': Mapping ESS data", this.gdsDataAccessConfig.stationId());
+						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
+								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(),
+								readDataMappingDefinition);
+
+						if (!mappedValues.isEmpty()) {
+							log.info("StationID '{}': Pushing ESS data to channels",
+									this.gdsDataAccessConfig.stationId());
+							setNextValuesToChannels(mappedValues);
+						}
+					} catch (PlcNextGdsDataMappingException e) {
+						log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
+					}
+					return null;
+				});
 	}
 
 	/**
 	 * Writes values fetched from PLCnext GDS to device channels
 	 * 
-	 * @param mappedValues represent value objects containing the channel ID and
-	 * 						the value to set to channel
+	 * @param mappedValues represent value objects containing the channel ID and the
+	 *                     value to set to channel
 	 */
 	void setNextValuesToChannels(List<PlcNextGdsDataMappedValue> mappedValues) {
 		for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
-					mappedValue.getValue(), mappedValue.getChannelId());
+			log.debug("StationID '{}': Providing value '{}' to channel named '{}'",
+					this.gdsDataAccessConfig.stationId(), mappedValue.getValue(), mappedValue.getChannelId());
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 		}
 	}
@@ -202,27 +204,28 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 		try {
 			log.info("StationID '{}': Mapping ESS data", this.gdsDataAccessConfig.stationId());
 			List<JsonElement> mappedData = gdsChannelToGdsDataMapper.mapAllValuesToGdsData(valuesInChannelsToWrite,
-					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(), 
+					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(),
 					PlcNextEssGdsDataWriteMappingDefinition.values());
 
 			log.info("StationID '{}': Pushing ESS data to URL '{}'", gdsDataAccessConfig.stationId(),
 					gdsDataAccessConfig.dataUrl());
 			gdsDataProvider.writeDataToRestApi(mappedData, gdsDataAccessConfig, authConfig) //
-				.thenApply(responseBody -> {
-					log.debug("Result of write operation: {}", responseBody);
-					return null;
-				});
+					.thenApply(responseBody -> {
+						log.debug("Result of write operation: {}", responseBody);
+						return null;
+					});
 		} catch (PlcNextGdsDataMappingException e) {
 			log.error("StationID '{}': Mapping error!", this.gdsDataAccessConfig.stationId(), e);
 		}
 	}
 
 	/**
-	 * Fetches next value from given channel ID to prepare it to be written to PLCnext device.
-	 * The 'next value' needs to be taken to reflect changes of the business logic.
+	 * Fetches next value from given channel ID to prepare it to be written to
+	 * PLCnext device. The 'next value' needs to be taken to reflect changes of the
+	 * business logic.
 	 * 
-	 * @param channelId	represents the channel ID of channel to be read
-	 * @return	mapping object containing the channel ID and the next value
+	 * @param channelId represents the channel ID of channel to be read
+	 * @return mapping object containing the channel ID and the next value
 	 */
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
@@ -230,10 +233,10 @@ public class PlcNextEssImpl extends AbstractOpenemsComponent
 
 		Object channelValue = null;
 		Channel<?> channel = channel(channelId);
-		
+
 		if (channel instanceof WriteChannel<?> writeChannel) {
 			channelValue = writeChannel.getNextWriteValue() //
-					.orElse(null);			
+					.orElse(null);
 		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);
 	}

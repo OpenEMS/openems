@@ -1,12 +1,15 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
 /**
- * Data transfer object joining result of both auth requests
+ * Data transfer object joining result of both auth requests.
  */
+//CHECKSTYLE:OFF
 public final class PlcNextAuthAndAccessTokenDTO {
+	// CHECKSTYLE:ON
 
 	private final String code;
 	private final int expiresIn;
+
 	private String accessToken;
 
 	public PlcNextAuthAndAccessTokenDTO(String code, int expiresIn) {
@@ -32,7 +35,7 @@ public final class PlcNextAuthAndAccessTokenDTO {
 
 	@Override
 	public String toString() {
-		return "PlcNextAuthAndAccessTokenDTO [code=" + code + ", expiresIn=" + expiresIn + ", accessToken="
-				+ accessToken + "]";
+		return "PlcNextAuthAndAccessTokenDTO [code=" + this.code + ", expiresIn=" + this.expiresIn + ", accessToken="
+				+ this.accessToken + "]";
 	}
 }

@@ -90,7 +90,8 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	private void applyConfig(Config config) {
 		log.info("StationID '{}': Applying config", config.id());
 		this.config = config;
-		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(), config.password());
+		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(),
+				config.password());
 		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), config.dataInstanceName(),
 				config.id());
 
@@ -138,13 +139,12 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	 * Triggers fetching and mapping data and pushing to channels
 	 */
 	void processDataOnBeforeProcessImageEvent() {
-		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.stationId(), 
+		log.info("StationID '{}': Reading METER data from URL '{}", gdsDataAccessConfig.stationId(),
 				gdsDataAccessConfig.dataUrl());
 		List<String> variableIdentifiers = Stream.of(this.readDataMappingDefinition)//
 				.map(PlcNextGdsDataMappingDefinition::getIdentifier).toList();
 
-		gdsDataProvider
-				.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
+		gdsDataProvider.readDataFromRestApi(variableIdentifiers, gdsDataAccessConfig, authConfig) //
 				.thenApply(apiResponseBody -> {
 					if (Objects.isNull(apiResponseBody)) {
 						apiResponseBody = DEFAULT_RESPONSE;
@@ -153,10 +153,12 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 						log.info("StationID '{}': Mapping METER data", this.gdsDataAccessConfig.stationId());
 						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), this.readDataMappingDefinition);
-						
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(),
+								this.readDataMappingDefinition);
+
 						if (!mappedValues.isEmpty()) {
-							log.info("StationID '{}': Pushing METER data to channels", this.gdsDataAccessConfig.stationId());
+							log.info("StationID '{}': Pushing METER data to channels",
+									this.gdsDataAccessConfig.stationId());
 							setNextValuesToChannels(mappedValues);
 						}
 					} catch (PlcNextGdsDataMappingException e) {
@@ -169,14 +171,14 @@ public class PlcNextMeterImpl extends AbstractOpenemsComponent
 	/**
 	 * Writes value fetched from PLCnext GDS to device channel
 	 * 
-	 * @param mappedValues represent value objects containing the channel ID and 
-	 * 						the value to set to channel
-	 * @param device      represents the device holding the channels
+	 * @param mappedValues represent value objects containing the channel ID and the
+	 *                     value to set to channel
+	 * @param device       represents the device holding the channels
 	 */
 	void setNextValuesToChannels(List<PlcNextGdsDataMappedValue> mappedValues) {
 		for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
-					mappedValue.getValue(), mappedValue.getChannelId());
+			log.debug("StationID '{}': Providing value '{}' to channel named '{}'",
+					this.gdsDataAccessConfig.stationId(), mappedValue.getValue(), mappedValue.getChannelId());
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 		}
 	}

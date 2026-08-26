@@ -5,7 +5,7 @@ import java.util.Objects;
 import io.openems.edge.common.channel.ChannelId;
 
 /**
- * Containing @link{ChannelId} to single value assignment 
+ * Containing @link{ChannelId} to single value assignment
  */
 public class PlcNextGdsDataMappedValue {
 
@@ -44,8 +44,7 @@ public class PlcNextGdsDataMappedValue {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("PlcNextGdsDataMappedValue [")
-				.append("channelId=").append(channelId).append(", ")
+		return new StringBuilder("PlcNextGdsDataMappedValue [").append("channelId=").append(channelId).append(", ")
 				.append("value=").append(value).append("]").toString();
 	}
 }

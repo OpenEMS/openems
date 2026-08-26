@@ -1,6 +1,6 @@
 package io.openems.edge.phoenixcontact.plcnext.meter;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.google.gson.JsonArray;
@@ -22,7 +22,6 @@ import io.openems.common.bridge.http.api.HttpMethod;
 import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttp;
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpExecutor;
-import io.openems.common.bridge.http.dummy.DummyEndpointFetcher;
 import io.openems.common.bridge.http.time.HttpBridgeTimeServiceImpl;
 import io.openems.common.function.ThrowingRunnable;
 import io.openems.common.types.HttpStatus;
@@ -65,7 +64,7 @@ public class PlcNextMeterImplTest {
 
 	private String accessToken;
 
-	@Before
+	@BeforeEach
 	public void setupBefore() throws Exception {
 		this.myConfig = TestConfig.create() //
 				.setId(COMPONENT_ID) //
@@ -92,8 +91,7 @@ public class PlcNextMeterImplTest {
 		this.mockDummyDataBridgeHttp = Mockito.mock(DummyBridgeHttp.class);
 		when(mockDummyDataBridgeHttp.createService(any()))
 				.thenReturn(new HttpBridgeTimeServiceImpl(mockDummyDataBridgeHttp, //
-						new DummyBridgeHttpExecutor(), new DummyEndpointFetcher()));
-
+						new DummyBridgeHttpExecutor()));
 		this.tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
 
 		this.dataToChannelMapper = new PlcNextGdsDataToChannelMapperImpl();
@@ -102,24 +100,25 @@ public class PlcNextMeterImplTest {
 		this.dataProviderConfig = new PlcNextGdsDataAccessConfig(myConfig.baseUrl(), myConfig.dataInstanceName(),
 				COMPONENT_ID);
 
-		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS);
+		String createSessionEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+				PlcNextGdsDataProvider.PATH_SESSIONS);
 		JsonObject createSessionResponseBody = new JsonObject();
 		createSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		createSessionResponseBody.addProperty("timeout", PlcNextGdsDataProvider.PLC_NEXT_DEFAULT_TIMEOUT_IN_MILLIS);
 		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
 				arg.method() == HttpMethod.POST && //
 				arg.url().startsWith(createSessionEndpointUrl)))) //
-			.thenReturn(CompletableFuture.supplyAsync(
-					() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
+				.thenReturn(CompletableFuture.supplyAsync(
+						() -> new HttpResponse<JsonElement>(HttpStatus.CREATED, Map.of(), createSessionResponseBody)));
 
-		String maintainSessionEndpointUrl = new StringBuilder(
-				PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
+		String maintainSessionEndpointUrl = new StringBuilder(PlcNextUrlStringHelper
+				.buildUrlString(dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_SESSIONS))//
 				.append("/").append(SESSION_ID).toString();
 		JsonObject maintainSessionResponseBody = new JsonObject();
 		maintainSessionResponseBody.addProperty("sessionID", SESSION_ID);
 		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-					arg.method() == HttpMethod.POST && //
-					arg.url().startsWith(maintainSessionEndpointUrl)))) //
+				arg.method() == HttpMethod.POST && //
+				arg.url().startsWith(maintainSessionEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(maintainSessionResponseBody)));
 
 		this.test = new ComponentTest(componentUnderTest) //
@@ -141,42 +140,37 @@ public class PlcNextMeterImplTest {
 		JsonArray variables = new JsonArray();
 
 		JsonObject varPhaseVoltageL1N = new JsonObject();
-		varPhaseVoltageL1N.addProperty("path", myConfig.dataInstanceName()
-				+ "voltageL1N");
+		varPhaseVoltageL1N.addProperty("path", myConfig.dataInstanceName() + "voltageL1N");
 		varPhaseVoltageL1N.addProperty("value", expectedPhases2Neutral1Value);
 		variables.add(varPhaseVoltageL1N);
 
 		JsonObject varPhaseVoltageL2N = new JsonObject();
-		varPhaseVoltageL2N.addProperty("path", myConfig.dataInstanceName()
-				+ "voltageL2N");
+		varPhaseVoltageL2N.addProperty("path", myConfig.dataInstanceName() + "voltageL2N");
 		varPhaseVoltageL2N.addProperty("value", expectedPhases2Neutral2Value);
 		variables.add(varPhaseVoltageL2N);
 
 		JsonObject varPhaseVoltageL3N = new JsonObject();
-		varPhaseVoltageL3N.addProperty("path", myConfig.dataInstanceName()
-				+ "voltageL3N");
+		varPhaseVoltageL3N.addProperty("path", myConfig.dataInstanceName() + "voltageL3N");
 		varPhaseVoltageL3N.addProperty("value", expectedPhases2Neutral3Value);
 		variables.add(varPhaseVoltageL3N);
 
 		JsonObject varNeutralCurrent = new JsonObject();
-		varNeutralCurrent.addProperty("path",
-				myConfig.dataInstanceName() + "currentNeutral");
+		varNeutralCurrent.addProperty("path", myConfig.dataInstanceName() + "currentNeutral");
 		varNeutralCurrent.addProperty("value", expectedPhasesNeutralValue);
 		variables.add(varNeutralCurrent);
 
 		JsonObject varEnergyImport = new JsonObject();
-		varEnergyImport.addProperty("path",
-				myConfig.dataInstanceName() + "EnergyImport");
+		varEnergyImport.addProperty("path", myConfig.dataInstanceName() + "EnergyImport");
 		varEnergyImport.addProperty("value", expectedEnergyImportValue);
 		variables.add(varEnergyImport);
 
 		responseBody.add("variables", variables);
 
-		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(
-				dataProviderConfig.dataUrl(), PlcNextGdsDataProvider.PATH_VARIABLES);
+		String dataEndpointUrl = PlcNextUrlStringHelper.buildUrlString(dataProviderConfig.dataUrl(),
+				PlcNextGdsDataProvider.PATH_VARIABLES);
 		when(mockDummyDataBridgeHttp.requestJson(argThat(arg -> Objects.nonNull(arg) && //
-					arg.method() == HttpMethod.POST && //
-					arg.url().equals(dataEndpointUrl)))) //
+				arg.method() == HttpMethod.POST && //
+				arg.url().equals(dataEndpointUrl)))) //
 				.thenReturn(CompletableFuture.supplyAsync(() -> HttpResponse.ok(responseBody)));
 
 		// test + check
@@ -184,16 +178,16 @@ public class PlcNextMeterImplTest {
 
 		this.test.next(new TestCase("Trigger value consumption and do one wait cycle")) //
 				.next(new TestCase("Check requested data dropped in asynchronously")
-					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L1,
-						expectedPhases2Neutral1Value)) //
-					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L2,
-						expectedPhases2Neutral2Value)) //
-					.onAfterProcessImage(assertChannelValue(componentUnderTest, ElectricityMeter.ChannelId.VOLTAGE_L3,
-						expectedPhases2Neutral3Value)) //
-					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
-						expectedPhasesNeutralValue)) //
-					.onAfterProcessImage(assertChannelValue(componentUnderTest, PlcNextMeter.ChannelId.CURRENT_NEUTRAL,
-						expectedPhasesNeutralValue))); //
+						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+								ElectricityMeter.ChannelId.VOLTAGE_L1, expectedPhases2Neutral1Value)) //
+						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+								ElectricityMeter.ChannelId.VOLTAGE_L2, expectedPhases2Neutral2Value)) //
+						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+								ElectricityMeter.ChannelId.VOLTAGE_L3, expectedPhases2Neutral3Value)) //
+						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue)) //
+						.onAfterProcessImage(assertChannelValue(componentUnderTest,
+								PlcNextMeter.ChannelId.CURRENT_NEUTRAL, expectedPhasesNeutralValue))); //
 
 		test.deactivate();
 	}

@@ -78,7 +78,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 				ElectricityMeter.ChannelId.values(), //
 				PlcNextPvInverter.ChannelId.values() //
 		);
-		readDataMappingDefinition = PlcNextPvInverterGdsDataReadMappingDefinition.values(); 
+		readDataMappingDefinition = PlcNextPvInverterGdsDataReadMappingDefinition.values();
 	}
 
 	@Activate
@@ -98,7 +98,8 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	private void applyConfig(Config config) {
 		log.info("StationID '{}': Applying config", config.id());
 		this.config = config;
-		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(), config.password());
+		this.authConfig = new PlcNextAuthConfig(config.baseUrl(), config.pathAuthApi(), config.username(),
+				config.password());
 		this.gdsDataAccessConfig = new PlcNextGdsDataAccessConfig(config.baseUrl(), config.dataInstanceName(),
 				config.id());
 	}
@@ -150,10 +151,12 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 						log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
 						List<PlcNextGdsDataMappedValue> mappedValues = gdsDataToChannelMapper.mapAllValuesToChannels(
 								apiResponseBody.getAsJsonArray(PlcNextGdsDataProvider.PLC_NEXT_VARIABLES),
-								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(), readDataMappingDefinition);
-						
+								gdsDataAccessConfig.dataInstanceName(), gdsDataAccessConfig.stationId(),
+								readDataMappingDefinition);
+
 						if (!mappedValues.isEmpty()) {
-							log.info("StationID '{}': Pushing PV-Inverter data to channels", this.gdsDataAccessConfig.stationId());
+							log.info("StationID '{}': Pushing PV-Inverter data to channels",
+									this.gdsDataAccessConfig.stationId());
 							setNextValuesToChannels(mappedValues);
 						}
 					} catch (PlcNextGdsDataMappingException e) {
@@ -171,8 +174,8 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	 */
 	void setNextValuesToChannels(List<PlcNextGdsDataMappedValue> mappedValues) {
 		for (PlcNextGdsDataMappedValue mappedValue : mappedValues) {
-			log.debug("StationID '{}': Providing value '{}' to channel named '{}'", this.gdsDataAccessConfig.stationId(),
-					mappedValue.getValue(), mappedValue.getChannelId());
+			log.debug("StationID '{}': Providing value '{}' to channel named '{}'",
+					this.gdsDataAccessConfig.stationId(), mappedValue.getValue(), mappedValue.getChannelId());
 			channel(mappedValue.getChannelId()).setNextValue(mappedValue.getValue());
 		}
 	}
@@ -190,7 +193,7 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 		try {
 			log.info("StationID '{}': Mapping PV-Inverter data", this.gdsDataAccessConfig.stationId());
 			List<JsonElement> mappedData = gdsChannelToGdsDataMapper.mapAllValuesToGdsData(valuesInChannelsToWrite,
-					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(), 
+					this.gdsDataAccessConfig.dataInstanceName(), this.gdsDataAccessConfig.stationId(),
 					PlcNextPvInverterGdsDataWriteMappingDefinition.values());
 
 			log.info("StationID '{}': Pushing PV-Inverter data to URL '{}'", gdsDataAccessConfig.stationId(),
@@ -202,21 +205,22 @@ public class PlcNextPvInverterImpl extends AbstractOpenemsComponent
 	}
 
 	/**
-	 * Fetches next value from given channel ID to prepare it to be written to PLCnext device.
-	 * The 'next value' needs to be taken to reflect changes of the business logic.
+	 * Fetches next value from given channel ID to prepare it to be written to
+	 * PLCnext device. The 'next value' needs to be taken to reflect changes of the
+	 * business logic.
 	 * 
-	 * @param channelId	represents the channel ID of channel to be read
-	 * @return	mapping object containing the channel ID and the next value
+	 * @param channelId represents the channel ID of channel to be read
+	 * @return mapping object containing the channel ID and the next value
 	 */
 	PlcNextGdsDataMappedValue readNextValueFromChannel(io.openems.edge.common.channel.ChannelId channelId) {
 		log.debug("StationID '{}': Reading value from channel named '{}'", this.gdsDataAccessConfig.stationId(),
 				channelId);
 		Object channelValue = null;
 		Channel<?> channel = channel(channelId);
-		
+
 		if (channel instanceof WriteChannel<?> writeChannel) {
 			channelValue = writeChannel.getNextWriteValue() //
-					.orElse(null);			
+					.orElse(null);
 		}
 		return new PlcNextGdsDataMappedValue(channelId, channelValue);
 	}

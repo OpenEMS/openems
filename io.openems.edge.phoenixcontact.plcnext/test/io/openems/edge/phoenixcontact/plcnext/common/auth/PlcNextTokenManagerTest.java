@@ -1,14 +1,14 @@
 package io.openems.edge.phoenixcontact.plcnext.common.auth;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
 import io.openems.common.bridge.http.api.HttpError;
@@ -19,26 +19,26 @@ import io.openems.common.types.HttpStatus;
 public class PlcNextTokenManagerTest {
 	private PlcNextAuthConfig authClientConfig;
 
-    private PlcNextTokenManagerImpl tokenManager;
+	private PlcNextTokenManagerImpl tokenManager;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		authClientConfig = new PlcNextAuthConfig("https://localhost/auth", "/v1.3/auth", "junit", "junit");
 
-        DummyBridgeHttp dummyAuthBridgeHttp = new DummyBridgeHttp() {
-            @Override
-            public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
-                if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
-                    return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
-                            "{'code': 'dummy_auth', 'expires_in': 600 }"));
-                } else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
-                    return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
-                            "{'access_token': 'dummy_access'}"));
-                } else {
-                    throw new IllegalStateException("Use not suitable!");
-                }
-            }
-        };
+		DummyBridgeHttp dummyAuthBridgeHttp = new DummyBridgeHttp() {
+			@Override
+			public CompletableFuture<HttpResponse<String>> request(Endpoint endpoint) {
+				if (endpoint.url().contains(PlcNextTokenManager.PATH_AUTH_TOKEN)) {
+					return CompletableFuture.supplyAsync(() -> new HttpResponse<>(HttpStatus.OK, Map.of(),
+							"{'code': 'dummy_auth', 'expires_in': 600 }"));
+				} else if (endpoint.url().contains(PlcNextTokenManager.PATH_ACCESS_TOKEN)) {
+					return CompletableFuture.supplyAsync(
+							() -> new HttpResponse<>(HttpStatus.OK, Map.of(), "{'access_token': 'dummy_access'}"));
+				} else {
+					throw new IllegalStateException("Use not suitable!");
+				}
+			}
+		};
 		tokenManager = new PlcNextTokenManagerImpl(dummyAuthBridgeHttp);
 	}
 
@@ -49,8 +49,8 @@ public class PlcNextTokenManagerTest {
 		String accessToken = tokenManager.getToken();
 
 		// check
-		Assert.assertNotNull(accessToken);
-		Assert.assertEquals("dummy_access", accessToken);
+		Assertions.assertNotNull(accessToken);
+		Assertions.assertEquals("dummy_access", accessToken);
 	}
 
 	@Test
@@ -63,28 +63,26 @@ public class PlcNextTokenManagerTest {
 		Endpoint result = tokenManager.buildAuthTokenEndpointRepresentation(authClientConfig);
 
 		// check
-		Assert.assertEquals(expectedRequestUrl, result.url());
-		Assert.assertEquals(expectedRequestBody, result.body());
+		Assertions.assertEquals(expectedRequestUrl, result.url());
+		Assertions.assertEquals(expectedRequestBody, result.body());
 	}
 
 	@Test
 	public void testBuildAccessTokenEndpoint_Successfully() {
 		// prep
 		String expectedRequestUrl = authClientConfig.authUrl() + PlcNextTokenManager.PATH_ACCESS_TOKEN;
-		String expectedRequestBody = new StringBuilder("{ ")
-				.append("\"code\": \"4711\", ")
-				.append("\"grant_type\": \"authorization_code\", ")
-				.append("\"username\": \"").append(authClientConfig.username()).append("\", ")
-				.append("\"password\": \"").append(authClientConfig.password()).append("\" ")
-				.append("}").toString();
+		String expectedRequestBody = new StringBuilder("{ ").append("\"code\": \"4711\", ")
+				.append("\"grant_type\": \"authorization_code\", ").append("\"username\": \"")
+				.append(authClientConfig.username()).append("\", ").append("\"password\": \"")
+				.append(authClientConfig.password()).append("\" ").append("}").toString();
 		PlcNextAuthAndAccessTokenDTO authToken = new PlcNextAuthAndAccessTokenDTO("4711", 0);
 
 		// test
 		Endpoint result = tokenManager.buildAccessTokenEndpointRepresentation(authToken, authClientConfig);
 
 		// check
-		Assert.assertEquals(expectedRequestUrl, result.url());
-		Assert.assertEquals(expectedRequestBody, result.body());
+		Assertions.assertEquals(expectedRequestUrl, result.url());
+		Assertions.assertEquals(expectedRequestBody, result.body());
 
 	}
 
@@ -113,7 +111,7 @@ public class PlcNextTokenManagerTest {
 		String accessToken = tokenManagerFailing.getToken();
 
 		// check
-		Assert.assertNull(accessToken);
+		Assertions.assertNull(accessToken);
 	}
 
 	@Test
@@ -139,7 +137,7 @@ public class PlcNextTokenManagerTest {
 		String accessToken = tokenManagerFailing.getToken();
 
 		// check
-		Assert.assertNull(accessToken);
+		Assertions.assertNull(accessToken);
 	}
 
 	@Test
@@ -167,6 +165,6 @@ public class PlcNextTokenManagerTest {
 		String accessToken = tokenManagerFailing.getToken();
 
 		// check
-		Assert.assertNull(accessToken);
+		Assertions.assertNull(accessToken);
 	}
 }
