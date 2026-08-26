@@ -1,3 +1,14 @@
-= io.openems.edge.ess.sungrow
+= Sungrow Energy Storage System and PV-Inverter
 
-https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.ess.sungrow[Source Code icon:github[]]
+== Code Quality
+ 
+Production State: *pilot projects* 
+
+Development State: 
+
+https://en.wikipedia.org/wiki/Software_release_life_cycle[Software release life cycle]: BETA
+
+This implementation is not yet fully feature tested.
+ Please consider it BETA quality
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.sungrow[Source Code icon:github[]]
