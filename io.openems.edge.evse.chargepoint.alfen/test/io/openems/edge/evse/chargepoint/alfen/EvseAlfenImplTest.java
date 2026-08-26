@@ -3,14 +3,13 @@ package io.openems.edge.evse.chargepoint.alfen;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.meter.api.PhaseRotation.L1_L2_L3;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -85,7 +84,6 @@ public class EvseAlfenImplTest {
 		final var activeLoadBalancingSafeCurrent = floatToRegisters(6.0f); // A
 
 		return new ComponentTest(sut) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						// Meter data block (starting at 300)
 						.withRegisters(300, new int[] { 0x0001 }) // METER_STATE
@@ -284,7 +282,7 @@ public class EvseAlfenImplTest {
 		test.next(new TestCase(), 20);
 
 		// Verify component is in read-only mode
-		assertTrue("Component should be in read-only mode", sut.isReadOnly());
+		assertTrue(sut.isReadOnly(), "Component should be in read-only mode");
 
 		// Read operations should still work
 		test.next(new TestCase() //
@@ -294,7 +292,7 @@ public class EvseAlfenImplTest {
 
 		// ChargePointAbilities should have empty setpoint ability (min=0, max=0)
 		var abilities = sut.getChargePointAbilities();
-		assertEquals("Read-only mode should have zero max current", 0, abilities.applySetPoint().max());
+		assertEquals(0, abilities.applySetPoint().max(), "Read-only mode should have zero max current");
 
 		test.deactivate();
 	}
@@ -309,7 +307,7 @@ public class EvseAlfenImplTest {
 		test.next(new TestCase(), 20);
 
 		var abilities = sut.getChargePointAbilities();
-		assertTrue("Should detect three-phase charging with valid max current", abilities.applySetPoint().max() > 0);
+		assertTrue(abilities.applySetPoint().max() > 0, "Should detect three-phase charging with valid max current");
 
 		// Change to single-phase (only L1 has current)
 		test.next(new TestCase().onBeforeProcessImage(() -> bridge //
@@ -321,7 +319,7 @@ public class EvseAlfenImplTest {
 
 		// The phase detection should now show single-phase
 		abilities = sut.getChargePointAbilities();
-		assertTrue("Should still have setpoint ability with valid max current", abilities.applySetPoint().max() > 0);
+		assertTrue(abilities.applySetPoint().max() > 0, "Should still have setpoint ability with valid max current");
 
 		test.deactivate();
 	}
@@ -369,7 +367,7 @@ public class EvseAlfenImplTest {
 		// Register 1215 reads "3", but the charge point is wired single-phased
 		var abilities = sut.getChargePointAbilities();
 		assertEquals(SINGLE_PHASE, abilities.applySetPoint().phase());
-		assertNull("Single-phase wiring must not offer phase switching", abilities.phaseSwitch().direction());
+		assertNull(abilities.phaseSwitch().direction(), "Single-phase wiring must not offer phase switching");
 
 		test.deactivate();
 	}
@@ -387,7 +385,7 @@ public class EvseAlfenImplTest {
 		var energyChannel = sut.channel(EvseAlfen.ChannelId.ENERGY_DELIVERED_SUM);
 		var energyObj = energyChannel.value().get();
 		float energyValue = energyObj != null ? (Float) energyObj : 0.0f;
-		assertTrue("Energy should be approximately 60000 Wh", energyValue > 59000.0f && energyValue < 61000.0f);
+		assertTrue(energyValue > 59000.0f && energyValue < 61000.0f, "Energy should be approximately 60000 Wh");
 
 		test.deactivate();
 	}
@@ -401,8 +399,8 @@ public class EvseAlfenImplTest {
 
 		// Verify debug log output format
 		var debugLog = sut.debugLog();
-		assertTrue("Debug log should contain power info", debugLog.contains("L:"));
-		assertTrue("Debug log should contain SetCurrent info", debugLog.contains("SetCurrent:"));
+		assertTrue(debugLog.contains("L:"), "Debug log should contain power info");
+		assertTrue(debugLog.contains("SetCurrent:"), "Debug log should contain SetCurrent info");
 
 		test.deactivate();
 	}
@@ -416,8 +414,8 @@ public class EvseAlfenImplTest {
 
 		// In read-only mode, debug log should not contain SetCurrent
 		var debugLog = sut.debugLog();
-		assertTrue("Debug log should contain power info", debugLog.contains("L:"));
-		assertFalse("Debug log should NOT contain SetCurrent in read-only mode", debugLog.contains("SetCurrent:"));
+		assertTrue(debugLog.contains("L:"), "Debug log should contain power info");
+		assertFalse(debugLog.contains("SetCurrent:"), "Debug log should NOT contain SetCurrent in read-only mode");
 
 		test.deactivate();
 	}

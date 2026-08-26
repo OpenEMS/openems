@@ -14,7 +14,6 @@ import static org.osgi.service.component.annotations.ReferencePolicyOption.GREED
 import java.time.Duration;
 import java.time.Instant;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.Tuple2;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
@@ -72,6 +71,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @EventTopics({ //
 		TOPIC_CYCLE_BEFORE_PROCESS_IMAGE, //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements EvseAlfen, EvseChargePoint,
 		ElectricityMeter, OpenemsComponent, TimedataProvider, EventHandler, ModbusComponent {
 
@@ -79,14 +79,12 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 
 	private final Logger log = LoggerFactory.getLogger(EvseAlfenImpl.class);
 
-	@Reference
-	protected ConfigurationAdmin cm;
-
 	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	@Override
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -108,22 +106,16 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 	}
 
 	@Activate
-	private void activate(ComponentContext context, Config config) throws OpenemsException {
+	private void activate(ComponentContext context, Config config) {
 		this.config = config;
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 		this.installListeners();
 	}
 
 	@Modified
-	private void modified(ComponentContext context, Config config) throws OpenemsNamedException {
+	private void modified(ComponentContext context, Config config) {
 		this.config = config;
-		if (super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		super.modified(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
 	@Override
