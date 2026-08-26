@@ -71,7 +71,7 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<State, Cont
 
 	private SubStateMachine.State getNextSubState(Context context) {
 		return switch (this.subStateMachine.activeState) {
-		case ENTRY -> this.handleEntry();
+		case ENTRY -> this.handleEntry(context);
 		case STOP_CHARGE -> this.handleStopCharge(context);
 		case PHASE_SWITCH_INTERNAL -> this.handlePhaseSwitchInternal(context);
 		case PHASE_SWITCH_MANUAL -> this.handlePhaseSwitchManual(context);
@@ -80,9 +80,19 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<State, Cont
 		};
 	}
 
-	private SubStateMachine.State handleEntry() {
+	private SubStateMachine.State handleEntry(Context context) {
 		return switch (this.action.ability()) {
-		case PhaseSwitchAbility.Internal() -> SubStateMachine.State.PHASE_SWITCH_INTERNAL;
+		case PhaseSwitchAbility.Internal() -> {
+			final var targetPhase = this.getTargetPhase();
+			final var phaseSwitch = context.actions.abilities().phaseSwitch() != null
+					&& context.actions.abilities().phaseSwitch().direction() == this.action.direction() //
+							? this.action //
+							: null;
+			context.applyAdjustedActions(b -> b //
+					.setPhaseSwitch(phaseSwitch) //
+					.setApplyInternalPhaseSwitchPower(targetPhase.count));
+			yield SubStateMachine.State.PHASE_SWITCH_INTERNAL;
+		}
 		case PhaseSwitchAbility.Manual() -> SubStateMachine.State.STOP_CHARGE;
 		};
 	}
@@ -112,12 +122,16 @@ public abstract sealed class PhaseSwitchHandler extends StateHandler<State, Cont
 		return context.actions.abilities().applySetPoint().phase() == this.getTargetPhase();
 	}
 
+	private boolean isInternalPhaseSwitchCompleted(Context context) {
+		return this.isPhaseSwitchCompleted(context);
+	}
+
 	private SubStateMachine.State handlePhaseSwitchInternal(Context context) {
-		return switch (this.subStateMachine.getPhase(context, () -> this.isPhaseSwitchCompleted(context))) {
+		return switch (this.subStateMachine.getPhase(context, () -> this.isInternalPhaseSwitchCompleted(context))) {
 		case DEAD_TIME, PREDICATE_FALSE -> {
 			final var targetPhase = this.getTargetPhase();
-			final var phaseSwitch = context.actions.phaseSwitch() != null
-					&& context.actions.phaseSwitch().direction() == this.action.direction() //
+			final var phaseSwitch = context.actions.abilities().phaseSwitch() != null
+					&& context.actions.abilities().phaseSwitch().direction() == this.action.direction() //
 							? this.action //
 							: null;
 			context.applyAdjustedActions(b -> b //

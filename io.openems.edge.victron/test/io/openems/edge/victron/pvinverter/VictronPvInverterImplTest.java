@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
@@ -24,7 +23,6 @@ public class VictronPvInverterImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new VictronPvInverterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						.withRegisters(1026,
 								// POSITION (register 1026)

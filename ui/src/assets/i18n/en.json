@@ -925,10 +925,13 @@
         "NOT_OVERRIDING": "No external commands present",
         "OVERRIDING": "External command is being considered",
         "REGISTER": "Register",
-        "SET_ACTIVE_POWER_EQUALS": "Limitation charing/discharging power",
-        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimum charging power",
-        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum charging power",
-        "ERROR": "Fehler"
+        "ERROR": "Error",
+        "SET_ACTIVE_POWER_EQUALS": "Active Power setpoint",
+        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Maximum charging power setpoint",
+        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximum discharge power setpoint",
+        "SET_REACTIVE_POWER_EQUALS": "Reactive power setpoint",
+        "SET_REACTIVE_POWER_GREATER_OR_EQUALS": "Minimum reactive power setpoint",
+        "SET_REACTIVE_POWER_LESS_OR_EQUALS": "Maximum reactive power setpoint"
     },
     "NOTIFICATIONS": {
         "AUTHENTICATION_FAILED": "No Connection: Authentication failed.",

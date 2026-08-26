@@ -908,9 +908,12 @@
         "NOT_OVERRIDING": "Keine externe Vorgabe vorhanden",
         "OVERRIDING": "Externe Vorgabe wird berücksichtigt",
         "REGISTER": "Register",
-        "SET_ACTIVE_POWER_EQUALS": "Vorgabe Be- bzw. Entladeleistung",
-        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Minimale Beladeleistung",
-        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Maximale Beladeleistung"
+        "SET_ACTIVE_POWER_EQUALS": "Vorgabe Wirkleistung",
+        "SET_ACTIVE_POWER_GREATER_OR_EQUALS": "Vorgabe maximaler Beladeleistung",
+        "SET_ACTIVE_POWER_LESS_OR_EQUALS": "Vorgabe maximaler Entladeleistung",
+        "SET_REACTIVE_POWER_EQUALS": "Vorgabe Blindleistung",
+        "SET_REACTIVE_POWER_GREATER_OR_EQUALS": "Vorgabe minimaler Blindleistung",
+        "SET_REACTIVE_POWER_LESS_OR_EQUALS": "Vorgabe maximaler Blindleistung"
     },
     "NOTIFICATIONS": {
         "AUTHENTICATION_FAILED": "Keine Verbindung: Authentifizierung fehlgeschlagen.",

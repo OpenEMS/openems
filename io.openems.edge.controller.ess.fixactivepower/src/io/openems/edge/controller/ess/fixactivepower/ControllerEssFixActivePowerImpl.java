@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -57,6 +58,7 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("ess")
 public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		implements ControllerEssFixActivePower, EnergySchedulable, Controller, OpenemsComponent, TimedataProvider {
 
@@ -77,7 +79,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	@Reference
 	private ComponentManager componentManager;
 
-	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
 	@Reference
@@ -112,9 +115,7 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 	private void modified(ComponentContext context, Config config) {
 		super.modified(context, config.id(), config.alias(), config.enabled());
 		this.fallbackHandler.clear();
-		if (this.applyConfig(config)) {
-			return;
-		}
+		this.applyConfig(config);
 
 		this.energyScheduleHandler.triggerReschedule("ControllerEssFixActivePowerImpl::modified()",
 				OPTIMIZE_CURRENT_PERIOD);
@@ -151,9 +152,8 @@ public class ControllerEssFixActivePowerImpl extends AbstractOpenemsComponent
 		};
 	}
 
-	private boolean applyConfig(Config config) {
+	private void applyConfig(Config config) {
 		this.config = config;
-		return OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id());
 	}
 
 	@Override

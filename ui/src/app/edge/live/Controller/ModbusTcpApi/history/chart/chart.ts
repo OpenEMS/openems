@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ReactiveFormsModule } from "@angular/forms";
 import { TranslateService } from "@ngx-translate/core";
 import { BaseChartDirective } from "ng2-charts";
@@ -7,9 +7,11 @@ import { CommonUiModule } from "src/app/shared/common-ui.module";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartComponentsModule } from "src/app/shared/components/chart/chart.module";
 import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
-import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
+import { ChannelAddress, ChartConstants, EdgeConfig } from "src/app/shared/shared";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
+import { SharedControllerModbusTcpApiReadWrite } from "../../shared/shared";
 
 @Component({
     selector: "oe-controller-modbus-tcp-api-chart",
@@ -30,27 +32,29 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
         config: EdgeConfig,
         chartType: "line" | "bar",
         translate: TranslateService,
-        showPhases: boolean,
     ): HistoryUtils.ChartData {
-        let writeChannels: string[] | null = component.getPropertyFromComponent<string[]>("writeChannels");
+        const writeChannels: SharedControllerModbusTcpApiReadWrite.ChannelId[] | null =
+            component.getPropertyFromComponent<SharedControllerModbusTcpApiReadWrite.ChannelId[]>("writeChannels");
 
-        const colors: string[] = [
-            "rgb(191, 144, 33)",
-            "rgb(162, 191, 33)",
-            "rgb(86, 191, 33)",
-            "rgb(33, 191, 165)",
-            "rgb(33, 115, 191)",
-        ];
-
-        const input: HistoryUtils.InputChannel[] = [
+        const yAxes: HistoryUtils.yAxes[] = [
             {
-                name: "SetActivePowerEquals",
-                powerChannel: ChannelAddress.fromString(component.id + "/Ess0SetActivePowerEquals"),
+                unit: YAxisType.ENERGY,
+                position: "left",
+                yAxisId: ChartAxis.LEFT,
             },
         ];
 
+        if (chartType === "line") {
+            yAxes.push({
+                unit: YAxisType.PERCENTAGE,
+                position: "right",
+                yAxisId: ChartAxis.RIGHT,
+            });
+        }
+
+        const input: HistoryUtils.InputChannel[] = [];
+
         if (writeChannels != null) {
-            writeChannels = writeChannels.filter((c) => !c.includes("Ess0SetActivePowerEquals"));
             writeChannels.forEach((c) => {
                 input.push({
                     name: c,
@@ -59,67 +63,58 @@ export class ControllerModbusTcpApiChartComponent extends AbstractHistoryChart {
             });
         }
 
+        input.push({
+            name: "Soc",
+            powerChannel: ChannelAddress.fromString("_sum/EssSoc"),
+        });
+
         return {
             input,
             output: (data: HistoryUtils.ChannelData) => {
                 const values: HistoryUtils.DisplayValue[] = [
-                    {
-                        name: translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS"),
-                        converter: () => data["SetActivePowerEquals"],
-                        color: "rgb(214, 28, 28)",
-                    },
+                    ...(writeChannels
+                        ?.filter((channelId) => data[channelId]?.some((value) => value !== null))
+                        ?.map((channelId) => {
+                            const channel = new SharedControllerModbusTcpApiReadWrite.ModbusTcpApiChannel(
+                                component.id,
+                                channelId,
+                            );
+                            return {
+                                name: channel.translatedName(translate),
+                                converter: () => data[channelId],
+                                color: channel.color,
+                            };
+                        }) ?? []),
                 ];
-                if (writeChannels) {
-                    writeChannels.forEach((c: string, index: number) => {
-                        const name: string = c;
-                        // Add translations for active power channels of ess0
-                        if (c.includes("Ess0SetActive")) {
-                            const channelName = c.replace("Ess0", "");
-                            switch (channelName) {
-                                case "SetActivePowerEquals":
-                                    return translate.instant("MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_EQUALS");
-                                case "SetActivePowerGreaterOrEquals":
-                                    return translate.instant(
-                                        "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_GREATER_OR_EQUALS",
-                                    );
-                                case "SetActivePowerLessOrEquals":
-                                    return translate.instant(
-                                        "MODBUS_TCP_API_READ_WRITE.SET_ACTIVE_POWER_LESS_OR_EQUALS",
-                                    );
-                            }
-                        }
 
-                        values.push({
-                            name: name,
-                            converter: () => data[c],
-                            color: colors[index],
-                        });
+                if (chartType === "line") {
+                    values.push({
+                        name: translate.instant("GENERAL.SOC"),
+                        converter: () => data["Soc"].map((el) => NumberUtils.multiplySafely(el, 1000)),
+                        color: ChartConstants.Colors.GREY,
+                        borderDash: [10, 10],
+                        yAxisId: ChartAxis.RIGHT,
                     });
                 }
+
                 return values;
             },
             tooltip: {
                 formatNumber: "1.1-2",
             },
-            yAxes: [
-                {
-                    unit: YAxisType.ENERGY,
-                    position: "left",
-                    yAxisId: ChartAxis.LEFT,
-                },
-            ],
+            yAxes,
         };
     }
 
     public override getChartData() {
         const component = this.config.getComponentSafely(this.routeService.getRouteParam<string>("componentId"));
         AssertionUtils.assertIsDefined(component);
+
         return ControllerModbusTcpApiChartComponent.getChartData(
             component,
             this.config,
             this.chartType,
             this.translate,
-            this.showPhases,
         );
     }
 }

@@ -112,12 +112,31 @@ public enum Role {
 	 * @param resource     a resource identifier; used for the exception
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public static void assertRole(String userId, Role userRole, Role requiredRole, String resource)
+	public static void assertRoleIsAtLeast(String userId, Role userRole, Role requiredRole, String resource)
 			throws OpenemsNamedException {
 		if (userRole == null) {
 			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, userId);
 		}
 		if (!userRole.isAtLeast(requiredRole)) {
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, userRole);
+		}
+	}
+
+	/**
+	 * Throws an exception if the current Role is not the given Role.
+	 *
+	 * @param userId       the id of the user; used for the exception
+	 * @param userRole     the user role
+	 * @param requiredRole the required role
+	 * @param resource     a resource identifier; used for the exception
+	 * @throws OpenemsNamedException if the current Role differs from given Role
+	 */
+	public static void assertRoleIsEqual(String userId, Role userRole, Role requiredRole, String resource)
+			throws OpenemsNamedException {
+		if (userRole == null) {
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, userId);
+		}
+		if (userRole != requiredRole) {
 			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, userRole);
 		}
 	}
