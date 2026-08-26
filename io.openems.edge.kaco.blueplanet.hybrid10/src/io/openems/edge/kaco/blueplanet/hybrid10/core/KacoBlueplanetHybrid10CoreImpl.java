@@ -312,15 +312,10 @@ public class KacoBlueplanetHybrid10CoreImpl extends AbstractOpenemsComponent
 			Float comVersion = TypeUtils.getAsType(OpenemsType.FLOAT, this._bpData.systemInfo.getComVersion());
 			this.stableVersion = StableVersion.getCurrentStableVersion(comVersion);
 
-			switch (this.stableVersion) {
-			case VERSION_7_OR_OLDER:
-				availInitResponse = this.initVersion7();
-				break;
-			case UNDEFINED:
-			case VERSION_8:
-				availInitResponse = this.initVersion8();
-				break;
-			}
+			availInitResponse = switch (this.stableVersion) {
+			case VERSION_7_OR_OLDER -> this.initVersion7();
+			case UNDEFINED, VERSION_8 -> this.initVersion8();
+			};
 
 			if (!availInitResponse) {
 				Thread.sleep(1000); // try again after 1 second

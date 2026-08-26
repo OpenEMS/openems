@@ -142,4 +142,90 @@ To run a simulation:
 }
 ----
 
+== Device Simulators
+
+=== EVSE Charge-Point
+
+The EVSE Charge-Point Simulator simulates an AC charging station for tests, development, and demo setups in OpenEMS Edge.
+It provides typical charge-point and metering channels, accepts a charging current setpoint (mA), and derives simulated power and energy counters from it.
+
+==== Component
+
+*Name*: Simulator EVSE Charge-Point
+
+*Factory-PID*: `Simulator.Evse.ChargePoint`
+
+==== Behavior
+
+Simulates a charge-point with configurable parameters and channels for testing and development purposes.
+Key features include:
+
+* Simulates vehicle connection status via `vehicleConnected`
+* Define min and max charging current (`ApplySetPoint`) in milliampere
+* Calculates per-phase active power from `voltage * current`
+* Aggregates current/power and updates per-phase energy counters cyclically
+* Supports single-phase and three-phase wiring including `phaseRotation` and phase switch
+* Optional read-only mode without active control
+
+==== Configuration
+
+* `id` (String): Component ID (default: `evseChargePoint0`)
+* `alias` (String): Human-readable name (default: empty)
+* `enabled` (Boolean): Enables/disables the component (default: `true`)
+* `readOnly` (Boolean): No active control/write access. The charge-point will use minCurrent as the current power if a vehicle is connected (default: `false`)
+* `vehicleConnected` (Boolean): Simulated vehicle connection (default: `true`)
+* `maxMilliampere` (Integer): Maximum charging current in mA (default: `16000`)
+* `minMilliampere` (Integer): Minimum charging current in mA (default: `6000`)
+* `voltage` (Integer): Simulated phase voltage in V (default: `230`)
+* `wiring` (SingleOrThreePhase): `SINGLE_PHASE` or `THREE_PHASE` (default: `THREE_PHASE`)
+* `phaseRotation` (PhaseRotation): Phase sequence (default: `L1_L2_L3`)
+
+== Datasources
+
+Datasources provide input data for simulated components. There are several types available:
+
+=== CSV Datasources
+
+* **Simulator.Datasource.CSV.Direct** - Reads data directly from a CSV string provided in the configuration.
+* **Simulator.Datasource.CSV.Predefined** - Reads data from predefined CSV files bundled with OpenEMS (e.g., standard load profiles).
+
+=== Single Value Datasources
+
+* **Simulator.Datasource.Single.Direct** - Provides a single data channel with values defined as an integer array in the configuration.
+* **Simulator.Datasource.Single.Channel** - Provides a single data channel that can be set dynamically via a writable channel. This is useful for external testing scenarios where production/consumption data needs to be injected at runtime.
+
+==== Using Simulator.Datasource.Single.Channel
+
+This datasource allows setting simulation values externally via REST API or other channel write mechanisms.
+
+.Example: Setting consumption data via REST API
+[source,bash]
+----
+# Set consumption to 6000 W
+curl -d '{"value":6000}' http://admin:admin@localhost:8084/rest/channel/simulateConsumption/Data
+
+# Verify the value was set
+curl http://admin:admin@localhost:8084/rest/channel/_sum/ConsumptionActivePower
+----
+
+.Configuration example
+[source,json]
+----
+{
+  "factoryPid": "Simulator.Datasource.Single.Channel",
+  "properties": [
+    {
+      "name": "id",
+      "value": "simulateConsumption"
+    },
+    {
+      "name": "enabled",
+      "value": true
+    }
+  ]
+}
+----
+
+The datasource exposes a `Data` channel with read/write access. When a value is written to this channel, it immediately becomes available as the datasource's output value. If no value has been set, the default value is `0`.
+
 https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.simulator[Source Code icon:github[]]

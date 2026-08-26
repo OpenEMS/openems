@@ -1,20 +1,19 @@
 package io.openems.edge.meter.discovergy;
 
+import static io.openems.common.types.MeterType.GRID;
+
 import org.junit.Test;
 
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.meter.api.MeterType;
 
 public class MeterDiscovergyImplTest {
-
-	private static final String COMPONENT_ID = "meter0";
 
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new MeterDiscovergyImpl()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
-						.setType(MeterType.GRID) //
+						.setId("meter0") //
+						.setType(GRID) //
 						.setPassword("xxx") //
 						.setEmail("x@y.z") //
 						.setSerialNumber("12345678") //

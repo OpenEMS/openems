@@ -21,8 +21,6 @@ import io.openems.edge.core.host.SystemUpdateHandler;
 /**
  * JSON-RPC Response to {@link GetSystemUpdateStateRequest}.
  *
- * <p>
- *
  * <pre>
  * {
  *   "jsonrpc": "2.0",
@@ -167,14 +165,14 @@ public class GetSystemUpdateStateResponse extends JsonrpcResponseSuccess {
 		public void addLog(String label, ExecuteSystemCommandResponse response) {
 			synchronized (this.log) {
 				var stdout = response.scr.stdout();
-				if (stdout.length > 0) {
+				if (!stdout.isEmpty()) {
 					this.addLog(label + ": STDOUT");
 					for (var line : stdout) {
 						this.addLog(label + ": " + line);
 					}
 				}
 				var stderr = response.scr.stderr();
-				if (stderr.length > 0) {
+				if (!stderr.isEmpty()) {
 					this.addLog(label + ": STDERR");
 					for (var line : stderr) {
 						this.addLog(label + ": " + line);

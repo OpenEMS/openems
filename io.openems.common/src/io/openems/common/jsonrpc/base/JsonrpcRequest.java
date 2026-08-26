@@ -23,7 +23,7 @@ import io.openems.common.utils.JsonUtils;
  * @see <a href="https://www.jsonrpc.org/specification#request_object">JSON-RPC
  *      specification</a>
  */
-public abstract class JsonrpcRequest extends AbstractJsonrpcRequest {
+public abstract non-sealed class JsonrpcRequest extends AbstractJsonrpcRequest {
 
 	public static final int DEFAULT_TIMEOUT_SECONDS = 60;
 	public static final int NO_TIMEOUT = -1;

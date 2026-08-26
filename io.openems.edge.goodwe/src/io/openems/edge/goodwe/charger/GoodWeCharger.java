@@ -11,7 +11,7 @@ public interface GoodWeCharger extends EssDcCharger, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		HAS_NO_DC_PV(Doc.of(Level.INFO) //
+		HAS_NO_DC_PV(Doc.of(Level.INFO)//
 				.text("This GoodWe has no DC-PV. Chargers can be deleted."));
 
 		private final Doc doc;

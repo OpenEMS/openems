@@ -1,17 +1,19 @@
 package io.openems.edge.meter.abb.b32;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.mbus.api.AbstractOpenemsMbusComponent;
 import io.openems.edge.bridge.mbus.api.BridgeMbus;
 import io.openems.edge.bridge.mbus.api.ChannelRecord;
@@ -19,7 +21,6 @@ import io.openems.edge.bridge.mbus.api.ChannelRecord.DataType;
 import io.openems.edge.bridge.mbus.api.MbusTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -27,13 +28,12 @@ import io.openems.edge.meter.api.MeterType;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("mbus")
 public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
 		implements MeterAbbB23, ElectricityMeter, OpenemsComponent {
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.mbus_id})(enabled=true))")
 	private BridgeMbus mbus;
 
 	private MeterType meterType = MeterType.PRODUCTION;
@@ -52,8 +52,7 @@ public class MeterAbbB23Impl extends AbstractOpenemsMbusComponent
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		this.meterType = config.type();
-		super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress(), this.cm, "mbus",
-				config.mbus_id());
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.primaryAddress());
 		// register into mbus bridge task list
 		this.mbus.addTask(config.id(), new MbusTask(this.mbus, this));
 	}

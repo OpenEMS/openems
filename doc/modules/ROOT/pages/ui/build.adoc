@@ -1,7 +1,6 @@
 = Build OpenEMS UI
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc

@@ -1,4 +1,3 @@
-
 import { JsonrpcRequest } from "../base";
 
 /**

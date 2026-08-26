@@ -1,11 +1,12 @@
 // @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FieldWrapper } from '@ngx-formly/core';
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { FieldWrapper } from "@ngx-formly/core";
 
 @Component({
-    selector: 'form-field-checkbox-hyperlink',
-    templateUrl: './form-field-checkbox-hyperlink.wrapper.html',
+    selector: "form-field-checkbox-hyperlink",
+    templateUrl: "./form-field-checkbox-hyperlink.wrapper.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false,
 })
 export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implements OnInit {
 
@@ -20,7 +21,7 @@ export class FormlyCheckBoxHyperlinkWrapperComponent extends FieldWrapper implem
         // Since its a custom wrapper, we are seperating label with checkbox.
         // mentioning required to true does not generate (*) to the label, so we are hard coding it.
         if (this.field.props.required) {
-            this.secondLabel = this.field.props.description + '*';
+            this.secondLabel = this.field.props.description + "*";
         } else {
             this.secondLabel = this.field.props.description;
         }

@@ -6,6 +6,7 @@ import io.openems.common.channel.Unit;
 import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 
+// TODO consider replacing this by ElectricityMeter
 public interface MeasuringEvcs extends Evcs {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
@@ -23,10 +24,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT_TO_GRID(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		CURRENT_TO_GRID(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Instantaneous current flow from EV")),
 
 		/**
@@ -42,10 +43,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT_TO_EV(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		CURRENT_TO_EV(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Instantaneous current flow to EV")),
 
 		/**
@@ -61,10 +62,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: mA
 		 * </ul>
 		 */
-		CURRENT_OFFERED(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		CURRENT_OFFERED(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.MILLIAMPERE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Current offered")),
 
 		/**
@@ -82,10 +83,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_ACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_ACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Active energy to grid")),
 
 		/**
@@ -103,10 +104,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_ACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_ACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.CUMULATED_WATT_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Active energy to ev")),
 
 		/**
@@ -124,10 +125,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VARh
 		 * </ul>
 		 */
-		ENERGY_REACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_REACTIVE_TO_GRID(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Reactive.Export.Register")),
 
 		/**
@@ -145,10 +146,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VARh
 		 * </ul>
 		 */
-		ENERGY_REACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_REACTIVE_TO_EV(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Reactive.Import.Register")),
 
 		/**
@@ -167,10 +168,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_ACTIVE_TO_GRID_INTERVAL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_ACTIVE_TO_GRID_INTERVAL(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Active.Export.Interval")),
 
 		/**
@@ -189,10 +190,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		ENERGY_ACTIVE_TO_EV_INTERVAL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.WATT_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_ACTIVE_TO_EV_INTERVAL(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.WATT_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Active.Import.Interval")),
 
 		/**
@@ -211,10 +212,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VARh
 		 * </ul>
 		 */
-		ENERGY_REACTIVE_TO_GRID_INTERVAL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_REACTIVE_TO_GRID_INTERVAL(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Reactive.Export.Interval")),
 
 		/**
@@ -234,35 +235,14 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VARh
 		 * </ul>
 		 */
-		ENERGY_REACTIVE_TO_EV_INTERVAL(Doc.of(OpenemsType.DOUBLE) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		ENERGY_REACTIVE_TO_EV_INTERVAL(Doc.of(OpenemsType.DOUBLE)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE_HOURS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Energy.Reactive.Import.Interval")),
 
 		/**
-		 * Frequency.
-		 *
-		 * <p>
-		 * Instantaneous reading of powerline frequency. NOTE: OCPP 1.6 does not have a
-		 * UnitOfMeasure for frequency, the UnitOfMeasure for any SampledValue with
-		 * measurand: Frequency is Hertz.
-		 *
-		 * <ul>
-		 * <li>Interface: MeasuringEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * <li>Unit: Hz
-		 * </ul>
-		 */
-		FREQUENCY(Doc.of(OpenemsType.STRING) //
-				.unit(Unit.HERTZ) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Frequency")),
-
-		/**
-		 * Active power to grid (export)
+		 * Active power to grid (export).
 		 *
 		 * <p>
 		 * Instantaneous active power exported by EV. (W or kW)
@@ -274,10 +254,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		POWER_ACTIVE_TO_GRID(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		POWER_ACTIVE_TO_GRID(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Power.Active.Export")),
 
 		/**
@@ -292,9 +272,9 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		POWER_FACTOR(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		POWER_FACTOR(Doc.of(OpenemsType.STRING)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Power.Factor")),
 
 		/**
@@ -310,10 +290,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: W
 		 * </ul>
 		 */
-		POWER_OFFERED(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		POWER_OFFERED(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.WATT)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Power.Offered")),
 
 		/**
@@ -329,10 +309,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VAR
 		 * </ul>
 		 */
-		POWER_REACTIVE_TO_GRID(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		POWER_REACTIVE_TO_GRID(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Power.Reactive.Export")),
 
 		/**
@@ -348,10 +328,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: VAR
 		 * </ul>
 		 */
-		POWER_REACTIVE_TO_EV(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT_AMPERE_REACTIVE) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		POWER_REACTIVE_TO_EV(Doc.of(OpenemsType.INTEGER)//
+				.unit(Unit.VOLT_AMPERE_REACTIVE)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Power.Reactive.Import")),
 
 		/**
@@ -366,27 +346,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		RPM(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		RPM(Doc.of(OpenemsType.STRING)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Fan speed")),
-
-		/**
-		 * Voltage.
-		 *
-		 * <p>
-		 * Instantaneous AC RMS supply voltage.
-		 *
-		 * <ul>
-		 * <li>Interface: MeasuringEvcs
-		 * <li>Readable
-		 * <li>Type: String
-		 * </ul>
-		 */
-		VOLTAGE(Doc.of(OpenemsType.STRING) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
-				.text("Voltage")),
 
 		/**
 		 * Temperature.
@@ -401,10 +364,10 @@ public interface MeasuringEvcs extends Evcs {
 		 * <li>Unit: C
 		 * </ul>
 		 */
-		TEMPERATURE(Doc.of(OpenemsType.STRING) //
-				.unit(Unit.DEGREE_CELSIUS) //
-				.accessMode(AccessMode.READ_ONLY) //
-				.persistencePriority(PersistencePriority.HIGH) //
+		TEMPERATURE(Doc.of(OpenemsType.STRING)//
+				.unit(Unit.DEGREE_CELSIUS)//
+				.accessMode(AccessMode.READ_ONLY)//
+				.persistencePriority(PersistencePriority.HIGH)//
 				.text("Temperature"));
 
 		private final Doc doc;

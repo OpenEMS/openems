@@ -1,6 +1,8 @@
 = CHP control via State-of-Charge (SoC)
 
-Controls a CHP device. Signals the CHP to turn 'ON' when battery SoC is low; signal it to turn 'OFF' when SoC is high. This controller needs four parameters,
+Controls a CHP device (Combined Heat and Power Unit, German: BHKW - Blockheizkraftwerk). 
+The Controller is used to signal the CHP to turn 'ON' when battery SoC is low (battery empty); and signals it to turn 'OFF' when SoC is high (battery full), based on the SoC percentage. 
+This controller needs four parameters,
 
 
 * State of Charge(Soc) of the ESS.

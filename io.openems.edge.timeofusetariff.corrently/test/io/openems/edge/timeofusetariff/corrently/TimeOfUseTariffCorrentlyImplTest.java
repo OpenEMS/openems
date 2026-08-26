@@ -12,14 +12,12 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class TimeOfUseTariffCorrentlyImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 		var corrently = new TimeOfUseTariffCorrentlyImpl();
 		new ComponentTest(corrently) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
+						.setId("ctrl0") //
 						.setZipcode("94469" /* Deggendorf, Germany */) //
 						.build()) //
 		;

@@ -3,12 +3,14 @@ package io.openems.edge.core.appmanager;
 import static io.openems.common.utils.JsonUtils.toJsonArray;
 import static java.util.Collections.emptyList;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -34,6 +36,8 @@ import io.openems.common.exceptions.InvalidValueException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.types.ConfigurationProperty;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
@@ -42,9 +46,11 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentProperties;
 import io.openems.edge.core.host.HostImpl;
 import io.openems.edge.core.host.NetworkInterface;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 import io.openems.edge.io.api.DigitalOutput;
 
 @org.osgi.service.component.annotations.Component()
@@ -70,18 +76,33 @@ public class ComponentUtilImpl implements ComponentUtil {
 		}
 
 		// both are not null
-		if (expected == null || actual == null || !expected.isJsonPrimitive() || !actual.isJsonPrimitive()) {
+		if (expected == null || actual == null) {
 			return false;
 		}
 
-		// both are JsonPrimitives
-		var e = expected.getAsJsonPrimitive();
-		var a = actual.getAsJsonPrimitive();
-
-		if (e.getAsString().equals(a.getAsString())) {
-			// compare 'toString'
-			return true;
+		// If one is a primitive string and the other is not, try parsing the string.
+		if (expected.isJsonPrimitive() && expected.getAsJsonPrimitive().isString() && !actual.isJsonPrimitive()) {
+			try {
+				var parsedExpected = JsonUtils.parse(expected.getAsString());
+				return parsedExpected.equals(actual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
 		}
+
+		if (actual.isJsonPrimitive() && actual.getAsJsonPrimitive().isString() && !expected.isJsonPrimitive()) {
+			try {
+				var parsedActual = JsonUtils.parse(actual.getAsString());
+				return expected.equals(parsedActual);
+			} catch (OpenemsNamedException e) {
+				return false; // The string was not valid JSON
+			}
+		}
+
+		if (expected.isJsonPrimitive() && actual.isJsonPrimitive()) {
+			return expected.getAsString().equals(actual.getAsString());
+		}
+
 		return false;
 	}
 
@@ -97,11 +118,25 @@ public class ComponentUtilImpl implements ComponentUtil {
 			return false;
 		}
 		for (NetworkInterface<?> networkInterface : otherInterfaces) {
-			var netinterface = interfaces.stream().filter(t -> t.getName().equals(networkInterface.getName()))
+			var netInterface = interfaces.stream().filter(t -> t.getName().equals(networkInterface.getName()))
 					.findFirst().orElse(null);
-			if (netinterface == null || netinterface.getAddresses().getValue().size() //
-					!= networkInterface.getAddresses().getValue().size() || !netinterface.getAddresses().getValue()
-							.stream().allMatch(t -> networkInterface.getAddresses().getValue().contains(t))) {
+
+			if (netInterface == null) {
+				return false;
+			}
+			var netInterfaceAddresses = netInterface.getAddresses().getValue();
+			var networkInterfaceAddresses = networkInterface.getAddresses().getValue();
+
+			if (netInterfaceAddresses == null && networkInterfaceAddresses == null) {
+				continue;
+			}
+			if (netInterfaceAddresses == null || networkInterfaceAddresses == null) {
+				return false;
+			}
+			if (netInterfaceAddresses.size() != networkInterfaceAddresses.size()) {
+				return false;
+			}
+			if (!networkInterfaceAddresses.containsAll(netInterfaceAddresses)) {
 				return false;
 			}
 		}
@@ -131,20 +166,23 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public List<NetworkInterface<?>> getInterfaces() throws OpenemsNamedException {
 		var hostConfig = this.componentManager.getEdgeConfig().getComponent(Host.SINGLETON_COMPONENT_ID).get();
-		var config = hostConfig.getProperty("networkConfiguration").get().getAsJsonObject();
+		final var configRaw = hostConfig.getProperty("networkConfiguration").get();
+		var config = configRaw.isJsonObject() //
+				? configRaw.getAsJsonObject() //
+				: JsonUtils.parseToJsonObject(configRaw.getAsString());
 		var interfaces = config.get("interfaces").getAsJsonObject();
 		return getInterfaces(interfaces);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent.
+	 * Checks if the expected components match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfiguration(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfiguration(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, true, true);
 	}
@@ -159,7 +197,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param includeId         if the Component-ID should be checked
 	 * @return true if the configurations are the same
 	 */
-	private static boolean isSameConfiguration(List<String> errors, Component expectedComponent,
+	private static boolean isSameConfiguration(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent, boolean includeAlias, boolean includeId) {
 		if (errors == null) {
 			// if the caller doesn't want errors use the fast way.
@@ -168,22 +206,22 @@ public class ComponentUtilImpl implements ComponentUtil {
 
 		var componentErrors = new ArrayList<String>();
 
-		if (includeAlias && !expectedComponent.getAlias().equals(actualComponent.getAlias())) {
+		if (includeAlias && !expectedComponent.alias().equals(actualComponent.getAlias())) {
 			componentErrors.add("Alias: " //
-					+ "expected '" + expectedComponent.getAlias() + "', " //
+					+ "expected '" + expectedComponent.alias() + "', " //
 					+ "got '" + actualComponent.getAlias() + "'");
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.factoryId(), actualComponent.getFactoryId())) {
 			componentErrors.add("Factory-ID: " //
-					+ "expected '" + expectedComponent.getFactoryId() + "', " //
+					+ "expected '" + expectedComponent.factoryId() + "', " //
 					+ "got '" + actualComponent.getFactoryId() + "'");
 		}
 
-		for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-			var key = entry.getKey();
-			var expectedProperty = entry.getValue();
+		for (ComponentProperties.Property entry : expectedComponent.properties().values()) {
+			var key = entry.name();
+			var expectedProperty = entry.value();
 			JsonElement actualProperty;
 			try {
 				actualProperty = actualComponent.getPropertyOrError(key);
@@ -201,14 +239,14 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 		}
 
-		if (includeId && !expectedComponent.getId().equals(actualComponent.getId())) {
+		if (includeId && !expectedComponent.id().equals(actualComponent.getId())) {
 			componentErrors.add("Id: " //
-					+ "expected '" + expectedComponent.getId() + "', " //
+					+ "expected '" + expectedComponent.id() + "', " //
 					+ "got '" + actualComponent.getId() + "'");
 		}
 
 		if (!componentErrors.isEmpty()) {
-			errors.add(expectedComponent.getId() + ": " //
+			errors.add(expectedComponent.id() + ": " //
 					+ componentErrors.stream().collect(Collectors.joining("; ")));
 			return false;
 		}
@@ -216,7 +254,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent. Returns on
+	 * Checks if the expected Components match with the actualComponent. Returns on
 	 * the first error.
 	 *
 	 * @param expectedComponent the expected component
@@ -225,22 +263,22 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param includeId         if the Component-ID should be checked
 	 * @return true if the configurations are the same
 	 */
-	private static boolean isSameConfigurationFast(Component expectedComponent, Component actualComponent,
+	private static boolean isSameConfigurationFast(ComponentDef expectedComponent, Component actualComponent,
 			boolean includeAlias, boolean includeId) {
 
-		if (includeId && !expectedComponent.getId().equals(actualComponent.getId())
-				|| includeAlias && !expectedComponent.getAlias().equals(actualComponent.getAlias())) {
+		if (includeId && !expectedComponent.id().equals(actualComponent.getId())
+				|| includeAlias && !expectedComponent.alias().equals(actualComponent.getAlias())) {
 			return false;
 		}
 
 		// Validate the Component Factory (i.e. is the Component of the correct type)
-		if (!Objects.equals(expectedComponent.getFactoryId(), actualComponent.getFactoryId())) {
+		if (!Objects.equals(expectedComponent.factoryId(), actualComponent.getFactoryId())) {
 			return false;
 		}
 
-		for (Entry<String, JsonElement> entry : expectedComponent.getProperties().entrySet()) {
-			var key = entry.getKey();
-			var expectedProperty = entry.getValue();
+		for (var entry : expectedComponent.properties().values()) {
+			var key = entry.name();
+			var expectedProperty = entry.value();
 			JsonElement actualProperty;
 			try {
 				actualProperty = actualComponent.getPropertyOrError(key);
@@ -257,43 +295,40 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the alias.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutAlias(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutAlias(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, false, true);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the Component-ID.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutId(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutId(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, true, false);
 	}
 
 	/**
-	 * Checks if the expectedComonents match with the actualComponent without
-	 * checking the Component-ID and the alias.
+	 * Checks if the expectedComonents match with the actualComponent.
 	 *
 	 * @param errors            list if something does not match
 	 * @param expectedComponent the expected component
 	 * @param actualComponent   the actual existing component
 	 * @return true if the configurations are the same
 	 */
-	public static boolean isSameConfigurationWithoutIdAndAlias(List<String> errors, Component expectedComponent,
+	public static boolean isSameConfigurationWithoutIdAndAlias(List<String> errors, ComponentDef expectedComponent,
 			Component actualComponent) {
 		return isSameConfiguration(errors, expectedComponent, actualComponent, false, false);
 	}
@@ -305,18 +340,18 @@ public class ComponentUtilImpl implements ComponentUtil {
 	 * @param components the component list
 	 * @return an ordered copy of the list
 	 */
-	public static List<Component> order(List<Component> components) {
+	public static List<ComponentDef> order(List<ComponentDef> components) {
 		var copy = new ArrayList<>(components);
 		if (components.size() <= 1) {
 			return copy;
 		}
-		for (Component component : components) {
+		for (var component : components) {
 			// determine which id s the component needs
 			List<String> ids = new ArrayList<>();
-			for (Component comp : components) {
-				for (var entry : component.getProperties().entrySet()) {
-					if (entry.getValue().toString().contains(comp.getId())) {
-						ids.add(comp.getId());
+			for (var comp : components) {
+				for (var entry : component.properties().values()) {
+					if (entry.value().toString().contains(comp.id())) {
+						ids.add(comp.id());
 						break;
 					}
 				}
@@ -331,9 +366,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 			var minIndex = 0;
 			var count = 0;
 			// determine minIndex to insert the component
-			for (Component comp : copy) {
-				if (ids.contains(comp.getId())) {
-					ids.remove(comp.getId());
+			for (var comp : copy) {
+				if (ids.contains(comp.id())) {
+					ids.remove(comp.id());
 					minIndex = count;
 					if (ids.isEmpty()) {
 						break;
@@ -355,7 +390,8 @@ public class ComponentUtilImpl implements ComponentUtil {
 		return copy;
 	}
 
-	private List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
+	@Override
+	public List<OpenemsComponent> getComponentUsing(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
 				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
 				.filter(c -> { //
@@ -377,7 +413,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public boolean anyComponentUses(String value, List<String> ignoreIds) {
 		return this.componentManager.getAllComponents().stream() //
-				.filter(t -> !ignoreIds.stream().anyMatch(id -> t.id().equals(id))) //
+				.filter(t -> {
+					return !ignoreIds.stream().anyMatch(id -> t.id().equals(id)); //
+				}) //
 				.anyMatch(c -> { //
 					var t = c.getComponentContext().getProperties();
 					return enumerationAsStream(t.keys()).anyMatch(key -> {
@@ -420,9 +458,9 @@ public class ComponentUtilImpl implements ComponentUtil {
 	}
 
 	@Override
-	public Component getComponentByConfig(Component component) {
-		for (var comp : this.componentManager.getEdgeConfig().getComponentsByFactory(component.getFactoryId())) {
-			if (ComponentUtilImpl.isSameConfigurationWithoutIdAndAlias(null, component, comp)) {
+	public Component getComponentByConfig(ComponentDef component) {
+		for (var comp : this.componentManager.getEdgeConfig().getComponentsByFactory(component.factoryId())) {
+			if (ComponentUtilImpl.isSameConfiguration(null, component, comp, false, false)) {
 				return comp;
 			}
 		}
@@ -522,12 +560,13 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 			if (fallBackInARowRelays == null) {
 				count = 0;
-				var startIndex = 1;
+				var startIndex = 0;
 				for (var channelInfo : relayInfo.channels()) {
+					count++;
 					if (!channelInfo.usingComponents().isEmpty() //
 							|| !channelInfo.disabledReasons().isEmpty()) {
 						startIndex += count;
-						count = 1;
+						count = 0;
 					}
 					if (count >= numberOfRelays) {
 						break;
@@ -548,7 +587,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public void updateInterfaces(User user, List<NetworkInterface<?>> interfaces) throws OpenemsNamedException {
 		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
-		host.handleSetNetworkConfigRequest(user, new SetNetworkConfigRequest(interfaces));
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfig.Request(interfaces));
 
 		// wait until its updated
 		do {
@@ -623,7 +662,7 @@ public class ComponentUtilImpl implements ComponentUtil {
 			}
 
 			var ids = componentIds.stream().map(JsonPrimitive::new).collect(toJsonArray());
-			final var request = new UpdateComponentConfigRequest(scheduler.getId(), List.of(//
+			final var request = new UpdateComponentConfig.Request(scheduler.getId(), List.of(//
 					new UpdateComponentConfigRequest.Property("controllers.ids", ids) //
 			));
 
@@ -711,45 +750,191 @@ public class ComponentUtilImpl implements ComponentUtil {
 	@Override
 	public void updateHosts(//
 			final User user, //
-			final List<InterfaceConfiguration> ips, //
-			final List<InterfaceConfiguration> oldIps //
+			final List<InterfaceConfiguration> newInterfaceConfigs, //
+			final List<InterfaceConfiguration> oldInterfaceConfigs //
 	) throws OpenemsNamedException {
-		if ((ips == null || ips.isEmpty()) && (oldIps == null || oldIps.isEmpty())) {
+		if ((newInterfaceConfigs == null || newInterfaceConfigs.isEmpty())
+				&& (oldInterfaceConfigs == null || oldInterfaceConfigs.isEmpty())) {
 			return;
 		}
 
 		final var errors = new ArrayList<String>();
+		var interfacesToCreate = new ArrayList<InterfaceConfiguration>();
+		var interfacesToDelete = new ArrayList<String>();
 
-		var interfaces = this.getInterfaces();
+		// Collect interfaces to create
+		if (newInterfaceConfigs != null) {
+			for (var interfaceConfig : newInterfaceConfigs) {
+				if (interfaceConfig.getCreateIfNotExist() != null && interfaceConfig.getCreateIfNotExist()) {
+					interfacesToCreate.add(interfaceConfig);
+				}
+			}
+		}
+
+		// Collect interfaces to delete
+		if (oldInterfaceConfigs != null) {
+			for (var oldInterfaceConfig : oldInterfaceConfigs) {
+				var existsInNew = newInterfaceConfigs != null && newInterfaceConfigs.stream()//
+						.anyMatch(ip -> ip.interfaceName.equals(oldInterfaceConfig.interfaceName));
+
+				if (!existsInNew) {
+					// Only delete if it was created by the app
+					if (oldInterfaceConfig.getCreateIfNotExist() != null && oldInterfaceConfig.getCreateIfNotExist()) {
+						interfacesToDelete.add(oldInterfaceConfig.interfaceName);
+					}
+				}
+			}
+		}
+
+		if (!interfacesToCreate.isEmpty()) {
+			try {
+				this.createNetworkInterfaces(user, interfacesToCreate);
+				// TODO Required for; systemd-networkd to recognize the interfaces
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				errors.add("Failed to create network interfaces: " + e.getMessage());
+			}
+		}
+
+		// Delete removed interfaces
+		if (!interfacesToDelete.isEmpty()) {
+			try {
+				this.deleteNetworkInterfaces(user, interfacesToDelete);
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				errors.add("Failed to delete network interfaces: " + e.getMessage());
+			}
+		}
+
+		final var interfaces = this.getInterfaces().stream()//
+				.filter(iface -> !interfacesToDelete.contains(iface.getName()))//
+				.toList();
 		interfaces.stream() //
 				.forEach(networkInterface -> {
-					if (oldIps != null) {
-						// remove ip's in the old configuration
-						oldIps.stream() //
+					// remove ip's in the old configuration
+					if (oldInterfaceConfigs != null) {
+						oldInterfaceConfigs.stream() //
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
-									networkInterface.getAddresses().getValue().removeAll(t.getIps());
+									if (networkInterface.getAddresses().isSet()
+											&& networkInterface.getAddresses().getValue() != null) {
+										networkInterface.getAddresses().getValue().removeAll(t.getIps());
+									}
+									if (t.getIpv4Forwarding() != null) {
+										networkInterface.setIpv4Forwarding(ConfigurationProperty.asNotSet());
+									}
+									if (t.getIpMasquerade() != null) {
+										networkInterface.setIpMasquerade(ConfigurationProperty.asNotSet());
+									}
+									if (t.getDhcp() != null) {
+										networkInterface.setDhcp(ConfigurationProperty
+												.of(Objects.equals(networkInterface.getName(), "eth0") ? true : false));
+									}
+									if (t.getDns() != null) {
+										networkInterface.setDns(ConfigurationProperty.of(null));
+									}
+									if (t.getDhcpRouteMetric() != 0) {
+										networkInterface.setDhcpRouteMetric(ConfigurationProperty.of(null));
+									}
+									// Gateway removal
+									if (t.getGateway() != null) {
+										networkInterface.setGateway(ConfigurationProperty.of(null));
+									}
+									// GatewayOnLink removal
+									if (t.getGatewayOnLink() != null) {
+										networkInterface.setGatewayOnLink(ConfigurationProperty.of(null));
+									}
+									if (!t.getRoutes().isEmpty()) {
+										var currentRoutes = new HashSet<>(networkInterface.getRoutes().getValue());
+										t.getRoutes().forEach(currentRoutes::remove);
+										networkInterface.setRoutes(ConfigurationProperty.of(currentRoutes));
+									}
 								});
 					}
-					if (ips != null) {
+					if (newInterfaceConfigs != null) {
 						// add new ip's
-						ips.stream() //
+						newInterfaceConfigs.stream() //
 								.filter(t -> t.interfaceName.equals(networkInterface.getName())) //
 								.forEach(t -> {
-									networkInterface.getAddresses().getValue().addAll(t.getIps());
+									if (networkInterface.getAddresses().isSet()
+											&& networkInterface.getAddresses().getValue() != null) {
+										networkInterface.getAddresses().getValue().addAll(t.getIps());
+									}
+
+									if (t.getIpv4Forwarding() != null) {
+										networkInterface
+												.setIpv4Forwarding(ConfigurationProperty.of(t.getIpv4Forwarding()));
+									}
+									if (t.getIpMasquerade() != null) {
+										networkInterface.setIpMasquerade(ConfigurationProperty.of(t.getIpMasquerade()));
+									}
+
+									if (t.getDhcp() != null) {
+										networkInterface.setDhcp(ConfigurationProperty.of(t.getDhcp()));
+									}
+
+									if (t.getDns() != null) {
+										try {
+											var inet4Address = (Inet4Address) Inet4Address.getByName(t.getDns());
+											networkInterface.setDns(ConfigurationProperty.of(inet4Address));
+										} catch (Exception e) {
+											errors.add("Invalid DNS address: " + t.getDns());
+										}
+									}
+
+									if (t.getDhcpRouteMetric() != 0) {
+										networkInterface
+												.setDhcpRouteMetric(ConfigurationProperty.of(t.getDhcpRouteMetric()));
+									}
+
+									// Gateway addition
+									if (t.getGateway() != null) {
+										try {
+											var inet4Address = (Inet4Address) Inet4Address.getByName(t.getGateway());
+											networkInterface.setGateway(ConfigurationProperty.of(inet4Address));
+										} catch (Exception e) {
+											errors.add("Invalid Gateway address: " + t.getGateway());
+										}
+									}
+
+									// GatewayOnLink addition
+									if (t.getGatewayOnLink() != null) {
+										try {
+											networkInterface
+													.setGatewayOnLink(ConfigurationProperty.of(t.getGatewayOnLink()));
+										} catch (Exception e) {
+											errors.add("Invalid GatewayOnLink value: " + t.getGatewayOnLink());
+										}
+									}
+
+									if (networkInterface.getRoutes().isSet()
+											&& networkInterface.getRoutes().getValue() != null) {
+										var currentRoutes = new HashSet<>(networkInterface.getRoutes().getValue());
+										currentRoutes.addAll(t.getRoutes());
+										networkInterface.setRoutes(ConfigurationProperty.of(currentRoutes));
+									} else {
+										networkInterface
+												.setRoutes(ConfigurationProperty.of(new HashSet<>(t.getRoutes())));
+									}
 								});
 					}
 				});
 
-		ips.stream() //
-				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
-				.map(ic -> "Can not add Ip-Addresses for interface '" + ic.interfaceName + "'") //
-				.forEach(errors::add);
+		if (newInterfaceConfigs != null) {
+			newInterfaceConfigs.stream() //
+					.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+					.filter(ic -> ic.getCreateIfNotExist() == null || !ic.getCreateIfNotExist()) //
+					.map(ic -> "Can not add Ip-Addresses for interface '" + ic.interfaceName + "'") //
+					.forEach(errors::add);
+		}
 
-		oldIps.stream() //
-				.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
-				.map(ic -> "Can not remove Ip-Addresses for interface '" + ic.interfaceName + "'") //
-				.forEach(errors::add);
+		if (oldInterfaceConfigs != null) {
+			oldInterfaceConfigs.stream() //
+					.filter(ic -> !interfaces.stream().anyMatch(i -> i.getName().equals(ic.interfaceName)))
+					.filter(ic -> ic.getCreateIfNotExist() == null || !ic.getCreateIfNotExist())
+					.map(ic -> "Can not remove Ip-Addresses for interface '" + ic.interfaceName + "'") //
+					.forEach(errors::add);
+		}
 
 		try {
 			this.updateInterfaces(user, interfaces);
@@ -760,6 +945,66 @@ public class ComponentUtilImpl implements ComponentUtil {
 		if (!errors.isEmpty()) {
 			throw new OpenemsException(errors.stream().collect(Collectors.joining("|")));
 		}
+	}
+
+	/**
+	 * Creates network interface configuration files for interfaces that don't exist
+	 * yet.
+	 * 
+	 * @param user             the user performing the operation
+	 * @param interfaceConfigs the list of interface configurations to create
+	 * @throws OpenemsNamedException or UnknownHostException on error.
+	 */
+	private void createNetworkInterfaces(User user, List<InterfaceConfiguration> interfaceConfigs)
+			throws OpenemsNamedException, UnknownHostException {
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		var networkInterfaces = new ArrayList<NetworkInterface<?>>();
+		for (var config : interfaceConfigs) {
+			var addresses = new HashSet<>(config.getIps());
+			var routes = new HashSet<>(config.getRoutes());
+			var networkInterface = new NetworkInterface<Void>(config.interfaceName, config.getDhcp() != null //
+					? ConfigurationProperty.of(config.getDhcp())//
+					: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.asNotSet(), //
+					config.getGateway() != null//
+							? ConfigurationProperty.of((Inet4Address) Inet4Address.getByName(config.getGateway()))//
+							: ConfigurationProperty.asNotSet(), //
+					config.getDns() != null//
+							? ConfigurationProperty.of((Inet4Address) Inet4Address.getByName(config.getDns()))//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.of(addresses), //
+					config.getDhcpRouteMetric() != 0 //
+							? ConfigurationProperty.of(config.getDhcpRouteMetric())//
+							: ConfigurationProperty.asNotSet(), //
+					config.getIpv4Forwarding() != null //
+							? ConfigurationProperty.of(config.getIpv4Forwarding())//
+							: ConfigurationProperty.asNotSet(), //
+					config.getIpMasquerade() != null //
+							? ConfigurationProperty.of(config.getIpMasquerade())//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.asNotSet(), // destination
+					config.getGatewayOnLink() != null //
+							? ConfigurationProperty.of(config.getGatewayOnLink())//
+							: ConfigurationProperty.asNotSet(), //
+					ConfigurationProperty.of(routes), //
+					null);
+
+			networkInterfaces.add(networkInterface);
+		}
+
+		host.handleSetNetworkConfigRequest(user, new SetNetworkConfig.Request(networkInterfaces));
+	}
+
+	/**
+	 * Deletes network interface configuration files.
+	 * 
+	 * @param user           the user performing the operation
+	 * @param interfaceNames the list of interface names to delete
+	 * @throws OpenemsNamedException on error
+	 */
+	private void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		HostImpl host = this.componentManager.getComponent(Host.SINGLETON_COMPONENT_ID);
+		host.deleteNetworkInterfaces(user, interfaceNames);
 	}
 
 	@Override

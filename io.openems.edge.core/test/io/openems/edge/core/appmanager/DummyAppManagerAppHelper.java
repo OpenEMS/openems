@@ -1,11 +1,12 @@
 package io.openems.edge.core.appmanager;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelper;
@@ -13,6 +14,7 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 import io.openems.edge.core.appmanager.dependency.TemporaryApps;
 import io.openems.edge.core.appmanager.dependency.UpdateValues;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.AggregateTask.AggregateTaskExecutionConfiguration;
 
 public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 
@@ -24,12 +26,12 @@ public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 			ComponentManager componentManager, //
 			ComponentUtil componentUtil, //
 			AppManagerUtil util //
-	) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	) throws ReflectionException {
 		this.tasks = new ArrayList<AggregateTask<?>>();
 		this.impl = new AppManagerAppHelperImpl(componentManager, componentUtil);
 
-		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "tasks", this.tasks);
-		ReflectionUtils.setAttribute(AppManagerAppHelperImpl.class, this.impl, "appManagerUtil", util);
+		setAttributeViaReflection(this.impl, "tasks", this.tasks);
+		setAttributeViaReflection(this.impl, "appManagerUtil", util);
 	}
 
 	/**
@@ -60,6 +62,12 @@ public class DummyAppManagerAppHelper implements AppManagerAppHelper {
 	@Override
 	public UpdateValues deleteApp(User user, OpenemsAppInstance instance) throws OpenemsNamedException {
 		return this.impl.deleteApp(user, instance);
+	}
+
+	@Override
+	public List<AggregateTaskExecutionConfiguration> getInstallConfiguration(User user, OpenemsAppInstance instance,
+			OpenemsApp app) throws OpenemsNamedException {
+		return this.impl.getInstallConfiguration(user, instance, app);
 	}
 
 	@Override

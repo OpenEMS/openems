@@ -12,13 +12,14 @@ import io.openems.edge.common.component.OpenemsComponent;
 public interface AppManager extends OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING) //
-				.text("App-Manager configuration is wrong")), //
-		DEFECTIVE_APP(Doc.of(Level.INFO) //
-				// TODO should be a WARNING eventually
-				.text("Defective App detected")), //
-		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO) //
-				.text("The currently installed apps are not the same as logged in the backend")), //
+		WRONG_APP_CONFIGURATION(Doc.of(Level.WARNING)//
+				.translationKey(AppManager.class, "AppManager.WrongAppConfiguration")), //
+		DEFECTIVE_APP(Doc.of(Level.INFO)// TODO should be a WARNING eventually
+				.translationKey(AppManager.class, "AppManager.DefectiveApp")), //
+		APPS_NOT_SYNCED_WITH_BACKEND(Doc.of(Level.INFO)//
+				.translationKey(AppManager.class, "AppManager.AppsNotSynced")), //
+		HARDWARE_MISMATCH(Doc.of(Level.INFO)//
+				.text("The current installed hardware app is not the same as defined in 'hardware.conf'")), //
 		;
 
 		private final Doc doc;
@@ -65,6 +66,16 @@ public interface AppManager extends OpenemsComponent {
 	 */
 	public default void _setAppsNotSyncedWithBackend(boolean value) {
 		this.getAppsNotSyncedWithBackendChannel().setNextValue(value);
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on {@link ChannelId#HARDWARE_MISMATCH}
+	 * Channel.
+	 * 
+	 * @param value the next value
+	 */
+	public default void _setHardwareMismatch(boolean value) {
+		this.getHardwareMismatchChannel().setNextValue(value);
 	}
 
 	/**
@@ -121,6 +132,25 @@ public interface AppManager extends OpenemsComponent {
 	 */
 	public default StateChannel getAppsNotSyncedWithBackendChannel() {
 		return this.channel(ChannelId.APPS_NOT_SYNCED_WITH_BACKEND);
+	}
+
+	/**
+	 * Gets the Hardware-Mismatch info State. See
+	 * {@link ChannelId#HARDWARE_MISMATCH}.
+	 * 
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getHardwareMismatch() {
+		return this.getAppsNotSyncedWithBackendChannel().value();
+	}
+
+	/**
+	 * Gets the channel for {@link ChannelId#HARDWARE_MISMATCH}.
+	 * 
+	 * @return the Channel
+	 */
+	public default StateChannel getHardwareMismatchChannel() {
+		return this.channel(ChannelId.HARDWARE_MISMATCH);
 	}
 
 }

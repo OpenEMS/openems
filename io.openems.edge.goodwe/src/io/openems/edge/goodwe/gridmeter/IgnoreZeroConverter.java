@@ -34,10 +34,10 @@ public class IgnoreZeroConverter extends ElementToChannelConverter {
 			if (value == null) {
 				return null;
 			}
-			if (value instanceof Integer && (Integer) value != 0) {
+			if (value instanceof Integer i && i != 0) {
 				return value;
 			}
-			if (value instanceof Long && (Long) value != 0L) {
+			if (value instanceof Long l && l != 0L) {
 				return value;
 			}
 			var hasNoMeter = parent.getHasNoMeter();

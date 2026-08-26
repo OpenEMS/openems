@@ -1,0 +1,35 @@
+<ion-card>
+  <ion-item lines="full" color="light">
+    <ion-icon slot="start" size="large" color="danger" name="oe-offline"></ion-icon>
+    <ion-label>{{"OFFLINE.GENERAL.EMS_OFFLINE" | translate: {edgeShortName: environment.edgeShortName} }}
+      <p>
+        <a href="https://openems.io" target="_blank" translate>OFFLINE.GENERAL.MORE_INFO</a>
+      </p>
+    </ion-label>
+  </ion-item>
+
+  <ng-container>
+    <ion-card-content>
+      <ion-grid class="full_width ion-padding">
+        <div style="background-color: var(--ion-color-light);">
+          @if (isAtLeastInstaller && timeSinceOffline !== null) {
+            <ion-row class="ion-text-center">
+              <ion-col
+                [innerHTML]="'OFFLINE.GENERAL.TIME_OUT' | translate:{ timeSinceOffline: timeSinceOffline }">
+              </ion-col>
+            </ion-row>
+          }
+          <ion-row class="ion-text-center">
+            <ion-col size="12" class="ion-font-weight-bolder ion-font-size-medium" translate>
+              OFFLINE.GENERAL.TRY
+            </ion-col>
+            <ion-col size="12">
+              <ion-label class="ion-text-wrap" [innerHTML]="'OFFLINE.GENERAL.AVAILABILITY' | translate">
+              </ion-label>
+            </ion-col>
+          </ion-row>
+        </div>
+      </ion-grid>
+    </ion-card-content>
+  </ng-container>
+</ion-card>

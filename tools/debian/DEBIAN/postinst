@@ -19,24 +19,40 @@
 set -o errexit
 
 function start_service {
-	/bin/systemctl daemon-reload
+	local service=$1
 
-	# Check if service is enabled and running
-	/bin/systemctl --quiet is-enabled $1 > /dev/null && {
-		# Enabled - restart
-		echo "Starting $1"
-		/bin/systemctl start --no-block $1.service
-	} || {
-		# Not enabled - enable and start
-		echo "Enabling and starting $1"
-		/bin/systemctl stop $1.service
-		/bin/systemctl enable $1.service
-		/bin/systemctl start --no-block $1.service
-	}
+	# Check if service is enabled
+	if ! ( /bin/systemctl --quiet is-enabled $service > /dev/null ); then
+		# Enable
+		echo "Enabling $service"
+		/bin/systemctl enable $service.service
+	fi
+
+	echo "Start $service"
+	/bin/systemctl start --no-block $service.service
+}
+
+function stop_service {
+	local service=$1
+
+	# Check if service exists
+	if ! ( /bin/systemctl list-unit-files | grep "$service.service" > /dev/null ); then
+		return
+	fi 
+
+	# Check if service is disabled
+	if ( /bin/systemctl --quiet is-enabled $service > /dev/null ); then 
+		# Disable
+		echo "Disabling $service"
+		/bin/systemctl disable $service.service
+	fi
+
+	echo "Stop $service"
+	/bin/systemctl stop --no-block "$service.service"
 }
 
 case "$1" in
-	configure)
+	configure|upgrade)
 		# Always restart openems
 		/bin/systemctl stop openems
 		

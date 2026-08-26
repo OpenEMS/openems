@@ -207,8 +207,7 @@ public class NetworkDeviceMonitor extends AbstractDeviceMonitor {
 							var owc = getDeviceContainer(this.adapter, longAddress);
 							// check to see if it's a switch and if we are supposed
 							// to automatically search down branches
-							if (this.branchAutoSearching && owc instanceof SwitchContainer) {
-								var sc = (SwitchContainer) owc;
+							if (this.branchAutoSearching && owc instanceof SwitchContainer sc) {
 								var state = sc.readDevice();
 								for (var j = 0; j < sc.getNumberChannels(state); j++) {
 									var tmp = new OWPath(this.adapter, path);

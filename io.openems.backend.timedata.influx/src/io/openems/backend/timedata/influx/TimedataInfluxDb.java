@@ -83,7 +83,7 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 	private void activate(Config config) throws OpenemsException, IllegalArgumentException {
 		this.config = config;
 		this.timeFilter = TimeFilter.from(config.startDate(), config.endDate());
-		this.channelFilter = ChannelFilter.from(config.blacklistedChannels());
+		this.channelFilter = ChannelFilter.from(config.blacklistedChannels(), config.blacklistedChannelIds());
 
 		this.logInfo(this.log, "Activate [" //
 				+ "url=" + config.url() + ";"//
@@ -245,10 +245,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			return null;
 		}
 
-		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
+		final var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
 
-		return this.influxConnector.queryHistoricData(influxEdgeId, fromDate, toDate, channels, resolution,
+		return this.influxConnector.queryHistoricData(Optional.of(influxEdgeId), fromDate, toDate, channels, resolution,
 				this.config.measurement());
 	}
 
@@ -259,9 +258,9 @@ public class TimedataInfluxDb extends AbstractOpenemsBackendComponent implements
 			return null;
 		}
 
-		// parse the numeric EdgeId
-		Optional<Integer> influxEdgeId = Optional.of(InfluxConnector.parseNumberFromName(edgeId));
-		return this.influxConnector.queryHistoricEnergy(influxEdgeId, fromDate, toDate, channels,
+		var influxEdgeId = InfluxConnector.parseNumberFromName(edgeId);
+
+		return this.influxConnector.queryHistoricEnergy(Optional.of(influxEdgeId), fromDate, toDate, channels,
 				this.config.measurement());
 	}
 

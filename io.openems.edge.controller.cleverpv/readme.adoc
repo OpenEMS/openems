@@ -1,0 +1,7 @@
+= Clever-PV
+
+Sends current power data to the clever-PV cloud service via their Push-API. 
+
+See https://www.clever-pv.com/anleitungen/push-api for details and how to get the configuration URL.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.cleverpv[Source Code icon:github[]]

@@ -317,49 +317,48 @@ public final class DspVar extends ADspData {
 			return;
 		}
 		setModifiedNow();
-		if (in instanceof Float) {
-			bufWrite.putFloat(n * 4, ((Float) in).floatValue());
+		if (in instanceof Float f) {
+			bufWrite.putFloat(n * 4, f.floatValue());
 		}
-		if (in instanceof Long) {
+		if (in instanceof Long l) {
 			switch (type) {
 			case TYPE_UINT32:
 			case TYPE_INT32:
-				bufWrite.putInt(n * 4, ((Long) in).intValue());
+				bufWrite.putInt(n * 4, l.intValue());
 				break;
 			case TYPE_UINT16:
 			case TYPE_INT16:
-				bufWrite.putShort(n * 2, ((Long) in).shortValue());
+				bufWrite.putShort(n * 2, l.shortValue());
 				break;
 			case TYPE_UINT8:
 			case TYPE_INT8:
-				bufWrite.put(n, ((Long) in).byteValue());
+				bufWrite.put(n, l.byteValue());
 				break;
 			}
 		}
-		if (in instanceof Integer) {
+		if (in instanceof Integer i) {
 			switch (type) {
 			case TYPE_UINT32:
 			case TYPE_INT32:
-				bufWrite.putInt(n * 4, ((Integer) in).intValue());
+				bufWrite.putInt(n * 4, i.intValue());
 				break;
 			case TYPE_UINT16:
 			case TYPE_INT16:
-				bufWrite.putShort(n * 2, ((Integer) in).shortValue());
+				bufWrite.putShort(n * 2, i.shortValue());
 				break;
 			case TYPE_UINT8:
 			case TYPE_INT8:
-				bufWrite.put(n, ((Integer) in).byteValue());
+				bufWrite.put(n, i.byteValue());
 				break;
 			}
 		}
-		if (in instanceof ByteBuffer) {
-			ByteBuffer bf = (ByteBuffer) in;
+		if (in instanceof ByteBuffer bf) {
 			for (int i = 0; i < data_set.length && i < bf.capacity(); i++) {
 				data_set[i] = bf.get(i);
 			}
 		}
-		if (in instanceof String) {
-			str = (String) in;
+		if (in instanceof String ins) {
+			str = ins;
 			str = str.replace("[", "");
 			str = str.replace("]", "");
 			str = str.replace(" ", "");
@@ -458,28 +457,15 @@ public final class DspVar extends ADspData {
 	}
 
 	private static int getVarLen(int vType, int vArrayLen) throws RuntimeException {
-		int vLen = 0;
 		if (vArrayLen == 0) {
 			vArrayLen = 1;
 		}
-		switch (vType) {
-		default:
-			throw new RuntimeException("wrong variable type");
-		case TYPE_FLOAT:
-		case TYPE_UINT32:
-		case TYPE_INT32:
-			vLen = 4 * vArrayLen;
-			break;
-		case TYPE_UINT16:
-		case TYPE_INT16:
-			vLen = 2 * vArrayLen;
-			break;
-		case TYPE_UINT8:
-		case TYPE_INT8:
-			vLen = vArrayLen;
-			break;
-		}
-		return vLen;
+		return switch (vType) {
+		default -> throw new RuntimeException("wrong variable type");
+		case TYPE_FLOAT, TYPE_UINT32, TYPE_INT32 -> 4 * vArrayLen;
+		case TYPE_UINT16, TYPE_INT16 -> 2 * vArrayLen;
+		case TYPE_UINT8, TYPE_INT8 -> vArrayLen;
+		};
 	}
 }
 //CHECKSTYLE:ON

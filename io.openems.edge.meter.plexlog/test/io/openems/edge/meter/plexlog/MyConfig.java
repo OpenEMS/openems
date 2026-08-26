@@ -1,8 +1,8 @@
 package io.openems.edge.meter.plexlog;
 
 import io.openems.common.test.AbstractComponentConfig;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.meter.api.MeterType;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,6 +12,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private MeterType type;
 		private String modbusId;
 		private int modbusUnitId;
+		private boolean invert;
 
 		private Builder() {
 		}
@@ -37,6 +38,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setModbusUnitId(int modbusUnitId) {
 			this.modbusUnitId = modbusUnitId;
+			return this;
+		}
+
+		public Builder setInvert(boolean invert) {
+			this.invert = invert;
 			return this;
 		}
 	}
@@ -75,6 +81,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public MeterType type() {
 		return this.builder.type;
+	}
+
+	@Override
+	public boolean invert() {
+		return this.builder.invert;
 	}
 
 }

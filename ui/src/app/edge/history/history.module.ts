@@ -1,90 +1,43 @@
-import { NgModule } from '@angular/core';
-import { HistoryDataErrorModule } from 'src/app/shared/components/history-data-error/history-data-error.module';
-
-import { SharedModule } from '../../shared/shared.module';
-import { ChpSocChartComponent } from './chpsoc/chart.component';
-import { ChpSocWidgetComponent } from './chpsoc/widget.component';
-import { Common } from './common/common';
-import { Controller } from './Controller/controller.module';
-import { DelayedSellToGridChartComponent } from './delayedselltogrid/chart.component';
-import { DelayedSellToGridChartOverviewComponent } from './delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component';
-import { DelayedSellToGridWidgetComponent } from './delayedselltogrid/widget.component';
-import { FixDigitalOutputChartOverviewComponent } from './fixdigitaloutput/fixdigitaloutputchartoverview/fixdigitaloutputchartoverview.component';
-import { FixDigitalOutputSingleChartComponent } from './fixdigitaloutput/singlechart.component';
-import { FixDigitalOutputTotalChartComponent } from './fixdigitaloutput/totalchart.component';
-import { FixDigitalOutputWidgetComponent } from './fixdigitaloutput/widget.component';
-import { HeatingelementChartComponent } from './heatingelement/chart.component';
-import { HeatingelementChartOverviewComponent } from './heatingelement/heatingelementchartoverview/heatingelementchartoverview.component';
-import { HeatingelementWidgetComponent } from './heatingelement/widget.component';
-import { HeatPumpChartComponent } from './heatpump/chart.component';
-import { HeatPumpChartOverviewComponent } from './heatpump/heatpumpchartoverview/heatpumpchartoverview.component';
-import { HeatpumpWidgetComponent } from './heatpump/widget.component';
-import { HistoryComponent } from './history.component';
-import { HistoryParentComponent } from './historyparent.component';
-import { AsymmetricPeakshavingChartOverviewComponent } from './peakshaving/asymmetric/asymmetricpeakshavingchartoverview/asymmetricpeakshavingchartoverview.component';
-import { AsymmetricPeakshavingChartComponent } from './peakshaving/asymmetric/chart.component';
-import { AsymmetricPeakshavingWidgetComponent } from './peakshaving/asymmetric/widget.component';
-import { SymmetricPeakshavingChartComponent } from './peakshaving/symmetric/chart.component';
-import { SymmetricPeakshavingChartOverviewComponent } from './peakshaving/symmetric/symmetricpeakshavingchartoverview/symmetricpeakshavingchartoverview.component';
-import { SymmetricPeakshavingWidgetComponent } from './peakshaving/symmetric/widget.component';
-import { TimeslotPeakshavingChartComponent } from './peakshaving/timeslot/chart.component';
-import { TimeslotPeakshavingChartOverviewComponent } from './peakshaving/timeslot/timeslotpeakshavingchartoverview/timeslotpeakshavingchartoverview.component';
-import { TimeslotPeakshavingWidgetComponent } from './peakshaving/timeslot/widget.component';
-import { SinglethresholdChartComponent } from './singlethreshold/chart.component';
-import { SinglethresholdChartOverviewComponent } from './singlethreshold/singlethresholdchartoverview/singlethresholdchartoverview.component';
-import { SinglethresholdWidgetComponent } from './singlethreshold/widget.component';
-import { StorageChargerChartComponent } from './storage/chargerchart.component';
-import { StorageESSChartComponent } from './storage/esschart.component';
-import { StorageSingleChartComponent } from './storage/singlechart.component';
-import { SocStorageChartComponent } from './storage/socchart.component';
-import { StorageChartOverviewComponent } from './storage/storagechartoverview/storagechartoverview.component';
-import { StorageTotalChartComponent } from './storage/totalchart.component';
-import { StorageComponent } from './storage/widget.component';
+import { NgModule } from "@angular/core";
+import { HistoryDataErrorModule } from "src/app/shared/components/history-data-error/history-data-error.module";
+import { DomChangeDirective } from "src/app/shared/directive/oe-dom-change";
+import { SharedModule } from "../../shared/shared.module";
+import { FlatComponent as StorageFlatComponent } from "../live/common/storage/history/flat/flat";
+import { ControllerHeatingElementChartComponent } from "../live/Controller/Io/HeatingElement/history/flat/flat";
+import { ControllerIoHeatpumpFlatHistoryComponent } from "../live/Controller/Io/Heatpump/history/flat/flat";
+import { ModbusTcpApiHistoryFlatComponent } from "../live/Controller/ModbusTcpApi/history/flat/flat";
+import { FlatComponent as AsymmetricPeakshavingFlatComponent } from "../live/Controller/peak-shaving/Asymmetric/history/flat/flat";
+import { FlatComponent as SymmetricPeakshavingFlatComponent } from "../live/Controller/peak-shaving/symmetric/history/flat/flat";
+import { FlatComponent as TimeslotPeakshavingFlatComponent } from "../live/Controller/peak-shaving/Symmetric_TimeSlot/history/flat/flat";
+import { Common } from "./common/common";
+import { Controller } from "./Controller/controller.module";
+import { DelayedSellToGridChartComponent } from "./delayedselltogrid/chart.component";
+import { DelayedSellToGridChartOverviewComponent } from "./delayedselltogrid/symmetricpeakshavingchartoverview/delayedselltogridchartoverview.component";
+import { DelayedSellToGridWidgetComponent } from "./delayedselltogrid/widget.component";
+import { HistoryComponent } from "./history.component";
+import { HistoryParentComponent } from "./historyparent.component";
 
 @NgModule({
-  imports: [
-    SharedModule,
-    Common,
-    Controller,
-    HistoryDataErrorModule,
-  ],
-  declarations: [
-    AsymmetricPeakshavingChartComponent,
-    AsymmetricPeakshavingChartOverviewComponent,
-    AsymmetricPeakshavingWidgetComponent,
-    ChpSocChartComponent,
-    ChpSocWidgetComponent,
-    DelayedSellToGridChartComponent,
-    DelayedSellToGridChartOverviewComponent,
-    DelayedSellToGridWidgetComponent,
-    FixDigitalOutputChartOverviewComponent,
-    FixDigitalOutputSingleChartComponent,
-    FixDigitalOutputTotalChartComponent,
-    FixDigitalOutputWidgetComponent,
-    HeatingelementChartComponent,
-    HeatingelementChartOverviewComponent,
-    HeatingelementWidgetComponent,
-    HeatPumpChartComponent,
-    HeatPumpChartOverviewComponent,
-    HeatpumpWidgetComponent,
-    HistoryComponent,
-    SinglethresholdChartComponent,
-    SinglethresholdChartOverviewComponent,
-    SinglethresholdWidgetComponent,
-    SocStorageChartComponent,
-    StorageChargerChartComponent,
-    StorageChartOverviewComponent,
-    StorageComponent,
-    StorageESSChartComponent,
-    StorageSingleChartComponent,
-    StorageTotalChartComponent,
-    SymmetricPeakshavingChartComponent,
-    SymmetricPeakshavingChartOverviewComponent,
-    SymmetricPeakshavingWidgetComponent,
-    TimeslotPeakshavingChartComponent,
-    TimeslotPeakshavingChartOverviewComponent,
-    TimeslotPeakshavingWidgetComponent,
-    HistoryParentComponent,
-  ],
+    imports: [
+        Common,
+        Controller,
+        HistoryDataErrorModule,
+        SharedModule,
+        DomChangeDirective,
+        StorageFlatComponent,
+        ModbusTcpApiHistoryFlatComponent,
+    ],
+    declarations: [
+        DelayedSellToGridChartComponent,
+        DelayedSellToGridChartOverviewComponent,
+        DelayedSellToGridWidgetComponent,
+        ControllerIoHeatpumpFlatHistoryComponent,
+        ControllerHeatingElementChartComponent,
+        TimeslotPeakshavingFlatComponent,
+        SymmetricPeakshavingFlatComponent,
+        AsymmetricPeakshavingFlatComponent,
+        HistoryComponent,
+        HistoryParentComponent,
+    ],
 })
-export class HistoryModule { }
+export class HistoryModule {}

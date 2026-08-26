@@ -1,20 +1,20 @@
 // @ts-strict-ignore
-import { Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { RangeValue } from '@ionic/core';
-import { TranslateService } from '@ngx-translate/core';
-import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from 'src/app/shared/shared';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Router } from "@angular/router";
+import { ModalController } from "@ionic/angular";
+import { RangeValue } from "@ionic/core";
+import { TranslateService } from "@ngx-translate/core";
+import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 
-type mode = 'MANUAL_ON' | 'MANUAL_OFF' | 'AUTOMATIC';
-
+type mode = "MANUAL_ON" | "MANUAL_OFF" | "AUTOMATIC";
 
 @Component({
     selector: Controller_ChpSocModalComponent.SELECTOR,
-    templateUrl: './modal.component.html',
+    templateUrl: "./modal.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
 export class Controller_ChpSocModalComponent implements OnInit {
-
     private static readonly SELECTOR = "chpsoc-modal";
 
     @Input({ required: true }) public edge!: Edge;
@@ -33,77 +33,85 @@ export class Controller_ChpSocModalComponent implements OnInit {
         public router: Router,
         protected translate: TranslateService,
         public modalCtrl: ModalController,
-    ) { }
+    ) {}
 
     ngOnInit() {
-        this.thresholds['lower'] = this.component.properties['lowThreshold'];
-        this.thresholds['upper'] = this.component.properties['highThreshold'];
+        this.thresholds["lower"] = this.component.properties["lowThreshold"];
+        this.thresholds["upper"] = this.component.properties["highThreshold"];
     }
 
     /**
-    * Updates the Charge-Mode of the EVCS-Controller.
-    *
-    * @param event
-    */
+     * Updates the Charge-Mode of the EVCS-Controller.
+     *
+     * @param event
+     */
     updateMode(event: CustomEvent) {
         const oldMode = this.component.properties.mode;
         let newMode: mode;
 
         switch (event.detail.value) {
-            case 'MANUAL_ON':
-                newMode = 'MANUAL_ON';
+            case "MANUAL_ON":
+                newMode = "MANUAL_ON";
                 break;
-            case 'MANUAL_OFF':
-                newMode = 'MANUAL_OFF';
+            case "MANUAL_OFF":
+                newMode = "MANUAL_OFF";
                 break;
-            case 'AUTOMATIC':
-                newMode = 'AUTOMATIC';
+            case "AUTOMATIC":
+                newMode = "AUTOMATIC";
                 break;
         }
 
         if (this.edge != null) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: 'mode', value: newMode },
-            ]).then(() => {
-                this.component.properties.mode = newMode;
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-            }).catch(reason => {
-                this.component.properties.mode = oldMode;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                console.warn(reason);
-            });
+            this.edge
+                .updateComponentConfig(this.websocket, this.component.id, [{ name: "mode", value: newMode }])
+                .then(() => {
+                    this.component.properties.mode = newMode;
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                })
+                .catch((reason) => {
+                    this.component.properties.mode = oldMode;
+                    this.service.toast(
+                        this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                        "danger",
+                    );
+                    console.warn(reason);
+                });
         }
     }
 
     /**
-    * Updates the Min-Power of force charging
-    *
-    * @param event
-    */
+     * Updates the Min-Power of force charging
+     *
+     * @param event
+     */
     updateThresholds() {
-        const oldLowerThreshold = this.component.properties['lowThreshold'];
-        const oldUpperThreshold = this.component.properties['highThreshold'];
+        const oldLowerThreshold = this.component.properties["lowThreshold"];
+        const oldUpperThreshold = this.component.properties["highThreshold"];
 
-        const newLowerThreshold = this.thresholds['lower'];
-        const newUpperThreshold = this.thresholds['upper'];
+        const newLowerThreshold = this.thresholds["lower"];
+        const newUpperThreshold = this.thresholds["upper"];
 
         // prevents automatic update when no values have changed
         if (this.edge != null && (oldLowerThreshold != newLowerThreshold || oldUpperThreshold != newUpperThreshold)) {
-            this.edge.updateComponentConfig(this.websocket, this.component.id, [
-                { name: 'lowThreshold', value: newLowerThreshold },
-                { name: 'highThreshold', value: newUpperThreshold },
-            ]).then(() => {
-                this.component.properties['lowThreshold'] = newLowerThreshold;
-                this.component.properties['highThreshold'] = newUpperThreshold;
-                this.service.toast(this.translate.instant('General.changeAccepted'), 'success');
-            }).catch(reason => {
-                this.component.properties['lowThreshold'] = oldLowerThreshold;
-                this.component.properties['highThreshold'] = oldUpperThreshold;
-                this.service.toast(this.translate.instant('General.changeFailed') + '\n' + reason.error.message, 'danger');
-                console.warn(reason);
-            });
+            this.edge
+                .updateComponentConfig(this.websocket, this.component.id, [
+                    { name: "lowThreshold", value: newLowerThreshold },
+                    { name: "highThreshold", value: newUpperThreshold },
+                ])
+                .then(() => {
+                    this.component.properties["lowThreshold"] = newLowerThreshold;
+                    this.component.properties["highThreshold"] = newUpperThreshold;
+                    this.service.toast(this.translate.instant("GENERAL.CHANGE_ACCEPTED"), "success");
+                })
+                .catch((reason) => {
+                    this.component.properties["lowThreshold"] = oldLowerThreshold;
+                    this.component.properties["highThreshold"] = oldUpperThreshold;
+                    this.service.toast(
+                        this.translate.instant("GENERAL.CHANGE_FAILED") + "\n" + reason.error.message,
+                        "danger",
+                    );
+                    console.warn(reason);
+                });
         }
     }
 }
-
-

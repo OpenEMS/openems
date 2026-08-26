@@ -1,161 +1,414 @@
 // @ts-strict-ignore
-import { CommonModule } from '@angular/common';
-import { Injector, NgModule } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { RouterModule } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
-import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
-import { FormlyIonicModule } from '@ngx-formly/ionic';
-import { TranslateModule } from '@ngx-translate/core';
-import { NgChartsModule } from 'ng2-charts';
+import { CommonModule } from "@angular/common";
+import { Injector, NgModule } from "@angular/core";
+import { FormControl, FormsModule, ReactiveFormsModule, ValidationErrors } from "@angular/forms";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { RouterModule } from "@angular/router";
+import { IonicModule } from "@ionic/angular";
+import { FORMLY_CONFIG, FormlyFieldConfig, FormlyModule } from "@ngx-formly/core";
+import { FormlyIonicModule } from "@ngx-formly/ionic";
+import { TranslateModule, TranslateService } from "@ngx-translate/core";
+import { BaseChartDirective } from "ng2-charts";
 import { NgxSpinnerModule } from "ngx-spinner";
-import { appRoutingProviders } from '../app-routing.module';
-import { ComponentsModule } from './components/components.module';
-import { MeterModule } from './components/edge/meter/meter.module';
-import { FormlyCheckBoxHyperlinkWrapperComponent } from './components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper';
-import { FormlyWrapperDefaultValueWithCasesComponent } from './components/formly/form-field-default-cases.wrapper';
-import { FormlyWrapperFormFieldComponent } from './components/formly/form-field.wrapper';
-import { FormlyFieldCheckboxWithImageComponent } from './components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image';
-import { FormlyFieldModalComponent } from './components/formly/formly-field-modal/formlyfieldmodal';
-import { FormlyFieldRadioWithImageComponent } from './components/formly/formly-field-radio-with-image/formly-field-radio-with-image';
-import { FormlySelectFieldModalComponent } from './components/formly/formly-select-field-modal.component';
-import { FormlySelectFieldExtendedWrapperComponent } from './components/formly/formly-select-field.extended';
-import { FormlyFieldWithLoadingAnimationComponent } from './components/formly/formly-skeleton-wrapper';
-import { InputTypeComponent } from './components/formly/input';
-import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from './components/formly/input-serial-number-wrapper';
-import { PanelWrapperComponent } from './components/formly/panel-wrapper.component';
-import { RepeatTypeComponent } from './components/formly/repeat';
-import { HeaderComponent } from './components/header/header.component';
-import { HistoryDataErrorModule } from './components/history-data-error/history-data-error.module';
-import { PercentageBarComponent } from './components/percentagebar/percentagebar.component';
-import { DirectiveModule } from './directive/directive';
-import { ChartOptionsComponent } from './legacy/chartoptions/chartoptions.component';
-import { PipeModule } from './pipe/pipe';
-import { Logger } from './service/logger';
-import { Service } from './service/service';
-import { Utils } from './service/utils';
-import { Websocket } from './shared';
+import { FormlyCurrentUserAlertingComponent } from "../edge/settings/alerting/formly/formly-current-user-alerting";
+import { FormlyOtherUsersAlertingComponent } from "../edge/settings/alerting/formly/formly-other-users-alerting";
+import { ComponentsModule } from "./components/components.module";
+import { DateTimeLineComponent } from "./components/datetime-picker/datetime-picker";
+import { DualKnobSliderComponent } from "./components/dual-knob-slider/dual-knob-slider";
+import { MeterModule } from "./components/edge/meter/meter.module";
+import { FlatWidgetButtonComponent } from "./components/flat/flat-widget-button/flat-widget-button";
+import { FormlyCheckBoxHyperlinkWrapperComponent } from "./components/formly/form-field-checkbox-hyperlink/form-field-checkbox-hyperlink.wrapper";
+import { FormlyWrapperDefaultValueWithCasesComponent } from "./components/formly/form-field-default-cases.wrapper";
+import { FormlyFieldMultiStepComponent } from "./components/formly/form-field-multi-step/form-field-multi-step";
+import { FormlyWrapperFormFieldComponent } from "./components/formly/form-field.wrapper";
+import { CheckboxButtonTypeComponent } from "./components/formly/formly-checkbox-with-button/formly-checkbox-with-button";
+import { FormlyFieldCheckboxWithImageComponent } from "./components/formly/formly-field-checkbox-image/formly-field-checkbox-with-image";
+import { FormlyFieldModalComponent } from "./components/formly/formly-field-modal/formly-field-modal";
+import { FormlyFieldNavigationComponent } from "./components/formly/formly-field-navigation/formly-field-navigation";
+import { FormlyRangeTypeComponent } from "./components/formly/formly-field-range";
+import { FormlyFieldWaitingSpinnerComponent } from "./components/formly/formly-field-waiting-spinner/formly-field-waiting-spinner";
+import { FormlyRadioTypeComponent } from "./components/formly/formly-radio/formly-radio";
+import { FormlySelectComponent } from "./components/formly/formly-select/formly-select";
+import { FormlySelectOptionsWithImageModalComponent } from "./components/formly/formly-select/formly-select-with-image-modal/select-with-image-modal.component";
+
+import { FormlySelectFieldModalComponent } from "./components/formly/formly-select-field-modal.component";
+import { FormlySelectFieldExtendedWrapperComponent } from "./components/formly/formly-select-field.extended";
+import { FormlyFieldWithLoadingAnimationComponent } from "./components/formly/formly-skeleton-wrapper";
+import { FormlyTariffTableTypeComponent } from "./components/formly/formly-tariff-table/formly-custom-tariff-table";
+import { FormlyFieldWeekdaysComponent } from "./components/formly/formly-weekday-checkbox/formly-weekday-checkbox";
+import { FormlyFieldCheckboxWithLabelComponent } from "./components/formly/help-popover-label-with-description-and-checkbox/help-popover-label-with-description-and-checkbox";
+import { InputTypeComponent } from "./components/formly/input";
+import { FormlyInputSerialNumberWrapperComponent as FormlyWrapperInputSerialNumber } from "./components/formly/input-serial-number-wrapper";
+import { PanelWrapperComponent } from "./components/formly/panel-wrapper.component";
+import { RepeatTypeComponent } from "./components/formly/repeat";
+import { AppHeaderComponent } from "./components/header/app-header";
+import { AppHeaderContentComponent } from "./components/header/header-message/header-content";
+import { HeaderComponent } from "./components/header/header.component";
+import { HistoryDataErrorModule } from "./components/history-data-error/history-data-error.module";
+import { HelpButtonComponent } from "./components/modal/help-button/help-button";
+import { ModalToggleLineComponent as ModalToggleWithValueLineComponent } from "./components/modal/modal-toggle-line/modal-toggle-line";
+import { ModalComponentsModule } from "./components/modal/modal.module";
+import { OeImageComponent } from "./components/oe-img/oe-img";
+import { PercentageBarComponent } from "./components/percentagebar/percentagebar.component";
+import { PickDateTimeRangeComponent } from "./components/pick-date-time-range/pick-date-time-range";
+import { PickdateComponentModule } from "./components/pickdate/pickdate.module";
+import { TimeLineComponent } from "./components/picktime/picktime.component";
+import { HelpPopoverButtonComponent } from "./components/shared/view-component/help-popover/help-popover";
+import { StatsComponent } from "./components/stats/stats";
+import { SystemStatusComponent } from "./components/status/system/system-status.component";
+import { DirectiveModule } from "./directive/directive";
+import de from "./i18n/de.json";
+import en from "./i18n/en.json";
+import { ChartOptionsComponent } from "./legacy/chartoptions/chartoptions.component";
+import { AppStateTracker } from "./ngrx-store/app-state-tracker";
+import { PipeModule } from "./pipe/pipe.module";
+import { Logger } from "./service/logger";
+import { RouteService } from "./service/route.service";
+import { Service } from "./service/service";
+import { Utils, Websocket } from "./shared";
+import { Language } from "./type/language";
+
+export function registerTranslateExtension(translate: TranslateService) {
+    return {
+        validationMessages: [
+            {
+                name: "person-name-prohibited-characters",
+                message(err, field: FormlyFieldConfig) {
+                    const INVALID_CHARACTERS = '< > & " $ % ! # ? § ; * ~ / | ^ = [ ] { } ( )';
+                    return translate.stream("SHARED_MODULE.PERSON_NAME_PROHIBITED_CHARACTERS", {
+                        invalidCharacters: INVALID_CHARACTERS,
+                        formControlValue: field.formControl.value,
+                    });
+                },
+            },
+            {
+                name: "checkbox-required-checked",
+                message() {
+                    return translate.stream("SHARED_MODULE.CHECKBOX_REQUIRED_TO_BE_CHECKED");
+                },
+            },
+        ],
+    };
+}
 
 export function IpValidator(control: FormControl): ValidationErrors {
-  return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(control.value) ? null : { 'ip': true };
+    return /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+        control.value,
+    )
+        ? null
+        : { ip: true };
 }
 
 export function SubnetmaskValidator(control: FormControl): ValidationErrors {
-  return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(control.value) ? null : { 'subnetmask': true };
+    return /^(255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)\.(0|128|192|224|240|248|252|254|255)/.test(
+        control.value,
+    )
+        ? null
+        : { subnetmask: true };
 }
 
 export function IpValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" is not a valid IP Address`;
+    return `"${field.formControl.value}" is not a valid IP Address`;
 }
 
 export function SubnetmaskValidatorMessage(err, field: FormlyFieldConfig) {
-  return `"${field.formControl.value}" is not a valid Subnetmask`;
+    return `"${field.formControl.value}" is not a valid Subnetmask`;
 }
 
+/**
+ * Angular's Validators.required treats `false` as a valid value, so a checkbox with `props.required: true` still passes
+ * validation while unchecked. This is the correct default for most boolean fields (e.g. "readOnly",
+ * "isElementMeasured"), where `false` is a legitimate, explicitly required value.
+ *
+ * Some checkboxes however represent an explicit consent/confirmation (e.g. "I confirm my selection") and must be
+ * checked to proceed. For those, opt in explicitly by adding `validators: { validation: ["checkbox-required-checked"]
+ * }` to the field config - do NOT apply this globally to the "checkbox" type, as that would incorrectly require every
+ * boolean field in the app to be `true`.
+ */
+export function checkboxRequiredValidator(control: FormControl): ValidationErrors {
+    return control.value === true ? null : { "checkbox-required-checked": true };
+}
+
+export function PersonNameProhibitedCharactersValidator(control: FormControl): ValidationErrors {
+    // https://github.com/keycloak/keycloak/blob/main/services/src/main/java/org/keycloak/userprofile/validator/PersonNameProhibitedCharactersValidator.java
+    const INVALID_CHARACTERS: string[] = [
+        // Control characters (ASCII 0–31)
+        "\x00",
+        "\x01",
+        "\x02",
+        "\x03",
+        "\x04",
+        "\x05",
+        "\x06",
+        "\x07",
+        "\x08",
+        "\x09",
+        "\x0A",
+        "\x0B",
+        "\x0C",
+        "\x0D",
+        "\x0E",
+        "\x0F",
+        "\x10",
+        "\x11",
+        "\x12",
+        "\x13",
+        "\x14",
+        "\x15",
+        "\x16",
+        "\x17",
+        "\x18",
+        "\x19",
+        "\x1A",
+        "\x1B",
+        "\x1C",
+        "\x1D",
+        "\x1E",
+        "\x1F",
+
+        // DEL (ASCII 127)
+        "\x7F",
+
+        // Symbols
+        "<",
+        ">",
+        "&",
+        '"',
+        "\v",
+        "$",
+        "%",
+        "!",
+        "#",
+        "?",
+        "§",
+        ";",
+        "*",
+        "~",
+        "/",
+        "\\",
+        "|",
+        "^",
+        "=",
+        "[",
+        "]",
+        "{",
+        "}",
+        "(",
+        ")",
+    ];
+    return [...(control.value ?? "")].some((ch) => INVALID_CHARACTERS.includes(ch))
+        ? { "person-name-prohibited-characters": true }
+        : null;
+}
 
 @NgModule({
-  imports: [
-    BrowserAnimationsModule,
-    NgChartsModule,
-    CommonModule,
-    DirectiveModule,
-    FormsModule,
-    IonicModule,
-    NgxSpinnerModule.forRoot({
-      type: 'ball-clip-rotate-multiple',
-    }),
-    ReactiveFormsModule,
-    RouterModule,
-    FormlyModule.forRoot({
-      wrappers: [
-        { name: 'form-field', component: FormlyWrapperFormFieldComponent },
-        { name: "input-serial-number", component: FormlyWrapperInputSerialNumber },
-        { name: 'formly-select-extended-wrapper', component: FormlySelectFieldExtendedWrapperComponent },
-        { name: 'formly-field-radio-with-image', component: FormlyFieldRadioWithImageComponent },
-        { name: 'form-field-checkbox-hyperlink', component: FormlyCheckBoxHyperlinkWrapperComponent },
-        { name: 'formly-wrapper-default-of-cases', component: FormlyWrapperDefaultValueWithCasesComponent },
-        { name: 'panel', component: PanelWrapperComponent },
-        { name: 'formly-field-modal', component: FormlyFieldModalComponent },
-        { name: 'formly-field-checkbox-with-image', component: FormlyFieldCheckboxWithImageComponent },
-      ],
-      types: [
-        { name: 'input', component: InputTypeComponent },
-        { name: 'repeat', component: RepeatTypeComponent },
-      ],
-      validators: [
-        { name: 'ip', validation: IpValidator },
-        { name: 'subnetmask', validation: SubnetmaskValidator },
-      ],
-      validationMessages: [
-        { name: 'ip', message: IpValidatorMessage },
-        { name: 'subnetmask', message: SubnetmaskValidatorMessage },
-      ],
-    }),
-    PipeModule,
-    ComponentsModule,
-    TranslateModule,
-    HistoryDataErrorModule,
-    MeterModule,
-  ],
-  declarations: [
-    // components
-    ChartOptionsComponent,
-    HeaderComponent,
-    PercentageBarComponent,
-    // formly
-    InputTypeComponent,
-    FormlyWrapperFormFieldComponent,
-    RepeatTypeComponent,
-    FormlyWrapperInputSerialNumber,
-    FormlySelectFieldExtendedWrapperComponent,
-    FormlySelectFieldModalComponent,
-    FormlyFieldRadioWithImageComponent,
-    FormlyCheckBoxHyperlinkWrapperComponent,
-    FormlyWrapperDefaultValueWithCasesComponent,
-    FormlyFieldModalComponent,
-    PanelWrapperComponent,
-    FormlyFieldWithLoadingAnimationComponent,
-    FormlyFieldCheckboxWithImageComponent,
-  ],
-  exports: [
-    // modules
-    BrowserAnimationsModule,
-    NgChartsModule,
-    CommonModule,
-    DirectiveModule,
-    FormlyIonicModule,
-    FormlyModule,
-    FormsModule,
-    IonicModule,
-    NgxSpinnerModule,
-    ReactiveFormsModule,
-    RouterModule,
-    TranslateModule,
-    PipeModule,
-    ComponentsModule,
-    MeterModule,
-    HistoryDataErrorModule,
-    // components
-    ChartOptionsComponent,
-    HeaderComponent,
-    PercentageBarComponent,
-    FormlyFieldWithLoadingAnimationComponent,
-  ],
-  providers: [
-    appRoutingProviders,
-    Service,
-    Utils,
-    Websocket,
-    Logger,
-  ],
+    imports: [
+        SystemStatusComponent,
+        PickdateComponentModule,
+        BaseChartDirective,
+        BrowserAnimationsModule,
+        CommonModule,
+        ComponentsModule,
+        DirectiveModule,
+        DualKnobSliderComponent,
+        FormlyModule.forRoot({
+            wrappers: [
+                {
+                    name: "form-field",
+                    component: FormlyWrapperFormFieldComponent,
+                },
+                {
+                    name: "input-serial-number",
+                    component: FormlyWrapperInputSerialNumber,
+                },
+                {
+                    name: "formly-select-extended-wrapper",
+                    component: FormlySelectFieldExtendedWrapperComponent,
+                },
+                {
+                    name: "form-field-checkbox-hyperlink",
+                    component: FormlyCheckBoxHyperlinkWrapperComponent,
+                },
+                {
+                    name: "formly-wrapper-default-of-cases",
+                    component: FormlyWrapperDefaultValueWithCasesComponent,
+                },
+                { name: "panel", component: PanelWrapperComponent },
+                {
+                    name: "formly-field-modal",
+                    component: FormlyFieldModalComponent,
+                },
+                {
+                    name: "formly-field-navigation",
+                    component: FormlyFieldNavigationComponent,
+                },
+                {
+                    name: "formly-field-waiting-spinner",
+                    component: FormlyFieldWaitingSpinnerComponent,
+                },
+                {
+                    name: "formly-field-checkbox-with-image",
+                    component: FormlyFieldCheckboxWithImageComponent,
+                },
+                {
+                    name: "formly-current-user-alerting",
+                    component: FormlyCurrentUserAlertingComponent,
+                },
+                {
+                    name: "formly-other-users-alerting",
+                    component: FormlyOtherUsersAlertingComponent,
+                },
+            ],
+            types: [
+                {
+                    name: "help-popover-label-with-description-and-checkbox",
+                    component: FormlyFieldCheckboxWithLabelComponent,
+                },
+                { name: "input", component: InputTypeComponent },
+                { name: "repeat", component: RepeatTypeComponent },
+                {
+                    name: "multi-step",
+                    component: FormlyFieldMultiStepComponent,
+                },
+                { name: "select", component: FormlySelectComponent },
+                {
+                    name: "checkbox-button",
+                    component: CheckboxButtonTypeComponent,
+                },
+                { name: "radio", component: FormlyRadioTypeComponent },
+                {
+                    name: "tariff-table",
+                    component: FormlyTariffTableTypeComponent,
+                },
+                { name: "range", component: FormlyRangeTypeComponent },
+                {
+                    name: "weekday-checkbox",
+                    component: FormlyFieldWeekdaysComponent,
+                },
+            ],
+            validators: [
+                { name: "ip", validation: IpValidator },
+                { name: "subnetmask", validation: SubnetmaskValidator },
+                {
+                    name: "person-name-prohibited-characters",
+                    validation: PersonNameProhibitedCharactersValidator,
+                },
+                {
+                    name: "checkbox-required-checked",
+                    validation: checkboxRequiredValidator,
+                },
+            ],
+            validationMessages: [
+                { name: "ip", message: IpValidatorMessage },
+                { name: "subnetmask", message: SubnetmaskValidatorMessage },
+            ],
+        }),
+        FormsModule,
+        HistoryDataErrorModule,
+        IonicModule,
+        MeterModule,
+        BaseChartDirective,
+        NgxSpinnerModule.forRoot({
+            type: "ball-clip-rotate-multiple",
+        }),
+        PipeModule,
+        ReactiveFormsModule,
+        RouterModule,
+        TranslateModule,
+        HelpPopoverButtonComponent,
+        FlatWidgetButtonComponent,
+        HelpButtonComponent,
+        TimeLineComponent,
+        OeImageComponent,
+        AppHeaderContentComponent,
+        ModalToggleWithValueLineComponent,
+        DateTimeLineComponent,
+        StatsComponent,
+    ],
+    declarations: [
+        AppHeaderComponent,
+        ChartOptionsComponent,
+        FormlyCheckBoxHyperlinkWrapperComponent,
+        FormlyFieldCheckboxWithImageComponent,
+        FormlyFieldCheckboxWithLabelComponent,
+        FormlyFieldModalComponent,
+        FormlyFieldNavigationComponent,
+        FormlyFieldMultiStepComponent,
+        FormlyFieldWithLoadingAnimationComponent,
+        FormlySelectFieldExtendedWrapperComponent,
+        FormlySelectFieldModalComponent,
+        FormlyWrapperDefaultValueWithCasesComponent,
+        FormlyWrapperFormFieldComponent,
+        FormlyWrapperInputSerialNumber,
+        HeaderComponent,
+        InputTypeComponent,
+        PanelWrapperComponent,
+        PercentageBarComponent,
+        RepeatTypeComponent,
+        FormlySelectComponent,
+        CheckboxButtonTypeComponent,
+        FormlyRadioTypeComponent,
+        FormlyTariffTableTypeComponent,
+        PickDateTimeRangeComponent,
+        FormlyRangeTypeComponent,
+        FormlySelectOptionsWithImageModalComponent,
+    ],
+    exports: [
+        SystemStatusComponent,
+        AppHeaderComponent,
+        BrowserAnimationsModule,
+        ChartOptionsComponent,
+        CommonModule,
+        ComponentsModule,
+        DirectiveModule,
+        FormlyFieldWithLoadingAnimationComponent,
+        FormlyIonicModule,
+        FormlyModule,
+        FormsModule,
+        HeaderComponent,
+        HistoryDataErrorModule,
+        IonicModule,
+        MeterModule,
+        ModalComponentsModule,
+        BaseChartDirective,
+        NgxSpinnerModule,
+        PercentageBarComponent,
+        PipeModule,
+        ReactiveFormsModule,
+        RouterModule,
+        TranslateModule,
+        PickDateTimeRangeComponent,
+        TimeLineComponent,
+    ],
+    providers: [
+        AppStateTracker,
+        Logger,
+        RouteService,
+        Service,
+        Utils,
+        Websocket,
+        // Use factory for formly. This allows us to use translations in validationMessages.
+        {
+            provide: FORMLY_CONFIG,
+            multi: true,
+            useFactory: registerTranslateExtension,
+            deps: [TranslateService],
+        },
+    ],
 })
-
 export class SharedModule {
+    public static injector: Injector;
 
-  public static injector: Injector;
+    constructor(
+        private injector: Injector,
+        private translate: TranslateService,
+    ) {
+        SharedModule.injector = injector;
 
-  constructor(private injector: Injector) {
-    SharedModule.injector = injector;
-  }
+        Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
+            for (const { lang, translation, shouldMerge } of translations) {
+                translate.setTranslation(lang, translation, shouldMerge);
+            }
+        });
+    }
 }

@@ -1,3 +1,4 @@
+import { States } from "../../ngrx-store/states";
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -14,6 +15,7 @@ import { JsonrpcRequest } from "../base";
 export class GetSetupProtocolRequest extends JsonrpcRequest {
 
     private static METHOD: string = "getSetupProtocol";
+    protected override requiredState: States = States.AUTHENTICATED;
 
     public constructor(
         public override readonly params: {
@@ -21,5 +23,31 @@ export class GetSetupProtocolRequest extends JsonrpcRequest {
         },
     ) {
         super(GetSetupProtocolRequest.METHOD, params);
+    }
+}
+
+export class GetSetupProtocolDataRequest extends JsonrpcRequest {
+
+    private static METHOD: string = "getSetupProtocolData";
+
+    public constructor(
+        public override readonly params: {
+            edgeId: string
+        },
+    ) {
+        super(GetSetupProtocolDataRequest.METHOD, params);
+    }
+}
+
+export class GetSetupProtocolCoreInfoRequest extends JsonrpcRequest {
+
+    private static METHOD: string = "getProtocolsCoreInfo";
+
+    public constructor(
+        public override readonly params: {
+            edgeId: string
+        },
+    ) {
+        super(GetSetupProtocolCoreInfoRequest.METHOD, params);
     }
 }

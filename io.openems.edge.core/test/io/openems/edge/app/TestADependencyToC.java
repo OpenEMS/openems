@@ -31,6 +31,7 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration;
 import io.openems.edge.core.appmanager.dependency.DependencyDeclaration.AppDependencyConfig;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.DependencyProperties;
 
 /**
  * Test app for testing dependencies.
@@ -60,7 +61,7 @@ public class TestADependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
+	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem, Language language) {
 		return AppDescriptor.create() //
 				.build();
 	}
@@ -106,9 +107,9 @@ public class TestADependencyToC extends AbstractEnumOpenemsApp<Property> impleme
 					dependencyUpdatePolicy, dependencyDeletePolicy, //
 					AppDependencyConfig.create() //
 							.setAppId("App.Test.TestC") //
-							.setProperties(JsonUtils.buildJsonObject() //
+							.setProperties(DependencyProperties.fromJson(JsonUtils.buildJsonObject() //
 									.addProperty(TestC.Property.NUMBER.name(), number) //
-									.build())
+									.build()))
 							.build()) //
 			);
 

@@ -1,12 +1,12 @@
 package io.openems.common.websocket;
 
 import static io.openems.common.exceptions.OpenemsError.JSONRPC_UNHANDLED_METHOD;
-import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
 import static io.openems.common.utils.StringUtils.toShortString;
 import static io.openems.common.websocket.WebsocketUtils.generateWsDataString;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 import java.util.function.BiPredicate;
@@ -56,16 +56,13 @@ public final class OnMessageHandler implements Runnable {
 	@Override
 	public final void run() {
 		try {
-			var message = JsonrpcMessage.from(this.message);
-
-			if (message instanceof JsonrpcRequest request) {
-				this.handleJsonrpcRequest(this.ws, request);
-
-			} else if (message instanceof JsonrpcResponse response) {
-				this.handleJsonrpcResponse(this.ws, response);
-
-			} else if (message instanceof JsonrpcNotification notification) {
-				this.handleJsonrpcNotification(this.ws, notification);
+			switch (JsonrpcMessage.from(this.message)) {
+			case JsonrpcRequest request //
+				-> this.handleJsonrpcRequest(this.ws, request);
+			case JsonrpcResponse response //
+				-> this.handleJsonrpcResponse(this.ws, response);
+			case JsonrpcNotification notification //
+				-> this.handleJsonrpcNotification(this.ws, notification);
 			}
 
 		} catch (OpenemsNamedException e) {
@@ -89,6 +86,12 @@ public final class OnMessageHandler implements Runnable {
 			return;
 		}
 
+		if (responseFuture == null) {
+			this.handleJsonrpcRequestException(ws, request,
+					new OpenemsNamedException(JSONRPC_UNHANDLED_METHOD, request.getMethod()));
+			return;
+		}
+
 		var timeout = request.getTimeout();
 		if (timeout.isPresent() && timeout.get() > 0) {
 			// Apply timeout to CompleteableFuture
@@ -98,7 +101,8 @@ public final class OnMessageHandler implements Runnable {
 		// ...without timeout
 		responseFuture.whenComplete((r, ex) -> {
 			if (ex != null) {
-				this.handleJsonrpcRequestException(ws, request, ex);
+				this.handleJsonrpcRequestException(ws, request,
+						ex instanceof CompletionException e ? e.getCause() : ex);
 			} else if (r != null) {
 				this.handleJsonrpcRequestResponse(ws, r);
 			} else {
@@ -138,15 +142,16 @@ public final class OnMessageHandler implements Runnable {
 
 		log //
 				.append("for Request ") //
-				.append(toShortString(simplifyJsonrpcMessage(request), 200));
+				.append(toShortString(request.getFullyQualifiedMethod(), 200));
 		this.logWarn.accept(this.log, log.toString());
 
 		// Get JSON-RPC Response Error
-		if (t instanceof OpenemsNamedException one) {
-			this.sendMessage.test(ws, new JsonrpcResponseError(request.getId(), one));
-		} else {
-			this.sendMessage.test(ws, new JsonrpcResponseError(request.getId(), t.getMessage()));
-		}
+		this.sendMessage.test(ws, switch (t) {
+		case OpenemsNamedException one //
+			-> new JsonrpcResponseError(request.getId(), one);
+		default //
+			-> new JsonrpcResponseError(request.getId(), t.getMessage());
+		});
 	}
 
 	/**

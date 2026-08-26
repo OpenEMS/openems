@@ -5,16 +5,18 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsString;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Collections.emptyMap;
 
 import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.osgi.service.component.ComponentContext;
@@ -27,15 +29,18 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSortedMap;
+
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttp.Endpoint;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpMethod;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.time.DelayTimeProvider;
+import io.openems.common.bridge.http.time.DelayTimeProviderChain;
+import io.openems.common.bridge.http.time.HttpBridgeTimeServiceDefinition;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttp.Endpoint;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpMethod;
-import io.openems.edge.bridge.http.api.HttpResponse;
-import io.openems.edge.bridge.http.time.DelayTimeProvider;
-import io.openems.edge.bridge.http.time.DelayTimeProviderChain;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -91,7 +96,8 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 
 		this.config = config;
 		this.httpBridge = this.httpBridgeFactory.get();
-		this.httpBridge.subscribeTime(new HassfurtDelayTimeProvider(this.componentManager.getClock()), //
+		final var timeService = this.httpBridge.createService(HttpBridgeTimeServiceDefinition.INSTANCE);
+		timeService.subscribeTime(new HassfurtDelayTimeProvider(this.componentManager.getClock()), //
 				this::createHassfurtEndpoint, //
 				this::handleEndpointResponse, //
 				this::handleEndpointError);
@@ -99,7 +105,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 
 	private Endpoint createHassfurtEndpoint() {
 
-		var now = ZonedDateTime.now().truncatedTo(ChronoUnit.HOURS);
+		var now = ZonedDateTime.now().truncatedTo(HOURS);
 		var dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 		var startDate = now.format(dateFormatter);
 		var endDate = now.plusDays(1).format(dateFormatter);
@@ -137,7 +143,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 		this.httpBridgeFactory.unget(this.httpBridge);
 	}
 
-	public static class HassfurtDelayTimeProvider implements DelayTimeProvider {
+	public static class HassfurtDelayTimeProvider implements DelayTimeProvider<HttpResponse<String>> {
 
 		private final Clock clock;
 
@@ -160,7 +166,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 
 		@Override
 		public Delay onSuccessRunDelay(HttpResponse<String> result) {
-			var now = ZonedDateTime.now(this.clock).truncatedTo(ChronoUnit.HOURS);
+			var now = ZonedDateTime.now(this.clock).truncatedTo(HOURS);
 			ZonedDateTime nextRun;
 
 			if (now.getHour() < API_EXECUTE_HOUR) {
@@ -183,10 +189,10 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	}
 
 	private void handleEndpointError(HttpError error) {
-		var httpStatusCode = INTERNAL_ERROR;
-		if (error instanceof HttpError.ResponseError re) {
-			httpStatusCode = re.status.code();
-		}
+		var httpStatusCode = switch (error) {
+		case HttpError.ResponseError re -> re.status.code();
+		default -> INTERNAL_ERROR;
+		};
 
 		this.channel(TimeOfUseTariffHassfurt.ChannelId.HTTP_STATUS_CODE).setNextValue(httpStatusCode);
 		this.log.error(error.getMessage(), error);
@@ -194,7 +200,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(this.componentManager.getClock()), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -211,7 +217,7 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 	 *                               JSON data.
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData, TariffType tariffType) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		final var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 
 		final var priceString = switch (tariffType) {
@@ -229,15 +235,17 @@ public class TimeOfUseTariffHassfurtImpl extends AbstractOpenemsComponent
 			final var localDateTime = LocalDateTime.parse(startTimeString, FORMATTER);
 
 			// Convert LocalDateTime to ZonedDateTime
-			final var startTimeStamp = localDateTime.atZone(ZoneId.systemDefault()).truncatedTo(ChronoUnit.HOURS);
+			final var startTimeStamp = localDateTime.atZone(ZoneId.systemDefault()) //
+					.truncatedTo(HOURS) //
+					.toInstant();
 
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
-			result.put(startTimeStamp.plusMinutes(15), marketPrice);
-			result.put(startTimeStamp.plusMinutes(30), marketPrice);
-			result.put(startTimeStamp.plusMinutes(45), marketPrice);
+			result.put(startTimeStamp.plus(15, MINUTES), marketPrice);
+			result.put(startTimeStamp.plus(30, MINUTES), marketPrice);
+			result.put(startTimeStamp.plus(45, MINUTES), marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

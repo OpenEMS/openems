@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.utils.JsonUtils;
 
@@ -14,7 +14,7 @@ public class ResolveDependenciesTest {
 
 	private AppManagerTestBundle testBundle;
 
-	@Before
+	@BeforeEach
 	public void before() throws Exception {
 		this.testBundle = new AppManagerTestBundle(//
 				null, MyConfig.create() //
@@ -41,7 +41,7 @@ public class ResolveDependenciesTest {
 						.build(),
 				t -> {
 					return Apps.of(t, //
-							Apps::feneconHome, //
+							Apps::feneconHome10, //
 							Apps::gridOptimizedCharge, //
 							Apps::selfConsumptionOptimization, //
 							Apps::prepareBatteryExtension //

@@ -12,8 +12,8 @@ Export-Package: \
 	com.dalsemi.onewire.application.tag,\
 	com.dalsemi.onewire.container,\
 	com.dalsemi.onewire.debug,\
-	io.openems.edge.bridge.onewire,\
 	com.dalsemi.onewire.utils,\
+	io.openems.edge.bridge.onewire,\
 	gnu.io
 
 Include-Resource: \
@@ -27,7 +27,7 @@ Include-Resource: \
 	${buildpath},\
 	io.openems.common,\
 	io.openems.edge.common,\
-	lib/RXTXcomm.jar;version=file
+	lib/RXTXcomm.jar;version=file,\
 
 -testpath: \
 	${testpath}

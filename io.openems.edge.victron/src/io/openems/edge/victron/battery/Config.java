@@ -1,0 +1,30 @@
+package io.openems.edge.victron.battery;
+
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+
+@ObjectClassDefinition(//
+		name = "Victron Battery", //
+		description = "Implements the Victron CANBus Battery.")
+public @interface Config {
+
+	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
+	String id() default "battery0";
+
+	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
+	String alias() default "Victron CANBus Battery";
+
+	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
+	boolean enabled() default true;
+
+	@AttributeDefinition(name = "Modbus-ID", description = "ID of Modbus bridge to Victron Inverter / Same as for the Victron ESS.")
+	String modbus_id() default "modbus0";
+
+	@AttributeDefinition(name = "Victron ESS-ID", description = "ESS-ID to which the batteryinverter is connected to")
+	String ess_id() default "ess0";
+
+	@AttributeDefinition(name = "Debug", description = "Enable debug mode?")
+	boolean debugMode() default false;
+
+	String webconsole_configurationFactory_nameHint() default "Victron Battery [{id}]";
+}

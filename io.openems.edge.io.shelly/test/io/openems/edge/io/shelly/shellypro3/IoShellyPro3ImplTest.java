@@ -1,23 +1,79 @@
 package io.openems.edge.io.shelly.shellypro3;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import io.openems.edge.bridge.http.dummy.DummyBridgeHttpFactory;
+import org.junit.jupiter.api.Test;
+
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpBundle;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
+import io.openems.edge.bridge.http.cycle.dummy.DummyCycleSubscriber;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
 
 public class IoShellyPro3ImplTest {
 
-	private static final String COMPONENT_ID = "io0";
-
 	@Test
 	public void test() throws Exception {
-		new ComponentTest(new IoShellyPro3Impl()) //
-				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
+		final var dummyCycleSubscriber = new DummyCycleSubscriber();
+		final var sut = new IoShellyPro3Impl();
+		new ComponentTest(sut) //
+				.addReference("httpBridgeFactory", httpTestBundle.factory()) //
+				.addReference("httpBridgeCycleServiceDefinition",
+						new HttpBridgeCycleServiceDefinition(dummyCycleSubscriber)) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("io0") //
 						.setIp("127.0.0.1") //
 						.build()) //
-		;
-	}
 
+				// Test case for successful JSON responses for all relays
+				.next(new TestCase("Successful read response for all relays") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									    {
+									        "id": 0,
+									        "source": "HTTP",
+									        "output": true
+									    }
+									"""));
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									    {
+									        "id": 1,
+									        "source": "HTTP",
+									        "output": false
+									    }
+									"""));
+							httpTestBundle.forceNextSuccessfulResult(HttpResponse.ok("""
+									    {
+									        "id": 2,
+									        "source": "HTTP",
+									        "output": true
+									    }
+									"""));
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("x x -", sut.debugLog()))
+
+						.output(IoShellyPro3.ChannelId.RELAY_1, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.RELAY_2, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.RELAY_3, null) // expecting WriteValue
+						.output(IoShellyPro3.ChannelId.SLAVE_COMMUNICATION_FAILED, false)) //
+
+				// Test case for an invalid JSON response
+				.next(new TestCase("Invalid read response for all relays") //
+						.onBeforeProcessImage(() -> {
+							httpTestBundle.forceNextFailedResult(HttpError.ResponseError.notFound());
+							dummyCycleSubscriber.triggerNextCycle();
+						}) //
+						.onAfterProcessImage(() -> assertEquals("? ? ?", sut.debugLog()))
+
+						.output(IoShellyPro3.ChannelId.RELAY_1, null) //
+						.output(IoShellyPro3.ChannelId.RELAY_2, null) //
+						.output(IoShellyPro3.ChannelId.RELAY_3, null) //
+						.output(IoShellyPro3.ChannelId.SLAVE_COMMUNICATION_FAILED, true)) //
+
+				.deactivate(); //
+	}
 }

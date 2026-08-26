@@ -1,7 +1,5 @@
 package io.openems.edge.goodwe.ess;
 
-import static io.openems.edge.common.cycle.Cycle.DEFAULT_CYCLE_TIME;
-
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
@@ -32,10 +30,8 @@ import io.openems.edge.common.sum.Sum;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
-import io.openems.edge.ess.generic.common.CycleProvider;
 import io.openems.edge.ess.power.api.Power;
 import io.openems.edge.goodwe.common.AbstractGoodWe;
-import io.openems.edge.goodwe.common.ApplyPowerHandler;
 import io.openems.edge.goodwe.common.GoodWe;
 import io.openems.edge.goodwe.common.enums.ControlMode;
 import io.openems.edge.timedata.api.Timedata;
@@ -52,10 +48,9 @@ import io.openems.edge.timedata.api.TimedataProvider;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, HybridEss, ManagedSymmetricEss,
-		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave, CycleProvider {
+		SymmetricEss, ModbusComponent, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
 
 	private final AllowedChargeDischargeHandler allowedChargeDischargeHandler = new AllowedChargeDischargeHandler(this);
-	private final ApplyPowerHandler applyPowerHandler = new ApplyPowerHandler();
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
@@ -120,11 +115,12 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
-		this.calculateMaxAcPower(this.getMaxApparentPower().orElse(0));
+		this.handleMaxAcPower(this.getMaxApparentPower().orElse(0), this.getWbmsChargeMaxCurrent().get(),
+				this.getWbmsDischargeMaxCurrent().get(), this.getWbmsVoltage().get());
 
 		// Apply Power Set-Point
-		this.applyPowerHandler.apply(this, activePower, this.config.controlMode(), this.sum.getGridActivePower(),
-				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isPidEnabled());
+		this.applyPowerHandler.apply(activePower, this.config.controlMode(), this.sum.getGridActivePower(),
+				this.getActivePower(), this.getMaxAcImport(), this.getMaxAcExport(), this.power.isFilterEnabled());
 	}
 
 	@Override
@@ -144,7 +140,7 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 		switch (event.getTopic()) {
 		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.updatePowerAndEnergyChannels();
+			this.updatePowerAndEnergyChannels(this.getSoc().get(), null);
 			break;
 		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
 			this.allowedChargeDischargeHandler.accept(this.componentManager);
@@ -169,15 +165,18 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 
 	@Override
 	public Integer getSurplusPower() {
-		// TODO logic is insufficient
-		if (this.getSoc().orElse(0) < 99) {
-			return null;
-		}
 		var productionPower = this.calculatePvProduction();
 		if (productionPower == null || productionPower < 100) {
 			return null;
 		}
-		return productionPower + 200 /* discharge more than PV production to avoid PV curtail */;
+		// Surplus power is the PV production that cannot be fed into the battery. "+"
+		// because
+		// allowed charge power is always negative by convention
+		var surplus = productionPower + this.getAllowedChargePower().orElse(0);
+		if (surplus < 0) {
+			return null;
+		}
+		return surplus;
 	}
 
 	@Override
@@ -194,10 +193,5 @@ public class GoodWeEssImpl extends AbstractGoodWe implements GoodWeEss, GoodWe, 
 				HybridEss.getModbusSlaveNatureTable(accessMode), //
 				ModbusSlaveNatureTable.of(GoodWeEss.class, accessMode, 100) //
 						.build());
-	}
-
-	@Override
-	public int getCycleTime() {
-		return this.cycle != null ? this.cycle.getCycleTime() : DEFAULT_CYCLE_TIME;
 	}
 }

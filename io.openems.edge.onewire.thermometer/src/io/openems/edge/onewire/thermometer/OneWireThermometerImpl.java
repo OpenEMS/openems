@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import com.dalsemi.onewire.OneWireException;
 import com.dalsemi.onewire.adapter.DSPortAdapter;
-import com.dalsemi.onewire.container.OneWireContainer;
 import com.dalsemi.onewire.container.TemperatureContainer;
 
 import io.openems.common.exceptions.OpenemsException;
@@ -104,10 +103,9 @@ public class OneWireThermometerImpl extends AbstractOpenemsComponent implements 
 			return this._container;
 		}
 		var owc = adapter.getDeviceContainer(this.config.address());
-		if (!(owc instanceof OneWireContainer)) {
+		if (!(owc instanceof TemperatureContainer container)) {
 			throw new OpenemsException("This is not a OneWire Temperature Container");
 		}
-		var container = (TemperatureContainer) owc;
 		this._container = container;
 		return this._container;
 	}

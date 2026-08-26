@@ -209,6 +209,8 @@ public interface HybridEss extends SymmetricEss {
 	public static ModbusSlaveNatureTable getModbusSlaveNatureTable(AccessMode accessMode) {
 		return ModbusSlaveNatureTable.of(HybridEss.class, accessMode, 100) //
 				.channel(0, ChannelId.DC_DISCHARGE_POWER, ModbusType.UINT16) //
+				.channel(1, ChannelId.DC_CHARGE_ENERGY, ModbusType.FLOAT64) //
+				.channel(5, ChannelId.DC_DISCHARGE_ENERGY, ModbusType.FLOAT64) //
 				.build();
 	}
 }

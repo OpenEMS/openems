@@ -3,6 +3,7 @@ package io.openems.edge.bridge.modbus.api;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -21,6 +22,7 @@ import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusRegisterElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
@@ -110,17 +112,12 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	protected boolean activate(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.activate(context, id, alias, enabled);
-		// update filter for 'Modbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
-			return true;
-		}
-		this.unitId = unitId;
-		var modbus = this.modbus.get();
-		if (this.isEnabled() && modbus != null) {
-			modbus.addProtocol(this.id(), this.getModbusProtocol());
-			modbus.retryModbusCommunication(this.id());
-		}
-		return false;
+		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
+	}
+
+	protected void activate(ComponentContext context, String id, String alias, boolean enabled, int unitId) {
+		super.activate(context, id, alias, enabled);
+		this.activateOrModified(unitId);
 	}
 
 	@Override
@@ -129,7 +126,7 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	}
 
 	/**
-	 * Call this method from Component implementations activate().
+	 * Call this method from Component implementations modified().
 	 *
 	 * @param context         ComponentContext of this component. Receive it from
 	 *                        parameter for @Activate
@@ -147,19 +144,58 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 	 * @param modbusId        The ID of the Modbus bridge. Typically
 	 *                        'config.modbus_id()'
 	 * @return true if the target filter was updated. You may use it to abort the
-	 *         activate() method.
+	 *         modified() method.
 	 * @throws OpenemsException on error
 	 */
 	protected boolean modified(ComponentContext context, String id, String alias, boolean enabled, int unitId,
 			ConfigurationAdmin cm, String modbusReference, String modbusId) throws OpenemsException {
 		super.modified(context, id, alias, enabled);
+		return this.activateOrModified(unitId, cm, modbusReference, modbusId);
+	}
+
+	/**
+	 * Call this method from Component implementations modified().
+	 *
+	 * @param context ComponentContext of this component. Receive it from parameter
+	 *                for @Activate
+	 * @param id      ID of this component. Typically 'config.id()'
+	 * @param alias   Human-readable name of this Component. Typically
+	 *                'config.alias()'. Defaults to 'id' if empty
+	 * @param enabled Whether the component should be enabled. Typically
+	 *                'config.enabled()'
+	 * @param unitId  Unit-ID of the Modbus target
+	 */
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled, int unitId) {
+		super.modified(context, id, alias, enabled);
+		this.activateOrModified(unitId);
+	}
+
+	@Override
+	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
+		throw new IllegalArgumentException("Use the other modified() for Modbus components!");
+	}
+
+	/**
+	 * Common tasks for @Activate and @Modified.
+	 * 
+	 * @param unitId          Unit-ID of the Modbus target
+	 * @param cm              An instance of ConfigurationAdmin. Receive it
+	 *                        using @Reference
+	 * @param modbusReference The name of the @Reference setter method for the
+	 *                        Modbus bridge - e.g. 'Modbus' if you have a
+	 *                        setModbus()-method
+	 * @param modbusId        The ID of the Modbus bridge. Typically
+	 *                        'config.modbus_id()'
+	 * @return true if the target filter was updated. You may use it to abort the
+	 *         activate() or modified() method.
+	 */
+	private boolean activateOrModified(int unitId, ConfigurationAdmin cm, String modbusReference, String modbusId) {
 		// update filter for 'Modbus'
-		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), "Modbus", modbusId)) {
+		if (OpenemsComponent.updateReferenceFilter(cm, this.servicePid(), modbusReference, modbusId)) {
 			return true;
 		}
 		this.unitId = unitId;
 		var modbus = this.modbus.get();
-		modbus.removeProtocol(this.id());
 		if (this.isEnabled() && modbus != null) {
 			modbus.addProtocol(this.id(), this.getModbusProtocol());
 			modbus.retryModbusCommunication(this.id());
@@ -167,9 +203,13 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		return false;
 	}
 
-	@Override
-	protected void modified(ComponentContext context, String id, String alias, boolean enabled) {
-		throw new IllegalArgumentException("Use the other activate() for Modbus components!");
+	private void activateOrModified(int unitId) {
+		this.unitId = unitId;
+		var modbus = this.modbus.get();
+		if (this.isEnabled() && modbus != null) {
+			modbus.addProtocol(this.id(), this.getModbusProtocol());
+			modbus.retryModbusCommunication(this.id());
+		}
 	}
 
 	@Override
@@ -237,6 +277,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 		}
 		this.protocol = this.defineModbusProtocol();
 		return this.protocol;
+	}
+
+	public List<TaskHook> getModbusTaskHooks() {
+		return List.of();
 	}
 
 	@Override
@@ -347,7 +391,8 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 						// dynamically get the Converter; this allows the converter to be changed
 						var converter = this.channelMaps.get(channel);
 						var convertedValue = converter.channelToElement(value);
-						if (this.element instanceof ModbusRegisterElement<?, ?> registerElement) {
+						switch (this.element) {
+						case ModbusRegisterElement<?, ?> registerElement -> {
 							try {
 								registerElement.setNextWriteValueFromObject(convertedValue);
 							} catch (IllegalArgumentException e) {
@@ -362,8 +407,9 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 									e.printStackTrace();
 								}
 							}
+						}
 
-						} else if (this.element instanceof CoilElement coilElement) {
+						case CoilElement coilElement -> {
 							try {
 								coilElement.setNextWriteValue(TypeUtils.getAsType(OpenemsType.BOOLEAN, convertedValue));
 							} catch (IllegalArgumentException e) {
@@ -371,9 +417,10 @@ public abstract class AbstractOpenemsModbusComponent extends AbstractOpenemsComp
 										"Unable to write to ModbusCoilElement " //
 												+ "[" + this.element.startAddress + "]: " + e.getMessage());
 							}
+						}
 
-						} else {
-							AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
+						default //
+							-> AbstractOpenemsModbusComponent.this.logWarn(AbstractOpenemsModbusComponent.this.log,
 									"Unable to write to Element " //
 											+ "[" + this.element.startAddress + "]: it is not a ModbusElement");
 						}

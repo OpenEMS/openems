@@ -1,17 +1,33 @@
 package io.openems.edge.common.meta;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.PersistencePriority.VERY_LOW;
+import static io.openems.common.channel.Unit.SECONDS;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.LONG;
+import static io.openems.common.types.OpenemsType.STRING;
+
+import java.time.ZoneId;
+
 import io.openems.common.OpenemsConstants;
 import io.openems.common.channel.AccessMode;
-import io.openems.common.channel.PersistencePriority;
+import io.openems.common.channel.Unit;
+import io.openems.common.jscalendar.JSCalendar;
 import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.types.OpenemsType;
+import io.openems.edge.common.channel.BooleanReadChannel;
+import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.currency.Currency;
+import io.openems.edge.common.meta.types.Coordinates;
+import io.openems.edge.common.meta.types.CountryCode;
+import io.openems.edge.common.meta.types.SubdivisionCode;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 
 public interface Meta extends ModbusSlave {
 
@@ -27,19 +43,76 @@ public interface Meta extends ModbusSlave {
 		 * <li>Type: String
 		 * </ul>
 		 */
-		VERSION(Doc.of(OpenemsType.STRING) //
-				.persistencePriority(PersistencePriority.HIGH)),
-
+		VERSION(Doc.of(STRING)//
+				.persistencePriority(HIGH)),
+		/**
+		 * System Time: seconds since 1st January 1970 00:00:00 UTC.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Long
+		 * </ul>
+		 */
+		SYSTEM_TIME_UTC(Doc.of(LONG)//
+				.unit(SECONDS)//
+				.text("System Time: seconds since 1st January 1970 00:00:00 UTC")//
+				.persistencePriority(VERY_LOW)),
 		/**
 		 * Edge currency.
-		 * 
+		 *
 		 * <ul>
 		 * <li>Interface: Meta
 		 * <li>Type: Currency
 		 * </ul>
 		 */
-		CURRENCY(Doc.of(Currency.values()) //
-				.persistencePriority(PersistencePriority.HIGH));
+		CURRENCY(Doc.of(Currency.values())//
+				.persistencePriority(HIGH)),
+
+		/**
+		 * Is it allowed to charge the ESS from Grid?.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		IS_ESS_CHARGE_FROM_GRID_ALLOWED(Doc.of(BOOLEAN)//
+				.persistencePriority(HIGH)), //
+
+		/**
+		 * Is it allowed to discharge the ESS to Grid?.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Boolean
+		 * </ul>
+		 */
+		IS_ESS_DISCHARGE_TO_GRID_ALLOWED(Doc.of(BOOLEAN)//
+				.persistencePriority(HIGH)), //
+
+		/**
+		 * Grid feed limitation type.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: GridFeedInLimitationType
+		 * </ul>
+		 */
+		GRID_FEED_IN_LIMITATION_TYPE(Doc.of(GridFeedInLimitationType.values())//
+				.persistencePriority(HIGH)), //
+		/**
+		 * Grid-Buy Soft-Limit.
+		 *
+		 * <ul>
+		 * <li>Interface: Meta
+		 * <li>Type: Integer
+		 * <li>Unit: Watt
+		 * </ul>
+		 */
+		GRID_BUY_SOFT_LIMIT(Doc.of(OpenemsType.INTEGER) //
+				.unit(Unit.WATT) //
+				.persistencePriority(HIGH)) //
+		;
 
 		private final Doc doc;
 
@@ -56,7 +129,7 @@ public interface Meta extends ModbusSlave {
 	/**
 	 * Provides a default implementation for
 	 * {@link ModbusSlave#getModbusSlaveTable(AccessMode)}.
-	 * 
+	 *
 	 * @param accessMode the {@link AccessMode}
 	 * @param oem        the {@link OpenemsEdgeOem}
 	 * @return the {@link ModbusSlaveNatureTable}
@@ -73,6 +146,7 @@ public interface Meta extends ModbusSlave {
 						.string16(51, "Manufacturer Version", oem.getManufacturerVersion()) //
 						.string16(67, "Manufacturer Serial Number", oem.getManufacturerSerialNumber()) //
 						.string16(83, "Manufacturer EMS Serial Number", oem.getManufacturerEmsSerialNumber()) //
+						.channel(99, ChannelId.SYSTEM_TIME_UTC, ModbusType.UINT64) //
 						.build());
 	}
 
@@ -95,11 +169,188 @@ public interface Meta extends ModbusSlave {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#CURRENCY} Channel.
+	 * Gets the Channel for {@link ChannelId#IS_ESS_CHARGE_FROM_GRID_ALLOWED}.
 	 *
-	 * @param value the next value
+	 * @return the Channel
 	 */
-	public default void _setCurrency(Currency value) {
-		this.getCurrencyChannel().setNextValue(value);
+	public default BooleanReadChannel getIsEssChargeFromGridAllowedChannel() {
+		return this.channel(ChannelId.IS_ESS_CHARGE_FROM_GRID_ALLOWED);
 	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
+	 *
+	 * @return the Channel
+	 */
+	public default BooleanReadChannel getIsEssDischargeToGridAllowedChannel() {
+		return this.channel(ChannelId.IS_ESS_DISCHARGE_TO_GRID_ALLOWED);
+	}
+
+	/**
+	 * Gets whether charging the ESS from grid is allowed. See
+	 * {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default GridFeedInLimitationType getGridFeedInLimitationType() {
+		return this.getGridFeedInLimitationTypeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#GRID_FEED_IN_LIMITATION_TYPE}.
+	 *
+	 * @return the Channel
+	 */
+	public default Channel<GridFeedInLimitationType> getGridFeedInLimitationTypeChannel() {
+		return this.channel(ChannelId.GRID_FEED_IN_LIMITATION_TYPE);
+	}
+
+	/**
+	 * Gets whether charging the ESS from grid is allowed. See
+	 * {@link ChannelId#IS_ESS_CHARGE_FROM_GRID_ALLOWED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default boolean getIsEssChargeFromGridAllowed() {
+		return this.getIsEssChargeFromGridAllowedChannel().value().orElse(false);
+	}
+
+	/**
+	 * Gets whether discharging the ESS to grid is allowed. See
+	 * {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default boolean getIsEssDischargeToGridAllowed() {
+		return this.getIsEssDischargeToGridAllowedChannel().value().orElse(false);
+	}
+
+	/**
+	 * Gets the maximum current allowed at the Grid Connection Point (GCP), i.e. the
+	 * rating of the fuses.
+	 *
+	 * @return the limit in A
+	 */
+	public int getGridConnectionPointFuseLimit();
+
+	/**
+	 * Returns the ISO 3166-1 alpha-2 country code of the system location.
+	 * 
+	 * <p>
+	 * Example: "DE" for Germany.
+	 *
+	 * @return the ISO 3166-1 alpha-2 country code
+	 */
+	public default CountryCode getCountryCode() {
+		return this.getSubdivisionCode().getCountryCode();
+	}
+
+	/**
+	 * Returns the ISO 3166-2 subdivision code representing the state, province, or
+	 * region of the system location.
+	 *
+	 * <p>
+	 * Example: {@code DE-BE} for Berlin, Germany.
+	 *
+	 * @return the ISO 3166-2 subdivision code
+	 */
+	public SubdivisionCode getSubdivisionCode();
+
+	/**
+	 * Returns the most specific place name of the system location, or null if not
+	 * set. Checks in order: hamlet, village, suburb, town, neighbourhood, quarter,
+	 * city district, city.
+	 *
+	 * <p>
+	 * Example: "Mitte"
+	 *
+	 * @return the most specific place name, or null if not set
+	 */
+	public String getPlaceName();
+
+	/**
+	 * Returns the postcode of the system location, or null if not available.
+	 *
+	 * <p>
+	 * Example: "10115"
+	 *
+	 * @return the postcode, or null if not set
+	 */
+	public String getPostcode();
+
+	/**
+	 * Returns the geographical coordinates of the system location, if available.
+	 *
+	 * @return the coordinates, or null if not valid or not set
+	 */
+	public Coordinates getCoordinates();
+
+	/**
+	 * Returns the time zone of the system location, or null if not available.
+	 *
+	 * @return the time zone, or null if not set
+	 */
+	public ZoneId getTimezone();
+
+	/**
+	 * Returns the continuous hard limit for Grid-Sell Power in [W].
+	 * 
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit.
+	 * 
+	 * @return the value
+	 */
+	public int getGridSellHardLimit();
+
+	/**
+	 * Returns the continuous hard limit for Grid-Sell Power in [W] minus a safety
+	 * buffer to reduce the risk of PV curtailment.
+	 *
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit.
+	 *
+	 * @return the value
+	 */
+	public int getGridSellHardLimitWithBuffer();
+
+	/**
+	 * Returns the continuous hard limit for Grid-Buy Power in [W].
+	 * 
+	 * <p>
+	 * This value is derived from GridConnectionPointFuseLimit and
+	 * {@link ChannelId#MAXIMUM_GRID_FEED_IN_LIMIT}.
+	 * 
+	 * @return the value
+	 */
+	public int getGridBuyHardLimit();
+
+	/**
+	 * Returns the continuous limit for ESS Discharge-to-Grid Power in [W].
+	 *
+	 * <p>
+	 * This value is derived from {@link ChannelId#IS_ESS_DISCHARGE_TO_GRID_ALLOWED}
+	 * and gridSellHardLimit()
+	 *
+	 * @return the value
+	 */
+	public int getEssDischargeToGridLimit();
+
+	/**
+	 * Returns the {@link GridBuySoftLimit} {@link JSCalendar.Tasks}.
+	 * 
+	 * <p>
+	 * A Schedule for Grid-Buy Soft-Limits. Controllers will try to achieve this
+	 * Soft-Limit, e.g. via Peak-Shaving with an ESS.
+	 * 
+	 * @return JSCalendar Tasks
+	 */
+	public JSCalendar.Tasks<GridBuySoftLimit> getGridBuySoftLimit();
+
+	/**
+	 * Returns whether the user has accepted, declined, or not yet decided on
+	 * third-party usage.
+	 *
+	 * @return the third party usage acceptance status
+	 */
+	public ThirdPartyUsageAcceptance getThirdPartyUsageAcceptance();
 }

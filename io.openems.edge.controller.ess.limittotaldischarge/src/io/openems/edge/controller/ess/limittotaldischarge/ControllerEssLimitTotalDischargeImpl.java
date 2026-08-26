@@ -1,5 +1,10 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -7,7 +12,6 @@ import java.util.Optional;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -19,18 +23,19 @@ import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
+import io.openems.edge.energy.api.EnergySchedulable;
+import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
+import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.LimitTotalDischarge", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsComponent
-		implements ControllerEssLimitTotalDischarge, Controller, OpenemsComponent {
+		implements ControllerEssLimitTotalDischarge, EnergySchedulable, Controller, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssLimitTotalDischargeImpl.class);
 
@@ -43,7 +48,9 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	private static final int HYSTERESIS = 5;
 	private Instant lastStateChange = Instant.MIN;
 
+	private EnergyScheduleHandler energyScheduleHandler;
 	private String essId;
+	private HybridEssMode hybridEssMode;
 	private int minSoc = 0;
 	private int forceChargeSoc = 0;
 	private Optional<Integer> forceChargePower = Optional.empty();
@@ -60,8 +67,13 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
+		this.energyScheduleHandler = buildEnergyScheduleHandler(this, //
+				() -> new EnergyScheduler.Config(this.isEnabled() //
+						? this.minSoc //
+						: null));
 
 		this.essId = config.ess_id();
+		this.hybridEssMode = config.hybridEssMode();
 		this.minSoc = config.minSoc();
 		this.forceChargeSoc = config.forceChargeSoc();
 
@@ -141,7 +153,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				 * Min-SoC State
 				 */
 				// Deny further discharging: set Constraint for ActivePower <= 0
-				calculatedPower = 0;
+				calculatedPower = getAcPower(ess, this.hybridEssMode, 0);
 
 				if (soc <= this.forceChargeSoc) {
 					stateChanged = this.changeState(State.FORCE_CHARGE_SOC);
@@ -159,9 +171,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 				 */
 				// Force charge: set Constraint for ActivePower
 				if (this.forceChargePower.isPresent()) {
-					calculatedPower = this.forceChargePower.get() * -1; // convert to negative for charging
+					calculatedPower = getAcPower(ess, this.hybridEssMode, //
+							this.forceChargePower.get() * -1); // convert to negative for charging
 				} else {
-					var maxCharge = ess.getPower().getMinPower(ess, Phase.ALL, Pwr.ACTIVE);
+					var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
 					calculatedPower = maxCharge / 5;
 				}
 
@@ -176,8 +189,7 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 		// adjust value so that it fits into Min/MaxActivePower
 		if (calculatedPower != null) {
-			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.ACTIVE,
-					calculatedPower);
+			calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, ACTIVE, calculatedPower);
 		}
 
 		// Apply Force-Charge if it was set
@@ -185,6 +197,31 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 
 		// store current state in StateMachine channel
 		this.channel(ControllerEssLimitTotalDischarge.ChannelId.STATE_MACHINE).setNextValue(this.state);
+	}
+
+	/**
+	 * Gets the required AC power set-point for AC- or Hybrid-ESS.
+	 *
+	 * @param ess           the {@link ManagedSymmetricEss}; checked for
+	 *                      {@link HybridEss}
+	 * @param hybridEssMode the {@link HybridEssMode}
+	 * @param power         the configured target power
+	 * @return the AC power set-point
+	 */
+	protected static int getAcPower(ManagedSymmetricEss ess, HybridEssMode hybridEssMode, int power) {
+		return switch (hybridEssMode) {
+		case TARGET_AC -> power;
+
+		case TARGET_DC -> //
+			switch (ess) {
+			case HybridEss he -> {
+				var pv = ess.getActivePower().orElse(0) - he.getDcDischargePower().orElse(0);
+				pv = pv > 0 ? pv : 0; // avoid negative numbers
+				yield pv + power; // Charge or Discharge
+			}
+			default -> power;
+			};
+		};
 	}
 
 	/**
@@ -210,5 +247,10 @@ public class ControllerEssLimitTotalDischargeImpl extends AbstractOpenemsCompone
 			this._setAwaitingHysteresisValue(true);
 			return false;
 		}
+	}
+
+	@Override
+	public EnergyScheduleHandler getEnergyScheduleHandler() {
+		return this.energyScheduleHandler;
 	}
 }

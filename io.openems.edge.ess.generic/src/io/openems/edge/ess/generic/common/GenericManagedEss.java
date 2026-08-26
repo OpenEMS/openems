@@ -7,10 +7,11 @@ import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.ess.api.EssErrorAcknowledge;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
 
-public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave {
+public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, ModbusSlave, EssErrorAcknowledge {
 
 	/**
 	 * Efficiency factor to calculate AC Charge/Discharge limits from DC. Used at
@@ -29,15 +30,26 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	 */
 	public static int RETRY_COMMAND_MAX_ATTEMPTS = 30;
 
+	/**
+	 * Retry set-command after x Seconds, e.g. for starting battery or
+	 * battery-inverter.
+	 */
+	public static int TIMEOUT = 300;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery start attempts failed")), //
-		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery stop attempts failed")), //
-		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
+		MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
 				.text("The maximum number of Battery-Inverter start attempts failed")), //
-		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.FAULT) //
-				.text("The maximum number of Battery-Inverter stop attempts failed")); //
+		MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT(Doc.of(Level.WARNING)//
+				.text("The maximum number of Battery-Inverter stop attempts failed")), //
+		ESS_FAULT_DUE_TO_BATTERY_FAULT(Doc.of(Level.FAULT)//
+				.text("Ess Fault due to battery fault")), //
+		ESS_FAULT_DUE_TO_BATTERY_INVERTER_FAULT(Doc.of(Level.FAULT)//
+				.text("Ess Fault due to battery-inverter fault")), //
+		;
 
 		private final Doc doc;
 
@@ -68,7 +80,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_START_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -97,7 +109,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_STOP_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -127,7 +139,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_START_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -157,7 +169,7 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	}
 
 	/**
-	 * Gets the {@link StateChannel} for
+	 * Gets the StateChannel value for
 	 * {@link ChannelId#MAX_BATTERY_INVERTER_STOP_ATTEMPTS_FAULT}.
 	 *
 	 * @return the Channel {@link Value}
@@ -174,6 +186,65 @@ public interface GenericManagedEss extends ManagedSymmetricEss, StartStoppable, 
 	 */
 	public default void _setMaxBatteryInverterStopAttemptsFault(boolean value) {
 		this.getMaxBatteryInverterStopAttemptsFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_FAULT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getEssFaultDueToBatteryFaultChannel() {
+		return this.channel(ChannelId.ESS_FAULT_DUE_TO_BATTERY_FAULT);
+	}
+
+	/**
+	 * Gets the StateChannel value for
+	 * {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_FAULT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getEssFaultDueToBatteryFault() {
+		return this.getEssFaultDueToBatteryFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_FAULT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssFaultDueToBatteryFault(boolean value) {
+		this.getEssFaultDueToBatteryFaultChannel().setNextValue(value);
+	}
+
+	/**
+	 * Gets the Channel for
+	 * {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_INVERTER_FAULT}.
+	 *
+	 * @return the Channel
+	 */
+	public default StateChannel getEssFaultDueToBatteryInverterFaultChannel() {
+		return this.channel(ChannelId.ESS_FAULT_DUE_TO_BATTERY_INVERTER_FAULT);
+	}
+
+	/**
+	 * Gets the StateChannel value for
+	 * {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_INVERTER_FAULT}.
+	 *
+	 * @return the Channel {@link Value}
+	 */
+	public default Value<Boolean> getEssFaultDueToBatteryInverterFault() {
+		return this.getEssFaultDueToBatteryInverterFaultChannel().value();
+	}
+
+	/**
+	 * Internal method to set the 'nextValue' on
+	 * {@link ChannelId#ESS_FAULT_DUE_TO_BATTERY_INVERTER_FAULT} Channel.
+	 *
+	 * @param value the next value
+	 */
+	public default void _setEssFaultDueToBatteryInverterFault(boolean value) {
+		this.getEssFaultDueToBatteryInverterFaultChannel().setNextValue(value);
 	}
 
 }

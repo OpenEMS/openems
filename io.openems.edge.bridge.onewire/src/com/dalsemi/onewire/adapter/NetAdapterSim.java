@@ -230,7 +230,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 	public NetAdapterSim(String execCmd, String logFilename, int listenPort, boolean multiThread) throws IOException {
 		// save references to file and command
 		this.execCommand = execCmd;
-		this.process = Runtime.getRuntime().exec(execCmd);
+
+		// Use ProcessBuilder instead of Runtime.getRuntime().exec()
+		ProcessBuilder processBuilder = new ProcessBuilder(execCmd.split(" "));
+		processBuilder.redirectErrorStream(true); // Redirect error stream to standard output
+		this.process = processBuilder.start();
 		this.processOutput = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
 		this.processError = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
 		this.processInput = new OutputStreamWriter(this.process.getOutputStream());
@@ -323,7 +327,11 @@ public class NetAdapterSim implements Runnable, NetAdapterConstants {
 			throws IOException {
 		// save references to file and command
 		this.execCommand = execCmd;
-		this.process = Runtime.getRuntime().exec(execCmd);
+
+		// Use ProcessBuilder instead of Runtime.getRuntime().exec()
+		ProcessBuilder processBuilder = new ProcessBuilder(execCmd.split(" "));
+		processBuilder.redirectErrorStream(true); // Redirect error stream to standard output
+		this.process = processBuilder.start();
 		this.processOutput = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
 		this.processError = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
 		this.processInput = new OutputStreamWriter(this.process.getOutputStream());

@@ -43,7 +43,12 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 		/**
 		 * State if SoC is above configured target SoC but within boundaries.
 		 */
-		WITHIN_UPPER_TARGET_SOC_BOUNDARIES(7);
+		WITHIN_UPPER_TARGET_SOC_BOUNDARIES(7), //
+
+		/**
+		 * Mandatory one-time reference cycle initialization phase.
+		 */
+		REFERENCE_CYCLE(8);
 
 		private final int value;
 
@@ -78,23 +83,16 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<StateMachine.State, Context> getStateHandler(State state) {
-		switch (state) {
-		case IDLE:
-			return new IdleHander();
-		case NOT_STARTED:
-			return new NotStartedHandler();
-		case ABOVE_TARGET_SOC:
-			return new AboveTargetSocHandler();
-		case BELOW_TARGET_SOC:
-			return new BelowTargetSocHandler();
-		case AT_TARGET_SOC:
-			return new AtTargetSocHandler();
-		case WITHIN_LOWER_TARGET_SOC_BOUNDARIES:
-			return new WithinLowerTargetSocBoundariesHandler();
-		case WITHIN_UPPER_TARGET_SOC_BOUNDARIES:
-			return new WithinUpperTargetSocBoundariesHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case IDLE -> new IdleHander();
+		case NOT_STARTED -> new NotStartedHandler();
+		case REFERENCE_CYCLE -> new ReferenceCycleHandler();
+		case ABOVE_TARGET_SOC -> new AboveTargetSocHandler();
+		case BELOW_TARGET_SOC -> new BelowTargetSocHandler();
+		case AT_TARGET_SOC -> new AtTargetSocHandler();
+		case WITHIN_LOWER_TARGET_SOC_BOUNDARIES -> new WithinLowerTargetSocBoundariesHandler();
+		case WITHIN_UPPER_TARGET_SOC_BOUNDARIES -> new WithinUpperTargetSocBoundariesHandler();
+		};
 	}
 
 }

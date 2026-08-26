@@ -1,0 +1,106 @@
+import { ArrayUtils } from "../array/array.utils";
+import { AssertionUtils } from "../assertions/assertions.utils";
+
+export namespace StringUtils {
+    export const INVALID_STRING = "Passed value is not of type string";
+    export type UppercaseString<T extends string> = T extends Uppercase<T> ? T : never;
+
+    export function assertIsString(val: any): asserts val is string {
+        AssertionUtils.assertIsDefined(val);
+        isValidString(val);
+    }
+
+    export function isValidString(val: any): val is string {
+        const isString = typeof val === "string";
+        if (!isString) {
+            throw new Error(INVALID_STRING);
+        }
+        return isString;
+    }
+
+    export function validateStrings(arr: string[] | null): boolean {
+        return arr?.every((el) => el != null && isValidString(el)) ?? false;
+    }
+
+    /**
+     * Checks if the value does not occur in array
+     *
+     * @param val The value
+     * @param arr The array
+     * @returns True if passed value is not contained by the array
+     */
+    export function isNotInArr(val: string | null, arr: string[] | null): boolean {
+        ArrayUtils.isValidArr(arr);
+        StringUtils.isValidString(val);
+        StringUtils.validateStrings(arr);
+        return arr?.every((el) => val != el) ?? true;
+    }
+
+    /**
+     * Checks if the value does occur in array
+     *
+     * @param val The value
+     * @param arr The array
+     * @returns True if passed value is ocurring in the array
+     */
+    export function isInArr(val: string | null, arr: string[] | null): boolean {
+        ArrayUtils.isValidArr(arr);
+        StringUtils.isValidString(val);
+        StringUtils.validateStrings(arr);
+        return arr?.some((el) => val == el) ?? false;
+    }
+
+    /**
+     * Gets the substring between a start and end character
+     *
+     * @param start The start character
+     * @param end The end character
+     * @param val The value
+     * @returns A string, if valid, else null
+     */
+    export function getSubstringInBetween(start: string | null, end: string | null, val: string | null): string | null {
+        if (!val || !start || !end || !validateStrings([start, end, val])) {
+            throw new Error(INVALID_STRING);
+        }
+
+        const startIndex = val.indexOf(start) + 1;
+        const endIndex = val.indexOf(end);
+
+        if (startIndex === -1 || !startIndex || endIndex === -1 || !endIndex) {
+            return null;
+        }
+
+        return val.substring(startIndex, endIndex);
+    }
+
+    export function splitBy(value: string | null, key: string): null | string[] {
+        if (isValidString(value)) {
+            return value.split(key);
+        }
+
+        return null;
+    }
+
+    export function splitByGetIndexSafely(value: string | null, key: string, index: number): null | string {
+        const arr = StringUtils.splitBy(value, key);
+        if (arr == null || arr.length == 0) {
+            return null;
+        }
+        return arr[index];
+    }
+
+    /**
+     * Extracts a numeric suffix from a string. Matches logic: Pattern.compile("[^0-9]+([0-9]+)$")
+     *
+     * @param val The input string (e.g. "fems123")
+     * @returns The number found at the end, or null if format doesn't match.
+     */
+    export function getTrailingNumber(value: string): number | null {
+        if (!isValidString(value)) {
+            return null;
+        }
+        const match = value.match(/\D+(\d+)$/)?.[1];
+
+        return match ? Number.parseInt(match, 10) : null;
+    }
+}

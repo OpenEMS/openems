@@ -3,6 +3,7 @@ package io.openems.edge.ess.samsung.ess;
 import static io.openems.common.utils.JsonUtils.getAsFloat;
 import static io.openems.common.utils.JsonUtils.getAsInt;
 import static io.openems.common.utils.JsonUtils.getAsJsonObject;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static java.lang.Math.round;
 
 import org.osgi.service.component.ComponentContext;
@@ -23,11 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonElement;
 
+import io.openems.common.bridge.http.api.BridgeHttp;
+import io.openems.common.bridge.http.api.BridgeHttpFactory;
+import io.openems.common.bridge.http.api.HttpError;
+import io.openems.common.bridge.http.api.HttpResponse;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.edge.bridge.http.api.BridgeHttp;
-import io.openems.edge.bridge.http.api.BridgeHttpFactory;
-import io.openems.edge.bridge.http.api.HttpError;
-import io.openems.edge.bridge.http.api.HttpResponse;
+import io.openems.edge.bridge.http.cycle.HttpBridgeCycleServiceDefinition;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -64,11 +66,13 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	@Reference(cardinality = ReferenceCardinality.MANDATORY)
+	@Reference
 	private BridgeHttpFactory httpBridgeFactory;
-	private BridgeHttp httpBridge;
+	@Reference
+	private HttpBridgeCycleServiceDefinition httpBridgeCycleServiceDefinition;
 
 	private String baseUrl;
+	private BridgeHttp httpBridge;
 	private Integer latestGridPw = 0;
 	private Integer latestPvPw = 0;
 	private Integer latestPcsPw = 0;
@@ -83,7 +87,6 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 				SamsungEss.ChannelId.values(), //
 				EssDcCharger.ChannelId.values(), //
 				HybridEss.ChannelId.values() //
-		//
 		);
 	}
 
@@ -93,13 +96,14 @@ public class SamsungEssImpl extends AbstractOpenemsComponent
 		this.baseUrl = "http://" + config.ip();
 		this.httpBridge = this.httpBridgeFactory.get();
 		this._setCapacity(config.capacity());
-		this._setGridMode(GridMode.ON_GRID); // Has no Backup function
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, GridMode.ON_GRID); // Has no Backup function
 
 		if (!this.isEnabled()) {
 			return;
 		}
 
-		this.httpBridge.subscribeJsonEveryCycle(this.baseUrl + "/R3EMSAPP_REAL.ems?file=ESSRealtimeStatus.json",
+		final var cycleService = this.httpBridge.createService(this.httpBridgeCycleServiceDefinition);
+		cycleService.subscribeJsonEveryCycle(this.baseUrl + "/R3EMSAPP_REAL.ems?file=ESSRealtimeStatus.json",
 				this::fetchAndUpdateEssRealtimeStatus);
 	}
 

@@ -1,36 +1,63 @@
 package io.openems.common.jsonrpc.serialization;
 
-import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collector;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 
-import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.utils.JsonUtils;
 
-public class JsonArrayPathActual implements JsonArrayPath {
+public final class JsonArrayPathActual {
 
-	private final JsonArray object;
+	public static final class JsonArrayPathActualNonNull implements JsonArrayPath {
 
-	public JsonArrayPathActual(JsonElement object) {
-		if (!object.isJsonArray()) {
-			throw new OpenemsRuntimeException(object + " is not a JsonArray!");
+		private final JsonArray element;
+
+		public JsonArrayPathActualNonNull(JsonArray array) {
+			this.element = Objects.requireNonNull(array);
 		}
-		this.object = object.getAsJsonArray();
+
+		@Override
+		public <A, R> R collect(Collector<JsonElementPath, A, R> collector) {
+			return JsonUtils.stream(this.element) //
+					.map(JsonElementPathActual.JsonElementPathActualNonNull::new) //
+					.collect(collector);
+		}
+
+		@Override
+		public JsonArray get() {
+			return this.element;
+		}
+
 	}
 
-	@Override
-	public <T> List<T> getAsList(Function<JsonElementPath, T> mapper) {
-		return JsonUtils.stream(this.object) //
-				.map(JsonElementPathActual::new) //
-				.map(mapper) //
-				.toList();
+	public static final class JsonArrayPathActualNullable implements JsonArrayPathNullable {
+
+		private final JsonArray element;
+
+		public JsonArrayPathActualNullable(JsonArray array) {
+			this.element = array;
+		}
+
+		@Override
+		public <T> T mapIfPresent(Function<JsonArrayPath, T> mapper) {
+			return this.element == null ? null : mapper.apply(new JsonArrayPathActualNonNull(this.element));
+		}
+
+		@Override
+		public boolean isPresent() {
+			return this.element != null;
+		}
+
+		@Override
+		public JsonArray getOrNull() {
+			return this.element;
+		}
+
 	}
 
-	@Override
-	public JsonArray get() {
-		return this.object;
+	private JsonArrayPathActual() {
 	}
 
 }

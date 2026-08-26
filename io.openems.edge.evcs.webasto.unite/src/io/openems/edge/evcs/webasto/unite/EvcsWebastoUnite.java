@@ -8,8 +8,10 @@ import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.WriteChannel;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.evcs.api.Evcs;
+import io.openems.edge.meter.api.ElectricityMeter;
 
-public interface EvcsWebastoUnite extends OpenemsComponent {
+public interface EvcsWebastoUnite extends ElectricityMeter, Evcs, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		SERIAL_NUMBER(Doc.of(OpenemsType.STRING) //
@@ -40,36 +42,6 @@ public interface EvcsWebastoUnite extends OpenemsComponent {
 		CABLE_STATE(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		EVSE_FAULT_CODE(Doc.of(OpenemsType.INTEGER) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		CURRENT_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		CURRENT_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		CURRENT_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.MILLIAMPERE) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		VOLTAGE_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		VOLTAGE_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		VOLTAGE_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.VOLT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		ACTIVE_POWER_TOTAL(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		ACTIVE_POWER_L1(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		ACTIVE_POWER_L2(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.accessMode(AccessMode.READ_ONLY)), //
-		ACTIVE_POWER_L3(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
 				.accessMode(AccessMode.READ_ONLY)), //
 		METER_READING(Doc.of(OpenemsType.INTEGER) //
 				.accessMode(AccessMode.READ_ONLY)), //
@@ -134,25 +106,6 @@ public interface EvcsWebastoUnite extends OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#ACTIVE_POWER_TOTAL}.
-	 *
-	 * @return the Channel
-	 */
-	default Channel<Integer> getActivePowerChannel() {
-		return this.channel(ChannelId.ACTIVE_POWER_TOTAL);
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#ACTIVE_POWER_TOTAL}.
-	 *
-	 * @return the Channel
-	 */
-	default int getActivePower() {
-		Channel<Integer> channel = this.getActivePowerChannel();
-		return channel.value().orElse(channel.getNextValue().orElse(0));
-	}
-
-	/**
 	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CHARGE_POINT_STATE}.
 	 *
 	 * @return the Channel
@@ -168,63 +121,6 @@ public interface EvcsWebastoUnite extends OpenemsComponent {
 	 */
 	default int getChargePointState() {
 		Channel<Integer> channel = this.getChargePointStateChannel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L1}.
-	 *
-	 * @return the Channel
-	 */
-	default Channel<Integer> getActivePowerL1Channel() {
-		return this.channel(ChannelId.ACTIVE_POWER_L1);
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L1}.
-	 *
-	 * @return the Channel
-	 */
-	default int getActivePowerL1() {
-		Channel<Integer> channel = this.getActivePowerL1Channel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L2}.
-	 *
-	 * @return the Channel
-	 */
-	default Channel<Integer> getActivePowerL2Channel() {
-		return this.channel(ChannelId.ACTIVE_POWER_L2);
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L2}.
-	 *
-	 * @return the Channel
-	 */
-	default int getActivePowerL2() {
-		Channel<Integer> channel = this.getActivePowerL2Channel();
-		return channel.value().orElse(channel.getNextValue().orElse(-1));
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L3}.
-	 *
-	 * @return the Channel
-	 */
-	default Channel<Integer> getActivePowerL3Channel() {
-		return this.channel(ChannelId.ACTIVE_POWER_L3);
-	}
-
-	/**
-	 * Gets the Channel for {@link EvcsWebastoUnite.ChannelId#CURRENT_L3}.
-	 *
-	 * @return the Channel
-	 */
-	default int getActivePowerL3() {
-		Channel<Integer> channel = this.getActivePowerL3Channel();
 		return channel.value().orElse(channel.getNextValue().orElse(-1));
 	}
 

@@ -1,0 +1,7 @@
+@if (isInitialized) {
+  <oe-chart [(showPhases)]="showPhases" [period]="service.historyPeriod.value"
+    [title]="'EDGE.INDEX.WIDGETS.FIX_DIGITAL_OUTPUT' | translate">
+    <oe-controller-io-digital-output-chart [isOnlyChart]="true"></oe-controller-io-digital-output-chart>
+    <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+  </oe-chart>
+}

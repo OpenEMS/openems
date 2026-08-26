@@ -1,7 +1,6 @@
 = UI History Simulation
 :imagesdir: ../../assets/images
 :sectnumlevels: 0
-:toc:
 :toclevels: 0
 
 Sometimes it can be useful to mock historic data in OpenEMS UI in order to take consistent screenshots or to visualize how a certain Controller would have behaved during a day.

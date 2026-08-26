@@ -1,0 +1,8 @@
+@if (isInitialized) {
+  <oe-chart [title]="'GENERAL.CONSUMPTION' | translate" [showPhases]="showPhases"
+    (setShowPhases)="setShowPhases($event)" [period]="service.historyPeriod">
+    <consumptionchart [isOnlyChart]="true" [showPhases]="showPhases" [showTotal]="showTotal">
+    </consumptionchart>
+    <oe-footer-subnavigation [navigationOptions]="navigationButtons"></oe-footer-subnavigation>
+  </oe-chart>
+}

@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +44,8 @@ import io.openems.backend.common.metadata.MetadataUtils;
 import io.openems.backend.common.metadata.SimpleEdgeHandler;
 import io.openems.backend.common.metadata.User;
 import io.openems.common.channel.Level;
+import io.openems.common.event.EventBuilder;
 import io.openems.common.event.EventReader;
-import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
@@ -122,24 +123,6 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public User authenticate(String username, String password) throws OpenemsNamedException {
-		return this.user = this.generateUser();
-	}
-
-	@Override
-	public User authenticate(String token) throws OpenemsNamedException {
-		if (this.user.getToken().equals(token)) {
-			return this.user;
-		}
-		throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
-	}
-
-	@Override
-	public void logout(User user) {
-		this.user = this.generateUser();
-	}
-
-	@Override
 	public synchronized Optional<String> getEdgeIdForApikey(String apikey) {
 		this.refreshData();
 		for (Entry<String, MyEdge> entry : this.edges.entrySet()) {
@@ -170,6 +153,11 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
+	public CompletableFuture<User> getUserByExternalId(String login) {
+		return CompletableFuture.completedFuture(this.user);
+	}
+
+	@Override
 	public Optional<User> getUser(String userId) {
 		return Optional.of(this.user);
 	}
@@ -191,7 +179,7 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				}
 			} catch (IOException e) {
 				this.logWarn(this.log, "Unable to read file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 
@@ -210,12 +198,13 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 							JsonUtils.getAsOptionalString(edge, "setuppassword").orElse(""), //
 							JsonUtils.getAsString(edge, "comment"), //
 							"", // Version
-							"" // Product-Type
+							"", // Product-Type
+							null //
 					));
 				}
 			} catch (OpenemsNamedException e) {
 				this.logWarn(this.log, "Unable to JSON-parse file [" + this.path + "]: " + e.getMessage());
-				e.printStackTrace();
+				this.log.warn(e.getMessage(), e);
 				return;
 			}
 
@@ -228,8 +217,8 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 			final var hasMultipleEdges = edges.size() > 1;
 			if (previousUser.hasMultipleEdges() != hasMultipleEdges) {
 				this.user = new User(previousUser.getId(), previousUser.getName(), previousUser.getToken(),
-						previousUser.getLanguage(), previousUser.getGlobalRole(), previousUser.getEdgeRoles(),
-						hasMultipleEdges, previousUser.getSettings());
+						previousUser.getLanguage(), previousUser.getGlobalRole(), hasMultipleEdges,
+						previousUser.getSettings());
 			}
 		}
 		this.setInitialized();
@@ -266,8 +255,24 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
+	public SetupProtocolCoreInfo getLatestSetupProtocolCoreInfo(String edgeId) throws OpenemsNamedException {
+		return null;
+	}
+
+	@Override
+	public List<SetupProtocolCoreInfo> getProtocolsCoreInfo(String edgeId) throws OpenemsNamedException {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public int submitSetupProtocol(User user, JsonObject jsonObject) {
 		throw new UnsupportedOperationException("FileMetadata.submitSetupProtocol() is not implemented");
+	}
+
+	@Override
+	public void createSerialNumberExtensionProtocol(String edgeId, Map<String, Map<String, String>> serialNumbers,
+			List<SetupProtocolItem> items) {
+		this.log.info("SerialNumberProtocol[{}]: {}, {}", edgeId, serialNumbers, items);
 	}
 
 	@Override
@@ -295,9 +300,15 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 		var reader = new EventReader(event);
 
 		switch (event.getTopic()) {
-		case Edge.Events.ON_SET_CONFIG:
-			this.edgeHandler.setEdgeConfigFromEvent(reader);
-			break;
+		case Edge.Events.ON_SET_CONFIG -> {
+			this.edgeHandler.setEdgeConfigFromEvent(reader, (edge, oldConfig, newConfig) -> {
+				EventBuilder.from(this.eventAdmin, Edge.Events.ON_UPDATE_CONFIG) //
+						.addArg(Edge.Events.OnUpdateConfig.EDGE_ID, edge.getId()) //
+						.addArg(Edge.Events.OnUpdateConfig.OLD_CONFIG, oldConfig) //
+						.addArg(Edge.Events.OnUpdateConfig.NEW_CONFIG, newConfig) //
+						.send();
+			});
+		}
 		}
 	}
 
@@ -337,20 +348,24 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	}
 
 	@Override
-	public List<EdgeMetadata> getPageDevice(User user, PaginationOptions paginationOptions)
-			throws OpenemsNamedException {
-		return MetadataUtils.getPageDevice(user, this.edges.values(), paginationOptions);
+	public CompletableFuture<List<EdgeMetadata>> getPageDevice(User user, PaginationOptions paginationOptions) {
+		return CompletableFuture.completedFuture(
+				MetadataUtils.getPageDevice(user, this.edges.values(), MyEdge::getSettings, paginationOptions));
 	}
 
 	@Override
-	public EdgeMetadata getEdgeMetadataForUser(User user, String edgeId) throws OpenemsNamedException {
+	public Role getUserRole(User user, String edgeId) {
+		return Role.ADMIN;
+	}
+
+	@Override
+	public CompletableFuture<EdgeMetadata> getEdgeMetadataForUser(User user, String edgeId) {
 		final var edge = this.edges.get(edgeId);
 		if (edge == null) {
-			return null;
+			return CompletableFuture.failedFuture(new OpenemsException("Unable to find edge with id [" + edgeId + "]"));
 		}
-		user.setRole(edgeId, Role.ADMIN);
 
-		return new EdgeMetadata(//
+		return CompletableFuture.completedFuture(new EdgeMetadata(//
 				edge.getId(), //
 				edge.getComment(), //
 				edge.getProducttype(), //
@@ -359,8 +374,9 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 				edge.isOnline(), //
 				edge.getLastmessage(), //
 				null, // firstSetupProtocol
-				Level.OK //
-		);
+				Level.OK, //
+				edge.getSettings() //
+		));
 	}
 
 	@Override
@@ -380,6 +396,13 @@ public class MetadataFile extends AbstractMetadata implements Metadata, EventHan
 	@Override
 	public void updateUserSettings(User user, JsonObject settings) {
 		this.settings = settings == null ? new JsonObject() : settings;
+	}
+
+	@Override
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		var edge = this.edges.get(edgeId);
+		edge.setSettings(settings);
+		return CompletableFuture.completedFuture(null);
 	}
 
 }

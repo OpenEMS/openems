@@ -11,15 +11,15 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.core.appmanager.AppManagerTestBundle;
@@ -41,7 +41,7 @@ public class TestEvcsCluster {
 	private KebaEvcs kebaEvcs;
 	private IesKeywattEvcs keywattEvcs;
 
-	@Before
+	@BeforeEach
 	public void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
@@ -94,6 +94,7 @@ public class TestEvcsCluster {
 								.addProperty(KebaEvcs.Property.EVCS_ID.name(), "evcs0") //
 								.addProperty(KebaEvcs.Property.CTRL_EVCS_ID.name(), "ctrlEvcs0") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.1") //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()) //
 						.build()) //
 				.add(JsonUtils.buildJsonObject() //
@@ -104,6 +105,7 @@ public class TestEvcsCluster {
 								.addProperty(KebaEvcs.Property.EVCS_ID.name(), "evcs1") //
 								.addProperty(KebaEvcs.Property.CTRL_EVCS_ID.name(), "ctrlEvcs1") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()) //
 						.build())
 				.build().toString();
@@ -116,22 +118,22 @@ public class TestEvcsCluster {
 		assertEquals(2, this.appManagerTestBundle.sut.getInstantiatedApps().size());
 
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs0"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.1") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs0"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs0") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Keba.KeContact", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Keba.KeContact", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "evcs1"), //
 						new UpdateComponentConfigRequest.Property("ip", "1.1.1.2") //
 				)));
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Controller.Evcs", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Controller.Evcs", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", "ctrlEvcs1"), //
 						new UpdateComponentConfigRequest.Property("evcs.id", "evcs1") //
 				)));
@@ -168,7 +170,7 @@ public class TestEvcsCluster {
 
 		final var clusterId = "evcsCluster0";
 		this.appManagerTestBundle.componentManger.handleCreateComponentConfigRequest(DUMMY_ADMIN,
-				new CreateComponentConfigRequest("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
+				new CreateComponentConfig.Request("Evcs.Cluster.PeakShaving", Lists.newArrayList(//
 						new UpdateComponentConfigRequest.Property("id", clusterId), //
 						new UpdateComponentConfigRequest.Property("enabled", false), //
 						new UpdateComponentConfigRequest.Property("evcs.ids", JsonUtils.buildJsonArray() //
@@ -216,8 +218,10 @@ public class TestEvcsCluster {
 		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
+								.addProperty(KebaEvcs.Property.HARDWARE_TYPE.name(), "P30") //
 								.addProperty(KebaEvcs.Property.IP.name(), "1.1.1.2") //
 								.addProperty(KebaEvcs.Property.MAX_HARDWARE_POWER.name(), hardwarePower) //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()));
 		final var clusterComponent = this.appManagerTestBundle.componentManger.getComponent("evcsCluster0");
 		final var hardwarePowerPerPhase = (int) clusterComponent.getComponentContext().getProperties()
@@ -282,7 +286,9 @@ public class TestEvcsCluster {
 		var response = this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
 				new AddAppInstance.Request(this.kebaEvcs.getAppId(), "key", "alias", //
 						JsonUtils.buildJsonObject() //
+								.addProperty(KebaEvcs.Property.HARDWARE_TYPE.name(), "P30") //
 								.addProperty(KebaEvcs.Property.IP.name(), ip) //
+								.addProperty(KebaEvcs.Property.READ_ONLY.name(), false) //
 								.build()));
 
 		final var evcsId = response.instance().properties.get(KebaEvcs.Property.EVCS_ID.name()).getAsString();

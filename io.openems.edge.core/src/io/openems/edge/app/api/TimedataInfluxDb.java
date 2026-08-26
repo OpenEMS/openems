@@ -15,7 +15,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -27,7 +26,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
-import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
@@ -59,32 +57,32 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 					options.add("INFLUX_QL");
 					options.add("FLUX");
 					field.setOptions(options);
-				}) //
+				})//
 				.setDefaultValue("INFLUX_QL"))), //
-		URL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".url.label") //
-				.setTranslatedDescriptionWithAppPrefix(".url.description") //
-				.setField(JsonFormlyUtil::buildInput) //
+		URL(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".url.label")//
+				.setTranslatedDescriptionWithAppPrefix(".url.description")//
+				.setField(JsonFormlyUtil::buildInput)//
 				.setDefaultValue("http://localhost:8086"))), //
-		ORG(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedLabelWithAppPrefix(".org.label") //
-				.setTranslatedDescriptionWithAppPrefix(".org.description") //
-				.setField(JsonFormlyUtil::buildInput) //
+		ORG(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedLabelWithAppPrefix(".org.label")//
+				.setTranslatedDescriptionWithAppPrefix(".org.description")//
+				.setField(JsonFormlyUtil::buildInput)//
 				.setDefaultValue("-"))), //
-		API_KEY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedDescriptionWithAppPrefix(".apiKey.label") //
-				.setTranslatedLabelWithAppPrefix(".apiKey.description") //
+		API_KEY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedDescriptionWithAppPrefix(".apiKey.label")//
+				.setTranslatedLabelWithAppPrefix(".apiKey.description")//
 				.setField(JsonFormlyUtil::buildInput)//
 				.setRequired(true))),
-		BUCKET(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedDescriptionWithAppPrefix(".bucket.label") //
-				.setTranslatedLabelWithAppPrefix(".bucket.description") //
+		BUCKET(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedDescriptionWithAppPrefix(".bucket.label")//
+				.setTranslatedLabelWithAppPrefix(".bucket.description")//
 				.setField(JsonFormlyUtil::buildInput)//
 				.setRequired(true))),
-		MEASUREMENT(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedDescriptionWithAppPrefix(".measurement.label") //
-				.setTranslatedLabelWithAppPrefix(".measurement.description") //
-				.setField(JsonFormlyUtil::buildInput) //
+		MEASUREMENT(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedDescriptionWithAppPrefix(".measurement.label")//
+				.setTranslatedLabelWithAppPrefix(".measurement.description")//
+				.setField(JsonFormlyUtil::buildInput)//
 				.setDefaultValue("data"))), //
 		NO_OF_CYCLES(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedDescriptionWithAppPrefix(".noOfCycles.description") //
@@ -101,10 +99,10 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, first) -> {
 					first.setInputType(InputType.NUMBER);
 				}))), //
-		IS_READ_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
-				.setTranslatedDescriptionWithAppPrefix(".isReadOnly.description") //
-				.setTranslatedLabelWithAppPrefix(".isReadOnly.label") //
-				.setDefaultValue(false) //
+		IS_READ_ONLY(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
+				.setTranslatedDescriptionWithAppPrefix(".isReadOnly.description")//
+				.setTranslatedLabelWithAppPrefix(".isReadOnly.label")//
+				.setDefaultValue(false)//
 				.setField(JsonFormlyUtil::buildCheckbox)));
 
 		private final AppDef<? super TimedataInfluxDb, ? super Property, ? super BundleParameter> def;
@@ -178,13 +176,6 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public final OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.TIMEDATA };
 	}
@@ -208,7 +199,7 @@ public class TimedataInfluxDb extends AbstractOpenemsAppWithProps<TimedataInflux
 	protected OpenemsAppStatus getStatus() {
 		return OpenemsAppStatus.BETA;
 	}
-	
+
 	@Override
 	public OpenemsAppPermissions getAppPermissions() {
 		return OpenemsAppPermissions.create()//

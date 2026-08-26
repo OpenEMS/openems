@@ -1,0 +1,34 @@
+= Electric Vehicle Supply Equipment (EVSE) Api
+
+This bundle defines the OpenEMS interface contracts for EVSE integration. It does not implement device-specific hardware logic itself; instead, bundle authors implement `EvseChargePoint` and `EvseElectricVehicle` and controllers such as `Evse.Controller.Single` and `Evse.Controller.Cluster` orchestrate charging and phase switching.
+
+== Overview
+
+`io.openems.edge.evse.api` provides the interface definitions for EVSE charge point and electric vehicle capabilities.
+
+- `EvseChargePoint` defines the actively managed charge point device and its charge control abilities.
+- `EvseElectricVehicle` defines the connected vehicle profile and charging limits.
+
+This API is consumed by EVSE controllers in `io.openems.edge.controller.evse`.
+
+== Integration with Controllers
+
+The single-controller implementation `Evse.Controller.Single` binds exactly one `EvseChargePoint` and one `EvseElectricVehicle`.
+
+- `Evse.Controller.Single` uses `EvseChargePoint.getChargePointAbilities()` and `EvseElectricVehicle.getElectricVehicleAbilities()` to read device capabilities.
+- It merges these into `CombinedAbilities` using `CombinedAbilities.createFrom(...)`.
+- The merged `CombinedAbilities` contains a unified `applySetPoint` ability, ready-for-charging state, and the effective `phaseSwitch` ability.
+
+`Evse.Controller.Cluster` then aggregates multiple `Evse.Controller.Single` instances and applies computed actions for each charge point.
+
+- The cluster controller obtains per-controller parameters via `ControllerEvseSingle.getParams()`.
+- It distributes power and phase-switch directives using `RunUtils.calculate(...)` and `RunUtils.handlePhaseSwitch(...)`.
+- Only controllers whose combined abilities include a valid `phaseSwitch` ability can receive a phase-switch action.
+
+== Notes
+
+- `EvseChargePoint` is an `ElectricityMeter` and exposes the active power and ready-for-charging state.
+- `EvseElectricVehicle` is intentionally lightweight and only exposes the EV abilities needed for charging control.
+- The cluster controller orchestrates multiple single controllers, but the phase-switch decision remains per `ControllerEvseSingle` instance.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.evse.api[Source Code icon:github[]]

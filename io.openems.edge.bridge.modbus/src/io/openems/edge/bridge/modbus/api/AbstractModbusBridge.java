@@ -1,6 +1,8 @@
 package io.openems.edge.bridge.modbus.api;
 
-import java.util.concurrent.atomic.AtomicReference;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+
+import java.time.Clock;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.ComponentContext;
@@ -10,14 +12,19 @@ import org.osgi.service.event.EventHandler;
 import com.ghgande.j2mod.modbus.io.ModbusTransaction;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.worker.ModbusWorker;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
+import io.openems.edge.common.startstop.StartStop;
+import io.openems.edge.common.startstop.StartStoppable;
+import io.openems.edge.common.test.TestUtils;
 
 /**
  * Abstract service for connecting to, querying and writing to a Modbus device.
  */
-public abstract class AbstractModbusBridge extends AbstractOpenemsComponent implements BridgeModbus, EventHandler {
+public abstract class AbstractModbusBridge extends AbstractOpenemsComponent
+		implements BridgeModbus, EventHandler, StartStoppable {
 
 	/**
 	 * Default Modbus timeout in [ms].
@@ -25,7 +32,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * <p>
 	 * Modbus library default is 3000 ms
 	 */
-	protected static final int DEFAULT_TIMEOUT = 1000;
+	protected static final int DEFAULT_TIMEOUT = 500;
 
 	/**
 	 * Default Modbus retries.
@@ -33,22 +40,23 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * <p>
 	 * Modbus library default is 5
 	 */
-	protected static final int DEFAULT_RETRIES = 1;
+	protected static final int DEFAULT_RETRIES = 2;
 
-	private final AtomicReference<LogVerbosity> logVerbosity = new AtomicReference<>(LogVerbosity.NONE);
-	private int invalidateElementsAfterReadErrors = 1;
+	private Config config = null;
+
+	private ModbusTransferInfo lastTransferInfo = null;
 
 	protected final ModbusWorker worker = new ModbusWorker(
 			// Execute Task
-			task -> task.execute(this),
+			this::executeTask,
 			// Invalidate ModbusElements
 			elements -> Stream.of(elements).forEach(e -> e.invalidate(this)),
 			// Set ChannelId.CYCLE_TIME_IS_TOO_SHORT
 			state -> this._setCycleTimeIsTooShort(state),
 			// Set ChannelId.CYCLE_DELAY
 			cycleDelay -> this._setCycleDelay(cycleDelay),
-			// LogVerbosity
-			this.logVerbosity //
+			// LogHandler
+			() -> this.config.log //
 	);
 
 	protected AbstractModbusBridge(io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
@@ -62,12 +70,11 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		throw new IllegalArgumentException("Use the other activate() method.");
 	}
 
-	protected void activate(ComponentContext context, String id, String alias, boolean enabled,
-			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
-		super.activate(context, id, alias, enabled);
-		this.applyConfig(logVerbosity, invalidateElementsAfterReadErrors);
-		if (enabled) {
-			this.worker.activate(id);
+	protected void activate(ComponentContext context, Config config) {
+		super.activate(context, config.id, config.alias, config.enabled);
+		this.applyConfig(config);
+		if (config.enabled) {
+			this.worker.activate(config.id);
 		}
 	}
 
@@ -84,20 +91,29 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 		throw new IllegalArgumentException("Use the other modified() method.");
 	}
 
-	protected void modified(ComponentContext context, String id, String alias, boolean enabled,
-			LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
-		super.modified(context, id, alias, enabled);
-		this.applyConfig(logVerbosity, invalidateElementsAfterReadErrors);
-		if (enabled) {
-			this.worker.modified(id);
+	protected void modified(ComponentContext context, Config config) {
+		super.modified(context, config.id, config.alias, config.enabled);
+		this.applyConfig(config);
+		if (config.enabled) {
+			this.worker.modified(config.id);
 		} else {
 			this.worker.deactivate();
 		}
 	}
 
-	private void applyConfig(LogVerbosity logVerbosity, int invalidateElementsAfterReadErrors) {
-		this.logVerbosity.set(logVerbosity);
-		this.invalidateElementsAfterReadErrors = invalidateElementsAfterReadErrors;
+	protected Task.ExecuteState executeTask(Task task) {
+		return task.execute(this);
+	}
+
+	/**
+	 * Returns clock used by the modbus bridge.
+	 *
+	 * @return Clock instance
+	 */
+	public abstract Clock getClock();
+
+	private void applyConfig(Config config) {
+		this.config = config;
 	}
 
 	/**
@@ -124,22 +140,24 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 
 	@Override
 	public void handleEvent(Event event) {
-		if (!this.isEnabled()) {
+		if (this.config == null || !this.isEnabled()) {
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE:
-			this.worker.onBeforeProcessImage();
-			break;
-		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE:
-			this.worker.onExecuteWrite();
-			break;
+		case EdgeEventConstants.TOPIC_CYCLE_BEFORE_PROCESS_IMAGE //
+			-> this.worker.onBeforeProcessImage();
+
+		case EdgeEventConstants.TOPIC_CYCLE_EXECUTE_WRITE //
+			-> this.worker.onExecuteWrite();
 		}
 	}
 
 	@Override
 	public String debugLog() {
-		return switch (this.logVerbosity.get()) {
+		if (this.config == null) {
+			return null;
+		}
+		return switch (this.config.log.verbosity) {
 		case NONE -> //
 			null;
 		case DEBUG_LOG, READS_AND_WRITES, READS_AND_WRITES_DURATION, READS_AND_WRITES_VERBOSE,
@@ -151,7 +169,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	/**
 	 * Creates a new Modbus Transaction on an open Modbus connection.
 	 *
-	 * @return the Modbus Transaction
+	 * @return the Modbus Transaction, null if Bridge is stopped
 	 * @throws OpenemsException on error
 	 */
 	public abstract ModbusTransaction getNewModbusTransaction() throws OpenemsException;
@@ -167,7 +185,7 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * @return {@link LogVerbosity}
 	 */
 	public LogVerbosity getLogVerbosity() {
-		return this.logVerbosity.get();
+		return this.config.log.verbosity;
 	}
 
 	/**
@@ -177,11 +195,46 @@ public abstract class AbstractModbusBridge extends AbstractOpenemsComponent impl
 	 * @return value
 	 */
 	public int invalidateElementsAfterReadErrors() {
-		return this.invalidateElementsAfterReadErrors;
+		return this.config.invalidateElementsAfterReadErrors;
 	}
 
 	@Override
 	public void retryModbusCommunication(String sourceId) {
 		this.worker.retryModbusCommunication(sourceId);
+	}
+
+	@Override
+	public final void setStartStop(StartStop value) {
+		// We are not using _setStartStop() by purpose to avoid race conditions with not
+		// setting the Channel immediately
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, switch (value) {
+		case START, UNDEFINED -> StartStop.START;
+		case STOP -> StartStop.STOP;
+		});
+
+		// Close existing Modbus Connection on STOP
+		if (value == StartStop.STOP) {
+			this.closeModbusConnection();
+		}
+
+		// Set BRIDGE_IS_STOPPED Channel
+		setValue(this, BridgeModbus.ChannelId.BRIDGE_IS_STOPPED, value == StartStop.STOP);
+	}
+
+	@Override
+	public ModbusTransferInfo getLastTransferInfo() {
+		return this.lastTransferInfo;
+	}
+
+	/**
+	 * Sets information about the last transfer that happend on this bus. Can be a
+	 * request from OpenEMS or a response from another device that we received.
+	 * 
+	 * @param communicationType Request or response
+	 * @param unitId            Modbus Unit id of the last transferred/received
+	 *                          frame
+	 */
+	public void setLastTransferInfo(ModbusTransferInfo.ModbusCommunicationType communicationType, int unitId) {
+		this.lastTransferInfo = new ModbusTransferInfo(this.getClock().instant(), communicationType, unitId);
 	}
 }

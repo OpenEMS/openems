@@ -1,4 +1,3 @@
-
 import { JsonrpcRequest } from "../base";
 
 /**
@@ -22,6 +21,7 @@ import { JsonrpcRequest } from "../base";
  * </pre>
  */
 export class GetEdgesRequest extends JsonrpcRequest {
+
 
     private static METHOD: string = "getEdges";
 

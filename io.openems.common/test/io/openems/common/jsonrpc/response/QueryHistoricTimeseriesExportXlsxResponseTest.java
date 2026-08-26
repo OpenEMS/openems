@@ -70,7 +70,7 @@ public class QueryHistoricTimeseriesExportXlsxResponseTest {
 		) {
 			var ws = workbook.newWorksheet("Export");
 
-			Locale currentLocale = new Locale("en", "EN");
+			Locale currentLocale = Locale.of("en", "EN");
 
 			var translationBundle = ResourceBundle.getBundle("io.openems.common.jsonrpc.response.translation",
 					currentLocale);

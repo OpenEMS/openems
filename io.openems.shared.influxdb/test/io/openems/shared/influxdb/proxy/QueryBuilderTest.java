@@ -75,16 +75,6 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void testFluxFetchAvailableSinceQuery() throws OpenemsNamedException {
-		FLUX.buildFetchAvailableSinceQuery(BUCKET);
-	}
-
-	@Test
-	public void testInlfuxqlFetchAvailableSinceQuery() throws OpenemsNamedException {
-		INFLUX_QL.buildFetchAvailableSinceQuery(BUCKET);
-	}
-
-	@Test
 	public void testFluxBuildFetchFirstValueBefore() throws OpenemsNamedException {
 		FLUX.buildFetchFirstValueBefore(BUCKET, MEASUREMENT, EDGE_ID, FROM_DATE, ENERGY_CHANNELS);
 	}

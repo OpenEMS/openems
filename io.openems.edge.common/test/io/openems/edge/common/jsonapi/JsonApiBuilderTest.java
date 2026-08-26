@@ -17,6 +17,7 @@ import io.openems.common.jsonrpc.base.GenericJsonrpcRequest;
 import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
 import io.openems.common.jsonrpc.base.JsonrpcResponse;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
 import io.openems.common.utils.FunctionUtils;
 
 public class JsonApiBuilderTest {

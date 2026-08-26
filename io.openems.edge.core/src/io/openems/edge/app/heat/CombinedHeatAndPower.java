@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -118,11 +117,19 @@ public class CombinedHeatAndPower
 		public Function<GetParameterValues<CombinedHeatAndPower>, CombinedHeatAndPowerParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new CombinedHeatAndPowerParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 1, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false)), //
+								List.of(//
+										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, false,
+												deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, false, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(RelayProps.feneconHome2030PreferredRelays(isHomeInstalled, new int[] { 5 }), //
 										PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
@@ -193,21 +200,21 @@ public class CombinedHeatAndPower
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.HEAT };
 	}
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
+
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(false)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, //
+						CheckRelayCountFilters.feneconHome(true, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(true, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override
@@ -226,7 +233,7 @@ public class CombinedHeatAndPower
 	}
 
 	private static <P extends BundleProvider & RelayContactInformationProvider> //
-	AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
+			AppDef<OpenemsApp, Nameable, P> chpRelayContactDef(int contactPosition) {
 		return AppDef.copyOfGeneric(relayContactDef(contactPosition), def -> //
 		def.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
 				.setTranslatedDescription("App.Heat.outputChannel.description"));

@@ -69,6 +69,22 @@ public final class SelectGroupBuilder extends FormlyBuilder<SelectGroupBuilder> 
 		return this;
 	}
 
+	/**
+	 * Sets the text which gets displayed when not a single {@link OptionGroup} was
+	 * added.
+	 * 
+	 * @param text the text to display if not a single {@link OptionGroup} was added
+	 * @return this
+	 */
+	public SelectGroupBuilder setMissingOptionsText(String text) {
+		if (text != null) {
+			this.templateOptions.addProperty("missingOptionsText", text);
+		} else {
+			this.templateOptions.remove("missingOptionsText");
+		}
+		return this;
+	}
+
 	@Override
 	public JsonObject build() {
 		// wrap input field into a popup input
@@ -82,10 +98,15 @@ public final class SelectGroupBuilder extends FormlyBuilder<SelectGroupBuilder> 
 		this.templateOptions.add("options", this.optionGroups.stream() //
 				.map(OptionGroup::toJson) //
 				.collect(toJsonArray()));
+
+		// "reset" required property in popup input and only set it in final input
+		this.isRequired(false);
+
 		fieldGroup.setFieldGroup(JsonUtils.buildJsonArray() //
 				.add(super.build()) //
-				.build()) //
-				.setDefaultValue(this.getDefaultValue());
+				.build()); //
+
+		fieldGroup.setDefaultValue(this.getDefaultValue());
 
 		fieldGroup.setPopupInput(this.property, DisplayType.OPTION_GROUP);
 

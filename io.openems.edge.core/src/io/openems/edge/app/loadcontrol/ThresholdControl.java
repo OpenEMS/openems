@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -86,8 +85,9 @@ public class ThresholdControl
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNELS(AppDef.copyOfGeneric(relayContactDef(true, 1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannels.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description"))), //
+				.setTranslatedLabelWithAppPrefix(".outputChannels.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannels.description")//
+				.setRequired(true))), //
 		;
 
 		private final AppDef<? super ThresholdControl, ? super Property, ? super ThresholdControlControlParameter> def;
@@ -111,11 +111,18 @@ public class ThresholdControl
 		public Function<GetParameterValues<ThresholdControl>, ThresholdControlControlParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new ThresholdControlControlParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(//
+										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true, deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, true, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -144,17 +151,17 @@ public class ThresholdControl
 
 			final var ctrlIoChannelSingleThresholdId = this.getId(t, p, Property.CTRL_IO_CHANNEL_SINGLE_THRESHOLD_ID);
 
-			final var alias = this.getValueOrDefault(p, Property.ALIAS, this.getName(l));
+			final var alias = this.getString(p, l, Property.ALIAS);
 
 			final var outputChannelAddress = this.getJsonArray(p, Property.OUTPUT_CHANNELS);
 
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlIoChannelSingleThresholdId, alias,
 							"Controller.IO.ChannelSingleThreshold", JsonUtils.buildJsonObject() //
 									.onlyIf(t == ConfigurationTarget.ADD,
-											j -> j.addProperty("inputChannelAddress", "_sum/EssSoc"))
+											j -> j.addProperty("inputChannelAddress", "_sum/EssSoc") //
+													.addProperty("threshold", 50))
 									.add("outputChannelAddress", outputChannelAddress) //
-									.onlyIf(t == ConfigurationTarget.ADD, b -> b.addProperty("threshold", 50)) //
 									.build()) //
 			);
 
@@ -165,21 +172,20 @@ public class ThresholdControl
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, //
+						CheckRelayCountFilters.feneconHome(true, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(true, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override

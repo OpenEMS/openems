@@ -29,4 +29,9 @@ public class WritePojo extends WriteObject {
 		return this.value == null;
 	}
 
+	@Override
+	public Object value() {
+		return this.value;
+	}
+
 }

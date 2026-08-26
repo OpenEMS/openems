@@ -26,6 +26,10 @@ public class TimeLeapClock extends Clock {
 		this(start, ZoneOffset.UTC);
 	}
 
+	public TimeLeapClock(ZonedDateTime start) {
+		this(start.toInstant(), start.getZone());
+	}
+
 	public TimeLeapClock() {
 		this(Instant.now(), ZoneOffset.UTC);
 	}

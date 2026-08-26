@@ -7,12 +7,13 @@ import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.component.ClockProvider;
 import io.openems.edge.ess.api.HybridEss;
 import io.openems.edge.ess.generic.common.AbstractChannelManager;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
 
 public class ChannelManager
 		extends AbstractChannelManager<EssGenericManagedSymmetric, Battery, ManagedSymmetricBatteryInverter> {
 
-	public ChannelManager(EssGenericManagedSymmetric parent) {
-		super(parent, new AllowedChargeDischargeHandler(parent));
+	public ChannelManager(EssGenericManagedSymmetric parent, EssProtectionConfig essProtectionConfig) {
+		super(parent, new AllowedChargeDischargeHandler(parent, essProtectionConfig));
 	}
 
 	@Override
@@ -20,27 +21,29 @@ public class ChannelManager
 			ManagedSymmetricBatteryInverter batteryInverter) {
 		super.activate(clockProvider, battery, batteryInverter);
 
-		if (batteryInverter instanceof HybridManagedSymmetricBatteryInverter) {
-			this.<Long>addCopyListener(batteryInverter, //
+		switch (batteryInverter) {
+		case HybridManagedSymmetricBatteryInverter hmsbi -> {
+			this.<Long>addCopyListener(hmsbi, //
 					HybridManagedSymmetricBatteryInverter.ChannelId.DC_CHARGE_ENERGY, //
 					HybridEss.ChannelId.DC_CHARGE_ENERGY);
-			this.<Long>addCopyListener(batteryInverter, //
+			this.<Long>addCopyListener(hmsbi, //
 					HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_ENERGY, //
 					HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
-			this.<Long>addCopyListener(batteryInverter, //
+			this.<Long>addCopyListener(hmsbi, //
 					HybridManagedSymmetricBatteryInverter.ChannelId.DC_DISCHARGE_POWER, //
 					HybridEss.ChannelId.DC_DISCHARGE_POWER);
-
-		} else {
-			this.<Long>addCopyListener(batteryInverter, //
+		}
+		case ManagedSymmetricBatteryInverter msbi -> {
+			this.<Long>addCopyListener(msbi, //
 					SymmetricBatteryInverter.ChannelId.ACTIVE_CHARGE_ENERGY, //
 					HybridEss.ChannelId.DC_CHARGE_ENERGY);
-			this.<Long>addCopyListener(batteryInverter, //
+			this.<Long>addCopyListener(msbi, //
 					SymmetricBatteryInverter.ChannelId.ACTIVE_DISCHARGE_ENERGY, //
 					HybridEss.ChannelId.DC_DISCHARGE_ENERGY);
-			this.<Long>addCopyListener(batteryInverter, //
+			this.<Long>addCopyListener(msbi, //
 					SymmetricBatteryInverter.ChannelId.ACTIVE_POWER, //
 					HybridEss.ChannelId.DC_DISCHARGE_POWER);
+		}
 		}
 	}
 }

@@ -25,6 +25,7 @@ import eu.chargetime.ocpp.model.core.ChangeConfigurationRequest;
 import eu.chargetime.ocpp.model.core.DataTransferRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequest;
 import eu.chargetime.ocpp.model.remotetrigger.TriggerMessageRequestType;
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -38,6 +39,8 @@ import io.openems.edge.evcs.ocpp.common.AbstractManagedOcppEvcsComponent;
 import io.openems.edge.evcs.ocpp.common.OcppInformations;
 import io.openems.edge.evcs.ocpp.common.OcppProfileType;
 import io.openems.edge.evcs.ocpp.common.OcppStandardRequests;
+import io.openems.edge.meter.api.ElectricityMeter;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 
 @Designate(ocd = Config.class, factory = true)
@@ -51,7 +54,7 @@ import io.openems.edge.timedata.api.Timedata;
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class EvcsOcppAblImpl extends AbstractManagedOcppEvcsComponent
-		implements EvcsOcppAbl, Evcs, MeasuringEvcs, ManagedEvcs, OpenemsComponent, EventHandler {
+		implements EvcsOcppAbl, Evcs, MeasuringEvcs, ManagedEvcs, ElectricityMeter, OpenemsComponent, EventHandler {
 
 	// Default value for the hardware limit
 	private static final Integer DEFAULT_HARDWARE_LIMIT = 22080;
@@ -86,8 +89,8 @@ public class EvcsOcppAblImpl extends AbstractManagedOcppEvcsComponent
 		super(//
 				PROFILE_TYPES, //
 				OpenemsComponent.ChannelId.values(), //
+				ElectricityMeter.ChannelId.values(), //
 				Evcs.ChannelId.values(), //
-				AbstractManagedOcppEvcsComponent.ChannelId.values(), //
 				ManagedEvcs.ChannelId.values(), //
 				MeasuringEvcs.ChannelId.values(), //
 				EvcsOcppAbl.ChannelId.values() //
@@ -126,6 +129,17 @@ public class EvcsOcppAblImpl extends AbstractManagedOcppEvcsComponent
 	@Override
 	public void handleEvent(Event event) {
 		super.handleEvent(event);
+	}
+
+	@Override
+	public MeterType getMeterType() {
+		return MeterType.MANAGED_CONSUMPTION_METERED;
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		// TODO implement handling for rotated Phases
+		return PhaseRotation.L1_L2_L3;
 	}
 
 	@Override

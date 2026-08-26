@@ -1,0 +1,21 @@
+= Prometheus Metrics Endpoint
+
+This module provides a Prometheus-compatible `/metrics` endpoint for the OpenEMS Backend.
+
+== Features
+
+- Exposes real-time metrics on a configurable HTTP endpoint (default: `:9400`)
+- Compatible with Prometheus and similar monitoring systems
+- Optional Bearer Token authentication for securing the endpoint
+
+== Example Prometheus Configuration
+
+```yaml
+scrape_configs:
+  - job_name: 'openems-backend'
+    bearer_token: <your_token_here> # Optional
+    static_configs:
+      - targets: ['localhost:9400']
+```
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.backend.metrics.prometheus[Source Code icon:github[]]

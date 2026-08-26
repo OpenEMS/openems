@@ -1,62 +1,62 @@
 // @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { SubscribeEdgesRequest } from "src/app/shared/jsonrpc/request/subscribeEdgesRequest";
-import { ChannelAddress, Edge, Service, Websocket } from "src/app/shared/shared";
+import { ChangeDetectionStrategy, Component, effect, OnDestroy } from "@angular/core";
+import { Router } from "@angular/router";
+import { ModalController, ViewWillLeave } from "@ionic/angular";
+import { Edge, Service, Websocket } from "src/app/shared/shared";
+import { Pagination } from "../shared/service/pagination";
+import { RouteService } from "../shared/service/route.service";
+import { UserService } from "../shared/service/user.service";
 
-/*** This component is needed as a routing parent and acts as a transit station without being displayed.*/
+/** This component is needed as a routing parent and acts as a transit station without being displayed. */
 @Component({
     selector: "edge",
     template: `
-    <ion-content></ion-content>
-         <ion-router-outlet id="content"></ion-router-outlet>
-         <oe-notification *ngIf="latestIncident" color="warning" [text]="latestIncident.message"
-    [id]="latestIncident.id"></oe-notification>
+        <ion-content></ion-content>
+        <ion-router-outlet id="content"></ion-router-outlet>
     `,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
-export class EdgeComponent implements OnInit, OnDestroy {
-
-    protected latestIncident: { message: string | null, id: string } | null = null;
-
+export class EdgeComponent implements OnDestroy, ViewWillLeave {
+    protected latestIncident: { message: string | null; id: string } | null = null;
     private edge: Edge | null = null;
 
     constructor(
-        private router: Router,
-        private activatedRoute: ActivatedRoute,
+        private routeService: RouteService,
         private service: Service,
         private websocket: Websocket,
-    ) { }
+        private pagination: Pagination,
+        private popoverCtrl: ModalController,
+        private router: Router,
+        private userService: UserService,
+    ) {
+        effect(async () => {
+            const edge = this.service.currentEdge();
+            const edgeId = this.routeService.getRouteParam<string>("edgeId");
+            if (!edgeId || !edge || edge.id == this.edge?.id) {
+                return;
+            }
+            this.edge = edge;
 
-    public ngOnInit(): void {
-        this.activatedRoute.params.subscribe((params) => {
-            // Set CurrentEdge in Metadata
-            const edgeId = params['edgeId'];
-            this.service.updateCurrentEdge(edgeId).then((edge) => {
-                this.edge = edge;
-
-                this.checkMessages();
-                this.service.websocket.sendRequest(new SubscribeEdgesRequest({ edges: [edgeId] }))
-                    .then(() => {
-
-                        // Subscribe on these channels for the state in HeaderComponent
-                        edge.subscribeChannels(this.websocket, '', [
-                            new ChannelAddress('_sum', 'State'),
-                        ]);
-                    });
-            }).catch(() => {
-                this.router.navigate(['index']);
-            });
+            pagination.getAndSubscribeEdge(edge.id);
         });
     }
 
-    public checkMessages(): void {
+    async ionViewWillEnter() {
+        const edgeId = this.routeService.getRouteParam<string>("edgeId");
+        await this.service.updateCurrentEdge(edgeId);
+        const edge = this.service.currentEdge();
+        await this.pagination.subscribeEdge(edge, this.websocket);
+    }
+
+    public ionViewWillLeave() {
+        this.ngOnDestroy();
     }
 
     public ngOnDestroy(): void {
+        this.service.currentEdge.set(null);
         if (!this.edge) {
             return;
         }
-        this.edge.unsubscribeAllChannels(this.websocket);
-        this.service.currentEdge.next(null);
     }
 }

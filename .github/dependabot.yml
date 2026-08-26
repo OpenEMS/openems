@@ -1,20 +1,86 @@
 version: 2
 updates:
-- package-ecosystem: maven
-  directory: "/cnf"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  target-branch: develop
-- package-ecosystem: npm
-  directory: "/ui"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  target-branch: develop
-- package-ecosystem: "github-actions"
-  directory: "/.github/workflows"
-  schedule:
-    interval: "weekly"
-  open-pull-requests-limit: 10
-  target-branch: develop
+  - package-ecosystem: "maven"
+    directory: "/cnf"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    groups:
+      influxdb:
+        patterns:
+          - "com.influxdb:*"
+      fastexcel:
+        patterns:
+          - "org.dhatim:fastexcel"
+          - "org.dhatim:fastexcel-reader"
+          - "com.fasterxml:aalto-xml"
+      bouncycastle:
+        patterns:
+          - "org.bouncycastle:*"
+      pax-logging:
+        patterns:
+          - "org.ops4j.pax.logging:*"
+      guava:
+        patterns:
+          - "com.google.guava:*"
+      prometheus:
+        patterns:
+          - "io.prometheus:*"
+      squareup:
+        patterns:
+          - "com.squareup.*:*"
+      tribuo:
+        patterns:
+          - "org.tribuo:*"
+      olcut:
+        patterns:
+          - "com.oracle.labs.olcut:*"
+      auth0:
+        patterns:
+          - "com.auth0:*"
+      mockito:
+        patterns:
+          - "org.mockito:*"
+      junit:
+        patterns:
+          - "org.junit.jupiter:*"
+          - "org.junit.platform:*"
+          - "org.junit.vintage:*"
+      bytebuddy:
+        patterns:
+          - "net.bytebuddy:*"
+
+  - package-ecosystem: "npm"
+    directory: "/ui"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      openems-ui:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+      openems-ui-security:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/tools/integration_tests"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      openems-integration-tests:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      all-actions:
+        patterns:
+          - "*"

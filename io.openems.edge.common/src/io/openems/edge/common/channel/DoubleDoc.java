@@ -18,14 +18,11 @@ public class DoubleDoc extends OpenemsTypeDoc<Double> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public DoubleReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
-		switch (this.getAccessMode()) {
-		case READ_ONLY:
-			return new DoubleReadChannel(component, channelId, this);
-		case READ_WRITE:
-		case WRITE_ONLY:
-			return new DoubleWriteChannel(component, channelId, this);
-		}
-		throw new IllegalArgumentException(
-				"AccessMode [" + this.getAccessMode() + "] is unhandled. This should never happen.");
+		return switch (this.getAccessMode()) {
+		case READ_ONLY //
+			-> new DoubleReadChannel(component, channelId, this);
+		case READ_WRITE, WRITE_ONLY //
+			-> new DoubleWriteChannel(component, channelId, this);
+		};
 	}
 }

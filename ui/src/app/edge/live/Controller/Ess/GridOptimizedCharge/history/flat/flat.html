@@ -1,0 +1,15 @@
+@if (isInitialized) {
+  <oe-flat-widget [title]="component.alias" button
+    [link]="'/device/' + edge.id + newNavigationUrlSegment + '/history/' + component.id + '/gridOptimizedChargeChart'"
+    [icon]="{name: 'oe-grid-storage', size: 'large', color: 'normal'}">
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.CHARGING_DELAYED' | translate"
+      [channelAddress]="component.id + '/AvoidLowChargingTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+    [filter]="filter"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.STATE.CHARGE_LIMIT_ACTIVE' | translate"
+      [channelAddress]="component.id + '/DelayChargeTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+    [filter]="filter"></oe-flat-widget-line>
+    <oe-flat-widget-line [name]="'EDGE.INDEX.WIDGETS.GRID_OPTIMIZED_CHARGE.GRID_FEED_IN_LIMITATION_AVOIDED' | translate"
+      [channelAddress]="component.id + '/SellToGridLimitTime'" [converter]="FORMAT_SECONDS_TO_DURATION"
+    [filter]="filter"></oe-flat-widget-line>
+  </oe-flat-widget>
+}

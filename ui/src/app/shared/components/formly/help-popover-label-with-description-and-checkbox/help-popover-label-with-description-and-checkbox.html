@@ -1,0 +1,22 @@
+<ion-grid class="ion-no-padding">
+  <ion-row>
+    <ion-col>
+      <ion-item lines="none">
+        <ion-label class="ion-item-label-min-content">{{props.label}}</ion-label>
+        @if (props.helpMsg) {
+          <oe-help-popover-button [helpMsg]="props.helpMsg"></oe-help-popover-button>
+        }
+      </ion-item>
+    </ion-col>
+    <ion-col>
+      <ion-item lines="none">
+        <ion-checkbox slot="end" [checked]="value" [value]="props.value" [disabled]="props.disabled"
+          (ionChange)="updateFormControl($event)">
+          @if (props.description) {
+            {{props.description}}
+          }
+        </ion-checkbox>
+      </ion-item>
+    </ion-col>
+  </ion-row>
+</ion-grid>

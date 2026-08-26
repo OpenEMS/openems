@@ -3,13 +3,17 @@ package io.openems.backend.common.metadata;
 import static io.openems.common.utils.StringUtils.containsWithNullCheck;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
+import com.google.gson.JsonObject;
 import io.openems.common.channel.Level;
-import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.request.GetEdgesRequest.PaginationOptions;
 import io.openems.common.jsonrpc.response.GetEdgesResponse.EdgeMetadata;
 import io.openems.common.session.Role;
+import io.openems.common.utils.ComparatorUtils;
 
 public class MetadataUtils {
 
@@ -23,12 +27,16 @@ public class MetadataUtils {
 	 * @param <EDGE>            the type of the {@link Edge}
 	 * @param user              the {@link User}
 	 * @param edges             a Collection of {@link Edge}s
+	 * @param getSettings       a Function that returns @{@link Edge}s settings
 	 * @param paginationOptions the {@link PaginationOptions}
 	 * @return the result, a list of {@link EdgeMetadata}
-	 * @throws OpenemsNamedException on error
 	 */
-	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(User user, Collection<EDGE> edges,
-			PaginationOptions paginationOptions) throws OpenemsNamedException {
+	public static <EDGE extends Edge> List<EdgeMetadata> getPageDevice(//
+			User user, //
+			Collection<EDGE> edges, //
+			Function<EDGE, JsonObject> getSettings, //
+			PaginationOptions paginationOptions //
+	) {
 		var pagesStream = edges.stream();
 		final var query = paginationOptions.getQuery();
 		if (query != null) {
@@ -38,6 +46,7 @@ public class MetadataUtils {
 							|| containsWithNullCheck(edge.getProducttype(), query) //
 			);
 		}
+		var comparator = ComparatorUtils.<EDGE>empty();
 		final var searchParams = paginationOptions.getSearchParams();
 		if (searchParams != null) {
 			if (searchParams.searchIsOnline()) {
@@ -47,25 +56,45 @@ public class MetadataUtils {
 				pagesStream = pagesStream.filter(edge -> searchParams.productTypes().contains(edge.getProducttype()));
 			}
 			// TODO sum state filter
-		}
 
+			final var orderState = searchParams.orderState();
+			if (orderState != null) {
+				for (var orderItem : orderState.orderItems()) {
+					var c = switch (orderItem.field()) {
+					case "id" -> Comparator.comparing(EDGE::getId);
+					case "comment" -> Comparator.comparing(EDGE::getComment);
+					case "sumState" -> Comparator.<EDGE, Level>comparing(o -> //
+						Optional.ofNullable(o.getSumState()).orElse(Level.OK));
+					default -> null;
+					};
+					if (c == null) {
+						continue;
+					}
+					if (orderItem.sortOrder() == PaginationOptions.SortOrder.DESC) {
+						c = c.reversed();
+					}
+					comparator = comparator.thenComparing(c);
+				}
+			} else {
+				comparator = comparator.thenComparing(EDGE::getId);
+			}
+		}
 		return pagesStream //
-				.sorted((s1, s2) -> s1.getId().compareTo(s2.getId())) //
+				.sorted(comparator) //
 				.skip(paginationOptions.getPage() * paginationOptions.getLimit()) //
 				.limit(paginationOptions.getLimit()) //
-				.peek(t -> user.setRole(t.getId(), Role.ADMIN)) //
-				.map(myEdge -> {
-					return new EdgeMetadata(//
-							myEdge.getId(), //
-							myEdge.getComment(), //
-							myEdge.getProducttype(), //
-							myEdge.getVersion(), //
-							Role.ADMIN, //
-							myEdge.isOnline(), //
-							myEdge.getLastmessage(), //
-							null, // firstSetupProtocol
-							Level.OK);
-				}).toList();
+				.map(myEdge -> new EdgeMetadata(//
+						myEdge.getId(), //
+						myEdge.getComment(), //
+						myEdge.getProducttype(), //
+						myEdge.getVersion(), //
+						Role.ADMIN, //
+						myEdge.isOnline(), //
+						myEdge.getLastmessage(), //
+						null, // firstSetupProtocol
+						Optional.ofNullable(myEdge.getSumState()).orElse(Level.OK), //
+						getSettings.apply(myEdge))) //
+				.toList();
 	}
 
 }

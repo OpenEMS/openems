@@ -1,6 +1,9 @@
 package io.openems.edge.controller.ess.balancing;
 
-import org.osgi.service.cm.ConfigurationAdmin;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -11,9 +14,15 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.modbusslave.ModbusSlave;
+import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.modbusslave.ModbusSlaveTable;
+import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
@@ -24,17 +33,18 @@ import io.openems.edge.meter.api.ElectricityMeter;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssBalancingImpl extends AbstractOpenemsComponent implements Controller, OpenemsComponent {
+@GenerateTargetsFromReferences({ "ess", "meter" })
+public class ControllerEssBalancingImpl extends AbstractOpenemsComponent
+		implements Controller, OpenemsComponent, ModbusSlave, ControllerEssBalancing {
 
 	private final Logger log = LoggerFactory.getLogger(ControllerEssBalancingImpl.class);
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private ManagedSymmetricEss ess;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	private ElectricityMeter meter;
 
 	private Config config;
@@ -51,12 +61,6 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent impleme
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
 	}
 
 	@Override
@@ -67,20 +71,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent impleme
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = this.ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!this.ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return;
 		}
+
+		int targetGridSetpointValue = this.getSetGridActivePowerNextWriteValue()
+				.orElse(this.config.targetGridSetpoint());
 
 		/*
 		 * Calculates required charge/discharge power
@@ -88,13 +85,13 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent impleme
 		var calculatedPower = calculateRequiredPower(//
 				this.ess.getActivePower().getOrError(), //
 				this.meter.getActivePower().getOrError(), //
-				this.config.targetGridSetpoint());
+				targetGridSetpointValue);
 
 		/*
 		 * set result
 		 */
-		this.ess.setActivePowerEqualsWithPid(calculatedPower);
-		this.ess.setReactivePowerEquals(0);
+		this.ess.setActivePowerEqualsWithFilter(calculatedPower);
+		this.ess.setReactivePowerEqualsWithoutFilter(0);
 	}
 
 	/**
@@ -108,5 +105,14 @@ public class ControllerEssBalancingImpl extends AbstractOpenemsComponent impleme
 	 */
 	protected static int calculateRequiredPower(int essPower, int gridPower, int targetGridSetpoint) {
 		return gridPower + essPower - targetGridSetpoint;
+	}
+
+	@Override
+	public ModbusSlaveTable getModbusSlaveTable(AccessMode accessMode) {
+		return new ModbusSlaveTable(//
+				OpenemsComponent.getModbusSlaveNatureTable(accessMode),
+				ModbusSlaveNatureTable.of(ControllerEssBalancingImpl.class, AccessMode.WRITE_ONLY, 100) //
+						.channel(0, ControllerEssBalancing.ChannelId.SET_GRID_ACTIVE_POWER, ModbusType.FLOAT32) //
+						.build());
 	}
 }

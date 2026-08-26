@@ -52,7 +52,7 @@ public class TimeLeapClockTest {
 
 	@Test
 	public void testLeap() {
-		var dateTime = ZonedDateTime.now();
+		var dateTime = ZonedDateTime.of(2023, 1, 2, 3, 4, 5, 6, ZoneId.of("UTC"));
 
 		final var instant = dateTime.toInstant();
 		final var zone = dateTime.getZone();

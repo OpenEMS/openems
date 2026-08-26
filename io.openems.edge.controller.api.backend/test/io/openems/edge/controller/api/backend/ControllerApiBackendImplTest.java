@@ -17,8 +17,6 @@ import io.openems.edge.common.test.DummyCycle;
 
 public class ControllerApiBackendImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 
@@ -44,7 +42,7 @@ public class ControllerApiBackendImplTest {
 					.addReference("oem", new DummyOpenemsEdgeOem()) //
 					.addComponent(new DummySum()) //
 					.activate(MyConfig.create() //
-							.setId(CTRL_ID) //
+							.setId("ctrl0") //
 							.setUri("ws://localhost:" + port) //
 							.setApikey("12345") //
 							.setProxyType(Type.DIRECT) //

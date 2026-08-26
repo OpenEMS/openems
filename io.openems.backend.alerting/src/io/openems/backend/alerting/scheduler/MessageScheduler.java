@@ -12,6 +12,7 @@ import io.openems.backend.alerting.Message;
 
 /**
  * Schedules one or more {@link Message} for type {@link T} to a specific time.
+ * 
  * <p>
  * After the specified time is reached, the scheduler sends the Messages to
  * their {@link Handler} and removes them from itself.
@@ -41,7 +42,7 @@ public class MessageScheduler<T extends Message> {
 			return;
 		}
 		synchronized (this) {
-			this.messageForId.computeIfAbsent(msg.getId(), (key) -> {
+			this.messageForId.computeIfAbsent(msg.getId(), key -> {
 				this.queue.add(msg);
 				return msg;
 			});
@@ -106,12 +107,14 @@ public class MessageScheduler<T extends Message> {
 	 * @param now TimeStamp on call
 	 */
 	public void handle(ZonedDateTime now) {
-		var msgs = new ArrayList<T>();
-		while (this.hasTimeElapsed(now, this.peek())) {
-			msgs.add(this.poll());
+		final var messages = new ArrayList<T>();
+		synchronized (this) {
+			while (this.hasTimeElapsed(now, this.peek())) {
+				messages.add(this.poll());
+			}
 		}
-		if (!msgs.isEmpty()) {
-			this.handler.send(now, msgs);
+		if (!messages.isEmpty()) {
+			this.handler.send(now, messages);
 		}
 	}
 

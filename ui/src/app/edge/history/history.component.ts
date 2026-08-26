@@ -1,92 +1,91 @@
 // @ts-strict-ignore
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { AppService } from 'src/app/app.service';
-import { HeaderComponent } from 'src/app/shared/components/header/header.component';
-import { JsonrpcResponseError } from 'src/app/shared/jsonrpc/base';
-import { Edge, EdgeConfig, Service, Widgets } from 'src/app/shared/shared';
-import { environment } from 'src/environments';
+import { ChangeDetectionStrategy, Component, effect, OnInit, signal } from "@angular/core";
+import { TranslateService } from "@ngx-translate/core";
+import { NavigationService } from "src/app/shared/components/navigation/service/navigation.service";
+import { DataService } from "src/app/shared/components/shared/dataservice";
+import { JsonrpcResponseError } from "src/app/shared/jsonrpc/base";
+import { LayoutRefreshService } from "src/app/shared/service/layoutRefreshService";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { Widgets } from "src/app/shared/type/widgets";
+import { environment } from "src/environments";
 
 @Component({
-  selector: 'history',
-  templateUrl: './history.component.html',
+    selector: "history",
+    templateUrl: "./history.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
 export class HistoryComponent implements OnInit {
+    // is a Timedata service available, i.e. can historic data be queried.
+    public isTimedataAvailable = signal<boolean>(true);
 
-  @ViewChild(HeaderComponent, { static: false }) public HeaderComponent: HeaderComponent;
+    // sets the height for a chart. This is recalculated on every window resize.
+    public socChartHeight: string = "250px";
+    public energyChartHeight: string = "250px";
 
-  // is a Timedata service available, i.e. can historic data be queried.
-  public isTimedataAvailable: boolean = true;
+    // holds the Widgets
+    public widgets = signal<Widgets | null>(null);
 
-  // sets the height for a chart. This is recalculated on every window resize.
-  public socChartHeight: string = "250px";
-  public energyChartHeight: string = "250px";
+    // holds the current Edge
+    public edge: Edge | null = null;
 
-  // holds the Widgets
-  public widgets: Widgets | null = null;
+    public config: EdgeConfig | null = null;
+    protected errorResponse: JsonrpcResponseError | null = null;
 
-  // holds the current Edge
-  public edge: Edge | null = null;
+    constructor(
+        public service: Service,
+        public translate: TranslateService,
+        private dataService: DataService,
+        private userService: UserService,
+        protected navigationService: NavigationService,
+        private layoutRefresh: LayoutRefreshService,
+    ) {
+        effect(() => {
+            const edge = this.service.currentEdge();
+            this.edge = edge;
+        });
+    }
 
-  // holds Channelthreshold Components to display effective active time in %
-  // public channelthresholdComponents: string[] = [];
+    ngOnInit() {
+        this.service.getConfig().then(async (config) => {
+            this.config = config;
+            config.hasStorage();
+            this.widgets.set(
+                await this.navigationService.getWidgets(config.widgets, this.userService.currentUser(), this.edge),
+            );
+            // Are we connected to OpenEMS Edge and is a timedata service available?
+            if (
+                environment.backend == "OpenEMS Edge" &&
+                config
+                    .getComponentsImplementingNature("io.openems.edge.timedata.api.Timedata")
+                    .filter((c) => c.isEnabled).length == 0
+            ) {
+                this.isTimedataAvailable.set(false);
+            }
+        });
+    }
 
-  public config: EdgeConfig | null = null;
-  protected errorResponse: JsonrpcResponseError | null = null;
+    public ionViewWillEnter() {
+        this.layoutRefresh.request(500);
+    }
 
-  constructor(
-    public service: Service,
-    public translate: TranslateService,
-    private route: ActivatedRoute,
-  ) { }
+    updateOnWindowResize() {
+        const ref = /* fix proportions */ Math.min(
+            window.innerHeight - 150,
+            /* handle grid breakpoints */ window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400,
+        );
+        this.socChartHeight = /* minimum size */ Math.max(150, /* maximum size */ Math.min(200, ref)) + "px";
+        this.energyChartHeight = /* minimum size */ Math.max(300, /* maximum size */ Math.min(600, ref)) + "px";
+    }
 
-  ngOnInit() {
-    this.service.setCurrentComponent('', this.route);
-    this.service.currentEdge.subscribe((edge) => {
-      this.edge = edge;
-    });
-    this.service.getConfig().then(config => {
-      // gather ControllerIds of Channelthreshold Components
-      // for (let controllerId of
-      //   config.getComponentIdsImplementingNature("io.openems.impl.controller.channelthreshold.ChannelThresholdController")
-      //     .concat(config.getComponentIdsByFactory("Controller.ChannelThreshold"))) {
-      //   this.channelthresholdComponents.push(controllerId)
-      // }
-      this.config = config;
-      config.hasStorage();
-      this.widgets = config.widgets;
-      // Are we connected to OpenEMS Edge and is a timedata service available?
-      if (environment.backend == 'OpenEMS Edge'
-        && config.getComponentsImplementingNature('io.openems.edge.timedata.api.Timedata').filter(c => c.isEnabled).length == 0) {
-        this.isTimedataAvailable = false;
-      }
-    });
-  }
+    onDomChange(event: CustomEvent) {
+        this.layoutRefresh.request(500);
+    }
 
-  // checks arrows when ChartPage is closed
-  // double viewchild is used to prevent undefined state of PickDateComponent
-  ionViewDidEnter() {
-    this.HeaderComponent.PickDateComponent.checkArrowAutomaticForwarding();
-  }
+    protected handleRefresh: (ev: CustomEvent) => void = (ev) => this.dataService.refresh(ev);
 
-  updateOnWindowResize() {
-    const ref = /* fix proportions */ Math.min(window.innerHeight - 150,
-      /* handle grid breakpoints */(window.innerWidth < 768 ? window.innerWidth - 150 : window.innerWidth - 400));
-    this.socChartHeight =
-      /* minimum size */ Math.max(150,
-      /* maximium size */ Math.min(200, ref),
-    ) + "px";
-    this.energyChartHeight =
-      /* minimum size */ Math.max(300,
-      /* maximium size */ Math.min(600, ref),
-    ) + "px";
-  }
-
-  protected handleRefresh: () => void = () => AppService.handleRefresh();
-
-  protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
-    this.errorResponse = errorResponse;
-  }
-
+    protected setErrorResponse(errorResponse: JsonrpcResponseError | null) {
+        this.errorResponse = errorResponse;
+    }
 }

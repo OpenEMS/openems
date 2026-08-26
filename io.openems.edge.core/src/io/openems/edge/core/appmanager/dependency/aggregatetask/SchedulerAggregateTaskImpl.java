@@ -3,6 +3,8 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Activate;
@@ -10,11 +12,17 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.ComponentUtil;
+import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 
@@ -27,6 +35,33 @@ import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
 		scope = ServiceScope.SINGLETON //
 )
 public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
+
+	private record SchedulerExecutionConfiguration(//
+			List<String> insertOrder //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private SchedulerExecutionConfiguration {
+			Objects.requireNonNull(insertOrder);
+		}
+
+		@Override
+		public String identifier() {
+			return "Scheduler";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.insertOrder.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("insertOrder", this.insertOrder.stream() //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()))
+					.build();
+		}
+
+	}
 
 	private final ComponentAggregateTask aggregateTask;
 	private final ComponentUtil componentUtil;
@@ -73,7 +108,8 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 			return;
 		}
 		this.order = this.componentUtil.insertSchedulerOrder(this.componentUtil.getSchedulerIds(), this.order);
-		this.componentUtil.updateScheduler(user, this.order, this.aggregateTask.getCreatedComponents());
+		this.componentUtil.updateSchedulerFromComponentConfig(user, this.order,
+				this.aggregateTask.getCreatedComponents());
 
 		this.delete(user, otherAppConfigurations);
 	}
@@ -93,6 +129,11 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 	}
 
 	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new SchedulerExecutionConfiguration(this.order);
+	}
+
+	@Override
 	public String getGeneralFailMessage(Language l) {
 		final var bundle = AppManagerAppHelperImpl.getTranslationBundle(l);
 		return TranslationUtil.getTranslation(bundle, "canNotUpdateScheduler");
@@ -108,14 +149,19 @@ public class SchedulerAggregateTaskImpl implements SchedulerAggregateTask {
 	}
 
 	@Override
-	public void validate(List<String> errors, AppConfiguration appConfiguration, SchedulerConfiguration configuration) {
+	public void validate(//
+			final List<String> errors, //
+			final AppConfiguration appConfiguration, //
+			final SchedulerConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;
 		}
 
 		// Prepare Queue
-		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExist(configuration.componentOrder(),
-				appConfiguration.getComponents()));
+		var controllers = new LinkedList<>(this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
+				configuration.componentOrder(), appConfiguration.getComponents()));
 
 		if (controllers.isEmpty()) {
 			return;

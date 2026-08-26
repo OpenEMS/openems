@@ -47,6 +47,19 @@ public final class Exp {
 	}
 
 	/**
+	 * Creates a {@link Variable} of a children property of the object value of the
+	 * given property of the current value in the model.
+	 *
+	 * @param property    the property of the value
+	 * @param subProperty Checks a specific property if the property has a object
+	 *                    value (e.g. type if value is {'type': 'xxx'})
+	 * @return the {@link Variable}
+	 */
+	public static Variable currentModelValue(Nameable property, String subProperty) {
+		return new Variable("(model.%s ?? {}).%s".formatted(property.name(), subProperty));
+	}
+
+	/**
 	 * Creates a {@link Variable} to access the initial value of a property. Only
 	 * helpful for already installed instances, otherwise this value is undefined.
 	 * 
@@ -139,8 +152,46 @@ public final class Exp {
 	 */
 	public static StringExpression ifElse(BooleanExpression statement, StringExpression ifTrue,
 			StringExpression ifFalse) {
-		return new StringExpression(
-				statement.expression() + " ? " + ifTrue.expression() + " : " + ifFalse.expression());
+		return new StringExpression(ifElse(statement, ifTrue.expression(), ifFalse.expression()));
+	}
+
+	/**
+	 * Creates a combined {@link Variable} of the given {@link BooleanExpression}
+	 * and {@link Variable}, which returns the first {@link Variable} if the given
+	 * {@link BooleanExpression} returns true otherwise the second {@link Variable}
+	 * gets returned.
+	 * 
+	 * @param statement the {@link BooleanExpression} to determine which
+	 *                  {@link Variable} should be used
+	 * @param ifTrue    the {@link Variable} to use when the statement returns true
+	 * @param ifFalse   the {@link Variable} to use when the statement returns false
+	 * @return the final {@link Variable}
+	 */
+	public static Variable ifElse(BooleanExpression statement, Variable ifTrue, Variable ifFalse) {
+		return new Variable(ifElse(statement, ifTrue.variable(), ifFalse.variable()));
+	}
+
+	/**
+	 * Creates a combined {@link BooleanExpression} of the given
+	 * {@link BooleanExpression} and {@link BooleanExpression}, which returns the
+	 * first {@link BooleanExpression} if the given {@link BooleanExpression}
+	 * returns true otherwise the second {@link BooleanExpression} gets returned.
+	 * 
+	 * @param statement the {@link BooleanExpression} to determine which
+	 *                  {@link BooleanExpression} should be used
+	 * @param ifTrue    the {@link BooleanExpression} to use when the statement
+	 *                  returns true
+	 * @param ifFalse   the {@link BooleanExpression} to use when the statement
+	 *                  returns false
+	 * @return the final {@link BooleanExpression}
+	 */
+	public static BooleanExpression ifElse(BooleanExpression statement, BooleanExpression ifTrue,
+			BooleanExpression ifFalse) {
+		return new BooleanExpression(ifElse(statement, ifTrue.expression(), ifFalse.expression()));
+	}
+
+	private static String ifElse(BooleanExpression statement, String ifTrue, String ifFalse) {
+		return "( " + statement.expression() + " ? " + ifTrue + " : " + ifFalse + ")";
 	}
 
 	private Exp() {

@@ -3,6 +3,7 @@ package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 import io.openems.common.channel.Level;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.edge.batteryinverter.api.BatteryInverterErrorAcknowledge;
 import io.openems.edge.batteryinverter.api.ManagedSymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.KacoSunSpecModel.S64201.S64201CurrentState;
@@ -20,7 +21,7 @@ import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 
 public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricBatteryInverter,
-		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable {
+		SymmetricBatteryInverter, ModbusComponent, OpenemsComponent, StartStoppable, BatteryInverterErrorAcknowledge {
 
 	/**
 	 * Sets the KACO watchdog timeout to 60 seconds.
@@ -33,31 +34,25 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	public static final int WATCHDOG_TRIGGER_SECONDS = 10;
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
-				.text("Current State of State-Machine")), //
-		RUN_FAILED(Doc.of(Level.FAULT) //
-				.text("Running the Logic failed")), //
-		MAX_START_TIMEOUT(Doc.of(Level.FAULT) //
-				.text("Max start time is exceeded")), //
-		MAX_STOP_TIMEOUT(Doc.of(Level.FAULT) //
-				.text("Max stop time is exceeded")), //
-		INVERTER_CURRENT_STATE_FAULT(Doc.of(Level.FAULT) //
-				.text("The 'CurrentState' is invalid")), //
-		GRID_DISCONNECTION(Doc.of(Level.FAULT) //
-				.text("External grid protection disconnection (17)")), //
-		GRID_FAILURE_LINE_TO_LINE(Doc.of(Level.FAULT) //
-				.text("Grid failure phase-to-phase voltage (47)")), //
-		LINE_FAILURE_UNDER_FREQ(Doc.of(Level.FAULT) //
-				.text("Line failure: Grid frequency is too low (48)")), //
-		LINE_FAILURE_OVER_FREQ(Doc.of(Level.FAULT) //
-				.text("Line failure: Grid frequency is too high (49)")), //
-		PROTECTION_SHUTDOWN_LINE_1(Doc.of(Level.FAULT) //
-				.text("Grid Failure: grid voltage L1 protection (81)")), //
-		PROTECTION_SHUTDOWN_LINE_2(Doc.of(Level.FAULT) //
-				.text("Grid Failure: grid voltage L2 protection (82)")), //
-		PROTECTION_SHUTDOWN_LINE_3(Doc.of(Level.FAULT) //
-				.text("Grid Failure: grid voltage L3 protection (83)")), //
 
+		/*
+		 * Whenever one of these states would be Level.FAULT, the EssGeneric will stop
+		 * the battery and the inverter. If this is necessary, it must be specifically
+		 * mentioned and the state should have a proper description of the fault.
+		 */
+
+		STATE_MACHINE(Doc.of(State.values())//
+				.text("Current State of State-Machine")), //
+		RUN_FAILED(Doc.of(Level.WARNING)//
+				.text("Running the Logic failed")), //
+		MAX_START_TIMEOUT(Doc.of(Level.WARNING)//
+				.text("Max start time is exceeded")), //
+		MAX_STOP_TIMEOUT(Doc.of(Level.WARNING)//
+				.text("Max stop time is exceeded")), //
+		INVERTER_RESTART_STOPPING(Doc.of(Level.WARNING)//
+				.text("Inverter Restart (Stopping). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
+		INVERTER_RESTART_STARTING(Doc.of(Level.WARNING)//
+				.text("Inverter Restart (Starting). The inverter detected a non critical state e.g. NA-protection signal. This required a restart of the inverter.")), //
 		;
 
 		private final Doc doc;
@@ -173,24 +168,6 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	}
 
 	/**
-	 * Gets the Channel for ChannelId.INVERTER_CURRENT_STATE_FAULT.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getInverterCurrentStateFaultChannel() {
-		return this.channel(ChannelId.INVERTER_CURRENT_STATE_FAULT);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.INVERTER_CURRENT_STATE_FAULT.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setInverterCurrentStateFault(boolean value) {
-		this.getInverterCurrentStateFaultChannel().setNextValue(value);
-	}
-
-	/**
 	 * Gets the Channel for ChannelId.RUN_FAILED.
 	 *
 	 * @return the Channel
@@ -206,132 +183,6 @@ public interface BatteryInverterKacoBlueplanetGridsave extends ManagedSymmetricB
 	 */
 	public default void _setRunFailed(boolean value) {
 		this.getRunFailedChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.GRID_DISCONNECTION.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getGridDisconnectionChannel() {
-		return this.channel(ChannelId.GRID_DISCONNECTION);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.GRID_DISCONNECTION.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setGridDisconnection(boolean value) {
-		this.getGridDisconnectionChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.GRID_FAILURE_LINE_TO_LINE.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getGridFailureLineToLineChannel() {
-		return this.channel(ChannelId.GRID_FAILURE_LINE_TO_LINE);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.GRID_FAILURE_LINE_TO_LINE.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setGridFailureLineToLine(boolean value) {
-		this.getGridFailureLineToLineChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.LINE_FAILURE_UNDER_FREQ.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getLineFailureUnderFreqChannel() {
-		return this.channel(ChannelId.LINE_FAILURE_UNDER_FREQ);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.LINE_FAILURE_UNDER_FREQ.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setLineFailureUnderFreq(boolean value) {
-		this.getLineFailureUnderFreqChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.LINE_FAILURE_OVER_FREQ.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getLineFailureOverFreqChannel() {
-		return this.channel(ChannelId.LINE_FAILURE_OVER_FREQ);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.LINE_FAILURE_OVER_FREQ.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setLineFailureOverFreq(boolean value) {
-		this.getLineFailureOverFreqChannel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_1.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getProtectionShutdownLine1Channel() {
-		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_1);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_1.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProtectionShutdownLine1(boolean value) {
-		this.getProtectionShutdownLine1Channel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_2.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getProtectionShutdownLine2Channel() {
-		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_2);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_2.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProtectionShutdownLine2(boolean value) {
-		this.getProtectionShutdownLine2Channel().setNextValue(value);
-	}
-
-	/**
-	 * Gets the Channel for ChannelId.PROTECTION_SHUTDOWN_LINE_3.
-	 *
-	 * @return the Channel
-	 */
-	public default Channel<Boolean> getProtectionShutdownLine3Channel() {
-		return this.channel(ChannelId.PROTECTION_SHUTDOWN_LINE_3);
-	}
-
-	/**
-	 * Writes the value to the ChannelId.PROTECTION_SHUTDOWN_LINE_3.
-	 *
-	 * @param value the next value
-	 */
-	public default void _setProtectionShutdownLine3(boolean value) {
-		this.getProtectionShutdownLine3Channel().setNextValue(value);
 	}
 
 }

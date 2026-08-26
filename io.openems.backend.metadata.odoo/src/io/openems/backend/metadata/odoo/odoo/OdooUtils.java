@@ -1,16 +1,19 @@
 package io.openems.backend.metadata.odoo.odoo;
 
+import static java.util.Collections.emptyMap;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +85,9 @@ public class OdooUtils {
 	 */
 	public static SuccessResponseAndHeaders sendJsonrpcRequest(String url, String cookie, JsonObject request)
 			throws OpenemsNamedException {
-		return OdooUtils.sendJsonrpcRequest(url, cookie, request, 5000);
+		// TODO temporarly increased due to timeouts
+		// should be decreased again to 5000 and requests migrated to http service
+		return OdooUtils.sendJsonrpcRequest(url, cookie, request, 10000);
 	}
 
 	/**
@@ -101,7 +106,9 @@ public class OdooUtils {
 		HttpURLConnection connection = null;
 		try {
 			// Open connection to Odoo
-			connection = (HttpURLConnection) new URL(url).openConnection();
+			connection = (HttpURLConnection) URI.create(url) //
+					.toURL() //
+					.openConnection(); //
 			connection.setConnectTimeout(5000);// 5 secs
 			connection.setReadTimeout(timeout);// 5 secs
 			connection.setRequestProperty("Accept-Charset", "US-ASCII");
@@ -152,7 +159,7 @@ public class OdooUtils {
 					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 
 				case "odoo.http.SessionExpiredException":
-					throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
+					throw new SessionExpiredException();
 
 				default:
 					// for OpenemsExceptions from Odoo only throw OpenemsException with message for
@@ -194,8 +201,8 @@ public class OdooUtils {
 
 	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
 			JsonObject request, int timeout) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
-		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request, timeout);
+		var session = OdooUtils.loginAdmin(credentials);
+		return OdooUtils.sendJsonrpcRequest(credentials.url() + url, "session_id=" + session, request, timeout);
 	}
 
 	/**
@@ -209,8 +216,8 @@ public class OdooUtils {
 	 */
 	protected static SuccessResponseAndHeaders sendAdminJsonrpcRequest(Credentials credentials, String url,
 			JsonObject request) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
-		return OdooUtils.sendJsonrpcRequest(credentials.getUrl() + url, "session_id=" + session, request);
+		var session = OdooUtils.loginAdmin(credentials);
+		return OdooUtils.sendJsonrpcRequest(credentials.url() + url, "session_id=" + session, request);
 	}
 
 	/**
@@ -220,34 +227,33 @@ public class OdooUtils {
 	 * @param url         to send the request
 	 * @param request     to send
 	 * @return SuccessResponseAndHeaders response as Future
-	 * @throws OpenemsNamedException on error
 	 */
-	protected static Future<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsync(Credentials credentials, String url,
-			JsonObject request) throws OpenemsNamedException {
-		var completableFuture = new CompletableFuture<SuccessResponseAndHeaders>();
-		completableFuture.completeAsync(() -> {
+	protected static CompletableFuture<SuccessResponseAndHeaders> sendAdminJsonrpcRequestAsync(Credentials credentials,
+			String url, JsonObject request) {
+		return CompletableFuture.supplyAsync(() -> {
 			try {
 				return sendAdminJsonrpcRequest(credentials, url, request);
 			} catch (OpenemsNamedException e) {
-				completableFuture.completeExceptionally(e);
+				throw new CompletionException(e);
 			}
-			return null;
 		});
-		return completableFuture;
+	}
+
+	protected static String loginAdmin(Credentials credentials) throws OpenemsNamedException {
+		return OdooUtils.login(credentials, credentials.login(), credentials.password());
 	}
 
 	/**
-	 * Authenticates a user using Username and Password.
+	 * Authenticates a user using Login and Password.
 	 *
 	 * @param credentials used to get Odoo url
-	 * @param username    the Username
+	 * @param login       the login (normally username)
 	 * @param password    the Password
 	 * @return the session_id
 	 * @throws OpenemsNamedException on login error
 	 */
-	protected static String login(Credentials credentials, String username, String password)
-			throws OpenemsNamedException {
-		if (username.isBlank() || password.isBlank()) {
+	public static String login(Credentials credentials, String login, String password) throws OpenemsNamedException {
+		if (login.isBlank() || password.isBlank()) {
 			// Do not even send request if username or password are blank
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
 		}
@@ -255,12 +261,12 @@ public class OdooUtils {
 				.addProperty("jsonrpc", "2.0") //
 				.addProperty("method", "call") //
 				.add("params", JsonUtils.buildJsonObject() //
-						.addProperty("db", credentials.getDatabase()) //
-						.addProperty("login", username.toLowerCase()) //
+						.addProperty("db", credentials.database()) //
+						.addProperty("login", login.toLowerCase()) //
 						.addProperty("password", password) //
 						.build()) //
 				.build();
-		var response = OdooUtils.sendJsonrpcRequest(credentials.getUrl() + "/web/session/authenticate", request);
+		var response = OdooUtils.sendJsonrpcRequest(credentials.url() + "/web/session/authenticate", request);
 		var sessionIdOpt = getFieldFromSetCookieHeader(response.headers, "session_id");
 		if (!sessionIdOpt.isPresent()) {
 			throw OpenemsError.COMMON_AUTHENTICATION_FAILED.exception();
@@ -275,9 +281,10 @@ public class OdooUtils {
 
 	private static Object executeKw(Credentials creds, String model, String action, Object[] arg, Map<String, ?> kw)
 			throws MalformedURLException, XMLRPCException {
-		var params = new Object[] { creds.getDatabase(), creds.getUid(), creds.getPassword(), model, action, arg, kw };
-		var client = new XMLRPCClient(new URL(String.format("%s/xmlrpc/2/object", creds.getUrl())),
-				XMLRPCClient.FLAGS_NIL);
+		var params = new Object[] { creds.database(), creds.uid(), creds.password(), model, action, arg, kw };
+		var uri = URI.create(String.format("%s/xmlrpc/2/object", creds.url()));
+		var client = new XMLRPCClient(uri.toURL(), XMLRPCClient.FLAGS_NIL);
+
 		client.setTimeout(60 /* seconds */);
 		return client.call("execute_kw", params);
 	}
@@ -299,22 +306,37 @@ public class OdooUtils {
 	 *
 	 * @param credentials the Odoo credentials
 	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param params      the params, e.g ("limit","1")
 	 * @param domains     Odoo domain filters
 	 * @return Odoo object ids
 	 * @throws OpenemsException on error
 	 */
-	protected static Integer[] search(Credentials credentials, String model, Domain... domains)
+	protected static Integer[] search(Credentials credentials, String model, Map<String, ?> params, Domain... domains)
 			throws OpenemsException {
 		// Add domain filter
 		var domain = getAsObjectArray(domains);
 		Object[] paramsDomain = { domain };
 		try {
 			// Execute XML request
-			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, Map.of());
+			var resultObjs = (Object[]) OdooUtils.executeKw(credentials, model, "search", paramsDomain, params);
 			return Arrays.copyOf(resultObjs, resultObjs.length, Integer[].class);
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to search from Odoo: " + e.getMessage());
 		}
+	}
+
+	/**
+	 * Executes a search on Odoo.
+	 *
+	 * @param credentials the Odoo credentials
+	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param domains     Odoo domain filters
+	 * @return Odoo object ids
+	 * @throws OpenemsException on error
+	 */
+	protected static Integer[] search(Credentials credentials, String model, Domain... domains)
+			throws OpenemsException {
+		return OdooUtils.search(credentials, model, emptyMap(), domains);
 	}
 
 	/**
@@ -382,16 +404,33 @@ public class OdooUtils {
 	 * @return the records as a Map array
 	 * @throws OpenemsException on error
 	 */
-	@SuppressWarnings("unchecked")
 	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
 			Domain... domains) throws OpenemsException {
-		// Create request params
+		return OdooUtils.searchRead(credentials, model, fields, emptyMap(), domains);
+	}
+
+	/**
+	 * Search-Reads multiple records from Odoo.
+	 *
+	 * @param credentials the Odoo credentials
+	 * @param model       Odoo model to query (e.g. 'res.partner')
+	 * @param fields      fields that should be read
+	 * @param params      the odoo query params
+	 * @param domains     filter domains
+	 * @return the records as a Map array
+	 * @throws OpenemsException on error
+	 */
+	@SuppressWarnings("unchecked")
+	protected static Map<String, Object>[] searchRead(Credentials credentials, String model, Field[] fields,
+			Map<String, ?> params, Domain... domains) throws OpenemsException {
 		// Add domain filter
 		var domain = getAsObjectArray(domains);
 		var paramsDomain = new Object[] { domain };
 		// Add fields
 		var fieldStrings = getAsStringArray(fields);
-		var paramsFields = Map.of("fields", fieldStrings);
+		final var paramsFields = new HashMap<String, Object>();
+		paramsFields.put("fields", fieldStrings);
+		paramsFields.putAll(params);
 		try {
 			// Execute XML request
 			var result = (Object[]) OdooUtils.executeKw(credentials, model, "search_read", paramsDomain, paramsFields);
@@ -424,6 +463,15 @@ public class OdooUtils {
 		} catch (Throwable e) {
 			throw new OpenemsException("Unable to read from Odoo: " + e.getMessage());
 		}
+	}
+
+	protected static Integer[] getObjectReferences(Credentials credentials, String module, List<String> name)
+			throws OpenemsException {
+		final var ids = new ArrayList<Integer>();
+		for (var s : name) {
+			ids.add(getObjectReference(credentials, module, s));
+		}
+		return ids.toArray(Integer[]::new);
 	}
 
 	/**
@@ -533,10 +581,10 @@ public class OdooUtils {
 	 * @return the odoo reference id or empty {@link Optional}
 	 */
 	protected static Optional<Integer> getOdooReferenceId(Object object) {
-		if (object instanceof Object[] odooReference) {
-			if (odooReference.length > 0 && odooReference[0] instanceof Integer) {
-				return Optional.of((Integer) odooReference[0]);
-			}
+		if (object instanceof Object[] odooReference //
+				&& odooReference.length > 0 //
+				&& odooReference[0] instanceof Integer i) {
+			return Optional.of(i);
 		}
 
 		return Optional.empty();
@@ -553,16 +601,17 @@ public class OdooUtils {
 	 * @throws OpenemsNamedException on error
 	 */
 	protected static byte[] getOdooReport(Credentials credentials, String report, int id) throws OpenemsNamedException {
-		var session = OdooUtils.login(credentials, "admin", credentials.getPassword());
+		var session = OdooUtils.loginAdmin(credentials);
 
 		HttpURLConnection connection = null;
 		try {
-			connection = (HttpURLConnection) new URL(
-					credentials.getUrl() + "/report/pdf/" + report + "/" + id + "?session_id=" + session)
+			connection = (HttpURLConnection) URI
+					.create(credentials.url() + "/report/pdf/" + report + "/" + id + "?session_id=" + session).toURL()
 					.openConnection();
 			connection.setConnectTimeout(5000);
 			connection.setReadTimeout(5000);
 			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Cookie", "session_id=" + session);
 			connection.setDoOutput(true);
 
 			return ByteStreams.toByteArray(connection.getInputStream());
@@ -689,7 +738,7 @@ public class OdooUtils {
 	 * @param fieldname the field name
 	 * @return value as optional
 	 */
-	private static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
+	public static Optional<String> getFieldFromSetCookieHeader(Map<String, List<String>> headers, String fieldname) {
 		for (Entry<String, List<String>> header : headers.entrySet()) {
 			var key = header.getKey();
 			if (key != null && key.equalsIgnoreCase("Set-Cookie")) {
@@ -735,7 +784,7 @@ public class OdooUtils {
 
 				return ZonedDateTime.parse(dateTimeString, DATETIME_FORMATTER);
 			} catch (DateTimeParseException e) {
-				log.warn("'" + dateTimeString + "' is not of format " + SERVER_DATETIME_FORMAT, e);
+				log.warn("OdooUtils.DateTime: '{}' is not of format {}", dateTimeString, SERVER_DATETIME_FORMAT);
 				return null;
 			}
 		}

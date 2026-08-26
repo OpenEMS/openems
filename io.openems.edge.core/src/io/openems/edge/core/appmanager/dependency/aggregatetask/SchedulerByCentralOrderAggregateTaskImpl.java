@@ -5,25 +5,40 @@ import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.session.Language;
+import io.openems.common.session.Role;
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.jsonapi.ComponentJsonApi;
+import io.openems.edge.common.jsonapi.EdgeGuards;
+import io.openems.edge.common.jsonapi.EdgeKeys;
+import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppManagerUtil;
@@ -38,11 +53,44 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
 		service = { //
 				AggregateTask.class, //
 				SchedulerByCentralOrderAggregateTask.class, //
-				SchedulerByCentralOrderAggregateTaskImpl.class //
+				SchedulerByCentralOrderAggregateTaskImpl.class, //
+				ComponentJsonApi.class //
 		}, //
 		scope = ServiceScope.SINGLETON //
 )
-public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCentralOrderAggregateTask {
+public class SchedulerByCentralOrderAggregateTaskImpl
+		implements SchedulerByCentralOrderAggregateTask, ComponentJsonApi {
+
+	private record SchedulerByCentralOrderExecutionConfiguration(//
+			List<SchedulerComponent> insertOrder //
+	) implements AggregateTask.AggregateTaskExecutionConfiguration {
+
+		private SchedulerByCentralOrderExecutionConfiguration {
+			Objects.requireNonNull(insertOrder);
+		}
+
+		@Override
+		public String identifier() {
+			return "SchedulerByCentralOrder";
+		}
+
+		@Override
+		public JsonElement toJson() {
+			if (this.insertOrder.isEmpty()) {
+				return JsonNull.INSTANCE;
+			}
+			return JsonUtils.buildJsonObject() //
+					.add("insertOrder", this.insertOrder.stream() //
+							.map(t -> JsonUtils.buildJsonObject() //
+									.addProperty("id", t.id()) //
+									.addProperty("factoryId", t.factoryId()) //
+									.addPropertyIfNotNull("createdByAppId", t.createdByAppId()) //
+									.build())
+							.collect(JsonUtils.toJsonArray()))
+					.build();
+		}
+
+	}
 
 	private final ComponentManager componentManager;
 	private final ComponentUtil componentUtil;
@@ -58,19 +106,30 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public static final class ProductionSchedulerOrderDefinition extends SchedulerOrderDefinition {
 
 		public ProductionSchedulerOrderDefinition() {
-			this.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
+			this//
+					.thenByFactoryId("Controller.Ess.Limiter14a") //
+					.thenByFactoryId("Controller.Ess.RippleControlReceiver") //
+					.thenByFactoryId("Controller.Ess.PrepareBatteryExtension") //
 					.thenByFactoryId("Controller.Ess.FixActivePower") //
-					.thenByFactoryId("Controller.Ess.FixStateOfCharge")//
+					.thenByFactoryId("Controller.Symmetric.FixReactivePower") //
+					.thenByFactoryId("Controller.Ess.FixStateOfCharge") //
+					.thenByFactoryId("Controller.Ess.SoH.Cycle") //
 					.thenByFactoryId("Controller.Ess.EmergencyCapacityReserve") //
 					.thenBy(new SchedulerOrderDefinition() //
 							.filterByFactoryId("Controller.Api.ModbusTcp.ReadWrite") //
 							.thenByCreatedAppId("App.Ess.GeneratingPlantController") //
 							.rest()) //
+					.thenByFactoryId("Controller.Api.ModbusRtu.ReadWrite") //
 					.thenByFactoryId("Controller.Api.Rest.ReadWrite") //
+					.thenByFactoryId("Controller.Clever-PV") //
 					.thenByFactoryId("Controller.Ess.GridOptimizedCharge") //
 					.thenByFactoryId("Controller.Ess.Hybrid.Surplus-Feed-To-Grid") //
 					.thenByFactoryId("Controller.Evcs") //
 					.thenByFactoryId("Controller.Ess.Time-Of-Use-Tariff") //
+					.thenByFactoryId("Controller.TimeslotPeakshaving") //
+					.thenByFactoryId("Controller.Clever-PV") //
+					.thenByFactoryId("Controller.Symmetric.PeakShaving") //
+					.thenByFactoryId("Controller.Asymmetric.PeakShaving") //
 					.thenByFactoryId("Controller.Symmetric.Balancing") //
 			;
 		}
@@ -94,46 +153,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 	public static class SchedulerOrderDefinition implements Comparator<SchedulerComponent> {
 
-		private static final int[] EMPTY_INT_ARRAY = new int[0];
-
-		private static sealed class PositionReturnType {
-
-			public static final PositionReturnType right(int... index) {
-				return new Right(index);
-			}
-
-			public static final PositionReturnType remove() {
-				return Remove.INSTANCE;
-			}
-
-			public static final PositionReturnType next() {
-				return Next.INSTANCE;
-			}
-
-			public static final class Right extends PositionReturnType {
-				public final int[] index;
-
-				public Right(int[] index) {
-					this.index = index;
-				}
-
-			}
-
-			private static final class Remove extends PositionReturnType {
-
-				public static final Remove INSTANCE = new Remove();
-
-			}
-
-			private static final class Next extends PositionReturnType {
-
-				public static final Next INSTANCE = new Next();
-
-			}
-
-		}
-
-		private final List<Function<SchedulerComponent, PositionReturnType>> predicates = new LinkedList<>();
+		private final PredefinedOrder<SchedulerComponent> predefinedOrder = new PredefinedOrder<>();
 
 		/**
 		 * Adds a filter to the order queue which sorts out every
@@ -146,7 +166,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition filterBy(Predicate<SchedulerComponent> matcher) {
-			return this.thenByFunction(t -> matcher.test(t) ? PositionReturnType.next() : PositionReturnType.remove());
+			this.predefinedOrder.filterBy(matcher);
+			return this;
 		}
 
 		/**
@@ -163,11 +184,6 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			return this.filterBy(t -> factoryId.equals(t.factoryId()));
 		}
 
-		private SchedulerOrderDefinition thenByFunction(Function<SchedulerComponent, PositionReturnType> matcher) {
-			this.predicates.add(t -> matcher.apply(t));
-			return this;
-		}
-
 		/**
 		 * Adds a matching function if the current {@link SchedulerComponent} is at the
 		 * right position.
@@ -179,7 +195,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition thenBy(Predicate<SchedulerComponent> matcher) {
-			return this.thenByFunction(t -> matcher.test(t) ? PositionReturnType.right(1) : PositionReturnType.next());
+			this.predefinedOrder.thenBy(matcher);
+			return this;
 		}
 
 		/**
@@ -189,13 +206,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return this
 		 */
 		public SchedulerOrderDefinition thenBy(SchedulerOrderDefinition order) {
-			return this.thenByFunction(t -> {
-				final var result = order.indexOfMatch(t);
-				if (result.length == 0) {
-					return PositionReturnType.next();
-				}
-				return PositionReturnType.right(result);
-			});
+			this.predefinedOrder.thenBy(order.predefinedOrder);
+			return this;
 		}
 
 		/**
@@ -238,26 +250,10 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 
 		@Override
 		public int compare(SchedulerComponent o1, SchedulerComponent o2) {
-			final var index1 = this.indexOfMatch(o1);
-			final var index2 = this.indexOfMatch(o2);
-
-			for (int i = 0; i < Math.max(index1.length, index2.length); i++) {
-				if (i >= index1.length) {
-					return 1;
-				}
-				if (i >= index2.length) {
-					return -1;
-				}
-				final var i1Value = index1[i];
-				final var i2Value = index2[i];
-				if (i1Value < i2Value) {
-					return -1;
-				}
-				if (i1Value > i2Value) {
-					return 1;
-				}
-			}
-			return 0;
+			return this.predefinedOrder.thenComparing(SchedulerComponent::id) //
+					.thenComparing(SchedulerComponent::factoryId) //
+					.thenComparing(SchedulerComponent::createdByAppId, Comparator.nullsLast(String::compareTo)) //
+					.compare(o1, o2);
 		}
 
 		/**
@@ -268,30 +264,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		 * @return true if the {@link SchedulerComponent} is handled by this order
 		 */
 		public boolean contains(SchedulerComponent o) {
-			return this.indexOfMatch(o).length != 0;
-		}
-
-		private final int[] indexOfMatch(SchedulerComponent o) {
-			final var iterator = this.predicates.listIterator();
-			while (iterator.hasNext()) {
-				final var index = iterator.nextIndex();
-				final var predicate = iterator.next();
-				final var result = predicate.apply(o);
-
-				if (result instanceof PositionReturnType.Next) {
-					continue;
-				}
-				if (result instanceof PositionReturnType.Remove) {
-					return EMPTY_INT_ARRAY;
-				}
-				if (result instanceof PositionReturnType.Right right) {
-					final var array = new int[right.index.length + 1];
-					array[0] = index;
-					System.arraycopy(right.index, 0, array, 1, right.index.length);
-					return array;
-				}
-			}
-			return EMPTY_INT_ARRAY;
+			return this.predefinedOrder.contains(o);
 		}
 
 	}
@@ -348,7 +321,7 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var existingIds = this.componentUtil.removeIdsWhichNotExist(
+		final var existingIds = this.componentUtil.removeIdsWhichNotExistFromComponentConfig(
 				handledIds.stream().map(SchedulerComponent::id).toList(), this.aggregateTask.getCreatedComponents());
 		handledIds.removeIf(t -> !existingIds.contains(t.id()));
 
@@ -377,10 +350,39 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var finalOrder = new ArrayList<>(schedulerIds);
-		for (final var schedulerComponent : handledIds) {
-			final var lower = handledIds.lower(schedulerComponent);
-			final var higher = handledIds.higher(schedulerComponent);
+		this.updateSchedulerOrder(user, schedulerIds, handledIds, this.getIdsToRemove(otherAppConfigurations));
+	}
+
+	@Override
+	public void fixSchedulerOrder(User user) throws OpenemsNamedException {
+		this.fixSchedulerOrder(user, Collections.emptyList());
+	}
+
+	@Override
+	public void fixSchedulerOrder(User user, List<SchedulerComponent> additionalSchedulerComponents)
+			throws OpenemsNamedException {
+		final var allSchedulerComponents = StreamSupport
+				.stream(this.appManagerUtil
+						.appConfigs(this.appManagerUtil.getInstantiatedApps(), openemsAppInstance -> true)
+						.spliterator(), false)
+				.map(t -> t.getValue().getConfiguration(SchedulerByCentralOrderAggregateTask.class)) //
+				.filter(Objects::nonNull) //
+				.flatMap(t -> t.componentOrder().stream()) //
+				.collect(Collectors.toCollection(() -> new TreeSet<>(this.order)));
+
+		allSchedulerComponents.addAll(additionalSchedulerComponents);
+
+		this.updateSchedulerOrder(user, this.componentUtil.getSchedulerIds(), allSchedulerComponents,
+				Collections.emptyList());
+	}
+
+	private void updateSchedulerOrder(User user, List<String> currentSchedulerOrder,
+			NavigableSet<SchedulerComponent> allSchedulerComponents, List<String> idsToRemove)
+			throws OpenemsNamedException {
+		final var finalOrder = new ArrayList<>(currentSchedulerOrder);
+		for (final var schedulerComponent : allSchedulerComponents) {
+			final var lower = allSchedulerComponents.lower(schedulerComponent);
+			final var higher = allSchedulerComponents.higher(schedulerComponent);
 			final var iLower = lower == null ? -1 : finalOrder.indexOf(lower.id());
 			final var i = finalOrder.indexOf(schedulerComponent.id());
 			final var iHigher = higher == null ? -1 : finalOrder.indexOf(higher.id());
@@ -399,7 +401,6 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 			}
 		}
 
-		final var idsToRemove = this.getIdsToRemove(otherAppConfigurations);
 		finalOrder.removeAll(idsToRemove);
 
 		this.componentUtil.setSchedulerComponentIds(user, finalOrder);
@@ -412,6 +413,11 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 		}
 
 		this.componentUtil.removeIdsInSchedulerIfExisting(user, this.getIdsToRemove(otherAppConfigurations));
+	}
+
+	@Override
+	public AggregateTaskExecutionConfiguration getExecutionConfiguration() {
+		return new SchedulerByCentralOrderExecutionConfiguration(this.schedulerComponents);
 	}
 
 	private List<String> getIdsToRemove(List<AppConfiguration> otherAppConfigurations) {
@@ -447,7 +453,8 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 	public void validate(//
 			final List<String> errors, //
 			final AppConfiguration appConfiguration, //
-			final SchedulerByCentralOrderConfiguration configuration //
+			final SchedulerByCentralOrderConfiguration configuration, //
+			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
 	) {
 		if (configuration.componentOrder().isEmpty()) {
 			return;
@@ -538,6 +545,21 @@ public class SchedulerByCentralOrderAggregateTaskImpl implements SchedulerByCent
 					}
 				}) //
 				.collect(groupingBy(Entry::getKey, mapping(Entry::getValue, toList())));
+	}
+
+	@Override
+	public String id() {
+		return this.getClass().getSimpleName();
+	}
+
+	@Override
+	public void buildJsonApiRoutes(JsonApiBuilder builder) {
+		builder.handleRequest(EndpointRequestType.ofEmpty("fixScheduler"), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
+		}, call -> {
+			this.fixSchedulerOrder(call.get(EdgeKeys.USER_KEY));
+			return EmptyObject.INSTANCE;
+		});
 	}
 
 }

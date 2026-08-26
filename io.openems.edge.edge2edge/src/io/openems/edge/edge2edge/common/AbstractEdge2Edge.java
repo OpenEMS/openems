@@ -1,6 +1,9 @@
 package io.openems.edge.edge2edge.common;
 
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SET_NULL_FOR_DEFAULT;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.ArrayDeque;
@@ -21,13 +24,16 @@ import org.slf4j.LoggerFactory;
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
+import io.openems.edge.bridge.modbus.api.ElementToChannelConverter;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
 import io.openems.edge.bridge.modbus.api.ModbusUtils;
 import io.openems.edge.bridge.modbus.api.element.AbstractModbusElement;
 import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
+import io.openems.edge.bridge.modbus.api.element.FloatQuadruplewordElement;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.element.SignedWordElement;
 import io.openems.edge.bridge.modbus.api.element.StringWordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.UnsignedQuadruplewordElement;
@@ -37,6 +43,12 @@ import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.modbusslave.ModbusRecord;
 import io.openems.edge.common.modbusslave.ModbusRecordChannel;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat32;
+import io.openems.edge.common.modbusslave.ModbusRecordFloat64;
+import io.openems.edge.common.modbusslave.ModbusRecordInt16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint16;
+import io.openems.edge.common.modbusslave.ModbusRecordUint32;
+import io.openems.edge.common.modbusslave.ModbusRecordUint64;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
 import io.openems.edge.common.modbusslave.ModbusType;
 import io.openems.edge.common.taskmanager.Priority;
@@ -79,7 +91,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 				return;
 			}
 
-			readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(1))
+			readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(1))
 					.thenAccept(value -> {
 						if (value == null) {
 							return;
@@ -124,7 +136,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @return a future true if it is OpenEMS; otherwise false
 	 */
 	private CompletableFuture<Boolean> isOpenems() {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0)) //
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(0)) //
 				.thenCompose(value -> completedFuture(isHashEqual(value, "OpenEMS")));
 	}
 
@@ -139,7 +151,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 		if (value == null) {
 			return false;
 		}
-		return (short) (int) value == ModbusSlaveNatureTable.generateHash(text);
+		return value.intValue() == ModbusSlaveNatureTable.generateHash(text);
 	}
 
 	@Override
@@ -161,7 +173,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	private void _findComponentBlock(CompletableFuture<Integer> result, String componentId, int startAddress) {
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(startAddress, 16)) //
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(startAddress, 16)) //
 				.thenAccept(remoteComponentId -> {
 					if (remoteComponentId == null) {
 						result.completeExceptionally(
@@ -173,7 +185,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 						result.complete(startAddress);
 						return;
 					}
-					readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull,
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
 							new UnsignedWordElement(startAddress + 16)) //
 							.thenAccept(lengthOfBlock -> {
 								this._findComponentBlock(result, componentId, startAddress + lengthOfBlock);
@@ -182,7 +194,8 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	}
 
 	private CompletableFuture<Void> readNatureBlocks(int startAddress) {
-		return readElementOnce(this.modbusProtocol, ModbusUtils::doNotRetry, new UnsignedWordElement(startAddress + 16))
+		return readElementOnce(FC3, this.modbusProtocol, ModbusUtils::doNotRetry,
+				new UnsignedWordElement(startAddress + 16)) //
 				.thenCompose(lengthOfComponentBlock ->
 				// TODO fix length of last component blocks in Slave Modbus/TCP-Api
 				this.readNatureStartAddresses(startAddress + 20,
@@ -204,7 +217,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param natureStartAddresses a map of Nature-Hashes to Modbus start addresses
 	 * @throws OpenemsException on error
 	 */
-	private void mapRemoteChannels(TreeMap<Integer, Short> natureStartAddresses) throws OpenemsException {
+	private void mapRemoteChannels(TreeMap<Integer, Integer> natureStartAddresses) throws OpenemsException {
 		var modbusSlaveNatureTables = this.modbusSlaveNatureTableMethods.stream() //
 				.map(method -> method.apply(this.remoteAccessMode)) //
 				.collect(Collectors.toUnmodifiableList());
@@ -243,7 +256,7 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 					}
 
 					if (record instanceof ModbusRecordChannel r) {
-						m(r.getChannelId(), element);
+						m(r.getChannelId(), element, getConverterForType(record.getType()));
 
 					} else {
 						var onUpdateCallback = this.getOnUpdateCallback(modbusSlaveNatureTable, record);
@@ -343,21 +356,34 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param address the address of the {@link AbstractModbusElement}
 	 * @return the {@link AbstractModbusElement}
 	 */
-	private static ModbusElement generateModbusElement(ModbusType type, int address) {
-		switch (type) {
-		case ENUM16:
-		case UINT16:
-			return new UnsignedWordElement(address);
-		case UINT32:
-			return new UnsignedDoublewordElement(address);
-		case FLOAT32:
-			return new FloatDoublewordElement(address);
-		case FLOAT64:
-			return new UnsignedQuadruplewordElement(address);
-		case STRING16:
-			return new StringWordElement(address, 16);
-		}
-		return null;
+	protected static ModbusElement generateModbusElement(ModbusType type, int address) {
+		return switch (type) {
+		case ENUM16, UINT16 -> new UnsignedWordElement(address);
+		case INT16 -> new SignedWordElement(address);
+		case UINT32 -> new UnsignedDoublewordElement(address);
+		case UINT64 -> new UnsignedQuadruplewordElement(address);
+		case FLOAT32 -> new FloatDoublewordElement(address);
+		case FLOAT64 -> new FloatQuadruplewordElement(address);
+		case STRING16 -> new StringWordElement(address, 16);
+		};
+	}
+
+	/**
+	 * Selects the appropriate converter for a given ModbusType.
+	 * 
+	 * @param type the type of the Modbus element
+	 * @return the converter
+	 */
+	protected static ElementToChannelConverter getConverterForType(ModbusType type) {
+		return switch (type) {
+		case FLOAT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat32.UNDEFINED_VALUE);
+		case FLOAT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordFloat64.UNDEFINED_VALUE);
+		case STRING16 -> DIRECT_1_TO_1; // TODO
+		case ENUM16, UINT16 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint16.UNDEFINED_VALUE);
+		case INT16 -> SET_NULL_FOR_DEFAULT(ModbusRecordInt16.UNDEFINED_VALUE);
+		case UINT32 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint32.UNDEFINED_VALUE);
+		case UINT64 -> SET_NULL_FOR_DEFAULT(ModbusRecordUint64.UNDEFINED_VALUE);
+		};
 	}
 
 	/**
@@ -373,14 +399,14 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @throws OpenemsException on error
 	 */
 	private void addReadTask(Deque<ModbusElement> elements) throws OpenemsException {
-		if (elements.isEmpty()) {
-			return;
-		}
-		while (elements.peekFirst() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekFirst() instanceof DummyRegisterElement) {
 			elements.removeFirst();
 		}
-		while (elements.peekLast() instanceof DummyRegisterElement) {
+		while (!elements.isEmpty() && elements.peekLast() instanceof DummyRegisterElement) {
 			elements.removeLast();
+		}
+		if (elements.isEmpty()) {
+			return;
 		}
 		this.modbusProtocol.addTask(//
 				new FC3ReadRegistersTask(//
@@ -411,23 +437,23 @@ public abstract class AbstractEdge2Edge extends AbstractOpenemsModbusComponent
 	 * @param lastAddress  the start address of the following Component-Block
 	 * @return a map of modbus start address to Nature-Hash
 	 */
-	private CompletableFuture<TreeMap<Integer, Short>> readNatureStartAddresses(int startAddress, int lastAddress) {
-		final var result = new CompletableFuture<TreeMap<Integer, Short>>();
+	private CompletableFuture<TreeMap<Integer, Integer>> readNatureStartAddresses(int startAddress, int lastAddress) {
+		final var result = new CompletableFuture<TreeMap<Integer, Integer>>();
 		this._readNatureStartAddresses(result, startAddress, lastAddress, new TreeMap<>());
 		return result;
 	}
 
-	private void _readNatureStartAddresses(CompletableFuture<TreeMap<Integer, Short>> result, int startAddress,
-			int lastAddress, final TreeMap<Integer, Short> natureStartAddresses) {
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(startAddress))
+	private void _readNatureStartAddresses(CompletableFuture<TreeMap<Integer, Integer>> result, int startAddress,
+			int lastAddress, final TreeMap<Integer, Integer> natureStartAddresses) {
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedWordElement(startAddress))
 				.thenAccept(rawHash -> {
 					if (rawHash == null) {
 						result.completeExceptionally(new OpenemsException("Unable to read hash at " + startAddress));
 						return;
 					}
-					var hash = (short) (int) rawHash;
+					var hash = (int) rawHash;
 
-					readElementOnce(this.modbusProtocol, ModbusUtils::doNotRetry,
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::doNotRetry,
 							new UnsignedWordElement(startAddress + 1)).thenAccept(lengthOfNatureBlock -> {
 								this.logInfo(this.log, "Found Remote-Nature '0x" + Integer.toHexString(hash & 0xffff)
 										+ "' on address " + startAddress);

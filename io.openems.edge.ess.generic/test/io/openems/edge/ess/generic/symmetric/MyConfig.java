@@ -3,6 +3,8 @@ package io.openems.edge.ess.generic.symmetric;
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.common.startstop.StartStopConfig;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
+import io.openems.edge.ess.generic.symmetric.essfaultbehaviour.EssFaultBehaviourConfig;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -12,9 +14,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private StartStopConfig startStopConfig = null;
 		private String batteryInverterId = null;
 		private String batteryId = null;
+		private EssProtectionConfig essProtection;
+		private EssFaultBehaviourConfig essFaultBehaviour = EssFaultBehaviourConfig.CHECK_ALL;
 
 		private Builder() {
-
 		}
 
 		public Builder setId(String id) {
@@ -27,6 +30,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
+		public Builder setEssProtection(EssProtectionConfig essProtection) {
+			this.essProtection = essProtection;
+			return this;
+		}
+
 		public Builder setBatteryInverterId(String batteryInverterId) {
 			this.batteryInverterId = batteryInverterId;
 			return this;
@@ -34,6 +42,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setBatteryId(String batteryId) {
 			this.batteryId = batteryId;
+			return this;
+		}
+
+		public Builder setEssFaultBehaviour(EssFaultBehaviourConfig essFaultBehaviour) {
+			this.essFaultBehaviour = essFaultBehaviour;
 			return this;
 		}
 
@@ -64,6 +77,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
+	public EssProtectionConfig essProtection() {
+		return this.builder.essProtection;
+	}
+
+	@Override
+	public EssFaultBehaviourConfig essFaultBehaviour() {
+		return this.builder.essFaultBehaviour;
+	}
+
+	@Override
 	public String batteryInverter_id() {
 		return this.builder.batteryInverterId;
 	}
@@ -82,5 +105,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public String battery_target() {
 		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.battery_id());
 	}
-
 }

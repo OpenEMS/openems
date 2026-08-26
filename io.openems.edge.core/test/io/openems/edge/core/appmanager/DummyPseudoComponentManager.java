@@ -2,6 +2,7 @@ package io.openems.edge.core.appmanager;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Dictionary;
@@ -29,17 +30,19 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.types.EdgeConfig.ActualEdgeConfig;
-import io.openems.common.types.EdgeConfig.Component;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.user.User;
+import io.openems.edge.core.appmanager.dependency.aggregatetask.ComponentDef;
 
 public class DummyPseudoComponentManager implements ComponentManager {
 
@@ -154,13 +157,13 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleCreateComponentConfigRequest(//
 			final User user, //
-			final CreateComponentConfigRequest request //
+			final CreateComponentConfig.Request request //
 	) throws OpenemsNamedException {
 
 		final var component = componentOf(//
 				request.getComponentId(), //
-				request.getFactoryPid(), //
-				request.getProperties() //
+				request.factoryPid(), //
+				request.properties() //
 		);
 
 		this.components.add(component);
@@ -169,17 +172,19 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleUpdateComponentConfigRequest(//
 			final User user, //
-			final UpdateComponentConfigRequest request //
+			final UpdateComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		final var foundComponent = this.getPossiblyDisabledComponent(request.getComponentId());
+		final var foundComponent = this.getPossiblyDisabledComponent(request.componentId());
 
 		if (foundComponent instanceof DummyOpenemsComponent) {
+			final var fullProps = new ArrayList<>(this.removeComponentsAndGetProperties(request));
+			fullProps.addAll(request.properties());
+
 			final var component = componentOf(//
-					request.getComponentId(), //
+					request.componentId(), //
 					foundComponent.serviceFactoryPid(), //
-					request.getProperties() //
+					fullProps //
 			);
-			this.components.removeIf(t -> t.id().equals(request.getComponentId()));
 			this.components.add(component);
 		}
 		if (this.configurationAdmin == null) {
@@ -191,12 +196,12 @@ public class DummyPseudoComponentManager implements ComponentManager {
 				if (props == null) {
 					continue;
 				}
-				if (props.get("id") == null || !props.get("id").equals(request.getComponentId())) {
+				if (props.get("id") == null || !props.get("id").equals(request.componentId())) {
 					continue;
 				}
 				var properties = new Hashtable<String, JsonElement>();
-				for (var property : request.getProperties()) {
-					properties.put(property.getName(), property.getValue());
+				for (var property : request.properties()) {
+					properties.put(property.name(), property.value());
 				}
 				configuration.update(properties);
 			}
@@ -208,9 +213,9 @@ public class DummyPseudoComponentManager implements ComponentManager {
 	@Override
 	public void handleDeleteComponentConfigRequest(//
 			final User user, //
-			final DeleteComponentConfigRequest request //
+			final DeleteComponentConfig.Request request //
 	) throws OpenemsNamedException {
-		this.components.removeIf(t -> t.id().equals(request.getComponentId()));
+		this.components.removeIf(t -> t.id().equals(request.componentId()));
 	}
 
 	/**
@@ -231,6 +236,35 @@ public class DummyPseudoComponentManager implements ComponentManager {
 		this.components.add(component);
 	}
 
+	/**
+	 * Adds a {@link EdgeConfig.Component} from a {@link ComponentDef}.
+	 * 
+	 * @param component the component to add
+	 */
+	public void addComponentFromComponentConfig(ComponentDef component) {
+		this.addComponent(component.toEdgeConfigComponent());
+	}
+
+	private List<UpdateComponentConfigRequest.Property> removeComponentsAndGetProperties(//
+			UpdateComponentConfig.Request request //
+	) {
+		final var componentsToDelete = this.components.stream() //
+				.filter(t -> t.id().equals(request.componentId())) //
+				.toList();
+		this.components.removeAll(componentsToDelete);
+
+		return componentsToDelete.stream() //
+				.map(t -> t instanceof DummyOpenemsComponent(EdgeConfig.Component c) ? c.getProperties()
+						: Collections.<String, JsonElement>emptyMap()) //
+				.reduce(new HashMap<>(), (hashMap, stringJsonElementMap) -> {
+					hashMap.putAll(stringJsonElementMap);
+					return hashMap;
+				}).entrySet().stream() //
+				.filter(p -> request.properties().stream().noneMatch(rp -> rp.name().equals(p.getKey()))) //
+				.map(p -> new UpdateComponentConfigRequest.Property(p.getKey(), p.getValue())) //
+				.toList();
+	}
+
 	private static OpenemsComponent componentOf(//
 			String componentId, //
 			String factoryId, //
@@ -239,14 +273,14 @@ public class DummyPseudoComponentManager implements ComponentManager {
 		final var alias = new AtomicReference<String>("");
 		final var props = properties.stream() //
 				.filter(prop -> {
-					if (prop.getName().equalsIgnoreCase("alias")) {
-						alias.set(prop.getValue().getAsString());
+					if (prop.name().equalsIgnoreCase("alias")) {
+						alias.set(prop.value().getAsString());
 						return false;
 					}
 					return true;
 				}) //
-				.collect(JsonUtils.toJsonObject(UpdateComponentConfigRequest.Property::getName,
-						UpdateComponentConfigRequest.Property::getValue));
+				.collect(JsonUtils.toJsonObject(UpdateComponentConfigRequest.Property::name,
+						UpdateComponentConfigRequest.Property::value));
 		final var component = new EdgeConfig.Component(//
 				componentId, //
 				alias.get(), //
@@ -260,14 +294,7 @@ public class DummyPseudoComponentManager implements ComponentManager {
 		this.configurationAdmin = configurationAdmin;
 	}
 
-	private static final class DummyOpenemsComponent implements OpenemsComponent {
-
-		private final EdgeConfig.Component component;
-
-		public DummyOpenemsComponent(Component component) {
-			super();
-			this.component = component;
-		}
+	private record DummyOpenemsComponent(EdgeConfig.Component component) implements OpenemsComponent {
 
 		@Override
 		public String id() {
@@ -387,6 +414,40 @@ public class DummyPseudoComponentManager implements ComponentManager {
 			return null;
 		}
 
+	}
+
+	/**
+	 * Updates the configuration of the internal <code>_host</code> component. This
+	 * method removes any existing <code>_host</code> component and recreates it
+	 * with the provided network and USB configuration values.
+	 *
+	 * @param newNetworkConfig the serialized network configuration JSON string to
+	 *                         apply to the <code>_host</code> component
+	 */
+	public void updateHostConfiguration(String newNetworkConfig) {
+		this.components.removeIf(c -> c.id().equals("_host"));
+		var newProperties = JsonUtils.buildJsonObject()//
+				.addProperty("networkConfiguration", newNetworkConfig)//
+				.addProperty("usbConfiguration", "")//
+				.build();
+		var newHostComponent = new EdgeConfig.Component(//
+				"_host", //
+				"Core Host", //
+				"Core.Host", //
+				newProperties//
+		);
+		this.components.add(new DummyOpenemsComponent(newHostComponent));
+	}
+
+	@Override
+	public Map<String, Object> getComponentProperties(String componentId) {
+		try {
+			var dic = this.getComponent(componentId).getComponentContext().getProperties();
+			return StreamUtils.dictionaryToStream(dic) //
+					.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+		} catch (OpenemsNamedException e) {
+			return Collections.emptyMap();
+		}
 	}
 
 }

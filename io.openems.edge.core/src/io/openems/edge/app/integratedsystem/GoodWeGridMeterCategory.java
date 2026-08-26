@@ -7,6 +7,7 @@ import io.openems.edge.app.enums.TranslatableEnum;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 
 public enum GoodWeGridMeterCategory implements TranslatableEnum {
+	INTEGRATED_METER("App.IntegratedSystem.gridMeterTypeGen2.option.integrated"), //
 	SMART_METER("App.IntegratedSystem.gridMeterType.option.smartMeter"), //
 	COMMERCIAL_METER("App.IntegratedSystem.gridMeterType.option.commercialMeter"), //
 	;

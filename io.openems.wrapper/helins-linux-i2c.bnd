@@ -1,0 +1,20 @@
+Bundle-Name: Helins linux-i2c lib
+Bundle-SymbolicName: io.openems.wrapper.helins-linux-i2c
+Bundle-DocURL: https://github.com/helins/linux-i2c.jav
+Bundle-License: https://opensource.org/license/mpl-2-0
+Bundle-Version: 1.0.2
+
+Include-Resource: \
+	@linux-i2c-1.0.2.jar,\
+	@linux-common-0.1.4.jar,\
+	@linux-errno-1.0.2.jar,\
+	@linux-io-0.0.4.jar,\
+
+-dsannotations: *
+
+-metatypeannotations: *
+
+Export-Package: \
+	io.helins.linux.i2c,\
+
+-sources: false

@@ -1,11 +1,15 @@
 package io.openems.edge.controller.ess.mindischargeperiod;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.GREATER_OR_EQUALS;
+import static org.osgi.service.component.annotations.ConfigurationPolicy.REQUIRE;
+
 import java.util.concurrent.TimeUnit;
 
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -21,15 +25,12 @@ import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
 		name = "Controller.Ess.MinimumDischargePower", //
 		immediate = true, //
-		configurationPolicy = ConfigurationPolicy.REQUIRE //
+		configurationPolicy = REQUIRE //
 )
 public class ControllerEssMinimumDischargePowerImpl extends AbstractOpenemsComponent
 		implements ControllerEssMinimumDischargePower, Controller, OpenemsComponent {
@@ -65,20 +66,10 @@ public class ControllerEssMinimumDischargePowerImpl extends AbstractOpenemsCompo
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		final ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return;
 		}
 
@@ -109,8 +100,8 @@ public class ControllerEssMinimumDischargePowerImpl extends AbstractOpenemsCompo
 		 * set result
 		 */
 		try {
-			ess.addPowerConstraintAndValidate("MinDischargePeriod", Phase.ALL, Pwr.ACTIVE,
-					Relationship.GREATER_OR_EQUALS, this.config.minDischargePower());
+			ess.addPowerConstraintAndValidate("MinDischargePeriod", ALL, ACTIVE, GREATER_OR_EQUALS,
+					this.config.minDischargePower());
 
 		} catch (OpenemsException e) {
 			this.logWarn(this.log, e.getMessage());

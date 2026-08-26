@@ -8,41 +8,121 @@ import java.util.stream.Collectors;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 
+import com.google.gson.JsonObject;
+
+import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.TestADependencyToC;
 import io.openems.edge.app.TestBDependencyToC;
 import io.openems.edge.app.TestC;
+import io.openems.edge.app.TestComponentDefConfig;
+import io.openems.edge.app.TestFilter;
+import io.openems.edge.app.TestForceUpdatingConfigComponent;
+import io.openems.edge.app.TestForceUpdatingConfigProperties;
+import io.openems.edge.app.TestMapPropName;
 import io.openems.edge.app.TestMultipleIds;
+import io.openems.edge.app.TestPermissions;
+import io.openems.edge.app.api.AppCleverPv;
+import io.openems.edge.app.api.AppEnerixControl;
+import io.openems.edge.app.api.ModbusRtuApiReadOnly;
+import io.openems.edge.app.api.ModbusRtuApiReadWrite;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly;
 import io.openems.edge.app.api.ModbusTcpApiReadWrite;
+import io.openems.edge.app.api.MqttApi;
 import io.openems.edge.app.api.RestJsonApiReadOnly;
 import io.openems.edge.app.api.RestJsonApiReadWrite;
 import io.openems.edge.app.api.TimedataInfluxDb;
+import io.openems.edge.app.core.AppMeta;
+import io.openems.edge.app.ess.AppSohCycle;
 import io.openems.edge.app.ess.FixActivePower;
+import io.openems.edge.app.ess.FixReactivePower;
 import io.openems.edge.app.ess.FixStateOfCharge;
+import io.openems.edge.app.ess.Limiter14a;
 import io.openems.edge.app.ess.PowerPlantController;
 import io.openems.edge.app.ess.PrepareBatteryExtension;
 import io.openems.edge.app.evcs.AlpitronicEvcs;
+import io.openems.edge.app.evcs.DezonyEvcs;
 import io.openems.edge.app.evcs.EvcsCluster;
 import io.openems.edge.app.evcs.HardyBarthEvcs;
 import io.openems.edge.app.evcs.IesKeywattEvcs;
 import io.openems.edge.app.evcs.KebaEvcs;
 import io.openems.edge.app.evcs.WebastoNextEvcs;
 import io.openems.edge.app.evcs.WebastoUniteEvcs;
+import io.openems.edge.app.evcs.readonly.AblEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.AppGoeEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.AppHardyBarthReadOnly;
+import io.openems.edge.app.evcs.readonly.HeidelbergEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.KebaEvcsReadOnly;
+import io.openems.edge.app.evcs.readonly.MennekesEvcsReadOnly;
+import io.openems.edge.app.evse.AppEvseCluster;
+import io.openems.edge.app.evse.AppKebaEvse;
+import io.openems.edge.app.evse.AppMennekesEvse;
+import io.openems.edge.app.evse.vehicle.AppGenericVehicle;
+import io.openems.edge.app.hardware.GpioHardwareType;
+import io.openems.edge.app.hardware.IoGpio;
+import io.openems.edge.app.hardware.KMtronic8Channel;
+import io.openems.edge.app.hardware.MasterBox2v0;
+import io.openems.edge.app.heat.AppHeatAskoma;
+import io.openems.edge.app.heat.AppHeatMyPv;
 import io.openems.edge.app.heat.CombinedHeatAndPower;
+import io.openems.edge.app.heat.HeatAskomaReadOnly;
+import io.openems.edge.app.heat.HeatMyPvReadOnly;
 import io.openems.edge.app.heat.HeatPump;
 import io.openems.edge.app.heat.HeatingElement;
-import io.openems.edge.app.integratedsystem.FeneconHome;
+import io.openems.edge.app.integratedsystem.FeneconHome10;
+import io.openems.edge.app.integratedsystem.FeneconHome10Gen2;
+import io.openems.edge.app.integratedsystem.FeneconHome15;
 import io.openems.edge.app.integratedsystem.FeneconHome20;
 import io.openems.edge.app.integratedsystem.FeneconHome30;
+import io.openems.edge.app.integratedsystem.FeneconHome6;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs33;
+import io.openems.edge.app.integratedsystem.FeneconMiniEs36;
+import io.openems.edge.app.integratedsystem.FeneconProHybrid10;
+import io.openems.edge.app.integratedsystem.FeneconProHybrid910;
+import io.openems.edge.app.integratedsystem.FeneconProHybridGw;
+import io.openems.edge.app.integratedsystem.SystemFeneconHome;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10;
+import io.openems.edge.app.integratedsystem.TestFeneconHome10Gen2;
+import io.openems.edge.app.integratedsystem.TestFeneconHome20;
+import io.openems.edge.app.integratedsystem.TestFeneconHome30;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial100;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial50Gen3;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterMaster;
+import io.openems.edge.app.integratedsystem.fenecon.commercial.FeneconCommercial92ClusterSlave;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.l.Ilk710;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk010;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk011;
+import io.openems.edge.app.integratedsystem.fenecon.industrial.s.Isk110;
 import io.openems.edge.app.loadcontrol.ManualRelayControl;
 import io.openems.edge.app.loadcontrol.ThresholdControl;
 import io.openems.edge.app.meter.CarloGavazziMeter;
 import io.openems.edge.app.meter.DiscovergyMeter;
+import io.openems.edge.app.meter.EastronMeter;
 import io.openems.edge.app.meter.JanitzaMeter;
-import io.openems.edge.app.meter.MicrocareSdm630Meter;
+import io.openems.edge.app.meter.KdkMeter;
+import io.openems.edge.app.meter.PhoenixContactMeter;
+import io.openems.edge.app.meter.PqPlusMeter;
+import io.openems.edge.app.meter.SiemensMeter;
 import io.openems.edge.app.meter.SocomecMeter;
+import io.openems.edge.app.meter.gridmeter.GridMeterGoodWe;
+import io.openems.edge.app.meter.gridmeter.GridMeterJanitza;
+import io.openems.edge.app.meter.gridmeter.GridMeterKdk;
+import io.openems.edge.app.meter.shelly.diy.AppShellyMeterDiy;
+import io.openems.edge.app.meter.shelly.meter.AppShellyMeter;
+import io.openems.edge.app.openemshardware.BeagleBoneBlack;
+import io.openems.edge.app.openemshardware.Compulab;
+import io.openems.edge.app.openemshardware.TechbaseCm3;
+import io.openems.edge.app.openemshardware.TechbaseCm4;
+import io.openems.edge.app.openemshardware.TechbaseCm4Max;
+import io.openems.edge.app.openemshardware.TechbaseCm4s;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen2;
+import io.openems.edge.app.openemshardware.TechbaseCm4sGen3;
 import io.openems.edge.app.peakshaving.PeakShaving;
 import io.openems.edge.app.peakshaving.PhaseAccuratePeakShaving;
+import io.openems.edge.app.peakshaving.TimeSlotPeakShaving;
+import io.openems.edge.app.prediction.AppPredictionDefault;
+import io.openems.edge.app.prediction.AppPredictionUnmanagedConsumption;
+import io.openems.edge.app.prediction.AppWeatherPrediction;
 import io.openems.edge.app.pvinverter.FroniusPvInverter;
 import io.openems.edge.app.pvinverter.KacoPvInverter;
 import io.openems.edge.app.pvinverter.KostalPvInverter;
@@ -50,19 +130,26 @@ import io.openems.edge.app.pvinverter.SmaPvInverter;
 import io.openems.edge.app.pvinverter.SolarEdgePvInverter;
 import io.openems.edge.app.pvselfconsumption.GridOptimizedCharge;
 import io.openems.edge.app.pvselfconsumption.SelfConsumptionOptimization;
+import io.openems.edge.app.timeofusetariff.AncillaryCosts;
+import io.openems.edge.app.timeofusetariff.AppLuoxEnergy;
 import io.openems.edge.app.timeofusetariff.AwattarHourly;
 import io.openems.edge.app.timeofusetariff.EntsoE;
+import io.openems.edge.app.timeofusetariff.Ews;
 import io.openems.edge.app.timeofusetariff.GroupeE;
 import io.openems.edge.app.timeofusetariff.RabotCharge;
 import io.openems.edge.app.timeofusetariff.StadtwerkHassfurt;
 import io.openems.edge.app.timeofusetariff.StromdaoCorrently;
+import io.openems.edge.app.timeofusetariff.Swisspower;
 import io.openems.edge.app.timeofusetariff.Tibber;
+import io.openems.edge.app.timeofusetariff.manual.OctopusGo;
+import io.openems.edge.app.timeofusetariff.manual.OctopusHeat;
 import io.openems.edge.common.component.ComponentManager;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 
-public class Apps {
+public final class Apps {
 
 	private Apps() {
-		super();
 	}
 
 	/**
@@ -84,13 +171,43 @@ public class Apps {
 	// Integrated Systems
 
 	/**
-	 * Test method for creating a {@link FeneconHome}.
+	 * Test method for creating a {@link FeneconHome10}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final FeneconHome feneconHome(AppManagerTestBundle t) {
-		return app(t, FeneconHome::new, "App.FENECON.Home");
+	public static final FeneconHome10 feneconHome10(AppManagerTestBundle t) {
+		return app(t, FeneconHome10::new, "App.FENECON.Home");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome6}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome6 feneconHome6(AppManagerTestBundle t) {
+		return app(t, FeneconHome6::new, "App.FENECON.Home6");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome10Gen2}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome10Gen2 feneconHome10Gen2(AppManagerTestBundle t) {
+		return app(t, FeneconHome10Gen2::new, "App.FENECON.Home10.Gen2");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconHome15}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconHome15 feneconHome15(AppManagerTestBundle t) {
+		return app(t, FeneconHome15::new, "App.FENECON.Home15");
 	}
 
 	/**
@@ -113,7 +230,167 @@ public class Apps {
 		return app(t, FeneconHome30::new, "App.FENECON.Home.30");
 	}
 
+	/**
+	 * Test method for creating a {@link FeneconCommercial50Gen3}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial50Gen3 feneconCommercial50Gen3(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial50Gen3::new, "App.FENECON.Commercial.50.Gen3");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconCommercial92}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial92 feneconCommercial92(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial92::new, "App.FENECON.Commercial.92");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconCommercial100}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial100 feneconCommercial100(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial100::new, "App.FENECON.Commercial.100");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconCommercial92ClusterMaster}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial92ClusterMaster feneconCommercial92ClusterMaster(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial92ClusterMaster::new, "App.FENECON.Commercial.92.ClusterMaster");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconCommercial92ClusterSlave}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconCommercial92ClusterSlave feneconCommercial92ClusterSlave(AppManagerTestBundle t) {
+		return app(t, FeneconCommercial92ClusterSlave::new, "App.FENECON.Commercial.92.ClusterSlave");
+	}
+
+	/**
+	 * Test method for creating a {@link Ilk710}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Ilk710 feneconIndustrialLIlk710(AppManagerTestBundle t) {
+		return app(t, Ilk710::new, "App.FENECON.Industrial.L.ILK710");
+	}
+
+	/**
+	 * Test method for creating a {@link Isk110}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk110 feneconIndustrialSIsk110(AppManagerTestBundle t) {
+		return app(t, Isk110::new, "App.FENECON.Industrial.S.ISK110");
+	}
+
+	/**
+	 * Test method for creating a {@link Isk010}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk010 feneconIndustrialSIsk010(AppManagerTestBundle t) {
+		return app(t, Isk010::new, "App.FENECON.Industrial.S.ISK010");
+	}
+
+	/**
+	 * Test method for creating a {@link Isk011}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Isk011 feneconIndustrialSIsk011(AppManagerTestBundle t) {
+		return app(t, Isk011::new, "App.FENECON.Industrial.S.ISK011");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconProHybrid10}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconProHybrid10 feneconProHybrid10(AppManagerTestBundle t) {
+		return app(t, FeneconProHybrid10::new, "App.FENECON.ProHybrid.10");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconProHybridGw}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconProHybridGw feneconProHybridGW(AppManagerTestBundle t) {
+		return app(t, FeneconProHybridGw::new, "App.FENECON.ProHybrid.GW");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconProHybrid910}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconProHybrid910 feneconProHybrid910(AppManagerTestBundle t) {
+		return app(t, FeneconProHybrid910::new, "App.FENECON.ProHybrid.9.10");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs33}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs33 feneconMiniEs33(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs33::new, "App.FENECON.Mini.ES.3.3");
+	}
+
+	/**
+	 * Test method for creating a {@link FeneconMiniEs36}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FeneconMiniEs36 feneconMiniEs36(AppManagerTestBundle t) {
+		return app(t, FeneconMiniEs36::new, "App.FENECON.Mini.ES.3.6");
+	}
+
 	// TimeOfUseTariff
+
+	/**
+	 * Test method for creating a {@link AncillaryCosts}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AncillaryCosts ancillaryCosts(AppManagerTestBundle t) {
+		return app(t, AncillaryCosts::new, "App.TimeOfUseTariff.AncillaryCosts");
+	}
+
+	/**
+	 * Test method for creating a {@link AppLuoxEnergy}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppLuoxEnergy luoxEnergy(AppManagerTestBundle t) {
+		return app(t, AppLuoxEnergy::new, "App.TimeOfUseTariff.LuoxEnergy");
+	}
 
 	/**
 	 * Test method for creating a {@link AwattarHourly}.
@@ -136,6 +413,16 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link Ews}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Ews ews(AppManagerTestBundle t) {
+		return app(t, Ews::new, "App.TimeOfUseTariff.Ews");
+	}
+
+	/**
 	 * Test method for creating a {@link GroupeE}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -146,6 +433,26 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link OctopusGo}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusGo octopusGo(AppManagerTestBundle t) {
+		return app(t, OctopusGo::new, "App.TimeOfUseTariff.OctopusGo");
+	}
+
+	/**
+	 * Test method for creating a {@link OctopusHeat}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final OctopusHeat octopusHeat(AppManagerTestBundle t) {
+		return app(t, OctopusHeat::new, "App.TimeOfUseTariff.OctopusHeat");
+	}
+
+	/**
 	 * Test method for creating a {@link StadtwerkHassfurt}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -153,6 +460,16 @@ public class Apps {
 	 */
 	public static final StadtwerkHassfurt stadtwerkHassfurt(AppManagerTestBundle t) {
 		return app(t, StadtwerkHassfurt::new, "App.TimeOfUseTariff.Hassfurt");
+	}
+
+	/**
+	 * Test method for creating a {@link Swisspower}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Swisspower swisspower(AppManagerTestBundle t) {
+		return app(t, Swisspower::new, "App.TimeOfUseTariff.Swisspower");
 	}
 
 	/**
@@ -185,7 +502,145 @@ public class Apps {
 		return app(t, Tibber::new, "App.TimeOfUseTariff.Tibber");
 	}
 
-	// Test
+	/**
+	 * Test method for creating a {@link BeagleBoneBlack}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final BeagleBoneBlack beagleBoneBlack(AppManagerTestBundle t) {
+		return app(t, BeagleBoneBlack::new, "App.OpenemsHardware.BeagleBoneBlack");
+	}
+
+	/**
+	 * Test method for creating a {@link Compulab}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Compulab compulab(AppManagerTestBundle t) {
+		return app(t, Compulab::new, "App.OpenemsHardware.Compulab");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm3}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm3 techbaseCm3(AppManagerTestBundle t) {
+		return app(t, TechbaseCm3::new, "App.OpenemsHardware.CM3");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4 techbaseCm4(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4::new, "App.OpenemsHardware.CM4");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4Max}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4Max techbaseCm4Max(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4Max::new, "App.OpenemsHardware.CM4Max");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4s}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4s techbaseCm4s(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4s::new, "App.OpenemsHardware.CM4S");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4sGen2}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4sGen2 techbaseCm4sGen2(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4sGen2::new, "App.OpenemsHardware.CM4S.Gen2");
+	}
+
+	/**
+	 * Test method for creating a {@link TechbaseCm4sGen3}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TechbaseCm4sGen3 techbaseCm4sGen3(AppManagerTestBundle t) {
+		return app(t, TechbaseCm4sGen3::new, "App.OpenemsHardware.CM4S.Gen3");
+	}
+
+	/**
+	 * Test method for creating a {@link TestPermissions}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestPermissions testPermissions(AppManagerTestBundle t) {
+		return app(t, TestPermissions::new, "App.Test.TestPermissions");
+	}
+
+	/**
+	 * Test method for creating a {@link TestFilter}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestFilter testFilter(AppManagerTestBundle t) {
+		return app(t, TestFilter::new, "App.Test.TestFilter");
+	}
+
+	/**
+	 * Test method for creating a {@link TestMapPropName}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestMapPropName testMapPropName(AppManagerTestBundle t) {
+		return app(t, TestMapPropName::new, "App.Test.TestMapPropName");
+	}
+
+	/**
+	 * Test method for creating a {@link TestComponentDefConfig}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestComponentDefConfig testComponentDefConfig(AppManagerTestBundle t) {
+		return app(t, TestComponentDefConfig::new, "App.Test.TestComponentDefConfig");
+	}
+
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigComponent}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestForceUpdatingConfigComponent testForceUpdatingConfigComponent(AppManagerTestBundle t) {
+		return app(t, TestForceUpdatingConfigComponent::new, "App.Test.TestForceUpdatingConfigComponent");
+	}
+
+	/**
+	 * Test method for creating a {@link TestForceUpdatingConfigProperties}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TestForceUpdatingConfigProperties testForceUpdatingConfigProperties(AppManagerTestBundle t) {
+		return app(t, TestForceUpdatingConfigProperties::new, "App.Test.TestForceUpdatingConfigProperties");
+	}
 
 	/**
 	 * Test method for creating a {@link TestADependencyToC}.
@@ -230,6 +685,26 @@ public class Apps {
 	// Api
 
 	/**
+	 * Test method for creating a {@link AppEnerixControl}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppEnerixControl enerixControl(AppManagerTestBundle t) {
+		return app(t, AppEnerixControl::new, "App.Cloud.EnerixControl");
+	}
+
+	/**
+	 * Test method for creating a {@link AppCleverPv}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppCleverPv cleverPv(AppManagerTestBundle t) {
+		return app(t, AppCleverPv::new, "App.Cloud.Clever-PV");
+	}
+
+	/**
 	 * Test method for creating a {@link ModbusTcpApiReadOnly}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -247,6 +722,36 @@ public class Apps {
 	 */
 	public static final ModbusTcpApiReadWrite modbusTcpApiReadWrite(AppManagerTestBundle t) {
 		return app(t, ModbusTcpApiReadWrite::new, "App.Api.ModbusTcp.ReadWrite");
+	}
+
+	/**
+	 * Test method for creating a {@link MqttApi}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MqttApi mqttApi(AppManagerTestBundle t) {
+		return app(t, MqttApi::new, "App.Api.Mqtt");
+	}
+
+	/**
+	 * Test method for creating a {@link ModbusRtuApiReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadOnly modbusRtuApiReadOnly(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadOnly::new, "App.Api.ModbusRtu.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link ModbusRtuApiReadWrite}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final ModbusRtuApiReadWrite modbusRtuApiReadWrite(AppManagerTestBundle t) {
+		return app(t, ModbusRtuApiReadWrite::new, "App.Api.ModbusRtu.ReadWrite");
 	}
 
 	/**
@@ -269,16 +774,48 @@ public class Apps {
 		return app(t, RestJsonApiReadWrite::new, "App.Api.RestJson.ReadWrite");
 	}
 
+	// core
+
+	/**
+	 * Test method for creating a {@link AppMeta}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static OpenemsApp meta(AppManagerTestBundle t) {
+		return app(t, AppMeta::new, "App.Core.Meta");
+	}
+
 	// Evcs
 
 	/**
-	 * Test method for creating a {@link RestJsonApiReadOnly}.
+	 * Test method for creating a {@link DezonyEvcs}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final DezonyEvcs dezony(AppManagerTestBundle t) {
+		return app(t, DezonyEvcs::new, "App.Evcs.Dezony");
+	}
+
+	/**
+	 * Test method for creating a {@link HardyBarthEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final HardyBarthEvcs hardyBarthEvcs(AppManagerTestBundle t) {
 		return app(t, HardyBarthEvcs::new, "App.Evcs.HardyBarth");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHardyBarthReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHardyBarthReadOnly hardyBarthEvcsReadOnly(AppManagerTestBundle t) {
+		return app(t, AppHardyBarthReadOnly::new, "App.Evcs.HardyBarth.ReadOnly");
 	}
 
 	/**
@@ -292,6 +829,56 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link KebaEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KebaEvcsReadOnly kebaEvcsReadonly(AppManagerTestBundle t) {
+		return app(t, KebaEvcsReadOnly::new, "App.Evcs.Keba.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppGoeEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppGoeEvcsReadOnly goeEvcs(AppManagerTestBundle t) {
+		return app(t, AppGoeEvcsReadOnly::new, "App.Evcs.Goe.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link MennekesEvcsReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MennekesEvcsReadOnly mennekesEvcsReadOnlyEvcs(AppManagerTestBundle t) {
+		return app(t, MennekesEvcsReadOnly::new, "App.Evcs.Mennekes.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppMennekesEvse}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppMennekesEvse mennekesEvse(AppManagerTestBundle t) {
+		return app(t, AppMennekesEvse::new, AppMennekesEvse.APP_EVSE_MENNEKES);
+	}
+
+	/**
+	 * Test method for creating a {@link HeidelbergEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeidelbergEvcsReadOnly heidelbergEvcsReadOnlyEvcs(AppManagerTestBundle t) {
+		return app(t, HeidelbergEvcsReadOnly::new, "App.Evcs.Heidelberg.ReadOnly");
+	}
+
+	/**
 	 * Test method for creating a {@link IesKeywattEvcs}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -302,6 +889,36 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppKebaEvse}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppKebaEvse kebaEvse(AppManagerTestBundle t) {
+		return app(t, AppKebaEvse::new, "App.Evse.ChargePoint.Keba");
+	}
+
+	/**
+	 * Test method for creating a {@link AppEvseCluster}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppEvseCluster clusterEvse(AppManagerTestBundle t) {
+		return app(t, AppEvseCluster::new, "App.Evse.Controller.Cluster");
+	}
+
+	/**
+	 * Test method for creating a {@link AppGenericVehicle}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppGenericVehicle genericVehicle(AppManagerTestBundle t) {
+		return app(t, AppGenericVehicle::new, "App.Evse.ElectricVehicle.Generic");
+	}
+
+	/**
 	 * Test method for creating a {@link TimedataInfluxDb}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -309,6 +926,16 @@ public class Apps {
 	 */
 	public static final TimedataInfluxDb timedataInfluxDb(AppManagerTestBundle t) {
 		return app(t, TimedataInfluxDb::new, "App.Timedata.InfluxDb");
+	}
+
+	/**
+	 * Test method for creating a {@link AblEvcsReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AblEvcsReadOnly ablEvcs(AppManagerTestBundle t) {
+		return app(t, AblEvcsReadOnly::new, "App.Evcs.Abl.ReadOnly");
 	}
 
 	/**
@@ -351,6 +978,38 @@ public class Apps {
 		return app(t, EvcsCluster::new, "App.Evcs.Cluster");
 	}
 
+	// Hardware
+
+	/**
+	 * Test method for creating a {@link KMtronic8Channel}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KMtronic8Channel kmtronic8Channel(AppManagerTestBundle t) {
+		return app(t, KMtronic8Channel::new, "App.Hardware.KMtronic8Channel");
+	}
+
+	/**
+	 * Test method for creating a {@link IoGpio}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final IoGpio ioGpio(AppManagerTestBundle t) {
+		return app(t, IoGpio::new, "App.Hardware.IoGpio");
+	}
+
+	/**
+	 * Test method for creating a {@link MasterBox2v0}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final MasterBox2v0 masterBox2v0(AppManagerTestBundle t) {
+		return app(t, MasterBox2v0::new, "App.Hardware.MasterBox2v0");
+	}
+
 	// Heat
 
 	/**
@@ -361,6 +1020,16 @@ public class Apps {
 	 */
 	public static final HeatPump heatPump(AppManagerTestBundle t) {
 		return app(t, HeatPump::new, "App.Heat.HeatPump");
+	}
+
+	/**
+	 * Test method for creating a {@link PeakShaving}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final TimeSlotPeakShaving timeSlotPeakShaving(AppManagerTestBundle t) {
+		return app(t, TimeSlotPeakShaving::new, "App.PeakShaving.TimeSlotPeakShaving");
 	}
 
 	/**
@@ -393,6 +1062,16 @@ public class Apps {
 	 */
 	public static final GridOptimizedCharge gridOptimizedCharge(AppManagerTestBundle t) {
 		return app(t, GridOptimizedCharge::new, "App.PvSelfConsumption.GridOptimizedCharge");
+	}
+
+	/**
+	 * Test method for creating a {@link SystemFeneconHome}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SystemFeneconHome stateLed(AppManagerTestBundle t) {
+		return app(t, SystemFeneconHome::new, "App.System.Fenecon.Home");
 	}
 
 	/**
@@ -430,17 +1109,57 @@ public class Apps {
 	// Meter
 
 	/**
+	 * Test method for creating a {@link AppShellyMeterDiy}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppShellyMeterDiy shellyMeterDiy(AppManagerTestBundle t) {
+		return app(t, AppShellyMeterDiy::new, "App.Meter.Shelly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppShellyMeter}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppShellyMeter shellyMeterPaid(AppManagerTestBundle t) {
+		return app(t, AppShellyMeter::new, "App.Meter.Shelly.Meter");
+	}
+
+	/**
 	 * Test method for creating a {@link SocomecMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
 	public static final SocomecMeter socomecMeter(AppManagerTestBundle t) {
-		return app(t, SocomecMeter::new, "App.Meter.Socomec");
+		return app(t, SocomecMeter::new, SocomecMeter.APP_METER_SOCOMEC);
 	}
 
 	/**
-	 * Test method for creating a {@link DiscoveregyMeter}.
+	 * Test method for creating a {@link SiemensMeter}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final SiemensMeter siemensMeter(AppManagerTestBundle t) {
+		return app(t, SiemensMeter::new, "App.Meter.Siemens");
+	}
+
+	/**
+	 * Test method for creating a {@link KdkMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final KdkMeter kdkMeter(AppManagerTestBundle t) {
+		return app(t, KdkMeter::new, "App.Meter.Kdk");
+	}
+
+	/**
+	 * Test method for creating a {@link DiscovergyMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
@@ -470,13 +1189,63 @@ public class Apps {
 	}
 
 	/**
-	 * Test method for creating a {@link MicrocareSdm630Meter}.
+	 * Test method for creating a {@link GridMeterJanitza}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterJanitza janitzaGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterJanitza::new, "App.GridMeter.Janitza");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterGoodWe}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterGoodWe goodWeGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterGoodWe::new, "App.GridMeter.GoodWe");
+	}
+
+	/**
+	 * Test method for creating a {@link GridMeterKdk}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final GridMeterKdk kdkGridMeter(AppManagerTestBundle t) {
+		return app(t, GridMeterKdk::new, "App.GridMeter.Kdk");
+	}
+
+	/**
+	 * Test method for creating a {@link PqPlusMeter}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
 	 * @return the {@link OpenemsApp} instance
 	 */
-	public static final MicrocareSdm630Meter microcareSdm630Meter(AppManagerTestBundle t) {
-		return app(t, MicrocareSdm630Meter::new, "App.Meter.Microcare.Sdm630");
+	public static final PqPlusMeter pqPlusMeter(AppManagerTestBundle t) {
+		return app(t, PqPlusMeter::new, "App.Meter.PqPlus");
+	}
+
+	/**
+	 * Test method for creating a {@link EastronMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final EastronMeter eastronMeter(AppManagerTestBundle t) {
+		return app(t, EastronMeter::new, "App.Meter.Eastron");
+	}
+
+	/**
+	 * Test method for creating a {@link PhoenixContactMeter}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final PhoenixContactMeter phoenixContactMeter(AppManagerTestBundle t) {
+		return app(t, PhoenixContactMeter::new, "App.Meter.PhoenixContact");
 	}
 
 	// PV-Inverter
@@ -566,6 +1335,16 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link FixReactivePower}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final FixReactivePower fixReactivePower(AppManagerTestBundle t) {
+		return app(t, FixReactivePower::new, "App.Ess.FixReactivePower");
+	}
+
+	/**
 	 * Test method for creating a {@link FixStateOfCharge}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -586,6 +1365,16 @@ public class Apps {
 	}
 
 	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle sohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
+	}
+
+	/**
 	 * Test method for creating a {@link PowerPlantController}.
 	 * 
 	 * @param t the {@link AppManagerTestBundle}
@@ -595,15 +1384,155 @@ public class Apps {
 		return app(t, PowerPlantController::new, "App.Ess.PowerPlantController");
 	}
 
+	/**
+	 * Test method for creating a {@link Limiter14a}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final Limiter14a limiter14a(AppManagerTestBundle t) {
+		return app(t, Limiter14a::new, "App.Ess.Limiter14a");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatMyPvReadOnly}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatMyPvReadOnly heatMyPvReadOnly(AppManagerTestBundle t) {
+		return app(t, HeatMyPvReadOnly::new, "App.Heat.MyPv.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHeatMyPv}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHeatMyPv heatMyPv(AppManagerTestBundle t) {
+		return app(t, AppHeatMyPv::new, "App.Heat.MyPv");
+	}
+
+	/**
+	 * Test method for creating a {@link HeatAskomaReadOnly}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final HeatAskomaReadOnly heatAskomaReadOnly(AppManagerTestBundle t) {
+		return app(t, HeatAskomaReadOnly::new, "App.Heat.Askoma.ReadOnly");
+	}
+
+	/**
+	 * Test method for creating a {@link AppHeatAskoma}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppHeatAskoma heatAskoma(AppManagerTestBundle t) {
+		return app(t, AppHeatAskoma::new, "App.Heat.Askoma");
+	}
+
+	/**
+	 * Test method for creating a {@link AppPredictionDefault}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionDefault predictionDefault(AppManagerTestBundle t) {
+		return app(t, AppPredictionDefault::new, "App.Prediction.Default");
+	}
+
+	/**
+	 * Test method for creating a {@link AppPredictionUnmanagedConsumption}.
+	 * 
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppPredictionUnmanagedConsumption predictionUnmanagedConsumption(AppManagerTestBundle t) {
+		return app(t, AppPredictionUnmanagedConsumption::new, "App.Prediction.UnmanagedConsumption");
+	}
+
+	/**
+	 * Test method for creating a {@link AppWeatherPrediction}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static final AppWeatherPrediction weatherPrediction(AppManagerTestBundle t) {
+		return app(t, AppWeatherPrediction::new, "App.Prediction.Weather");
+	}
+
+	/**
+	 * Test method for creating a {@link AppSohCycle}.
+	 *
+	 * @param t the {@link AppManagerTestBundle}
+	 * @return the {@link OpenemsApp} instance
+	 */
+	public static AppSohCycle appSohCycle(AppManagerTestBundle t) {
+		return app(t, AppSohCycle::new, AppSohCycle.APP_ESS_SOH_CYCLE);
+	}
+
+	/**
+	 * Gets the minimum configuration of an app for easily creating instances in
+	 * tests.
+	 * 
+	 * @param appId the id of the {@link OpenemsApp}
+	 * @return the configuration to create an instance
+	 */
+	public static JsonObject getMinConfig(String appId) {
+		return switch (appId) {
+		case "App.FENECON.Home" -> TestFeneconHome10.minSettings();
+		case "App.FENECON.Home.20" -> TestFeneconHome20.minSettings();
+		case "App.FENECON.Home.30" -> TestFeneconHome30.minSettings();
+		case "App.FENECON.Home6" -> TestFeneconHome10Gen2.minSettings();
+		case "App.FENECON.Home10.Gen2" -> TestFeneconHome10Gen2.minSettings();
+		case "App.FENECON.Home15" -> TestFeneconHome10Gen2.minSettings();
+		case "App.Hardware.IoGpio" -> JsonUtils.buildJsonObject() //
+				.addProperty("HARDWARE_TYPE", GpioHardwareType.MODBERRY_X500_M40804_WB) //
+				.build();
+		default -> new JsonObject();
+		};
+	}
+
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructor<T> constructor, String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtilAndHost<T> constructor,
+			String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil, t.host);
 	}
 
 	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithAppUtil<T> constructor,
 			String appId) {
 		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
 				t.componentUtil, t.appManagerUtil);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHostAndMeta<T> constructor,
+			String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.host, t.meta);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithHost<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.host);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t, DefaultAppConstructorWithMeta<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.meta);
+	}
+
+	private static final <T> T app(AppManagerTestBundle t,
+			DefaultAppConstructorWithHostAndMetaAndAppUtil<T> constructor, String appId) {
+		return constructor.create(t.componentManger, AppManagerTestBundle.getComponentContext(appId), t.cm,
+				t.componentUtil, t.appManagerUtil, t.host, t.meta);
 	}
 
 	private static interface DefaultAppConstructor<A> {
@@ -617,6 +1546,39 @@ public class Apps {
 
 		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
 				ComponentUtil componentUtil, AppManagerUtil util);
+
+	}
+
+	private static interface DefaultAppConstructorWithAppUtilAndHost<A> {
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host);
+	}
+
+	private static interface DefaultAppConstructorWithMeta<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHost<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host);
+
+	}
+
+	private static interface DefaultAppConstructorWithHostAndMeta<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, Host host, Meta meta);
+
+	}
+
+	private static interface DefaultAppConstructorWithHostAndMetaAndAppUtil<A> {
+
+		public A create(ComponentManager componentManager, ComponentContext componentContext, ConfigurationAdmin cm,
+				ComponentUtil componentUtil, AppManagerUtil util, Host host, Meta meta);
 
 	}
 

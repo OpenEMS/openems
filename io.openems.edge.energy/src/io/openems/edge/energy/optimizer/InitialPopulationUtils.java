@@ -1,122 +1,99 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.optimizer.Utils.findFirstPeakIndex;
-import static io.openems.edge.energy.optimizer.Utils.findFirstValleyIndex;
+import static io.jenetics.util.ISeq.toISeq;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.math.Quantiles;
+import com.google.common.collect.Lists;
 
-import io.jenetics.Genotype;
-import io.jenetics.IntegerChromosome;
 import io.jenetics.IntegerGene;
-import io.openems.edge.controller.ess.timeofusetariff.StateMachine;
-import io.openems.edge.energy.optimizer.Params.OptimizePeriod;
+import io.jenetics.engine.EvolutionInit;
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation;
+import io.openems.edge.energy.api.handler.DifferentModes.InitialPopulation.Transition;
+import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
+import io.openems.edge.energy.optimizer.ModeCombinations.ModeCombination;
 
+/**
+ * This class helps finding good initial populations.
+ */
 public class InitialPopulationUtils {
 
 	private InitialPopulationUtils() {
 	}
 
 	/**
-	 * Builds an initial population:
+	 * Generate initial population.
 	 * 
-	 * <ol>
-	 * <li>Schedule with all periods BALANCING
-	 * <li>Schedule from currently existing Schedule, i.e. the bestGenotype of last
-	 * optimization run
-	 * </ol>
-	 * 
-	 * <p>
-	 * NOTE: providing an "all periods BALANCING" Schedule as first Genotype makes
-	 * sure, that this one wins in case there are other results with same cost, e.g.
-	 * when battery never gets empty anyway.
-	 * 
-	 * @param p the {@link Params}
-	 * @return the {@link Genotype}
+	 * @param codec the {@link EshCodec}
+	 * @return a {@link EvolutionInit}
 	 */
-	public static ImmutableList<Genotype<IntegerGene>> buildInitialPopulation(Params p) {
-		var states = List.of(p.states());
-		if (!states.contains(BALANCING)) {
-			throw new IllegalArgumentException("State option BALANCING is always required!");
-		}
-
-		var b = ImmutableList.<Genotype<IntegerGene>>builder(); //
-
-		// All BALANCING
-		b.add(Genotype.of(//
-				IntStream.range(0, p.optimizePeriods().size()) //
-						.map(i -> states.indexOf(BALANCING)) //
-						.mapToObj(state -> IntegerChromosome.of(IntegerGene.of(state, 0, p.states().length))) //
-						.toList()));
-
-		if (p.existingSchedule().values().stream() //
-				.anyMatch(s -> s != BALANCING)) {
-			// Existing Schedule if available
-			b.add(Genotype.of(//
-					p.optimizePeriods().stream() //
-							.map(op -> Optional.ofNullable(p.existingSchedule().get(op.time())).orElse(BALANCING))
-							.map(state -> IntegerChromosome.of(IntegerGene.of(//
-									toIndex(states, state), 0, p.states().length))) //
-							.toList()));
-		}
-
-		// Suggest different combinations of CHARGE_GRID and DELAY_CHARGE
-		{
-			var prices = p.optimizePeriods().stream() //
-					.mapToDouble(OptimizePeriod::price) //
-					.toArray();
-			var peakIndex = findFirstPeakIndex(findFirstValleyIndex(0, prices), prices);
-			var firstPrices = Arrays.stream(prices).limit(peakIndex).toArray();
-			final BiConsumer<Integer, Integer> addInitialGenotype = (chargeGridPercentile,
-					delayDischargePercentile) -> b.add(generateInitialGenotype(p.optimizePeriods().size(), firstPrices,
-							states, chargeGridPercentile, delayDischargePercentile));
-			if (firstPrices.length > 0 && states.contains(CHARGE_GRID) && states.contains(DELAY_DISCHARGE)) {
-				addInitialGenotype.accept(5, 50);
-				addInitialGenotype.accept(5, 75);
-				addInitialGenotype.accept(10, 50);
-				addInitialGenotype.accept(10, 75);
+	public static EvolutionInit<IntegerGene> generateInitialPopulation(EshCodec codec) {
+		final var result = new ArrayList<InitialPopulation.Transition>();
+		final var previousSchedule = getScheduleFromPreviousResult(codec);
+		final Consumer<InitialPopulation.Transition> addToResult = (ip) -> {
+			if (ip == null) {
+				return;
 			}
+			applyIsCurrentPeriodFixed(ip, previousSchedule.modeIndexes()[0],
+					codec.isFirstPeriodFixedSupplier.getAsBoolean());
+			result.add(ip);
+		};
+
+		// All Default
+		addToResult.accept(generateAllDefault(codec.goc));
+		// From Previous Schedule
+		addToResult.accept(previousSchedule);
+
+		// Cartesian Product of initial Populations provided by EnergyScheduleHandlers
+		Lists.cartesianProduct(codec.goc.eshsWithDifferentModes().stream() //
+				.map(esh -> esh.getInitialPopulation(codec.goc)) //
+				.toList()).stream() //
+				.forEach(ips -> {
+					final var length = ips.stream() //
+							.mapToInt(ip -> ip.modeIndexes().length).min();
+					if (length.isEmpty()) {
+						return;
+					}
+					addToResult.accept(new Transition(IntStream.range(0, length.getAsInt()) //
+							.mapToObj(i -> IntStream.range(0, ips.size()) //
+									.map(j -> ips.get(j).modeIndexes()[i]) //
+									.toArray()) //
+							.map(arr -> codec.modeCombinations.getFromModeIndexesOrDefault(arr)) //
+							.mapToInt(ModeCombination::index) //
+							.toArray()));
+				});
+
+		return EvolutionInit.of(result.stream() //
+				.map(InitialPopulation.Transition::modeIndexes) //
+				.map(codec::encode) //
+				.distinct() //
+				.collect(toISeq()), 1 /* first generation */);
+	}
+
+	protected static InitialPopulation.Transition getScheduleFromPreviousResult(EshCodec codec) {
+		return new InitialPopulation.Transition(codec.goc.periods().stream() //
+				.map(p -> codec.previousResultSupplier.get().periods().entrySet().stream() //
+						.filter(e -> e.getKey().isEqual(p.time())) //
+						.map(e -> e.getValue().modeCombination()) //
+						.map(codec.modeCombinations::getMatchingOrDefault) //
+						.findFirst() //
+						.orElse(codec.modeCombinations.getDefault())) //
+				.mapToInt(ModeCombination::index) //
+				.toArray());
+	}
+
+	private static void applyIsCurrentPeriodFixed(InitialPopulation.Transition ip, int previousCurrentPeriod,
+			boolean isCurrentPeriodFixed) {
+		if (isCurrentPeriodFixed) {
+			ip.modeIndexes()[0] = previousCurrentPeriod;
 		}
-
-		return b.build();
 	}
 
-	private static int toIndex(List<StateMachine> states, StateMachine state) {
-		var result = states.indexOf(state);
-		if (result != -1) {
-			return result;
-		}
-		return states.indexOf(BALANCING);
+	protected static InitialPopulation.Transition generateAllDefault(GlobalOptimizationContext goc) {
+		return new InitialPopulation.Transition(goc.periods().stream() //
+				.mapToInt(p -> 0) // Index "0" is default Mode for all ESHs
+				.toArray()); //
 	}
-
-	private static Genotype<IntegerGene> generateInitialGenotype(int numberOfPeriods, double[] prices,
-			List<StateMachine> states, int chargeGridPercentile, int delayDischargePercentile) {
-		var percentiles = Quantiles.percentiles().indexes(chargeGridPercentile, delayDischargePercentile)
-				.compute(prices);
-		return Genotype.of(//
-				IntStream.range(0, numberOfPeriods) //
-						.mapToObj(i -> {
-							if (i >= prices.length) {
-								return BALANCING;
-							}
-							var price = prices[i];
-							return price <= percentiles.get(chargeGridPercentile) //
-									? CHARGE_GRID //
-									: price <= percentiles.get(delayDischargePercentile) //
-											? DELAY_DISCHARGE //
-											: BALANCING;
-						}) //
-						.map(state -> IntegerChromosome.of(IntegerGene.of(toIndex(states, state), 0, states.size()))) //
-						.toList());
-	}
-
 }

@@ -65,7 +65,11 @@ public class WsData extends io.openems.common.websocket.WsData {
 	}
 
 	@Override
-	public String toString() {
-		return "B2bWebsocket.WsData [user=" + this.user.getNow(null) + "]";
+	public String toLogString() {
+		var user = this.user.getNow(null);
+		var userId = user == null //
+				? "UNDEFINED" //
+				: user.getId();
+		return "B2bWebsocket.WsData [user=" + userId + "]";
 	}
 }

@@ -1,54 +1,39 @@
 package io.openems.edge.ess.generic.symmetric.statemachine;
 
-import java.time.Duration;
-import java.time.Instant;
-
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.timedata.Timeout;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.ess.generic.common.GenericManagedEss;
 import io.openems.edge.ess.generic.symmetric.statemachine.StateMachine.State;
 
 public class StopBatteryInverterHandler extends StateHandler<State, Context> {
 
-	private Instant lastAttempt = Instant.MIN;
-	private int attemptCounter = 0;
+	private final Timeout timeout = Timeout.ofSeconds(GenericManagedEss.TIMEOUT);
 
 	@Override
 	protected void onEntry(Context context) throws OpenemsNamedException {
-		this.lastAttempt = Instant.MIN;
-		this.attemptCounter = 0;
-		var ess = context.getParent();
-		ess._setMaxBatteryInverterStopAttemptsFault(false);
+		this.timeout.start(context.clock);
 	}
 
 	@Override
 	public State runAndGetNextState(Context context) throws OpenemsNamedException {
-		var ess = context.getParent();
+		final var ess = context.getParent();
+
+		if (context.hasEssFaults()) {
+			return State.ERROR;
+		}
 
 		if (context.batteryInverter.isStopped()) {
 			return State.STOP_BATTERY;
 		}
 
-		var isMaxStartTimePassed = Duration.between(this.lastAttempt, Instant.now())
-				.getSeconds() > GenericManagedEss.RETRY_COMMAND_SECONDS;
-		if (!isMaxStartTimePassed) {
-			// Still waiting...
-			return State.STOP_BATTERY_INVERTER;
+		// Is max allowed start time passed ?
+		if (this.timeout.elapsed(context.clock)) {
+			ess._setTimeoutStopBatteryInverter(true);
+			return State.ERROR;
 		}
-		if (this.attemptCounter > GenericManagedEss.RETRY_COMMAND_MAX_ATTEMPTS) {
-			// Too many tries
-			ess._setMaxBatteryInverterStopAttemptsFault(true);
-			return State.UNDEFINED;
 
-		} else {
-			// Trying to stop Battery Inverter
-			context.batteryInverter.stop();
-
-			this.lastAttempt = Instant.now();
-			this.attemptCounter++;
-			return State.STOP_BATTERY_INVERTER;
-
-		}
+		context.batteryInverter.stop();
+		return State.STOP_BATTERY_INVERTER;
 	}
-
 }

@@ -1,7 +1,7 @@
 package io.openems.edge.ess.samsung.ess;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.edge.ess.power.api.Phase;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {
@@ -9,7 +9,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	protected static class Builder {
 		private String id;
 		private String ip;
-		private Phase phase;
+		private SingleOrAllPhase phase;
 		private int capacity;
 
 		private Builder() {
@@ -25,7 +25,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setPhase(Phase phase) {
+		public Builder setPhase(SingleOrAllPhase phase) {
 			this.phase = phase;
 			return this;
 		}
@@ -62,7 +62,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public Phase phase() {
+	public SingleOrAllPhase phase() {
 		return this.builder.phase;
 	}
 

@@ -2,11 +2,21 @@ export enum GridMode {
     UNDEFINED = 0,
     ON_GRID = 1,
     OFF_GRID = 2,
+    GENERATOR = 3,
 }
 export enum Mode {
-    MANUAL_ON = 'MANUAL_ON',
-    MANUAL_OFF = 'MANUAL_OFF',
-    AUTOMATIC = 'AUTOMATIC',
+    MANUAL_ON = "MANUAL_ON",
+    MANUAL_OFF = "MANUAL_OFF",
+    AUTOMATIC = "AUTOMATIC",
+    MANUAL = "MANUAL",
+    ON = "ON",
+    OFF = "OFF",
+    CHARGE_ONCE = "CHARGE_ONCE",
+    DISCHARGE_ONCE = "DISCHARGE_ONCE",
+}
+export enum EnerixControlMode {
+    OFF = "OFF",
+    REMOTE_CONTROL = "REMOTE_CONTROL",
 }
 export const ChartAnnotationState = {
     ON: 1,
@@ -14,6 +24,18 @@ export const ChartAnnotationState = {
     OFF_HIDDEN: null,
 };
 export enum WorkMode {
-    TIME = 'TIME',
-    NONE = 'NONE',
+    TIME = "TIME",
+    NONE = "NONE",
+    ENERGY = "ENERGY",
+    TEMPERATURE = "TEMPERATURE",
+}
+export enum EnabledDisabledState {
+    DISABLED = 0,
+    ENABLED = 1,
+}
+export enum OverrideStatus {
+    ACTIVE = 0,
+    INACTIVE = 1,
+    ERROR = 2,
+    DONE = 3,
 }

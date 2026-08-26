@@ -21,7 +21,7 @@ import io.openems.common.jsonrpc.base.JsonrpcNotification;
  * }
  * </pre>
  */
-public class ResendDataNotification extends AbstractDataNotification {
+public final class ResendDataNotification extends AbstractDataNotification {
 
 	public static final String METHOD = "resendData";
 

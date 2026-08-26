@@ -1,7 +1,6 @@
 = Edge Architecture
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc
@@ -103,7 +102,7 @@ image::scheduler-ess-priority.png[Prioritization of ESS power setpoints]
 
 == Cycle
 
-The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.core/src/io/openems/edge/core/cycle/Cycle.java[Cycle component icon:code[]]. It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
+The input-process-output model in OpenEMS Edge is executed in a Cycle - implemented by the link:https://github.com/OpenEMS/openems/blob/develop/io.openems.edge.core/src/io/openems/edge/core/cycle/CycleImpl.java[Cycle component icon:code[]]. It handles the setting of a process image in the input phase and executes the Controllers in the process phase. Furthermore it emits Cycle Events that can be used in other Components to synchronize with the Cycle.  
 
 .OpenEMS Edge Cycle
 image::edge-cycle.png[OpenEMS Edge Cycle]
@@ -116,10 +115,11 @@ To avoid these situations and relieve the programmer from taking care of all kin
 The idea is to untie the producers and consumers of data and introducing a central buffer for all channel data. This buffer - the Process Image - is updated only once in every computing cycle when it activates the latest data in each Channel.
 
 Therefore, the implementation of channel objects in OpenEMS has two data variables:
+
 - The `value` field keeping the currently active value that should be used by consumers
 - The `nextValue` field representing the latest data that was received, e.g. via Modbus communication.
 
-At - and only at - 'Switch Process Image' of the Cycle, the `nextValue` gets copied to the `value` field.
+At -- and only at -- 'Switch Process Image' of the Cycle, the `nextValue` gets copied to the `value` field.
 This assures, that the data in the Process Image does not change during a computing Cycle.
 
 == Asynchronous threads and Cycle synchronization
@@ -139,3 +139,38 @@ The following scheme shows the abstraction of hardware via Channels, Natures and
 
 .Architecture scheme 
 image::device-nature-channel-scheduler-controller.png[Architecture scheme]
+
+== Nature
+
+Physical hardware is abstracted in OpenEMS Edge using _Natures_. A Nature defines a set of characteristics and attributes which need to be provided by each OpenEMS component that implements it. These characteristics are defined by Channels. For example an implementation of an `Ess` (Energy Storage System), needs to provide an `Soc`-Channel (State of charge of the battery).
+
+Technically Natures are implemented as OSGi API Bundles.
+
+Each .api bundle contains the nature interfaces that device implementations must implement. For example, `io.openems.edge.ess.api` defines interfaces like `SymmetricEss`, `AsymmetricEss`, `ManagedSymmetricEss`, etc.
+
+OpenEMS Edge provides the following types of Natures:
+
+=== Device Natures
+e.g.:
+
+- io.openems.edge.battery.api - Battery interfaces
+- io.openems.edge.batteryinverter.api - Battery inverter interfaces
+- io.openems.edge.ess.api - Energy Storage System interfaces
+- io.openems.edge.evcs.api - EV Charging Station interfaces (deprecated)
+- io.openems.edge.evse.api - EV Supply Equipment interfaces
+- io.openems.edge.meter.api - Power meter interfaces
+- io.openems.edge.pvinverter.api - PV inverter interfaces
+- io.openems.edge.io.api - IO device interfaces
+- io.openems.edge.heat.api - Heat pump interfaces
+- io.openems.edge.thermometer.api - Thermometer interfaces
+
+=== Service/Support Natures
+e.g.:
+
+- io.openems.edge.controller.api - Controller interfaces
+- io.openems.edge.scheduler.api - Scheduler interfaces
+- io.openems.edge.timedata.api - Time-series data interfaces
+- io.openems.edge.timeofusetariff.api - Dynamic pricing interfaces
+- io.openems.edge.predictor.api - Forecasting interfaces
+- io.openems.edge.weather.api - Weather service interfaces
+- io.openems.edge.energy.api - Energy management interfaces

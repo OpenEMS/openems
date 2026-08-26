@@ -3,28 +3,40 @@ package io.openems.edge.io.shelly.shellypro3em;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.DebugMode;
+import io.openems.common.types.MeterType;
 
-@ObjectClassDefinition(
-		name = "IO Shelly Pro 3EM", //
+@ObjectClassDefinition(name = "IO Shelly Pro 3EM", //
 		description = "Implements the Shelly Pro 3EM Energy Meter.")
 @interface Config {
 
 	@AttributeDefinition(name = "Component-ID", description = "Unique ID of this Component")
-	String id() default "meter0"; 
+	String id() default "meter0";
 
 	@AttributeDefinition(name = "Alias", description = "Human-readable name of this Component; defaults to Component-ID")
-	String alias() default ""; 
+	String alias() default "";
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
-	boolean enabled() default true; 
+	boolean enabled() default true;
 
-	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption") 
-	MeterType type() default MeterType.GRID; 
+	@AttributeDefinition(name = "Meter-Type", description = "Grid, Production (=default), Consumption")
+	MeterType type() default MeterType.GRID;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.", required = false)
 	String ip();
 
-	String webconsole_configurationFactory_nameHint() default "IO Shelly Pro 3EM [{id}]"; 
+	@AttributeDefinition(name = "MDNS Name", required = false)
+	String mdnsName() default "";
+
+	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
+	boolean invert() default false;
+
+	@AttributeDefinition(name = "Device type validation", description = "If enabled and type is wrong no values will be read from the device.")
+	boolean validateDevice() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode.")
+	DebugMode debugMode() default DebugMode.OFF;
+
+	String webconsole_configurationFactory_nameHint() default "IO Shelly Pro 3EM [{id}]";
 
 }

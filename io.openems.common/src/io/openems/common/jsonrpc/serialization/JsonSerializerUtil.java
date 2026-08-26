@@ -1,13 +1,23 @@
 package io.openems.common.jsonrpc.serialization;
 
-import java.util.function.Function;
+import static io.openems.common.utils.FunctionUtils.lazySingleton;
 
-import com.google.common.base.Supplier;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
+import io.openems.common.utils.JsonUtils;
 
 public final class JsonSerializerUtil {
+
+	private static final Logger LOG = LoggerFactory.getLogger(JsonSerializerUtil.class);
 
 	/**
 	 * Creates a {@link JsonSerializer} for a empty {@link JsonObject}.
@@ -20,6 +30,33 @@ public final class JsonSerializerUtil {
 			Supplier<T> object //
 	) {
 		return jsonObjectSerializer(json -> object.get(), json -> new JsonObject());
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for a {@link String}.
+	 * 
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static JsonSerializer<String> stringSerializer() {
+		return jsonSerializer(String.class, JsonElementPath::getAsString, JsonPrimitive::new);
+	}
+
+	/**
+	 * Returns a {@link JsonSerializer} for an enum value located at the provided
+	 * key in a {@link JsonObject}.
+	 *
+	 * @param <T>       the enum type
+	 * @param name      the key of the enum value in the json object
+	 * @param enumClass the enum class
+	 * @return the created {@link JsonSerializer}
+	 */
+	public static <T extends Enum<T>> JsonSerializer<T> enumSerializerFromObjectNullable(String name,
+			Class<T> enumClass) {
+		return jsonObjectSerializer(//
+				json -> json.getOptionalEnum(name, enumClass).orElse(null), //
+				enumValue -> JsonUtils.buildJsonObject() //
+						.addProperty(name, enumValue.name()) //
+						.build());
 	}
 
 	/**
@@ -115,9 +152,7 @@ public final class JsonSerializerUtil {
 			Function<JsonElementPath, T> toObjMapper, //
 			Function<T, JsonElement> toJsonMapper //
 	) {
-		final var path = new JsonElementPathDummy();
-		toObjMapper.apply(path);
-		return new SimpleJsonSerializer<T>(new SerializerDescriptor(path), toJsonMapper, toObjMapper);
+		return new SimpleJsonSerializer<>(toJsonMapper, toObjMapper);
 	}
 
 	private JsonSerializerUtil() {
@@ -125,21 +160,20 @@ public final class JsonSerializerUtil {
 
 	private static final class SimpleJsonSerializer<T> implements JsonSerializer<T> {
 
-		private final SerializerDescriptor descriptor;
+		private final Supplier<SerializerDescriptor> descriptor;
 		private final Function<T, JsonElement> serialize;
 		private final Function<JsonElementPath, T> deserialize;
 
-		public SimpleJsonSerializer(SerializerDescriptor descriptor, Function<T, JsonElement> serialize,
-				Function<JsonElementPath, T> deserialize) {
+		public SimpleJsonSerializer(Function<T, JsonElement> serialize, Function<JsonElementPath, T> deserialize) {
 			super();
-			this.descriptor = descriptor;
+			this.descriptor = lazySingleton(this::createSerializerDescriptor);
 			this.serialize = serialize;
 			this.deserialize = deserialize;
 		}
 
 		@Override
 		public SerializerDescriptor descriptor() {
-			return this.descriptor;
+			return this.descriptor.get();
 		}
 
 		@Override
@@ -150,6 +184,16 @@ public final class JsonSerializerUtil {
 		@Override
 		public T deserializePath(JsonElementPath a) {
 			return this.deserialize.apply(a);
+		}
+
+		private SerializerDescriptor createSerializerDescriptor() {
+			final var path = new JsonElementPathDummy.JsonElementPathDummyNonNull();
+			try {
+				this.deserialize.apply(path);
+			} catch (RuntimeException e) {
+				LOG.error("Unexpected error while trying to create SerializerDescriptor", e);
+			}
+			return new SerializerDescriptor(path);
 		}
 
 	}

@@ -5,6 +5,7 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.channel.Level;
 import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.common.session.Language;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.types.OptionsEnum;
 import io.openems.edge.common.channel.internal.AbstractDoc;
@@ -110,7 +111,7 @@ public interface Doc {
 	public Unit getUnit();
 
 	/**
-	 * Gets the Persistence Priority. Defaults to VERY_LOW.
+	 * Gets the Persistence Priority for remote stored/send values. Defaults to LOW.
 	 *
 	 * <p>
 	 * This parameter may be used by persistence services to decide, if the Channel
@@ -118,7 +119,18 @@ public interface Doc {
 	 *
 	 * @return the {@link PersistencePriority}
 	 */
-	public PersistencePriority getPersistencePriority();
+	public PersistencePriority getRemotePersistencePriority();
+
+	/**
+	 * Gets the Persistence Priority for local stored values. Defaults to LOW.
+	 *
+	 * <p>
+	 * This parameter may be used by persistence services to decide, if the Channel
+	 * should be persisted to the hard disk.
+	 *
+	 * @return the {@link PersistencePriority}
+	 */
+	public PersistencePriority getLocalPersistencePriority();
 
 	/**
 	 * Sets the descriptive text. Defaults to an empty string.
@@ -134,6 +146,23 @@ public interface Doc {
 	 * @return the text
 	 */
 	public String getText();
+
+	/**
+	 * Gets the translated text. Defaults to empty String.
+	 *
+	 * @param lang language to get translated text
+	 * @return the text
+	 */
+	public String getText(Language lang);
+
+	/**
+	 * Sets the translation key.
+	 *
+	 * @param channelKey the translationKey of the channel
+	 * @param clazz      the class of the channel parent
+	 * @return myself
+	 */
+	public Doc translationKey(Class<?> clazz, String channelKey);
 
 	/**
 	 * Is the more verbose debug mode activated?.
@@ -153,5 +182,4 @@ public interface Doc {
 	 */
 	public <C extends Channel<?>> C createChannelInstance(OpenemsComponent component,
 			io.openems.edge.common.channel.ChannelId channelId);
-
 }

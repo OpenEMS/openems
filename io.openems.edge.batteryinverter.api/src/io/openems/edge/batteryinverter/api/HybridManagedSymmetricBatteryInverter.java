@@ -1,10 +1,13 @@
 package io.openems.edge.batteryinverter.api;
 
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.CUMULATED_WATT_HOURS;
+import static io.openems.common.channel.Unit.WATT;
+import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import org.osgi.annotation.versioning.ProviderType;
 
-import io.openems.common.channel.PersistencePriority;
-import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.LongReadChannel;
@@ -37,11 +40,11 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * i.e. the power that is actually charged to or discharged from the battery.
 		 * </ul>
 		 */
-		DC_DISCHARGE_POWER(Doc.of(OpenemsType.INTEGER) //
-				.unit(Unit.WATT) //
-				.text(POWER_DOC_TEXT) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		DC_DISCHARGE_POWER(Doc.of(INTEGER)//
+				.unit(WATT)//
+				.translationKey(HybridManagedSymmetricBatteryInverter.class, "activePower")//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * DC Charge Energy.
 		 *
@@ -51,10 +54,10 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		DC_CHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		),
+		DC_CHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH)),
+
 		/**
 		 * DC Discharge Energy.
 		 *
@@ -64,10 +67,9 @@ public interface HybridManagedSymmetricBatteryInverter
 		 * <li>Unit: Wh
 		 * </ul>
 		 */
-		DC_DISCHARGE_ENERGY(Doc.of(OpenemsType.LONG) //
-				.unit(Unit.CUMULATED_WATT_HOURS) //
-				.persistencePriority(PersistencePriority.HIGH) //
-		);
+		DC_DISCHARGE_ENERGY(Doc.of(LONG)//
+				.unit(CUMULATED_WATT_HOURS)//
+				.persistencePriority(HIGH));
 
 		private final Doc doc;
 

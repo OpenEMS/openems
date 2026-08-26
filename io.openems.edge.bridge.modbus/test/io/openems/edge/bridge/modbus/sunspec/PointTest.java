@@ -4,10 +4,10 @@ import static io.openems.common.channel.AccessMode.READ_ONLY;
 import static io.openems.common.channel.ChannelCategory.OPENEMS_TYPE;
 import static io.openems.common.channel.PersistencePriority.VERY_LOW;
 import static io.openems.common.channel.Unit.AMPERE;
-import static io.openems.common.types.OpenemsType.INTEGER;
-import static org.junit.Assert.assertEquals;
+import static io.openems.common.types.OpenemsType.FLOAT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.bridge.modbus.sunspec.Point.ChannelIdPoint;
 
@@ -20,9 +20,9 @@ public class PointTest {
 		var doc = channelId.doc();
 		assertEquals(READ_ONLY, doc.getAccessMode());
 		assertEquals(OPENEMS_TYPE, doc.getChannelCategory());
-		assertEquals(VERY_LOW, doc.getPersistencePriority());
+		assertEquals(VERY_LOW, doc.getLocalPersistencePriority());
 		assertEquals("Amps. AC Current", doc.getText());
-		assertEquals(INTEGER, doc.getType());
+		assertEquals(FLOAT, doc.getType());
 		assertEquals(AMPERE, doc.getUnit());
 	}
 

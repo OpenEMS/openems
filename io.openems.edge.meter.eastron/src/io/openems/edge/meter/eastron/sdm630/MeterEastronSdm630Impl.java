@@ -1,20 +1,22 @@
 package io.openems.edge.meter.eastron.sdm630;
 
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT_1_TO_1;
+import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.INVERT_IF_TRUE;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_3;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.nio.ByteOrder;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -22,6 +24,8 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
+import io.openems.common.types.MeterType;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
@@ -30,13 +34,14 @@ import io.openems.edge.bridge.modbus.api.element.DummyRegisterElement;
 import io.openems.edge.bridge.modbus.api.element.FloatDoublewordElement;
 import io.openems.edge.bridge.modbus.api.element.WordOrder;
 import io.openems.edge.bridge.modbus.api.task.FC4ReadInputRegistersTask;
+import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.modbusslave.ModbusSlave;
 import io.openems.edge.common.modbusslave.ModbusSlaveTable;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
+import io.openems.edge.meter.api.PhaseRotation;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
 import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
@@ -51,24 +56,28 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("Modbus")
 public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent implements MeterEastronSdm630,
 		ElectricityMeter, ModbusComponent, OpenemsComponent, ModbusSlave, TimedataProvider, EventHandler {
 
-	private final CalculateEnergyFromPower calculateProductionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY);
-	private final CalculateEnergyFromPower calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
-			ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY);
+	private CalculateEnergyFromPower calculateProductionEnergy;
+	private CalculateEnergyFromPower calculateConsumptionEnergy;
 
 	private MeterType meterType = MeterType.PRODUCTION;
+	private boolean invert;
+
+	private Config config;
 
 	@Reference
-	private ConfigurationAdmin cm;
+	private ComponentManager cma;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata;
 
 	@Override
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.modbus_id})(enabled=true))")
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -88,10 +97,15 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		this.meterType = config.type();
-		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
-				"Modbus", config.modbus_id())) {
-			return;
-		}
+		this.invert = config.invert();
+		this.config = config;
+
+		this.calculateProductionEnergy = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, this.cma.getClock());
+		this.calculateConsumptionEnergy = new CalculateEnergyFromPower(this,
+				ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, this.cma.getClock());
+
+		super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId());
 	}
 
 	@Override
@@ -108,57 +122,58 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 	@Override
 	protected ModbusProtocol defineModbusProtocol() {
 		final var offset = 30001;
+		var phaseRotation = this.getPhaseRotation();
 		return new ModbusProtocol(this, //
 				new FC4ReadInputRegistersTask(30001 - offset, Priority.HIGH,
-						m(ElectricityMeter.ChannelId.VOLTAGE_L1,
+						m(phaseRotation.channelVoltageL1(),
 								new FloatDoublewordElement(30001 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L2,
+						m(phaseRotation.channelVoltageL2(),
 								new FloatDoublewordElement(30003 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.VOLTAGE_L3,
+						m(phaseRotation.channelVoltageL3(),
 								new FloatDoublewordElement(30005 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L1,
+						m(phaseRotation.channelCurrentL1(),
 								new FloatDoublewordElement(30007 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L2,
+						m(phaseRotation.channelCurrentL2(),
 								new FloatDoublewordElement(30009 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.CURRENT_L3,
+						m(phaseRotation.channelCurrentL3(),
 								new FloatDoublewordElement(30011 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
 								SCALE_FACTOR_3),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L1,
+						m(phaseRotation.channelActivePowerL1(),
 								new FloatDoublewordElement(30013 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L2,
+								INVERT_IF_TRUE(this.invert)),
+						m(phaseRotation.channelActivePowerL2(),
 								new FloatDoublewordElement(30015 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
-						m(ElectricityMeter.ChannelId.ACTIVE_POWER_L3,
+								INVERT_IF_TRUE(this.invert)),
+						m(phaseRotation.channelActivePowerL3(),
 								new FloatDoublewordElement(30017 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30019 - offset, 30024 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L1,
 								new FloatDoublewordElement(30025 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L2,
 								new FloatDoublewordElement(30027 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER_L3,
 								new FloatDoublewordElement(30029 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30031 - offset, 30048 - offset),
 						m(ElectricityMeter.ChannelId.CURRENT,
 								new FloatDoublewordElement(30049 - offset).wordOrder(WordOrder.MSWLSW)
@@ -168,12 +183,12 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 						m(ElectricityMeter.ChannelId.ACTIVE_POWER,
 								new FloatDoublewordElement(30053 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30055 - offset, 30060 - offset),
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER,
 								new FloatDoublewordElement(30061 - offset).wordOrder(WordOrder.MSWLSW)
 										.byteOrder(ByteOrder.BIG_ENDIAN),
-								DIRECT_1_TO_1),
+								INVERT_IF_TRUE(this.invert)),
 						new DummyRegisterElement(30063 - offset, 30070 - offset),
 						m(ElectricityMeter.ChannelId.FREQUENCY,
 								new FloatDoublewordElement(30071 - offset).wordOrder(WordOrder.MSWLSW)
@@ -214,8 +229,15 @@ public class MeterEastronSdm630Impl extends AbstractOpenemsModbusComponent imple
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
+			this.calculateEnergy();
 		}
+		}
+	}
+
+	@Override
+	public PhaseRotation getPhaseRotation() {
+		return this.config.phaseRotation();
 	}
 
 	/**

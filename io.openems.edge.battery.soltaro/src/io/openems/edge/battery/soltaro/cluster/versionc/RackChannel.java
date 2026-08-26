@@ -463,27 +463,27 @@ public enum RackChannel {
 	LEVEL1_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 			.text("Total Voltage High Alarm Level 1")), //
 	// Alarm Level 2
-	LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+	LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 			.text("Discharge Temperature Low Alarm Level 2")), //
-	LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 			.text("Discharge Temperature High Alarm Level 2")), //
-	LEVEL2_INSULATION_VALUE(Doc.of(Level.FAULT) //
+	LEVEL2_INSULATION_VALUE(Doc.of(Level.WARNING) //
 			.text("Insulation Value Failure Alarm Level 2")), //
-	LEVEL2_POWER_POLE_TEMP_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_POWER_POLE_TEMP_HIGH(Doc.of(Level.WARNING) //
 			.text("Power Pole temperature too high Alarm Level 2")), //
-	LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+	LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 			.text("Cell Charge Temperature Low Alarm Level 2")), //
-	LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 			.text("Charge Temperature High Alarm Level 2")), //
-	LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 			.text("Discharge Current High Alarm Level 2")), //
-	LEVEL2_TOTAL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+	LEVEL2_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 			.text("Total Voltage Low Alarm Level 2")), //
-	LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+	LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 			.text("Cell Voltage Low Alarm Level 2")), //
-	LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 			.text("Charge Current High Alarm Level 2")), //
-	LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+	LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 			.text("Total Voltage High Alarm Level 2")), //
 	LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.INFO) //
 			.text("Cell Voltage High Alarm Level 2")), //

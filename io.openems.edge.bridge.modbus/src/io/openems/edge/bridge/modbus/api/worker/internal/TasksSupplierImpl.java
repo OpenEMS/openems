@@ -1,24 +1,39 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.openems.common.types.Tuple2;
+import io.openems.edge.bridge.modbus.api.Config.LogHandler;
 import io.openems.edge.bridge.modbus.api.ModbusProtocol;
+import io.openems.edge.bridge.modbus.api.element.ModbusElement;
 import io.openems.edge.bridge.modbus.api.task.ReadTask;
 import io.openems.edge.bridge.modbus.api.task.Task;
 import io.openems.edge.bridge.modbus.api.task.WriteTask;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.common.taskmanager.TasksManager;
-import io.openems.edge.common.type.Tuple;
 
 /**
  * Supplies Tasks.
  */
 public class TasksSupplierImpl implements TasksSupplier {
+
+	private final Logger log = LoggerFactory.getLogger(TasksSupplierImpl.class);
+	private final Supplier<LogHandler> logHandler;
+
+	public TasksSupplierImpl(Supplier<LogHandler> logHandler) {
+		this.logHandler = logHandler;
+	}
 
 	/**
 	 * Source-ID -> TasksManager for {@link Task}s.
@@ -28,25 +43,48 @@ public class TasksSupplierImpl implements TasksSupplier {
 	/**
 	 * Queue of LOW priority {@link ReadTask}s.
 	 */
-	private final Queue<Tuple<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
+	private final Queue<Tuple2<String, ReadTask>> nextLowPriorityTasks = new LinkedList<>();
 
 	/**
-	 * Adds the protocol.
-	 *
-	 * @param sourceId Component-ID of the source
-	 * @param protocol the ModbusProtocol
+	 * Adds (or replaces) the protocol identified by its sourceId.
+	 * 
+	 * <p>
+	 * If a protocol with the same sourceId existed before,
+	 * {@link #removeProtocol(String, Consumer)} is called internally first.
+	 * 
+	 * @param sourceId   Component-ID of the source
+	 * @param protocol   the ModbusProtocol
+	 * @param invalidate invalidates the given {@link ModbusElement}s after read
+	 *                   errors
 	 */
-	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol) {
+	public synchronized void addProtocol(String sourceId, ModbusProtocol protocol,
+			Consumer<ModbusElement[]> invalidate) {
+		this.removeProtocol(sourceId, invalidate); // remove if sourceId exists
+
+		this.traceLog(() -> "Add Protocol for " //
+				+ "[" + sourceId + "] with " //
+				+ "[" + protocol.getTaskManager().countTasks() + "] tasks");
 		this.taskManagers.put(sourceId, protocol.getTaskManager());
 	}
 
 	/**
-	 * Removes the protocol.
+	 * Removes the protocol and invalidates all {@link ModbusElement}s.
 	 *
-	 * @param sourceId Component-ID of the source
+	 * @param sourceId   Component-ID of the source
+	 * @param invalidate invalidates the given {@link ModbusElement}s after read
+	 *                   errors
 	 */
-	public synchronized void removeProtocol(String sourceId) {
-		this.taskManagers.remove(sourceId);
+	public synchronized void removeProtocol(String sourceId, Consumer<ModbusElement[]> invalidate) {
+		var taskManager = this.taskManagers.remove(sourceId);
+		if (taskManager == null) {
+			return;
+		}
+
+		this.traceLog(() -> "Remove Protocol for " //
+				+ "[" + sourceId + "] with " //
+				+ "[" + taskManager.countTasks() + "] tasks");
+		taskManager.getTasks() //
+				.forEach(t -> invalidate.accept(t.getElements()));
 		this.nextLowPriorityTasks.removeIf(t -> t.a() == sourceId);
 	}
 
@@ -84,15 +122,23 @@ public class TasksSupplierImpl implements TasksSupplier {
 				componentTasks.clear();
 			}
 		});
-		return new CycleTasks(//
+
+		var result = new CycleTasks(//
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						// Sort HIGH priority to the end
-						.sorted((a, b) -> b.getPriority().compareTo(a.getPriority())) //
+						// Sort HIGH priority to the end. Make sure to send requests to same unit in order.
+						.sorted(Comparator.comparing(Task::getPriority).reversed() //
+								.thenComparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)),
 				tasks.values().stream().flatMap(LinkedList::stream) //
 						.filter(WriteTask.class::isInstance).map(WriteTask.class::cast) //
+						.sorted(Comparator.comparing(Task::getUnitId)) //
 						.collect(Collectors.toCollection(LinkedList::new)));
+
+		this.traceLog(() -> "Getting " //
+				+ "[" + result.reads().size() + "] read and " //
+				+ "[" + result.writes().size() + "] write tasks for this Cycle");
+		return result;
 	}
 
 	/**
@@ -100,26 +146,21 @@ public class TasksSupplierImpl implements TasksSupplier {
 	 *
 	 * @return the next task; null if there is no available task
 	 */
-	private synchronized Tuple<String, ReadTask> getOneLowPriorityReadTask() {
-		var refilledBefore = false;
-		while (true) {
-			var task = this.nextLowPriorityTasks.poll();
-			if (task != null) {
-				return task;
-			}
-			if (refilledBefore) {
-				// queue had been refilled before, but still cannot find a matching task -> quit
-				return null;
-			}
-			// refill the queue
-			this.taskManagers.forEach((id, taskManager) -> {
-				taskManager.getTasks(Priority.LOW).stream() //
-						.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
-						.map(t -> new Tuple<String, ReadTask>(id, t)) //
-						.forEach(this.nextLowPriorityTasks::add);
-			});
-			refilledBefore = true;
+	private synchronized Tuple2<String, ReadTask> getOneLowPriorityReadTask() {
+		var task = this.nextLowPriorityTasks.poll();
+		if (task != null) {
+			return task;
 		}
+
+		// refill the queue
+		this.taskManagers.forEach((id, taskManager) -> {
+			taskManager.getTasks(Priority.LOW).stream() //
+					.filter(ReadTask.class::isInstance).map(ReadTask.class::cast) //
+					.map(t -> new Tuple2<String, ReadTask>(id, t)) //
+					.forEach(this.nextLowPriorityTasks::add);
+		});
+
+		return this.nextLowPriorityTasks.poll();
 	}
 
 	@Override
@@ -127,5 +168,9 @@ public class TasksSupplierImpl implements TasksSupplier {
 		return this.taskManagers.values().stream() //
 				.mapToInt(m -> m.countTasks()) //
 				.sum();
+	}
+
+	private void traceLog(Supplier<String> message) {
+		this.logHandler.get().trace(this.log, message);
 	}
 }

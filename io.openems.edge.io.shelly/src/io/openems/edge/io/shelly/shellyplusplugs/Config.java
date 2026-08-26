@@ -3,8 +3,9 @@ package io.openems.edge.io.shelly.shellyplusplugs;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.common.types.DebugMode;
+import io.openems.common.types.MeterType;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Plus Plug S", //
@@ -19,15 +20,27 @@ import io.openems.edge.meter.api.SinglePhase;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Phase", description = "Which Phase is this Shelly Plug connected to?")
 	SinglePhase phase() default SinglePhase.L1;
 
-	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.")
+	@AttributeDefinition(name = "MDNS Name", required = false)
+	String mdnsName();
+
+	@AttributeDefinition(name = "IP-Address", description = "The IP address of the Shelly device.", required = false)
 	String ip();
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
+
+	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
+	boolean invert() default false;
+
+	@AttributeDefinition(name = "Device type validation", description = "If enabled and type is wrong no values will be read from the device.")
+	boolean validateDevice() default false;
+
+	@AttributeDefinition(name = "Debug Mode", description = "Activates the debug mode.")
+	DebugMode debugMode() default DebugMode.OFF;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus Plug S [{id}]";
 }

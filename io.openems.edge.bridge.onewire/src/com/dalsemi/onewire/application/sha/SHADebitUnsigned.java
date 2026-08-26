@@ -887,16 +887,12 @@ public class SHADebitUnsigned extends SHATransaction {
 	 */
 	@Override
 	public synchronized int getParameter(int type) {
-		switch (type) {
-		case DEBIT_AMOUNT:
-			return this.debitAmount;
-		case INITIAL_AMOUNT:
-			return this.initialAmount;
-		case USER_BALANCE:
-			return this.userBalance;
-		default:
-			return -1;
-		}
+		return switch (type) {
+		case DEBIT_AMOUNT -> this.debitAmount;
+		case INITIAL_AMOUNT -> this.initialAmount;
+		case USER_BALANCE -> this.userBalance;
+		default -> -1;
+		};
 	}
 
 	/**

@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -85,8 +84,9 @@ public class ManualRelayControl extends
 		// Properties
 		ALIAS(alias()), //
 		OUTPUT_CHANNEL(AppDef.copyOfGeneric(relayContactDef(1), def -> def//
-				.setTranslatedLabelWithAppPrefix(".outputChannel.label") //
-				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description"))), //
+				.setTranslatedLabelWithAppPrefix(".outputChannel.label")//
+				.setTranslatedDescriptionWithAppPrefix(".outputChannel.description"))//
+				.setRequired(true)), //
 		;
 
 		private final AppDef<? super ManualRelayControl, ? super Property, ? super ManualRelayControlParameter> def;
@@ -110,11 +110,18 @@ public class ManualRelayControl extends
 		public Function<GetParameterValues<ManualRelayControl>, ManualRelayControlParameter> getParamter() {
 			return t -> {
 				final var isHomeInstalled = PropsUtil.isHomeInstalled(t.app.appManagerUtil);
+				final var deviceHardware = t.app.appManagerUtil //
+						.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 				return new ManualRelayControlParameter(//
 						createResourceBundle(t.language), //
 						createPhaseInformation(t.app.componentUtil, 2, //
-								List.of(RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true)), //
+								List.of(//
+										RelayProps.feneconHomeFilter(t.language, isHomeInstalled, true, deviceHardware), //
+										RelayProps.techbaseCm4Gen3Filter(t.language, true, deviceHardware), //
+										RelayProps.gpioFilter(), //
+										RelayProps.shellyFilter() //
+				), //
 								List.of(PreferredRelay.of(4, new int[] { 1 }), //
 										PreferredRelay.of(8, new int[] { 1 }))) //
 				);
@@ -159,21 +166,20 @@ public class ManualRelayControl extends
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
-	}
-
-	@Override
 	public OpenemsAppCategory[] getCategories() {
 		return new OpenemsAppCategory[] { OpenemsAppCategory.LOAD_CONTROL };
 	}
 
 	@Override
 	public ValidatorConfig.Builder getValidateBuilder() {
+		final var deviceHardware = this.appManagerUtil
+				.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 		return ValidatorConfig.create() //
-				.setInstallableCheckableConfigs(checkRelayCount(1, CheckRelayCountFilters.feneconHome(true)));
+				.setInstallableCheckableConfigs(checkRelayCount(1, //
+						CheckRelayCountFilters.feneconHome(true, deviceHardware), //
+						CheckRelayCountFilters.techbaseCm4sGen3(true, deviceHardware), //
+						CheckRelayCountFilters.gpio(), //
+						CheckRelayCountFilters.shelly()));
 	}
 
 	@Override

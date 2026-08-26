@@ -5,7 +5,7 @@ import static io.openems.common.channel.AccessMode.WRITE_ONLY;
 import static io.openems.edge.common.modbusslave.ModbusType.UINT16;
 import static org.junit.Assert.assertArrayEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.types.OpenemsType;
@@ -19,11 +19,11 @@ public class ModbusRecordChannelTest {
 	private class DummyComponent extends AbstractOpenemsComponent implements OpenemsComponent {
 
 		public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-			WRITE_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			WRITE_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(WRITE_ONLY)),
-			READ_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			READ_ONLY_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(AccessMode.READ_ONLY)),
-			READ_WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER) //
+			READ_WRITE_CHANNEL(Doc.of(OpenemsType.INTEGER)//
 					.accessMode(READ_WRITE)); //
 
 			private final Doc doc;
@@ -64,13 +64,23 @@ public class ModbusRecordChannelTest {
 				.withReadOnlyChannel(100) //
 				.withReadWriteChannel(200);
 
-		assertArrayEquals(ModbusRecordUint16.UNDEFINED_VALUE,
-				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.WRITE_ONLY_CHANNEL, READ_WRITE)
+		assertArrayEquals(ModbusRecordUint16.UNDEFINED_BYTE_ARRAY,
+				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.WRITE_ONLY_CHANNEL, READ_WRITE, null)
 						.getValue(component));
 
 		assertArrayEquals(ModbusRecordUint16.toByteArray(100),
-				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.READ_ONLY_CHANNEL, READ_WRITE)
+				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.READ_ONLY_CHANNEL, READ_WRITE, null)
 						.getValue(component));
+	}
+
+	@Test
+	public void testGetValueWithMapper() {
+		var component = new DummyComponent("foo0") //
+				.withReadOnlyChannel(100);
+
+		assertArrayEquals(ModbusRecordUint16.toByteArray(200),
+				new ModbusRecordChannel(0, UINT16, DummyComponent.ChannelId.READ_ONLY_CHANNEL, READ_WRITE,
+						value -> value.intValue() * 2).getValue(component));
 	}
 
 }

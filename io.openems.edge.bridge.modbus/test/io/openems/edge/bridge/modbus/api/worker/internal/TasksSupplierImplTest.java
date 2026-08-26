@@ -1,16 +1,18 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManagerTest.LOG_HANDLER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.test.TimeLeapClock;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.bridge.modbus.DummyModbusComponent;
 import io.openems.edge.bridge.modbus.api.worker.DummyReadTask;
 import io.openems.edge.bridge.modbus.api.worker.DummyWriteTask;
@@ -18,31 +20,22 @@ import io.openems.edge.common.taskmanager.Priority;
 
 public class TasksSupplierImplTest {
 
-	private static DummyReadTask RT_H_1;
-	private static DummyReadTask RT_H_2;
-	private static DummyReadTask RT_L_1;
-	private static DummyReadTask RT_L_2;
-	private static DummyWriteTask WT_1;
-
-	@Before
-	public void before() {
-		RT_H_1 = new DummyReadTask("RT_H_1", 49, Priority.HIGH);
-		RT_H_2 = new DummyReadTask("RT_H_2", 70, Priority.HIGH);
-		RT_L_1 = new DummyReadTask("RT_L_1", 20, Priority.LOW);
-		RT_L_2 = new DummyReadTask("RT_L_2", 30, Priority.LOW);
-		WT_1 = new DummyWriteTask("WT_1", 90);
-	}
+	private static final DummyReadTask RT_H_1 = new DummyReadTask("RT_H_1", 49, Priority.HIGH);
+	private static final DummyReadTask RT_H_2 = new DummyReadTask("RT_H_2", 70, Priority.HIGH);
+	private static final DummyReadTask RT_L_1 = new DummyReadTask("RT_L_1", 20, Priority.LOW);
+	private static final DummyReadTask RT_L_2 = new DummyReadTask("RT_L_2", 30, Priority.LOW);
+	private static final DummyWriteTask WT_1 = new DummyWriteTask("WT_1", 90);
 
 	@Test
 	public void testFull() throws OpenemsException {
-		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		final var clock = createDummyClock();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, RT_L_1, RT_L_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		// 1st Cycle
 		var tasks = sut.getCycleTasks(defectiveComponents);
@@ -82,19 +75,19 @@ public class TasksSupplierImplTest {
 		assertEquals(4, tasks.reads().size() + tasks.writes().size());
 
 		// Finish
-		sut.removeProtocol(component.id());
+		sut.removeProtocol(component.id(), FunctionUtils::doNothing);
 	}
 
 	@Test
 	public void testHighOnly() throws OpenemsException {
 		var clock = new TimeLeapClock();
-		var defectiveComponents = new DefectiveComponents(clock);
-		var sut = new TasksSupplierImpl();
+		var defectiveComponents = new DefectiveComponents(clock, LOG_HANDLER);
+		var sut = new TasksSupplierImpl(LOG_HANDLER);
 
 		var component = new DummyModbusComponent();
 		var protocol = component.getModbusProtocol();
 		protocol.addTasks(RT_H_1, RT_H_2, WT_1);
-		sut.addProtocol(component.id(), protocol);
+		sut.addProtocol(component.id(), protocol, FunctionUtils::doNothing);
 
 		var tasks = sut.getCycleTasks(defectiveComponents);
 		assertEquals(3, tasks.reads().size() + tasks.writes().size());

@@ -3,7 +3,7 @@ package io.openems.edge.meter.bgetech;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter B+G E-Tech DRT428M-2", //

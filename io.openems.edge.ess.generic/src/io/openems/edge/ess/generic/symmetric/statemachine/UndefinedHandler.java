@@ -7,33 +7,17 @@ public class UndefinedHandler extends StateHandler<State, Context> {
 
 	@Override
 	public State runAndGetNextState(Context context) {
-		var ess = context.getParent();
-		switch (ess.getStartStopTarget()) {
-		case UNDEFINED:
-			// Stuck in UNDEFINED State
-			return State.UNDEFINED;
-
-		case START:
-			// force START
-			if (ess.hasFaults()) {
-				// TODO should we consider also Battery-Inverter and Battery Faults?
-				// TODO should the Modbus-Device also be on error, when then Modbus-Bridge is on
-				// error?
-
-				// Has Faults -> error handling
-				return State.ERROR;
-			} else {
-				// No Faults -> start
-				return State.START_BATTERY;
+		final var ess = context.getParent();
+		return switch (ess.getStartStopTarget()) {
+		case UNDEFINED -> State.UNDEFINED;
+		case START -> {
+			if (ess.hasFaults() || context.batteryInverter.hasFaults()) {
+				yield State.ERROR;
 			}
-
-		case STOP:
-			// force STOP
-			return State.STOP_BATTERY_INVERTER;
+			yield State.START_BATTERY;
 		}
-
-		assert false;
-		return State.UNDEFINED; // can never happen
+		case STOP -> State.STOP_BATTERY_INVERTER;
+		};
 	}
 
 }

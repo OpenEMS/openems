@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.notification.ChannelUpdateNotification;
 import io.openems.common.jsonrpc.notification.EdgeConfigNotification;
 import io.openems.common.jsonrpc.notification.EdgeRpcNotification;
 import io.openems.common.types.EdgeConfig;
@@ -39,6 +40,7 @@ import io.openems.edge.controller.api.common.handler.ComponentConfigRequestHandl
 )
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CONFIG_UPDATE, //
+		EdgeEventConstants.TOPIC_CHANNEL_UPDATE, //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
 public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
@@ -149,22 +151,34 @@ public class ControllerApiWebsocketImpl extends AbstractOpenemsComponent
 			return;
 		}
 		switch (event.getTopic()) {
-		case EdgeEventConstants.TOPIC_CONFIG_UPDATE:
+		case EdgeEventConstants.TOPIC_CONFIG_UPDATE -> {
 			if (this.server.getConnections().isEmpty()) {
 				// No Connections? It's not required to build the EdgeConfig.
 				return;
 			}
 			var config = (EdgeConfig) event.getProperty(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY);
 			var message = new EdgeConfigNotification(config);
-			this.server.broadcastMessage(new EdgeRpcNotification(ControllerApiWebsocketImpl.EDGE_ID, message));
-			break;
 
-		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE:
+			this.server.broadcastMessage(new EdgeRpcNotification(ControllerApiWebsocketImpl.EDGE_ID, message));
+		}
+
+		case EdgeEventConstants.TOPIC_CHANNEL_UPDATE -> {
+			this.server.broadcastMessage(
+					new EdgeRpcNotification(ControllerApiWebsocketImpl.EDGE_ID, new ChannelUpdateNotification()),
+					wsData -> {
+						if (wsData == null) {
+							return false;
+						}
+						return wsData.isChannelChangesSubscribed();
+					});
+		}
+
+		case EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> {
 			for (var ws : this.server.getConnections()) {
 				WsData wsData = ws.getAttachment();
 				wsData.sendSubscribedChannels();
 			}
-			break;
+		}
 		}
 	}
 

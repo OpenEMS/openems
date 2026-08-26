@@ -1,21 +1,20 @@
 package io.openems.edge.controller.api.backend;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentServiceObjects;
 
-import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.controller.api.backend.handler.BindingRoutesJsonApiHandler;
 import io.openems.edge.controller.api.backend.handler.RootRequestHandler;
 import io.openems.edge.controller.api.common.handler.RoutesJsonApiHandler;
 
 public class DummyBackendOnRequestFactory extends BackendOnRequest.Factory {
 
-	public DummyBackendOnRequestFactory()
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public DummyBackendOnRequestFactory() throws ReflectionException {
 		super();
-		ReflectionUtils.setAttribute(BackendOnRequest.Factory.class, this, "cso", new DummyBackendOnRequestCso());
+		setAttributeViaReflection(this, "cso", new DummyBackendOnRequestCso());
 	}
 
 	private static class DummyBackendOnRequestCso implements ComponentServiceObjects<BackendOnRequest> {

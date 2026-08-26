@@ -1,13 +1,8 @@
 package io.openems.edge.core.appmanager.formly.builder;
 
-import com.google.gson.JsonObject;
-
-import io.openems.common.session.Language;
-import io.openems.common.utils.JsonUtils;
-import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.Nameable;
-import io.openems.edge.core.appmanager.TranslationUtil;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
+import io.openems.edge.core.appmanager.formly.enums.HintIcon;
+import io.openems.edge.core.appmanager.formly.enums.Wrappers;
 
 /**
  * A Builder for a Formly Checkbox.
@@ -31,38 +26,19 @@ import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
  */
 public final class CheckboxBuilder extends FormlyBuilder<CheckboxBuilder> {
 
-	private JsonObject validation;
-
 	public CheckboxBuilder(Nameable property) {
 		super(property);
 	}
 
-	/**
-	 * Requires the checkbox to be checked.
-	 * 
-	 * @param l the language of the message
-	 * @return this
-	 */
-	public CheckboxBuilder requireTrue(Language l) {
-		this.templateOptions.addProperty("pattern", "true");
-		final var message = TranslationUtil.getTranslation(AbstractOpenemsApp.getTranslationBundle(l),
-				"formly.validation.requireChecked");
-		this.getValidation().add("messages", JsonUtils.buildJsonObject() //
-				.addProperty("pattern", message) //
-				.build());
-
+	public CheckboxBuilder setHint(String hint, HintIcon icon) {
+		this.templateOptions.addProperty("hint", hint);
+		if (icon != null) {
+			this.templateOptions.addProperty("icon", icon.getIconName());
+		} else {
+			this.templateOptions.remove("icon");
+		}
+		this.addWrapper(Wrappers.CHECKBOX_WITH_HINT);
 		return this;
-	}
-
-	private JsonObject getValidation() {
-		return this.validation = JsonFormlyUtil.single(this.validation);
-	}
-
-	@Override
-	public JsonObject build() {
-		final var result = super.build();
-		result.add("validation", this.validation);
-		return result;
 	}
 
 	@Override

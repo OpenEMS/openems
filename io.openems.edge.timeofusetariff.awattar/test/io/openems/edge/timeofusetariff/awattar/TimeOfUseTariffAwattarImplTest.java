@@ -1,5 +1,6 @@
 package io.openems.edge.timeofusetariff.awattar;
 
+import static io.openems.edge.timeofusetariff.awattar.Zone.GERMANY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -11,15 +12,13 @@ import io.openems.edge.common.test.ComponentTest;
 
 public class TimeOfUseTariffAwattarImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-
 	@Test
 	public void test() throws Exception {
 		var awattar = new TimeOfUseTariffAwattarImpl();
 		new ComponentTest(awattar) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setZone(Zone.GERMANY) //
+						.setId("ctrl0") //
+						.setZone(GERMANY) //
 						.build()) //
 		;
 	}

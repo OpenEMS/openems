@@ -7,19 +7,16 @@ import io.openems.edge.controller.test.ControllerTest;
 
 public class ControllerPvInverterFixPowerLimitImplTest {
 
-	private static final String CTRL_ID = "ctrl0";
-	private static final String PV_INVERTER_ID = "pvInverter0";
-
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerPvInverterFixPowerLimitImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(CTRL_ID) //
-						.setPvInverterId(PV_INVERTER_ID) //
+						.setId("ctrl0") //
+						.setPvInverterId("pvInverter0") //
 						.setPowerLimit(10000) //
-						.build()); //
-		;
+						.build()) //
+				.deactivate();
 	}
 
 }

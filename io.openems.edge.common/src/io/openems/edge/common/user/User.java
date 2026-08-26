@@ -1,7 +1,5 @@
 package io.openems.edge.common.user;
 
-import com.google.common.collect.ImmutableSortedMap;
-import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -16,11 +14,6 @@ import io.openems.common.utils.JsonUtils;
 public class User extends AbstractUser {
 
 	/**
-	 * Default-Edge-ID for User.
-	 */
-	public static final String DEFAULT_EDGE_ID = "0";
-
-	/**
 	 * Constructs an {@link User}.
 	 *
 	 * @param id       the User-ID
@@ -29,9 +22,8 @@ public class User extends AbstractUser {
 	 * @param role     the {@link Role}; used as global Role and assigned to
 	 *                 {@link User#DEFAULT_EDGE_ID}.
 	 */
-	protected User(String id, String name, Language language, Role role) {
-		super(id, name, language, role, Maps.newTreeMap(ImmutableSortedMap.of(DEFAULT_EDGE_ID, role)),
-				new JsonObject());
+	public User(String id, String name, Language language, Role role) {
+		super(id, name, language, role, new JsonObject());
 	}
 
 	/**

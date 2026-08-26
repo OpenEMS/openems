@@ -1,10 +1,11 @@
 package io.openems.edge.common.channel.internal;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -132,7 +133,7 @@ public class StateCollectorChannel extends EnumReadChannel {
 							}
 							return channelId.id();
 						}) //
-						.collect(Collectors.joining(",")));
+						.collect(joining(",")));
 			}
 		}
 		return result.toString();

@@ -1,88 +1,43 @@
 package io.openems.edge.energy.optimizer;
 
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.BALANCING;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.CHARGE_GRID;
-import static io.openems.edge.controller.ess.timeofusetariff.StateMachine.DELAY_DISCHARGE;
-import static io.openems.edge.energy.TestData.CONSUMPTION_888_20231106;
-import static io.openems.edge.energy.TestData.PRICES_888_20231106;
-import static io.openems.edge.energy.TestData.PRODUCTION_888_20231106;
-import static io.openems.edge.energy.optimizer.InitialPopulationUtils.buildInitialPopulation;
-import static io.openems.edge.energy.optimizer.SimulatorTest.hourlyToQuarterly;
-import static io.openems.edge.energy.optimizer.Utils.interpolateArray;
-import static io.openems.edge.energy.optimizer.Utils.toEnergy;
-import static io.openems.edge.energy.optimizer.UtilsTest.prepareExistingSchedule;
-import static java.util.Arrays.stream;
-import static org.junit.Assert.assertEquals;
+import static io.openems.edge.energy.api.simulation.periods.PeriodDuration.QUARTER;
+import static io.openems.edge.energy.optimizer.InitialPopulationUtils.generateInitialPopulation;
+import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_PREVIOUS_RESULT;
+import static io.openems.edge.energy.optimizer.SimulatorTest.DUMMY_SIMULATOR;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
-
-import io.openems.edge.controller.ess.timeofusetariff.ControlMode;
+import io.openems.edge.energy.api.handler.DifferentModes.Period.Transition;
 
 public class InitialPopulationUtilsTest {
 
-	public static final ZonedDateTime TIME = ZonedDateTime.of(2000, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"));
-
 	@Test
-	public void testBuildInitialPopulation() {
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME)) //
-					.build());
-			assertEquals(5, lgt.size()); // No Schedule -> only pure BALANCING + CHARGE_GRID
-		}
-		{
-			var lgt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, BALANCING, BALANCING)) //
-					.build());
-			assertEquals(5, lgt.size()); // Existing Schedule is only BALANCING -> only pure BALANCING + CHARGE_GRID
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.CHARGE_CONSUMPTION.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(2 /* CHARGE_GRID */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(2 /* CHARGE_GRID */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
-		{
-			var gt = buildInitialPopulation(Params.create() //
-					.setTime(TIME) //
-					.setProductions(stream(interpolateArray(PRODUCTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setConsumptions(stream(interpolateArray(CONSUMPTION_888_20231106)).map(v -> toEnergy(v)).toArray()) //
-					.setPrices(hourlyToQuarterly(interpolateArray(PRICES_888_20231106))) //
-					.setStates(ControlMode.DELAY_DISCHARGE.states) //
-					.setExistingSchedule(prepareExistingSchedule(TIME, //
-							CHARGE_GRID, DELAY_DISCHARGE, CHARGE_GRID, DELAY_DISCHARGE, BALANCING)) //
-					.build()).get(1);
-			assertEquals(0 /* fallback to BALANCING */, gt.get(0).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(1).get(0).intValue());
-			assertEquals(0 /* fallback to BALANCING */, gt.get(2).get(0).intValue());
-			assertEquals(1 /* DELAY_DISCHARGE */, gt.get(3).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(4).get(0).intValue());
-			assertEquals(0 /* BALANCING */, gt.get(5).get(0).intValue()); // default
-		}
+	public void testGenerateInitialPopulationNotFixed() {
+		final var simulator = DUMMY_SIMULATOR;
+		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
+		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> false);
+		var schedules = generateInitialPopulation(codec).population();
+		assertEquals(2, schedules.size());
+
+		assertTrue(schedules.get(0).toString().startsWith("[[[0],[0],[0],[0],"));
+		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
 	}
 
+	@Test
+	public void testGenerateInitialPopulationFixed() {
+		final var simulator = DUMMY_SIMULATOR;
+		final var modeCombinations = ModeCombinations.fromGlobalOptimizationContext(simulator.goc);
+		final var codec = EshCodec.of(simulator.goc, modeCombinations, () -> DUMMY_PREVIOUS_RESULT, () -> true);
+		var schedules = generateInitialPopulation(codec).population();
+		assertEquals(2, schedules.size());
+
+		assertTrue(schedules.get(0).toString().startsWith("[[[3],[0],[0],[0],"));
+		assertTrue(schedules.get(1).toString().startsWith("[[[3],[2],[1],[0],"));
+	}
+
+	protected static Transition mode(int mode) {
+		return new Transition(QUARTER, mode, 0., 0., null, 0);
+	}
 }

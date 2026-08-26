@@ -1,0 +1,10 @@
+.ion-col-with-left-and-right-icon {
+    display: flex;
+    justify-content: center;
+
+    ion-text {
+        padding-left: 1%;
+        padding-right: 1%;
+        align-self: center;
+    }
+}

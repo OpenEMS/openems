@@ -1,14 +1,14 @@
 package io.openems.edge.bridge.modbus.api.worker.internal;
 
-import static org.junit.Assert.assertFalse;
+import static io.openems.common.test.TestUtils.createDummyClock;
+import static io.openems.edge.bridge.modbus.api.worker.internal.CycleTasksManagerTest.LOG_HANDLER;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
-
-import io.openems.common.test.TimeLeapClock;
+import org.junit.jupiter.api.Test;
 
 public class DefectiveComponentsTest {
 
@@ -16,8 +16,8 @@ public class DefectiveComponentsTest {
 
 	@Test
 	public void testIsDueForNextTry() {
-		var clock = new TimeLeapClock();
-		var sut = new DefectiveComponents(clock);
+		final var clock = createDummyClock();
+		var sut = new DefectiveComponents(clock, LOG_HANDLER);
 
 		assertNull(sut.isDueForNextTry(CMP));
 		sut.add(CMP);
@@ -28,8 +28,8 @@ public class DefectiveComponentsTest {
 
 	@Test
 	public void testAddRemove() {
-		var clock = new TimeLeapClock();
-		var sut = new DefectiveComponents(clock);
+		final var clock = createDummyClock();
+		var sut = new DefectiveComponents(clock, LOG_HANDLER);
 
 		sut.add(CMP);
 		clock.leap(30_001, ChronoUnit.MILLIS);
@@ -40,7 +40,7 @@ public class DefectiveComponentsTest {
 
 	@Test
 	public void testIsKnownw() {
-		var sut = new DefectiveComponents();
+		var sut = new DefectiveComponents(LOG_HANDLER);
 
 		sut.add(CMP);
 		assertTrue(sut.isKnown(CMP));

@@ -1,13 +1,15 @@
 package io.openems.edge.ess.power.api;
 
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+
 public class Coefficient {
 
 	protected final int index;
 	protected final String essId;
-	protected final Phase phase;
+	protected final SingleOrAllPhase phase;
 	protected final Pwr pwr;
 
-	public Coefficient(int index, String essId, Phase phase, Pwr pwr) {
+	public Coefficient(int index, String essId, SingleOrAllPhase phase, Pwr pwr) {
 		this.index = index;
 		this.essId = essId;
 		this.phase = phase;
@@ -16,7 +18,7 @@ public class Coefficient {
 
 	@Override
 	public String toString() {
-		return this.essId + this.pwr.getSymbol() + this.phase.getSymbol();
+		return this.essId + this.pwr.symbol + this.phase.symbol;
 	}
 
 	public int getIndex() {
@@ -27,7 +29,7 @@ public class Coefficient {
 		return this.essId;
 	}
 
-	public Phase getPhase() {
+	public SingleOrAllPhase getPhase() {
 		return this.phase;
 	}
 

@@ -1,5 +1,9 @@
 package io.openems.edge.controller.ess.cycle.statemachine;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,9 +11,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.common.statemachine.StateHandler;
 import io.openems.edge.controller.ess.cycle.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.PowerConstraint;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 public class FinalSocHandler extends StateHandler<State, Context> {
 
@@ -27,14 +28,12 @@ public class FinalSocHandler extends StateHandler<State, Context> {
 
 		var power = context.getAcPower(ess, config.hybridEssMode(), config.power());
 		if (ess.getSoc().get() > config.finalSoc()) {
-			PowerConstraint.apply(ess, controller.id(), //
-					Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, power);
+			PowerConstraint.apply(ess, controller.id(), ALL, ACTIVE, EQUALS, power);
 			context.logInfo(this.log, "DISCHARGE with [" + power + " W]");
 			return State.FINAL_SOC;
 		}
 
-		PowerConstraint.apply(ess, controller.id(), //
-				Phase.ALL, Pwr.ACTIVE, Relationship.EQUALS, -power);
+		PowerConstraint.apply(ess, controller.id(), ALL, ACTIVE, EQUALS, -power);
 		context.logInfo(this.log, "CHARGE with [" + -power + " W]");
 
 		return State.FINAL_SOC;

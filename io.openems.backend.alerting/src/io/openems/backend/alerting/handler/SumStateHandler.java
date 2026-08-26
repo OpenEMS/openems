@@ -3,29 +3,31 @@ package io.openems.backend.alerting.handler;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.StringJoiner;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openems.backend.alerting.Handler;
+import io.openems.backend.alerting.HandlerMetrics;
 import io.openems.backend.alerting.message.OfflineEdgeMessage;
 import io.openems.backend.alerting.message.SumStateMessage;
 import io.openems.backend.alerting.scheduler.MessageScheduler;
 import io.openems.backend.alerting.scheduler.MessageSchedulerService;
 import io.openems.backend.alerting.scheduler.TimedExecutor;
 import io.openems.backend.alerting.scheduler.TimedExecutor.TimedTask;
+import io.openems.backend.common.mail.Mailer;
 import io.openems.backend.common.metadata.Edge;
-import io.openems.backend.common.metadata.Mailer;
 import io.openems.backend.common.metadata.Metadata;
 import io.openems.common.channel.Level;
 import io.openems.common.event.EventReader;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.utils.JsonUtils;
 
 public class SumStateHandler implements Handler<SumStateMessage> {
-	private final Map<String, ZonedDateTime> faultSince = new TreeMap<>();
+	private final Map<String, ZonedDateTime> faultSince = new ConcurrentHashMap<>();
 
 	private final Logger log = LoggerFactory.getLogger(SumStateHandler.class);
 
@@ -38,14 +40,20 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	private TimedTask initMetadata;
 	private final TimedExecutor timeService;
 
-	public SumStateHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata,
-			int initialDelay) {
+	private final AtomicLong messagesSent = new AtomicLong();
+
+	public SumStateHandler(MessageSchedulerService mss, TimedExecutor timeService, Mailer mailer, Metadata metadata) {
 		this.mailer = mailer;
 		this.metadata = metadata;
 		this.timeService = timeService;
 
 		this.mss = mss;
 		this.msgScheduler = mss.register(this);
+	}
+
+	@Override
+	public String id() {
+		return "alerting_sumstate";
 	}
 
 	@Override
@@ -57,29 +65,42 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 		this.mss = null;
 	}
 
+	private void reschedule(List<SumStateMessage> pack) {
+		if (this.log.isDebugEnabled()) {
+			final var logStr = new StringJoiner(", ", "Sent ErrorEdgeMsg: ", "");
+			pack.forEach(msg -> {
+				logStr.add(msg.toString());
+				this.tryReschedule(msg);
+			});
+			this.log.debug(logStr.toString());
+		} else {
+			pack.forEach(this::tryReschedule);
+		}
+	}
+
 	@Override
 	public void send(ZonedDateTime sentAt, List<SumStateMessage> pack) {
 		// Ensure Edge is still in error state before sending mail.
-		pack.removeIf((msg) -> !this.isEdgeError(msg.getEdgeId()));
+		pack.removeIf(msg -> !this.isEdgeErrorAndOnline(msg.getEdgeId()));
 
 		if (pack.isEmpty()) {
+			this.log.debug("No SumStateMessages to send after filtering for online and error state.");
 			return;
 		}
 
-		final var params = JsonUtils.generateJsonArray(pack.stream().map(SumStateMessage::getParams).toList());
-		if (!params.isEmpty()) {
-			this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params);
-		}
+		final var params = pack.stream().map(SumStateMessage::getContext).toList();
 
-		final var logStrBuilder = new StringBuilder(pack.size() * 64);
-		pack.forEach(msg -> {
-			logStrBuilder.append(msg).append(", ");
-			this.tryReschedule(msg);
-		});
-		final var logStr = logStrBuilder.toString();
-		if (!logStr.isBlank()) {
-			this.log.info("Sent ErrorEdgeMsg: {}", logStr);
-		}
+		this.mailer.sendMail(sentAt, SumStateMessage.TEMPLATE, params) //
+				.whenComplete((sentMessages, error) -> {
+					if (error == null) {
+						this.messagesSent.getAndAdd(sentMessages);
+					} else {
+						this.log.error("Failed to send SumStateMessage: {}", error.getMessage());
+						this.log.debug("Failed to send SumStateMessage for: {}", params, error);
+					}
+				});
+
+		this.reschedule(pack);
 	}
 
 	private void tryReschedule(SumStateMessage msg) {
@@ -88,8 +109,12 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 		}
 	}
 
-	private boolean isEdgeError(String edgeId) {
-		final var sumState = this.metadata.getEdge(edgeId).map(Edge::getSumState);
+	private boolean isEdgeErrorAndOnline(String edgeId) {
+		final var edge = this.metadata.getEdge(edgeId);
+		if (edge.map(Edge::isOffline).orElse(false)) {
+			return false;
+		}
+		final var sumState = edge.map(Edge::getSumState);
 		return sumState.map(this::isSevere).orElse(false);
 	}
 
@@ -111,8 +136,7 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 					(edge == null ? "Edge{null}" : "Edge{id=null}"));
 			return null;
 		} else if (edge.isOffline()) {
-			this.log.warn("Called method SumStateHandler.getEdgeMessage with offline" //
-					+ "Edge{id=" + edge.getId() + '}');
+			this.log.warn("Called method SumStateHandler.getEdgeMessage with offline Edge{id={}}", edge.getId());
 			return null;
 		}
 		try {
@@ -192,5 +216,16 @@ public class SumStateHandler implements Handler<SumStateMessage> {
 	@Override
 	public Class<SumStateMessage> getGeneric() {
 		return SumStateMessage.class;
+	}
+
+	@Override
+	public HandlerMetrics getMetrics() {
+		return new HandlerMetrics(this.messagesSent.get(), this.msgScheduler.size());
+	}
+
+	@Override
+	public String debugLog() {
+		return "SumStateHandler{MessagesSent: %d, MessagesQueue: %d}" //
+				.formatted(this.messagesSent.get(), this.msgScheduler.size());
 	}
 }

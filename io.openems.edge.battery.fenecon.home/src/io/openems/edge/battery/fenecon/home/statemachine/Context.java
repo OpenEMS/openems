@@ -32,8 +32,4 @@ public class Context extends AbstractContext<BatteryFeneconHome> {
 		this.modbusCommunicationFailed = modbusCommunicationFailed;
 		this.retryModbusCommunication = retryModbusCommunication;
 	}
-
-	protected void retryModbusCommunication() {
-		this.getParent().retryModbusCommunication();
-	}
 }

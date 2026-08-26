@@ -1,20 +1,18 @@
 package io.openems.edge.timedata.rrd4j;
 
-import java.lang.reflect.InvocationTargetException;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.component.ComponentServiceObjects;
 
-import io.openems.common.utils.ReflectionUtils;
+import io.openems.common.utils.ReflectionUtils.ReflectionException;
 import io.openems.edge.common.component.ComponentManager;
 
 public class DummyRecordWorkerFactory extends RecordWorkerFactory {
 
-	public DummyRecordWorkerFactory(ComponentManager componentManager)
-			throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+	public DummyRecordWorkerFactory(ComponentManager componentManager) throws ReflectionException {
 		super();
-		ReflectionUtils.setAttribute(RecordWorkerFactory.class, this, "cso",
-				new DummyRecordWorkerCso(componentManager));
+		setAttributeViaReflection(this, "cso", new DummyRecordWorkerCso(componentManager));
 	}
 
 	private static class DummyRecordWorkerCso implements ComponentServiceObjects<RecordWorker> {
@@ -29,11 +27,7 @@ public class DummyRecordWorkerFactory extends RecordWorkerFactory {
 		@Override
 		public RecordWorker getService() {
 			final var worker = new RecordWorker();
-			try {
-				ReflectionUtils.setAttribute(RecordWorker.class, worker, "componentManager", this.componentManager);
-			} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
+			setAttributeViaReflection(worker, "componentManager", this.componentManager);
 			return worker;
 		}
 

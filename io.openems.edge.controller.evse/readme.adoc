@@ -1,0 +1,141 @@
+= EVSE Controllers
+
+This bundle implements EVSE charging control for both single-point and clustered EVSE setups. It translates hardware capabilities from `EvseChargePoint` and `EvseElectricVehicle` into charging decisions, and it distributes those decisions across one or more controllers.
+
+== Overview
+
+This bundle contains two main controller concepts:
+
+- `Evse.Controller.Single` — manages one charge point and one electric vehicle.
+- `Evse.Controller.Cluster` — aggregates multiple single controllers and distributes power and phase switching across them.
+
+`Evse.Controller.Single` is the entry point for a single EVSE pair. It reads capabilities from `EvseChargePoint` and `EvseElectricVehicle`, merges those into a unified `CombinedAbilities` object, and drives a state machine that manages charging, connection state, and phase switching.
+
+`Evse.Controller.Cluster` is the aggregator for multiple `Evse.Controller.Single` instances. It does not implement per-device charging logic itself; instead it calculates load distribution and sends mode/actions to each bound single controller.
+
+== Evse.Controller.Single
+
+`Evse.Controller.Single` binds exactly one `EvseChargePoint` and one `EvseElectricVehicle`.
+
+- `EvseChargePoint` provides the charge point meter interface, readiness state, active power, phase rotation, and charge point abilities.
+- `EvseElectricVehicle` provides the vehicle abilities such as single-phase and three-phase power limits and interrupt capability.
+
+The single controller workflow is:
+
+1. At activation, `Evse.Controller.Single` updates OSGi reference filters for the configured charge point and electric vehicle.
+2. It registers a callback on `chargePoint.getIsReadyForChargingChannel()` to react to plug/connect state changes.
+3. `getParams()` builds a `Params` object containing:
+   - active power
+   - session energy and session energy limit
+   - combined abilities from charge point and EV
+   - phase-switching configuration
+   - scheduled tasks from JS Calendar
+4. The controller exposes `apply(Mode mode, ChargePointActions input)` for the cluster to execute.
+
+The `apply(...)` method does the following:
+
+- Writes the current `ACTUAL_MODE` channel, using `Mode.ZERO` when active power is zero.
+- Updates the current state machine state in `Evse.Controller.Single.ChannelId.STATE_MACHINE`.
+- Checks whether an explicit phase-switch action must force a phase-switch state.
+- Builds a `Context` object and runs the nested state machine.
+- Forwards final `ChargePointActions` to `chargePoint.apply(actions)` and records the action history.
+
+== Evse.Controller.Cluster
+
+`Evse.Controller.Cluster` collects all available `Evse.Controller.Single` instances using a dynamic OSGi multiple reference.
+
+- It binds each single controller via `bindController(...)` and triggers a reschedule when single controllers appear or disappear.
+- It builds an `EnergyScheduleHandler` with the current set of controller parameters.
+- Each cycle, `run()` calculates a power distribution for all bound controllers and applies actions back to them.
+
+The cluster controller workflow is:
+
+1. Collect all `Evse.Controller.Single` controllers.
+2. Build a scheduler that maps controller IDs to `Evse.Controller.Single.getParams()`.
+3. In `run()`, call `RunUtils.calculate(...)` with distribution strategy, sum meter, controller list, and active energy schedule mode.
+4. For each entry in the calculation result, call `e.ctrl.apply(e.mode, e.actions.build())`.
+
+This design keeps the cluster controller focused on optimization and distribution, while each `Evse.Controller.Single` remains responsible for actual charge point interaction and local state transitions.
+
+== Phase-Switching Support Detection
+
+Phase-switching is only available when both the charge point and the electric vehicle support it.
+
+- `EvseChargePoint` advertises a `Profile.PhaseSwitch` ability in `ChargePointAbilities`.
+- `EvseElectricVehicle` advertises interrupt capability via `ElectricVehicleAbilities.canInterrupt()` and provides single-phase and three-phase limits.
+- `CombinedAbilities` sets `phaseSwitch` only when:
+  - `chargePointAbilities.phaseSwitch() != null`
+  - `electricVehicleAbilities.canInterrupt()` is true
+
+If either capability is missing, the combined ability is null and no phase-switch action can be applied.
+
+== How Phase-Switching Is Started
+
+Phase-switching is started by the cluster controller deciding a target phase mode and by `Evse.Controller.Single` honoring that action.
+
+- `RunUtils.handlePhaseSwitch(...)` in the cluster controller checks the single controller's `params.phaseSwitching()` configuration.
+- If phase switching is enabled and the combined ability supports the requested direction, it sets `actions.setPhaseSwitch(...)` to either `TO_SINGLE_PHASE` or `TO_THREE_PHASE`.
+- `Evse.Controller.Single.apply(...)` then sees `input.phaseSwitch()` and forces the single controller state machine into `PHASE_SWITCH_TO_SINGLE_PHASE` or `PHASE_SWITCH_TO_THREE_PHASE`.
+
+This means the cluster decides when a phase switch is desired, and the single controller executes the actual phase-switch sequence.
+
+== Phase-Switching State Machine
+
+Phase-switching is implemented in `io.openems.edge.controller.evse.single.statemachine.PhaseSwitchHandler`.
+
+- The top-level state machine includes:
+  - `UNDEFINED`
+  - `EV_NOT_CONNECTED`
+  - `EV_CONNECTED`
+  - `CHARGING`
+  - `FINISHED_EV_STOP`
+  - `FINISHED_ENERGY_SESSION_LIMIT`
+  - `PHASE_SWITCH_TO_THREE_PHASE`
+  - `PHASE_SWITCH_TO_SINGLE_PHASE`
+
+The dedicated phase-switch states reuse a nested sub-state machine with the following sequence:
+
+[mermaid]
+----
+stateDiagram-v2
+    [*] --> EV_NOT_CONNECTED
+    EV_NOT_CONNECTED --> EV_CONNECTED : EV connected
+    EV_CONNECTED --> CHARGING : start charging
+    CHARGING --> PHASE_SWITCH_TO_SINGLE_PHASE : request TO_SINGLE_PHASE
+    CHARGING --> PHASE_SWITCH_TO_THREE_PHASE : request TO_THREE_PHASE
+
+    PHASE_SWITCH_TO_SINGLE_PHASE --> STOP_CHARGE
+    PHASE_SWITCH_TO_SINGLE_PHASE --> PHASE_SWITCH
+    PHASE_SWITCH_TO_SINGLE_PHASE --> START_CHARGE
+    PHASE_SWITCH_TO_SINGLE_PHASE --> FINISHED
+
+    PHASE_SWITCH_TO_THREE_PHASE --> STOP_CHARGE
+    PHASE_SWITCH_TO_THREE_PHASE --> PHASE_SWITCH
+    PHASE_SWITCH_TO_THREE_PHASE --> START_CHARGE
+    PHASE_SWITCH_TO_THREE_PHASE --> FINISHED
+
+    STOP_CHARGE --> PHASE_SWITCH : stop current
+    PHASE_SWITCH --> START_CHARGE : switch completed
+    START_CHARGE --> FINISHED : charging restarted
+    FINISHED --> CHARGING
+----
+
+The internal phase-switch sub-states are:
+
+- `STOP_CHARGE`
+  - The controller applies a zero setpoint until the EV stops drawing power.
+  - It waits a dead-time (30 seconds) before proceeding.
+- `PHASE_SWITCH`
+  - The controller applies the requested `PhaseSwitch` action to the charge point.
+  - The setpoint remains zero while the phase change is underway.
+  - It completes when the active phase matches the target phase.
+- `START_CHARGE`
+  - The controller applies the minimum allowed setpoint and allows charging to resume.
+- `FINISHED`
+  - Phase-switching is complete and the state machine returns to regular `CHARGING`.
+
+The phase-switch sub-state machine also includes a timeout:
+
+- After 600 seconds without completion, the controller marks `PHASE_SWITCH_FAILED` and exits the phase-switch sequence.
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.evse[Source Code icon:github[]]

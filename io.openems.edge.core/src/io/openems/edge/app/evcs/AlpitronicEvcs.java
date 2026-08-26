@@ -1,7 +1,10 @@
 package io.openems.edge.app.evcs;
 
+import static io.openems.edge.core.appmanager.validator.Checkables.checkEvseNotInstalled;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.ResourceBundle;
@@ -23,15 +26,17 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.common.props.CommonProps;
 import io.openems.edge.app.common.props.CommunicationProps;
+import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.AlpitronicEvcs.ParentProperty;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.host.Host;
+import io.openems.edge.common.meta.Meta;
 import io.openems.edge.core.appmanager.AbstractOpenemsApp;
 import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
@@ -39,7 +44,10 @@ import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
+import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
+import io.openems.edge.core.appmanager.MetaSupplier;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
 import io.openems.edge.core.appmanager.OpenemsAppCardinality;
@@ -56,6 +64,7 @@ import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.formly.enums.Wrappers;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
+import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
  * Describes a Alpitronic evcs app.
@@ -81,8 +90,9 @@ import io.openems.edge.core.appmanager.formly.expression.StringExpression;
  * </pre>
  */
 @Component(name = "App.Evcs.Alpitronic")
-public class AlpitronicEvcs extends
-		AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter> implements OpenemsApp {
+public class AlpitronicEvcs
+		extends AbstractOpenemsAppWithProps<AlpitronicEvcs, ParentProperty, Parameter.BundleParameter>
+		implements OpenemsApp, HostSupplier, MetaSupplier, EMobilityApp {
 
 	public static interface ParentProperty extends Type<ParentProperty, AlpitronicEvcs, Parameter.BundleParameter> {
 
@@ -103,9 +113,9 @@ public class AlpitronicEvcs extends
 		MODBUS_ID(AppDef.componentId("modbus0")), //
 		// Properties
 		NUMBER_OF_CONNECTORS(AppDef.copyOfGeneric(EvcsProps.numberOfChargePoints(4))),
-		IP(AppDef.copyOfGeneric(CommunicationProps.ip()) //
+		IP(AppDef.copyOfGeneric(CommunicationProps.excludingIp())//
 				.setDefaultValue("192.168.1.100")), //
-		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of() //
+		MAX_HARDWARE_POWER_ACCEPT_PROPERTY(AppDef.of()//
 				.setAllowedToSave(false)), //
 		MAX_HARDWARE_POWER(AppDef.copyOfGeneric(//
 				EvcsProps.clusterMaxHardwarePower(MAX_HARDWARE_POWER_ACCEPT_PROPERTY), def -> {
@@ -117,15 +127,15 @@ public class AlpitronicEvcs extends
 									.greaterThanEqual(Exp.staticValue(2)));
 							return;
 						}
-						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id) //
-								.map(Exp::staticValue) //
+						final var expressionForSingleUpdate = existingEvcs.stream().map(OpenemsComponent::id)//
+								.map(Exp::staticValue)//
 								.collect(Exp.toArrayExpression())
 								.every(v -> v.notEqual(Exp.currentModelValue(Nameable.of(EVCS_ID.apply(0)))));
 
-						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS) //
-								.greaterThanEqual(Exp.staticValue(2)) //
+						field.onlyShowIf(Exp.currentModelValue(NUMBER_OF_CONNECTORS)//
+								.greaterThanEqual(Exp.staticValue(2))//
 								.or(expressionForSingleUpdate));
-					}); //
+					});//
 				})), //
 		;
 
@@ -206,15 +216,21 @@ public class AlpitronicEvcs extends
 	private static final IntFunction<String> CTRL_EVCS_ID = value -> "CTRL_EVCS_ID_" + value;
 
 	private final Map<String, ParentProperty> chargePointsDef = new TreeMap<>();
+	private final Host host;
+	private final Meta meta;
 
 	@Activate
 	public AlpitronicEvcs(//
 			@Reference ComponentManager componentManager, //
 			ComponentContext componentContext, //
 			@Reference ConfigurationAdmin cm, //
-			@Reference ComponentUtil componentUtil //
+			@Reference ComponentUtil componentUtil, //
+			@Reference Host host, //
+			@Reference Meta meta //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
+		this.host = host;
+		this.meta = meta;
 		for (int i = 0; i < MAX_NUMBER_OF_CHARGEPOINTS; i++) {
 			final var name = EVCS_ALIAS.apply(i);
 			this.chargePointsDef.put(name,
@@ -288,10 +304,9 @@ public class AlpitronicEvcs extends
 	}
 
 	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
+	protected ValidatorConfig.Builder getValidateBuilder() {
+		return ValidatorConfig.create() //
+				.setInstallableCheckableConfigs(checkEvseNotInstalled());
 	}
 
 	@Override
@@ -323,6 +338,21 @@ public class AlpitronicEvcs extends
 		builder.add(Property.MAX_HARDWARE_POWER);
 
 		return builder.build().toArray(ParentProperty[]::new);
+	}
+
+	@Override
+	public Host getHost() {
+		return this.host;
+	}
+
+	@Override
+	public Meta getMeta() {
+		return this.meta;
+	}
+
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS);
 	}
 
 }

@@ -1,0 +1,102 @@
+package io.openems.edge.core.host;
+
+import java.net.Inet4Address;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.concurrent.CompletableFuture;
+
+import io.openems.common.exceptions.NotImplementedException;
+import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.edge.common.update.Updateable;
+import io.openems.edge.common.user.User;
+import io.openems.edge.core.host.Bash.Command;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest.SystemCommand;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse.SystemCommandResponse;
+import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
+
+/**
+ * OperatingSystem implementation for Debian with systemd.
+ */
+public class OperatingSystemDocker extends OperatingSystemLinux implements OperatingSystem {
+
+	protected OperatingSystemDocker() {
+	}
+
+	@Override
+	public NetworkConfiguration getNetworkConfiguration() throws OpenemsNamedException {
+		// not implemented
+		return new NetworkConfiguration(new TreeMap<>());
+	}
+
+	@Override
+	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
+		throw new NotImplementedException("SetNetworkConfigRequest is not implemented for Docker");
+	}
+
+	@Override
+	public CompletableFuture<ExecuteSystemCommandResponse> handleExecuteSystemCommandRequest(
+			ExecuteSystemCommandRequest request) throws NotImplementedException {
+		return execute(request.systemCommand).thenApply(cmd -> { //
+			final var scr = new SystemCommandResponse(cmd.stdout(), cmd.stderr(), cmd.exitCode());
+			return new ExecuteSystemCommandResponse(request.id, scr);
+		});
+	}
+
+	private static CompletableFuture<Command> execute(SystemCommand sc) {
+		return new Bash(sc.command()) //
+				.withTimeout(sc.timeoutSeconds()) //
+				.runInBackground(sc.runInBackground()) //
+				.execute();
+	}
+
+	@Override
+	public String getUsbConfiguration() throws OpenemsNamedException {
+		// not implemented
+		return "";
+	}
+
+	@Override
+	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
+			ExecuteSystemRestartRequest request) throws NotImplementedException {
+		throw new NotImplementedException("ExecuteSystemRestartRequest is not implemented for Docker");
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
+		throw new NotImplementedException("This request is not implemented for Docker");
+	}
+
+	@Override
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		return CompletableFuture.completedFuture("Docker");
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
+	}
+
+	@Override
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		throw new NotImplementedException("deleteNetworkInterfaces is not implemented for Docker");
+	}
+
+	@Override
+	public Optional<Double> getCpuTemperature() {
+		return Optional.empty();
+	}
+
+}

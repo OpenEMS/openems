@@ -1,7 +1,5 @@
 package io.openems.edge.app.timeofusetariff;
 
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
-
 import java.util.Map;
 import java.util.function.Function;
 
@@ -16,7 +14,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -37,8 +34,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
-import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -53,8 +48,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
     "properties":{
     	"CTRL_ESS_TIME_OF_USE_TARIFF_ID": "ctrlEssTimeOfUseTariff0",
     	"TIME_OF_USE_TARIFF_PROVIDER_ID": "timeOfUseTariff0",
-    	"ZIP_CODE": "12345678",
-    	"CONTROL_MODE": {@link ControlMode}
+    	"ZIP_CODE": "12345678"
     },
     "appDescriptor": {
     	"websiteUrl": {@link AppDescriptor#getWebsiteUrl()}
@@ -73,12 +67,9 @@ public class StromdaoCorrently extends
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ZIP_CODE(AppDef.of(StromdaoCorrently.class)//
-				.setTranslatedLabelWithAppPrefix(".zipCode.label") //
-				.setTranslatedDescriptionWithAppPrefix(".zipCode.description") //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, f) -> //
-				f.setInputType(InputType.NUMBER) //
-						.isRequired(true)));
+		ZIP_CODE(TimeOfUseProps.zipCode()), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super StromdaoCorrently, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -117,11 +108,13 @@ public class StromdaoCorrently extends
 
 			final var alias = this.getString(p, l, Property.ALIAS);
 			final var zipCode = this.getString(p, l, Property.ZIP_CODE);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
 			var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.Corrently",
 							JsonUtils.buildJsonObject() //
@@ -136,13 +129,6 @@ public class StromdaoCorrently extends
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override
@@ -163,7 +149,7 @@ public class StromdaoCorrently extends
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

@@ -1,11 +1,12 @@
 package io.openems.common.jsonrpc.base;
 
+import static io.openems.common.utils.StringUtils.toShortString;
+
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.utils.JsonUtils;
-import io.openems.common.utils.StringUtils;
 
 /**
  * Represents a JSON-RPC Message.
@@ -20,7 +21,7 @@ import io.openems.common.utils.StringUtils;
  * @see <a href="https://www.jsonrpc.org/specification">JSON-RPC
  *      specification</a>
  */
-public abstract class JsonrpcMessage {
+public abstract sealed class JsonrpcMessage permits AbstractJsonrpcRequest, JsonrpcResponse {
 
 	public static final String JSONRPC_VERSION = "2.0";
 
@@ -58,7 +59,7 @@ public abstract class JsonrpcMessage {
 			return JsonrpcResponseError.from(j);
 		}
 		throw new OpenemsException(
-				"JsonrpcMessage is not a valid Request, Result or Notification: " + StringUtils.toShortString(j, 100));
+				"JsonrpcMessage is not a valid Request, Result or Notification: " + toShortString(j, 200));
 	}
 
 	/**

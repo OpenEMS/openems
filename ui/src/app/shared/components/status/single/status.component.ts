@@ -1,29 +1,33 @@
-// @ts-strict-ignore
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ModalController } from '@ionic/angular';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { ComponentJsonApiRequest } from 'src/app/shared/jsonrpc/request/componentJsonApiRequest';
-import { GetStateChannelsOfComponentRequest } from 'src/app/shared/jsonrpc/request/getStateChannelsOfComponentRequest';
-import { GetChannelsOfComponentResponse } from 'src/app/shared/jsonrpc/response/getChannelsOfComponentResponse';
-import { ChannelAddress, EdgePermission, Service, Websocket } from 'src/app/shared/shared';
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
+import { IonicModule, ModalController } from "@ionic/angular";
+import { TranslateModule } from "@ngx-translate/core";
+import { Subject } from "rxjs";
+import { JsonrpcResponseSuccess } from "src/app/shared/jsonrpc/base";
+import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componentJsonApiRequest";
+import { GetStateChannelsOfComponentRequest } from "src/app/shared/jsonrpc/request/getStateChannelsOfComponentRequest";
+import { GetChannelsOfComponentResponse } from "src/app/shared/jsonrpc/response/getChannelsOfComponentResponse";
+import { ChannelAddress, Service, Websocket } from "src/app/shared/shared";
 
-import { Edge } from '../../edge/edge';
-import { CategorizedComponents, EdgeConfig } from '../../edge/edgeconfig';
+import { Edge } from "../../edge/edge";
+import { CategorizedComponents, EdgeConfig } from "../../edge/edgeconfig";
 
 @Component({
     selector: StatusSingleComponent.SELECTOR,
-    templateUrl: './status.component.html',
+    templateUrl: "./status.component.html",
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonModule, TranslateModule, IonicModule],
 })
 export class StatusSingleComponent implements OnInit, OnDestroy {
-    private static readonly SELECTOR = "statussingle";
+    private static readonly SELECTOR = "oe-status-single";
 
     public subscribedInfoChannels: ChannelAddress[] = [];
     public onInfoChannels: ChannelAddress[] = [];
-    public edge?: Edge;
-    public config: EdgeConfig;
-    public components: CategorizedComponents[];
-    protected channels: { [componentId: string]: { [channelId: string]: { text: string, level: string } } } = {};
+    public edge: Edge | null = null;
+    public config: EdgeConfig | null = null;
+    public components: CategorizedComponents[] | null = null;
+    protected channels: { [componentId: string]: { [channelId: string]: { text: string; level: string } } } = {};
 
     private stopOnDestroy: Subject<void> = new Subject<void>();
 
@@ -31,7 +35,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
         public modalCtrl: ModalController,
         public service: Service,
         private websocket: Websocket,
-    ) { }
+    ) {}
 
     ngOnDestroy() {
         this.edge?.unsubscribeChannels(this.websocket, StatusSingleComponent.SELECTOR);
@@ -41,18 +45,17 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
 
     async ngOnInit() {
         this.config = await this.service.getConfig();
-        this.components = this.config.listActiveComponents();
-        this.components.forEach(categorizedComponent => {
-            categorizedComponent.components.forEach(component => {
+        this.components = this.config.listActiveComponents([], this.service.translate);
+        this.components.forEach((categorizedComponent) => {
+            categorizedComponent.components.forEach((component) => {
                 // sets all arrow buttons to standard position (folded)
-                component['showProperties'] = false;
-                this.subscribedInfoChannels.push(
-                    new ChannelAddress(component.id, 'State'),
-                );
+                component.showProperties = false;
+                this.subscribedInfoChannels.push(new ChannelAddress(component.id, "State"));
             });
         });
+
         //need to subscribe on currentedge because component is opened by app.component
-        this.service.currentEdge.pipe(takeUntil(this.stopOnDestroy)).subscribe(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
             edge.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
         });
@@ -72,7 +75,7 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
     public unsubscribeInfoChannels(component: EdgeConfig.Component) {
         delete this.channels[component.id];
         //removes unsubscribed elements from subscribedInfoChannels array
-        this.onInfoChannels.forEach(onInfoChannel => {
+        this.onInfoChannels.forEach((onInfoChannel) => {
             this.subscribedInfoChannels.forEach((subChannel, index) => {
                 if (onInfoChannel.channelId == subChannel.channelId && component.id == subChannel.componentId) {
                     this.subscribedInfoChannels.splice(index, 1);
@@ -84,34 +87,30 @@ export class StatusSingleComponent implements OnInit, OnDestroy {
         this.edge?.subscribeChannels(this.websocket, StatusSingleComponent.SELECTOR, this.subscribedInfoChannels);
     }
 
-    private getStateChannels(componentId: string): Promise<typeof this.channels['componentId']> {
+    private getStateChannels(componentId: string): Promise<(typeof this.channels)["componentId"]> {
         return new Promise((resolve, reject) => {
-            if (EdgePermission.hasChannelsInEdgeConfig(this.edge)) {
-                const channels: typeof this.channels['componentId'] = {};
-                for (const [key, value] of Object.entries(this.config.components[componentId].channels)) {
-
-                    // show only state channels
-                    if (value.category !== "STATE") {
-                        continue;
-                    }
-
-                    channels[key] = { text: value.text, level: value.level };
-                }
-                resolve(channels);
+            if (this.edge == null) {
+                reject("No edge selected");
                 return;
             }
 
-            this.edge.sendRequest(this.websocket, new ComponentJsonApiRequest({
-                componentId: '_componentManager',
-                payload: new GetStateChannelsOfComponentRequest({ componentId: componentId }),
-            })).then((response: GetChannelsOfComponentResponse) => {
-                const channels: typeof this.channels['componentId'] = {};
-                for (const item of response.result.channels) {
-                    channels[item.id] = { text: item.text, level: item.level };
-                }
-                resolve(channels);
-            }).catch(reject);
+            this.edge
+                .sendRequest<JsonrpcResponseSuccess>(
+                    this.websocket,
+                    new ComponentJsonApiRequest({
+                        componentId: "_componentManager",
+                        payload: new GetStateChannelsOfComponentRequest({ componentId: componentId }),
+                    }),
+                )
+                .then((response) => {
+                    const data = response as GetChannelsOfComponentResponse;
+                    const channels: (typeof this.channels)["componentId"] = {};
+                    for (const item of data.result.channels) {
+                        channels[item.id] = { text: item.text, level: item.level };
+                    }
+                    resolve(channels);
+                })
+                .catch(reject);
         });
     }
-
 }

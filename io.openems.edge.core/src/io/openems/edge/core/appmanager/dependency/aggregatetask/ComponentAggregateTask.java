@@ -11,7 +11,7 @@ public interface ComponentAggregateTask extends AggregateTask<ComponentConfigura
 	 *
 	 * @return the created {@link EdgeConfig.Component}
 	 */
-	public List<EdgeConfig.Component> getCreatedComponents();
+	public List<ComponentDef> getCreatedComponents();
 
 	/**
 	 * Gets the Components that were deleted.

@@ -1,0 +1,333 @@
+= ESS Fast Frequency Reserve
+
+== 1.1 Introduction
+
+In electricity networks, the Fast Frequency Reserve (FFR) controller is providing power available to the system operator within a short interval to meet demand in case of a frequency drop, i.e. in case a generator goes down or there is another disruption to the supply. More details on link:https://en.wikipedia.org/wiki/Operating_reserve[Wikipedia].
+
+This controller helps the Energy Storage System (ESS) to provide power, essentially battery discharge, when the measured "Grid frequency" is lower than that of a defined "Frequency limit".
+
+== 1.2 Controller Parameters
+
+- **mode**: mode of the controller, On or Off?
+- **id**: the id for the controller
+- **alias**: Alias for the controller
+- **enabled**: enabled or not?
+- **meterId**: the id of the meter
+- **essId**: the id of the Ess
+- **batteryInverterId**: the id of the battery inverter
+- **preActivationTime**: A time before the activation time for charging the system(min).
+- **schedule**: scheduling of the controller, via JSON see below for the example
+
+=== 1.2.1 The Example Schedule-JSON
+
+[source,json]
+----
+[
+    {
+        "startTimestamp": 1684792800,
+        "duration": 86400,
+        "dischargePowerSetPoint": 92000,
+        "frequencyLimit": 50000,
+        "activationRunTime": "LONG_ACTIVATION_RUN",
+        "supportDuration": "LONG_SUPPORT_DURATION"
+    },
+    {
+        "startTimestamp": 1684879200,
+        "duration": 86400,
+        "dischargePowerSetPoint": 6000,
+        "frequencyLimit": 50000,
+        "activationRunTime": "LONG_ACTIVATION_RUN",
+        "supportDuration": "LONG_SUPPORT_DURATION"
+    }
+]
+----
+
+=== 1.2.2 JSON Element details
+
+- `StartTimeStamp`: When the controller should be activated.
+- `Duration`: How long is the controller to be activated?
+- `frequency limit`: The controller continuously monitors and checks whether a Frequency limit or threshold is less than the
+measured grid frequency.
+- `DischargePower`: The Ess discharges from the batteries when generating capacity.
+- `activationRunTime`: The time in milliseconds required for the reserve to fully activate. Short(700 ms) or Medium(1000 ms) or Long(1300 ms) activation Time.
+- `supportDuration`: The time in milliseconds for which the reserve should continue providing support after the frequency has stabilized. Short(5 seconds) or Long(30 seconds) support duration.
+
+=== 1.2.3 Explanation of the Schedule
+The Schedule JSON activates FFR for a full day (86400 seconds or 24 hours) with the following parameters:
+
+1. Schedule for 23rd May 2023 00:00:00 to 24th May:
+   - *Threshold frequency:* 49700 mHz
+   - *Discharge power:* 92000 W
+   - *Long activation time:* 1.3 seconds
+   - *Support duration:* 30 seconds
+
+2. Following Schedule for 24th May 2023 00:00:00 to 25th May:
+   - *Threshold frequency:* 49700 mHz
+   - *Discharge power:* 52000 W
+   - *Long activation time:* 1.3 seconds
+   - *Support duration:* 30 seconds
+
+
+== 2.1 REST API for updating Fast Frequency Reserve controllers schedule locally
+
+note : The controller/ App should be activated to update the schedule, which can be done using online monitoring or apache felix.
+
+== 2.1.1 Overview
+
+This REST API allows you to update FFR schedule for the specified edge device. The API endpoint takes a JSON payload that specifies the schedule, including the start time, duration, discharge power set point, frequency limit, activation runtime, and support duration.
+
+== 2.1.2 Endpoint
+
+- *URL*: http://<ipaddress>:8084/jsonrpc
+- *Method*: POST
+- *Content-Type*: application/json
+- *Authorization*: Basic Authentication, username: x, password: owner
+
+== 2.1.3 Body
+
+The request body must be a JSON object with the following structure:
+
+[source,json]
+----
+{
+    "method": "componentJsonApi",
+    "params": {
+        "componentId": "ctrlFastFreqReserve0",
+        "payload": {
+            "method": "setActivateFastFreqReserve",
+            "params": {
+                "id": "edge0",
+                "schedule": [
+                    {
+                        "startTimestamp": 1701871562,
+                        "duration": 999,
+                        "dischargePowerSetPoint": 6000,
+                        "frequencyLimit": 502000,
+                        "activationRunTime": "LONG_ACTIVATION_RUN",
+                        "supportDuration": "LONG_SUPPORT_DURATION"
+                    }
+                ]
+            }
+        }
+    }
+}
+----
+
+== 2.1.4 Request Parameters
+
+The request body for this REST API call is a JSON object with the following parameters:
+
+- *method*: The specific method to call within the component. In this case, it is `componentJsonApi`.
+- *params*: The parameters associated with the method call.
+- *componentId*: The unique identifier of the component that is receiving the request.
+- *payload*: The specific data being sent to the component. See below
+
+=== 2.1.5 Payload Parameters
+
+Within the payload parameter, there is another JSON object that specifies the details of the activation request:
+
+- *method*: The method to call within the component to handle the activation request. In this case, it is `setActivateFastFreqReserve`.
+- *params*: The parameters associated with the `setActivateFastFreqReserve` method.
+- *id*: The unique identifier of the edge device for which the activation is being requested, locally is always `edge0`.
+- *schedule*: An array of schedule items that define the activation pattern for the reserve.
+
+=== 2.1.6 Schedule Item Parameters
+
+Each schedule item within the schedule array specifies a specific activation period:
+
+- *startTimestamp*: The unix time stamp when the FFR should start activating.
+- *duration*: The duration in milliseconds for which the reserve should remain active.
+- *dischargePowerSetPoint*: The maximum power in kilowatts that the reserve should discharge during activation.
+- *frequencyLimit*: The frequency threshold below which the reserve should be activated.
+- *activationRunTime*: The time in milliseconds required for the reserve to fully activate.
+- *supportDuration*: The time in milliseconds for which the reserve should continue providing support after the frequency has stabilized.
+
+=== 2.1.7 Example Python code
+
+[source,python]
+----
+import requests
+import json
+from requests.auth import HTTPBasicAuth
+
+# API URL
+url = 'http://10.0.10.178:8084/jsonrpc'
+
+# Authentication
+auth = HTTPBasicAuth('x', 'owner')
+
+# Request headers
+headers = {
+    'Content-Type': 'application/json',
+}
+
+# Request payload
+payload = {
+    'jsonrpc': '2.0',
+    'id': '00000000-0000-0000-0000-000000000000',
+    'method': 'componentJsonApi',
+    'params': {
+        'componentId': 'ctrlFastFreqReserve0',
+        'payload': {
+            'method': 'setActivateFastFreqReserve',
+            'params': {
+                'id': 'edge0',
+                'schedule': [
+                    {
+                        'startTimestamp': 1701871562,
+                        'duration': 999,
+                        'dischargePowerSetPoint': 6000,
+                        'frequencyLimit': 502000,
+                        'activationRunTime': 'LONG_ACTIVATION_RUN',
+                        'supportDuration': 'LONG_SUPPORT_DURATION'
+                    }
+                ]
+            }
+        }
+    }
+}
+
+# Make the request
+response = requests.post(url, auth=auth, headers=headers, json=payload)
+
+# Print the response
+print(response.json())
+----
+
+
+== 3.1 REST API for Activating Fast Frequency Reserve controllers schedule using Backend
+note : The controller/ App should be activated to update the schedule, which can be done using online monitoring or apache felix.
+
+== 3.1.1 Overview
+
+This REST API allows you to update FFR for a specific edge device. The API endpoint takes a JSON payload that updates activation schedule, including the start time, duration, discharge power set point, frequency limit, activation runtime, and support duration.
+
+== 3.1.2 Endpoint
+
+- *URL*: https://femecon.de/fems/rest/jsonrpc
+- *Method*: POST
+- *Content-Type*: application/json
+- *Authorization*: Basic Authentication, username:foo.com, password:****
+
+== 3.1.3 Body
+
+The request body must be a JSON object with the following structure:
+
+[source,json]
+----
+{
+  "method": "edgeRpc",
+  "params": {
+    "edgeId": "fems3734",
+    "payload": {
+      "method": "componentJsonApi",
+      "params": {
+        "componentId": "ctrlFastFreqReserve0",
+        "payload": {
+          "method": "setActivateFastFreqReserve",
+          "params": {
+            "id": "edge3734",
+            "schedule": [
+              {
+                "startTimestamp": "1701767477",
+                "duration": "11000",
+                "dischargePowerSetPoint": "6000",
+                "frequencyLimit": "52000",
+                "activationRunTime": "LONG_ACTIVATION_RUN",
+                "supportDuration": "LONG_SUPPORT_DURATION"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+----
+
+== 3.1.4 Request Parameters
+
+- *method*: The JSONRPC method to call. In this case, it is `edgeRpc`.
+- *params*: The JSONRPC parameters.
+- *edgeId*: The ID of the edge device for which to activate the FFR.
+- *payload*: The JSONRPC payload.
+
+== 3.1.5 Payload Parameters
+
+Within the payload parameter, there is another JSON object that specifies the details of the activation request:
+
+- *method*: The JSONRPC method to call within the component. In this case, it is `componentJsonApi`.
+- *params*: The JSONRPC parameters for the `componentJsonApi` method.
+- *componentId*: The ID of the component within which to call the method. In this case, it is `ctrlFastFreqReserve0`.
+- *payload*: The JSONRPC payload for the method.
+
+== 3.1.6 Schedule Item Parameters
+
+Each schedule item within the schedule array specifies a specific activation period:
+
+- *startTimestamp*: The unix time stamp in milliseconds when the FFR should start activating.
+- *duration*: The duration in milliseconds for which the reserve should remain active.
+- *dischargePowerSetPoint*: The maximum power in kilowatts that the reserve should discharge during activation.
+- *frequencyLimit*: The frequency threshold below which the reserve should be activated.
+- *activationRunTime*: The time in milliseconds required for the reserve to fully activate.
+- *supportDuration*: The time in milliseconds for which the reserve should continue providing support after the frequency has stabilized.
+
+== 3.1.7 Example Python code:
+
+[source,python]
+----
+import requests
+import json
+from requests.auth import HTTPBasicAuth
+import base64
+import os
+
+url = "https://fenecon.de/fems/rest/jsonrpc"
+
+username = os.getenv("FENECON_USERNAME")
+password = os.getenv("FENECON_PASSWORD")
+
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": "Basic " + base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")
+}
+
+body = {
+    "method": "edgeRpc",
+    "params": {
+        "edgeId": "fems3734",
+        "payload": {
+            "method": "componentJsonApi",
+            "params": {
+                "componentId": "ctrlFastFreqReserve0",
+                "payload": {
+                    "method": "setActivateFastFreqReserve",
+                    "params": {
+                        "id": "edge3734",
+                        "schedule": [
+                            {
+                                "startTimestamp": "1701767477",
+                                "duration": "11000",
+                                "dischargePowerSetPoint": "6000",
+                                "frequencyLimit": "52000",
+                                "activationRunTime": "LONG_ACTIVATION_RUN",
+                                "supportDuration": "LONG_SUPPORT_DURATION"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
+
+response = requests.post(url, headers=headers, data=json.dumps(body))
+
+if response.status_code == 200:
+    print("Fast Frequency Reserve activated successfully")
+else:
+    print("Error activating Fast Frequency Reserve:", response.text)
+----
+
+
+https://github.com/OpenEMS/openems/tree/develop/io.openems.edge.controller.ess.fastfrequencyreserve[Source Code icon:github[]]

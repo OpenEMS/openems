@@ -1,8 +1,10 @@
 package io.openems.edge.controller.ess.limiter14a;
 
-import io.openems.common.channel.PersistencePriority;
+import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.types.OpenemsType.BOOLEAN;
+import static io.openems.common.types.OpenemsType.LONG;
+
 import io.openems.common.channel.Unit;
-import io.openems.common.types.OpenemsType;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.value.Value;
@@ -11,15 +13,20 @@ import io.openems.edge.controller.api.Controller;
 
 public interface ControllerEssLimiter14a extends Controller, OpenemsComponent {
 
+	/**
+	 * If RESTRICTION_MODE is true, ESS charge power is limited to 4.2 kW.
+	 */
+	public static final int ESS_LIMIT_14A_ENWG = -4200;
+
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 
-		RESTRICTION_MODE(Doc.of(RestrictionMode.values()) //
-				.persistencePriority(PersistencePriority.HIGH)), //
-		
-		CUMULATED_RESTRICTION_TIME(Doc.of(OpenemsType.LONG) //
+		RESTRICTION_MODE(Doc.of(BOOLEAN) //
+				.persistencePriority(HIGH)), //
+
+		CUMULATED_RESTRICTION_TIME(Doc.of(LONG) //
 				.unit(Unit.CUMULATED_SECONDS) //
-				.persistencePriority(PersistencePriority.HIGH)); //
-		
+				.persistencePriority(HIGH)); //
+
 		private final Doc doc;
 
 		private ChannelId(Doc doc) {
@@ -43,7 +50,7 @@ public interface ControllerEssLimiter14a extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Gets the Status. See {@link ChannelId#RESTRICTION_MODE}.
+	 * Gets the restriction mode. See {@link ChannelId#RESTRICTION_MODE}.
 	 *
 	 * @return the Channel {@link Value}
 	 */
@@ -52,13 +59,11 @@ public interface ControllerEssLimiter14a extends Controller, OpenemsComponent {
 	}
 
 	/**
-	 * Internal method to set the 'nextValue' on {@link ChannelId#RESTRICTION_MODE}
-	 * Channel.
-	 *
-	 * @param value the next value
+	 * Sets the restriction mode. See {@link ChannelId#RESTRICTION_MODE}.
+	 * 
+	 * @param value the value as boolean.
 	 */
 	public default void _setRestrictionMode(boolean value) {
 		this.getRestrictionModeChannel().setNextValue(value);
 	}
-
 }

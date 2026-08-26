@@ -1,5 +1,13 @@
 package io.openems.edge.edge2edge.ess;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.event.EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,9 +18,9 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
+import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
@@ -32,6 +40,9 @@ import io.openems.edge.ess.api.AsymmetricEss;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
 import io.openems.edge.ess.power.api.Power;
+import io.openems.edge.timedata.api.Timedata;
+import io.openems.edge.timedata.api.TimedataProvider;
+import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -39,8 +50,16 @@ import io.openems.edge.ess.power.api.Power;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@EventTopics({ //
+		TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
+})
 public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmetricEss, AsymmetricEss, SymmetricEss,
-		Edge2EdgeEss, Edge2Edge, ModbusComponent, OpenemsComponent {
+		Edge2EdgeEss, Edge2Edge, ModbusComponent, TimedataProvider, EventHandler, OpenemsComponent {
+
+	private final CalculateEnergyFromPower calculateActiveChargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_CHARGE_ENERGY);
+	private final CalculateEnergyFromPower calculateActiveDischargeEnergy = new CalculateEnergyFromPower(this,
+			SymmetricEss.ChannelId.ACTIVE_DISCHARGE_ENERGY);
 
 	@Reference
 	private ConfigurationAdmin cm;
@@ -48,7 +67,10 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
+	private volatile Timedata timedata;
+
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY)
 	protected void setModbus(BridgeModbus modbus) {
 		super.setModbus(modbus);
 	}
@@ -71,7 +93,6 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 				StartStoppable.ChannelId.values(), //
 				Edge2EdgeEss.ChannelId.values() //
 		);
-		this._setMaxApparentPower(Integer.MAX_VALUE); // has no effect, as long as AllowedCharge/DischargePower are null
 	}
 
 	@Activate
@@ -92,10 +113,12 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		if (modbusSlaveNatureTable.getNatureClass() == ManagedSymmetricEss.class) {
 			switch (record.getOffset()) {
 			case 0: // "Minimum Power Set-Point"
-				return (value) -> this._setAllowedChargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+				return (value) -> setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+						TypeUtils.getAsType(OpenemsType.INTEGER, value));
 
 			case 2: // "Maximum Power Set-Point"
-				return (value) -> this._setAllowedDischargePower(TypeUtils.getAsType(OpenemsType.INTEGER, value));
+				return (value) -> setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+						TypeUtils.getAsType(OpenemsType.INTEGER, value));
 			}
 		}
 		return null;
@@ -131,9 +154,33 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 	}
 
 	@Override
+	public void handleEvent(Event event) {
+		switch (event.getTopic()) {
+		case TOPIC_CYCLE_AFTER_PROCESS_IMAGE -> this.calculateEnergy();
+		}
+	}
+
+	@Override
 	public void applyPower(int activePower, int reactivePower) throws OpenemsNamedException {
 		this.setRemoteActivePowerEquals((float) activePower);
 		this.setRemoteReactivePowerEquals((float) reactivePower);
+	}
+
+	private void calculateEnergy() {
+		var activePower = this.getActivePower().get();
+		if (activePower == null) {
+			// Not available
+			this.calculateActiveChargeEnergy.update(null);
+			this.calculateActiveDischargeEnergy.update(null);
+		} else if (activePower > 0) {
+			// Discharge
+			this.calculateActiveChargeEnergy.update(0);
+			this.calculateActiveDischargeEnergy.update(activePower);
+		} else {
+			// Charge
+			this.calculateActiveChargeEnergy.update(activePower * -1);
+			this.calculateActiveDischargeEnergy.update(0);
+		}
 	}
 
 	@Override
@@ -141,4 +188,8 @@ public class Edge2EdgeEssImpl extends AbstractEdge2Edge implements ManagedSymmet
 		return 1;
 	}
 
+	@Override
+	public Timedata getTimedata() {
+		return this.timedata;
+	}
 }

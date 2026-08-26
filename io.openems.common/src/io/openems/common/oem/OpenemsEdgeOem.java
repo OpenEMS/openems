@@ -1,5 +1,10 @@
 package io.openems.common.oem;
 
+import java.util.Map;
+
+import io.openems.common.session.Language;
+import io.openems.common.types.Tuple2;
+
 public interface OpenemsEdgeOem {
 
 	// NOTE: Following values are adopted from SunSpec "Common Model"
@@ -104,7 +109,8 @@ public interface OpenemsEdgeOem {
 	/**
 	 * Gets the Website-URL for the given App-ID.
 	 * 
-	 * @param appId the App-ID
+	 * @param appId    the App-ID
+	 * @param language the language
 	 * @return
 	 *         <ul>
 	 *         <li>a proper URL (e.g. https://...)
@@ -113,7 +119,7 @@ public interface OpenemsEdgeOem {
 	 *         <li>null: App is undefined
 	 *         </ul>
 	 */
-	public String getAppWebsiteUrl(String appId);
+	public String getAppWebsiteUrl(String appId, Language language);
 
 	/**
 	 * Gets the OEM IdentKey for Kaco.BlueplanetHybrid10.Core.
@@ -133,13 +139,79 @@ public interface OpenemsEdgeOem {
 		return null;
 	}
 
+	public record OAuthClientRegistration(String clientId, String clientSecret) {
+	}
+
+	public default OAuthClientRegistration getRabotChargeCredentials() {
+		return null;
+	}
+
 	/**
-	 * Gets the OEM Access-Key for Exchangerate.host (used by
-	 * TimeOfUseTariff.ENTSO-E).
+	 * Gets the OEM authorization for Battery.BMW.
 	 * 
 	 * @return the value
 	 */
-	public default String getExchangeRateAccesskey() {
+	public default Tuple2<String, String> getBmwBatteryAuth() {
 		return null;
+	}
+
+	/**
+	 * Gets the OpenCage API key for geocoding.
+	 *
+	 * @return the API key
+	 */
+	public String getOpenCageApiKey();
+
+	/**
+	 * Returns the Open-Meteo API key.
+	 * 
+	 * <p>
+	 * The API can also be used without a key for non-commercial use.
+	 *
+	 * @return the API key, or null if not set
+	 */
+	public default String getOpenMeteoApiKey() {
+		return null;
+	}
+
+	/**
+	 * Gets the Hardy Barth API key, which is necessary for all versions above 2.2.
+	 *
+	 * @return the API key
+	 */
+	public default String getHardyBarthApiToken() {
+		return null;
+	}
+
+	/**
+	 * Returns a link to a given key.
+	 * 
+	 * @param key the key
+	 * @return the link
+	 */
+	public String getLink(String key);
+
+	/**
+	 * Gets the Website Link for a given {@link Language} from a given Map.
+	 * 
+	 * @param appToWebsiteUrl the map
+	 * @param appId           the id of the app
+	 * @param language        the {@link Language}
+	 * @return the url
+	 */
+	public static String getAppWebsiteUrlFromMap(//
+			Map<String, AppLink> appToWebsiteUrl, //
+			String appId, //
+			Language language//
+	) {
+		var appLink = appToWebsiteUrl.get(appId);
+		if (appLink == null) {
+			return null;
+		}
+		return appLink.getLinkByLanguage(language) //
+				.filter(s -> !s.isBlank()) //
+				.or(() -> appLink.getLinkByLanguage(Language.EN) //
+						.filter(s -> !s.isBlank()))
+				.orElse("");
 	}
 }

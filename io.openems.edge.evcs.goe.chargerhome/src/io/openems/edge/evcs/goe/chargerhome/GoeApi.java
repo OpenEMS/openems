@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 
 import com.google.gson.JsonObject;
 
@@ -177,7 +177,8 @@ public class GoeApi {
 	 */
 	private JsonObject sendRequest(String urlString, String requestMethod) throws OpenemsNamedException {
 		try {
-			var url = new URL(urlString);
+			var uri = URI.create(urlString);
+			var url = uri.toURL();
 			var con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod(requestMethod);
 			con.setConnectTimeout(5000);

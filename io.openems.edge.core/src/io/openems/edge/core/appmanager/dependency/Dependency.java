@@ -47,7 +47,7 @@ public class Dependency {
 		return jsonObjectSerializer(Dependency.class, //
 				json -> new Dependency(//
 						json.getString("key"), //
-						json.getStringPath("instanceId").getAsUuid()), //
+						json.getUuid("instanceId")), //
 				obj -> JsonUtils.buildJsonObject() //
 						.addProperty("key", obj.key) //
 						.addProperty("instanceId", obj.instanceId.toString()) //

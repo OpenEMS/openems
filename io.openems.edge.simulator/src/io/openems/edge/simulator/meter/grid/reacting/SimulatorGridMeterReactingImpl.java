@@ -1,5 +1,9 @@
 package io.openems.edge.simulator.meter.grid.reacting;
 
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.io.IOException;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.Consumer;
@@ -12,13 +16,12 @@ import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
+import io.openems.common.types.MeterType;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -27,7 +30,6 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.MetaEss;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.simulator.Constants;
 import io.openems.edge.timedata.api.Timedata;
 import io.openems.edge.timedata.api.TimedataProvider;
@@ -58,13 +60,10 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 	@Reference
 	private ConfigurationAdmin cm;
 
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(enabled=true)")
 	private void addEss(ManagedSymmetricEss ess) {
 		this.symmetricEsss.add(ess);
@@ -76,10 +75,7 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 		this.symmetricEsss.remove(ess);
 	}
 
-	@Reference(//
-			policy = ReferencePolicy.DYNAMIC, //
-			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.MULTIPLE, //
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = ReferenceCardinality.MULTIPLE, //
 			target = "(&(enabled=true)(!(service.factoryPid=Simulator.GridMeter.Reacting)))")
 	private void addMeter(ElectricityMeter meter) {
 		this.meters.add(meter);
@@ -139,7 +135,9 @@ public class SimulatorGridMeterReactingImpl extends AbstractOpenemsComponent
 			try {
 				switch (m.getMeterType()) {
 				case CONSUMPTION_METERED:
+				case MANAGED_CONSUMPTION_METERED:
 				case GRID:
+				case GRID_GENSET:
 					// ignore
 					break;
 				case CONSUMPTION_NOT_METERED:

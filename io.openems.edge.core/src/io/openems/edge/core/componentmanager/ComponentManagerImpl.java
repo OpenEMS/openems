@@ -1,5 +1,8 @@
 package io.openems.edge.core.componentmanager;
 
+import static io.openems.common.utils.StreamUtils.dictionaryToStream;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toMap;
 
 import java.io.IOException;
@@ -8,11 +11,12 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -32,9 +36,7 @@ import org.osgi.service.component.runtime.ServiceComponentRuntime;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.MetaTypeService;
 import org.osgi.service.metatype.annotations.Designate;
-import org.slf4j.Logger;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonNull;
 
 import io.openems.common.OpenemsConstants;
@@ -42,17 +44,23 @@ import io.openems.common.channel.ChannelCategory;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
-import io.openems.common.jsonrpc.base.GenericJsonrpcResponseSuccess;
-import io.openems.common.jsonrpc.request.CreateComponentConfigRequest;
-import io.openems.common.jsonrpc.request.DeleteComponentConfigRequest;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
+import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord.OptionsEnumEntry;
 import io.openems.common.jsonrpc.request.GetEdgeConfigRequest;
-import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest;
+import io.openems.common.jsonrpc.request.GetStateChannelsOfComponent;
 import io.openems.common.jsonrpc.request.UpdateComponentConfigRequest.Property;
 import io.openems.common.jsonrpc.response.GetEdgeConfigResponse;
+import io.openems.common.jsonrpc.serialization.EmptyObject;
+import io.openems.common.jsonrpc.type.CreateComponentConfig;
+import io.openems.common.jsonrpc.type.DeleteComponentConfig;
+import io.openems.common.jsonrpc.type.UpdateComponentConfig;
+import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
+import io.openems.common.utils.StreamUtils;
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.EnumDoc;
 import io.openems.edge.common.channel.StateChannelDoc;
@@ -69,11 +77,10 @@ import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxRequest;
 import io.openems.edge.core.componentmanager.jsonrpc.ChannelExportXlsxResponse;
 import io.openems.edge.core.componentmanager.jsonrpc.GetAllComponentFactories;
 import io.openems.edge.core.componentmanager.jsonrpc.GetChannel;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent;
-import io.openems.edge.core.componentmanager.jsonrpc.GetChannelsOfComponent.ChannelRecord;
+import io.openems.edge.core.componentmanager.jsonrpc.GetChannelCount;
 import io.openems.edge.core.componentmanager.jsonrpc.GetDigitalInputChannelsOfComponents;
 import io.openems.edge.core.componentmanager.jsonrpc.GetPropertiesOfFactory;
-import io.openems.edge.core.componentmanager.jsonrpc.GetStateChannelsOfComponent;
+import io.openems.edge.core.componentmanager.tracker.TrackedComponentsView;
 import io.openems.edge.io.api.DigitalInput;
 
 @Designate(ocd = Config.class, factory = false)
@@ -90,6 +97,9 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	private final EdgeConfigWorker edgeConfigWorker;
 
 	protected BundleContext bundleContext;
+
+	@Reference
+	private TrackedComponentsView components;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL)
 	private volatile ClockProvider clockProvider = null;
@@ -111,14 +121,15 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				OpenemsComponent.ChannelId.values(), //
 				ComponentManager.ChannelId.values() //
 		);
+		this.edgeConfigWorker = new EdgeConfigWorker(this);
 		this.workers.add(new OsgiValidateWorker(this));
 		this.workers.add(new OutOfMemoryHeapDumpWorker(this));
 		this.workers.add(new DefaultConfigurationWorker(this));
-		this.workers.add(this.edgeConfigWorker = new EdgeConfigWorker(this));
+		this.workers.add(this.edgeConfigWorker);
 	}
 
 	@Activate
-	private void activate(ComponentContext componentContext, BundleContext bundleContext) throws OpenemsException {
+	private void activate(ComponentContext componentContext, BundleContext bundleContext) {
 		super.activate(componentContext, SINGLETON_COMPONENT_ID, SINGLETON_SERVICE_PID, true);
 		this.bundleContext = bundleContext;
 
@@ -126,9 +137,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			worker.activate(this.id());
 		}
 
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
+		OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID);
 	}
 
 	@Modified
@@ -140,9 +149,7 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			worker.modified(this.id());
 		}
 
-		if (OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID)) {
-			return;
-		}
+		OpenemsComponent.validateSingleton(this.cm, SINGLETON_SERVICE_PID, SINGLETON_COMPONENT_ID);
 	}
 
 	@Override
@@ -156,121 +163,61 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	public List<OpenemsComponent> getEnabledComponents() {
-		return this.getComponentsViaService("(&(enabled=true)(!(service.factoryPid=Core.ComponentManager)))");
+	public Map<String, Object> getComponentProperties(String componentId) {
+		Configuration config;
+		try {
+			config = this.getExistingConfigForId(componentId);
+		} catch (OpenemsNamedException e) {
+			return emptyMap();
+		}
+
+		if (config == null) {
+			return emptyMap();
+		}
+		final var props = config.getProperties();
+		if (props == null) {
+			return emptyMap();
+		}
+
+		return StreamUtils.dictionaryToStream(props) //
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 	}
 
 	@Override
+	public List<OpenemsComponent> getEnabledComponents() {
+		return this.components.getEnabledComponents();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> List<T> getEnabledComponentsOfType(Class<T> clazz) {
-		return this.getComponentsViaService(clazz, "(enabled=true)");
+		return this.components.getEnabledComponents().stream() //
+				.filter(component -> clazz.isAssignableFrom(component.getClass())) //
+				.map(component -> (T) component) //
+				.toList();
 	}
 
 	@Override
 	public List<OpenemsComponent> getAllComponents() {
-		return this.getComponentsViaService("(!(service.factoryPid=" + ComponentManager.SINGLETON_SERVICE_PID + "))");
+		return this.components.getAllComponents();
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> T getComponent(String componentId) throws OpenemsNamedException {
-		var component = this.getComponentViaService(componentId, true);
-		if (component != null) {
-			return (T) component;
-		}
-		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
+		return this.components.getComponentById(componentId) //
+				.filter(OpenemsComponent::isEnabled) //
+				.map(component -> (T) component) //
+				.orElseThrow(() -> OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId));
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T extends OpenemsComponent> T getPossiblyDisabledComponent(String componentId)
 			throws OpenemsNamedException {
-		var component = this.getComponentViaService(componentId);
-		if (component != null) {
-			return (T) component;
-		}
-		throw OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId);
-	}
-
-	/**
-	 * Gets the components via OSGi service reference.
-	 *
-	 * @param filter the filter for the components
-	 * @return the components matching the filter
-	 */
-	private List<OpenemsComponent> getComponentsViaService(String filter) {
-		return this.getComponentsViaService(OpenemsComponent.class, filter);
-	}
-
-	/**
-	 * Gets the components via OSGi service reference.
-	 * 
-	 * @param <T>    the class type
-	 * @param clazz  The class under whose name the service was registered. Must not
-	 *               be {@code null}.
-	 * @param filter the filter for the components
-	 * @return the components matching the filter
-	 */
-	private <T> List<T> getComponentsViaService(Class<T> clazz, String filter) {
-		if (this.bundleContext == null) {
-			// Can be null in JUnit tests
-			return Collections.emptyList();
-		}
-
-		try {
-			var serviceReferences = this.bundleContext.getServiceReferences(clazz, filter);
-
-			var allComponents = new ArrayList<T>(serviceReferences.size());
-			for (var reference : serviceReferences) {
-				var component = this.bundleContext.getService(reference);
-				if (component == null) {
-					continue;
-				}
-				allComponents.add(component);
-				this.bundleContext.ungetService(reference);
-			}
-			return allComponents;
-
-		} catch (InvalidSyntaxException e) {
-			// filter invalid
-			e.printStackTrace();
-			return Collections.emptyList();
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-			return Collections.emptyList();
-		}
-	}
-
-	/**
-	 * Gets the component via OSGi service reference. Be careful, that the Component
-	 * might not be 'enabled'.
-	 *
-	 * @param <T>         the type of the component
-	 * @param componentId the id of the component
-	 * @return the component or null if not found
-	 */
-	private <T extends OpenemsComponent> T getComponentViaService(String componentId) {
-		return this.getComponentViaService(componentId, false);
-	}
-
-	/**
-	 * Gets the component via OSGi service reference.
-	 *
-	 * @param <T>            the type of the component
-	 * @param componentId    the id of the component
-	 * @param hasToBeEnabled if the component has to be enabled
-	 * @return the component or null if not found
-	 */
-	@SuppressWarnings("unchecked")
-	private <T extends OpenemsComponent> T getComponentViaService(String componentId, boolean hasToBeEnabled) {
-		var filter = "(id=" + componentId + ")";
-		if (hasToBeEnabled) {
-			filter = "(&(enabled=true)" + filter + ")";
-		}
-		var components = this.getComponentsViaService(filter);
-		if (components.isEmpty()) {
-			return null;
-		}
-		return (T) components.get(0);
+		return this.components.getComponentById(componentId) //
+				.map(component -> (T) component) //
+				.orElseThrow(() -> OpenemsError.EDGE_NO_COMPONENT_WITH_ID.exception(componentId));
 	}
 
 	@Override
@@ -289,206 +236,198 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	}
 
 	@Override
-	protected void logInfo(Logger log, String message) {
-		super.logInfo(log, message);
-	}
-
-	@Override
-	protected void logWarn(Logger log, String message) {
-		super.logWarn(log, message);
-	}
-
-	@Override
-	protected void logError(Logger log, String message) {
-		super.logError(log, message);
-	}
-
-	@Override
 	public void buildJsonApiRoutes(JsonApiBuilder builder) {
-		builder.handleRequest(GetEdgeConfigRequest.METHOD, endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetEdgeConfigRequest.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST));
-		}, t -> {
-			return this.handleGetEdgeConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					GetEdgeConfigRequest.from(t.getRequest()));
-		});
+		builder.handleRequest(GetEdgeConfigRequest.METHOD, //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetEdgeConfigRequest.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleast(Role.GUEST)),
+				t -> this.handleGetEdgeConfigRequest(GetEdgeConfigRequest.from(t.getRequest())));
 
-		builder.handleRequest(CreateComponentConfigRequest.METHOD, endpoint -> {
-			endpoint.setDescription("""
-					Handles a CreateComponentConfigRequest.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
-							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
-		}, t -> {
-			this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					CreateComponentConfigRequest.from(t.getRequest()));
+		builder.handleRequest(new CreateComponentConfig(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a CreateComponentConfigRequest.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+								EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN)),
+				t -> {
+					this.handleCreateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
-		});
+					return EmptyObject.INSTANCE;
+				});
 
-		builder.handleRequest(UpdateComponentConfigRequest.METHOD, endpoint -> {
-			endpoint.setDescription("""
-					Handles a UpdateComponentConfigRequest.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER));
-		}, t -> {
-			this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					UpdateComponentConfigRequest.from(t.getRequest()));
+		builder.handleRequest(new UpdateComponentConfig(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a UpdateComponentConfigRequest.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleast(Role.OWNER)),
+				t -> {
+					this.handleUpdateComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
-		});
+					return EmptyObject.INSTANCE;
+				});
 
-		builder.handleRequest(DeleteComponentConfigRequest.METHOD, endpoint -> {
-			endpoint.setDescription("""
-					Handles a DeleteComponentConfigRequest.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
-							EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN));
-		}, t -> {
-			this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), //
-					DeleteComponentConfigRequest.from(t.getRequest()));
+		builder.handleRequest(new DeleteComponentConfig(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a DeleteComponentConfigRequest.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleastFromBackend(Role.INSTALLER), //
+								EdgeGuards.roleIsAtleastNotFromBackend(Role.ADMIN)),
+				t -> {
+					this.handleDeleteComponentConfigRequest(t.get(EdgeKeys.USER_KEY), t.getRequest());
 
-			return new GenericJsonrpcResponseSuccess(t.getRequest().getId());
-		});
+					return EmptyObject.INSTANCE;
+				});
 
-		builder.handleRequest(ChannelExportXlsxRequest.METHOD, endpoint -> {
-			endpoint.setDescription("""
-					Handles a ChannelExportXlsxRequest.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
-		}, t -> {
-			return this.handleChannelExportXlsxRequest(t.get(EdgeKeys.USER_KEY), //
-					ChannelExportXlsxRequest.from(t.getRequest()));
-		});
+		builder.handleRequest(ChannelExportXlsxRequest.METHOD, //
+				endpoint -> endpoint.setDescription("""
+						Handles a ChannelExportXlsxRequest.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)),
+				t -> this.handleChannelExportXlsxRequest(t.get(EdgeKeys.USER_KEY), //
+						ChannelExportXlsxRequest.from(t.getRequest())));
 
-		builder.handleRequest(new GetStateChannelsOfComponent(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetStateChannelsOfComponent.
-					""");
+		builder.handleRequest(new GetStateChannelsOfComponent(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetStateChannelsOfComponent.
+						"""), //
+				call -> {
+					final var user = call.get(EdgeKeys.USER_KEY);
+					final var lang = user.getLanguage();
+
+					final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels()
+							.stream() //
+							.filter(t -> t.channelDoc().getChannelCategory() == ChannelCategory.STATE) //
+							.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
+							.toList();
+
+					return new GetStateChannelsOfComponent.Response(channels);
+				});
+
+		builder.handleRequest(new GetChannelsOfComponent(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetStateChannelsOfComponent.
+						"""), //
+				call -> {
+
+					final var user = call.get(EdgeKeys.USER_KEY);
+					final var lang = user.getLanguage();
+
+					final OpenemsComponent component;
+					if (call.getRequest().requireEnabled()) {
+						component = this.getComponent(call.getRequest().componentId());
+					} else {
+						component = this.getPossiblyDisabledComponent(call.getRequest().componentId());
+					}
+					final var channels = component.channels().stream() //
+							.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
+							.toList();
+					return new GetChannelsOfComponent.Response(channels);
+				});
+
+		builder.handleRequest(new GetChannel(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetChannel.
+						"""), //
+				call -> {
+					final var request = call.getRequest();
+					final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
+
+					final var user = call.get(EdgeKeys.USER_KEY);
+					final var lang = user.getLanguage();
+					return new GetChannel.Response(toChannelRecord(channel, lang));
+				});
+
+		builder.handleRequest(new GetDigitalInputChannelsOfComponents(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetDigitalInputChannelsOfComponent.
+						"""), //
+				call -> {
+
+					final var user = call.get(EdgeKeys.USER_KEY);
+					final var lang = user.getLanguage();
+					final var result = this.getEnabledComponentsOfType(DigitalInput.class).stream() //
+							.filter(t -> call.getRequest().componentIds().contains(t.id())) //
+							.collect(toMap(OpenemsComponent::id, t -> Arrays.stream(t.digitalInputChannels()) //
+									.map(channel -> ComponentManagerImpl.toChannelRecord(channel, lang)) //
+									.toList()));
+
+					return new GetDigitalInputChannelsOfComponents.Response(result);
+				});
+
+		builder.handleRequest(new GetChannelCount(), endpoint -> {
+			endpoint.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
 		}, call -> {
-			// TODO could be used for translating channel texts
-			// final var user = call.get(EdgeKeys.USER_KEY);
+			final var numberOfChannels = this.getAllComponents().stream() //
+					.mapToLong(t -> t.channels().size()) //
+					.sum();
 
-			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
-					.filter(t -> t.channelDoc().getChannelCategory() == ChannelCategory.STATE) //
-					.map(ComponentManagerImpl::toChannelRecord) //
-					.toList();
-
-			return new GetStateChannelsOfComponent.Response(channels);
+			return new GetChannelCount.Response(numberOfChannels);
 		});
 
-		builder.handleRequest(new GetChannelsOfComponent(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetStateChannelsOfComponent.
-					""");
-		}, call -> {
-			final var channels = this.getPossiblyDisabledComponent(call.getRequest().componentId()).channels().stream() //
-					.map(ComponentManagerImpl::toChannelRecord) //
-					.toList();
+		builder.handleRequest(new GetAllComponentFactories(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetAllComponentFactories.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)), //
+				call -> {
+					final var edgeConfig = this.getEdgeConfig();
 
-			return new GetChannelsOfComponent.Response(channels);
-		});
+					return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()
+							.collect(JsonUtils.toJsonObject(Entry::getKey, i -> i.getValue().toJson())));
+				});
 
-		builder.handleRequest(new GetChannel(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetChannel.
-					""");
-		}, call -> {
-			final var request = call.getRequest();
-			final var channel = this.getChannel(new ChannelAddress(request.componentId(), request.channelId()));
+		builder.handleRequest(new GetPropertiesOfFactory(), //
+				endpoint -> endpoint.setDescription("""
+						Handles a GetPropertiesOfFactory.
+						""") //
+						.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN)), //
+				call -> {
+					final var factoryId = call.getRequest().factoryId();
 
-			return new GetChannel.Response(toChannelRecord(channel));
-		});
+					final var edgeConfig = this.getEdgeConfig();
+					final var factory = edgeConfig.getFactories().get(factoryId);
 
-		builder.handleRequest(new GetDigitalInputChannelsOfComponents(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetDigitalInputChannelsOfComponent.
-					""");
-		}, call -> {
+					if (factory == null) {
+						throw new OpenemsException("Factory with id " + factoryId + " could not be found.");
+					}
 
-			final var result = this.getEnabledComponentsOfType(DigitalInput.class).stream() //
-					.filter(t -> call.getRequest().componentIds().contains(t.id())) //
-					.collect(toMap(OpenemsComponent::id, t -> Arrays.stream(t.digitalInputChannels()) //
-							.map(ComponentManagerImpl::toChannelRecord) //
-							.toList()));
-
-			return new GetDigitalInputChannelsOfComponents.Response(result);
-		});
-
-		builder.handleRequest(new GetAllComponentFactories(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetAllComponentFactories.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
-		}, call -> {
-			final var edgeConfig = this.getEdgeConfig();
-
-			return new GetAllComponentFactories.Response(edgeConfig.getFactories().entrySet().stream()
-					.collect(JsonUtils.toJsonObject(Entry::getKey, i -> i.getValue().toJson())));
-		});
-
-		builder.handleRequest(new GetPropertiesOfFactory(), endpoint -> {
-			endpoint.setDescription("""
-					Handles a GetPropertiesOfFactory.
-					""") //
-					.setGuards(EdgeGuards.roleIsAtleast(Role.ADMIN));
-		}, call -> {
-			final var factoryId = call.getRequest().factoryId();
-
-			final var edgeConfig = this.getEdgeConfig();
-			final var factory = edgeConfig.getFactories().get(factoryId);
-
-			if (factory == null) {
-				throw new OpenemsException("Factory with id " + factoryId + " could not be found.");
-			}
-
-			return new GetPropertiesOfFactory.Response(factory.toJson(), Stream.of(factory.getProperties()) //
-					.map(EdgeConfig.Factory.Property::toJson) //
-					.collect(JsonUtils.toJsonArray()));
-		});
+					return new GetPropertiesOfFactory.Response(factory.toJson(), Stream.of(factory.getProperties()) //
+							.map(EdgeConfig.Factory.Property::toJson) //
+							.collect(JsonUtils.toJsonArray()));
+				});
 	}
 
-	private static ChannelRecord toChannelRecord(Channel<?> channel) {
+	private static ChannelRecord toChannelRecord(Channel<?> channel, Language language) {
 		return new GetChannelsOfComponent.ChannelRecord(//
 				channel.channelId().id(), //
 				channel.channelDoc().getAccessMode(), //
-				channel.channelDoc().getPersistencePriority(), //
-				channel.channelDoc().getText(), //
+				channel.channelDoc().getRemotePersistencePriority(), //
+				channel.channelDoc().getText(language), //
 				channel.channelDoc().getType(), //
 				channel.channelDoc().getUnit(), //
 				channel.channelDoc().getChannelCategory(), //
 				channel.channelDoc() instanceof StateChannelDoc c ? c.getLevel() : null, //
-				channel.channelDoc() instanceof EnumDoc c ? Lists.newArrayList(c.getOptions()) : null);
+				channel.channelDoc() instanceof EnumDoc c ? Stream.of(c.getOptions()) //
+						.map(OptionsEnumEntry::from) //
+						.toList() : null);
 	}
 
 	/**
 	 * Handles a {@link GetEdgeConfigRequest}.
 	 *
-	 * @param user    the {@link User}
 	 * @param request the {@link GetEdgeConfigRequest}
 	 * @return the Future JSON-RPC Response
 	 * @throws OpenemsNamedException on error
 	 */
-	private GetEdgeConfigResponse handleGetEdgeConfigRequest(User user, GetEdgeConfigRequest request)
-			throws OpenemsNamedException {
+	private GetEdgeConfigResponse handleGetEdgeConfigRequest(GetEdgeConfigRequest request) {
 		var config = this.getEdgeConfig();
 		return new GetEdgeConfigResponse(request.getId(), config);
 	}
 
-	@Override
-	public void handleCreateComponentConfigRequest(User user, CreateComponentConfigRequest request)
+	private Configuration getConfigurationForComponentOrSingleton(String componentId, String factoryPid)
 			throws OpenemsNamedException {
-		// Get Component-ID from Request
-		String componentId = null;
-		for (Property property : request.getProperties()) {
-			if (property.getName().equals("id")) {
-				componentId = JsonUtils.getAsString(property.getValue());
-			}
-		}
-
-		Configuration config;
+		final Configuration config;
 		if (componentId != null) {
 			// Normal OpenEMS Component with ID.
 			// Check that there is currently no Component with the same ID.
@@ -503,81 +442,89 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 				throw new OpenemsException("A Component with id [" + componentId + "] is already existing!");
 			}
 			try {
-				config = this.cm.createFactoryConfiguration(request.getFactoryPid(), null);
+				config = this.cm.createFactoryConfiguration(factoryPid, null);
 			} catch (IOException e) {
-				e.printStackTrace();
-				throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID ["
-						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+				throw OpenemsError.GENERIC.exception("Unable create Configuration for Factory-ID [" + factoryPid + "]. "
+						+ e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 
 		} else {
 			// Singleton?
 			try {
-				config = this.cm.getConfiguration(request.getFactoryPid(), null);
+				config = this.cm.getConfiguration(factoryPid, null);
 			} catch (IOException e) {
-				e.printStackTrace();
-				throw OpenemsError.GENERIC.exception("Unable to get Configurations for Factory-PID ["
-						+ request.getFactoryPid() + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+				throw OpenemsError.GENERIC.exception("Unable to get Configurations for Factory-PID [" + factoryPid
+						+ "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
 			}
 			if (config.getProperties() != null) {
-				throw new OpenemsException(
-						"A Singleton Component for PID [" + request.getFactoryPid() + "] is already existing!");
+				throw new OpenemsException("A Singleton Component for PID [" + factoryPid + "] is already existing!");
+			}
+		}
+		return config;
+	}
+
+	@Override
+	public void handleCreateComponentConfigRequest(User user, CreateComponentConfig.Request request)
+			throws OpenemsNamedException {
+		// Get Component-ID from Request
+		String componentId = null;
+		for (Property property : request.properties()) {
+			if (property.name().equals("id")) {
+				componentId = JsonUtils.getAsString(property.value());
 			}
 		}
 
+		final var config = this.getConfigurationForComponentOrSingleton(componentId, request.factoryPid());
+
 		// Create map with configuration attributes
 		Dictionary<String, Object> properties = new Hashtable<>();
-		for (Property property : request.getProperties()) {
-			var value = JsonUtils.getAsBestType(property.getValue());
-			if (value instanceof Object[] && ((Object[]) value).length == 0) {
+		for (Property property : request.properties()) {
+			var value = JsonUtils.getAsBestType(property.value());
+			if (value instanceof Object[] os && os.length == 0) {
 				value = new String[0];
 			}
-			properties.put(property.getName(), value);
+			properties.put(property.name(), value);
 		}
 
 		// Update Configuration
 		try {
 			this.applyConfiguration(user, config, properties);
 		} catch (IOException | IllegalArgumentException e) {
-			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.getFactoryPid(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_CREATE_CONFIG.exception(request.factoryPid(), e.getMessage());
 		}
 	}
 
 	@Override
-	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfigRequest request)
+	public void handleUpdateComponentConfigRequest(User user, UpdateComponentConfig.Request request)
 			throws OpenemsNamedException {
-		var config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.componentId());
 
 		// Create map with changed configuration attributes
 		var properties = config.getProperties();
 		if (properties == null) {
-			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(),
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(),
 					config.getPid() + ": Properties is 'null'");
 		}
 
-		// Reset all target properties to avoid missing old references
-		for (var k = properties.keys(); k.hasMoreElements();) {
-			var property = k.nextElement();
-			if (property.endsWith(".target")) {
-				properties.put(property, "(enabled=true)");
-			}
+		// Reset Target-Properties to avoid missing old references
+		for (var property : getResetTargetProperties(properties, request.properties())) {
+			properties.put(property, "(enabled=true)");
 		}
 
-		for (Property property : request.getProperties()) {
+		for (Property property : request.properties()) {
 			// do not allow certain properties to be updated, like pid and service.pid
-			if (!EdgeConfig.ignorePropertyKey(property.getName())) {
-				var jValue = property.getValue();
+			if (!EdgeConfig.ignorePropertyKey(property.name())) {
+				var jValue = property.value();
 				if (jValue == null || jValue == JsonNull.INSTANCE) {
 					// Remove NULL property
-					properties.remove(property.getName());
+					properties.remove(property.name());
 				} else {
 					// Add updated Property
-					var value = JsonUtils.getAsBestType(property.getValue());
-					if (value instanceof Object[] && ((Object[]) value).length == 0) {
+					var value = JsonUtils.getAsBestType(property.value());
+					if (value instanceof Object[] os && os.length == 0) {
 						value = new String[0];
 					}
-					properties.put(property.getName(), value);
+					properties.put(property.name(), value);
 				}
 			}
 		}
@@ -586,21 +533,47 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		try {
 			this.applyConfiguration(user, config, properties);
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.getComponentId(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_APPLY_CONFIG.exception(request.componentId(), e.getMessage());
 		}
 	}
 
+	/**
+	 * Finds properties with depending '.target' properties, like 'battery.id' and
+	 * 'battery.target'. If such a ID-Property should be updated (via
+	 * UpdateComponentConfig.Request), the corresponding Target-Property is returned
+	 * in the list and later reset to "(enabled=true)". In the Component this
+	 * triggers Deactivate/Activate instead of Modified.
+	 * 
+	 * @param properties Properties of the existing configuration
+	 * @param request    Properties of UpdateComponentConfig.Request
+	 * @return list of Target-Properties that should be reset
+	 */
+	private static List<String> getResetTargetProperties(Dictionary<String, Object> properties,
+			List<Property> request) {
+		return dictionaryToStream(properties) //
+				.map(Entry::getKey) //
+				.filter(p -> p.endsWith(".target")) // e.g. 'battery.target'
+				.filter(p -> {
+					var base = p.substring(0, p.length() //
+							- "target".length()) // keep the final dot, e.g. 'battery.'
+							.toLowerCase(); // match case-insensitive
+					return request.stream() //
+							.map(Property::name) //
+							// matches 'battery.id' but not 'batteryInverter.id'
+							.anyMatch(n -> n.toLowerCase().startsWith(base));
+				}) //
+				.toList();
+	}
+
 	@Override
-	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfigRequest request)
+	public void handleDeleteComponentConfigRequest(User user, DeleteComponentConfig.Request request)
 			throws OpenemsNamedException {
-		var config = this.getExistingConfigForId(request.getComponentId());
+		var config = this.getExistingConfigForId(request.componentId());
 
 		try {
 			config.delete();
 		} catch (IOException e) {
-			e.printStackTrace();
-			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.getComponentId(), e.getMessage());
+			throw OpenemsError.EDGE_UNABLE_TO_DELETE_CONFIG.exception(request.componentId(), e.getMessage());
 		}
 	}
 
@@ -657,7 +630,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 		try {
 			configs = this.listConfigurations(componentId);
 		} catch (IOException | InvalidSyntaxException e) {
-			e.printStackTrace();
 			throw OpenemsError.GENERIC.exception("Unable to list configurations for ID [" + componentId + "]. "
 					+ e.getClass().getSimpleName() + ": " + e.getMessage());
 		}
@@ -668,7 +640,6 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 			try {
 				return this.cm.getConfiguration(factoryPid, null);
 			} catch (IOException e) {
-				e.printStackTrace();
 				throw OpenemsError.GENERIC.exception(
 						"Unable to get Singleton-Component Configuration for ID [" + componentId + "], Factory-PID ["
 								+ factoryPid + "]. " + e.getClass().getSimpleName() + ": " + e.getMessage());
@@ -687,47 +658,18 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 	 * searching through Factory default values.
 	 *
 	 * @param componentId the Component-ID
-	 * @return an array of Configurations
+	 * @return a {@link List} of {@link Configuration Configurations}
 	 * @throws InvalidSyntaxException on error
 	 * @throws IOException            on error
 	 */
 	private List<Configuration> listConfigurations(String componentId) throws IOException, InvalidSyntaxException {
-		List<Configuration> result = new ArrayList<>();
-		var configs = this.cm.listConfigurations(null);
+		var configs = this.cm.listConfigurations("(id=" + componentId + ")");
+
 		if (configs == null) {
-			return result;
+			return emptyList();
 		}
 
-		for (Configuration config : configs) {
-			var id = config.getProperties().get("id");
-			if (id != null) {
-				// Configuration has an 'id' property
-				if (id instanceof String && componentId.equals(id)) {
-					// 'id' property matches
-					result.add(config);
-				}
-
-			} else {
-				// compare default value for property 'id'
-				var factoryPid = config.getFactoryPid();
-				if (factoryPid == null) {
-					// Singleton?
-					factoryPid = config.getPid();
-					if (factoryPid == null) {
-						continue;
-					}
-				}
-				var factory = this.getEdgeConfig().getFactories().get(factoryPid);
-				if (factory == null) {
-					continue;
-				}
-				var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
-				if (defaultValue.isPresent() && componentId.equals(defaultValue.get())) {
-					result.add(config);
-				}
-			}
-		}
-		return result;
+		return List.of(configs);
 	}
 
 	@Override
@@ -744,11 +686,30 @@ public class ComponentManagerImpl extends AbstractOpenemsComponent
 
 	@Override
 	public Clock getClock() {
-		var clockProvider = this.clockProvider;
-		if (clockProvider != null) {
-			return clockProvider.getClock();
+		final var clock = this.clockProvider;
+		if (clock != null) {
+			return clock.getClock();
 		}
 		return Clock.systemDefaultZone();
+	}
+
+	/**
+	 * Checks if there are currently any duplicate component IDs.
+	 * 
+	 * @return true if there are duplicate components, false otherwise
+	 */
+	boolean hasDuplicates() {
+		return this.components.hasDuplicates();
+	}
+
+	/**
+	 * Gets a list of component IDs that have duplicates.
+	 * 
+	 * @return a list of component IDs that have duplicates, or an empty list if
+	 *         there are no duplicates
+	 */
+	List<String> getDuplicateIds() {
+		return this.components.getDuplicateIds();
 	}
 
 }

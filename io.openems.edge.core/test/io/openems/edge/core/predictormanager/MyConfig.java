@@ -7,7 +7,14 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 
+		private String[] predictorIds;
+
 		private Builder() {
+		}
+
+		public Builder setPredictorIds(String... predictorIds) {
+			this.predictorIds = predictorIds;
+			return this;
 		}
 
 		public MyConfig build() {
@@ -29,5 +36,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	private MyConfig(Builder builder) {
 		super(Config.class, PredictorManagerImpl.SINGLETON_COMPONENT_ID);
 		this.builder = builder;
+	}
+
+	@Override
+	public String[] predictor_ids() {
+		return this.builder.predictorIds;
 	}
 }

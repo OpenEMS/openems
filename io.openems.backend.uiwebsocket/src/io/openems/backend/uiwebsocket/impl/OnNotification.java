@@ -21,6 +21,11 @@ public class OnNotification implements io.openems.common.websocket.OnNotificatio
 	@Override
 	public void accept(WebSocket ws, JsonrpcNotification notification) throws OpenemsNamedException {
 		WsData wsData = ws.getAttachment();
+		if (!wsData.checkLimiter(notification.getMethod())) {
+			this.log.debug("Too Many Requests! Notification [{}] discarded by Rate-Limiter.", notification.getMethod());
+			return;
+		}
+
 		User user = null;
 		try {
 			user = this.parent.assertUser(wsData, notification);

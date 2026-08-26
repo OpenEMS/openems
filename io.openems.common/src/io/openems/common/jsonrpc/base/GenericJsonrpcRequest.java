@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.google.gson.JsonObject;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.jsonrpc.serialization.EndpointRequestType;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -25,6 +26,23 @@ import io.openems.common.utils.JsonUtils;
  *      specification</a>
  */
 public class GenericJsonrpcRequest extends JsonrpcRequest {
+
+	/**
+	 * Creates a GenericJsonrpcRequest from the provided object.
+	 * 
+	 * @param <REQUEST>    the original type of the request
+	 * @param endpointType the definition of the endpoint
+	 * @param request      the request to transform into a
+	 *                     {@link GenericJsonrpcRequest}
+	 * @return the created {@link GenericJsonrpcRequest}
+	 */
+	public static <REQUEST> GenericJsonrpcRequest createRequest(//
+			EndpointRequestType<REQUEST, ?> endpointType, //
+			REQUEST request //
+	) {
+		return new GenericJsonrpcRequest(endpointType.getMethod(),
+				endpointType.getRequestSerializer().serialize(request).getAsJsonObject());
+	}
 
 	/**
 	 * Parses the String to a {@link GenericJsonrpcRequest}.

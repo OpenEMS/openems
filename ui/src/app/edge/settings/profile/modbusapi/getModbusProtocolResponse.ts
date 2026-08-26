@@ -1,4 +1,4 @@
-import { JsonrpcResponseSuccess } from '../../../../shared/jsonrpc/base';
+import { JsonrpcResponseSuccess } from "../../../../shared/jsonrpc/base";
 
 /**
  * Wraps a JSON-RPC Response to "getModbusProtocol" Request

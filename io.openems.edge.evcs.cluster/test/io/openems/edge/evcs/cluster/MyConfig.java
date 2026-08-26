@@ -8,12 +8,13 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	protected static class Builder {
 
-		private String id = "evcsCluster0";
-		private boolean debugMode = false;
-		private int hardwarePowerLimitPerPhase = 7000;
-		private String[] evcsIds = { "evcs0", "evcs1" };
-		private String essId = "ess0";
-		private String meterId = "meter0";
+		private String id;
+		private boolean debugMode;
+		private int hardwarePowerLimitPerPhase;
+		private int minimumGuaranteeChargePower = 4500;
+		private String[] evcsIds;
+		private String essId;
+		private String meterId;
 
 		private Builder() {
 		}
@@ -33,7 +34,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setEvcsIds(String[] evcsIds) {
+		public Builder setMinimumGuaranteeChargePower(int minimumGuaranteeChargePower) {
+			this.minimumGuaranteeChargePower = minimumGuaranteeChargePower;
+			return this;
+		}
+
+		public Builder setEvcsIds(String... evcsIds) {
 			this.evcsIds = evcsIds;
 			return this;
 		}
@@ -102,5 +108,10 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String meter_id() {
 		return this.builder.meterId;
+	}
+
+	@Override
+	public int minimumGuaranteeChargePower() {
+		return this.builder.minimumGuaranteeChargePower;
 	}
 }

@@ -17,9 +17,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
-import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.app.api.ModbusTcpApiReadOnly.Property;
@@ -29,7 +27,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
-import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -74,14 +71,8 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 							.getComponentIdsByFactory("Controller.Api.ModbusTcp.ReadWrite").size() == 0;
 					return new JsonPrimitive(active);
 				})), //
-		COMPONENT_IDS(AppDef.copyOfGeneric(ModbusTcpApiProps.pickModbusIds(), def -> def //
-				.setDefaultValue((app, property, l, parameter) -> {
-					return JsonUtils.buildJsonArray() //
-							.add("_sum") //
-							.build();
-				}) //
-				.bidirectional(CONTROLLER_ID, "component.ids", ComponentManagerSupplier::getComponentManager) //
-				.appendIsAllowedToSee(AppDef.ofLeastRole(Role.ADMIN)))), //
+		COMPONENT_IDS(ModbusApiProps.componentIds(CONTROLLER_ID, false) //
+				.setRequired(true)) //
 		;
 
 		private AppDef<? super ModbusTcpApiReadOnly, ? super Property, ? super BundleParameter> def;
@@ -111,13 +102,6 @@ public class ModbusTcpApiReadOnly extends AbstractOpenemsAppWithProps<ModbusTcpA
 	public ModbusTcpApiReadOnly(@Reference ComponentManager componentManager, ComponentContext context,
 			@Reference ConfigurationAdmin cm, @Reference ComponentUtil componentUtil) {
 		super(componentManager, context, cm, componentUtil);
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

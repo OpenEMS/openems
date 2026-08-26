@@ -1,62 +1,111 @@
-import { Component, Input, OnChanges, OnInit } from "@angular/core";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ToastController } from "@ionic/angular";
+import { isAfter } from "date-fns";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
+import { DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
 
 @Component({
-  selector: 'oe-notification',
-  template: '',
+    selector: "oe-notification",
+    template: "",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
-export class NotificationComponent implements OnInit, OnChanges {
+export class NotificationComponent implements OnInit {
+    private static readonly PREFIX = "hide-notification-";
+    private static readonly MAX_SHOW_DATE = new Date(2025, 9, 8);
+    private static THREE_DAYS_IN_S: number = 60 * 60 * 24 * 3;
 
-  private static readonly PREFIX = 'hide-notification-';
+    @Input() private text: string | null = null;
+    @Input() private id: string | number | null = null;
 
-  @Input() private text: string | null = null;
-  @Input() private id: string | number | null = null;
+    private hideMessage: boolean = true;
 
-  private hideMessage: boolean = true;
+    constructor(private toastCtrl: ToastController) {}
 
-  constructor(private toastie: ToastController) { }
+    ngOnInit() {
+        const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);
+        const hasMaxShowDateBeenReached = isAfter(new Date(), NotificationComponent.MAX_SHOW_DATE);
+        if (hasMaxShowDateBeenReached == false && note == null) {
+            this.hideMessage = false;
+            this.createToast();
+            return;
+        }
 
-  ngOnInit() {
-    const note = localStorage.getItem(NotificationComponent.PREFIX + this.id);
-    this.hideMessage = note != null ? note === 'true' : false;
+        const hasNotBeenShown =
+            DateTimeUtils.isDifferenceInSecondsGreaterThan(
+                NotificationComponent.THREE_DAYS_IN_S,
+                new Date(),
+                DateUtils.stringToDate(note),
+            ) == false;
 
-    this.createToast();
-  }
-
-  ngOnChanges() {
-    this.createToast();
-  }
-
-  /**
-   * Creates a toast and hides it, if it has been seen.
-   */
-  async createToast(): Promise<void> {
-    if (!this.text) {
-      return;
+        this.hideMessage = hasMaxShowDateBeenReached === true ? true : hasNotBeenShown;
+        this.createToast();
     }
 
-    if (!this.id) {
-      console.error("Id needs to be provided");
-      return;
+    /** Creates a toast and hides it, if it has been seen. */
+    async createToast(): Promise<void> {
+        if (!this.text) {
+            return;
+        }
+
+        if (!this.id) {
+            console.error("Id needs to be provided");
+            return;
+        }
+
+        if (this.hideMessage) {
+            return;
+        }
+
+        const popover = await this.toastCtrl.create({
+            translucent: false,
+            message: this.text,
+            position: "bottom",
+            buttons: [
+                {
+                    icon: "close-outline",
+                    role: "cancel",
+                    side: "end",
+                },
+            ],
+            color: "primary",
+            cssClass: "toast-top-close",
+        });
+
+        popover.present();
+        this.styleToast();
+
+        await popover.onDidDismiss().then(() => {
+            localStorage.setItem(NotificationComponent.PREFIX + this.id, new Date().toISOString());
+        });
     }
 
-    if (this.hideMessage) {
-      return;
+    /**
+     * Styles the toast notification.
+     *
+     * Needed due to shadow DOM not directly accessible.
+     */
+    private styleToast() {
+        const toastEl = document.querySelector("ion-toast");
+
+        if (toastEl == null) {
+            return;
+        }
+
+        const shadow = toastEl!.shadowRoot;
+        const buttonGroup: HTMLElement | null = shadow?.querySelector(".toast-button-group") ?? null;
+        if (buttonGroup == null) {
+            return;
+        }
+
+        buttonGroup.style.alignSelf = "flex-start";
+        buttonGroup.style.display = "flex !important;";
+        const toast: HTMLElement | null = shadow?.querySelector(".toast-container") ?? null;
+
+        if (toast == null) {
+            return;
+        }
+
+        toast.style.backgroundColor = "rgba(var(--ion-background-color-rgb), 0.2)";
     }
-
-    const popover = await this.toastie.create({
-      translucent: false,
-      message: this.text,
-      position: 'bottom',
-      buttons: [
-        { icon: 'close-outline', role: 'cancel' },
-      ],
-    });
-
-    popover.present();
-
-    await popover.onDidDismiss().then(() => {
-      localStorage.setItem(NotificationComponent.PREFIX + this.id, 'true');
-    });
-  }
 }

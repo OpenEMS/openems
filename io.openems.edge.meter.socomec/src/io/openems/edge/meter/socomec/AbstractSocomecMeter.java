@@ -1,6 +1,7 @@
 package io.openems.edge.meter.socomec;
 
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -78,6 +79,13 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 	 */
 	protected abstract void identifiedCountisE14() throws OpenemsException;
 
+	/**
+	 * Applies the modbus protocol for Socomec Countis E47, E48.
+	 *
+	 * @throws OpenemsException on error
+	 */
+	protected abstract void identifiedCountisE47_E48() throws OpenemsException;
+
 	protected final void identifySocomecMeter() {
 		this.getSocomecIdentifier().thenAccept(name -> {
 			try {
@@ -122,6 +130,14 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 					this.logError(this.log, "Identified Socomec [" + name + "] meter");
 					this.identifiedCountisE14();
 
+				} else if (name.startsWith("countis e47")) {
+					this.logInfo(this.log, "Identified Socomec Countis E47 meter");
+					this.identifiedCountisE47_E48();
+
+				} else if (name.startsWith("countis e48")) {
+					this.logInfo(this.log, "Identified Socomec Countis E48 meter");
+					this.identifiedCountisE47_E48();
+
 				} else {
 					this.logError(this.log, "Unable to identify Socomec [" + name + "] meter!");
 					this.channel(SocomecMeter.ChannelId.UNKNOWN_SOCOMEC_METER).setNextValue(true);
@@ -147,14 +163,15 @@ public abstract class AbstractSocomecMeter extends AbstractOpenemsModbusComponen
 		final var result = new CompletableFuture<String>();
 
 		// Search for Socomec identifier register. Needs to be "SOCO".
-		readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedQuadruplewordElement(0xC350))
+		readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull, new UnsignedQuadruplewordElement(0xC350))
 				.thenAccept(value -> {
 					if (value != 0x0053004F0043004FL /* SOCO */) {
 						this.channel(SocomecMeter.ChannelId.NO_SOCOMEC_METER).setNextValue(true);
 						// Complete result with Long value
 						result.complete(String.valueOf(value));
 					}
-					readElementOnce(this.modbusProtocol, ModbusUtils::retryOnNull, new StringWordElement(0xC38A, 8))
+					readElementOnce(FC3, this.modbusProtocol, ModbusUtils::retryOnNull,
+							new StringWordElement(0xC38A, 8)) //
 							.thenAccept(name -> {
 								result.complete(name.toLowerCase());
 							});

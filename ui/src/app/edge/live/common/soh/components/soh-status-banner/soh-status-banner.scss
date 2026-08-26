@@ -1,0 +1,24 @@
+#SOH_STATUS_BANNER,
+#SOH_ERROR_BANNER {
+    text-align: center;
+}
+
+#SOH_ERROR_BANNER {
+    color: var(--ion-color-light);
+}
+
+#SOH_INFO_TEXT,
+#SOH_ERROR_TEXT {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+#SOH_INFO_TEXT {
+    background: var(--ion-color-success-tint);
+}
+
+#SOH_ERROR_TEXT {
+    background: var(--ion-color-danger-tint);
+}

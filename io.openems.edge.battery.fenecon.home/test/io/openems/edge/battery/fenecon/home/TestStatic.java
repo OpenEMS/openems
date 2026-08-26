@@ -3,9 +3,6 @@ package io.openems.edge.battery.fenecon.home;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.junit.Test;
 
 import io.openems.edge.battery.fenecon.home.BatteryFeneconHomeImpl.MinVoltageSubState;
@@ -24,49 +21,44 @@ public class TestStatic {
 		assertEquals(MinVoltageSubState.ABOVE_LIMIT,
 				BatteryFeneconHomeImpl.getMinVoltageSubState(2800, Integer.MAX_VALUE, 0));
 		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, 2900, 1000));
+
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, -2000));
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, null));
+		assertEquals(MinVoltageSubState.ABOVE_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, null, 2000));
+		assertEquals(MinVoltageSubState.BELOW_LIMIT, BatteryFeneconHomeImpl.getMinVoltageSubState(2800, 2700, null));
 	}
 
 	@Test
-	public void testCalculateTowerNumberFromSoftwareVersion() {
+	public void testParseEmsPowerConsumption() {
+		// 0x01F4 -> 500 mA, on-grid
+		assertEquals(Integer.valueOf(500), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0x01F4));
 
-		List<Integer> nullList = Arrays.asList(1, null, null, null, null);
+		// 0x81F4 -> 500 mA, off-grid
+		assertEquals(Integer.valueOf(500), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0x81F4));
 
-		assertNull(BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(nullList));
+		// Edge cases
+		assertEquals(Integer.valueOf(0), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0x0000));
+		assertEquals(Integer.valueOf(0), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0x8000));
+		assertEquals(Integer.valueOf(0x7FFF), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0x7FFF));
+		assertEquals(Integer.valueOf(0x7FFF), BatteryFeneconHomeImpl.parseEmsPowerConsumption(0xFFFF));
 
-		assertNull(BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, null, null, null, null)));
+		assertNull(BatteryFeneconHomeImpl.parseEmsPowerConsumption(null));
+	}
 
-		assertNull(BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(null, null, null, null, 1)));
+	@Test
+	public void testParseEmsOffGrid() {
+		// 0x81F4 -> off-grid = true
+		assertEquals(Boolean.TRUE, BatteryFeneconHomeImpl.parseEmsOffGrid(0x81F4));
 
-		assertNull(BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, null, 0, null, null)));
+		// 0x01F4 -> on-grid = false
+		assertEquals(Boolean.FALSE, BatteryFeneconHomeImpl.parseEmsOffGrid(0x01F4));
 
-		assertNull(BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(null, 1, 0, null, null)));
+		// Edge cases
+		assertEquals(Boolean.FALSE, BatteryFeneconHomeImpl.parseEmsOffGrid(0x0000));
+		assertEquals(Boolean.TRUE, BatteryFeneconHomeImpl.parseEmsOffGrid(0x8000));
+		assertEquals(Boolean.TRUE, BatteryFeneconHomeImpl.parseEmsOffGrid(0xFFFF));
 
-		// End-Condition met
-		assertEquals(1, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, 0, null, null, null)));
-
-		assertEquals(1, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, 256, null, null, null)));
-
-		assertEquals(1, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, 256, null, null, null)));
-
-		assertEquals(2, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, 2, 0, 0, 1)));
-
-		assertEquals(3, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(1, 2, 3, 0, 0)));
-
-		assertEquals(4, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(4, 4, 4, 4, 0)));
-
-		// Exceptionally not null
-		assertEquals(1, (int) BatteryFeneconHomeImpl //
-				.calculateTowerNumberFromSoftwareVersion(Arrays.asList(256, 0, 0, 0, 0)));
+		// Null input
+		assertNull(BatteryFeneconHomeImpl.parseEmsOffGrid(null));
 	}
 }

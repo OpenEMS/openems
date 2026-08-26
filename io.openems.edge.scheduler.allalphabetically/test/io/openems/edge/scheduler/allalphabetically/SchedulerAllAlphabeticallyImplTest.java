@@ -18,33 +18,25 @@ import io.openems.edge.scheduler.api.Scheduler;
 
 public class SchedulerAllAlphabeticallyImplTest {
 
-	private static final String SCHEDULER_ID = "scheduler0";
-
-	private static final String CTRL0_ID = "ctrl0";
-	private static final String CTRL1_ID = "ctrl1";
-	private static final String CTRL2_ID = "ctrl2";
-	private static final String CTRL3_ID = "ctrl3";
-	private static final String CTRL4_ID = "ctrl4";
-
 	@Test
 	public void testWithFixedPriorities() throws Exception {
 		final SchedulerAllAlphabetically sut = new SchedulerAllAlphabeticallyImpl();
 		new ComponentTest(sut) //
 				.addReference("componentManager", new DummyComponentManager()) //
-				.addComponent(new DummyController(CTRL0_ID)) //
-				.addComponent(new DummyController(CTRL1_ID)) //
-				.addComponent(new DummyController(CTRL2_ID)) //
-				.addComponent(new DummyController(CTRL3_ID)) //
-				.addComponent(new DummyController(CTRL4_ID)) //
+				.addComponent(new DummyController("ctrl0")) //
+				.addComponent(new DummyController("ctrl1")) //
+				.addComponent(new DummyController("ctrl2")) //
+				.addComponent(new DummyController("ctrl3")) //
+				.addComponent(new DummyController("ctrl4")) //
 				.activate(MyConfig.create() //
-						.setId(SCHEDULER_ID) //
-						.setControllersIds(CTRL2_ID, CTRL1_ID, "") //
+						.setId("scheduler0") //
+						.setControllersIds("ctrl2", "ctrl1", "") //
 						.build())
 				.next(new TestCase()) //
 				.deactivate();
 
 		assertEquals(//
-				Arrays.asList(CTRL2_ID, CTRL1_ID, CTRL0_ID, CTRL3_ID, CTRL4_ID), //
+				Arrays.asList("ctrl2", "ctrl1", "ctrl0", "ctrl3", "ctrl4"), //
 				getControllerIds(sut));
 	}
 
@@ -77,7 +69,7 @@ public class SchedulerAllAlphabeticallyImplTest {
 		test //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.activate(MyConfig.create() //
-						.setId(SCHEDULER_ID) //
+						.setId("scheduler0") //
 						.setControllersIds() //
 						.build()) //
 				.next(new TestCase());

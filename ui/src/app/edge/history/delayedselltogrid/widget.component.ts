@@ -1,14 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { DefaultTypes } from 'src/app/shared/service/defaulttypes';
-import { Edge, EdgeConfig, Service } from 'src/app/shared/shared';
+import { Component, effect, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "src/app/shared/shared";
+import { DefaultTypes } from "src/app/shared/type/defaulttypes";
 
 @Component({
     selector: DelayedSellToGridWidgetComponent.SELECTOR,
-    templateUrl: './widget.component.html',
+    templateUrl: "./widget.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
 export class DelayedSellToGridWidgetComponent implements OnInit {
-
     private static readonly SELECTOR = "delayedSellToGridWidget";
     @Input({ required: true }) public period!: DefaultTypes.HistoryPeriod;
     @Input({ required: true }) public componentId!: string;
@@ -16,18 +18,26 @@ export class DelayedSellToGridWidgetComponent implements OnInit {
     public edge: Edge | null = null;
     public component: EdgeConfig.Component | null = null;
 
+    /** @deprecated Migration purposes */
+    protected newNavigationUrlSegment: string = "";
+
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-    ) { }
+        private userService: UserService,
+    ) {
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
+    }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
-            this.service.getConfig().then(config => {
+            this.service.getConfig().then((config) => {
                 this.component = config.getComponent(this.componentId);
             });
         });
     }
 }
-

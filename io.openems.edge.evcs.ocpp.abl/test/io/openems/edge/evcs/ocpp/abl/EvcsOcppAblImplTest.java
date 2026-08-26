@@ -8,15 +8,13 @@ import io.openems.edge.evcs.test.DummyEvcsPower;
 
 public class EvcsOcppAblImplTest {
 
-	private static final String COMPONENT_ID = "evcs0";
-
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new EvcsOcppAblImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addReference("evcsPower", new DummyEvcsPower()) //
 				.activate(MyConfig.create() //
-						.setId(COMPONENT_ID) //
+						.setId("evcs0") //
 						.setConnectorId(0) //
 						.setOcppId("") //
 						.setLogicalId("") //

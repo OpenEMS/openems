@@ -3,9 +3,10 @@ package io.openems.edge.bridge.modbus.api;
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.edge.common.channel.Doc;
+import io.openems.edge.common.startstop.StartStoppable;
 
 @ProviderType
-public interface BridgeModbusSerial extends BridgeModbus {
+public interface BridgeModbusSerial extends BridgeModbus, StartStoppable {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
 		;

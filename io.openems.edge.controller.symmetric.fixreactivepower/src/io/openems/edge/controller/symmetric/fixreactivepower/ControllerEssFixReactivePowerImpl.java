@@ -1,5 +1,9 @@
 package io.openems.edge.controller.symmetric.fixreactivepower;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.REACTIVE;
+import static io.openems.edge.ess.power.api.Relationship.EQUALS;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -9,14 +13,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.utils.FunctionUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
-import io.openems.edge.ess.power.api.Relationship;
 
 @Designate(ocd = Config.class, factory = true)
 @Component(//
@@ -55,15 +57,19 @@ public class ControllerEssFixReactivePowerImpl extends AbstractOpenemsComponent
 	@Override
 	public void run() throws OpenemsNamedException {
 		ManagedSymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		switch (this.config.mode()) {
+		case MANUAL_ON -> {
+			// adjust value so that it fits into Min/MaxActivePower
+			var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, ALL, REACTIVE,
+					this.config.power());
 
-		// adjust value so that it fits into Min/MaxActivePower
-		var calculatedPower = ess.getPower().fitValueIntoMinMaxPower(this.id(), ess, Phase.ALL, Pwr.REACTIVE,
-				this.config.power());
+			/*
+			 * set result
+			 */
+			ess.addPowerConstraintAndValidate("SymmetricFixReactivePower", ALL, REACTIVE, EQUALS, calculatedPower);
+		}
 
-		/*
-		 * set result
-		 */
-		ess.addPowerConstraintAndValidate("SymmetricFixReactivePower", Phase.ALL, Pwr.REACTIVE, Relationship.EQUALS,
-				calculatedPower);
+		case MANUAL_OFF -> FunctionUtils.doNothing();
+		}
 	}
 }

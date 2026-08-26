@@ -1,16 +1,14 @@
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 
 import { AbstractFlatWidgetLine } from "../abstract-flat-widget-line";
 
 @Component({
-    selector: 'oe-flat-widget-line',
-    templateUrl: './flat-widget-line.html',
+    selector: "oe-flat-widget-line",
+    templateUrl: "./flat-widget-line.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
 export class FlatWidgetLineComponent extends AbstractFlatWidgetLine {
-    /** Name for parameter, displayed on the left side */
-    @Input({ required: true })
-    public name!: string;
-
     /** Width of left Column, right Column is (100 - width of left Column) */
     @Input()
     public leftColumnWidth?: number;

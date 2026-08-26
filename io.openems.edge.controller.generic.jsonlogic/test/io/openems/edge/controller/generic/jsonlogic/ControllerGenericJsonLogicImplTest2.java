@@ -1,10 +1,14 @@
 package io.openems.edge.controller.generic.jsonlogic;
 
+import static io.openems.edge.common.sum.Sum.ChannelId.ESS_SOC;
+import static io.openems.edge.common.sum.Sum.ChannelId.PRODUCTION_ACTIVE_POWER;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT0;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT1;
+import static io.openems.edge.io.test.DummyInputOutput.ChannelId.INPUT_OUTPUT2;
+
 import org.junit.Test;
 
-import io.openems.common.types.ChannelAddress;
 import io.openems.edge.common.sum.DummySum;
-import io.openems.edge.common.sum.Sum;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.DummyComponentManager;
 import io.openems.edge.controller.test.ControllerTest;
@@ -12,29 +16,19 @@ import io.openems.edge.io.test.DummyInputOutput;
 
 public class ControllerGenericJsonLogicImplTest2 {
 
-	private static final ChannelAddress SUM_PRODUCTION_POWER = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
-			Sum.ChannelId.PRODUCTION_ACTIVE_POWER.id());
-	private static final ChannelAddress SUM_SOC = new ChannelAddress(Sum.SINGLETON_COMPONENT_ID,
-			Sum.ChannelId.ESS_SOC.id());
-
-	private static final String IO_ID = "io0";
-	private static final ChannelAddress INPUT0 = new ChannelAddress(IO_ID, "InputOutput0");
-	private static final ChannelAddress OUTPUT0 = new ChannelAddress(IO_ID, "InputOutput1");
-	private static final ChannelAddress OUTPUT1 = new ChannelAddress(IO_ID, "InputOutput2");
-
 	@Test
 	public void test() throws Exception {
 		new ControllerTest(new ControllerGenericJsonLogicImpl()) //
 				.addReference("componentManager", new DummyComponentManager()) //
 				.addComponent(new DummySum()) //
-				.addComponent(new DummyInputOutput(IO_ID)) //
+				.addComponent(new DummyInputOutput("io0")) //
 				.activate(MyConfig.create() //
 						.setRule("{"//
 								+ "    \"if\": ["//
 								+ "        {"//
 								+ "            \">\": ["//
 								+ "                {"//
-								+ "                    \"var\": \"" + SUM_PRODUCTION_POWER + "\""//
+								+ "                    \"var\": \"_sum/ProductionActivePower\""//
 								+ "                },"//
 								+ "                2000"//
 								+ "            ]"//
@@ -44,7 +38,7 @@ public class ControllerGenericJsonLogicImplTest2 {
 								+ "                {"//
 								+ "                    \">\": ["//
 								+ "                        {"//
-								+ "                            \"var\": \"" + SUM_SOC + "\""//
+								+ "                            \"var\": \"_sum/EssSoc\""//
 								+ "                        },"//
 								+ "                        70"//
 								+ "                    ]"//
@@ -52,24 +46,24 @@ public class ControllerGenericJsonLogicImplTest2 {
 								+ "                {"//
 								+ "                    \"if\": ["//
 								+ "                        {"//
-								+ "                            \"var\": \"" + INPUT0 + "\""//
+								+ "                            \"var\": \"io0/InputOutput0\""//
 								+ "                        },"//
 								+ "                        ["//
 								+ "                        ],"//
 								+ "                        {"//
 								+ "                            \"if\": ["//
 								+ "                                {"//
-								+ "                                    \"var\": \"" + OUTPUT0 + "\""//
+								+ "                                    \"var\": \"io0/InputOutput1\""//
 								+ "                                },"//
 								+ "                                ["//
 								+ "                                    ["//
-								+ "                                        \"" + OUTPUT0 + "\","//
+								+ "                                        \"io0/InputOutput1\","//
 								+ "                                        false"//
 								+ "                                    ]"//
 								+ "                                ],"//
 								+ "                                ["//
 								+ "                                    ["//
-								+ "                                        \"" + OUTPUT1 + "\","//
+								+ "                                        \"io0/InputOutput2\","//
 								+ "                                        true"//
 								+ "                                    ]"//
 								+ "                                ]"//
@@ -86,7 +80,7 @@ public class ControllerGenericJsonLogicImplTest2 {
 								+ "                {"//
 								+ "                    \"<\": ["//
 								+ "                        {"//
-								+ "                            \"var\": \"" + SUM_SOC + "\""//
+								+ "                            \"var\": \"_sum/EssSoc\""//
 								+ "                        },"//
 								+ "                        40"//
 								+ "                    ]"//
@@ -94,24 +88,24 @@ public class ControllerGenericJsonLogicImplTest2 {
 								+ "                {"//
 								+ "                    \"if\": ["//
 								+ "                        {"//
-								+ "                            \"var\": \"" + INPUT0 + "\""//
+								+ "                            \"var\": \"io0/InputOutput0\""//
 								+ "                        },"//
 								+ "                        ["//
 								+ "                        ],"//
 								+ "                        {"//
 								+ "                            \"if\": ["//
 								+ "                                {"//
-								+ "                                    \"var\": \"" + OUTPUT1 + "\""//
+								+ "                                    \"var\": \"io0/InputOutput2\""//
 								+ "                                },"//
 								+ "                                ["//
 								+ "                                    ["//
-								+ "                                        \"" + OUTPUT1 + "\","//
+								+ "                                        \"io0/InputOutput2\","//
 								+ "                                        false"//
 								+ "                                    ]"//
 								+ "                                ],"//
 								+ "                                ["//
 								+ "                                    ["//
-								+ "                                        \"" + OUTPUT0 + "\","//
+								+ "                                        \"io0/InputOutput1\","//
 								+ "                                        true"//
 								+ "                                    ]"//
 								+ "                                ]"//
@@ -127,30 +121,30 @@ public class ControllerGenericJsonLogicImplTest2 {
 								+ "}") //
 						.build())
 				.next(new TestCase() //
-						.input(SUM_PRODUCTION_POWER, 2001) //
-						.input(SUM_SOC, 71) //
-						.input(INPUT0, false) //
-						.input(OUTPUT0, true) //
-						.output(OUTPUT0, false)) //
+						.input(PRODUCTION_ACTIVE_POWER, 2001) //
+						.input(ESS_SOC, 71) //
+						.input("io0", INPUT_OUTPUT0, false) //
+						.input("io0", INPUT_OUTPUT1, true) //
+						.output("io0", INPUT_OUTPUT1, false)) //
 				.next(new TestCase() //
-						.input(SUM_PRODUCTION_POWER, 2001) //
-						.input(SUM_SOC, 71) //
-						.input(INPUT0, false) //
-						.input(OUTPUT0, false) //
-						.output(OUTPUT1, true)) //
+						.input(PRODUCTION_ACTIVE_POWER, 2001) //
+						.input(ESS_SOC, 71) //
+						.input("io0", INPUT_OUTPUT0, false) //
+						.input("io0", INPUT_OUTPUT1, false) //
+						.output("io0", INPUT_OUTPUT2, true)) //
 				.next(new TestCase() //
-						.input(SUM_PRODUCTION_POWER, 1999) //
-						.input(SUM_SOC, 39) //
-						.input(INPUT0, false) //
-						.input(OUTPUT1, true) //
-						.output(OUTPUT1, false)) //
+						.input(PRODUCTION_ACTIVE_POWER, 1999) //
+						.input(ESS_SOC, 39) //
+						.input("io0", INPUT_OUTPUT0, false) //
+						.input("io0", INPUT_OUTPUT2, true) //
+						.output("io0", INPUT_OUTPUT2, false)) //
 				.next(new TestCase() //
-						.input(SUM_PRODUCTION_POWER, 1999) //
-						.input(SUM_SOC, 39) //
-						.input(INPUT0, false) //
-						.input(OUTPUT1, false) //
-						.output(OUTPUT0, true)) //
-		;
+						.input(PRODUCTION_ACTIVE_POWER, 1999) //
+						.input(ESS_SOC, 39) //
+						.input("io0", INPUT_OUTPUT0, false) //
+						.input("io0", INPUT_OUTPUT2, false) //
+						.output("io0", INPUT_OUTPUT1, true)) //
+				.deactivate();
 	}
 
 }

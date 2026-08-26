@@ -1,5 +1,8 @@
 package io.openems.edge.common.modbusslave;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,4 +52,44 @@ public abstract class ModbusRecordConstant extends ModbusRecord {
 		return AccessMode.READ_ONLY;
 	}
 
+	/**
+	 * Generates a common toString() method for implementations of
+	 * {@link ModbusRecordConstant}.
+	 * 
+	 * @param <T>         the type of the value
+	 * @param name        the name of the implementation class
+	 * @param callback    a {@link StringBuilder} callback
+	 * @param value       the actual value
+	 * @param toHexString the toHexString() method
+	 * @return a {@link String}
+	 */
+	protected <T> String generateToString(String name, Consumer<StringBuilder> callback, T value,
+			Function<T, String> toHexString) {
+		var b = new StringBuilder() //
+				.append(name) //
+				.append(" [");
+		if (callback != null) {
+			callback.accept(b);
+		}
+		b.append("value=");
+		if (value != null) {
+			b.append(value);
+			if (toHexString != null) {
+				b.append("/0x").append(toHexString.apply(value));
+			}
+		} else {
+			b.append("UNDEFINED");
+		}
+		return b.append(", type=").append(this.getType()) //
+				.append("]") //
+				.toString();
+	}
+
+	protected <T> String generateToString(String name, T value, Function<T, String> toHexString) {
+		return this.generateToString(name, null, value, toHexString);
+	}
+
+	protected <T> String generateToString(String name, T value) {
+		return this.generateToString(name, null, value, null);
+	}
 }

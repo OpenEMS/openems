@@ -2,13 +2,14 @@ package io.openems.edge.battery.test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.edge.battery.api.Battery;
+import io.openems.edge.battery.protection.BatteryVoltageProtection;
 import io.openems.edge.common.startstop.StartStop;
 import io.openems.edge.common.startstop.StartStoppable;
 import io.openems.edge.common.test.AbstractDummyOpenemsComponent;
 import io.openems.edge.common.test.TestUtils;
 
 public abstract class AbstractDummyBattery<SELF extends AbstractDummyBattery<?>>
-		extends AbstractDummyOpenemsComponent<SELF> implements Battery, StartStoppable {
+		extends AbstractDummyOpenemsComponent<SELF> implements Battery, StartStoppable, BatteryVoltageProtection {
 
 	protected AbstractDummyBattery(String id, io.openems.edge.common.channel.ChannelId[] firstInitialChannelIds,
 			io.openems.edge.common.channel.ChannelId[]... furtherInitialChannelIds) {
@@ -180,8 +181,30 @@ public abstract class AbstractDummyBattery<SELF extends AbstractDummyBattery<?>>
 	 * @param value the value
 	 * @return myself
 	 */
-	public final SELF withInnerResistence(int value) {
+	public final SELF withInnerResistance(int value) {
 		TestUtils.withValue(this, Battery.ChannelId.INNER_RESISTANCE, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link StartStoppable.ChannelId#BVP_DISCHARGE_BMS}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withBvpDischargeBms(int value) {
+		TestUtils.withValue(this, BatteryVoltageProtection.ChannelId.BVP_DISCHARGE_BMS, value);
+		return this.self();
+	}
+
+	/**
+	 * Set {@link StartStoppable.ChannelId#BVP_CHARGE_BMS}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withBvpChargeBms(int value) {
+		TestUtils.withValue(this, BatteryVoltageProtection.ChannelId.BVP_CHARGE_BMS, value);
 		return this.self();
 	}
 

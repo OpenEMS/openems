@@ -2,7 +2,7 @@ package io.openems.edge.tesla.powerwall2.battery;
 
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.common.utils.ConfigUtils;
-import io.openems.edge.ess.api.SinglePhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @SuppressWarnings("all")
 public class MyConfig extends AbstractComponentConfig implements Config {

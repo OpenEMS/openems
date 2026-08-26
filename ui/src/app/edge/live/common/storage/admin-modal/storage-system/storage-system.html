@@ -1,0 +1,68 @@
+@if (component !== null) {
+  <ion-grid>
+    <ion-row>
+      <ion-col size="1">
+        <ion-grid>
+          <ion-row>
+            <ion-icon name="swap-vertical-outline" size="small">
+            </ion-icon>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+      <ion-col>
+        <ion-grid style="font-size: 0.875rem;">
+          <ion-row class="ion-padding-bottom">
+            <ion-label style="font-weight: bold;">
+              {{ 'EDGE.INDEX.WIDGETS.STORAGE.INVERTER' | translate}} &nbsp;- &nbsp;
+              @if (hasMultipleEss) {
+                {{'EDGE.INDEX.WIDGETS.STORAGE.TOTAL_AC' | translate}}
+              }@else {
+                AC
+              }
+            </ion-label>
+          </ion-row>
+          <!-- BatteryInverter Sell-Buy -->
+          @if(batteryInverter !== null){
+            <oe-modal-line [name]="'GENERAL.GRID_SELL_ADVANCED' | translate"
+              [channelAddress]="batteryInverter.id + '/ActivePower'" [converter]="Converter.GRID_SELL_POWER_OR_ZERO">
+            </oe-modal-line>
+            <oe-modal-line [name]="'GENERAL.GRID_BUY_ADVANCED' | translate"
+              [channelAddress]="batteryInverter.id + '/ActivePower'" [converter]="Converter.GRID_BUY_POWER_OR_ZERO">
+            </oe-modal-line>
+            <oe-modal-meter-phases [component]="component"></oe-modal-meter-phases>
+            <!-- Ambient temperature -->
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.AMBIENT_TEMPERATURE' | translate"
+              [channelAddress]="batteryInverter.id + '/AirTemperature'"
+              [converter]="Converter.TEMPERATURE_IN_DEGREES"></oe-modal-line>
+          }
+        </ion-grid>
+      </ion-col>
+      <oe-modal-horizontal-line></oe-modal-horizontal-line>
+    </ion-row>
+  </ion-grid>
+  <ion-grid>
+    <oe-flat-widget-horizontal-line></oe-flat-widget-horizontal-line> <ion-row>
+      <ion-col size="1">
+        <ion-grid>
+          <ion-row style="padding-top: 0.3rem;">
+            <ion-icon name="battery-full-outline" size="small"></ion-icon>
+          </ion-row>
+        </ion-grid>
+      </ion-col>
+      <ion-col>
+        <ion-grid style="font-size: 0.875rem;">
+          <ion-row class="ion-padding-bottom">
+            <oe-modal-line [name]="'EDGE.INDEX.WIDGETS.STORAGE.BATTERY_DC' | translate"
+              [channelAddress]="component.id + '/Soc'" [converter]="Converter.STATE_IN_PERCENT"
+              style="width: 100%; font-weight: bold;">
+            </oe-modal-line>
+          </ion-row>
+          <oe-modal-line [name]="'GENERAL.CHARGE' | translate" [channelAddress]="component.id + '/DcDischargePower'"
+            [converter]="CHARGE_POWER_FORMATTED"></oe-modal-line>
+          <oe-modal-line [name]="'GENERAL.DISCHARGE' | translate" [channelAddress]="component.id + '/DcDischargePower'"
+            [converter]="DISCHARGE_POWER_FORMATTED"></oe-modal-line>
+        </ion-grid>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+}

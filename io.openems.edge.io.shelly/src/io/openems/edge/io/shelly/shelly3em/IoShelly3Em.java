@@ -37,8 +37,8 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Range: On/Off
 		 * </ul>
 		 */
-		RELAY(new BooleanDoc() //
-				.accessMode(AccessMode.READ_WRITE) //
+		RELAY(new BooleanDoc()//
+				.accessMode(AccessMode.READ_WRITE)//
 				.onChannelSetNextWriteMirrorToDebugChannel(ChannelId.DEBUG_RELAY)),
 		/**
 		 * Indicates if an update is available.
@@ -49,7 +49,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: INFO
 		 * </ul>
 		 */
-		HAS_UPDATE(Doc.of(Level.INFO) //
+		HAS_UPDATE(Doc.of(Level.INFO)//
 				.text("A new Firmware Update is available.")),
 		/**
 		 * Indicates whether the associated meter is functioning properly.
@@ -60,7 +60,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		EMETER1_EXCEPTION(Doc.of(Level.WARNING) //
+		EMETER1_EXCEPTION(Doc.of(Level.WARNING)//
 				.text("E-Meter Phase 1 is not valid.")),
 		/**
 		 * Indicates whether the associated meter is functioning properly.
@@ -71,7 +71,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		EMETER2_EXCEPTION(Doc.of(Level.WARNING) //
+		EMETER2_EXCEPTION(Doc.of(Level.WARNING)//
 				.text("E-Meter Phase 2 is not valid.")),
 		/**
 		 * Indicates whether the associated meter is functioning properly.
@@ -82,7 +82,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		EMETER3_EXCEPTION(Doc.of(Level.WARNING) //
+		EMETER3_EXCEPTION(Doc.of(Level.WARNING)//
 				.text("E-Meter Phase 3 is not valid.")),
 		/**
 		 * Indicates whether the associated meter is functioning properly.
@@ -93,7 +93,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		EMETERN_EXCEPTION(Doc.of(Level.WARNING) //
+		EMETERN_EXCEPTION(Doc.of(Level.WARNING)//
 				.text("E-Meter Phase N is not valid.")),
 		/**
 		 * Indicates whether the Relay is in an Overpower Condition.
@@ -104,7 +104,7 @@ public interface IoShelly3Em extends DigitalOutput, ElectricityMeter, OpenemsCom
 		 * <li>Level: WARN
 		 * </ul>
 		 */
-		RELAY_OVERPOWER_EXCEPTION(Doc.of(Level.WARNING) //
+		RELAY_OVERPOWER_EXCEPTION(Doc.of(Level.WARNING)//
 				.text("Relay is in overpower condition.")),
 		/**
 		 * Slave Communication Failed Fault.

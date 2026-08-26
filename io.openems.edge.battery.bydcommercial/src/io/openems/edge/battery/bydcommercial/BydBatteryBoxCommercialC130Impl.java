@@ -4,6 +4,7 @@ import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.DIRECT
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_2;
 import static io.openems.edge.bridge.modbus.api.ElementToChannelConverter.SCALE_FACTOR_MINUS_1;
 import static io.openems.edge.bridge.modbus.api.ModbusUtils.readElementOnce;
+import static io.openems.edge.bridge.modbus.api.ModbusUtils.FunctionCode.FC3;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -927,22 +928,11 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 
 	@Override
 	public StartStop getStartStopTarget() {
-		switch (this.config.startStop()) {
-		case AUTO:
-			// read StartStop-Channel
-			return this.startStopTarget.get();
-
-		case START:
-			// force START
-			return StartStop.START;
-
-		case STOP:
-			// force STOP
-			return StartStop.STOP;
-		}
-
-		assert false;
-		return StartStop.UNDEFINED; // can never happen
+		return switch (this.config.startStop()) {
+		case AUTO -> this.startStopTarget.get(); // read StartStop-Channel
+		case START -> StartStop.START; // force START
+		case STOP -> StartStop.STOP; // force STOP
+		};
 	}
 
 	/*
@@ -964,7 +954,7 @@ public class BydBatteryBoxCommercialC130Impl extends AbstractOpenemsModbusCompon
 		BydBatteryBoxCommercialC130Impl.this.isModbusProtocolInitialized = true;
 
 		// Try to read MODULE_QTY Register
-		readElementOnce(this.getModbusProtocol(), ModbusUtils::doNotRetry, new UnsignedWordElement(0x210D))
+		readElementOnce(FC3, this.getModbusProtocol(), ModbusUtils::doNotRetry, new UnsignedWordElement(0x210D))
 				.thenAccept(moduleQtyValue -> {
 					if (moduleQtyValue != null) {
 						// Register is available -> add Registers for current hardware to protocol

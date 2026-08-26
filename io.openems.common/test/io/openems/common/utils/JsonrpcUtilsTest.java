@@ -1,9 +1,11 @@
 package io.openems.common.utils;
 
+import static io.openems.common.utils.JsonUtils.buildJsonObject;
+import static io.openems.common.utils.JsonrpcUtils.simplifyJsonrpcMessage;
+import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.Test;
 
@@ -13,27 +15,27 @@ public class JsonrpcUtilsTest {
 
 	@Test
 	public void testSimplifyJsonrpcMessage() {
-		var r = new GenericJsonrpcRequest(UUID.randomUUID(), "fooMethod", JsonUtils.buildJsonObject() //
+		var r = new GenericJsonrpcRequest(randomUUID(), "fooMethod", buildJsonObject() //
 				.addProperty("foo", "bar") //
-				.add("payload", new GenericJsonrpcRequest(UUID.randomUUID(), "barMethod", JsonUtils.buildJsonObject() //
+				.add("payload", new GenericJsonrpcRequest(randomUUID(), "barMethod", buildJsonObject() //
 						.addProperty("lorem", "ipsum") //
 						.build(), Optional.empty()).toJsonObject()) //
 				.build(), 123);
 
-		assertEquals(JsonUtils.buildJsonObject() //
+		assertEquals(buildJsonObject() //
 				.addProperty("method", "fooMethod") //
-				.add("params", JsonUtils.buildJsonObject() //
+				.add("params", buildJsonObject() //
 						.addProperty("foo", "bar") //
-						.add("payload", JsonUtils.buildJsonObject() //
+						.add("payload", buildJsonObject() //
 								.addProperty("method", "barMethod") //
-								.add("params", JsonUtils.buildJsonObject() //
+								.add("params", buildJsonObject() //
 										.addProperty("lorem", "ipsum") //
 										.build()) //
 								.build()) //
 						.build())
 				.addProperty("timeout", 123) //
 				.build(), //
-				JsonrpcUtils.simplifyJsonrpcMessage(r));
+				simplifyJsonrpcMessage(r));
 	}
 
 }

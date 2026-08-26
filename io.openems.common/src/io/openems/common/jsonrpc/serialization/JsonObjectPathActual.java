@@ -1,33 +1,82 @@
 package io.openems.common.jsonrpc.serialization;
 
-import com.google.gson.JsonElement;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collector;
+
 import com.google.gson.JsonObject;
 
-import io.openems.common.exceptions.OpenemsRuntimeException;
+public final class JsonObjectPathActual {
 
-public class JsonObjectPathActual implements JsonObjectPath {
-	private final JsonObject object;
+	public static class JsonObjectPathActualNonNull implements JsonObjectPath {
 
-	public JsonObjectPathActual(JsonElement object) {
-		if (!object.isJsonObject()) {
-			throw new OpenemsRuntimeException(object + " is not a JsonObject!");
+		private final JsonObject element;
+
+		public JsonObjectPathActualNonNull(JsonObject object) {
+			this.element = Objects.requireNonNull(object);
 		}
-		this.object = object.getAsJsonObject();
+
+		@Override
+		public JsonElementPath getJsonElementPath(String member) {
+			return new JsonElementPathActual.JsonElementPathActualNonNull(Objects.requireNonNull(this.get().get(member),
+					"Member [" + member + "] was not part of " + this.element));
+		}
+
+		@Override
+		public JsonElementPathNullable getNullableJsonElementPath(String member) {
+			return new JsonElementPathActual.JsonElementPathActualNullable(this.get().get(member));
+		}
+
+		@Override
+		public <S, A, R> R collect(//
+				StringParser<S> keyParser, //
+				Collector<Entry<StringPath<S>, JsonElementPath>, A, R> collector //
+		) {
+			return this.element.entrySet().stream() //
+					.map(t -> Map.<StringPath<S>, JsonElementPath>entry(
+							new StringPathActual.StringPathActualNonNull<S>(t.getKey(), keyParser::parse),
+							new JsonElementPathActual.JsonElementPathActualNonNull(t.getValue()))) //
+					.collect(collector);
+		}
+
+		@Override
+		public JsonObject get() {
+			return this.element;
+		}
+
 	}
 
-	@Override
-	public JsonElementPath getJsonElementPath(String member) {
-		return new JsonElementPathActual(this.object.get(member));
+	public static class JsonObjectPathActualNullable implements JsonObjectPathNullable {
+
+		private final JsonObject element;
+
+		public JsonObjectPathActualNullable(JsonObject object) {
+			this.element = object;
+		}
+
+		@Override
+		public <T> T mapIfPresent(Function<JsonObjectPath, T> mapping) {
+			if (this.element == null) {
+				return null;
+			}
+			return mapping.apply(new JsonObjectPathActualNonNull(this.element));
+		}
+
+		@Override
+		public boolean isPresent() {
+			return this.element != null;
+		}
+
+		@Override
+		public JsonObject getOrNull() {
+			return this.element;
+		}
+
 	}
 
-	@Override
-	public JsonObjectPath getJsonObjectPath(String member) {
-		return new JsonObjectPathActual(this.object.get(member));
-	}
-
-	@Override
-	public JsonObject get() {
-		return this.object;
+	private JsonObjectPathActual() {
 	}
 
 }

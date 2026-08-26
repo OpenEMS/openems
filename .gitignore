@@ -13,7 +13,10 @@
 /bower_components
 
 # IntelliJ IDEA files and metadata
-/.idea
+/.idea/*
+!/.idea/runConfigurations
+!/.idea/eclipseCodeFormatter.xml
+!/.idea/checkstyle-idea.xml
 *.iml
 *.eml
 
@@ -199,6 +202,9 @@ typings/
 ### Gradle ###
 .gradle
 /build/
+/gradle/build-logic/build/
+/gradle/build-logic/.gradle/
+/gradle/build-logic/.kotlin/
 
 # Ignore Gradle GUI config
 gradle-app.setting
@@ -228,5 +234,12 @@ gradle-app.setting
 io.openems.edge.controller.api.mqtt/edge0
 io.openems.edge.application/c:/
 
+/io.openems.*/bin/
+/io.openems.*/bin_test/
+/io.openems.*/generated/
+
 ### Debian ###
 !tools/debian/**
+
+### Docker - for Dev UI under WSL ###
+docker-compose.override.yml

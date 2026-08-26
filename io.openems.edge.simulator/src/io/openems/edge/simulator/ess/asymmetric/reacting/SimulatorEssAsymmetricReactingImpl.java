@@ -1,17 +1,20 @@
 package io.openems.edge.simulator.ess.asymmetric.reacting;
 
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferenceCardinality.OPTIONAL;
+import static org.osgi.service.component.annotations.ReferencePolicy.DYNAMIC;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
+
 import java.io.IOException;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 import org.osgi.service.event.propertytypes.EventTopics;
@@ -19,6 +22,7 @@ import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
@@ -44,6 +48,7 @@ import io.openems.edge.timedata.api.utils.CalculateEnergyFromPower;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("datasource")
 public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 		implements SimulatorEssAsymmetricReacting, ManagedAsymmetricEss, AsymmetricEss, ManagedSymmetricEss,
 		SymmetricEss, OpenemsComponent, TimedataProvider, EventHandler, ModbusSlave {
@@ -56,13 +61,12 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 	@Reference
 	private Power power;
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(//
+			policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.datasource_id})(enabled=true))")
 	private SimulatorDatasource datasource;
 
-	@Reference
-	private ConfigurationAdmin cm;
-
-	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
+	@Reference(policy = DYNAMIC, policyOption = GREEDY, cardinality = OPTIONAL)
 	private volatile Timedata timedata = null;
 
 	/** Current state of charge. */
@@ -84,19 +88,16 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws IOException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 
-		// update filter for 'datasource'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "datasource", config.datasource_id())) {
-			return;
-		}
-
 		this.config = config;
 		this._setSoc(config.initialSoc());
 		this.soc = config.initialSoc();
 		this._setCapacity(config.capacity());
 		this._setMaxApparentPower(config.maxApparentPower());
-		this._setAllowedChargePower(config.maxApparentPower() * -1);
-		this._setAllowedDischargePower(config.maxApparentPower());
-		this._setGridMode(config.gridMode());
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(config.initialSoc(), config.maxApparentPower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(config.initialSoc(), config.maxApparentPower()));
+		setValue(this, SymmetricEss.ChannelId.GRID_MODE, config.gridMode());
 	}
 
 	@Override
@@ -159,18 +160,14 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 		this._setReactivePowerL3(reactivePowerL3);
 		this._setReactivePower(reactivePower);
 		/*
-		 * Set AllowedCharge / Discharge based on SoC
+		 * Set AllowedCharge / Discharge based on SoC with derating zone: - Charge: full
+		 * below 95%, linear derating 95–100%, hard 0 at 100% - Discharge: full above
+		 * 5%, linear derating 0–5%, hard 0 at 0%
 		 */
-		if (this.soc == 100) {
-			this._setAllowedChargePower(0);
-		} else {
-			this._setAllowedChargePower(this.config.maxApparentPower() * -1);
-		}
-		if (this.soc == 0) {
-			this._setAllowedDischargePower(0);
-		} else {
-			this._setAllowedDischargePower(this.config.maxApparentPower());
-		}
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_CHARGE_POWER,
+				calculateAllowedChargePower(this.soc, this.config.maxApparentPower()) * -1);
+		setValue(this, ManagedSymmetricEss.ChannelId.ALLOWED_DISCHARGE_POWER,
+				calculateAllowedDischargePower(this.soc, this.config.maxApparentPower()));
 	}
 
 	@Override
@@ -214,5 +211,39 @@ public class SimulatorEssAsymmetricReactingImpl extends AbstractOpenemsComponent
 	@Override
 	public Timedata getTimedata() {
 		return this.timedata;
+	}
+
+	/**
+	 * Calculates allowed charge power with a linear derating from 95% to 100% SoC.
+	 *
+	 * @param soc            the current SoC [%]
+	 * @param maxChargePower the maximum charge power [W], positive value
+	 * @return allowed charge power as a positive value [W]
+	 */
+	private static int calculateAllowedChargePower(float soc, int maxChargePower) {
+		if (soc >= 100) {
+			return 0;
+		}
+		if (soc > 95) {
+			return Math.round(maxChargePower * (100 - soc) / 5f);
+		}
+		return maxChargePower;
+	}
+
+	/**
+	 * Calculates allowed discharge power with a linear derating from 5% to 0% SoC.
+	 *
+	 * @param soc               the current SoC [%]
+	 * @param maxDischargePower the maximum discharge power [W], positive value
+	 * @return allowed discharge power as a positive value [W]
+	 */
+	private static int calculateAllowedDischargePower(float soc, int maxDischargePower) {
+		if (soc <= 0) {
+			return 0;
+		}
+		if (soc < 5) {
+			return Math.round(maxDischargePower * soc / 5f);
+		}
+		return maxDischargePower;
 	}
 }

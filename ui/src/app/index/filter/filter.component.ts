@@ -1,86 +1,256 @@
-// @ts-strict-ignore
-import { Component, EventEmitter, Output } from "@angular/core";
-import { TranslateService } from "@ngx-translate/core";
-import { TKeyValue } from "src/app/shared/service/defaulttypes";
-import { Utils } from "src/app/shared/shared";
-import { environment } from "src/environments";
-import { SUM_STATES } from "../shared/sumState";
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from "@angular/core";
+
+import { v4 as uuidv4 } from "uuid";
+import { CommonUiModule } from "src/app/shared/common-ui.module";
+import { Service } from "src/app/shared/shared";
+import { TKeyValue } from "src/app/shared/type/utility";
+import { ArrayUtils } from "src/app/shared/utils/array/array.utils";
+import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
+import { JsonUtils } from "src/app/shared/utils/json/json-utils";
+import { NumberUtils } from "src/app/shared/utils/number/number-utils";
+import { StringUtils } from "src/app/shared/utils/string/string.utils";
 
 @Component({
-  selector: 'oe-filter',
-  templateUrl: './filter.component.html',
+    selector: "oe-filter",
+    templateUrl: "./filter.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [CommonUiModule],
 })
 export class FilterComponent {
+    @Output() public setSearchParams: EventEmitter<Map<string, ChosenFilter["value"]>> = new EventEmitter<
+        Map<string, ChosenFilter["value"]>
+    >();
+    protected searchParams: Map<string, ChosenFilter["value"]> = new Map();
+    protected defaultFilterValues: FilterCategory = {};
+    protected allFilters: (Filter<string | null> | SortOrderFilter | null)[] = [];
+    protected columnSize: number = 0;
 
-  @Output() protected setSearchParams: EventEmitter<Map<string, ChosenFilter['value']>> = new EventEmitter<Map<string, ChosenFilter['value']>>();
-  protected filters: Filter[] = [environment.PRODUCT_TYPES(this.translate), SUM_STATES(this.translate)];
-  protected searchParams: Map<string, ChosenFilter['value']> = new Map();
+    constructor(public service: Service) {}
 
-  constructor(private translate: TranslateService) { }
+    @Input() public set filters(_filters: typeof this.allFilters) {
+        if (ArrayUtils.arraysDeepEqualHash<Filter<string | null> | SortOrderFilter | null>(this.allFilters, _filters)) {
+            return;
+        }
 
-  /**
-   * Collects the search params for a {@link GetEdgesRequest}
-   *
-   * @param event the event
-   * @param filter the chosen filter
-   */
-  public searchOnChange(event, filter: Filter): void {
+        this.allFilters =
+            _filters?.filter((f) => f != null)?.map(FilterComponent.ADD_UNIQUE_ID_TO_FILTER_OPTION) ?? null;
 
-    const value = event.target.value;
+        if (this.allFilters == null || this.allFilters.length === 0) {
+            return;
+        }
 
-    // If no value provided
-    if (!value) {
-      return;
+        this.columnSize = Math.max(NumberUtils.divideSafely(12, this.allFilters.length) ?? 0, 4);
+
+        this.defaultFilterValues = FilterComponent.getDefaultFilterValues(this.allFilters);
+
+        for (const [category, ids] of Object.entries(this.defaultFilterValues)) {
+            if (category === null || ids === null || ids === undefined) {
+                return;
+            }
+            const validIds = ids.reduce(ArrayUtils.ReducerFunctions.STRINGIFY_SAFELY, []);
+            const filter = this.allFilters.find((el) =>
+                el?.options.find((e) => StringUtils.isInArr(e.option?.id ?? null, validIds)),
+            );
+
+            if (filter == null) {
+                continue;
+            }
+            const defaultValue = FilterComponent.getFilterValues(validIds, filter).flat();
+            this.searchParams.set(category, defaultValue);
+        }
+        this.setSearchParams.emit(this.searchParams);
     }
 
-    let didFilterChange: boolean = false;
-
-    if (Array.isArray(this.searchParams.get(filter.category))) {
-      didFilterChange = Utils.compareArraysSafely(value, this.searchParams.get(filter.category) as any[]);
-    } else {
-      didFilterChange = value == this.searchParams.get(filter.category);
+    /**
+     * Gets id of a filter option by its value.
+     *
+     * @param filter The filter
+     * @param value The value
+     * @returns A array with ids for this filter
+     */
+    public static getIdByValue<T>(filter: Filter<string | null> | SortOrderFilter | null, value: T): string[] {
+        AssertionUtils.assertIsDefined(filter);
+        return filter.options.reduce((arr, opt) => {
+            if (
+                typeof opt.option.value === "string" &&
+                Array.isArray(value) &&
+                StringUtils.isInArr(opt.option.value, value)
+            ) {
+                AssertionUtils.assertIsDefined(opt.option.id);
+                arr.push(opt.option.id);
+            }
+            return arr;
+        }, [] as string[]);
     }
 
-    // If Map didn't change
-    if (this.searchParams.has(filter.category) && didFilterChange) {
-      return;
+    /**
+     * Gets default filter values.
+     *
+     * @param filters The filters
+     * @returns A list of either id of default values or null
+     */
+    private static getDefaultFilterValues(filters: (Filter | SortOrderFilter | null)[]): FilterCategory {
+        const persistedSelection = FilterComponent.getPersistedSelection(filters);
+        function getPersistedSelectionOptionIds(filter: Filter | SortOrderFilter | null) {
+            AssertionUtils.assertIsDefined(filter);
+            return filter.category in persistedSelection && persistedSelection[filter.category]?.length > 0
+                ? persistedSelection[filter.category]
+                : filter?.options?.filter((el) => el.option?.default).map((el) => el.option.id);
+        }
+
+        return filters.reduce((obj, filter) => {
+            if (filter == null) {
+                return obj;
+            }
+            const optionIds = getPersistedSelectionOptionIds(filter);
+            obj[filter.category] = optionIds;
+            return obj;
+        }, {} as FilterCategory);
     }
 
-    let additionalFilter: ChosenFilter;
-    if (filter.setAdditionalFilter) {
-      additionalFilter = filter.setAdditionalFilter();
+    /**
+     * Adds a unique id to each filter option.
+     *
+     * Unique needed for IonSelects value property mapping for objects
+     *
+     * @param filter The filter
+     * @returns The filter with unique id
+     */
+    private static ADD_UNIQUE_ID_TO_FILTER_OPTION(
+        filter: Filter | SortOrderFilter | null,
+    ): Filter<string | null> | SortOrderFilter | null {
+        if (filter == null) {
+            return filter;
+        }
+        filter.options.map((el) => {
+            el.option.id = uuidv4();
+            return el;
+        });
+
+        return filter;
     }
 
-    if (value?.length === 0) {
-      this.searchParams.delete(filter.category);
+    /**
+     * Gets the filter values.
+     *
+     * @param ids The unique ids
+     * @param filter The filter
+     * @returns The filter values
+     */
+    private static getFilterValues<T = string>(ids: string[], filter: Filter<string | null> | SortOrderFilter): T[] {
+        return filter.options.reduce((arr: T[], item) => {
+            if (item?.option?.id == null) {
+                return arr;
+            }
 
-      if (additionalFilter) {
-        this.searchParams.delete(additionalFilter.key);
-      }
-    } else {
-      this.searchParams.set(filter.category, value);
+            const matchesOptionId = StringUtils.isInArr(item?.option?.id, ids);
+            if (matchesOptionId === false) {
+                return arr;
+            }
 
-      if (additionalFilter) {
-        this.searchParams.set(additionalFilter.key, additionalFilter.value);
-      }
+            arr.push(item.option.value as T);
+            return arr;
+        }, []);
     }
 
-    this.setSearchParams.emit(this.searchParams);
-  }
+    private static getPersistedSelection(filters: (Filter | SortOrderFilter | null)[]) {
+        AssertionUtils.assertIsDefined(filters);
+        return filters.reduce((obj, filter) => {
+            AssertionUtils.assertIsDefined(filter);
+            const persistedFilterValue:
+                (Filter<string> | SortOrderFilter)["options"][number]["option"]["value"] | null =
+                JsonUtils.safeJsonParse(localStorage.getItem(filter?.category ?? "") ?? "");
+            const id = this.getIdByValue(filter, persistedFilterValue);
+            if (id == null) {
+                return obj;
+            }
+
+            obj[filter.category] = id;
+            return obj;
+        }, {} as FilterCategory);
+    }
+
+    /**
+     * Collects the search params for a {@link GetEdgesRequest}
+     *
+     * @param event The event
+     * @param filter The chosen filter
+     */
+    public searchOnChange(event: Event, filter: SortOrderFilter | Filter<string>): void {
+        const selectElement = event.target as HTMLIonSelectElement;
+        const input = selectElement.value;
+
+        // If no value provided
+        if (input == null) {
+            return;
+        }
+
+        const ids: string[] = Array.isArray(input) ? input : [input];
+        const values = FilterComponent.getFilterValues(ids, filter).flat();
+
+        if (JSON.stringify(this.searchParams.get(filter.category)) === JSON.stringify(values)) {
+            return;
+        }
+
+        let additionalFilter: ChosenFilter | null = null;
+        if (filter.setAdditionalFilter) {
+            additionalFilter = filter.setAdditionalFilter();
+        }
+
+        if (values?.length === 0) {
+            this.searchParams.delete(filter.category);
+
+            if (additionalFilter) {
+                this.searchParams.delete(additionalFilter.key);
+            }
+        } else {
+            this.searchParams.set(filter.category, values);
+
+            if (additionalFilter) {
+                this.searchParams.set(additionalFilter.key, additionalFilter.value);
+            }
+        }
+
+        this.persistSelection(filter);
+        this.setSearchParams.emit(this.searchParams);
+    }
+
+    /**
+     * Persist the current selection
+     *
+     * @param filter The filter
+     */
+    private persistSelection(filter: Filter<string> | SortOrderFilter) {
+        localStorage.setItem(filter.category, JSON.stringify(this.searchParams.get(filter.category) ?? []));
+    }
 }
 
 export type ChosenFilter = TKeyValue<string | string[] | boolean | null>;
 
-export type Filter = {
-  placeholder: string,
-  category: string,
-  options: FilterOption[],
+export type Filter<T = string | null> = {
+    multiple: HTMLIonSelectElement["multiple"];
+    placeholder: string;
+    category: string;
+    options: FilterOption<T>[];
 
-  // sets additional filter
-  setAdditionalFilter?: () => ChosenFilter
+    // sets additional filter
+    setAdditionalFilter?: () => ChosenFilter;
 };
 
-export type FilterOption = {
-  name: string,
-  value: string | null
+export type SortOrderFilter = Filter<
+    {
+        field: string;
+        sortOrder: "ASC" | "DESC";
+    }[]
+>;
+
+export type FilterOption<T> = {
+    name: string;
+    option: {
+        value: T;
+        id?: string;
+        default?: boolean;
+    };
 };
+type FilterCategoryOptionId = Filter["options"][number]["option"]["id"] | null;
+type FilterCategory = { [category: Filter["category"]]: (FilterCategoryOptionId | null)[] };

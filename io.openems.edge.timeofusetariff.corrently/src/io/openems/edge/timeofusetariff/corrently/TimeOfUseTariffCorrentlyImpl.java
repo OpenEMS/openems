@@ -5,14 +5,13 @@ import static io.openems.common.utils.JsonUtils.getAsJsonArray;
 import static io.openems.common.utils.JsonUtils.getAsLong;
 import static io.openems.common.utils.JsonUtils.parseToJsonObject;
 import static io.openems.edge.timeofusetariff.api.utils.TimeOfUseTariffUtils.generateDebugLog;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.TreeMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -27,6 +26,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableSortedMap;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -131,7 +132,7 @@ public class TimeOfUseTariffCorrentlyImpl extends AbstractOpenemsComponent
 
 	@Override
 	public TimeOfUsePrices getPrices() {
-		return TimeOfUsePrices.from(ZonedDateTime.now(), this.prices.get());
+		return TimeOfUsePrices.from(Instant.now(this.componentManager.getClock()), this.prices.get());
 	}
 
 	/**
@@ -142,19 +143,18 @@ public class TimeOfUseTariffCorrentlyImpl extends AbstractOpenemsComponent
 	 * @throws OpenemsNamedException on error
 	 */
 	public static TimeOfUsePrices parsePrices(String jsonData) throws OpenemsNamedException {
-		var result = new TreeMap<ZonedDateTime, Double>();
+		var result = ImmutableSortedMap.<Instant, Double>naturalOrder();
 		var data = getAsJsonArray(parseToJsonObject(jsonData), "data");
 		for (var element : data) {
 			var marketPrice = getAsDouble(element, "marketprice");
 
-			// Converting Long time stamp to ZonedDateTime.
-			var startTimeStamp = ZonedDateTime //
-					.ofInstant(Instant.ofEpochMilli(getAsLong(element, "start_timestamp")), ZoneId.systemDefault())
-					.truncatedTo(ChronoUnit.MINUTES);
+			// Converting Long time stamp to Instant.
+			var startTimeStamp = Instant.ofEpochMilli(getAsLong(element, "start_timestamp")) //
+					.truncatedTo(MINUTES);
 			// Adding the values in the Map.
 			result.put(startTimeStamp, marketPrice);
 		}
-		return TimeOfUsePrices.from(result);
+		return TimeOfUsePrices.from(result.build());
 	}
 
 	@Override

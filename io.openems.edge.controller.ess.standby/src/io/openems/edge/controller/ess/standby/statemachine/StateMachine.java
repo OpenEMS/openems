@@ -48,20 +48,13 @@ public class StateMachine extends AbstractStateMachine<StateMachine.State, Conte
 
 	@Override
 	public StateHandler<State, Context> getStateHandler(State state) {
-		switch (state) {
-		case UNDEFINED:
-			return new UndefinedHandler();
-		case DISCHARGE:
-			return new DischargeHandler();
-		case SLOW_CHARGE_1:
-			return new SlowCharge1Handler();
-		case FAST_CHARGE:
-			return new FastChargeHandler();
-		case SLOW_CHARGE_2:
-			return new SlowCharge2Handler();
-		case FINISHED:
-			return new FinishedHandler();
-		}
-		throw new IllegalArgumentException("Unknown State [" + state + "]");
+		return switch (state) {
+		case UNDEFINED -> new UndefinedHandler();
+		case DISCHARGE -> new DischargeHandler();
+		case SLOW_CHARGE_1 -> new SlowCharge1Handler();
+		case FAST_CHARGE -> new FastChargeHandler();
+		case SLOW_CHARGE_2 -> new SlowCharge2Handler();
+		case FINISHED -> new FinishedHandler();
+		};
 	}
 }

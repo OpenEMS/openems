@@ -24,7 +24,7 @@
 for D in *; do
 	if [ -d "${D}" ]; then
 		case "${D}" in
-			build|cnf|doc|edge|ui|tools)
+			build|cnf|doc|edge|gradle|ui|tools)
 				;;
 			*)
 
@@ -40,7 +40,7 @@ for D in *; do
 					continue
 				fi
 
-				echo "# preparing " ${D}
+				echo "# preparing ${D}"
 
 				# verify the project .gitignore file
 				if grep -q '/bin_test/' ${D}/.gitignore \
@@ -78,7 +78,7 @@ EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="aQute.bnd.classpath.container"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-21"/>
 	<classpathentry kind="src" output="bin" path="src"/>
 	<classpathentry kind="src" output="bin_test" path="test">
 		<attributes>
@@ -125,7 +125,7 @@ EOT
 					else
 						(
 							head -n $start "${D}/bnd.bnd"; # before 'buildpath'
-							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort; # the 'buildpath'
+							head -n$(expr $end - 2) "${D}/bnd.bnd" | tail -n$(expr $end - $start - 2) | LC_COLLATE=C sort | sed '/\\$/!s/$/,\\/'; # the 'buildpath'
 							tail -n +$(expr $end - 1) "${D}/bnd.bnd" # after 'buildpath'
 						) > "${D}/bnd.bnd.new"
 						if [ $? -eq 0 ]; then
@@ -142,59 +142,77 @@ EOT
 done
 
 # Build
+
+echo "#"
+echo "# building Java projects"
 ./gradlew build
 
-# Update EdgeApp.bndrun
-bndrun='io.openems.edge.application/EdgeApp.bndrun'
-head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
-for D in io.openems.edge.*; do
-	if [[ "$D" == *api ]]; then
-		continue # ignore api bundle
+update_bndrun() {
+	# Updates the given .bndrun file to include all bundles in the respective project
+	# $1 = App name (EdgeApp, BackendEdgeApp, BackendApp)
+	# $2 = Directory prefix (io.openems.edge, io.openems.backend)
+	# $3 = Application bundle
+	echo "#"
+	echo "# updating $1"
+	local bndrun="${3}/${1}.bndrun"
+	head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
+	echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
+	if [[ "$1" == "BackendApp" ]]; then
+		echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
 	fi
-	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
-done
-runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
-tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-rm "$bndrun.new"
-./gradlew resolve.EdgeApp
+	echo "	bnd.identity;id='org.apache.felix.http.jetty12',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.http.servlet-api',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
+	echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
 
-# Update BackendApp.bndrun
-bndrun='io.openems.backend.application/BackendApp.bndrun'
-head -n $(grep -n '\-runrequires:' $bndrun | grep -Eo '^[^:]+' | head -n1) "$bndrun" > "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-api',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.ops4j.pax.logging.pax-logging-log4j2',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.osgi.service.jdbc',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.http.jetty',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.webconsole.plugins.ds',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.inventory',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.eventadmin',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.fileinstall',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='org.apache.felix.metatype',\\" >> "$bndrun.new"
-echo "	bnd.identity;id='io.openems.wrapper.pgbulkinsert',\\" >> "$bndrun.new" # required for timescaledb
-for D in io.openems.backend.*; do
-	if [[ "$D" == *api ]]; then
-		continue # ignore api bundle
-	fi
-	echo "	bnd.identity;id='${D}',\\" >> "$bndrun.new"
-done
-runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
-tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
-head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
-rm "$bndrun.new"
-./gradlew resolve.BackendApp
+	entries=()
+	case "$1" in
+	"EdgeApp" | "BackendApp")
+	   	for D in $2.*; do
+			if [[ "$D" == *api ]]; then
+				continue # ignore api bundle
+			elif [[ "$D" == *application && "$D" != "$3" ]]; then
+				continue # ignore other application bundle
+			fi
+			entries+=("$D")
+		done
+		for D in io.openems.core.*; do
+			entries+=("$D")
+		done
+	;;
+	"BackendEdgeApp")
+		entries=(
+			'io.openems.backend.common'
+			'io.openems.backend.edge.application'
+			'io.openems.backend.metrics.prometheus'
+			'io.openems.core.logger'
+		)
+	;;
+	esac
+	printf "%s\n" "${entries[@]}" | LC_ALL=C sort -u | while IFS= read -r D; do
+		echo -e "\tbnd.identity;id='$D',\\" >> "$bndrun.new"
+	done
+
+	local runbundles=$(grep -n '\-runbundles:' $bndrun | grep -Eo '^[^:]+' | head -n1)
+	tail -n +$(expr $runbundles - 1) "$bndrun" >> "$bndrun.new"
+	head -n $(grep -n '\-runbundles:' "$bndrun.new" | grep -Eo '^[^:]+' | head -n1) "$bndrun.new" > "$bndrun"
+	rm "$bndrun.new"
+	./gradlew resolve.$1
+}
+
+update_bndrun EdgeApp 'io.openems.edge' 'io.openems.edge.application'
+update_bndrun BackendApp 'io.openems.backend' 'io.openems.backend.application'
+update_bndrun BackendEdgeApp 'io.openems.backend' 'io.openems.backend.edge.application'
 
 # Build + test UI
+echo "#"
+echo "# building UI project"
+
 cd ui
 npm install
 node_modules/.bin/ng lint --fix

@@ -156,10 +156,10 @@ public interface Type<P extends Nameable, //
 	 */
 	public default Function<M, ResourceBundle> translationBundleSupplier() {
 		return p -> {
-			if (p instanceof BundleParameter) {
-				return ((BundleParameter) p).bundle;
-			}
-			return null;
+			return switch (p) {
+			case BundleParameter bp -> bp.bundle;
+			default -> null;
+			};
 		};
 	}
 

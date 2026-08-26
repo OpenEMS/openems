@@ -7,7 +7,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 	public static class Builder {
 		private String id;
-		private String accessToken;
+		private String backendOAuthClientIdentifier;
 
 		private Builder() {
 		}
@@ -17,8 +17,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAccessToken(String accessToken) {
-			this.accessToken = accessToken;
+		public Builder setbackendOAuthClientIdentifier(String backendOAuthClientIdentifier) {
+			this.backendOAuthClientIdentifier = backendOAuthClientIdentifier;
 			return this;
 		}
 
@@ -44,8 +44,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String accessToken() {
-		return this.builder.accessToken;
+	public String backendOAuthClientIdentifier() {
+		return this.builder.backendOAuthClientIdentifier;
 	}
 
 }

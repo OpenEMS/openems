@@ -215,10 +215,10 @@ public class Value<T> {
 	 *         enum
 	 */
 	private EnumDoc isEnumValue() {
-		if (this.parent.channelDoc() instanceof EnumDoc) {
-			return (EnumDoc) this.parent.channelDoc();
-		}
-		return null;
+		return switch (this.parent.channelDoc()) {
+		case EnumDoc ed -> ed;
+		default -> null;
+		};
 	}
 
 	/**

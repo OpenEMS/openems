@@ -1,10 +1,11 @@
 package io.openems.edge.bosch.bpts5hybrid.meter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.edge.bosch.bpts5hybrid.core.BoschBpts5HybridCoreImpl;
+import io.openems.edge.common.test.AbstractComponentTest.TestCase;
 import io.openems.edge.common.test.ComponentTest;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 
 public class BoschBpts5HybridMeterTest {
 
@@ -14,8 +15,8 @@ public class BoschBpts5HybridMeterTest {
 	@Test
 	public void test() throws Exception {
 		var core = new BoschBpts5HybridCoreImpl();
-		new ComponentTest(new BoschBpts5HybridCoreImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
+		new ComponentTest(core) //
+				.addReference("httpBridgeFactory", DummyBridgeHttpFactory.ofDummyBridge()) //
 				.activate(io.openems.edge.bosch.bpts5hybrid.core.MyConfig.create() //
 						.setId(CORE_ID) //
 						.setEnabled(false) //
@@ -24,12 +25,12 @@ public class BoschBpts5HybridMeterTest {
 						.build()); //
 
 		new ComponentTest(new BoschBpts5HybridMeterImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("core", core) //
 				.activate(MyConfig.create() //
 						.setId(METER_ID) //
 						.setCoreId(CORE_ID) //
 						.build()) //
-		;
+				.next(new TestCase()) //
+				.deactivate();
 	}
 }

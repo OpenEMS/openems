@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { format } from 'date-fns';
+import { format } from "date-fns";
 import { Resolution } from "src/app/edge/history/shared";
 import { ChannelAddress } from "../../type/channeladdress";
 import { JsonrpcRequest } from "../base";
@@ -36,8 +36,8 @@ export class QueryHistoricTimeseriesEnergyPerPeriodRequest extends JsonrpcReques
     ) {
         super(QueryHistoricTimeseriesEnergyPerPeriodRequest.METHOD, {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            fromDate: format(fromDate, 'yyyy-MM-dd'),
-            toDate: format(toDate, 'yyyy-MM-dd'),
+            fromDate: format(fromDate, "yyyy-MM-dd"),
+            toDate: format(toDate, "yyyy-MM-dd"),
             channels: JsonRpcUtils.channelsToStringArray(channels),
             resolution: resolution,
         });

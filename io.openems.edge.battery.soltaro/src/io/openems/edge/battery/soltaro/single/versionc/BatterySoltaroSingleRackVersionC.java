@@ -514,29 +514,29 @@ public interface BatterySoltaroSingleRackVersionC extends Battery, OpenemsCompon
 
 		// Faults and warnings
 		// Alarm Level 2
-		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Discharge Temperature Low Alarm Level 2")), //
-		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Discharge Temperature High Alarm Level 2")), //
-		LEVEL2_INSULATION_VALUE(Doc.of(Level.FAULT) //
+		LEVEL2_INSULATION_VALUE(Doc.of(Level.WARNING) //
 				.text("Insulation Value Failure Alarm Level 2")), //
-		LEVEL2_POWER_POLE_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_POWER_POLE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Power Pole temperature too high Alarm Level 2")), //
-		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_TEMP_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Charge Temperature Low Alarm Level 2")), //
-		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_TEMP_HIGH(Doc.of(Level.WARNING) //
 				.text("Charge Temperature High Alarm Level 2")), //
-		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_DISCHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Discharge Current High Alarm Level 2")), //
-		LEVEL2_TOTAL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_TOTAL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Total Voltage Low Alarm Level 2")), //
-		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.FAULT) //
+		LEVEL2_CELL_VOLTAGE_LOW(Doc.of(Level.WARNING) //
 				.text("Cell Voltage Low Alarm Level 2")), //
-		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CHARGE_CURRENT_HIGH(Doc.of(Level.WARNING) //
 				.text("Charge Current High Alarm Level 2")), //
-		LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_TOTAL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Total Voltage High Alarm Level 2")), //
-		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.FAULT) //
+		LEVEL2_CELL_VOLTAGE_HIGH(Doc.of(Level.WARNING) //
 				.text("Cell Voltage High Alarm Level 2")), //
 
 		// Alarm Level 1
@@ -672,11 +672,11 @@ public interface BatterySoltaroSingleRackVersionC extends Battery, OpenemsCompon
 				.text("Slave 20 communication error")), //
 
 		// OpenEMS Faults
-		RUN_FAILED(Doc.of(Level.FAULT) //
+		RUN_FAILED(Doc.of(Level.WARNING) //
 				.text("Running the Logic failed")), //
-		MAX_START_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_START_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of start attempts failed")), //
-		MAX_STOP_ATTEMPTS(Doc.of(Level.FAULT) //
+		MAX_STOP_ATTEMPTS(Doc.of(Level.WARNING) //
 				.text("The maximum number of stop attempts failed")), //
 		;
 

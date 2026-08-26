@@ -25,12 +25,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 			return this;
 		}
 
-		public Builder setAdditionalChannels(String[] additionalChannels) {
+		public Builder setAdditionalChannels(String... additionalChannels) {
 			this.additionalChannels = additionalChannels;
 			return this;
 		}
 
-		public Builder setIgnoreComponents(String[] ignoreComponents) {
+		public Builder setIgnoreComponents(String... ignoreComponents) {
 			this.ignoreComponents = ignoreComponents;
 			return this;
 		}

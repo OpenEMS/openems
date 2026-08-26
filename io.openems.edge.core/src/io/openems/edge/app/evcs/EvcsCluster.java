@@ -30,7 +30,6 @@ import com.google.gson.JsonPrimitive;
 import io.openems.common.channel.Unit;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -84,7 +83,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 
 	public static enum Property implements Type<Property, EvcsCluster, BundleParameter>, Nameable {
 		// Component-IDs
-		EVCS_CLUSTER_ID(AppDef.of(EvcsCluster.class) //
+		EVCS_CLUSTER_ID(AppDef.of(EvcsCluster.class)//
 				.setDefaultValue("evcsCluster0")), //
 		// Properties
 		ALIAS(alias()), //
@@ -99,7 +98,7 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 							DEFAULT_COMPONENT_2_LABEL, DEFAULT_COMPONENT_2_VALUE) //
 							.isMulti(true);
 				}) //
-				.setDefaultValue((app, property, l, parameter) -> new JsonArray()) //
+				.setDefaultValue((app, property, l, parameter) -> new JsonArray())//
 				.bidirectional(EVCS_CLUSTER_ID, "evcs.ids", a -> a.componentManager)), //
 		MAX_HARDWARE_POWER_LIMIT_PER_PHASE(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def //
 				.setTranslatedLabelWithAppPrefix(".maxChargeFromGrid.short.label") //
@@ -107,9 +106,9 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 				.setDefaultValue(7000) //
 				.setRequired(true) //
 				.appendIsAllowedToEdit(AppDef.ofLeastRole(Role.INSTALLER)) //
-				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field.setInputType(NUMBER) //
-						.setMin(0) //
-						.setUnit(Unit.WATT, l)) //
+				.setField(JsonFormlyUtil::buildInput, (app, property, l, parameter, field) -> field.setInputType(NUMBER)//
+						.setMin(0)//
+						.setUnit(Unit.WATT, l))//
 				.bidirectional(EVCS_CLUSTER_ID, "hardwarePowerLimitPerPhase",
 						ComponentManagerSupplier::getComponentManager, AppDef.multiplyWith(3)))), //
 		;
@@ -164,13 +163,6 @@ public class EvcsCluster extends AbstractOpenemsAppWithProps<EvcsCluster, Proper
 					.addTask(Tasks.component(components)) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

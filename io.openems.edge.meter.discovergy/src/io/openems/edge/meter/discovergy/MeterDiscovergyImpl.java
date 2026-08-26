@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
+import io.openems.common.types.MeterType;
 import io.openems.common.utils.JsonUtils;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -26,7 +27,6 @@ import io.openems.edge.common.jsonapi.EdgeKeys;
 import io.openems.edge.common.jsonapi.JsonApiBuilder;
 import io.openems.edge.common.user.User;
 import io.openems.edge.meter.api.ElectricityMeter;
-import io.openems.edge.meter.api.MeterType;
 import io.openems.edge.meter.discovergy.jsonrpc.Field;
 import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesRequest;
 import io.openems.edge.meter.discovergy.jsonrpc.GetFieldNamesResponse;

@@ -4,7 +4,7 @@ package io.openems.edge.meter.virtual.subtract;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
+import io.openems.common.types.MeterType;
 
 @ObjectClassDefinition(//
 		name = "Meter Virtual Subtract", //

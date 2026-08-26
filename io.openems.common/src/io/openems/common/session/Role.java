@@ -45,17 +45,13 @@ public enum Role {
 	 * @return the Role
 	 */
 	public static Role getRole(String name) {
-		switch (name.toLowerCase()) {
-		case "admin":
-			return ADMIN;
-		case "installer":
-			return INSTALLER;
-		case "owner":
-			return OWNER;
-		case "guest":
-		default:
-			return GUEST;
-		}
+		return switch (name.toLowerCase()) {
+		case "admin" -> ADMIN;
+		case "installer" -> INSTALLER;
+		case "owner" -> OWNER;
+		case "guest" -> GUEST;
+		default -> GUEST;
+		};
 	}
 
 	/**
@@ -104,6 +100,45 @@ public enum Role {
 	 */
 	public JsonPrimitive asJson() {
 		return new JsonPrimitive(this.name().toLowerCase());
+	}
+
+	/**
+	 * Throws an exception if the current Role is less privileged than the given
+	 * Role.
+	 * 
+	 * @param userId       the id of the user; used for the exception
+	 * @param userRole     the user role
+	 * @param requiredRole the required role
+	 * @param resource     a resource identifier; used for the exception
+	 * @throws OpenemsNamedException if the current Role privileges are less
+	 */
+	public static void assertRoleIsAtLeast(String userId, Role userRole, Role requiredRole, String resource)
+			throws OpenemsNamedException {
+		if (userRole == null) {
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, userId);
+		}
+		if (!userRole.isAtLeast(requiredRole)) {
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, userRole);
+		}
+	}
+
+	/**
+	 * Throws an exception if the current Role is not the given Role.
+	 *
+	 * @param userId       the id of the user; used for the exception
+	 * @param userRole     the user role
+	 * @param requiredRole the required role
+	 * @param resource     a resource identifier; used for the exception
+	 * @throws OpenemsNamedException if the current Role differs from given Role
+	 */
+	public static void assertRoleIsEqual(String userId, Role userRole, Role requiredRole, String resource)
+			throws OpenemsNamedException {
+		if (userRole == null) {
+			throw OpenemsError.COMMON_ROLE_UNDEFINED.exception(resource, userId);
+		}
+		if (userRole != requiredRole) {
+			throw OpenemsError.COMMON_ROLE_ACCESS_DENIED.exception(resource, userRole);
+		}
 	}
 
 }

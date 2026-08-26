@@ -21,23 +21,15 @@ public abstract class OpenemsTypeDoc<T> extends AbstractDoc<T> {
 	 * @return the {@link OpenemsTypeDoc}
 	 */
 	public static OpenemsTypeDoc<?> of(OpenemsType type) {
-		switch (type) {
-		case BOOLEAN:
-			return new BooleanDoc();
-		case DOUBLE:
-			return new DoubleDoc();
-		case FLOAT:
-			return new FloatDoc();
-		case INTEGER:
-			return new IntegerDoc();
-		case LONG:
-			return new LongDoc();
-		case SHORT:
-			return new ShortDoc();
-		case STRING:
-			return new StringDoc();
-		}
-		throw new IllegalArgumentException("OpenemsType [" + type + "] is unhandled. This should never happen.");
+		return switch (type) {
+		case BOOLEAN -> new BooleanDoc();
+		case DOUBLE -> new DoubleDoc();
+		case FLOAT -> new FloatDoc();
+		case INTEGER -> new IntegerDoc();
+		case LONG -> new LongDoc();
+		case SHORT -> new ShortDoc();
+		case STRING -> new StringDoc();
+		};
 	}
 
 	protected OpenemsTypeDoc(OpenemsType type) {

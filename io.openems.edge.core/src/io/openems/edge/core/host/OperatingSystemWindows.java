@@ -1,16 +1,25 @@
 package io.openems.edge.core.host;
 
+import java.lang.management.ManagementFactory;
+import java.net.Inet4Address;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
+
+import com.sun.management.OperatingSystemMXBean;
 
 import io.openems.common.exceptions.NotImplementedException;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcResponseSuccess;
+import io.openems.edge.common.update.Updateable;
 import io.openems.edge.common.user.User;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandRequest;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemCommandResponse;
 import io.openems.edge.core.host.jsonrpc.ExecuteSystemRestartRequest;
-import io.openems.edge.core.host.jsonrpc.SetNetworkConfigRequest;
+import io.openems.edge.core.host.jsonrpc.GetNetworkInfo;
+import io.openems.edge.core.host.jsonrpc.SetNetworkConfig;
 
 /**
  * OperatingSystem implementation for Windows.
@@ -28,7 +37,7 @@ public class OperatingSystemWindows implements OperatingSystem {
 
 	@Override
 	public void handleSetNetworkConfigRequest(User user, NetworkConfiguration oldNetworkConfiguration,
-			SetNetworkConfigRequest request) throws OpenemsNamedException {
+			SetNetworkConfig.Request request) throws OpenemsNamedException {
 		throw new NotImplementedException("SetNetworkConfigRequest is not implemented for Windows");
 	}
 
@@ -48,6 +57,47 @@ public class OperatingSystemWindows implements OperatingSystem {
 	public CompletableFuture<? extends JsonrpcResponseSuccess> handleExecuteSystemRestartRequest(
 			ExecuteSystemRestartRequest request) throws NotImplementedException {
 		throw new NotImplementedException("ExecuteSystemRestartRequest is not implemented for Windows");
+	}
+
+	@Override
+	public List<Inet4Address> getSystemIPs() throws OpenemsNamedException {
+		return Collections.emptyList();
+	}
+
+	@Override
+	public GetNetworkInfo.Response getNetworkInfo() throws OpenemsNamedException {
+		throw new NotImplementedException("This request is not implemented for Windows");
+	}
+
+	public CompletableFuture<String> getOperatingSystemVersion() {
+		return CompletableFuture.completedFuture(System.getProperty("os.name"));
+	}
+
+	@Override
+	public Updateable getSystemUpdateable() {
+		return null;
+	}
+
+	@Override
+	public void deleteNetworkInterfaces(User user, List<String> interfaceNames) throws OpenemsNamedException {
+		throw new NotImplementedException("deleteNetworkInterfaces is not implemented for Windows");
+	}
+
+	@Override
+	public Optional<Double> getCpuTemperature() {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<Double> getCpuLoad() {
+		return Optional.empty();
+	}
+
+	@Override
+	public Optional<MemoryInformation> getSystemMemory() {
+		var bean = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+		var information = new MemoryInformation(bean.getFreeMemorySize(), bean.getTotalMemorySize());
+		return Optional.of(information);
 	}
 
 }

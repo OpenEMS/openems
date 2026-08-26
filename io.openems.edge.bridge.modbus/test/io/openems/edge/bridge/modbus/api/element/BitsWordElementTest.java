@@ -3,12 +3,16 @@ package io.openems.edge.bridge.modbus.api.element;
 import static io.openems.common.channel.AccessMode.READ_WRITE;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
+import static io.openems.common.utils.ReflectionUtils.setAttributeViaReflection;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import java.util.function.Function;
+
+import org.junit.jupiter.api.Test;
 
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
@@ -102,39 +106,70 @@ public class BitsWordElementTest {
 		assertArrayEquals(new byte[] { (byte) 0x01, (byte) 0x06 }, registers[0].toBytes());
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
+	public void testSetToNull() throws Exception {
+		var sutTrue = generateSut();
+
+		final var channel0 = addBit(sutTrue, 0);// true
+		final var channel1 = addBit(sutTrue, 1);// null
+		final var channel2 = addBit(sutTrue, 2);// null
+		convert(sutTrue, value -> {
+			if (value[0] != null && value[0]) { // Reset all values if bit 0 is true
+				return new Boolean[16];
+			}
+			return value;
+		});
+		sutTrue.element.setInputValue(new Register[] { new SimpleRegister(7) }); // 0x7 = 111b
+		assertNull(channel0.getNextValue().get());
+		assertNull(channel1.getNextValue().get());
+		assertNull(channel2.getNextValue().get());
+
+		var sutFalse = generateSut();
+
+		final var channel3 = addBit(sutFalse, 0);// null
+		final var channel4 = addBit(sutFalse, 1);// false
+		final var channel5 = addBit(sutFalse, 2);// null
+		convert(sutFalse, value -> {
+			if (value[1] != null && !value[1]) {
+				return new Boolean[16]; // Reset all values if bit 1 is false
+			}
+			return value;
+		});
+
+		sutFalse.element.setInputValue(new Register[] { new SimpleRegister(5) }); // 0x5 = 101b
+		assertNull(channel3.getNextValue().get());
+		assertNull(channel4.getNextValue().get());
+		assertNull(channel5.getNextValue().get());
+	}
+
+	@Test
 	public void testRegistersLengthDoesNotMatch() throws Exception {
 		var sut = generateSut();
-		sut.element.setInputValue(new Register[2]);
+		assertThrows(IllegalArgumentException.class, () -> sut.element.setInputValue(new Register[2]));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testHighIndex() throws Exception {
 		var sut = generateSut();
-		addBit(sut, 16);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, 16));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testLowIndex() throws Exception {
 		var sut = generateSut();
-		addBit(sut, -1);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, -1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testNotBoolean() throws Exception {
 		var sut = generateSut();
-		addBit(sut, 0, null, OpenemsType.INTEGER);
+		assertThrows(IllegalArgumentException.class, () -> addBit(sut, 0, null, OpenemsType.INTEGER));
 	}
 
 	private static ModbusTest.FC3ReadRegisters<BitsWordElement, ?> generateSut() throws IllegalArgumentException,
 			IllegalAccessException, OpenemsException, NoSuchFieldException, SecurityException {
 		var sut = new ModbusTest.FC3ReadRegisters<>(new BitsWordElement(0, null), INTEGER);
-
-		// Some Reflection to properly initialize the BitsWordElement
-		var field = BitsWordElement.class.getDeclaredField("component");
-		field.setAccessible(true);
-		field.set(sut.element, sut);
-
+		setAttributeViaReflection(sut.element, "component", sut);
 		return sut;
 	}
 
@@ -158,5 +193,10 @@ public class BitsWordElementTest {
 			sut.element.bit(i, channelId);
 		}
 		return channel;
+	}
+
+	private static void convert(ModbusTest.FC3ReadRegisters<BitsWordElement, ?> sut,
+			Function<Boolean[], Boolean[]> converter) {
+		sut.element.convert(converter);
 	}
 }

@@ -1,31 +1,16 @@
 package io.openems.edge.common.test;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import io.openems.edge.common.channel.Channel;
 import io.openems.edge.common.channel.ChannelId;
+import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 
 public class TestUtils {
 
 	private TestUtils() {
-
-	}
-
-	/**
-	 * Finds and returns an open port.
-	 *
-	 * <p>
-	 * Source https://stackoverflow.com/a/26644672
-	 *
-	 * @return an open port
-	 * @throws IOException on error
-	 */
-	public static int findRandomOpenPortOnAllLocalInterfaces() throws IOException {
-		try (var socket = new ServerSocket(0);) {
-			return socket.getLocalPort();
-		}
 	}
 
 	/**
@@ -68,5 +53,25 @@ public class TestUtils {
 	public static void withValue(Channel<?> channel, Object value) {
 		channel.setNextValue(value);
 		channel.nextProcessImage();
+	}
+
+	/**
+	 * Helper to test a {@link #withValue(Channel, Object)} method in a JUnit test.
+	 * 
+	 * @param <T>    the type of the {@link AbstractDummyOpenemsComponent}
+	 * @param sut    the actual system-under-test
+	 * @param setter the getChannel getter method
+	 * @param getter the withChannel setter method
+	 */
+	public static <T> void testWithValue(T sut, BiFunction<T, Integer, T> setter, Function<T, Value<Integer>> getter) {
+		var before = getter.apply(sut).get();
+		if (before != null) {
+			throw new IllegalArgumentException("TestUtils.testWithValue() expected [null] got [" + before + "]");
+		}
+		setter.apply(sut, 123);
+		var after = getter.apply(sut).get().intValue();
+		if (after != 123) {
+			throw new IllegalArgumentException("TestUtils.testWithValue() expected [123] got [" + after + "]");
+		}
 	}
 }

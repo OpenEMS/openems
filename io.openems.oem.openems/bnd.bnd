@@ -5,8 +5,10 @@ Bundle-Version: 1.0.0.${tstamp}
 
 -buildpath: \
 	${buildpath},\
-	io.openems.backend.common,\
 	io.openems.common,\
-	
+	io.openems.edge.battery.fenecon.home,\
+	io.openems.edge.common,\
+	io.openems.edge.goodwe,\
+
 -testpath: \
 	${testpath}

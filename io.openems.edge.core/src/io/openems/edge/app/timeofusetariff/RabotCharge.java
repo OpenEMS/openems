@@ -1,7 +1,6 @@
 package io.openems.edge.app.timeofusetariff;
 
-import static io.openems.edge.core.appmanager.formly.enums.InputType.PASSWORD;
-import static io.openems.edge.core.appmanager.validator.Checkables.checkHome;
+import static io.openems.edge.app.common.props.CommonProps.defaultDef;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -14,11 +13,9 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.collect.Lists;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
@@ -30,7 +27,6 @@ import io.openems.edge.core.appmanager.AbstractOpenemsAppWithProps;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.AppDescriptor;
-import io.openems.edge.core.appmanager.ComponentManagerSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
 import io.openems.edge.core.appmanager.Nameable;
@@ -40,7 +36,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
-import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
 import io.openems.edge.core.appmanager.validator.ValidatorConfig;
 
 /**
@@ -49,7 +44,7 @@ import io.openems.edge.core.appmanager.validator.ValidatorConfig;
  * <pre>
   {
     "appId":"App.TimeOfUseTariff.RabotCharge",
-    "alias":"Rabot Charge",
+    "alias":"Rabot Energy",
     "instanceId": UUID,
     "image": base64,
     "properties":{
@@ -74,24 +69,10 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 
 		// Properties
 		ALIAS(CommonProps.alias()), //
-		ACCESS_TOKEN(AppDef.copyOfGeneric(CommonProps.defaultDef(), def -> def//
-				.setTranslatedLabelWithAppPrefix(".accessToken.label") //
-				.setTranslatedDescriptionWithAppPrefix(".accessToken.description") //
-				.setRequired(true) //
-				.setField(JsonFormlyUtil::buildInput, (app, prop, l, params, field) -> {
-					field.setInputType(PASSWORD);
-				}) //
-				.bidirectional(TIME_OF_USE_TARIFF_PROVIDER_ID, "accessToken",
-						ComponentManagerSupplier::getComponentManager, t -> {
-							return JsonUtils.getAsOptionalString(t) //
-									.map(s -> {
-										if (s.isEmpty()) {
-											return null;
-										}
-										return new JsonPrimitive("xxx");
-									}) //
-									.orElse(null);
-						})));
+		@Deprecated
+		ZIP_CODE(defaultDef()), //
+		MAX_CHARGE_FROM_GRID(TimeOfUseProps.maxChargeFromGrid(CTRL_ESS_TIME_OF_USE_TARIFF_ID)), //
+		;
 
 		private final AppDef<? super RabotCharge, ? super Property, ? super Type.Parameter.BundleParameter> def;
 
@@ -128,18 +109,16 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 			final var timeOfUseTariffProviderId = this.getId(t, p, Property.TIME_OF_USE_TARIFF_PROVIDER_ID);
 
 			final var alias = this.getString(p, l, Property.ALIAS);
-			final var accessToken = this.getValueOrDefault(p, Property.ACCESS_TOKEN, null);
+			final var maxChargeFromGrid = this.getInt(p, Property.MAX_CHARGE_FROM_GRID);
 
-			var components = Lists.newArrayList(//
+			final var components = Lists.newArrayList(//
 					new EdgeConfig.Component(ctrlEssTimeOfUseTariffId, alias, "Controller.Ess.Time-Of-Use-Tariff",
 							JsonUtils.buildJsonObject() //
 									.addProperty("ess.id", "ess0") //
+									.addProperty("maxChargePowerFromGrid", maxChargeFromGrid) //
 									.build()), //
 					new EdgeConfig.Component(timeOfUseTariffProviderId, this.getName(l), "TimeOfUseTariff.RabotCharge",
 							JsonUtils.buildJsonObject() //
-									.onlyIf(accessToken != null && !accessToken.equals("xxx"), b -> {
-										b.addProperty("accessToken", accessToken);
-									}) //
 									.build())//
 			);
 
@@ -150,13 +129,6 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 					.addTask(Tasks.persistencePredictor("_sum/UnmanagedConsumptionActivePower")) //
 					.build();
 		};
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override
@@ -177,7 +149,7 @@ public class RabotCharge extends AbstractOpenemsAppWithProps<RabotCharge, Proper
 	@Override
 	protected ValidatorConfig.Builder getValidateBuilder() {
 		return ValidatorConfig.create() //
-				.setCompatibleCheckableConfigs(checkHome());
+				.setCompatibleCheckableConfigs(TimeOfUseProps.getAllCheckableSystems());
 	}
 
 	@Override

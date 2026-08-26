@@ -1,0 +1,233 @@
+%button-base-reset {
+    min-width: auto;
+    --padding-start: 0.2rem;
+    --padding-end: 0.2rem;
+}
+
+%input-base-styles {
+    flex: 1;
+    min-width: 0; // Allows input to shrink
+    --padding-start: 0.3rem;
+    --padding-end: 0.3rem;
+}
+
+.year-section {
+    margin-bottom: 2rem;
+    border: 1px solid var(--ion-color-medium-shade);
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.year-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.tariff-grid {
+    width: 100%;
+    border: 1px solid var(--ion-color-dark);
+    margin: 1rem auto;
+    max-width: 800px; // Max width to prevent it from becoming too wide on large screens
+}
+
+.price-items-container {
+    background-color: var(--ion-color-light-shade);
+    border-bottom: 1px solid var(--ion-color-dark);
+    border-top: none;
+    padding-bottom: 0.5rem; // Add some padding at the bottom of the section
+    color: var(--ion-text-color);
+}
+
+.tariff-grid-header-row {
+    background-color: transparent;
+    border-bottom: none;
+    padding: 0.5rem;
+}
+
+.tariff-price-row {
+
+    ion-col {
+        padding: 0.5rem;
+        border: 1px solid var(--ion-border-color);
+        text-align: left;
+        white-space: nowrap;
+        background-color: transparent; // Ensure inputs don't have their own background
+    }
+}
+
+.tariff-input {
+    @extend %input-base-styles;
+    text-align: right; // Specific alignment
+}
+
+.input-unit {
+    white-space: nowrap;
+    font-size: 0.9em;
+    color: var(--ion-color-medium-shade);
+}
+
+.quarter-row {
+
+    ion-col {
+        padding: 0.5rem;
+        border: 1px solid var(--ion-border-color);
+        text-align: left;
+        white-space: nowrap; // Ensure content stays on one line if possible
+    }
+}
+
+.quarter-label-col {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+    user-select: none;
+    white-space: normal; // Allow text to wrap
+    word-break: break-word; // Break long words if necessary
+}
+
+.expand-button {
+    @extend %button-base-reset;
+    height: auto;
+    font-size: 1.2em;
+}
+
+.tariff-section {
+    padding-left: 10%; // Indentation for tariff sections within quarter details
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.time-range-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem; // Space between time range rows
+}
+
+.time-range-row .time-input {
+    min-width: 90px;
+    max-width: 120px;
+    flex: 1 1 auto;
+    --padding-start: 0.3rem; // Apply padding variables if the component supports them
+    --padding-end: 0.3rem;
+}
+
+.time-range-row .time-separator {
+    white-space: nowrap;
+}
+
+.remove-time-btn {
+    @extend %button-base-reset;
+    margin-left: 0.25rem;
+}
+
+.add-time-btn {
+    text-wrap: auto;
+    display: inline-block;
+    padding: 2%; // Specific padding, keep as is
+    margin-top: 0.5rem; // Space above the add button
+}
+
+.year-actions {
+    margin-top: 1.5rem;
+
+    ion-toolbar {
+        --background: transparent;
+        --border-width: 0;
+        padding: 0;
+    }
+
+    ion-buttons {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .year-section {
+        padding: 0.5rem;
+    }
+
+    .tariff-grid {
+        margin: 0.5rem auto;
+    }
+
+    .tariff-input {
+        font-size: 0.9rem;
+    }
+
+    .tariff-price-row {
+        // Keep as row for mobile, but allow content within columns to wrap if needed
+        flex-direction: row;
+        align-items: center;
+        flex-wrap: wrap;
+
+        ion-col {
+            // The default ion-col behavior with size="auto" and no explicit size should work well
+            width: auto; // Let content dictate width
+            text-align: left;
+            white-space: nowrap;
+            padding: 0.25rem;
+        }
+
+        // Target the specific column containing the input and the unit
+        ion-col:first-child {
+            // Assuming the input is in the first col and unit in the second
+            display: flex;
+            align-items: center;
+            gap: 0.5rem; // Space between input and unit
+            flex-grow: 1;
+        }
+
+        .input-unit {
+            margin-top: 0;
+            margin-bottom: 0;
+            flex-shrink: 0;
+        }
+    }
+
+    .input-unit {
+        font-size: 0.8rem;
+    }
+
+    .quarter-label-col {
+        font-size: 0.95rem;
+    }
+
+    .expand-button {
+        font-size: 1rem;
+    }
+
+    .quarter-row ion-col {
+        font-size: 0.85rem;
+    }
+
+    .time-range-row {
+        flex-direction: column; // Stack time inputs on small screens
+        align-items: flex-start;
+
+        .time-input {
+            width: 100%; // Full width for time inputs
+            max-width: none;
+            text-align: left;
+        }
+
+        .time-separator {
+            margin-left: 0; // Remove separator margin
+        }
+
+        .remove-time-btn {
+            margin-left: 0; // Remove margin
+            margin-top: 0.5rem; // Add top margin for spacing
+        }
+    }
+
+    .year-actions ion-buttons {
+        justify-content: space-between; // Distribute buttons
+    }
+}

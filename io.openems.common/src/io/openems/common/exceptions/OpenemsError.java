@@ -1,5 +1,6 @@
 package io.openems.common.exceptions;
 
+import java.io.Serial;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -34,6 +35,9 @@ public enum OpenemsError {
 	EDGE_UNABLE_TO_CREATE_CONFIG(2003, "Unable to create configuration for Factory [%s]: [%s]"), //
 	EDGE_UNABLE_TO_DELETE_CONFIG(2004, "Unable to delete configuration for Component [%s]: [%s]"), //
 	EDGE_CHANNEL_NO_OPTION(2005, "Channel has no Option [%s]. Existing options: %s"), //
+	EDGE_APP_INSTANCE_NOT_FOUND(2006, "Unable to find App instance with ID [%s]"), //
+	EDGE_APP_CATEGORY_CONFLICT(2007, "An App of the same category as App [%s] is already installed"), //
+	EDGE_APP_COMPONENTS_UPDATE_FAILED(2008, "Unable to update Components for App: [%s]"), //
 	/*
 	 * Backend errors. 3000-3999
 	 */
@@ -48,6 +52,7 @@ public enum OpenemsError {
 	JSONRPC_INVALID_MESSAGE(4002, "JSON-RPC Message is not a valid Request, Result or Notification: %s"), //
 	JSONRPC_RESPONSE_WITHOUT_REQUEST(4003, "Got Response without Request: %s"), //
 	JSONRPC_SEND_FAILED(4004, "Send failed"), //
+	JSONRPC_TOO_MANY_REQUESTS(4005, "Too Many Requests! Request discarded by Rate-Limiter."), //
 
 	/*
 	 * JSON Errors. 5000-5999
@@ -89,7 +94,10 @@ public enum OpenemsError {
 	 * XML Errors. 6000-6999
 	 */
 	XML_HAS_NO_MEMBER(6000, "XML [%s] has no member [%s]"), //
+	XML_NO_ELEMENT_MEMBER(6001, "XML [%s:%s] is not a element"),
 	XML_NO_STRING_MEMBER(6010, "XML [%s:%s] is not a String member"), //
+	XML_NO_INT(6020, "XML [%s] (Value '%s') is not a Int"), //
+	XML_NO_DOUBLE(6021, "XML [%s] (Value '%s') is not a Double"), //
 	;
 
 	/**
@@ -169,6 +177,19 @@ public enum OpenemsError {
 		return new OpenemsNamedException(this, params);
 	}
 
+	/**
+	 * Creates a OpenEMS Named Runtime Exception from this Error.
+	 *
+	 * <p>
+	 * Use like: `throw OpenemsError.GENERIC.runtimeException(...)`
+	 *
+	 * @param params the params for the Error message
+	 * @return OpenemsNamedRuntimeException
+	 */
+	public OpenemsNamedRuntimeException runtimeException(Object... params) {
+		return new OpenemsNamedRuntimeException(this, params);
+	}
+
 	public static class OpenemsNamedException extends Exception {
 
 		private static final long serialVersionUID = 1L;
@@ -177,6 +198,33 @@ public enum OpenemsError {
 		private final Object[] params;
 
 		public OpenemsNamedException(OpenemsError error, Object... params) {
+			super(error.getMessage(params));
+			this.error = error;
+			this.params = params;
+		}
+
+		public OpenemsError getError() {
+			return this.error;
+		}
+
+		public int getCode() {
+			return this.error.getCode();
+		}
+
+		public Object[] getParams() {
+			return this.params;
+		}
+	}
+
+	public static class OpenemsNamedRuntimeException extends OpenemsRuntimeException {
+
+		@Serial
+		private static final long serialVersionUID = 1L;
+
+		private final OpenemsError error;
+		private final Object[] params;
+
+		public OpenemsNamedRuntimeException(OpenemsError error, Object... params) {
 			super(error.getMessage(params));
 			this.error = error;
 			this.params = params;

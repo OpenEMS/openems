@@ -1,0 +1,57 @@
+<ion-header class="ion-no-border">
+    <ion-toolbar>
+        <ion-buttons slot="end">
+            <ion-button color="none" (click)="modalCtrl.dismiss()">
+                <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+<ion-content class="ion-align-center">
+    <ion-grid class="ion-align-center " style="height: 90%;">
+        <ion-row size="3" class="ion-padding ion-justify-content-center">
+            <ion-label class="full_width ion-text-wrap ion-font-size-large" color="primary">
+                {{"GENERAL.THEME_SELECTION.TITLE" | translate}}
+            </ion-label>
+        </ion-row>
+        <ion-row class="ion-justify-content-center ion-padding">
+            <ion-label class="full_width ion-text-center ion-text-wrap"
+                [innerHTML]="'GENERAL.THEME_SELECTION.DESCRIPTION' | translate">
+            </ion-label>
+        </ion-row>
+        <ion-row class="ion-padding-top">
+            <ion-radio-group [(ngModel)]="userTheme">
+                <ion-row class="ion-justify-content-center">
+                    <ion-col size="3" class="ion-text-center ion-margin-end">
+                        <img src="assets/img/light-mode-preview.jpg" alt="Light Mode" style="border-radius: 1.25em;" />
+                        <div class="ion-padding-top">
+                            <ion-radio mode="md" style="display: inline-block;" value="light"></ion-radio>
+                            <span style="display: block;" translate>GENERAL.LIGHT</span>
+                        </div>
+                    </ion-col>
+                    <ion-col size="3" class="ion-text-center ion-margin-horizontal">
+                        <img src="assets/img/dark-mode-preview.jpg" alt="Dark Mode" style="border-radius: 1.25em;" />
+                        <div class="ion-padding-top">
+                            <ion-radio mode="md" style="display: inline-block;" value="dark"></ion-radio>
+                            <span style="display: block;" translate>GENERAL.DARK</span>
+                        </div>
+                    </ion-col>
+                    <ion-col size="3" class="ion-text-center ion-margin-start">
+                        <img src="assets/img/system-mode-preview.jpg" alt="System Mode"
+                            style="border-radius: 1.25em;" />
+                        <div class="ion-padding-top">
+                            <ion-radio mode="md" style="display: inline-block;" value="system"></ion-radio>
+                            <span style="display: block;" translate>GENERAL.SYSTEM_THEME</span>
+                        </div>
+                    </ion-col>
+                </ion-row>
+            </ion-radio-group>
+        </ion-row>
+        <ion-row class="ion-padding-top ion-justify-content-center">
+            <ion-col size="12" class="ion-text-center ion-justify-content-center">
+                <ion-button size="small" fill="outline" type="submit" (click)="saveTheme()" expand="block"
+                    class="ion-padding theme-save-button" translate>GENERAL.SAVE</ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</ion-content>

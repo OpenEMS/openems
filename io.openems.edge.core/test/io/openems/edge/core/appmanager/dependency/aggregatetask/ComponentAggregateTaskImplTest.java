@@ -2,22 +2,24 @@ package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
 import static io.openems.edge.common.test.DummyUser.DUMMY_ADMIN;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.session.Language;
+import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.EdgeConfig;
 import io.openems.common.utils.JsonUtils;
-import io.openems.edge.common.test.DummyConfigurationAdmin;
 import io.openems.edge.core.appmanager.AppConfiguration;
 import io.openems.edge.core.appmanager.DummyPseudoComponentManager;
 import io.openems.edge.core.appmanager.TranslationUtil;
@@ -28,7 +30,7 @@ public class ComponentAggregateTaskImplTest {
 	private ComponentAggregateTask task;
 	private DummyPseudoComponentManager componentManager;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.componentManager = new DummyPseudoComponentManager();
 		this.componentManager.setConfigurationAdmin(new DummyConfigurationAdmin());
@@ -73,7 +75,7 @@ public class ComponentAggregateTaskImplTest {
 		assertEquals(0, this.componentManager.getAllComponents().size());
 
 		// create component
-		this.componentManager.addComponent(config.components().get(0));
+		this.componentManager.addComponentFromComponentConfig(config.components().get(0));
 		assertEquals(1, this.componentManager.getAllComponents().size());
 
 		// not failing even if component already exist
@@ -129,14 +131,14 @@ public class ComponentAggregateTaskImplTest {
 		// creating components of 2nd config with same properties
 		this.task.aggregate(config, null);
 		this.task.create(DUMMY_ADMIN, List.of(AppConfiguration.create() //
-				.addTask(Tasks.component(config.components())) //
+				.addTask(Tasks.componentFromComponentConfig(config.components())) //
 				.build()));
 
 		// not creating the same component twice
 		assertEquals(1, this.componentManager.getAllComponents().size());
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testCreateWithExistingComponentFromOtherAppDifferentConfig() throws Exception {
 		final var dummyComponentId = "test0";
 		final var config = AppConfiguration.create() //
@@ -158,10 +160,10 @@ public class ComponentAggregateTaskImplTest {
 						.addProperty("testProperty", "test_updated_value") //
 						.build()) //
 		), null);
-		this.task.create(DUMMY_ADMIN, List.of(config));
+		assertThrows(OpenemsNamedException.class, () -> this.task.create(DUMMY_ADMIN, List.of(config)));
 	}
 
-	@Test(expected = OpenemsNamedException.class)
+	@Test
 	public void testDelete() throws Exception {
 		final var dummyComponentId = "test0";
 		try {
@@ -170,14 +172,14 @@ public class ComponentAggregateTaskImplTest {
 							.build()) //
 			);
 
-			this.componentManager.addComponent(config.components().get(0));
+			this.componentManager.addComponentFromComponentConfig(config.components().get(0));
 
 			this.task.aggregate(null, config);
 			this.task.delete(DUMMY_ADMIN, emptyList());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		this.componentManager.getComponent(dummyComponentId);
+		assertThrows(OpenemsNamedException.class, () -> this.componentManager.getComponent(dummyComponentId));
 	}
 
 	@Test
@@ -202,7 +204,7 @@ public class ComponentAggregateTaskImplTest {
 		this.task.create(DUMMY_ADMIN, emptyList());
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
 		assertTrue(String.join(", ", errors), errors.isEmpty());
 	}
 
@@ -215,7 +217,7 @@ public class ComponentAggregateTaskImplTest {
 				.build();
 
 		final var errors = new ArrayList<String>();
-		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class));
+		this.task.validate(errors, config, config.getConfiguration(ComponentAggregateTask.class), emptyMap());
 		assertFalse("No errors while validating configuration", errors.isEmpty());
 	}
 
@@ -233,7 +235,7 @@ public class ComponentAggregateTaskImplTest {
 
 		assertFalse(this.task.getCreatedComponents().isEmpty());
 		assertEquals(1, this.task.getCreatedComponents().size());
-		assertEquals(dummyComponentId, this.task.getCreatedComponents().get(0).getId());
+		assertEquals(dummyComponentId, this.task.getCreatedComponents().get(0).id());
 	}
 
 	@Test
@@ -245,7 +247,7 @@ public class ComponentAggregateTaskImplTest {
 						.build()) //
 		);
 
-		this.componentManager.addComponent(config.components().get(0));
+		this.componentManager.addComponentFromComponentConfig(config.components().get(0));
 
 		this.task.aggregate(null, config);
 		this.task.delete(DUMMY_ADMIN, emptyList());

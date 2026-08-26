@@ -4,7 +4,6 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -25,7 +24,6 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.timedata.Resolution;
 import io.openems.common.types.ChannelAddress;
-import io.openems.common.utils.CollectorUtils;
 import io.openems.shared.influxdb.InfluxConnector.InfluxConnection;
 
 /**
@@ -102,14 +100,6 @@ public class FluxProxy extends QueryProxy {
 			throws OpenemsNamedException {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public Map<Integer, Map<String, Long>> queryAvailableSince(InfluxConnection influxConnection, String bucket)
-			throws OpenemsNamedException {
-		final var query = this.buildFetchAvailableSinceQuery(bucket);
-		final var queryResult = this.executeQuery(influxConnection, query);
-		return convertAvailableSinceQueryResult(queryResult, this.tag);
 	}
 
 	@Override
@@ -232,16 +222,6 @@ public class FluxProxy extends QueryProxy {
 	}
 
 	@Override
-	protected String buildFetchAvailableSinceQuery(//
-			String bucket //
-	) {
-		return Flux.from(bucket) //
-				.range(0L, 1L) //
-				.filter(Restrictions.measurement().equal(QueryProxy.AVAILABLE_SINCE_MEASUREMENT)) //
-				.toString();
-	}
-
-	@Override
 	protected String buildFetchFirstValueBefore(String bucket, String measurement, Optional<Integer> influxEdgeId,
 			ZonedDateTime date, Set<ChannelAddress> channels) {
 		// Calculates actual system date -100 days
@@ -327,14 +307,14 @@ public class FluxProxy extends QueryProxy {
 				timestamp = resolution.revertInfluxDbOffset(timestamp);
 
 				var valueObj = record.getValue();
-				final JsonElement value;
-				if (valueObj == null) {
-					value = JsonNull.INSTANCE;
-				} else if (valueObj instanceof Number) {
-					value = new JsonPrimitive((Number) valueObj);
-				} else {
-					value = new JsonPrimitive(valueObj.toString());
-				}
+				var value = switch (valueObj) {
+				case null //
+					-> JsonNull.INSTANCE;
+				case Number n //
+					-> new JsonPrimitive(n);
+				default //
+					-> new JsonPrimitive(valueObj.toString());
+				};
 
 				var channelAddresss = ChannelAddress.fromString(record.getField());
 
@@ -367,21 +347,21 @@ public class FluxProxy extends QueryProxy {
 			for (FluxRecord record : fluxTable.getRecords()) {
 
 				var valueObj = record.getValue();
-				final JsonElement value;
-				if (valueObj == null) {
-					value = JsonNull.INSTANCE;
-				} else if (valueObj instanceof Number) {
-					var number = (Number) valueObj;
+				var value = switch (valueObj) {
+				case null //
+					-> JsonNull.INSTANCE;
+				case Number number -> {
 					if (number.intValue() < 0) {
 						// do not consider negative values
 						LOG.warn("Got negative Energy value [" + number + "] for query: " + query);
-						value = JsonNull.INSTANCE;
+						yield JsonNull.INSTANCE;
 					} else {
-						value = new JsonPrimitive(number);
+						yield new JsonPrimitive(number);
 					}
-				} else {
-					value = new JsonPrimitive(valueObj.toString());
 				}
+				default //
+					-> new JsonPrimitive(valueObj.toString());
+				};
 
 				var channelAddresss = ChannelAddress.fromString(record.getField());
 
@@ -421,15 +401,14 @@ public class FluxProxy extends QueryProxy {
 			for (FluxRecord record : fluxTable.getRecords()) {
 
 				var valueObj = record.getValue();
-				JsonElement value;
-
-				if (valueObj == null) {
-					value = JsonNull.INSTANCE;
-				} else if (valueObj instanceof Number) {
-					value = new JsonPrimitive((Number) valueObj);
-				} else {
-					value = new JsonPrimitive(valueObj.toString());
-				}
+				var value = switch (valueObj) {
+				case null //
+					-> JsonNull.INSTANCE;
+				case Number number //
+					-> new JsonPrimitive(number);
+				default //
+					-> new JsonPrimitive(valueObj.toString());
+				};
 
 				var channelAddresss = ChannelAddress.fromString(record.getField());
 				latestValues.put(channelAddresss, value);
@@ -440,17 +419,4 @@ public class FluxProxy extends QueryProxy {
 		return latestValues;
 	}
 
-	private static Map<Integer, Map<String, Long>> convertAvailableSinceQueryResult(List<FluxTable> queryResult,
-			String tag) {
-		if (queryResult == null || queryResult.isEmpty()) {
-			return new TreeMap<>();
-		}
-		return queryResult.stream() //
-				.flatMap(t -> t.getRecords().stream()) //
-				.collect(CollectorUtils.toDoubleMap(//
-						record -> Integer.parseInt((String) record.getValueByKey(tag)), //
-						record -> (String) record.getValueByKey(QueryProxy.CHANNEL_TAG), //
-						record -> (Long) record.getValue()) //
-				);
-	}
 }

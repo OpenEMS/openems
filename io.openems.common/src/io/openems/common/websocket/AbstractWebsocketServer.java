@@ -12,9 +12,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.function.Predicate;
 
 import org.java_websocket.WebSocket;
+import org.java_websocket.drafts.Draft;
+import org.java_websocket.exceptions.InvalidDataException;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.handshake.ServerHandshakeBuilder;
 import org.java_websocket.server.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +39,8 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	private final int port;
 	private final WebSocketServer ws;
 	private final Collection<WebSocket> connections = ConcurrentHashMap.newKeySet();
+
+	private boolean isStarted = false;
 
 	/**
 	 * Construct an {@link AbstractWebsocketServer}.
@@ -59,9 +65,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 			}
 
 			@Override
-			public void onOpen(WebSocket ws, ClientHandshake handshake) {
-				T wsData = AbstractWebsocketServer.this.createWsData(ws);
+			public ServerHandshakeBuilder onWebsocketHandshakeReceivedAsServer(//
+					WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+				final T wsData = AbstractWebsocketServer.this.onHandshake(ws, draft, request);
 				ws.setAttachment(wsData);
+				return super.onWebsocketHandshakeReceivedAsServer(ws, draft, request);
+			}
+
+			@Override
+			public void onOpen(WebSocket ws, ClientHandshake handshake) {
 				AbstractWebsocketServer.this.execute(new OnOpenHandler(//
 						ws, handshake, //
 						AbstractWebsocketServer.this.getOnOpen(), //
@@ -141,10 +153,15 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * @return the debug log string
 	 */
 	public String debugLog() {
-		return new StringBuilder("[monitor] ") //
-				.append("Connections: ").append(this.connections.size()).append(", ") //
-				.append(ThreadPoolUtils.debugLog(this.executor)) //
-				.toString();
+		var b = new StringBuilder("[").append(this.getName()).append("] [monitor] ");
+		if (this.isStarted) {
+			b //
+					.append("Connections: ").append(this.connections.size()).append(", ") //
+					.append(ThreadPoolUtils.debugLog(this.executor));
+		} else {
+			b.append("NOT STARTED");
+		}
+		return b.toString();
 	}
 
 	/**
@@ -162,16 +179,35 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	@Override
 	protected OnInternalError getOnInternalError() {
 		return (t, wsDataString) -> {
-			if (t instanceof BindException) {
-				this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
-			} else {
-				this.logError(this.log, new StringBuilder() //
+			switch (t) {
+			case BindException be //
+				-> this.logError(this.log, "Unable to Bind to port [" + this.port + "]");
+			default //
+				-> this.logError(this.log, new StringBuilder() //
 						.append("OnInternalError for ").append(wsDataString).append(". ") //
 						.append(t.getClass()).append(": ") //
 						.append(t.getMessage()).toString());
 			}
-			t.printStackTrace();
+			this.log.error(t.getMessage(), t);
 		};
+	}
+
+	/**
+	 * Handles the WebSocket handshake and creates the connection specific
+	 * {@link WsData} attachment.
+	 *
+	 * <p>
+	 * Override this method to validate the incoming handshake request and reject it
+	 * by throwing an {@link InvalidDataException}.
+	 *
+	 * @param ws      the current {@link WebSocket} connection
+	 * @param draft   the negotiated WebSocket {@link Draft}
+	 * @param request the incoming client handshake
+	 * @return the {@link WsData} object that is attached to the WebSocket
+	 * @throws InvalidDataException if the handshake should be rejected
+	 */
+	protected T onHandshake(WebSocket ws, Draft draft, ClientHandshake request) throws InvalidDataException {
+		return this.createWsData(ws);
 	}
 
 	public Collection<WebSocket> getConnections() {
@@ -190,6 +226,23 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	}
 
 	/**
+	 * Broadcasts a {@link JsonrpcMessage} to all connected WebSockets matching a
+	 * condition.
+	 *
+	 * @param message the {@link JsonrpcMessage}
+	 * @param matcher the matching condition to send the message to
+	 */
+	public void broadcastMessage(JsonrpcMessage message, Predicate<T> matcher) {
+		for (var ws : this.getConnections()) {
+			T wsData = ws.getAttachment();
+			if (!matcher.test(wsData)) {
+				continue;
+			}
+			this.sendMessage(ws, message);
+		}
+	}
+
+	/**
 	 * Gets the port number that this server listens on.
 	 *
 	 * @return The port number.
@@ -202,7 +255,11 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 * Starts the {@link WebSocketServer}.
 	 */
 	@Override
-	public void start() {
+	public synchronized void start() {
+		if (this.isStarted) {
+			return;
+		}
+		this.isStarted = true;
 		super.start();
 		this.logInfo(this.log, "Starting websocket server [port=" + this.port + "]");
 		this.ws.start();
@@ -215,14 +272,24 @@ public abstract class AbstractWebsocketServer<T extends WsData> extends Abstract
 	 */
 	@Override
 	protected void execute(Runnable command) {
-		this.executor.execute(command);
+		if (this.executor.isShutdown()) {
+			// Avoid rejectedExecution during shutdown
+			command.run();
+		} else {
+			this.executor.execute(command);
+		}
 	}
 
 	/**
 	 * Stops the {@link WebSocketServer}.
 	 */
 	@Override
-	public void stop() {
+	public synchronized void stop() {
+		if (!this.isStarted) {
+			return;
+		}
+		this.isStarted = false;
+
 		// Shutdown executors
 		shutdownAndAwaitTermination(this.executor, 5);
 

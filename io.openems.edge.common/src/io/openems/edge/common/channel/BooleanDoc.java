@@ -19,15 +19,12 @@ public class BooleanDoc extends OpenemsTypeDoc<Boolean> {
 	@SuppressWarnings("unchecked")
 	@Override
 	public BooleanReadChannel createChannelInstance(OpenemsComponent component, ChannelId channelId) {
-		switch (this.getAccessMode()) {
-		case READ_ONLY:
-			return new BooleanReadChannel(component, channelId, this, this.debounce, this.debounceMode);
-		case READ_WRITE:
-		case WRITE_ONLY:
-			return new BooleanWriteChannel(component, channelId, this);
-		}
-		throw new IllegalArgumentException(
-				"AccessMode [" + this.getAccessMode() + "] is unhandled. This should never happen.");
+		return switch (this.getAccessMode()) {
+		case READ_ONLY //
+			-> new BooleanReadChannel(component, channelId, this, this.debounce, this.debounceMode);
+		case READ_WRITE, WRITE_ONLY //
+			-> new BooleanWriteChannel(component, channelId, this);
+		};
 	}
 
 	/**

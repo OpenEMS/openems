@@ -1,5 +1,7 @@
 package io.openems.edge.core.componentmanager;
 
+import static io.openems.common.utils.JsonUtils.getAsOptionalString;
+
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Dictionary;
@@ -7,11 +9,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.jar.Manifest;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -53,10 +57,8 @@ import io.openems.edge.common.event.EdgeEventConstants;
 public class EdgeConfigWorker extends ComponentManagerWorker {
 
 	private static final int CYCLE_TIME = 300_000; // in ms
-
 	private static final Logger LOG = LoggerFactory.getLogger(EdgeConfigWorker.class);
 
-	private final Logger log = LoggerFactory.getLogger(EdgeConfigWorker.class);
 	private final Queue<ConfigurationEvent> events = new ArrayDeque<>();
 
 	private EdgeConfig.ActualEdgeConfig.Builder cache = null;
@@ -78,6 +80,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 	 */
 	public synchronized EdgeConfig getEdgeConfig() {
 		var wasConfigUpdated = false;
+		var wasChannelUpdated = false;
 
 		if (this.cache != null) {
 			// Use Cache
@@ -88,13 +91,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				wasConfigUpdated |= this.updateCacheFromEvent(event);
 			}
 			// Update Cache Channels
-			this.updateChannels(this.cache);
+			wasChannelUpdated = this.updateChannels(this.cache);
 
 		} else {
 
 			// No cache
 			this.cache = this.buildNewEdgeConfig();
 			wasConfigUpdated = true;
+			wasChannelUpdated = true;
 		}
 
 		var result = this.cache.buildEdgeConfig();
@@ -102,6 +106,11 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		if (wasConfigUpdated) {
 			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CONFIG_UPDATE) //
 					.addArg(EdgeEventConstants.TOPIC_CONFIG_UPDATE_KEY, result) //
+					.send();
+		}
+
+		if (wasChannelUpdated) {
+			EventBuilder.from(this.parent.eventAdmin, EdgeEventConstants.TOPIC_CHANNEL_UPDATE) //
 					.send();
 		}
 
@@ -164,15 +173,38 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 		for (OpenemsComponent component : this.parent.getAllComponents()) {
 			var comp = builder.getComponents().get(component.id());
 			if (comp == null) {
-				this.log.warn("Component [" + component.id() + "] was missing!");
+				LOG.warn("Component [{}] was missing!", component.id());
 				continue;
 			}
-			if (comp.getChannels().size() != component.channels().size()) {
-				comp.setChannels(this.getChannels(component));
-				wasConfigUpdated = true;
+
+			final var newChannels = this.getChannels(component);
+			if (!hasChannelsChanged(comp.getChannels(), newChannels)) {
+				continue;
 			}
+
+			comp.setChannels(newChannels);
+			wasConfigUpdated = true;
 		}
 		return wasConfigUpdated;
+	}
+
+	private static boolean hasChannelsChanged(Map<String, EdgeConfig.Component.Channel> currentChannels,
+			Map<String, EdgeConfig.Component.Channel> newChannels) {
+		if (currentChannels.size() != newChannels.size()) {
+			return true;
+		}
+
+		for (var entry : newChannels.entrySet()) {
+			final var existingChannel = currentChannels.get(entry.getKey());
+			if (existingChannel == null) {
+				return true;
+			}
+
+			if (!existingChannel.equals(entry.getValue())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -210,16 +242,17 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					for (OptionsEnum option : d.getOptions()) {
 						values.put(option.getName(), new JsonPrimitive(option.getValue()));
 					}
-					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values, doc.getPersistencePriority());
+					detail = new EdgeConfig.Component.Channel.ChannelDetailEnum(values,
+							doc.getRemotePersistencePriority());
 					break;
 				}
 				case OPENEMS_TYPE:
-					detail = new ChannelDetailOpenemsType(doc.getPersistencePriority());
+					detail = new ChannelDetailOpenemsType(doc.getRemotePersistencePriority());
 					break;
 				case STATE:
 					var d = (StateChannelDoc) doc;
 					var level = d.getLevel();
-					detail = new ChannelDetailState(level, doc.getPersistencePriority());
+					detail = new ChannelDetailState(level, doc.getRemotePersistencePriority());
 					break;
 				}
 				result.put(channelId.id(), new EdgeConfig.Component.Channel(//
@@ -258,25 +291,23 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (Configuration config : configs) {
 				var properties = config.getProperties();
 				if (properties == null) {
-					this.log.warn(config.getPid() + ": Properties is 'null'");
+					LOG.warn("{}: Properties is 'null'", config.getPid());
 					continue;
 				}
-				// Read Component-ID
-				String componentId = null;
-				var componentIdObj = properties.get("id");
-				if (componentIdObj instanceof String) {
-					// Read 'id' property
-					componentId = (String) componentIdObj;
 
-				} else {
-					// Singleton
-					for (OpenemsComponent component : this.parent.getAllComponents()) {
-						if (config.getPid().equals(component.serviceFactoryPid())) {
-							componentId = component.id();
-							break;
-						}
-					}
+				// Read Component-ID
+				var componentId = switch (properties.get("id")) {
+				case String s -> s; // Read 'id' property
+				case null, default -> {
+					// NOTE: for some reason JRE throws a "java.lang.VerifyError: Inconsistent
+					// stackmap frames at branch target 273" when yielding the value directly
+					var id = this.parent.getAllComponents().stream() //
+							.filter(c -> Objects.equals(config.getPid(), c.serviceFactoryPid())) //
+							.map(OpenemsComponent::id) //
+							.findFirst().orElse(null);
+					yield id;
 				}
+				};
 
 				if (componentId == null) {
 					// Use default value for 'id' property
@@ -286,7 +317,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 					}
 					var factory = builder.getFactories().get(factoryPid);
 					if (factory != null) {
-						var defaultValue = JsonUtils.getAsOptionalString(factory.getPropertyDefaultValue("id"));
+						var defaultValue = getAsOptionalString(factory.getPropertyDefaultValue("id"));
 						if (defaultValue.isPresent()) {
 							componentId = defaultValue.get();
 						}
@@ -304,19 +335,14 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 				var componentAlias = componentId;
 				{
 					var componentAliasObj = properties.get("alias");
-					if (componentAliasObj instanceof String && !((String) componentAliasObj).trim().isEmpty()) {
-						componentAlias = (String) componentAliasObj;
+					if (componentAliasObj instanceof String s && !s.trim().isEmpty()) {
+						componentAlias = s;
 					}
 				}
 
-				String factoryPid;
-				if (config.getFactoryPid() != null) {
-					// Get Factory
-					factoryPid = config.getFactoryPid();
-				} else {
-					// Singleton Component
-					factoryPid = config.getPid();
-				}
+				var factoryPid = config.getFactoryPid() != null //
+						? config.getFactoryPid() // Get Factory
+						: config.getPid(); // Singleton Component
 
 				// Read Factory
 				var factory = builder.getFactories().get(factoryPid);
@@ -503,6 +529,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 
 				var componentUrl = bundle.getResource(serviceComponent);
 				var dbFactory = DocumentBuilderFactory.newInstance();
+				dbFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 				var dBuilder = dbFactory.newDocumentBuilder();
 				var doc = dBuilder.parse(componentUrl.openStream());
 				doc.getDocumentElement().normalize();
@@ -537,7 +564,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			}
 
 		} catch (ParserConfigurationException | SAXException | IOException e) {
-			this.log.warn("Unable to get Natures. " + e.getClass().getSimpleName() + ": " + e.getMessage());
+			LOG.warn("Unable to get Natures. {}: {}", e.getClass().getSimpleName(), e.getMessage());
 		}
 		return new String[0];
 	}
@@ -595,7 +622,7 @@ public class EdgeConfigWorker extends ComponentManagerWorker {
 			for (EdgeConfig.Factory.Property property : factory.getProperties()) {
 				var key = property.getId();
 
-				if (EdgeConfig.ignorePropertyKey(key) || EdgeConfig.ignoreComponentPropertyKey(componentId, key)) {
+				if (EdgeConfig.ignorePropertyKey(key)) {
 					// Ignore this Property
 					continue;
 				}

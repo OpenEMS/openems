@@ -1,5 +1,7 @@
 package io.openems.common.jsonrpc.request;
 
+import static io.openems.common.jsonrpc.serialization.JsonSerializerUtil.jsonObjectSerializer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import com.google.gson.JsonPrimitive;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jsonrpc.base.JsonrpcRequest;
+import io.openems.common.jsonrpc.serialization.JsonSerializer;
 import io.openems.common.utils.JsonUtils;
 
 /**
@@ -94,7 +97,7 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 		return this.properties;
 	}
 
-	public static class Property {
+	public record Property(String name, JsonElement value) {
 
 		protected static List<Property> from(JsonArray j) throws OpenemsNamedException {
 			List<Property> properties = new ArrayList<>();
@@ -106,8 +109,21 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 			return properties;
 		}
 
-		private final String name;
-		private final JsonElement value;
+		/**
+		 * Returns a {@link JsonSerializer} for a {@link Property}.
+		 *
+		 * @return the created {@link JsonSerializer}
+		 */
+		public static JsonSerializer<Property> serializer() {
+			return jsonObjectSerializer(Property.class, //
+					json -> new Property(//
+							json.getString("name"), //
+							json.getJsonElement("value")), //
+					obj -> JsonUtils.buildJsonObject() //
+							.addProperty("name", obj.name) //
+							.add("value", obj.value) //
+							.build());
+		}
 
 		/**
 		 * Initializes a Property.
@@ -133,28 +149,10 @@ public class UpdateComponentConfigRequest extends JsonrpcRequest {
 			this(name, new JsonPrimitive(value));
 		}
 
-		/**
-		 * Gets the Name.
-		 *
-		 * @return Name
-		 */
-		public String getName() {
-			return this.name;
-		}
-
-		/**
-		 * Gets the Value.
-		 *
-		 * @return Value
-		 */
-		public JsonElement getValue() {
-			return this.value;
-		}
-
 		protected JsonObject toJson() {
 			return JsonUtils.buildJsonObject() //
-					.addProperty("name", this.getName()) //
-					.add("value", this.getValue()) //
+					.addProperty("name", this.name()) //
+					.add("value", this.value()) //
 					.build();
 		}
 	}

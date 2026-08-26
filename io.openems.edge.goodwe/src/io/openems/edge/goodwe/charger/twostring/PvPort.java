@@ -8,23 +8,34 @@ import io.openems.edge.goodwe.common.GoodWe;
 @Deprecated
 public enum PvPort {
 
+	@Deprecated
 	PV_1(GoodWe.ChannelId.MPPT1_P, GoodWe.ChannelId.MPPT1_I, GoodWe.ChannelId.TWO_S_PV1_I, GoodWe.ChannelId.TWO_S_PV2_I,
 			GoodWe.ChannelId.TWO_S_PV1_V),
+	@Deprecated
 	PV_2(GoodWe.ChannelId.MPPT1_P, GoodWe.ChannelId.MPPT1_I, GoodWe.ChannelId.TWO_S_PV2_I, GoodWe.ChannelId.TWO_S_PV1_I,
 			GoodWe.ChannelId.TWO_S_PV2_V), //
+	@Deprecated
 	PV_3(GoodWe.ChannelId.MPPT2_P, GoodWe.ChannelId.MPPT2_I, GoodWe.ChannelId.TWO_S_PV3_I, GoodWe.ChannelId.TWO_S_PV4_I,
 			GoodWe.ChannelId.TWO_S_PV3_V), //
+	@Deprecated
 	PV_4(GoodWe.ChannelId.MPPT2_P, GoodWe.ChannelId.MPPT2_I, GoodWe.ChannelId.TWO_S_PV4_I, GoodWe.ChannelId.TWO_S_PV5_I,
 			GoodWe.ChannelId.TWO_S_PV4_V), //
+	@Deprecated
 	PV_5(GoodWe.ChannelId.MPPT3_P, GoodWe.ChannelId.MPPT3_I, GoodWe.ChannelId.TWO_S_PV5_I, GoodWe.ChannelId.TWO_S_PV6_I,
 			GoodWe.ChannelId.TWO_S_PV5_V), //
+	@Deprecated
 	PV_6(GoodWe.ChannelId.MPPT3_P, GoodWe.ChannelId.MPPT3_I, GoodWe.ChannelId.TWO_S_PV6_I, GoodWe.ChannelId.TWO_S_PV5_I,
 			GoodWe.ChannelId.TWO_S_PV6_V); //
 
+	@Deprecated
 	public final GoodWe.ChannelId mpptPowerChannelId;
+	@Deprecated
 	public final GoodWe.ChannelId mpptCurrentChannelId;
+	@Deprecated
 	public final GoodWe.ChannelId pvCurrentId;
+	@Deprecated
 	public final GoodWe.ChannelId relatedPvCurrent;
+	@Deprecated
 	public final GoodWe.ChannelId pvVoltageId;
 
 	private PvPort(GoodWe.ChannelId mpptPowerChannelId, GoodWe.ChannelId mpptCurrentChannelId,

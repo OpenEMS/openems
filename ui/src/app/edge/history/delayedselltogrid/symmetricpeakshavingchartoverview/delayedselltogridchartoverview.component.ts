@@ -1,25 +1,36 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Edge, EdgeConfig, Service } from '../../../../shared/shared';
+import { Component, effect, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
+import { UserService } from "src/app/shared/service/user.service";
+import { Edge, EdgeConfig, Service } from "../../../../shared/shared";
 
 @Component({
     selector: DelayedSellToGridChartOverviewComponent.SELECTOR,
-    templateUrl: './delayedselltogridchartoverview.component.html',
+    templateUrl: "./delayedselltogridchartoverview.component.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false,
 })
 export class DelayedSellToGridChartOverviewComponent implements OnInit {
-
     private static readonly SELECTOR = "symmetricpeakshaving-chart-overview";
     public edge: Edge | null = null;
     public component: EdgeConfig.Component | null = null;
 
+    /** @deprecated Used for new navigation migration purposes */
+    protected newNavigationUrlSegment: string = "";
+
     constructor(
         public service: Service,
         private route: ActivatedRoute,
-    ) { }
+        private userService: UserService,
+    ) {
+        effect(() => {
+            const isNewNavigation = this.userService.isNewNavigation();
+            this.newNavigationUrlSegment = isNewNavigation ? "/live" : "";
+        });
+    }
 
     ngOnInit() {
-        this.service.setCurrentComponent('', this.route).then(edge => {
-            this.service.getConfig().then(config => {
+        this.service.getCurrentEdge().then((edge) => {
+            this.service.getConfig().then((config) => {
                 this.edge = edge;
                 this.component = config.getComponent(this.route.snapshot.params.componentId);
             });

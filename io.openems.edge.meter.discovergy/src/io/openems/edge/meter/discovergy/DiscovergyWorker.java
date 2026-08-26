@@ -127,6 +127,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 			var activePowerL3 = TypeUtils.divide(rawPower3, 1_000);
 			switch (this.config.type()) {
 			case GRID:
+			case GRID_GENSET:
 				this.parent._setActivePower(activePower);
 				this.parent._setActivePowerL1(activePowerL1);
 				this.parent._setActivePowerL2(activePowerL2);
@@ -136,6 +137,7 @@ public class DiscovergyWorker extends AbstractCycleWorker {
 				break;
 			case CONSUMPTION_NOT_METERED: // to be validated
 			case CONSUMPTION_METERED: // to be validated
+			case MANAGED_CONSUMPTION_METERED:
 			case PRODUCTION_AND_CONSUMPTION:
 			case PRODUCTION:
 				this.parent._setActivePower(TypeUtils.multiply(activePower, -1)); // invert

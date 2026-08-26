@@ -1,0 +1,29 @@
+name: Feature Request
+description: Got an idea for a feature that OpenEMS is still missing? Submit your idea here!
+labels: ["type/enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        1. Please speak English, this is the language all maintainers can speak and write.
+        2. Please ask questions or configuration/deploy problems on our [Community forum](https://community.openems.io/).
+        3. Please take a moment to check that your feature hasn't already been suggested.
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Select the relevant component for this feature request.
+      options:
+        - "Edge"
+        - "UI"
+        - "Backend"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      placeholder: |
+        What is the use case?
+    validations:
+      required: true

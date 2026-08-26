@@ -3,8 +3,8 @@ package io.openems.edge.io.shelly.shellyplus1pm;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import io.openems.edge.meter.api.MeterType;
-import io.openems.edge.meter.api.SinglePhase;
+import io.openems.common.types.MeterType;
+import io.openems.edge.common.type.Phase.SinglePhase;
 
 @ObjectClassDefinition(//
 		name = "IO Shelly Plus 1PM", //
@@ -28,6 +28,9 @@ import io.openems.edge.meter.api.SinglePhase;
 
 	@AttributeDefinition(name = "Meter-Type", description = "What is measured by this Meter?")
 	MeterType type() default MeterType.CONSUMPTION_METERED;
+
+	@AttributeDefinition(name = "Invert Power", description = "Inverts all Power values, inverts current values, swaps production and consumptioon energy, i.e. Power is multiplied with -1.")
+	boolean invert() default false;
 
 	String webconsole_configurationFactory_nameHint() default "IO Shelly Plus 1PM [{id}]";
 }

@@ -1,16 +1,20 @@
 package io.openems.edge.meter.api;
 
-import static io.openems.edge.meter.api.SinglePhase.L1;
-import static io.openems.edge.meter.api.SinglePhase.L2;
-import static io.openems.edge.meter.api.SinglePhase.L3;
+import static io.openems.edge.common.type.Phase.SinglePhase.L1;
+import static io.openems.edge.common.type.Phase.SinglePhase.L2;
+import static io.openems.edge.common.type.Phase.SinglePhase.L3;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.osgi.annotation.versioning.ProviderType;
 
 import io.openems.common.channel.AccessMode;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.modbusslave.ModbusSlaveNatureTable;
+import io.openems.edge.common.type.Phase.SingleOrAllPhase;
+import io.openems.edge.common.type.Phase.SinglePhase;
+import io.openems.edge.common.type.TypeUtils;
 
 @ProviderType
 public interface SinglePhaseMeter extends ElectricityMeter {
@@ -39,7 +43,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
 	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
@@ -54,12 +58,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
 	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
@@ -82,7 +86,45 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
+	 * <p>
+	 * Use this method if it is not known at compile time, if this
+	 * {@link ElectricityMeter} measures single-phase or three-phase.
+	 *
+	 * <p>
+	 * Sets the correct value for {@link ChannelId#ACTIVE_POWER_L1},
+	 * {@link ChannelId#ACTIVE_POWER_L2} or {@link ChannelId#ACTIVE_POWER_L3} from
+	 * {@link ChannelId#ACTIVE_POWER} by evaluating the provided
+	 * {@link SingleOrAllPhase}.
+	 *
+	 * @param <METER>       type that extends {@link ElectricityMeter}
+	 * @param meter         a {@link ElectricityMeter}
+	 * @param phaseProvider a provider for {@link SingleOrAllPhase}
+	 */
+	public static <METER extends ElectricityMeter> void calculateSingleOrAllPhaseFromActivePower(METER meter,
+			Supplier<SingleOrAllPhase> phaseProvider) {
+		meter.getActivePowerChannel().onSetNextValue(v -> {
+			var phase = phaseProvider.get();
+			Integer l1 = null, l2 = null, l3 = null;
+			final var value = v.get();
+			if (phase != null && value != null) {
+				switch (phase) {
+				case ALL -> l1 = l2 = l3 = TypeUtils.divide(value, 3);
+				case L1 -> l1 = value;
+				case L2 -> l2 = value;
+				case L3 -> l3 = value;
+				}
+			}
+
+			meter.getActivePowerL1Channel().setNextValue(l1);
+			meter.getActivePowerL2Channel().setNextValue(l2);
+			meter.getActivePowerL3Channel().setNextValue(l3);
+		});
+	}
+
+	/**
+	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
 	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
@@ -97,12 +139,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#REACTIVE_POWER_L1},
 	 * {@link ChannelId#REACTIVE_POWER_L2} or {@link ChannelId#REACTIVE_POWER_L3}
@@ -125,7 +167,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
 	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
@@ -140,12 +182,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#CURRENT_L1},
 	 * {@link ChannelId#CURRENT_L2} or {@link ChannelId#CURRENT_L3} from
@@ -167,7 +209,7 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
 	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from
@@ -182,12 +224,12 @@ public interface SinglePhaseMeter extends ElectricityMeter {
 
 	/**
 	 * Initializes Channel listeners for a {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Use this method if it is not known at compile time, that the
 	 * {@link ElectricityMeter} is a {@link SinglePhaseMeter}, i.e. it is not
 	 * implementing {@link SinglePhaseMeter}.
-	 * 
+	 *
 	 * <p>
 	 * Sets the correct value for {@link ChannelId#VOLTAGE_L1},
 	 * {@link ChannelId#VOLTAGE_L2} or {@link ChannelId#VOLTAGE_L3} from

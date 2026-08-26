@@ -1,5 +1,10 @@
 package io.openems.edge.controller.asymmetric.phaserectification;
 
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L1;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L2;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.L3;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -18,8 +23,6 @@ import io.openems.edge.controller.api.Controller;
 import io.openems.edge.ess.api.ManagedAsymmetricEss;
 import io.openems.edge.ess.power.api.Constraint;
 import io.openems.edge.ess.power.api.LinearCoefficient;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.ess.power.api.Relationship;
 import io.openems.edge.meter.api.ElectricityMeter;
 
@@ -61,21 +64,11 @@ public class ControllerAsymmetricPhaseRectificationImpl extends AbstractOpenemsC
 
 	@Override
 	public void run() throws OpenemsNamedException {
-		ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
-		ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
+		final ManagedAsymmetricEss ess = this.componentManager.getComponent(this.config.ess_id());
+		final ElectricityMeter meter = this.componentManager.getComponent(this.config.meter_id());
 
-		/*
-		 * Check that we are On-Grid (and warn on undefined Grid-Mode)
-		 */
-		var gridMode = ess.getGridMode();
-		if (gridMode.isUndefined()) {
-			this.logWarn(this.log, "Grid-Mode is [UNDEFINED]");
-		}
-		switch (gridMode) {
-		case ON_GRID:
-		case UNDEFINED:
-			break;
-		case OFF_GRID:
+		// Check that we are On-Grid (and warn on undefined Grid-Mode)
+		if (!ess.isOnGridOrUndefined(m -> this.logWarn(this.log, m))) {
 			return;
 		}
 
@@ -95,12 +88,12 @@ public class ControllerAsymmetricPhaseRectificationImpl extends AbstractOpenemsC
 
 		var power = ess.getPower();
 		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L2, Pwr.ACTIVE), -1) //
+				new LinearCoefficient(power.getCoefficient(ess, L1, ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, L2, ACTIVE), -1) //
 		}, Relationship.EQUALS, activePowerL1 - activePowerL2));
 		power.addConstraintAndValidate(new Constraint(ess.id() + ": Symmetric L1/L2", new LinearCoefficient[] { //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L1, Pwr.ACTIVE), 1), //
-				new LinearCoefficient(power.getCoefficient(ess, Phase.L3, Pwr.ACTIVE), -1) //
+				new LinearCoefficient(power.getCoefficient(ess, L1, ACTIVE), 1), //
+				new LinearCoefficient(power.getCoefficient(ess, L3, ACTIVE), -1) //
 		}, Relationship.EQUALS, activePowerL1 - activePowerL3));
 	}
 

@@ -2,12 +2,14 @@ package io.openems.edge.common.jsonapi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
 public final class Subrequest {
 
-	public record Subroute(String[] path, JsonApiBuilder builder) {
+	public record Subroute(String[] path, JsonApiBuilder builder, Supplier<JsonArray> endpointSupplier) {
 
 	}
 
@@ -26,7 +28,7 @@ public final class Subrequest {
 	 * @param path    the path which the builder gets associated to
 	 */
 	public void addRpcBuilderFor(JsonApiBuilder builder, String... path) {
-		this.subrouteToBuilder.add(new Subroute(path, builder));
+		this.subrouteToBuilder.add(new Subroute(path, builder, null));
 	}
 
 	public JsonElement getBaseRequest() {

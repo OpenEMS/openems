@@ -34,7 +34,7 @@ import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 
 /**
- * Generic Mulitcast broadcast listener. Listens for a specific message and, in
+ * Generic Multicast broadcast listener. Listens for a specific message and, in
  * response, gives the specified reply. Used by NetAdapterHost for automatic
  * discovery of host components for the network-based DSPortAdapter.
  *

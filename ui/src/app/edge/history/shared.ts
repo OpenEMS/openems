@@ -1,15 +1,25 @@
 // @ts-strict-ignore
-import * as Chart from 'chart.js';
-import { differenceInDays, differenceInMinutes, startOfDay } from 'date-fns';
-import { de } from 'date-fns/locale';
-import { QueryHistoricTimeseriesDataResponse } from 'src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse';
-import { ChannelAddress, Service } from 'src/app/shared/shared';
-import { DateUtils } from 'src/app/shared/utils/date/dateutils';
+import * as Chart from "chart.js";
+
+// cf. https://github.com/import-js/eslint-plugin-import/issues/1479
+import { differenceInDays, differenceInMinutes, startOfDay } from "date-fns";
+import { de } from "date-fns/locale";
+import { ChartTypes } from "src/app/shared/components/chart/chart.types";
+
+import { QueryHistoricTimeseriesDataResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesDataResponse";
+import { ChannelAddress, Service } from "src/app/shared/shared";
+import { DateUtils } from "src/app/shared/utils/date/dateutils";
 
 export interface Dataset {
     label: string;
     data: number[];
     hidden: boolean;
+}
+
+export enum Theme {
+    LIGHT = "light",
+    DARK = "dark",
+    SYSTEM = "system",
 }
 
 export const EMPTY_DATASET = [{
@@ -78,6 +88,9 @@ export type ChartOptions = {
     maintainAspectRatio: boolean,
     legend: {
         labels: {
+            font: {
+                family: string,
+            },
             generateLabels?(chart: Chart.Chart): Chart.LegendItem[],
             filter?(legendItem: Chart.LegendItem, data: ChartData): any,
         },
@@ -128,7 +141,7 @@ export type ChartOptions = {
             ticks: {
                 source?: string,
                 maxTicksLimit?: number
-            }
+            },
         }]
     },
     tooltips: {
@@ -148,6 +161,12 @@ export type ChartOptions = {
 
 export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
     responsive: true,
+    indexAxis: "x",
+    // Important for point style on chart hover for line chart
+    interaction: {
+        mode: "index",  // Detect x-axis alignment
+        intersect: false,  // Allow hovering over line, not just points
+    },
     maintainAspectRatio: false,
     elements: {
         point: {
@@ -176,20 +195,44 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
         },
         legend: {
             display: true,
-
-            position: 'bottom',
+            position: "bottom",
             labels: {
-                color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary'),
+                textAlign: "center",
+                usePointStyle: true,
+
+                // Height and width of the legend pointstyle
+                boxWidth: 7,
+                boxHeight: 7,
+
+                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
                 generateLabels: (chart: Chart.Chart) => { return null; },
+                font: {
+                    family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                },
             },
             onClick: (event, legendItem, legend) => { },
         },
         tooltip: {
+            itemSort: (a, b) => {
+                // Force sorting by dataset index (same as legend order)
+                return a.datasetIndex - b.datasetIndex;
+            },
+            usePointStyle: true,
             intersect: false,
-            mode: 'index',
+            mode: "index",
+
+            // Height and width of the legend pointstyle
+            boxWidth: 10,
+            boxHeight: 10,
+            boxPadding: 3,
+
+            // Hide tooltip arrow and create distance from tooltip to currently selected x axis point
+            caretPadding: 20,
+            caretSize: 0,
+
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
-                return !isNaN(value) && value !== null;
+                const value = item.dataset.data[item.dataIndex];
+                return Number.isFinite(value);
             },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },
@@ -203,10 +246,9 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
         x: {
             stacked: true,
             offset: false,
-            type: 'time',
-            ticks: {
-            },
-            bounds: 'data',
+            type: "time",
+            ticks: {},
+            bounds: "data",
             adapters: {
                 date: {
 
@@ -216,20 +258,26 @@ export const DEFAULT_TIME_CHART_OPTIONS = (): Chart.ChartOptions => ({
             },
             time: {
                 // parser: 'MM/DD/YYYY HH:mm',
-                unit: 'hour',
+                unit: "hour",
                 displayFormats: {
-                    datetime: 'yyyy-MM-dd HH:mm:ss',
-                    millisecond: 'SSS [ms]',
-                    second: 'HH:mm:ss a', // 17:20:01
-                    minute: 'HH:mm', // 17:20
-                    hour: 'HH:00', // 17:20
-                    day: 'dd', // Sep 04 2015
-                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: 'MM', // September
-                    quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'yyyy', // 2015,
+                    datetime: "yyyy-MM-dd HH:mm:ss",
+                    millisecond: "SSS [ms]",
+                    second: "HH:mm:ss a", // 17:20:01
+                    minute: "HH:mm", // 17:20
+                    hour: "HH:00", // 17:20
+                    day: "dd", // Sep 04 2015
+                    week: "ll", // Week 46, or maybe "[W]WW - YYYY" ?
+                    month: "MM", // September
+                    quarter: "[Q]Q - YYYY", // Q3 - 2015
+                    year: "yyyy", // 2015,
                 },
             },
+        },
+    },
+    layout: {
+        padding: {
+            top: 35,
+            left: 0,
         },
     },
 });
@@ -243,8 +291,12 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
     datasets: {},
     maintainAspectRatio: false,
     legend: {
-        labels: {},
-        position: 'bottom',
+        labels: {
+            font: {
+                family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+            },
+        },
+        position: "bottom",
     },
     elements: {
         point: {
@@ -261,7 +313,7 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
         },
     },
     hover: {
-        mode: 'point',
+        mode: "point",
         intersect: true,
     },
     scales: {
@@ -269,27 +321,27 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
         xAxes: [{
             ticks: {},
             stacked: false,
-            type: 'time',
+            type: "time",
             time: {
-                minUnit: 'hour',
+                minUnit: "hour",
                 displayFormats: {
-                    millisecond: 'SSS [ms]',
-                    second: 'HH:mm:ss a', // 17:20:01
-                    minute: 'HH:mm', // 17:20
-                    hour: 'HH:[00]', // 17:20
-                    day: 'DD', // Sep 04 2015
-                    week: 'll', // Week 46, or maybe "[W]WW - YYYY" ?
-                    month: 'MM', // September
-                    quarter: '[Q]Q - YYYY', // Q3 - 2015
-                    year: 'YYYY', // 2015,
+                    millisecond: "SSS [ms]",
+                    second: "HH:mm:ss a", // 17:20:01
+                    minute: "HH:mm", // 17:20
+                    hour: "HH:[00]", // 17:20
+                    day: "DD", // Sep 04 2015
+                    week: "ll", // Week 46, or maybe "[W]WW - YYYY" ?
+                    month: "MM", // September
+                    quarter: "[Q]Q - YYYY", // Q3 - 2015
+                    year: "YYYY", // 2015,
                 },
             },
         }],
     },
     tooltips: {
-        mode: 'index',
+        mode: "index",
         intersect: false,
-        axis: 'x',
+        axis: "x",
         callbacks: {
             title(tooltipItems: Chart.TooltipItem<any>[], data: Data): string {
                 const date = DateUtils.stringToDate(tooltipItems[0]?.label);
@@ -299,7 +351,7 @@ export const DEFAULT_TIME_CHART_OPTIONS_WITHOUT_PREDEFINED_Y_AXIS: ChartOptions 
     },
 };
 
-export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse['result']) {
+export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResult: QueryHistoricTimeseriesDataResponse["result"]) {
     const startDate = startOfDay(new Date(queryResult.timestamps[0]));
     const endDate = new Date(queryResult.timestamps[queryResult.timestamps.length - 1]);
     let activeSum = 0;
@@ -319,61 +371,62 @@ export function calculateActiveTimeOverPeriod(channel: ChannelAddress, queryResu
    * @param toDate the To-Date
    * @returns resolution and timeformat
    */
-export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' } {
+export function calculateResolution(service: Service, fromDate: Date, toDate: Date): { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" } {
     const days = Math.abs(differenceInDays(toDate, fromDate));
-    let result: { resolution: Resolution, timeFormat: 'day' | 'month' | 'hour' | 'year' };
+    const isSmartphoneResolution = service.getIsSmartphoneResolution();
+    let result: { resolution: Resolution, timeFormat: "day" | "month" | "hour" | "year" };
 
     if (days <= 1) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Day
+        if (isSmartphoneResolution) {
+            result = { resolution: { value: 15, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Day
         } else {
-            result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 5 Minutes
+            result = { resolution: { value: 5, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 5 Minutes
         }
     } else if (days == 2) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'hour' }; // 1 Day
+        if (isSmartphoneResolution) {
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "hour" }; // 1 Day
         } else {
-            result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: 'hour' }; // 1 Hour
+            result = { resolution: { value: 10, unit: ChronoUnit.Type.MINUTES }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 4) {
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+        if (isSmartphoneResolution) {
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
         } else {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'hour' }; // 1 Hour
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "hour" }; // 1 Hour
         }
 
     } else if (days <= 6) {
 
 
-        if (service.isSmartphoneResolution) {
-            result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
+        if (isSmartphoneResolution) {
+            result = { resolution: { value: 8, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         } else {
             // >> show Hours
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: 'day' }; // 1 Day
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.HOURS }, timeFormat: "day" }; // 1 Day
         }
 
 
-    } else if (days <= 31 && service.isSmartphoneResolution) {
+    } else if (days <= 31 && isSmartphoneResolution) {
         // Smartphone-View: show 31 days in daily view
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
 
     } else if (days <= 90) {
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
 
     } else if (days <= 144) {
         // >> show Days
-        if (service.isSmartphoneResolution == true) {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Month
+        if (isSmartphoneResolution == true) {
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Month
         } else {
-            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: 'day' }; // 1 Day
+            result = { resolution: { value: 1, unit: ChronoUnit.Type.DAYS }, timeFormat: "day" }; // 1 Day
         }
     } else if (days <= 365) {
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: 'month' }; // 1 Day
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.MONTHS }, timeFormat: "month" }; // 1 Day
 
     } else {
         // >> show Years
-        result = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: 'year' }; // 1 Month
+        result = { resolution: { value: 1, unit: ChronoUnit.Type.YEARS }, timeFormat: "year" }; // 1 Month
     }
 
     return result;
@@ -394,7 +447,7 @@ export function isLabelVisible(label: string, orElse?: boolean): boolean {
     if (orElse != null && value == null) {
         return orElse;
     } else {
-        return value !== 'false';
+        return value !== "false";
     }
 }
 
@@ -409,7 +462,7 @@ export function setLabelVisible(label: string, visible: boolean | null): void {
         return;
     }
     const labelWithoutUnit = "LABEL_" + label.split(":")[0];
-    sessionStorage.setItem(labelWithoutUnit, visible ? 'true' : 'false');
+    sessionStorage.setItem(labelWithoutUnit, visible ? "true" : "false");
 }
 
 export type Resolution = {
@@ -460,7 +513,7 @@ export type ChartData = {
     }[],
     tooltip: {
         /** Unit to be displayed as Tooltips unit */
-        unit: '%' | 'kWh' | 'kW',
+        unit: "%" | "kWh" | "kW",
         /** Format of Number displayed */
         formatNumber: string;
     },
@@ -468,7 +521,7 @@ export type ChartData = {
     yAxisTitle: string,
 };
 
-export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.ChartOptions => ({
+export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: ChartTypes.Label[]): Chart.ChartOptions => ({
     responsive: true,
     maintainAspectRatio: false,
     elements: {
@@ -493,19 +546,22 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
         legend: {
             display: true,
 
-            position: 'bottom',
+            position: "bottom",
             labels: {
-                color: getComputedStyle(document.documentElement).getPropertyValue('--ion-color-primary'),
+                color: getComputedStyle(document.documentElement).getPropertyValue("--ion-color-primary"),
                 generateLabels: (chart: Chart.Chart) => { return null; },
+                font: {
+                    family: getComputedStyle(document.documentElement).getPropertyValue("--ion-font-family"),
+                },
             },
             onClick: (event, legendItem, legend) => { },
         },
         tooltip: {
             intersect: false,
-            mode: 'index',
+            mode: "index",
             filter: function (item, data, test, some) {
-                const value = item.dataset.data[item.dataIndex] as number;
-                return !isNaN(value) && value !== null;
+                const value = item.dataset.data[item.dataIndex];
+                return Number.isFinite(value);
             },
             callbacks: {
                 label: (item: Chart.TooltipItem<any>) => { },
@@ -520,7 +576,7 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
         x: {
             stacked: true,
             offset: false,
-            type: 'category',
+            type: "category",
             ticks: {
                 autoSkip: true,
                 callback: function (value, index, ticks) {
@@ -531,7 +587,12 @@ export const DEFAULT_NUMBER_CHART_OPTIONS = (labels: (Date | string)[]): Chart.C
                     return labels[index].toString();
                 },
             },
-            bounds: 'data',
+            bounds: "data",
+        },
+    },
+    layout: {
+        padding: {
+            top: 35, // Increase the top padding to create room for the title
         },
     },
 });

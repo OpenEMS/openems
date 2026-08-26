@@ -5,7 +5,7 @@ Implementation of the Spelsberg SMART PRO charging station.
 This EVCS component implementation is not yet fully feature tested. Please consider it BETA quality.
 
 
-=== Technical Data
+== Technical Data
 
 * Rated current: 16A single and three phase
 * Charging cable: Type 2, up to 16A
@@ -13,7 +13,7 @@ This EVCS component implementation is not yet fully feature tested. Please consi
 * Communication protocol: Modbus TCP
 
 
-=== This implementation includes:
+== This implementation includes:
 
 ** Reading of current and power from the EVCS
 ** Setting charge power/current via OpenEMS Edge EVCS Controller
@@ -21,7 +21,7 @@ This EVCS component implementation is not yet fully feature tested. Please consi
 ** EVCS status updates
 ** Validation of Modbus TCP connection
 
-=== Planned Features:
+== Planned Features:
 
 ** Support for automatic phase shifting
 

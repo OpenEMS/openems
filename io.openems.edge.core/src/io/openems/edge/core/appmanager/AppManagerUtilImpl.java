@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -44,6 +45,22 @@ public class AppManagerUtilImpl implements AppManagerUtil {
 	public Optional<OpenemsAppInstance> findInstanceById(UUID id) {
 		return Optional.ofNullable(this.getAppManagerImpl()) //
 				.flatMap(t -> t.findInstanceById(id));
+	}
+
+	@Override
+	public List<OpenemsAppInstance> getInstantiatedAppsByCategories(OpenemsAppCategory... categories) {
+		return this.getInstantiatedApps().stream() //
+				.filter(t -> {
+					final var app = this.findAppById(t.appId).orElse(null);
+
+					if (app == null) {
+						return false;
+					}
+
+					return Stream.of(app.getCategories()) //
+							.anyMatch(c1 -> Stream.of(categories) //
+									.anyMatch(c2 -> c1 == c2));
+				}).toList();
 	}
 
 	@Override

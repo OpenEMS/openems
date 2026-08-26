@@ -1,5 +1,7 @@
 package io.openems.backend.metadata.odoo;
 
+import static io.openems.backend.metadata.odoo.MetadataOdoo.EXPECTED_NUMBER_OF_EDGES;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -7,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.openems.backend.common.edge.jsonrpc.UpdateMetadataCache;
 import io.openems.backend.common.metadata.Edge;
 import io.openems.backend.metadata.odoo.Field.EdgeDevice;
 import io.openems.backend.metadata.odoo.postgres.PgUtils;
@@ -15,26 +18,24 @@ import io.openems.common.types.SemanticVersion;
 
 public class EdgeCache {
 
-	public static final int EXPECTED_CACHE_SIZE = 1_000;
-
 	private final MetadataOdoo parent;
 
 	/**
 	 * Map Edge-ID (String) to Edge. Initialized with expected cache size.
 	 */
-	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<String, MyEdge> edgeIdToEdge = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	/**
 	 * Map Odoo-ID (Integer) to Edge-ID (String). Initialized with expected cache
 	 * size.
 	 */
-	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<Integer, String> odooIdToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	/**
 	 * Map Apikey (String) to Edge-ID (String). Initialized with expected cache
 	 * size.
 	 */
-	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_CACHE_SIZE);
+	private final Map<String, String> apikeyToEdgeId = new HashMap<>(EXPECTED_NUMBER_OF_EDGES);
 
 	public EdgeCache(MetadataOdoo parent) {
 		this.parent = parent;
@@ -123,6 +124,15 @@ public class EdgeCache {
 	 */
 	public Collection<Edge> getAllEdges() {
 		return Collections.unmodifiableCollection(this.edgeIdToEdge.values());
+	}
+
+	/**
+	 * Generates a {@link UpdateMetadataCache.Notification}.
+	 * 
+	 * @return the notification
+	 */
+	public UpdateMetadataCache.Notification generateUpdateMetadataCacheNotification() {
+		return new UpdateMetadataCache.Notification(this.apikeyToEdgeId);
 	}
 
 }

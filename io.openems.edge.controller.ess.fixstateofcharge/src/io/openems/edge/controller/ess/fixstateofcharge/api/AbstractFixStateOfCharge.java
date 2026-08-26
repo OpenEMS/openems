@@ -1,5 +1,10 @@
 package io.openems.edge.controller.ess.fixstateofcharge.api;
 
+import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.common.type.Phase.SingleOrAllPhase.ALL;
+import static io.openems.edge.ess.power.api.Pwr.ACTIVE;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZonedDateTime;
@@ -36,11 +41,10 @@ import io.openems.edge.common.type.TypeUtils;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.fixstateofcharge.ConfigFixStateOfCharge;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.Context;
+import io.openems.edge.controller.ess.fixstateofcharge.statemachine.ReferenceCycleTarget;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine;
 import io.openems.edge.controller.ess.fixstateofcharge.statemachine.StateMachine.State;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
-import io.openems.edge.ess.power.api.Phase;
-import io.openems.edge.ess.power.api.Pwr;
 import io.openems.edge.timedata.api.Timedata;
 
 public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
@@ -54,6 +58,15 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 
 	// Configured TargetTime as ZonedDateTime
 	private ZonedDateTime targetDateTime;
+	// Reference-cycle target (0 or 100) persisted across ticks
+	private ReferenceCycleTarget referenceCycleTarget;
+	// Reference-cycle pause start timestamp in ms (epoch), persisted across ticks
+	private Long referenceCyclePauseStartMs;
+	// Reference-cycle fallback start timestamp in ms (epoch), persisted across
+	// ticks
+	private Long referenceCycleFallbackStartMs;
+	// Last target power persisted across ticks for dead band and state transitions
+	private Float lastTargetPower;
 
 	/**
 	 * Default power factor is applied to the maximum allowed charge power of the
@@ -179,8 +192,8 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			return null;
 		}
 
-		var context = new Context(this, this.config, this.getSum(), maxApparentPower.get(), socToUse,
-				this.config.getTargetSoc(), this.targetDateTime, this.getComponentManager().getClock());
+		var context = new Context(this, this.config, maxApparentPower.get(), socToUse, this.config.getTargetSoc(),
+				this.targetDateTime, this.getComponentManager().getClock());
 		try {
 			this.stateMachine.run(context);
 			this.channel(Controller.ChannelId.RUN_FAILED).setNextValue(false);
@@ -189,6 +202,9 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 			this.channel(Controller.ChannelId.RUN_FAILED).setNextValue(true);
 			this.logError(this.log, "StateMachine failed: " + e.getMessage());
 		}
+
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE,
+				this.stateMachine.getCurrentState() == State.REFERENCE_CYCLE);
 
 		return context;
 	}
@@ -203,6 +219,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 	 */
 	private void applyTargetPower(Float targetPower, float rampPower, int maxApparentPower)
 			throws OpenemsNamedException {
+		final var ess = this.getEss();
 		var activePower = this.rampFilter.getFilteredValueAsInteger(targetPower, rampPower);
 
 		this._setDebugSetActivePowerRaw(activePower);
@@ -221,22 +238,12 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		activePower = this.calculateAcLimit(activePower);
 
 		// Fit into min/max "EssPower"
-		if (this.getEss() instanceof ManagedSymmetricEss) {
-			var e = (ManagedSymmetricEss) this.getEss();
-			var maxCharge = e.getPower().getMinPower(e, Phase.ALL, Pwr.ACTIVE);
-			var maxDischarge = e.getPower().getMaxPower(e, Phase.ALL, Pwr.ACTIVE);
-			activePower = TypeUtils.fitWithin(maxCharge, maxDischarge, activePower);
-		} else {
-			activePower = TypeUtils.fitWithin(maxApparentPower * -1, maxApparentPower, activePower);
-		}
+		var maxCharge = ess.getPower().getMinPower(ess, ALL, ACTIVE);
+		var maxDischarge = ess.getPower().getMaxPower(ess, ALL, ACTIVE);
+		activePower = fitWithin(maxCharge, maxDischarge, activePower);
 
-		if (activePower > 0) {
-			this.getEss().setActivePowerEquals(activePower);
-		} else if (activePower < 0) {
-			this.getEss().setActivePowerEquals(activePower);
-		} else {
-			this.getEss().setActivePowerEquals(activePower);
-		}
+		// Apply Power
+		ess.setActivePowerEqualsWithFilter(activePower);
 
 		// Set debug channels
 		this._setDebugSetActivePower(activePower);
@@ -386,6 +393,7 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		this._setCtrlIsBlockingEss(false);
 		this._setCtrlIsChargingEss(false);
 		this._setCtrlIsDischargingEss(false);
+		setValue(this, FixStateOfCharge.ChannelId.CTRL_IS_IN_REFERENCE_CYCLE, false);
 		this._setDebugSetActivePower(null);
 		this._setDebugSetActivePowerRaw(null);
 		this._setDebugRampPower(null);
@@ -428,30 +436,28 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 		var componentId = this.id();
 		if (timedata == null || componentId == null) {
 			return;
-		} else {
-			timedata.getLatestValue(new ChannelAddress(componentId, FixStateOfCharge.ChannelId.ESS_CAPACITY.id()))
-					.thenAccept(capacity -> {
-						if (this.getEssCapacity().isDefined()) {
-							// Value has been read from device in the meantime
-							return;
-						}
-
-						if (capacity.isPresent()) {
-							try {
-								this._setEssCapacity(TypeUtils.getAsType(OpenemsType.INTEGER, capacity));
-								return;
-							} catch (IllegalArgumentException e) {
-								// Set initial EssCapacity
-								this._setEssCapacity(fallbackCapacity);
-								return;
-							}
-						} else {
-							// Set initial EssCapacity
-							this._setEssCapacity(fallbackCapacity);
-							return;
-						}
-					});
 		}
+
+		timedata.getLatestValue(new ChannelAddress(componentId, FixStateOfCharge.ChannelId.ESS_CAPACITY.id()))
+				.whenComplete((capacity, throwable) -> {
+					if (this.getEssCapacity().isDefined()) {
+						// Value has been read from device in the meantime
+						return;
+					}
+
+					if (throwable != null || capacity.isEmpty()) {
+						// Set initial EssCapacity
+						this._setEssCapacity(fallbackCapacity);
+						return;
+					}
+
+					try {
+						this._setEssCapacity(TypeUtils.getAsType(OpenemsType.INTEGER, capacity));
+					} catch (IllegalArgumentException e) {
+						// Set initial EssCapacity
+						this._setEssCapacity(fallbackCapacity);
+					}
+				});
 	}
 
 	/**
@@ -597,6 +603,88 @@ public abstract class AbstractFixStateOfCharge extends AbstractOpenemsComponent
 
 		// ReqiredTime in seconds
 		return remainingCapacity / power;
+	}
+
+	public ReferenceCycleTarget getReferenceCycleTarget() {
+		return this.referenceCycleTarget;
+	}
+
+	public void setReferenceCycleTarget(ReferenceCycleTarget referenceCycleTarget) {
+		this.referenceCycleTarget = referenceCycleTarget;
+	}
+
+	/**
+	 * Clear the reference cycle target.
+	 */
+	public void clearReferenceCycleTarget() {
+		this.referenceCycleTarget = null;
+	}
+
+	/**
+	 * Get the reference cycle pause start timestamp in ms (epoch).
+	 *
+	 * @return reference cycle pause start timestamp in ms (epoch)
+	 */
+	public Long getReferenceCyclePauseStartMs() {
+		return this.referenceCyclePauseStartMs;
+	}
+
+	/**
+	 * Set the reference cycle pause start timestamp in ms (epoch).
+	 *
+	 * @param referenceCyclePauseStartMs timestamp in ms (epoch)
+	 */
+	public void setReferenceCyclePauseStartMs(Long referenceCyclePauseStartMs) {
+		this.referenceCyclePauseStartMs = referenceCyclePauseStartMs;
+	}
+
+	/**
+	 * Clear the reference cycle pause start timestamp.
+	 */
+	public void clearReferenceCyclePauseStart() {
+		this.referenceCyclePauseStartMs = null;
+	}
+
+	/**
+	 * Get the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @return reference cycle fallback start timestamp in ms (epoch)
+	 */
+	public Long getReferenceCycleFallbackStartMs() {
+		return this.referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Set the reference cycle fallback start timestamp in ms (epoch).
+	 *
+	 * @param referenceCycleFallbackStartMs timestamp in ms (epoch)
+	 */
+	public void setReferenceCycleFallbackStartMs(Long referenceCycleFallbackStartMs) {
+		this.referenceCycleFallbackStartMs = referenceCycleFallbackStartMs;
+	}
+
+	/**
+	 * Clear the reference cycle fallback start timestamp.
+	 */
+	public void clearReferenceCycleFallbackStart() {
+		this.referenceCycleFallbackStartMs = null;
+	}
+
+	public Float getLastTargetPower() {
+		return this.lastTargetPower;
+	}
+
+	public void setLastTargetPower(Float lastTargetPower) {
+		this.lastTargetPower = lastTargetPower;
+	}
+
+	/**
+	 * Determines whether the reference cycle should be executed.
+	 *
+	 * @return true if reference cycle is enabled, false otherwise
+	 */
+	public boolean isReferenceCycleEnabled() {
+		return false;
 	}
 
 }

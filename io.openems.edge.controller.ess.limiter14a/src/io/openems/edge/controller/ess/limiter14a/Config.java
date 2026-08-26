@@ -16,11 +16,11 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 	@AttributeDefinition(name = "Is enabled?", description = "Is this Component enabled?")
 	boolean enabled() default true;
-	
+
 	@AttributeDefinition(name = "Ess-ID", description = "ID of Ess.")
 	String ess_id() default "ess0";
 
-	@AttributeDefinition(name = "Input Channel", description = "When receiveing a signal, this channel triggers the execution of the limitation.")
+	@AttributeDefinition(name = "Input Channel", description = "When receiving a signal, this channel triggers the execution of the limitation.")
 	String inputChannelAddress();
 
 	String webconsole_configurationFactory_nameHint() default "Controller Ess Limiter §14a [{id}]";

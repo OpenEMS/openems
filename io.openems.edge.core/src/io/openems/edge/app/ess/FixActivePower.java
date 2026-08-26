@@ -16,7 +16,6 @@ import com.google.gson.JsonElement;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.function.ThrowingTriFunction;
-import io.openems.common.oem.OpenemsEdgeOem;
 import io.openems.common.session.Language;
 import io.openems.common.session.Role;
 import io.openems.common.types.EdgeConfig;
@@ -38,7 +37,6 @@ import io.openems.edge.core.appmanager.OpenemsAppCardinality;
 import io.openems.edge.core.appmanager.OpenemsAppCategory;
 import io.openems.edge.core.appmanager.OpenemsAppPermissions;
 import io.openems.edge.core.appmanager.Type;
-import io.openems.edge.core.appmanager.Type.Parameter;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleParameter;
 import io.openems.edge.core.appmanager.dependency.Tasks;
 import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentralOrderConfiguration.SchedulerComponent;
@@ -62,10 +60,10 @@ import io.openems.edge.core.appmanager.dependency.aggregatetask.SchedulerByCentr
  * </pre>
  */
 @Component(name = "App.Ess.FixActivePower")
-public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, Parameter.BundleParameter>
+public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, Property, BundleParameter>
 		implements OpenemsApp {
 
-	public enum Property implements Type<Property, FixActivePower, Parameter.BundleParameter>, Nameable {
+	public enum Property implements Type<Property, FixActivePower, BundleParameter>, Nameable {
 		// Components
 		CTRL_FIX_ACTIVE_POWER_ID(AppDef.componentId("ctrlFixActivePower0")), //
 
@@ -104,13 +102,6 @@ public class FixActivePower extends AbstractOpenemsAppWithProps<FixActivePower, 
 			@Reference final ComponentUtil componentUtil //
 	) {
 		super(componentManager, componentContext, cm, componentUtil);
-	}
-
-	@Override
-	public AppDescriptor getAppDescriptor(OpenemsEdgeOem oem) {
-		return AppDescriptor.create() //
-				.setWebsiteUrl(oem.getAppWebsiteUrl(this.getAppId())) //
-				.build();
 	}
 
 	@Override

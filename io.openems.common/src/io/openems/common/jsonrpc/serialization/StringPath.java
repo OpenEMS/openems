@@ -1,21 +1,19 @@
 package io.openems.common.jsonrpc.serialization;
 
-import java.util.UUID;
-
-public interface StringPath extends JsonPath {
+public interface StringPath<T> extends JsonPath {
 
 	/**
 	 * Gets the string value of the current path.
 	 * 
 	 * @return the value
 	 */
-	public String get();
+	public String getRaw();
 
 	/**
-	 * Gets the value as a {@link UUID}.
+	 * Gets the parsed value of this string path.
 	 * 
-	 * @return the {@link UUID}
+	 * @return the parsed value of this string
 	 */
-	public UUID getAsUuid();
+	public T get();
 
 }

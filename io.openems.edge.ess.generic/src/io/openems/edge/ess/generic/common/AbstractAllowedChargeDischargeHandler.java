@@ -1,7 +1,6 @@
 package io.openems.edge.ess.generic.common;
 
-import static io.openems.edge.common.type.TypeUtils.multiply;
-import static io.openems.edge.common.type.TypeUtils.subtract;
+import static io.openems.common.utils.IntUtils.minInteger;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -9,7 +8,6 @@ import static java.lang.Math.round;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.function.BiFunction;
 
 import org.apache.logging.log4j.util.TriConsumer;
 
@@ -17,19 +15,23 @@ import io.openems.edge.battery.api.Battery;
 import io.openems.edge.batteryinverter.api.SymmetricBatteryInverter;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.ClockProvider;
-import io.openems.edge.common.filter.Pt1filter;
 import io.openems.edge.common.startstop.StartStoppable;
-import io.openems.edge.common.type.TypeUtils;
+import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.ess.api.SymmetricEss;
+import io.openems.edge.ess.generic.common.essprotection.EpRampHandler;
+import io.openems.edge.ess.generic.common.essprotection.EpVoltageRegulationHandler;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection;
+import io.openems.edge.ess.generic.common.essprotection.EssProtection.EssProtectionConfig;
+import io.openems.edge.ess.generic.common.essprotection.EssProtectionHandler;
+import io.openems.edge.ess.generic.common.essprotection.EssProtectionHandler.EssProtectionLimits;
 import io.openems.edge.ess.generic.symmetric.ChannelManager;
-import io.openems.edge.ess.generic.symmetric.EssProtection;
 
 /**
  * Helper class to handle calculation of Allowed-Charge-Power and
  * Allowed-Discharge-Power. This class is used by {@link ChannelManager} as a
  * callback to updates of Battery Channels.
  */
-public abstract class AbstractAllowedChargeDischargeHandler<ESS extends SymmetricEss & CycleProvider>
+public abstract class AbstractAllowedChargeDischargeHandler<ESS extends SymmetricEss>
 		implements TriConsumer<ClockProvider, Battery, SymmetricBatteryInverter> {
 
 	public static final float DISCHARGE_EFFICIENCY_FACTOR = 0.95F;
@@ -42,22 +44,23 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 */
 	public static final float MAX_INCREASE_PERCENTAGE = 0.05F;
 
-	public static final int VOLTAGE_CONTROL_FILTER_TIME_CONSTANT = 10; // [seconds]
-	public static final int VOLTAGE_CONTROL_OFFSET = 4; // [V]
+	private static final int ESS_PROTECTION_EXTREME_LIMIT_TIMEOUT = 240; // [seconds]
 
 	protected final ESS parent;
 
-	private static final int ESS_PROTECTION_EXTREME_LIMIT_TIMEOUT = 240; // [seconds]
+	private final EssProtectionHandler essProtectionHandler;
 
-	private final Pt1filter pt1FilterChargeMaxCurrentVoltLimit;
-	private final Pt1filter pt1FilterDischargeMaxCurrentVoltLimit;
+	protected AbstractAllowedChargeDischargeHandler(ESS parent) {
+		this(parent, EssProtectionConfig.NONE);
+	}
 
-	public AbstractAllowedChargeDischargeHandler(ESS parent) {
+	protected AbstractAllowedChargeDischargeHandler(ESS parent, EssProtectionConfig essProtectionConfig) {
 		this.parent = parent;
-		this.pt1FilterChargeMaxCurrentVoltLimit = new Pt1filter(VOLTAGE_CONTROL_FILTER_TIME_CONSTANT,
-				this.parent.getCycleTime());
-		this.pt1FilterDischargeMaxCurrentVoltLimit = new Pt1filter(VOLTAGE_CONTROL_FILTER_TIME_CONSTANT,
-				this.parent.getCycleTime());
+		this.essProtectionHandler = switch (essProtectionConfig) {
+		case NONE -> null;
+		case RAMP -> new EpRampHandler();
+		case VOLTAGE_REGULATION -> new EpVoltageRegulationHandler();
+		};
 	}
 
 	protected float lastBatteryAllowedChargePower;
@@ -65,11 +68,31 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	private Instant lastCalculate = null;
 	private Instant onEntryEssProtection = null;
 
-	@Override
-	public abstract void accept(ClockProvider clockProvider, Battery battery, SymmetricBatteryInverter inverter);
+	private EssProtectionLimits essProtectionLimits = EssProtectionLimits.EMPTY;
 
 	/**
-	 * Calculates Allowed-Charge-Power and Allowed-Discharge Power from the given
+	 * Calculates {@link EssProtection.ChannelId#EP_CHARGE_MAX_CURRENT} and
+	 * {@link EssProtection.ChannelId#EP_DISCHARGE_MAX_CURRENT} from the given
+	 * parameters. Result is stored in 'essProtectionLimits' variable.
+	 * 
+	 * @param battery  the {@link Battery}
+	 * @param inverter the {@link SymmetricBatteryInverter}
+	 */
+	public void calculateEssProtectionLimits(Battery battery, SymmetricBatteryInverter inverter) {
+
+		this.essProtectionLimits = this.essProtectionHandler != null //
+				? this.essProtectionHandler.calculateEssProtectionLimits(battery, inverter) //
+				: EssProtectionLimits.EMPTY;
+
+		if (this.parent instanceof EssProtection ess) {
+			ess._setEpChargeMaxCurrent(this.essProtectionLimits.chargeMaxCurrent());
+			ess._setEpDischargeMaxCurrent(this.essProtectionLimits.dischargeMaxCurrent());
+		}
+	}
+
+	/**
+	 * Calculates {@link ManagedSymmetricEss.ChannelId#ALLOWED_CHARGE_POWER} and
+	 * {@link ManagedSymmetricEss.ChannelId#ALLOWED_DISCHARGE_POWER} from the given
 	 * parameters. Result is stored in 'lastBatteryAllowedChargePower' and
 	 * 'lastBatteryAllowedDischargePower' variables - both as positive values!
 	 *
@@ -79,28 +102,20 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 	 */
 	protected void calculateAllowedChargeDischargePower(ClockProvider clockProvider, Battery battery,
 			SymmetricBatteryInverter inverter) {
-		final var cycleTime = this.parent.getCycleTime();
-		var chargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
-		var dischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
+		// From Battery
+		final var batteryChargeMaxCurrent = battery.getChargeMaxCurrentChannel().getNextValue().get();
+		final var batteryDischargeMaxCurrent = battery.getDischargeMaxCurrentChannel().getNextValue().get();
+		// From EssProtection
+		final var essChargeMaxCurrent = this.essProtectionLimits.chargeMaxCurrent();
+		final var essDischargeMaxCurrent = this.essProtectionLimits.dischargeMaxCurrent();
 
-		final var voltRegulationChargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterChargeMaxCurrentVoltLimit, TypeUtils::min, TypeUtils::subtract, TypeUtils::subtract,
-				true);
-		final var voltRegulationDischargeMaxCurrent = calculateMaxCurrent(battery, inverter, cycleTime,
-				this.pt1FilterDischargeMaxCurrentVoltLimit, TypeUtils::max, TypeUtils::sum, TypeUtils::sum, false);
-
-		if (this.parent instanceof EssProtection ess) {
-			ess._setEpChargeMaxCurrent(voltRegulationChargeMaxCurrent);
-			ess._setEpDischargeMaxCurrent(voltRegulationDischargeMaxCurrent);
-		}
-
-		chargeMaxCurrent = TypeUtils.min(chargeMaxCurrent, voltRegulationChargeMaxCurrent);
-		dischargeMaxCurrent = TypeUtils.min(dischargeMaxCurrent, voltRegulationDischargeMaxCurrent);
+		final var chargeMaxCurrent = minInteger(batteryChargeMaxCurrent, essChargeMaxCurrent);
+		final var dischargeMaxCurrent = minInteger(batteryDischargeMaxCurrent, essDischargeMaxCurrent);
 
 		final var current = battery.getCurrentChannel().value();
 		this.checkEssProtectionExtremes(clockProvider, chargeMaxCurrent, dischargeMaxCurrent, current);
 
-		final boolean isStarted = this.parent instanceof StartStoppable p ? p.isStarted() : true;
+		final boolean isStarted = !(this.parent instanceof StartStoppable p) || p.isStarted();
 		final var voltage = battery.getVoltageChannel().getNextValue().get();
 		this.calculateAllowedChargeDischargePower(clockProvider, isStarted, chargeMaxCurrent, dischargeMaxCurrent,
 				voltage);
@@ -138,7 +153,7 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 			// Calculate AllowedChargePower and AllowedDischargePower from battery current
 			// limits and voltage.
 			// Efficiency factor is not considered in chargeMaxCurrent (DC Power > AC Power)
-			charge = chargeMaxCurrent * voltage;
+			charge = (float) chargeMaxCurrent * voltage;
 			discharge = round(dischargeMaxCurrent * voltage * DISCHARGE_EFFICIENCY_FACTOR);
 		}
 
@@ -202,15 +217,11 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 			this.onEntryEssProtection = Instant.now(clockProvider.getClock());
 		}
 
-		if (dischargeMaxCurrent < 0//
-				&& current.get() >= 0//
-				&& this.isExtremeTimeoutPassed()) {
+		if (current.get() >= 0 && this.isExtremeTimeoutPassed()) {
 			ess._setEpDeepDischargeProtection(true);
 		}
 
-		if (chargeMaxCurrent < 0 //
-				&& current.get() <= 0 //
-				&& this.isExtremeTimeoutPassed()) {
+		if (current.get() <= 0 && this.isExtremeTimeoutPassed()) {
 			ess._setEpOverChargeProtection(true);
 		}
 	}
@@ -240,69 +251,5 @@ public abstract class AbstractAllowedChargeDischargeHandler<ESS extends Symmetri
 		}
 		return min(thisValue, //
 				lastValue + thisValue * millis * MAX_INCREASE_PERCENTAGE / 1000.F /* convert [mW] to [W] */);
-	}
-
-	private record RegulationValues(//
-			boolean isBatteryStarted, //
-			Value<Integer> voltage, //
-			Value<Integer> current, //
-			Value<Integer> chargeMaxVoltage, //
-			Value<Integer> dischargeMinVoltage, //
-			Value<Integer> innerResistance, //
-			Value<Integer> inverterDcMinVoltage, //
-			Value<Integer> inverterDcMaxVoltage) {
-		public RegulationValues(Battery battery, SymmetricBatteryInverter inverter) {
-			this(//
-					battery.isStarted(), //
-					battery.getVoltage(), //
-					battery.getCurrent(), //
-					battery.getChargeMaxVoltage(), //
-					battery.getDischargeMinVoltage(), //
-					battery.getInnerResistance(), //
-					inverter.getDcMinVoltage(), //
-					inverter.getDcMaxVoltage());
-		}
-	}
-
-	private static boolean areRegulationValuesDefined(RegulationValues regulationValues) {
-		return regulationValues.isBatteryStarted()//
-				&& regulationValues.voltage.isDefined()//
-				&& regulationValues.current.isDefined() //
-				&& regulationValues.chargeMaxVoltage.isDefined()//
-				&& regulationValues.dischargeMinVoltage.isDefined()//
-				&& regulationValues.innerResistance.isDefined()//
-				&& regulationValues.inverterDcMinVoltage.isDefined()//
-				&& regulationValues.inverterDcMaxVoltage.isDefined();//
-	}
-
-	private static Integer calculateMaxCurrent(Battery battery, SymmetricBatteryInverter inverter, int cycleTime,
-			Pt1filter pt1Filter, BiFunction<Integer, Integer, Integer> dcLimit,
-			BiFunction<Integer, Integer, Integer> voltageOffset, BiFunction<Double, Double, Double> typeUtilsMethod,
-			boolean invert) {
-		var regulationValues = new RegulationValues(battery, inverter);
-		if (!areRegulationValuesDefined(regulationValues)) {
-			return null;
-		}
-
-		final var batteryLimit = invert//
-				? regulationValues.chargeMaxVoltage.get()
-				: regulationValues.dischargeMinVoltage.get();
-		final var inverterLimit = invert //
-				? regulationValues.inverterDcMaxVoltage.get()
-				: regulationValues.inverterDcMinVoltage.get();
-		final var limitVoltage = dcLimit.apply(//
-				voltageOffset.apply(//
-						batteryLimit, //
-						VOLTAGE_CONTROL_OFFSET),
-				inverterLimit);
-
-		var subtractLimit = subtract(regulationValues.voltage.get(), limitVoltage);
-		var voltageDifference = invert ? multiply(subtractLimit, -1) : subtractLimit;
-
-		var resistance = regulationValues.innerResistance.get() / 1000.;
-		final var deltaChargeCurrent = voltageDifference / resistance;
-		var maxCurrentVoltLimit = typeUtilsMethod.apply(deltaChargeCurrent, (double) regulationValues.current.get());
-		pt1Filter.setCycleTime(cycleTime);
-		return pt1Filter.applyPt1Filter(max(maxCurrentVoltLimit, -5.0));
 	}
 }

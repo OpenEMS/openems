@@ -17,6 +17,8 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private int defaultChargeMinPower = 0;
 		private Priority priority = Priority.CAR;
 		private int energySessionLimit = 0;
+		private int excessChargeHystersis = 120;
+		private int excessChargePauseHysteresis = 30;
 
 		private Builder() {
 		}
@@ -68,6 +70,16 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setEnergySessionLimit(int energySessionLimit) {
 			this.energySessionLimit = energySessionLimit;
+			return this;
+		}
+
+		public Builder setExcessChargeHystersis(int excessChargeHystersis) {
+			this.excessChargeHystersis = excessChargeHystersis;
+			return this;
+		}
+
+		public Builder setExcessChargePauseHysteresis(int excessChargePauseHysteresis) {
+			this.excessChargePauseHysteresis = excessChargePauseHysteresis;
 			return this;
 		}
 
@@ -138,7 +150,12 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String evcs_target() {
-		return "(&(enabled=true)(!(service.pid=ctrlEvcs0))(|(id=" + this.evcs_id() + ")))";
+	public int excessChargeHystersis() {
+		return this.builder.excessChargeHystersis;
+	}
+
+	@Override
+	public int excessChargePauseHysteresis() {
+		return this.builder.excessChargePauseHysteresis;
 	}
 }

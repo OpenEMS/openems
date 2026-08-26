@@ -34,6 +34,7 @@ public class GetSetupProtocolDataRequest extends JsonrpcRequest {
 	@Override
 	public JsonObject getParams() {
 		return JsonUtils.buildJsonObject() //
+				.addProperty("edgeId", this.edgeId) //
 				.build();
 	}
 

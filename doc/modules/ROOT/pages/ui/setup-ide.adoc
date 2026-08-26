@@ -2,14 +2,13 @@
 :imagesdir: ../../assets/images
 :sectnums:
 :sectnumlevels: 4
-:toc:
 :toclevels: 4
 :experimental:
 :keywords: AsciiDoc
 :source-highlighter: highlight.js
 :icons: font
 
-NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the hosted version we provide at https://openemsuilocal.consolinno.de[https://openemsuilocal.consolinno.de icon:external-link[]].
+NOTE: Visual Studio Code is the recommended development environment for OpenEMS UI. If you do not plan to actively develop on OpenEMS UI, you can simply use the prebuilt UI or https://openems.github.io/openems.io/openems/latest/edge/deploy/docker.html#_openems_edge_ui[deploy the OpenEMS UI as docker image].
 
 
 == Setup Visual Studio Code

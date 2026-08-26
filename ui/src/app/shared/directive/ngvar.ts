@@ -1,16 +1,17 @@
-import { Directive, Input, TemplateRef, ViewContainerRef } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef } from "@angular/core";
 
 @Directive({
-    selector: '[ngVar]',
+    selector: "[ngVar]",
+    standalone: false,
 })
 export class VarDirective {
     private context: {
         $implicit: unknown;
         ngVar: unknown;
     } = {
-            $implicit: null,
-            ngVar: null,
-        };
+        $implicit: null,
+        ngVar: null,
+    };
 
     private hasView: boolean = false;
 
