@@ -6,7 +6,9 @@ import static io.openems.common.channel.Unit.WATT;
 import static io.openems.common.types.OpenemsType.BOOLEAN;
 import static io.openems.common.types.OpenemsType.INTEGER;
 
+import io.openems.common.channel.PersistencePriority;
 import io.openems.common.channel.Unit;
+import io.openems.edge.common.channel.BooleanReadChannel;
 import io.openems.edge.common.channel.Doc;
 import io.openems.edge.common.channel.EnumReadChannel;
 import io.openems.edge.common.channel.IntegerWriteChannel;
@@ -46,7 +48,8 @@ public interface Mennekes extends OpenemsComponent {
 
 		HEMS_MAX_POWER(Doc.of(INTEGER)//
 				.unit(WATT)), //
-		PHASE_SWITCH_MODE(Doc.of(PhaseSwitchMode.values())),
+		PHASE_SWITCH_MODE(Doc.of(PhaseSwitchMode.values())//
+				.persistencePriority(PersistencePriority.HIGH)),
 
 		PHASE_SWITCH_PAUSE(Doc.of(INTEGER)//
 				.unit(Unit.SECONDS)),
@@ -104,6 +107,24 @@ public interface Mennekes extends OpenemsComponent {
 	 */
 	default PhaseSwitchMode getPhaseSwitchMode() {
 		return this.getPhaseSwitchModeChannel().value().asEnum();
+	}
+
+	/**
+	 * Gets the Channel for {@link ChannelId#PHASE_SWITCH_RUNNING}.
+	 *
+	 * @return the Channel
+	 */
+	default BooleanReadChannel getPhaseSwitchRunningChannel() {
+		return this.channel(ChannelId.PHASE_SWITCH_RUNNING);
+	}
+
+	/**
+	 * Returns whether the internal phase switch is currently running.
+	 *
+	 * @return true while the phase switch is running
+	 */
+	default boolean isPhaseSwitchRunning() {
+		return this.getPhaseSwitchRunningChannel().value().orElse(false);
 	}
 
 	/**
