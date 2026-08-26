@@ -12,7 +12,7 @@ Bundle-Description: This wraps external java libraries that do not have OSGi hea
 	com.influxdb:influxdb-client-utils;version='8.0.0',\
 	com.oracle.labs.olcut:olcut-config-protobuf;version='5.3.1',\
 	com.oracle.labs.olcut:olcut-core;version='5.3.1',\
-	com.squareup.okhttp3:okhttp-jvm;version='5.3.2',\
+	com.squareup.okhttp3:okhttp-jvm;version='5.5.0',\
 	com.squareup.retrofit2:adapter-rxjava3;version='3.0.0',\
 	com.squareup.retrofit2:converter-gson;version='3.0.0',\
 	com.squareup.retrofit2:converter-scalars;version='3.0.0',\

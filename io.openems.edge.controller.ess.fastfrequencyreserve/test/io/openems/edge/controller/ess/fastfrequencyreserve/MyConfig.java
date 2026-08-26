@@ -1,7 +1,6 @@
 package io.openems.edge.controller.ess.fastfrequencyreserve;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.controller.ess.fastfrequencyreserve.enums.ControlMode;
 
 @SuppressWarnings("all")
@@ -75,16 +74,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String meter_id() {
 		return this.builder.meterId;
-	}
-
-	@Override
-	public String ess_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.ess_id());
-	}
-
-	@Override
-	public String meter_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.meter_id());
 	}
 
 	@Override

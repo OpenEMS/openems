@@ -14,6 +14,7 @@ import { PipeComponentsModule } from "src/app/shared/pipe/pipe.module";
 import { LiveDataServiceProvider } from "src/app/shared/provider/live-data-service-provider";
 import { LocaleProvider } from "src/app/shared/provider/locale-provider";
 import { ChannelAddress, CurrentData, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
+import { Role } from "src/app/shared/type/role";
 import { AssertionUtils } from "src/app/shared/utils/assertions/assertions.utils";
 import { DateUtils } from "src/app/shared/utils/date/dateutils";
 import { DateTimeFormats, DateTimeUtils } from "src/app/shared/utils/datetime/datetime-utils";
@@ -46,7 +47,6 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_SOC = "_PropertyTargetSoc";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_TARGET_TIME_BUFFER = "_PropertyTargetTimeBuffer";
     private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_PROPERTY_EXPECTED_EPOCH_SECONDS = "ExpectedStartEpochSeconds";
-    private static CHANNEL_ID_PREPARE_BATTERY_EXTENSION_CTRL_IS_IN_REFERENCE_CYCLE = "CtrlIsInReferenceCycle";
     private static CHANNEL_ID_META_IS_ESS_CHARGE_FROM_GRID_ALLOWED = "IsEssChargeFromGridAllowed";
 
     protected override formlyWrapper: "formly-field-modal" | "formly-field-navigation" = "formly-field-navigation";
@@ -206,9 +206,12 @@ export class CommonStorageSettingsComponent extends AbstractFormlyComponent<any>
             }
 
             lines.push(...this.getEmergencyReserveForEss(essComponent, emergencyReserveCtrl, viewContext.config));
-            lines.push(
-                ...this.getPrepareBatteryExtensionForEss(essComponent, viewContext.config, viewContext.translate),
-            );
+
+            if (viewContext.edge.roleIsAtLeast(Role.INSTALLER)) {
+                lines.push(
+                    ...this.getPrepareBatteryExtensionForEss(essComponent, viewContext.config, viewContext.translate),
+                );
+            }
         }
 
         return {
