@@ -141,6 +141,15 @@ public interface Metadata {
 	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException;
 
 	/**
+	 * Updates the edge settings.
+	 *
+	 * @param edgeId   the edge id
+	 * @param settings the edge settings
+	 * @return a {@link CompletableFuture}
+	 */
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings);
+
+	/**
 	 * Assigns Edge with given setupPassword to the logged in user and returns it.
 	 *
 	 * <p>
@@ -433,10 +442,28 @@ public interface Metadata {
 	 * @return the role to the edge
 	 * @throws OpenemsNamedException if the current Role privileges are less
 	 */
-	public default Role assertUserRole(User user, String edgeId, Role requiredRole, String resource)
+	public default Role assertRoleIsAtLeast(User user, String edgeId, Role requiredRole, String resource)
 			throws OpenemsNamedException {
 		final var role = this.getUserRole(user, edgeId);
-		Role.assertRole(user.getId(), role, requiredRole, resource);
+		Role.assertRoleIsAtLeast(user.getId(), role, requiredRole, resource);
+		return role;
+	}
+
+	/**
+	 * Throws an exception if the current Role is not equal to the given Role.
+	 *
+	 * @param user         {@link User} the current user
+	 * @param edgeId       the Edge-ID
+	 * @param requiredRole the required role
+	 * @param resource     a resource identifier; used for the exception
+	 * @return the role to the edge
+	 * @throws OpenemsNamedException if the current Role is not equal the required
+	 *                               role
+	 */
+	public default Role assertRoleIsEqual(User user, String edgeId, Role requiredRole, String resource)
+			throws OpenemsNamedException {
+		final var role = this.getUserRole(user, edgeId);
+		Role.assertRoleIsEqual(user.getId(), role, requiredRole, resource);
 		return role;
 	}
 

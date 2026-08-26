@@ -701,7 +701,7 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 					return this.oem.getAppCenterMasterKey();
 				}
 				// TODO better only for certain employees/admins
-				this.assertUserRole(user, edgeId, Role.INSTALLER, "PredefinedKey");
+				this.assertRoleIsAtLeast(user, edgeId, Role.INSTALLER, "PredefinedKey");
 				return this.oem.getAppCenterMasterKey();
 			});
 		});
@@ -841,6 +841,11 @@ public class MetadataOdoo extends AbstractMetadata implements AppCenterMetadata,
 	@Override
 	public void updateUserSettings(User user, JsonObject settings) throws OpenemsNamedException {
 		this.odooHandler.updateUserSettings(user, settings);
+	}
+
+	@Override
+	public CompletableFuture<Void> updateEdgeSettings(String edgeId, JsonObject settings) {
+		return this.httpBridgeOdooService.updateEdgeSettings(edgeId, settings);
 	}
 
 	@Override

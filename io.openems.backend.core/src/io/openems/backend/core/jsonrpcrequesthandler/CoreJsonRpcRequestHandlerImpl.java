@@ -166,7 +166,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 		Map<String, EdgeInfo> result = new HashMap<>();
 		for (var edgeId : request.edgeIds) {
 			// assure read permissions of this User for this Edge.
-			this.metadata.assertUserRole(user, edgeId, Role.GUEST, GetEdgesStatusRequest.METHOD);
+			this.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, GetEdgesStatusRequest.METHOD);
 
 			var edgeOpt = this.metadata.getEdge(edgeId);
 			if (edgeOpt.isPresent()) {
@@ -192,7 +192,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 		var response = new GetEdgesChannelsValuesResponse(messageId);
 		for (String edgeId : request.getEdgeIds()) {
 			// assure read permissions of this User for this Edge.
-			this.metadata.assertUserRole(user, edgeId, Role.GUEST, GetEdgesChannelsValuesRequest.METHOD);
+			this.metadata.assertRoleIsAtLeast(user, edgeId, Role.GUEST, GetEdgesChannelsValuesRequest.METHOD);
 
 			var data = this.edgeManager.getChannelValues(edgeId, request.getChannels());
 			for (var entry : data.entrySet()) {
@@ -215,7 +215,7 @@ public class CoreJsonRpcRequestHandlerImpl extends AbstractOpenemsBackendCompone
 			SetGridConnScheduleRequest setGridConnScheduleRequest) throws OpenemsNamedException {
 		var edgeId = setGridConnScheduleRequest.getEdgeId();
 
-		final var role = this.metadata.assertUserRole(user, edgeId, Role.ADMIN, SetGridConnScheduleRequest.METHOD);
+		final var role = this.metadata.assertRoleIsAtLeast(user, edgeId, Role.ADMIN, SetGridConnScheduleRequest.METHOD);
 
 		// wrap original request inside ComponentJsonApiRequest
 		var componentId = "ctrlBalancingSchedule0"; // TODO find dynamic Component-ID of BalancingScheduleController
