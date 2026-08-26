@@ -185,20 +185,20 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 						m(ElectricityMeter.ChannelId.REACTIVE_POWER, new FloatDoublewordElement(360), IGNORE_NAN)), //
 
 				new FC3ReadRegistersTask(362, Priority.LOW, //
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1,
-								new FloatQuadruplewordElement(362), IGNORE_NAN), //
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2,
-								new FloatQuadruplewordElement(366), IGNORE_NAN), //
-						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3,
-								new FloatQuadruplewordElement(370), IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L1, new FloatQuadruplewordElement(362),
+								IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L2, new FloatQuadruplewordElement(366),
+								IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY_L3, new FloatQuadruplewordElement(370),
+								IGNORE_NAN), //
 						m(ElectricityMeter.ChannelId.ACTIVE_PRODUCTION_ENERGY, //
 								new FloatQuadruplewordElement(374), IGNORE_NAN), //
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1,
-								new FloatQuadruplewordElement(378), IGNORE_NAN), //
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2,
-								new FloatQuadruplewordElement(382), IGNORE_NAN), //
-						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3,
-								new FloatQuadruplewordElement(386), IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L1, new FloatQuadruplewordElement(378),
+								IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L2, new FloatQuadruplewordElement(382),
+								IGNORE_NAN), //
+						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY_L3, new FloatQuadruplewordElement(386),
+								IGNORE_NAN), //
 						m(ElectricityMeter.ChannelId.ACTIVE_CONSUMPTION_ENERGY, //
 								new FloatQuadruplewordElement(390), IGNORE_NAN), //
 						m(EvseAlfen.ChannelId.APPARENT_ENERGY_L1, new FloatQuadruplewordElement(394), IGNORE_NAN), //
@@ -213,8 +213,7 @@ public class EvseAlfenImpl extends AbstractOpenemsModbusComponent implements Evs
 				new FC3ReadRegistersTask(1200, Priority.HIGH, //
 						m(EvseAlfen.ChannelId.AVAILABILITY, new UnsignedWordElement(1200)), //
 						m(EvseAlfen.ChannelId.MODE_3_STATE, new StringWordElement(1201, 5), TO_MODE_3_STATE), //
-						m(EvseAlfen.ChannelId.ACTUAL_APPLIED_MAX_CURRENT, new FloatDoublewordElement(1206),
-								IGNORE_NAN), //
+						m(EvseAlfen.ChannelId.ACTUAL_APPLIED_MAX_CURRENT, new FloatDoublewordElement(1206), IGNORE_NAN), //
 						m(EvseAlfen.ChannelId.MODBUS_SLAVE_MAX_CURRENT_VALID_TIME, new UnsignedDoublewordElement(1208)), //
 						m(EvseAlfen.ChannelId.SET_CURRENT, new FloatDoublewordElement(1210), IGNORE_NAN), //
 						m(EvseAlfen.ChannelId.ACTIVE_LOAD_BALANCING_SAFE_CURRENT, new FloatDoublewordElement(1212),

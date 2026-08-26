@@ -3,8 +3,8 @@ package io.openems.edge.evse.chargepoint.alfen;
 import io.openems.common.types.OptionsEnum;
 
 /**
- * State as reported by the Alfen charge point in Modbus
- * register 1201 ("Mode 3 state").
+ * State as reported by the Alfen charge point in Modbus register 1201 ("Mode 3
+ * state").
  *
  * <p>
  * The digit distinguishes whether the charge point applies a PWM signal: "1"

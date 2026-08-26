@@ -227,8 +227,7 @@ public interface EvseAlfen extends EvseChargePoint, ElectricityMeter, OpenemsCom
 	}
 
 	/**
-	 * Gets the currently configured phase mode. See
-	 * {@link ChannelId#SET_PHASES}.
+	 * Gets the currently configured phase mode. See {@link ChannelId#SET_PHASES}.
 	 *
 	 * @return the Channel {@link Value}; 1 or 3 phases
 	 */
