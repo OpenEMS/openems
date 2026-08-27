@@ -2,7 +2,9 @@ package io.openems.edge.bridge.modbus.api.task;
 
 import static io.openems.common.utils.FunctionUtils.doNothing;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -22,7 +24,9 @@ import io.openems.edge.bridge.modbus.api.AbstractModbusBridge;
 import io.openems.edge.bridge.modbus.api.AbstractOpenemsModbusComponent;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.LogVerbosity;
+import io.openems.edge.bridge.modbus.api.ModbusTransferInfo;
 import io.openems.edge.bridge.modbus.api.element.ModbusElement;
+import io.openems.edge.bridge.modbus.api.task.hooks.TaskHook;
 
 /**
  * An abstract Modbus 'AbstractTask' is holding references to one or more Modbus
@@ -38,6 +42,7 @@ public abstract non-sealed class AbstractTask<//
 	protected final int startAddress;
 	protected final int length;
 	protected final ModbusElement[] elements;
+	protected final List<TaskHook> hooks = new ArrayList<>();
 
 	private final Logger log = LoggerFactory.getLogger(AbstractTask.class);
 
@@ -75,9 +80,23 @@ public abstract non-sealed class AbstractTask<//
 		return this.length;
 	}
 
+	// Override for Task.getUnitId()
+	public int getUnitId() {
+		return this.getParent().getUnitId();
+	}
+
 	// Override for Task.getStartAddress()
 	public int getStartAddress() {
 		return this.startAddress;
+	}
+
+	/**
+	 * Adds a hook to this specific task.
+	 *
+	 * @param hook Hook to add
+	 */
+	public void addHook(TaskHook hook) {
+		this.hooks.add(hook);
 	}
 
 	public void setParent(AbstractOpenemsModbusComponent parent) {
@@ -197,6 +216,18 @@ public abstract non-sealed class AbstractTask<//
 		};
 	}
 
+	protected void callHooks(Consumer<TaskHook> func) {
+		for (var hook : this.hooks) {
+			func.accept(hook);
+		}
+
+		if (this.parent != null) {
+			for (var hook : this.parent.getModbusTaskHooks()) {
+				func.accept(hook);
+			}
+		}
+	}
+
 	/*
 	 * Enable Debug mode for this Element. Activates verbose logging.
 	 */
@@ -232,6 +263,11 @@ public abstract non-sealed class AbstractTask<//
 		for (ModbusElement element : this.elements) {
 			element.deactivate();
 		}
+	}
+
+	@Override
+	public boolean requiresConnection() {
+		return true;
 	}
 
 	private void logInfo(String... messages) {
@@ -372,7 +408,10 @@ public abstract non-sealed class AbstractTask<//
 			return null;
 		}
 		transaction.setRequest(request);
+
+		bridge.setLastTransferInfo(ModbusTransferInfo.ModbusCommunicationType.REQUEST, unitId);
 		transaction.execute();
+		bridge.setLastTransferInfo(ModbusTransferInfo.ModbusCommunicationType.RESPONSE, unitId);
 
 		var response = transaction.getResponse();
 		if (clazz.isInstance(response)) {

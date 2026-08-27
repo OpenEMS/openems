@@ -1,10 +1,9 @@
 package io.openems.edge.dccharger.victron;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import io.openems.common.test.DummyConfigurationAdmin;
 import io.openems.common.types.ChannelAddress;
 import io.openems.edge.bridge.modbus.test.DummyModbusBridge;
 import io.openems.edge.common.test.AbstractComponentTest.TestCase;
@@ -24,7 +23,6 @@ public class VictronDcChargerImplTest {
 	@Test
 	public void test() throws Exception {
 		new ComponentTest(new VictronDcChargerImpl()) //
-				.addReference("cm", new DummyConfigurationAdmin()) //
 				.addReference("setModbus", new DummyModbusBridge(MODBUS_ID) //
 						.withRegisters(771,
 								// BATTERY_VOLTAGE (register 771) - 5200 = 52.00V
@@ -130,7 +128,7 @@ public class VictronDcChargerImplTest {
 	public void testChannelIds() {
 		var channelIds = VictronDcCharger.ChannelId.values();
 		for (var channelId : channelIds) {
-			assertNotNull("ChannelId " + channelId.name() + " should have a doc", channelId.doc());
+			assertNotNull(channelId.doc(), "ChannelId " + channelId.name() + " should have a doc");
 		}
 	}
 

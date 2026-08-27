@@ -13,14 +13,14 @@ import io.openems.edge.controller.api.Controller;
 public interface ControllerEssLimitTotalDischarge extends Controller, OpenemsComponent {
 
 	public enum ChannelId implements io.openems.edge.common.channel.ChannelId {
-		STATE_MACHINE(Doc.of(State.values()) //
+		STATE_MACHINE(Doc.of(State.values())//
 				.text("Current State of State-Machine")), //
-		AWAITING_HYSTERESIS(Doc.of(Level.INFO) //
+		AWAITING_HYSTERESIS(Doc.of(Level.INFO)//
 				.text("Would change State, but hysteresis is active")),
 		/**
 		 * Holds the minimum SoC value configured.
 		 */
-		MIN_SOC(Doc.of(OpenemsType.INTEGER) //
+		MIN_SOC(Doc.of(OpenemsType.INTEGER)//
 				.unit(Unit.PERCENT)); //
 
 		private final Doc doc;

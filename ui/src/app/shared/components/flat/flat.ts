@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input } from "@angular/core";
+import { Component, Input, ChangeDetectionStrategy } from "@angular/core";
 import { Router } from "@angular/router";
 import { ModalController } from "@ionic/angular";
 import { Icon, ImageIcon } from "src/app/shared/type/widget";
@@ -7,10 +7,10 @@ import { Icon, ImageIcon } from "src/app/shared/type/widget";
 @Component({
     selector: "oe-flat-widget",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatWidgetComponent {
-
     /** Image in Header */
     @Input() public img?: ImageIcon;
 
@@ -30,12 +30,14 @@ export class FlatWidgetComponent {
     constructor(
         private modalController: ModalController,
         private router: Router,
-    ) { }
+    ) {}
 
-    @Input() public set modalComponent(val: { component: ModalComponent | null, componentProps?: ModalComponentProperties }) {
+    @Input() public set modalComponent(val: {
+        component: ModalComponent | null;
+        componentProps?: ModalComponentProperties;
+    }) {
         this._modalComponent = val;
-    };
-
+    }
 
     protected async onCallback() {
         if (this._modalComponent != null) {
@@ -50,12 +52,13 @@ export class FlatWidgetComponent {
             this.router.navigateByUrl(this.link);
             return;
         }
-
     }
 }
 
-
-type ModalComponent = Pick<Parameters<typeof ModalController["prototype"]["create"]>, "0">["0"]["component"];
-type ModalComponentProperties = Pick<Parameters<typeof ModalController["prototype"]["create"]>, "0">["0"]["componentProps"];
+type ModalComponent = Pick<Parameters<(typeof ModalController)["prototype"]["create"]>, "0">["0"]["component"];
+type ModalComponentProperties = Pick<
+    Parameters<(typeof ModalController)["prototype"]["create"]>,
+    "0"
+>["0"]["componentProps"];
 
 export type Modal = Pick<typeof FlatWidgetComponent, "prototype">["prototype"]["_modalComponent"];

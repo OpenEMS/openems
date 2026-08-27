@@ -1,22 +1,20 @@
-import { Component, ViewEncapsulation } from "@angular/core";
+import { Component, ViewEncapsulation, ChangeDetectionStrategy } from "@angular/core";
 import { FieldType, FieldTypeConfig } from "@ngx-formly/core";
 
 @Component({
     selector: "formly-text",
     styles: [".warning {color: red}"],
     template: `
-    <ion-item lines="none">
-        <ion-text [innerHTML]="props.description"></ion-text>
-    </ion-item>
+        <ion-item lines="none">
+            <ion-text [innerHTML]="props.description"></ion-text>
+        </ion-item>
     `,
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FormlyTextComponent extends FieldType<FieldTypeConfig> {
-
-    constructor(
-    ) {
+    constructor() {
         super();
     }
-
 }

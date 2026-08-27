@@ -57,6 +57,8 @@ import io.openems.common.bridge.http.api.BridgeHttp;
 import io.openems.common.bridge.http.api.BridgeHttpFactory;
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.UrlBuilder;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceConfiguration;
+import io.openems.common.bridge.http.logging.HttpBridgeLoggingServiceDefinition;
 import io.openems.common.exceptions.OpenemsError;
 import io.openems.common.types.HttpStatus;
 import io.openems.common.utils.ThreadPoolUtils;
@@ -97,7 +99,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 
 	private final Map<String, OAuthOemConfig> oemsConfigs = new ConcurrentHashMap<>();
 
-	private final Executor executor = Executors.newScheduledThreadPool(100, Thread.ofVirtual().name("Auth").factory());
+	private final Executor executor = Executors.newFixedThreadPool(100, Thread.ofVirtual().name("Auth").factory());
 
 	@Reference(//
 			cardinality = ReferenceCardinality.MULTIPLE, //
@@ -131,6 +133,8 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 		this.bridgeHttp = this.bridgeHttpFactory.get();
 		this.bridgeHttp.setMaximumPoolSize(config.maxConcurrentRequests());
 		this.bridgeHttp.setDebugMode(config.debugMode());
+		this.bridgeHttp.createService(
+				new HttpBridgeLoggingServiceDefinition(HttpBridgeLoggingServiceConfiguration.contextId(ID)));
 		this.bridgeHttp.createService(new HttpBridgePrometheusMetricServiceDefinition(ID, endpoint -> {
 			final var url = UrlBuilder.parse(endpoint.url());
 
@@ -330,7 +334,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 							})) //
 					.whenComplete((unused, throwable) -> {
 						if (throwable != null) {
-							this.log.error("Error registering user: {}", user, throwable);
+							this.log.error("Error registering user", throwable);
 						}
 					});
 		});
@@ -406,7 +410,7 @@ public class OAuthUserAuthenticationServiceImpl implements AuthUserRegistrationS
 			this.processAccessToken(accessToken);
 		}, this.executor).handle((ignore, throwable) -> {
 			if (throwable != null) {
-				this.log.error("Error validating access token: {}", accessToken, throwable);
+				this.log.info("Error validating access token. {}", throwable.getMessage());
 				throw new CompletionException(OpenemsError.COMMON_AUTHENTICATION_FAILED.exception());
 			}
 			return ignore;

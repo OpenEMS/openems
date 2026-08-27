@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
 import { Converter } from "src/app/shared/components/shared/converter";
@@ -11,14 +11,20 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "grid",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class FlatComponent extends AbstractFlatWidget {
-
-    private static readonly RESTRICTION_MODE_14A: ChannelAddress = new ChannelAddress("ctrlEssLimiter14a0", "RestrictionMode");
+    private static readonly RESTRICTION_MODE_14A: ChannelAddress = new ChannelAddress(
+        "ctrlEssLimiter14a0",
+        "RestrictionMode",
+    );
     private static readonly GRID_ACTIVE_POWER: ChannelAddress = new ChannelAddress("_sum", "GridActivePower");
     private static readonly GRID_MODE: ChannelAddress = new ChannelAddress("_sum", "GridMode");
-    private static readonly RESTRICTION_MODE_RCR: ChannelAddress = new ChannelAddress("ctrlEssRippleControlReceiver0", "RestrictionMode");
+    private static readonly RESTRICTION_MODE_RCR: ChannelAddress = new ChannelAddress(
+        "ctrlEssRippleControlReceiver0",
+        "RestrictionMode",
+    );
 
     public readonly CONVERT_WATT_TO_KILOWATT = Utils.CONVERT_WATT_TO_KILOWATT;
     public readonly GridMode = GridMode;
@@ -41,11 +47,12 @@ export class FlatComponent extends AbstractFlatWidget {
                 edge: this.edge,
             },
         };
-    };
+    }
 
     protected override getChannelAddresses(): ChannelAddress[] {
         const channelAddresses: ChannelAddress[] = [
-            FlatComponent.GRID_ACTIVE_POWER, FlatComponent.GRID_MODE,
+            FlatComponent.GRID_ACTIVE_POWER,
+            FlatComponent.GRID_MODE,
 
             // TODO should be moved to Modal
             new ChannelAddress("_sum", "GridActivePowerL1"),
@@ -62,7 +69,9 @@ export class FlatComponent extends AbstractFlatWidget {
         return channelAddresses;
     }
     protected override onCurrentData(currentData: CurrentData) {
-        this.isActivated = GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a") || GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver");
+        this.isActivated =
+            GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.Limiter14a") ||
+            GridSectionComponent.isControllerEnabled(this.config, "Controller.Ess.RippleControlReceiver");
         this.gridMode = currentData.allComponents[FlatComponent.GRID_MODE.toString()];
         this.gridState = Converter.GRID_STATE_TO_MESSAGE(this.translate, currentData);
         const gridActivePower = currentData.allComponents[FlatComponent.GRID_ACTIVE_POWER.toString()];
@@ -70,5 +79,4 @@ export class FlatComponent extends AbstractFlatWidget {
         this.gridSellPower = Utils.multiplySafely(gridActivePower, -1);
         this.icon = GridSectionComponent.getCurrentGridIcon(currentData);
     }
-
 }

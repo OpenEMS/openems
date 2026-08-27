@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { EvcsComponent } from "src/app/shared/components/edge/config-components/evcs/evcsComponent";
 import { AbstractFlatWidget } from "src/app/shared/components/flat/abstract-flat-widget";
 import { Modal } from "src/app/shared/components/flat/flat";
@@ -9,10 +9,10 @@ import { ModalComponent } from "../modal/modal";
 @Component({
     selector: "consumption",
     templateUrl: "./flat.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
-
     public evcss: EvcsComponent[] | null = null;
     public consumptionMeters: EdgeConfig.Component[] | null = null;
     public sumActivePower: number = 0;
@@ -27,10 +27,9 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
 
     protected getModalComponent(): Modal {
         return { component: ModalComponent };
-    };
+    }
 
     protected override getChannelAddresses() {
-
         const channelAddresses: ChannelAddress[] = [
             new ChannelAddress("_sum", "ConsumptionActivePower"),
 
@@ -41,13 +40,13 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         ];
 
         // Get consumptionMeterComponents
-        this.consumptionMeters = this.config?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
-            .filter(component => {
+        this.consumptionMeters = this.config
+            ?.getComponentsImplementingNature("io.openems.edge.meter.api.ElectricityMeter")
+            .filter((component) => {
                 const natureIds = this.config?.getNatureIdsByFactoryId(component.factoryId);
                 const isEvcs = natureIds.includes("io.openems.edge.evcs.api.Evcs");
 
-                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) &&
-                    isEvcs === false;
+                return component.isEnabled && this.config?.isTypeConsumptionMetered(component) && isEvcs === false;
             });
 
         for (const component of this.consumptionMeters) {
@@ -63,15 +62,12 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
         this.evcss = EvcsComponent.getComponents(this.config, this.edge);
 
         for (const component of this.evcss) {
-            channelAddresses.push(
-                component.powerChannel,
-            );
+            channelAddresses.push(component.powerChannel);
         }
         return channelAddresses;
     }
 
     protected override onCurrentData(currentData: CurrentData) {
-
         this.evcsSumOfChargePower = 0;
         let consumptionMetersSumOfActivePower: number = 0;
         this.sumActivePower = currentData.allComponents["_sum/ConsumptionActivePower"];
@@ -91,8 +87,9 @@ export class CommonConsumptionGeneralComponent extends AbstractFlatWidget {
             }
         }
 
-        this.otherPower = Utils.subtractSafely(this.sumActivePower,
-            Utils.addSafely(this.evcsSumOfChargePower, consumptionMetersSumOfActivePower));
+        this.otherPower = Utils.subtractSafely(
+            this.sumActivePower,
+            Utils.addSafely(this.evcsSumOfChargePower, consumptionMetersSumOfActivePower),
+        );
     }
-
 }

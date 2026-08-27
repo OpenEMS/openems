@@ -7,6 +7,9 @@ import static io.openems.edge.evse.api.common.ApplySetPoint.Ability.EMPTY_APPLY_
 import com.google.gson.JsonNull;
 
 import io.openems.common.jsonrpc.serialization.JsonSerializer;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchAbility;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 
 public final class Profile {
@@ -17,13 +20,13 @@ public final class Profile {
 	/**
 	 * Declares the Abilities of an {@link EvseChargePoint}.
 	 */
-	public static record ChargePointAbilities(ApplySetPoint.Ability applySetPoint, PhaseSwitch phaseSwitch,
+	public static record ChargePointAbilities(ApplySetPoint.Ability applySetPoint, ApplyPhaseSwitch phaseSwitch,
 			boolean isEvConnected, boolean isReadyForCharging) {
 
 		public static final class Builder {
 
 			private ApplySetPoint.Ability applySetPoint = EMPTY_APPLY_SET_POINT_ABILITY;
-			private PhaseSwitch phaseSwitch = null;
+			private ApplyPhaseSwitch phaseSwitch = null;
 			private boolean isEvConnected = false;
 			private boolean isReadyForCharging = false;
 
@@ -64,13 +67,24 @@ public final class Profile {
 			}
 
 			/**
-			 * Defines the {@link Profile.PhaseSwitch} Ability.
+			 * Defines the {@link ApplyPhaseSwitch} with a
+			 * {@link ApplyPhaseSwitch.PhaseSwitchDirection}.
 			 * 
-			 * @param phaseSwitch the ability
+			 * @param direction the {@link ApplyPhaseSwitch.PhaseSwitchDirection}
 			 * @return the {@link Builder}
 			 */
-			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
-				this.phaseSwitch = phaseSwitch;
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction) {
+				return this.setPhaseSwitchManual(direction, null);
+			}
+
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction,
+					ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
+				return this.setPhaseSwitch(
+						new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual(), oppositePhaseApplySetPoint));
+			}
+
+			public Builder setPhaseSwitch(ApplyPhaseSwitch applyPhaseSwitch) {
+				this.phaseSwitch = applyPhaseSwitch;
 				return this;
 			}
 
@@ -89,7 +103,7 @@ public final class Profile {
 			return jsonObjectSerializer(ChargePointAbilities.class, json -> {
 				return new ChargePointAbilities(//
 						json.getObject("applySetPoint", ApplySetPoint.Ability.serializer()), //
-						json.getEnumOrNull("phaseSwitch", PhaseSwitch.class), //
+						json.getObjectOrNull("phaseSwitch", ApplyPhaseSwitch.serializer()), //
 						json.getBoolean("isEvConnected"), //
 						json.getBoolean("isReadyForCharging"));
 			}, obj -> {
@@ -97,7 +111,7 @@ public final class Profile {
 						? JsonNull.INSTANCE //
 						: buildJsonObject() //
 								.add("applySetPoint", ApplySetPoint.Ability.serializer().serialize(obj.applySetPoint)) //
-								.addProperty("phaseSwitch", obj.phaseSwitch) //
+								.add("phaseSwitch", ApplyPhaseSwitch.serializer().serialize(obj.phaseSwitch)) //
 								.addProperty("isEvConnected", obj.isEvConnected) //
 								.addProperty("isReadyForCharging", obj.isReadyForCharging) //
 								.build();
@@ -118,7 +132,7 @@ public final class Profile {
 	 * Declares the Actions for an {@link EvseChargePoint}.
 	 */
 	public static record ChargePointActions(ChargePointAbilities abilities, ApplySetPoint.Action applySetPoint,
-			PhaseSwitch phaseSwitch) {
+			ApplyPhaseSwitch phaseSwitch, Integer setPointWithoutPhaseLimitation) {
 
 		/**
 		 * Gets the {@link ApplySetPoint} in [A].
@@ -163,7 +177,8 @@ public final class Profile {
 
 			private final ChargePointAbilities abilities;
 			private ApplySetPoint.Action applySetPoint = null;
-			private PhaseSwitch phaseSwitch = null;
+			private ApplyPhaseSwitch phaseSwitch = null;
+			private Integer setPointWithoutPhaseLimitation = null;
 
 			private Builder(ChargePointAbilities abilities) {
 				this.abilities = abilities;
@@ -173,6 +188,7 @@ public final class Profile {
 				this(actions.abilities);
 				this.applySetPoint = actions.applySetPoint;
 				this.phaseSwitch = actions.phaseSwitch;
+				this.setPointWithoutPhaseLimitation = actions.setPointWithoutPhaseLimitation;
 			}
 
 			public Builder setApplySetPointInMilliAmpere(int value) throws IllegalArgumentException {
@@ -185,6 +201,11 @@ public final class Profile {
 
 			public Builder setApplySetPointInWatt(int value) throws IllegalArgumentException {
 				return this.setApplySetPoint(new ApplySetPoint.Action.Watt(value));
+			}
+
+			public Builder setApplyInternalPhaseSwitchPower(int phase) throws IllegalArgumentException {
+				return this.setApplySetPoint(
+						new ApplySetPoint.Action.Watt(PhaseSwitchAbility.Internal.SWITCH_POWER_PER_PHASE * phase));
 			}
 
 			public Builder setApplyZeroSetPoint() throws IllegalArgumentException {
@@ -222,11 +243,12 @@ public final class Profile {
 				return this.applySetPoint;
 			}
 
-			public Builder setPhaseSwitch(PhaseSwitch phaseSwitch) {
-				if (phaseSwitch != null && phaseSwitch != this.abilities.phaseSwitch) {
+			public Builder setPhaseSwitch(ApplyPhaseSwitch phaseSwitch) {
+				if (this.abilities.phaseSwitch != null && phaseSwitch != null
+						&& phaseSwitch.direction() != this.abilities.phaseSwitch.direction()) {
 					var ability = this.abilities.phaseSwitch == null //
 							? "UNDEFINED" //
-							: this.abilities.phaseSwitch.name();
+							: this.abilities.phaseSwitch.direction().name();
 					throw new IllegalArgumentException("PhaseSwitch not possible. " //
 							+ "Ability [" + ability + "] " //
 							+ "Actual [" + phaseSwitch + "]");
@@ -235,11 +257,27 @@ public final class Profile {
 				return this;
 			}
 
+			public Builder setSetPointWithoutPhaseLimitation(Integer setPointWithoutPhaseLimitation) {
+				this.setPointWithoutPhaseLimitation = setPointWithoutPhaseLimitation;
+				return this;
+			}
+
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction) {
+				return this.setPhaseSwitchManual(direction, null);
+			}
+
+			public Builder setPhaseSwitchManual(PhaseSwitchDirection direction,
+					ApplySetPoint.Ability.Watt oppositePhaseApplySetPoint) {
+				return this.setPhaseSwitch(
+						new ApplyPhaseSwitch(direction, new PhaseSwitchAbility.Manual(), oppositePhaseApplySetPoint));
+			}
+
 			public ChargePointActions build() throws IllegalArgumentException {
 				if (this.applySetPoint == null) {
 					throw new IllegalArgumentException("ApplySetPoint is always required");
 				}
-				return new ChargePointActions(this.abilities, this.applySetPoint, this.phaseSwitch);
+				return new ChargePointActions(this.abilities, this.applySetPoint, this.phaseSwitch,
+						this.setPointWithoutPhaseLimitation);
 			}
 		}
 
@@ -264,11 +302,4 @@ public final class Profile {
 		}
 	}
 
-	/**
-	 * Different types of applying a phase-switch.
-	 */
-	public static enum PhaseSwitch { // TODO evaluate NOT_AVAILABLE instead of null
-		TO_SINGLE_PHASE, //
-		TO_THREE_PHASE;
-	}
 }

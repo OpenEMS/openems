@@ -1,8 +1,8 @@
 package io.openems.edge.io.shelly.shellypro4pm;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.api.HttpError;
 import io.openems.common.bridge.http.api.HttpResponse;
@@ -29,7 +29,7 @@ public class IoShellyPro4PmTest {
 		final var terminal2 = new IoShellyPro4PmTerminalImpl();
 		final var terminal3 = new IoShellyPro4PmTerminalImpl();
 		final var terminal4 = new IoShellyPro4PmTerminalImpl();
-		final var httpTestBundle = new DummyBridgeHttpBundle();
+		final var httpTestBundle = DummyBridgeHttpBundle.of();
 		final var dummyCycleSubscriber = new DummyCycleSubscriber();
 
 		final var deviceTest = new ComponentTest(device) //
@@ -342,7 +342,7 @@ public class IoShellyPro4PmTest {
 							.toBeCalled();
 
 					testCase.onBeforeControllersCallbacks(dummyCycleSubscriber::triggerNextCycle);
-					testCase.onAfterWriteCallbacks(() -> assertTrue("Failed to turn on relay", relayTurnedOn.get()));
+					testCase.onAfterWriteCallbacks(() -> assertTrue(relayTurnedOn.get(), "Failed to turn on relay"));
 				}));
 
 		this.testNoCommunication(deviceTest, terminal1Test, terminal2Test, terminal3Test, terminal4Test, httpTestBundle,

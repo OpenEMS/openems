@@ -5,6 +5,7 @@ import static io.openems.edge.core.appmanager.formly.enums.Wrappers.PANEL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 import java.util.UUID;
@@ -34,6 +35,7 @@ import io.openems.edge.app.common.props.CommunicationProps;
 import io.openems.edge.app.enums.EMobilityArchitectureType;
 import io.openems.edge.app.evcs.HardyBarthEvcs.PropertyParent;
 import io.openems.edge.app.evse.AppEvseCluster;
+import io.openems.edge.app.evse.EvseProps;
 import io.openems.edge.common.component.ComponentManager;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.host.Host;
@@ -47,6 +49,7 @@ import io.openems.edge.core.appmanager.AppManagerUtil;
 import io.openems.edge.core.appmanager.AppManagerUtilSupplier;
 import io.openems.edge.core.appmanager.ComponentUtil;
 import io.openems.edge.core.appmanager.ConfigurationTarget;
+import io.openems.edge.core.appmanager.EMobilityApp;
 import io.openems.edge.core.appmanager.HostSupplier;
 import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.MetaSupplier;
@@ -72,6 +75,7 @@ import io.openems.edge.core.appmanager.formly.builder.FormlyBuilder;
 import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 import io.openems.edge.core.appmanager.jsonrpc.CanSwitchEvcsEvse;
 import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
+import io.openems.edge.energy.api.Version;
 
 /**
  * Describes a Hardy Barth evcs App.
@@ -100,9 +104,8 @@ import io.openems.edge.core.appmanager.jsonrpc.SwitchEvcsEvse;
  * </pre>
  */
 @Component(name = "App.Evcs.HardyBarth")
-public class HardyBarthEvcs
-		extends AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, Parameter.BundleParameter>
-		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier {
+public class HardyBarthEvcs extends AbstractOpenemsAppWithProps<HardyBarthEvcs, PropertyParent, BundleParameter>
+		implements OpenemsApp, HostSupplier, MetaSupplier, AppManagerUtilSupplier, EMobilityApp {
 
 	public interface PropertyParent extends Nameable, Type<PropertyParent, HardyBarthEvcs, Parameter.BundleParameter> {
 
@@ -132,7 +135,7 @@ public class HardyBarthEvcs
 									Exp.currentModelValue(Property.NUMBER_OF_CHARGING_STATIONS)
 											.equal(Exp.staticValue(1)),
 									StringExpression.of(""), //
-									StringExpression.of(TranslationUtil.getTranslation(parameter.bundle,
+									StringExpression.of(TranslationUtil.getTranslation(parameter.bundle(),
 											"App.Evcs.chargingStation.label", 1))))
 							.hideKey();//
 				})), //
@@ -174,7 +177,9 @@ public class HardyBarthEvcs
 		READ_ONLY(EvcsProps.readOnly().wrapField((app, property, l, parameter, field) -> {
 			field.onlyShowIf(Exp.currentModelValue(ARCHITECTURE_TYPE)//
 					.equal(Exp.staticValue(EMobilityArchitectureType.EVCS)));
-		}));
+		})), //
+		NAVIGATION_MIGRATION_ACKNOWLEDGEMENT(EvseProps.acknowledgeNavigationMigration(EVCS_ID, ARCHITECTURE_TYPE)),//
+		;
 
 		private final AppDef<? super HardyBarthEvcs, ? super PropertyParent, ? super BundleParameter> def;
 
@@ -216,6 +221,10 @@ public class HardyBarthEvcs
 				.setDefaultValue("192.168.25.30")//
 				.setAutoGenerateField(false)//
 				.setRequired(true)), //
+		CONFIGURE_VEHICLE(EvseProps.configureVehicle().wrapField((app, property, l, parameter, field) -> {
+			field.onlyShowIf(Exp.currentModelValue(Property.ARCHITECTURE_TYPE)//
+					.equal(Exp.staticValue(EMobilityArchitectureType.EVSE)));
+		})), //
 		ELECTRIC_VEHICLE_ID(AppInstanceProps.pickInstanceId("App.Evse.ElectricVehicle.Generic")//
 				.setRequired(true) //
 				.setAutoGenerateField(false) //
@@ -444,6 +453,7 @@ public class HardyBarthEvcs
 						.addTask(Tasks.component(components)); //
 			}
 			case EVSE -> {
+				appConfigBuilder.addTask(Tasks.energySchedulerVersion(Version.V2_ENERGY_SCHEDULABLE));
 				var vehicleId = UUID.fromString(this.getString(p, SubPropertyFirstChargepoint.ELECTRIC_VEHICLE_ID));
 				final var components = Lists.newArrayList(//
 						new EdgeConfig.Component(evcsId, alias, "Evse.ChargePoint.HardyBarth",
@@ -599,4 +609,8 @@ public class HardyBarthEvcs
 		return flags.toArray(Flag[]::new);
 	}
 
+	@Override
+	public List<EMobilityArchitectureType> supportedArchitectureTypes() {
+		return List.of(EMobilityArchitectureType.EVCS, EMobilityArchitectureType.EVSE);
+	}
 }

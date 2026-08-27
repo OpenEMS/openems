@@ -1,9 +1,9 @@
 package io.openems.edge.controller.ess.limittotaldischarge;
 
 import static io.openems.edge.controller.ess.limittotaldischarge.EnergyScheduler.buildEnergyScheduleHandler;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.edge.controller.test.DummyController;
 import io.openems.edge.energy.api.test.EnergyScheduleTester;

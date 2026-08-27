@@ -1,9 +1,0 @@
-@if (isInitialized) {
-  <oe-chart [title]="component.alias">
-    <enerixControlChart [isOnlyChart]="true" (setChartConfig)="setChartConfig($event)" [component]="component">
-    </enerixControlChart>
-    @if (chartType === "line") {
-      <oe-chart-legend [description]="STATES" [title]="'ENERIX_CONTROL.LEGEND_DESCRIPTION' | translate"></oe-chart-legend>
-    }
-  </oe-chart>
-}

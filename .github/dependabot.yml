@@ -1,11 +1,10 @@
 version: 2
 updates:
-  - package-ecosystem: maven
+  - package-ecosystem: "maven"
     directory: "/cnf"
     schedule:
-      interval: weekly
+      interval: "weekly"
     open-pull-requests-limit: 10
-    target-branch: develop
     groups:
       influxdb:
         patterns:
@@ -14,6 +13,7 @@ updates:
         patterns:
           - "org.dhatim:fastexcel"
           - "org.dhatim:fastexcel-reader"
+          - "com.fasterxml:aalto-xml"
       bouncycastle:
         patterns:
           - "org.bouncycastle:*"
@@ -50,14 +50,28 @@ updates:
         patterns:
           - "net.bytebuddy:*"
 
-  - package-ecosystem: npm
+  - package-ecosystem: "npm"
     directory: "/ui"
     schedule:
-      interval: weekly
+      interval: "weekly"
     open-pull-requests-limit: 1
-    target-branch: develop
     groups:
       openems-ui:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+      openems-ui-security:
+        applies-to: "security-updates"
+        patterns:
+          - "*"
+
+  - package-ecosystem: "pip"
+    directory: "/tools/integration_tests"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 1
+    groups:
+      openems-integration-tests:
         patterns:
           - "*"
 
@@ -65,5 +79,8 @@ updates:
     directory: "/.github/workflows"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
-    target-branch: develop
+    open-pull-requests-limit: 1
+    groups:
+      all-actions:
+        patterns:
+          - "*"

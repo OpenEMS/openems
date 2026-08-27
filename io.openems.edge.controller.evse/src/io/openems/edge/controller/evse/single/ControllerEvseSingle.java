@@ -1,8 +1,10 @@
 package io.openems.edge.controller.evse.single;
 
 import static io.openems.common.channel.PersistencePriority.HIGH;
+import static io.openems.common.channel.Unit.UNIX_TIMESTAMP_SECONDS;
 import static io.openems.common.channel.Unit.WATT_HOURS;
 import static io.openems.common.types.OpenemsType.INTEGER;
+import static io.openems.common.types.OpenemsType.LONG;
 
 import io.openems.common.channel.Level;
 import io.openems.edge.common.channel.Doc;
@@ -10,7 +12,6 @@ import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.controller.evse.single.statemachine.StateMachine;
-import io.openems.edge.evse.api.chargepoint.Mode;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
 
 public interface ControllerEvseSingle extends OpenemsComponent {
@@ -25,6 +26,11 @@ public interface ControllerEvseSingle extends OpenemsComponent {
 
 		SESSION_ENERGY(Doc.of(INTEGER)//
 				.unit(WATT_HOURS)//
+				.persistencePriority(HIGH)), //
+
+		PROBABLE_NEXT_PHASE_SWITCH_EPOCH_SECONDS(Doc.of(LONG)//
+				.unit(UNIX_TIMESTAMP_SECONDS)//
+				.text("Unix epoch seconds for the next probable automatic phase switch")//
 				.persistencePriority(HIGH)), //
 
 		PHASE_SWITCH_FAILED(Doc.of(Level.WARNING)) //

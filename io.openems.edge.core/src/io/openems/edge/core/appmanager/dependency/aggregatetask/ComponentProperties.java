@@ -11,6 +11,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import io.openems.common.utils.JsonUtils;
+
 public record ComponentProperties(List<Property> values) {
 
 	/**
@@ -178,6 +180,19 @@ public record ComponentProperties(List<Property> values) {
 		 */
 		public Property withValue(String value) {
 			return this.withValue(new JsonPrimitive(value));
+		}
+
+		/**
+		 * Creates a copy of the current Property with the new value.
+		 * 
+		 * @param value the new value
+		 * @return the new property
+		 */
+		public Property withValue(List<String> value) {
+			return this.withValue(//
+					value.stream() //
+							.map(JsonPrimitive::new) //
+							.collect(JsonUtils.toJsonArray()));
 		}
 
 		/**

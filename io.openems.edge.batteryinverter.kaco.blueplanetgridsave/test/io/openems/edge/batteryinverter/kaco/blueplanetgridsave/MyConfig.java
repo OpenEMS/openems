@@ -1,7 +1,6 @@
 package io.openems.edge.batteryinverter.kaco.blueplanetgridsave;
 
 import io.openems.common.test.AbstractComponentConfig;
-import io.openems.common.utils.ConfigUtils;
 import io.openems.edge.batteryinverter.kaco.blueplanetgridsave.errorrestart.ErrorRestartBehaviourConfig;
 import io.openems.edge.common.startstop.StartStopConfig;
 
@@ -15,6 +14,7 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 		private boolean activateWatchdog;
 		private GridCode gridCode;
 		private ErrorRestartBehaviourConfig errorBehaviour = ErrorRestartBehaviourConfig.NO_RESTART;
+		private int dcMinVoltage;
 
 		private Builder() {
 		}
@@ -46,6 +46,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 
 		public Builder setErrorBehaviour(ErrorRestartBehaviourConfig errorBehaviour) {
 			this.errorBehaviour = errorBehaviour;
+			return this;
+		}
+
+		public Builder setDcMinVoltage(int dcMinVoltage) {
+			this.dcMinVoltage = dcMinVoltage;
 			return this;
 		}
 
@@ -81,11 +86,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	}
 
 	@Override
-	public String Modbus_target() {
-		return ConfigUtils.generateReferenceTargetFilter(this.id(), this.modbus_id());
-	}
-
-	@Override
 	public boolean activateWatchdog() {
 		return this.builder.activateWatchdog;
 	}
@@ -98,6 +98,11 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public ErrorRestartBehaviourConfig errorBehaviour() {
 		return this.builder.errorBehaviour;
+	}
+
+	@Override
+	public int dcMinVoltage() {
+		return this.builder.dcMinVoltage;
 	}
 
 }

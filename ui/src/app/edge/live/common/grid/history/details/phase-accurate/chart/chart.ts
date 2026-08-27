@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
 import { ChartConstants } from "src/app/shared/components/chart/chart.constants";
@@ -11,10 +11,10 @@ import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
 @Component({
     selector: "common-grid-details-phase-accurate-chart",
     templateUrl: "../../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-
     public static getChartData(translate: TranslateService): HistoryUtils.ChartData {
         return {
             input: [
@@ -28,36 +28,36 @@ export class ChartComponent extends AbstractHistoryChart {
                 })),
             ],
             output: (data: DefaultTypes.History.ChannelData) => {
-
-                const datasets: DefaultTypes.History.DisplayValues[] =
-                    [
-                        {
-                            name: translate.instant("GENERAL.TOTAL"),
-                            converter: () => {
-                                return data["GridActivePower"];
-                            },
-                            color: ChartConstants.Colors.BLUE,
-                            stack: 1,
+                const datasets: DefaultTypes.History.DisplayValues[] = [
+                    {
+                        name: translate.instant("GENERAL.TOTAL"),
+                        converter: () => {
+                            return data["GridActivePower"];
                         },
-                        ...Phase.THREE_PHASE.map((phase, index) => ({
-                            name: "Phase " + phase,
-                            converter: () => {
-                                return data["Phase" + phase];
-                            },
-                            color: AbstractHistoryChart.phaseColors[index],
-                        })),
-                    ];
+                        color: ChartConstants.Colors.BLUE,
+                        stack: 1,
+                    },
+                    ...Phase.THREE_PHASE.map((phase, index) => ({
+                        name: "Phase " + phase,
+                        converter: () => {
+                            return data["Phase" + phase];
+                        },
+                        color: AbstractHistoryChart.phaseColors[index],
+                    })),
+                ];
 
                 return datasets;
             },
             tooltip: {
                 formatNumber: "1.0-2",
             },
-            yAxes: [{
-                unit: YAxisType.ENERGY,
-                position: "left",
-                yAxisId: ChartAxis.LEFT,
-            }],
+            yAxes: [
+                {
+                    unit: YAxisType.ENERGY,
+                    position: "left",
+                    yAxisId: ChartAxis.LEFT,
+                },
+            ],
         };
     }
 

@@ -158,9 +158,4 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	public int excessChargePauseHysteresis() {
 		return this.builder.excessChargePauseHysteresis;
 	}
-
-	@Override
-	public String evcs_target() {
-		return "(&(enabled=true)(!(service.pid=ctrlEvcs0))(|(id=" + this.evcs_id() + ")))";
-	}
 }

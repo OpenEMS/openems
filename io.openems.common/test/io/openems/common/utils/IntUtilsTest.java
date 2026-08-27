@@ -1,6 +1,7 @@
 package io.openems.common.utils;
 
 import static io.openems.common.utils.IntUtils.fitWithin;
+import static io.openems.common.utils.IntUtils.getOrNull;
 import static io.openems.common.utils.IntUtils.maxInt;
 import static io.openems.common.utils.IntUtils.maxInteger;
 import static io.openems.common.utils.IntUtils.minInt;
@@ -8,13 +9,16 @@ import static io.openems.common.utils.IntUtils.minInteger;
 import static io.openems.common.utils.IntUtils.roundToPrecision;
 import static io.openems.common.utils.IntUtils.sumInt;
 import static io.openems.common.utils.IntUtils.sumInteger;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
+import java.util.OptionalInt;
 
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.utils.IntUtils.Round;
 
@@ -84,5 +88,28 @@ public class IntUtilsTest {
 	public void testFitWithin() {
 		assertThrows(IllegalArgumentException.class, () -> fitWithin(21, 20, 10));
 		assertEquals(10, fitWithin(5, 15, 10));
+	}
+
+	@Nested
+	@DisplayName("getOrNull()")
+	public class GetOrNullTest {
+
+		@Test
+		public void shouldReturnNull_whenOptionalIsEmpty() {
+			final var valueOpt = OptionalInt.empty();
+
+			final var result = getOrNull(valueOpt);
+
+			assertNull(result);
+		}
+
+		@Test
+		public void shouldReturnValue_whenOptionalHasValue() {
+			final var valueOpt = OptionalInt.of(42);
+
+			final var result = getOrNull(valueOpt);
+
+			assertEquals(42, result);
+		}
 	}
 }

@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnChanges, OnDestroy, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { TranslateService } from "@ngx-translate/core";
 import * as Chart from "chart.js";
@@ -10,16 +10,16 @@ import { ComponentJsonApiRequest } from "src/app/shared/jsonrpc/request/componen
 import { ChannelAddress, Edge, EdgeConfig, Service, Websocket } from "src/app/shared/shared";
 import { ColorUtils } from "src/app/shared/utils/color/color.utils";
 import { ChartAxis, HistoryUtils, TimeOfUseTariffUtils, Utils, YAxisType } from "src/app/shared/utils/utils";
-import { GetScheduleRequest } from "../../../jsonrpc/getScheduleRequest";
-import { GetScheduleResponse } from "../../../jsonrpc/getScheduleResponse";
+import { GetScheduleRequest } from "../../../../../../../shared/jsonrpc/request/getScheduleRequest";
+import { GetScheduleResponse } from "../../../../../../../shared/jsonrpc/response/getScheduleResponse";
 
 @Component({
     selector: "powerChart",
     templateUrl: "../../../../../../history/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class SchedulePowerChartComponent extends AbstractHistoryChart implements OnInit, OnChanges, OnDestroy {
-
     @Input({ required: true }) public refresh!: boolean;
     @Input({ required: true }) public override edge!: Edge;
     @Input({ required: true }) public component!: EdgeConfig.Component;
@@ -46,7 +46,7 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
     }
 
     public getChartHeight(): number {
-        return TimeOfUseTariffUtils.getChartHeight(this.service.isSmartphoneResolution);
+        return TimeOfUseTariffUtils.getChartHeight(this.service.getIsSmartphoneResolution());
     }
 
     protected setLabel() {
@@ -56,7 +56,6 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
             tooltip: {
                 callbacks: {
                     label: function (item: Chart.TooltipItem<any>) {
-
                         const label = item.dataset.label;
                         const value = item.dataset.data[item.dataIndex];
 
@@ -68,116 +67,149 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
     }
 
     protected getChannelAddresses(): Promise<ChannelAddress[]> {
-        return new Promise(() => { []; });
+        return new Promise(() => {
+            [];
+        });
     }
 
     protected override updateChart() {
-
         this.autoSubscribeChartRefresh();
         this.service.startSpinner(this.spinnerId);
         this.loading = true;
 
-        this.edge.sendRequest(
-            this.websocket,
-            new ComponentJsonApiRequest({
-                componentId: "ctrlEvseCluster0",
-                payload: new GetScheduleRequest({ componentId: this.component.id }),
-            }),
-        ).then(response => {
-            const result = (response as GetScheduleResponse).result;
-            const schedule = result.schedule;
-            const datasets = [];
+        this.edge
+            .sendRequest(
+                this.websocket,
+                new ComponentJsonApiRequest({
+                    componentId: "ctrlEvseCluster0",
+                    payload: new GetScheduleRequest({
+                        componentId: this.component.id,
+                    }),
+                }),
+            )
+            .then((response) => {
+                const result = (response as GetScheduleResponse).result;
+                const schedule = result.schedule;
+                const datasets = [];
 
-            // Extracting prices and states from the schedule array
-            const { gridBuyArray, gridSellArray, productionArray, consumptionArray, managedConsumptionArray, labels } = {
-                gridBuyArray: schedule.map(entry => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid), 1000),
-                gridSellArray: schedule.map(entry => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid), 1000),
-                productionArray: schedule.map(entry => entry.production, 1000),
-                consumptionArray: schedule.map(entry => entry.consumption, 1000),
-                managedConsumptionArray: schedule.map(entry => entry.managedConsumption, 1000),
-                labels: schedule.map(entry => new Date(entry.timestamp)),
-            };
+                // Extracting prices and states from the schedule array
+                const {
+                    gridBuyArray,
+                    gridSellArray,
+                    productionArray,
+                    consumptionArray,
+                    managedConsumptionArray,
+                    labels,
+                } = {
+                    gridBuyArray: schedule.map(
+                        (entry) => HistoryUtils.ValueConverter.NEGATIVE_AS_ZERO(entry.grid),
+                        1000,
+                    ),
+                    gridSellArray: schedule.map(
+                        (entry) => HistoryUtils.ValueConverter.POSITIVE_AS_ZERO_AND_INVERT_NEGATIVE(entry.grid),
+                        1000,
+                    ),
+                    productionArray: schedule.map((entry) => entry.production, 1000),
+                    consumptionArray: schedule.map((entry) => entry.consumption, 1000),
+                    managedConsumptionArray: schedule.map((entry) => entry.managedConsumption, 1000),
+                    labels: schedule.map((entry) => new Date(entry.timestamp)),
+                };
 
-            datasets.push({
-                type: "line",
-                label: this.translate.instant("GENERAL.GRID_BUY"),
-                data: gridBuyArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
-                hidden: true,
-                order: 1,
-            });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
-                borderColor: ChartConstants.Colors.BLUE_GREY,
-            });
+                datasets.push({
+                    type: "line",
+                    label: this.translate.instant("GENERAL.GRID_BUY"),
+                    data: gridBuyArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                    hidden: true,
+                    order: 1,
+                });
+                this.colors.push({
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE_GREY, 0.2),
+                    borderColor: ChartConstants.Colors.BLUE_GREY,
+                });
 
-            datasets.push({
-                type: "line",
-                label: this.translate.instant("GENERAL.GRID_SELL"),
-                data: gridSellArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
-                hidden: true,
-                order: 1,
-            });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
-                borderColor: ChartConstants.Colors.PURPLE,
-            });
+                datasets.push({
+                    type: "line",
+                    label: this.translate.instant("GENERAL.GRID_SELL"),
+                    data: gridSellArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                    hidden: true,
+                    order: 1,
+                });
+                this.colors.push({
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.PURPLE, 0.2),
+                    borderColor: ChartConstants.Colors.PURPLE,
+                });
 
-            datasets.push({
-                type: "line",
-                label: this.translate.instant("GENERAL.PRODUCTION"),
-                data: productionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
-                hidden: false,
-                order: 1,
-            });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
-                borderColor: ChartConstants.Colors.BLUE,
-            });
+                datasets.push({
+                    type: "line",
+                    label: this.translate.instant("GENERAL.PRODUCTION"),
+                    data: productionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                    hidden: false,
+                    order: 1,
+                });
+                this.colors.push({
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.BLUE, 0.2),
+                    borderColor: ChartConstants.Colors.BLUE,
+                });
 
-            datasets.push({
-                type: "line",
-                label: "Consumption",
-                data: consumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
-                hidden: true,
-                order: 1,
-            });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
-                borderColor: ChartConstants.Colors.YELLOW,
-            });
-            datasets.push({
-                type: "line",
-                label: "Managed Consumption",
-                data: managedConsumptionArray.map(v => Utils.divideSafely(v, 1000)), // [W] to [kW]
-                hidden: false,
-                order: 1,
-            });
-            this.colors.push({
-                backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
-                borderColor: ChartConstants.Colors.ORANGE,
-            });
+                datasets.push({
+                    type: "line",
+                    label: "Consumption",
+                    data: consumptionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                    hidden: true,
+                    order: 1,
+                });
+                this.colors.push({
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
+                    borderColor: ChartConstants.Colors.YELLOW,
+                });
+                datasets.push({
+                    type: "line",
+                    label: "Managed Consumption",
+                    data: managedConsumptionArray.map((v) => Utils.divideSafely(v, 1000)), // [W] to [kW]
+                    hidden: false,
+                    order: 1,
+                });
+                this.colors.push({
+                    backgroundColor: ColorUtils.rgbStringToRgba(ChartConstants.Colors.YELLOW, 0.2),
+                    borderColor: ChartConstants.Colors.ORANGE,
+                });
 
-            this.datasets = datasets;
-            this.loading = false;
-            this.labels = labels;
-            this.setLabel();
-            this.stopSpinner();
-        }).catch((reason) => {
-            console.error(reason);
-            this.initializeChart();
-            return;
-        }).finally(async () => {
-            await this.setOptions(this.options);
-            this.applyControllerSpecificOptions();
-        });
+                this.datasets = datasets;
+                this.loading = false;
+                this.labels = labels;
+                this.setLabel();
+                this.stopSpinner();
+            })
+            .catch((reason) => {
+                console.error(reason);
+                this.initializeChart();
+                return;
+            })
+            .finally(async () => {
+                await this.setOptions(this.options);
+                this.applyControllerSpecificOptions();
+            });
     }
 
     private applyControllerSpecificOptions() {
-        const leftYAxis: HistoryUtils.yAxes = { position: "left", unit: YAxisType.POWER, yAxisId: ChartAxis.LEFT };
-        this.options = NewAbstractHistoryChart.getYAxisOptions(this.options, leftYAxis, this.translate, "line", this.datasets, true);
+        const leftYAxis: HistoryUtils.yAxes = {
+            position: "left",
+            unit: YAxisType.POWER,
+            yAxisId: ChartAxis.LEFT,
+        };
+        this.options = NewAbstractHistoryChart.getYAxisOptions(
+            this.options,
+            leftYAxis,
+            this.translate,
+            "line",
+            this.datasets,
+            true,
+        );
 
         this.options.scales.x["ticks"] = { source: "auto", autoSkip: false };
-        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue("--ion-color-chart-xAxis-ticks");
+        this.options.scales.x.ticks.color = getComputedStyle(document.documentElement).getPropertyValue(
+            "--ion-color-chart-xAxis-ticks",
+        );
         this.options.scales.x.ticks.callback = function (value, index, values) {
             const date = new Date(value);
 
@@ -188,5 +220,4 @@ export class SchedulePowerChartComponent extends AbstractHistoryChart implements
         this.options.scales[ChartAxis.LEFT].suggestedMin = 0;
         this.options.scales[ChartAxis.LEFT].suggestedMax = 1;
     }
-
 }

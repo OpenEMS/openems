@@ -1,5 +1,7 @@
 package io.openems.edge.core.appmanager.dependency.aggregatetask;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,7 @@ import io.openems.edge.core.appmanager.InterfaceConfiguration;
 import io.openems.edge.core.appmanager.OpenemsAppInstance;
 import io.openems.edge.core.appmanager.TranslationUtil;
 import io.openems.edge.core.appmanager.dependency.AppManagerAppHelperImpl;
+import io.openems.edge.core.host.Routes;
 
 @Component(//
 		service = { //
@@ -62,6 +65,19 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 													.addProperty("address", ip.getInet4Address().getHostAddress()) //
 													.build()) //
 											.collect(JsonUtils.toJsonArray())) //
+									.onlyIf(t.getGateway() != null, //
+											b -> b.addProperty("gateway", t.getGateway())) //
+									.onlyIf(t.getGatewayOnLink() != null, //
+											b -> b.addProperty("gatewayOnLink", t.getGatewayOnLink())) //
+									.add("routes", t.getRoutes().stream() //
+											.map(route -> JsonUtils.buildJsonObject() //
+													.addProperty("gateway", route.getRouteGateway()) //
+													.addProperty("destination", route.getRouteDestination()) //
+													.addProperty("gatewayOnLink", route.isRouteGatewayOnLink()) //
+													.onlyIf(route.geRouteMetric() != null, //
+															b -> b.addProperty("metric", route.geRouteMetric())) //
+													.build()) //
+											.collect(JsonUtils.toJsonArray())) //
 									.build())
 							.collect(JsonUtils.toJsonArray()))
 					.build();
@@ -89,12 +105,17 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 
 	@Override
 	public void aggregate(StaticIpConfiguration instance, StaticIpConfiguration oldConfig) {
+		// Skip static IP configuration for Windows systems, as it is not supported
 		if (this.isWindows) {
 			return;
 		}
+
+		// Add new interface configurations
 		if (instance != null) {
 			this.ips.addAll(instance.interfaceConfiguration());
 		}
+
+		// Add interfaces to delete from the old configuration
 		if (oldConfig != null) {
 			this.ips2Delete.addAll(oldConfig.interfaceConfiguration());
 		}
@@ -124,10 +145,14 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 		if (!this.anyChanges()) {
 			return;
 		}
+
+		// Remove duplicated IPs that are already configured in other applications
 		InterfaceConfiguration.removeDuplicatedIps(ipsToDelete, //
 				AppConfiguration
 						.flatMap(otherAppConfigurations, StaticIpAggregateTask.class, c -> c.interfaceConfiguration())
 						.toList());
+
+		// Apply IP and route changes to the system
 		this.componentUtil.updateHosts(//
 				user, //
 				ips == null ? null : InterfaceConfiguration.summarize(ips), //
@@ -143,10 +168,10 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 
 	@Override
 	public void validate(//
-			final List<String> errors, //
-			final AppConfiguration appConfiguration, //
-			final StaticIpConfiguration config, //
-			final Map<OpenemsAppInstance, AppConfiguration> allConfigurations //
+			List<String> errors, //
+			AppConfiguration appConfiguration, //
+			StaticIpConfiguration config, //
+			Map<OpenemsAppInstance, AppConfiguration> allConfigurations//
 	) {
 		// setting ip configuration is not implemented for windows
 		if (this.isWindows) {
@@ -160,6 +185,10 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 			var interfaces = this.componentUtil.getInterfaces();
 			config.interfaceConfiguration().stream() //
 					.forEach(i -> {
+						if (i.getCreateIfNotExist() != null && i.getCreateIfNotExist()) {
+							return;
+						}
+
 						var existingInterface = interfaces.stream() //
 								.filter(t -> t.getName().equals(i.interfaceName)) //
 								.findFirst().orElse(null);
@@ -169,41 +198,111 @@ public class StaticIpAggregateTaskImpl implements StaticIpAggregateTask {
 							return;
 						}
 
+						// Validate IP masquerading settings
 						if (i.getIpMasquerade() != null
 								&& !i.getIpMasquerade().equals(existingInterface.getIpMasquerade().getValue())) {
 							errors.add("Property 'IPMasquerade' on interface '" + i.interfaceName + "' should be '"
 									+ i.getIpMasquerade() + "'");
 						}
 
-						if (i.getIpv4Forwarding() != null
-								&& !i.getIpv4Forwarding().equals(existingInterface.getIpv4Forwarding().getValue())) {
-							errors.add("Property 'IPv4Forwarding' on interface '" + i.interfaceName + "' should be '"
-									+ i.getIpv4Forwarding() + "'");
+						// Validate gateway settings
+						if (i.getGateway() != null) {
+							var existingGateway = existingInterface.getGateway();
+							if (!existingGateway.isSet()
+									|| !Objects.equals(existingGateway.getValue().getHostAddress(), i.getGateway())) {
+								errors.add("Gateway '" + i.getGateway() + "' is not configured on interface '"
+										+ i.interfaceName + "'");
+							}
 						}
 
-						var missingIps = i.getIps().stream() //
-								.filter(ip -> {
-									if (existingInterface.getAddresses().getValue().stream() //
-											.anyMatch(existingIp -> existingIp.isInSameNetwork(ip))) {
-										return false;
+						// Validate GatewayOnLink settings
+						if (i.getGatewayOnLink() != null) {
+							var existingGatewayOnLink = existingInterface.getGatewayOnLink();
+							if (!existingGatewayOnLink.isSet()
+									|| !Objects.equals(existingGatewayOnLink.getValue(), i.getGatewayOnLink())) {
+								errors.add("GatewayOnLink '" + i.getGatewayOnLink()
+										+ "' is not configured on interface '" + i.interfaceName + "'");
+							}
+						}
+
+						// Validate routes configuration
+						if (i.getRoutes() != null && !i.getRoutes().isEmpty()) {
+							var existingRoutes = existingInterface.getRoutes().isSet()
+									? existingInterface.getRoutes().getValue()
+									: Collections.<Routes>emptySet();
+
+							var missingRoutes = i.getRoutes().stream() //
+									.filter(requiredRoute -> {
+										// Skip route validation if no properties are defined
+										if (requiredRoute.getRouteGateway() == null
+												&& requiredRoute.getRouteDestination() == null
+												&& requiredRoute.geRouteMetric() == null) {
+											return false;
+										}
+
+										// Compare route parameters to detect missing ones
+										return existingRoutes.stream() //
+												.noneMatch(existingRoute -> {
+													var matches = true;
+
+													// Compare only defined properties
+													if (requiredRoute.getRouteGateway() != null) {
+														var gatewayMatch = Objects.equals(
+																existingRoute.getRouteGateway(),
+																requiredRoute.getRouteGateway());
+														matches = matches && gatewayMatch;
+													}
+
+													if (requiredRoute.getRouteDestination() != null) {
+														var destinationMatch = Objects.equals(
+																existingRoute.getRouteDestination(),
+																requiredRoute.getRouteDestination());
+														matches = matches && destinationMatch;
+													}
+
+													if (requiredRoute.geRouteMetric() != null) {
+														var metricMatch = Objects.equals(existingRoute.geRouteMetric(),
+																requiredRoute.geRouteMetric());
+														matches = matches && metricMatch;
+													}
+
+													// Always compare GatewayOnLink (defaults to false)
+													var gatewayOnLinkMatch = existingRoute
+															.isRouteGatewayOnLink() == requiredRoute
+																	.isRouteGatewayOnLink();
+													matches = matches && gatewayOnLinkMatch;
+
+													return matches;
+												});
+									}).toList();
+
+							if (!missingRoutes.isEmpty()) {
+								errors.add("Routes [" + missingRoutes.stream().map(route -> {
+									List<String> props = new ArrayList<>();
+									if (route.getRouteGateway() != null) {
+										props.add("Gateway=" + route.getRouteGateway());
 									}
-									return true;
-								}).collect(Collectors.toList());
-
-						if (missingIps.isEmpty()) {
-							return;
+									if (route.getRouteDestination() != null) {
+										props.add("Destination=" + route.getRouteDestination());
+									}
+									props.add("GatewayOnLink=" + route.isRouteGatewayOnLink());
+									if (route.geRouteMetric() != null) {
+										props.add("Metric=" + route.geRouteMetric());
+									}
+									return String.join(", ", props);
+								}).collect(Collectors.joining("; ")) + "] are not configured on interface '"
+										+ i.interfaceName + "'");
+							}
 						}
-						errors.add("Address '"
-								+ missingIps.stream().map(t -> t.toString()).collect(Collectors.joining(", ")) + "' "
-								+ (missingIps.size() > 1 ? "are" : "is") + " not added on " + i.interfaceName);
+
 					});
 		} catch (OpenemsNamedException ex) {
-			ex.printStackTrace();
+			errors.add("Error validating static IP configuration: " + ex.getMessage());
 		}
 	}
 
 	private final boolean anyChanges() {
-		return !this.isWindows && (this.ips.isEmpty() || this.ips2Delete.isEmpty());
+		return !this.isWindows && (!this.ips.isEmpty() || !this.ips2Delete.isEmpty());
 	}
 
 }

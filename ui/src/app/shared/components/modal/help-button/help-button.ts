@@ -1,6 +1,8 @@
-import { Component, Input, OnChanges, SimpleChange } from "@angular/core";
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChange } from "@angular/core";
 import { IonicModule } from "@ionic/angular";
 import { Service } from "src/app/shared/shared";
+import { TFlattenKeys } from "src/app/shared/type/utility";
+import { DocsUtils } from "src/app/shared/utils/docs/docs.utils";
 import { ObjectUtils } from "src/app/shared/utils/object/object-utils";
 import { Environment, environment } from "src/environments";
 
@@ -8,53 +10,42 @@ import { Environment, environment } from "src/environments";
     selector: "oe-help-button",
     templateUrl: "./help-button.html",
     standalone: true,
-    imports: [
-        IonicModule,
-    ],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [IonicModule],
 })
 export class HelpButtonComponent implements OnChanges {
-
-    /** Overwrites default docs link */
-    @Input() public useDefaultPrefix: boolean = true;
-    @Input() public key: keyof typeof environment.links | null = null;
+    @Input() public key: TFlattenKeys<typeof environment.links> | null = null;
     @Input() public color: string = "var(--ion-title-color)";
 
     protected link: string | null = null;
 
-    constructor(private service: Service) { }
-
-    ngOnChanges(changes: { key: SimpleChange, useDefaultPrefix: SimpleChange }) {
-        if (changes["key"] || changes["useDefaultPrefix"]) {
-            this.setLink(changes.key?.currentValue ?? null, changes.useDefaultPrefix?.currentValue ?? true);
-        }
-    }
+    constructor(private service: Service) {}
 
     /**
      * Sets the link to navigate to.
      *
-     * @param key the key
-     * @param useDefaultPrefix if default docs prefix should be used
-     * @returns a link, or if key not found in environment.links null
+     * @param key The key
+     * @returns A link, or if key not found in environment.links null
      */
-    private setLink(key: HelpButtonComponent["key"], useDefaultPrefix?: HelpButtonComponent["useDefaultPrefix"]) {
+    public static getLink(key: HelpButtonComponent["key"], service: Service) {
         const flattenedKeys = ObjectUtils.flattenObjectWithValues<Environment["links"]>(environment.links);
+
         if (key == null || !(key in flattenedKeys)) {
             console.error("Key [" + key + "] not found in Environment Links");
-            this.link = null;
-            return;
+            return null;
         }
 
         const link = flattenedKeys[key];
         if (link === null || link === "") {
-            this.link = null;
-            return;
+            return null;
         }
 
-        if (useDefaultPrefix === true) {
-            this.link = environment.docsUrlPrefix.replace("{language}", this.service.getDocsLang()) + link;
-            return;
-        }
+        return DocsUtils.replaceDocsLanguage(link, service.getDocsLang());
+    }
 
-        this.link = link;
+    ngOnChanges(changes: { key: SimpleChange }) {
+        if (changes["key"]) {
+            this.link = HelpButtonComponent.getLink(changes.key?.currentValue ?? null, this.service);
+        }
     }
 }

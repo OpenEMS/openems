@@ -2,7 +2,9 @@
   <oe-navigation-view>
     <ion-buttons header class="ion-justify-content-center">
       <div #ref><ng-content select="[custom-pickdate]"></ng-content></div>
-      <pickdate *ngIf="!ref.children.length"></pickdate>
+      @if (!ref.children.length) {
+        <pickdate></pickdate>
+      }
     </ion-buttons>
     <common-grid-details-phase-accurate-chart [isOnlyChart]="true"></common-grid-details-phase-accurate-chart>
   </oe-navigation-view>

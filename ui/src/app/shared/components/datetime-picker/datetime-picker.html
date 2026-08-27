@@ -1,0 +1,25 @@
+@if(formGroup !== null && controlName !== null){
+  <ion-item [formGroup]="formGroup" button="true" id="open-date-input">
+    @if(time() !== null){
+      <ion-label style="text-align: center">
+        {{label()(time())}}
+      </ion-label>
+    }@else{
+      <ion-icon name="oe-warning" color="warning"></ion-icon>
+      <ion-label style="text-align: center;">
+        {{defaultLabel()}}
+      </ion-label>
+    }
+
+    <ion-popover [keepContentsMounted]="true" trigger="open-date-input" show-backdrop="false" side="bottom">
+      <ng-template>
+        <ion-datetime [showDefaultButtons]="true" style="overflow-y: auto;" presentation="date-time"
+          [formControlName]="controlName" [doneText]="'GENERAL.OK' | translate"
+          [cancelText]="'GENERAL.CANCEL' | translate" (ionChange)="setFormControlValue($event)"
+          [formatOptions]="{ date: {day: '2-digit', month: '2-digit', year: 'long' },time: { hour: '2-digit', minute: '2-digit', }}">
+        </ion-datetime>
+      </ng-template>
+    </ion-popover>
+
+  </ion-item>
+}

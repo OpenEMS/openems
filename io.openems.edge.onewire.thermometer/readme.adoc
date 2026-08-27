@@ -34,6 +34,7 @@ This bundle implements the following OpenEMS Components:
 *Description*: Interface for OneWire digital thermometer sensors. Reads temperature value from a specific 1-Wire device address. Multiple instances can be configured to read from different sensors on the same 1-Wire bus.
 
 .*Configuration*:
+
 * `id` (String): Component ID for unique identification (default: "temp0")
 * `alias` (String): Human-readable alias for the component
 * `enabled` (Boolean): Enable/disable this component (default: true)

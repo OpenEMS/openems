@@ -10,8 +10,12 @@ import { environment } from "src/environments";
 import { EvseChargepoint } from "./evse-chargepoint";
 
 export namespace ControllerEvseSingleShared {
-
-    export function getNavigationTree(edge: Edge, translate: TranslateService, componentId: EdgeConfig.Component["id"], config: EdgeConfig): ConstructorParameters<typeof NavigationTree> | null {
+    export function getNavigationTree(
+        edge: Edge,
+        translate: TranslateService,
+        componentId: EdgeConfig.Component["id"],
+        config: EdgeConfig,
+    ): ConstructorParameters<typeof NavigationTree> | null {
         const component = config.getComponentSafely(componentId);
         const baseMode: NavigationTree["mode"] = "label";
 
@@ -20,35 +24,124 @@ export namespace ControllerEvseSingleShared {
         }
 
         return new NavigationTree(
-            componentId, { baseString: "evse/" + componentId }, { name: "oe-evcs", color: "success" }, Name.METER_ALIAS_OR_ID(component), baseMode, [
-                ...(edge.roleIsAtLeast(Role.ADMIN)
-                    ? [new NavigationTree("forecast", { baseString: "forecast" }, { name: "stats-chart-outline", color: "success" }, translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"), baseMode, [], null)]
-                    : []),
-
-                new NavigationTree("history", { baseString: "history" }, { name: "stats-chart-outline", color: "warning" }, translate.instant("GENERAL.HISTORY"), baseMode, [], null),
-                new NavigationTree("energy-limit", { baseString: "energy-limit" }, { name: "settings-outline", color: "medium" }, translate.instant("GENERAL.ENERGY_LIMIT"), baseMode, [], null),
-                new NavigationTree("phase-switching", { baseString: "phase-switching" }, { name: "menu-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"), "label", [], null, getPhaseSwitchingShowOrder(componentId, edge, config)),
-                new NavigationTree("schedule", { baseString: "schedule" }, { name: "calendar-outline", color: "warning" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"), baseMode, [
-                    new NavigationTree("edit-task", { baseString: "edit-task" }, { name: "create-outline" }, translate.instant("JS_SCHEDULE.EDIT_TASK"), "label", [], null, "HIDE"),
-                    new NavigationTree("add-task", { baseString: "add-task" }, { name: "add-outline" }, translate.instant("JS_SCHEDULE.ADD_TASK"), "label", [], null, "HIDE"),
-                ], null),
-                new NavigationTree("charge-mode", { baseString: "charge-mode" }, { name: "checkmark-done-outline", color: "medium" }, translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"), baseMode, [], null),
+            componentId,
+            { baseString: "evse/" + componentId },
+            { name: "oe-evcs", color: "success" },
+            Name.METER_ALIAS_OR_ID(component),
+            baseMode,
+            [
+                new NavigationTree(
+                    "forecast",
+                    { baseString: "forecast" },
+                    { name: "stats-chart-outline", color: "success" },
+                    translate.instant("INSTALLATION.CONFIGURATION_EXECUTE.PROGNOSIS"),
+                    baseMode,
+                    [],
+                    null,
+                ),
+                new NavigationTree(
+                    "history",
+                    { baseString: "history" },
+                    { name: "stats-chart-outline", color: "warning" },
+                    translate.instant("GENERAL.HISTORY"),
+                    baseMode,
+                    [],
+                    null,
+                ),
+                new NavigationTree(
+                    "energy-limit",
+                    { baseString: "energy-limit" },
+                    { name: "settings-outline", color: "medium" },
+                    translate.instant("GENERAL.ENERGY_LIMIT"),
+                    baseMode,
+                    [],
+                    null,
+                ),
+                new NavigationTree(
+                    "phase-switching",
+                    { baseString: "phase-switching" },
+                    { name: "menu-outline", color: "warning" },
+                    translate.instant("EDGE.INDEX.WIDGETS.EVCS.PHASE_SWITCHING"),
+                    "label",
+                    [],
+                    null,
+                    {
+                        showOrder: getPhaseSwitchingShowOrder(componentId, edge, config),
+                    },
+                ),
+                new NavigationTree(
+                    "schedule",
+                    { baseString: "schedule" },
+                    { name: "calendar-outline", color: "warning" },
+                    translate.instant("EDGE.INDEX.WIDGETS.EVSE.SCHEDULE.SCHEDULE"),
+                    baseMode,
+                    [
+                        new NavigationTree(
+                            "edit-task",
+                            { baseString: "edit-task" },
+                            { name: "create-outline" },
+                            translate.instant("JS_SCHEDULE.EDIT_EVENT"),
+                            "label",
+                            [],
+                            null,
+                            { showOrder: "HIDE" },
+                        ),
+                        new NavigationTree(
+                            "add-task",
+                            { baseString: "add-task" },
+                            { name: "add-outline" },
+                            translate.instant("JS_SCHEDULE.ADD_EVENT"),
+                            "label",
+                            [],
+                            null,
+                            { showOrder: "HIDE" },
+                        ),
+                    ],
+                    null,
+                ),
+                new NavigationTree(
+                    "charge-mode",
+                    { baseString: "charge-mode" },
+                    { name: "checkmark-done-outline", color: "medium" },
+                    translate.instant("EDGE.INDEX.WIDGETS.EVSE.CHARGE_MODE"),
+                    baseMode,
+                    [],
+                    null,
+                ),
                 ...(edge.roleIsAtLeast(Role.OWNER)
-                    ? [new NavigationTree("car", { baseString: "car/update/App.Evse.ElectricVehicle.Generic" }, { name: "car-sport-outline", color: "success" }, translate.instant("EVSE_SINGLE.HOME.VEHICLES"), baseMode, [], null)]
+                    ? [
+                          new NavigationTree(
+                              "car",
+                              {
+                                  baseString: "car/update",
+                                  queryParams: { appId: "App.Evse.ElectricVehicle.Generic" },
+                              },
+                              { name: "car-sport-outline", color: "success" },
+                              translate.instant("EVSE_SINGLE.HOME.VEHICLES"),
+                              baseMode,
+                              [],
+                              null,
+                          ),
+                      ]
                     : []),
-            ], null).toConstructorParams();
+            ],
+            null,
+        ).toConstructorParams();
     }
 
     /**
      * Gets the phase switching showOrder.
      *
-     * @param componentId the component id
-     * @param edge the current edge
-     * @param config the edge config
-     * @returns "HIDE" if phase-switching is disabled, else "LOW"
+     * @param componentId The component id
+     * @param edge The current edge
+     * @param config The edge config
+     * @returns HIDE if phase-switching is disabled, else "LOW"
      */
-    export function getPhaseSwitchingShowOrder(componentId: string, edge: Edge, config: EdgeConfig): NavigationTree["showOrder"] {
-
+    export function getPhaseSwitchingShowOrder(
+        componentId: string,
+        edge: Edge,
+        config: EdgeConfig,
+    ): NavigationTree["showOrder"] {
         if (edge == null || config == null) {
             return "HIDE";
         }
@@ -70,19 +163,19 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_MODE_LABEL = (translate: TranslateService) => {
         return (raw: string | null): string => {
-            return Converter.IF_STRING(raw, value => {
+            return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case Mode.ZERO:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
-                    case Mode.MINIMUM:
-                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case Mode.SURPLUS:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.SURPLUS");
+                    case Mode.MINIMUM:
+                        return translate.instant("EVSE_SINGLE.HOME.MODE.MINIMUM");
                     case Mode.FORCE:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.FORCE");
                     default:
@@ -95,12 +188,12 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_PHASE_SWITCH_LABEL = (translate: TranslateService) => {
         return (raw: string | null): string => {
-            return Converter.IF_STRING(raw, value => {
+            return Converter.IF_STRING(raw, (value) => {
                 switch (value) {
                     case "DISABLE":
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
@@ -118,12 +211,12 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_ACTUAL_MODE_LABEL = (translate: TranslateService) => {
         return (raw: number | null): string => {
-            return Converter.IF_NUMBER(raw, value => {
+            return Converter.IF_NUMBER(raw, (value) => {
                 switch (value) {
                     case 0:
                         return translate.instant("EVSE_SINGLE.HOME.MODE.ZERO");
@@ -143,12 +236,12 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_ENERGY_LIMIT_LABEL = () => {
         return (raw: number | null): string => {
-            return Converter.IF_NUMBER(raw, value => {
+            return Converter.IF_NUMBER(raw, (value) => {
                 if (value <= 0) {
                     return Converter.HIDE_VALUE(value);
                 }
@@ -160,8 +253,8 @@ export namespace ControllerEvseSingleShared {
     /**
      * Converts a string mode to a presentable label
      *
-     * @param raw the raw value
-     * @returns the value for chosen mode
+     * @param raw The raw value
+     * @returns The value for chosen mode
      */
     export const CONVERT_TO_STATE_MACHINE_LABEL = (translate: TranslateService) => {
         return (value: any): string => {
@@ -211,9 +304,9 @@ export namespace ControllerEvseSingleShared {
     }
 
     export type ScheduleChartData = {
-        datasets: ChartDataset[],
-        colors: any[],
-        labels: Date[]
+        datasets: ChartDataset[];
+        colors: any[];
+        labels: Date[];
     };
 
     export enum Mode {
@@ -233,9 +326,13 @@ export namespace ControllerEvseSingleShared {
      * @param translate The Translate service
      * @returns The ScheduleChartData.
      */
-    export function getScheduleChartData(size: number, prices: number[], modes: number[], timestamps: string[],
-        translate: TranslateService): ControllerEvseSingleShared.ScheduleChartData {
-
+    export function getScheduleChartData(
+        size: number,
+        prices: number[],
+        modes: number[],
+        timestamps: string[],
+        translate: TranslateService,
+    ): ControllerEvseSingleShared.ScheduleChartData {
         const datasets: ChartDataset[] = [];
         const colors: any[] = [];
         const labels: Date[] = [];

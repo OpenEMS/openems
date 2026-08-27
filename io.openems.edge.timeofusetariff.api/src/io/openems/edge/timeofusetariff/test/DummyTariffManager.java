@@ -1,5 +1,9 @@
 package io.openems.edge.timeofusetariff.test;
 
+import static io.openems.edge.timeofusetariff.api.TimeOfUsePrices.EMPTY_PRICES;
+
+import java.util.Optional;
+
 import io.openems.edge.timeofusetariff.api.TariffGridSell;
 import io.openems.edge.timeofusetariff.api.TariffManager;
 import io.openems.edge.timeofusetariff.api.TimeOfUsePrices;
@@ -37,11 +41,15 @@ public class DummyTariffManager implements TariffManager {
 
 	@Override
 	public TimeOfUsePrices getGridBuyDayAheadPrices() {
-		return this.tariffGridBuyProvider.getPrices();
+		return Optional.ofNullable(this.tariffGridBuyProvider)//
+				.map(TimeOfUseTariff::getPrices)//
+				.orElse(EMPTY_PRICES);
 	}
 
 	@Override
 	public TimeOfUsePrices getGridSellDayAheadPrices() {
-		return this.tariffGridSellProvider.getGridSellPrices();
+		return Optional.ofNullable(this.tariffGridSellProvider)//
+				.map(TariffGridSell::getGridSellPrices)//
+				.orElse(EMPTY_PRICES);
 	}
 }

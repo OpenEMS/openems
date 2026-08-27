@@ -35,6 +35,7 @@ import io.openems.edge.bridge.modbus.api.element.UnsignedWordElement;
 import io.openems.edge.bridge.modbus.api.task.FC16WriteRegistersTask;
 import io.openems.edge.bridge.modbus.api.task.FC3ReadRegistersTask;
 import io.openems.edge.common.component.OpenemsComponent;
+import io.openems.edge.common.serialnumber.SerialNumberStorage;
 import io.openems.edge.common.taskmanager.Priority;
 import io.openems.edge.goodwe.common.enums.GensetInstalledStatus;
 import io.openems.edge.goodwe.common.enums.MultiplexingMode;
@@ -68,6 +69,9 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 		super.setModbus(modbus);
 	}
 
+	@Reference
+	private SerialNumberStorage serialNumberStorage;
+
 	public GoodWeStsBoxImpl() {
 		super(//
 				OpenemsComponent.ChannelId.values(), //
@@ -78,6 +82,7 @@ public class GoodWeStsBoxImpl extends AbstractOpenemsModbusComponent
 
 	@Activate
 	private void activate(ComponentContext context, Config config) throws OpenemsNamedException {
+		this.serialNumberStorage.createAndAddOnChangeListener(this.channel(GoodWeStsBox.ChannelId.SERIAL_NUMBER));
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), config.modbusUnitId(), this.cm,
 				"Modbus", config.modbus_id())) {
 			return;

@@ -11,22 +11,19 @@ import { Filter } from "../shared/filter";
 
 @Directive()
 export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
-
-    /** value defines value of the parameter, displayed on the right */
+    /** Value defines value of the parameter, displayed on the right */
     @Input()
     public value: any;
 
     /**
-   * Use `filter` to remove a line depending on a value.
-  *
-     * @param value the current data value
-     * @returns converter function
+     * Use `filter` to remove a line depending on a value.
+     *
+     * @param value The current data value
+     * @returns Converter function
      */
     @Input() public filter: Filter = Filter.NO_FILTER;
 
-    /**
-   * displayValue is the displayed @Input value in html
-  */
+    /** DisplayValue is the displayed @Input value in html */
     public displayValue: string | null = null;
 
     protected displayName: string = null;
@@ -35,9 +32,7 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     private _name: string | ((value: any) => string);
     private _channelAddress: ChannelAddress | null = null;
 
-    /**
-   * selector used for subscribe
-  */
+    /** Selector used for subscribe */
     private selector: string = uuidv4();
     private stopOnDestroy: Subject<void> = new Subject<void>();
     private edge: Edge | null = null;
@@ -50,9 +45,9 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
         @Inject(Service) protected service: Service,
         @Inject(ModalController) protected modalCtrl: ModalController,
         @Inject(DataService) private dataService: DataService,
-    ) { }
+    ) {}
 
-    @Input() set name(value: string | { channel: ChannelAddress, converter: (value: any) => string }) {
+    @Input() set name(value: string | { channel: ChannelAddress; converter: (value: any) => string }) {
         if (typeof value === "object") {
             this.subscribe(value.channel);
             this._name = value.converter;
@@ -69,19 +64,20 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     }
 
     /**
-   * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
-  *
-  * @param value the value from CurrentData
-  * @returns converter function
-  */
-    @Input() public converter = (value: any): string => { return value; };
+     * Use `converter` to convert/map a CurrentData value to another value, e.g. an Enum number to a text.
+     *
+     * @param value The value from CurrentData
+     * @returns Converter function
+     */
+    @Input() public converter = (value: any): string => {
+        return value;
+    };
 
     public ngOnChanges() {
         this.setValue(this.value);
     }
 
     public ngOnDestroy() {
-
         // Unsubscribe from CurrentData subject
         this.stopOnDestroy.next();
         this.stopOnDestroy.complete();
@@ -91,7 +87,6 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     protected setValue(value: any) {
         if (typeof this._name == "function") {
             this.displayName = this._name(value);
-
         } else {
             this.displayName = this._name;
         }
@@ -103,15 +98,18 @@ export abstract class AbstractFlatWidgetLine implements OnChanges, OnDestroy {
     }
 
     protected subscribe(channelAddress: ChannelAddress) {
-        this.service.getCurrentEdge().then(edge => {
+        this.service.getCurrentEdge().then((edge) => {
             this.edge = edge;
 
             this.dataService.subscribeChannels([channelAddress], this.edge);
 
-            this.subscription = effect(() => {
-                const val = this.dataService.currentValue();
-                this.setValue(val.allComponents[channelAddress.toString()]);
-            }, { injector: this.injector });
+            this.subscription = effect(
+                () => {
+                    const val = this.dataService.currentValue();
+                    this.setValue(val.allComponents[channelAddress.toString()]);
+                },
+                { injector: this.injector },
+            );
         });
     }
 }

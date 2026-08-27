@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.time.ZonedDateTime;
 import java.util.Map.Entry;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -17,11 +17,12 @@ import com.google.common.collect.ImmutableMap;
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.jscalendar.JSCalendar;
 import io.openems.edge.controller.evse.cluster.EnergyScheduler.ClusterEshConfig;
+import io.openems.edge.controller.evse.single.Mode;
 import io.openems.edge.controller.evse.single.Params;
 import io.openems.edge.controller.evse.single.Types.Payload;
 import io.openems.edge.energy.api.Environment;
 import io.openems.edge.energy.api.simulation.GlobalOptimizationContext;
-import io.openems.edge.evse.api.chargepoint.Mode;
+import io.openems.edge.energy.api.simulation.periods.Periods;
 
 public class EshUtilsTest {
 
@@ -46,26 +47,26 @@ public class EshUtilsTest {
 				   }
 				]
 				""");
-		var params = new Params("ctrl0", null, null, 0, 0, null, null, null, false, null, tasks);
+		var params = new Params("ctrlEvseSingle0", "evseChargePoint0", null, null, 0, 0, null, null, null, false, null,
+				tasks);
 		var clusterEshConfig = new ClusterEshConfig(null, ImmutableMap.of("ctrl0", params));
-		var goc = new GlobalOptimizationContext(CLOCK, Environment.PRODUCTION, TIME, ImmutableList.of(),
-				ImmutableList.of(), //
-				new GlobalOptimizationContext.Grid(0, 20000, JSCalendar.Tasks.empty()), //
+		var goc = new GlobalOptimizationContext(CLOCK, Environment.TEST, TIME, ImmutableList.of(), ImmutableList.of(), //
+				new GlobalOptimizationContext.Grid(0, 20000, 19000, JSCalendar.Tasks.empty()), //
 				new GlobalOptimizationContext.Ess(0, 12223, 5000, 5000), //
-				GlobalOptimizationContext.Periods.create(Environment.PRODUCTION) //
-						.add(TIME.plusMinutes(0), null, 0, 700, 123.) //
-						.add(TIME.plusMinutes(15), null, 100, 600, 123.) //
-						.add(TIME.plusMinutes(30), null, 200, 500, 125.) //
-						.add(TIME.plusMinutes(45), null, 300, 400, 126.) //
-						.add(TIME.plusMinutes(60), null, 400, 300, 123.) //
-						.add(TIME.plusMinutes(75), null, 500, 200, 122.) //
-						.add(TIME.plusMinutes(90), null, 600, 100, 121.) //
-						.add(TIME.plusMinutes(105), null, 700, 0, 121.) //
-						.add(TIME.plusMinutes(120), null, 800, 0, 121.) //
+				Periods.builder(Environment.TEST) //
+						.addPeriodIfValid(TIME.plusMinutes(0), null, 0, 700, 123., null) //
+						.addPeriodIfValid(TIME.plusMinutes(15), null, 100, 600, 123., null) //
+						.addPeriodIfValid(TIME.plusMinutes(30), null, 200, 500, 125., null) //
+						.addPeriodIfValid(TIME.plusMinutes(45), null, 300, 400, 126., null) //
+						.addPeriodIfValid(TIME.plusMinutes(60), null, 400, 300, 123., null) //
+						.addPeriodIfValid(TIME.plusMinutes(75), null, 500, 200, 122., null) //
+						.addPeriodIfValid(TIME.plusMinutes(90), null, 600, 100, 121., null) //
+						.addPeriodIfValid(TIME.plusMinutes(105), null, 700, 0, 121., null) //
+						.addPeriodIfValid(TIME.plusMinutes(120), null, 800, 0, 121., null) //
 						.build());
 
 		var t = EshUtils.parseTasks(goc, clusterEshConfig);
-		var iterator = t.a().row("ctrl0").entrySet().iterator();
+		var iterator = t.a().row("ctrlEvseSingle0").entrySet().iterator();
 		assertOneTask(iterator.next(), "2020-01-01T01:30Z", "FORCE");
 		assertOneTask(iterator.next(), "2020-01-01T01:45Z", "FORCE");
 		assertFalse(iterator.hasNext());

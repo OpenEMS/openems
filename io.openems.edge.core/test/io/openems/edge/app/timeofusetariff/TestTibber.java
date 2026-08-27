@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,8 +14,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -30,18 +31,20 @@ import io.openems.edge.core.appmanager.AppManagerTestBundle.PseudoComponentManag
 import io.openems.edge.core.appmanager.Apps;
 import io.openems.edge.core.appmanager.jsonrpc.AddAppInstance;
 import io.openems.edge.core.appmanager.validator.CheckAppsNotInstalled;
+import io.openems.edge.core.appmanager.validator.CheckCommercial100;
 import io.openems.edge.core.appmanager.validator.CheckCommercial50Gen3;
 import io.openems.edge.core.appmanager.validator.CheckCommercial92;
+import io.openems.edge.core.appmanager.validator.CheckCommercial92Master;
 import io.openems.edge.core.appmanager.validator.CheckHome;
 import io.openems.edge.core.appmanager.validator.CheckIndustrial;
 
-public class TestTibber {
+class TestTibber {
 
 	private AppManagerTestBundle appManagerTestBundle;
 	private Tibber tibber;
 
-	@Before
-	public void beforeEach() throws Exception {
+	@BeforeEach
+	void beforeEach() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//
 					this.tibber = Apps.tibber(t) //
@@ -54,7 +57,7 @@ public class TestTibber {
 	}
 
 	@Test
-	public void testRemoveAccessToken() throws Exception {
+	void testRemoveAccessToken() throws Exception {
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -82,7 +85,7 @@ public class TestTibber {
 	}
 
 	@Test
-	public void testAddChannelToPredictor() throws Exception {
+	void testAddChannelToPredictor() throws Exception {
 		this.createPredictor();
 
 		final var properties = JsonUtils.buildJsonObject() //
@@ -94,13 +97,16 @@ public class TestTibber {
 		this.assertChannelsInPredictor("_sum/UnmanagedConsumptionActivePower");
 	}
 
-	@Test(expected = OpenemsNamedException.class)
-	public void testOnlyCompatibleWithHomeOrCommercial() throws Exception {
+	@Test
+	void testOnlyCompatibleWithHomeOrCommercial() {
 		this.appManagerTestBundle.addCheckable(CheckHome.COMPONENT_NAME,
 				t -> new CheckHome(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 		this.appManagerTestBundle.addCheckable(CheckCommercial92.COMPONENT_NAME,
 				t -> new CheckCommercial92(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+		this.appManagerTestBundle.addCheckable(CheckCommercial92Master.COMPONENT_NAME,
+				t -> new CheckCommercial92Master(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 		this.appManagerTestBundle.addCheckable(CheckIndustrial.COMPONENT_NAME,
 				t -> new CheckIndustrial(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
@@ -108,16 +114,20 @@ public class TestTibber {
 		this.appManagerTestBundle.addCheckable(CheckCommercial50Gen3.COMPONENT_NAME,
 				t -> new CheckCommercial50Gen3(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
 						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
+		this.appManagerTestBundle.addCheckable(CheckCommercial100.COMPONENT_NAME,
+				t -> new CheckCommercial100(t, new CheckAppsNotInstalled(this.appManagerTestBundle.sut,
+						AppManagerTestBundle.getComponentContext(CheckAppsNotInstalled.COMPONENT_NAME))));
 
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
-		this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
-				new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties));
+		assertThrows(OpenemsNamedException.class,
+				() -> this.appManagerTestBundle.sut.handleAddAppInstanceRequest(DUMMY_ADMIN,
+						new AddAppInstance.Request(this.tibber.getAppId(), "key", "alias", properties)));
 	}
 
 	@Test
-	public void testSetTokenValue() throws Exception {
+	void testSetTokenValue() throws Exception {
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty("ACCESS_TOKEN", "g78aw9ht2n112nb453") //
 				.build();
@@ -142,7 +152,7 @@ public class TestTibber {
 	}
 
 	@Test
-	public void testUnsetFilterValue() throws Exception {
+	void testUnsetFilterValue() throws Exception {
 		final var properties = JsonUtils.buildJsonObject() //
 				.addProperty(Tibber.Property.ACCESS_TOKEN.name(), "g78aw9ht2n112nb453") //
 				.addProperty(Tibber.Property.MULTIPLE_HOMES_CHECK.name(), true) //
@@ -159,11 +169,9 @@ public class TestTibber {
 		assertEquals("randomInitialFilter", value.getAsString());
 
 		this.appManagerTestBundle.componentManger.handleUpdateComponentConfigRequest(DUMMY_ADMIN,
-				new UpdateComponentConfig.Request(
-						response.instance().properties.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name())
-								.getAsString(),
-						List.of(new UpdateComponentConfigRequest.Property(Tibber.Property.ACCESS_TOKEN.name(),
-								"g78aw9ht2n112nb453"))));
+				new UpdateComponentConfig.Request(response.instance().properties
+						.get(Tibber.Property.TIME_OF_USE_TARIFF_PROVIDER_ID.name()).getAsString(),
+						List.of(new UpdateComponentConfigRequest.Property("filter", ""))));
 
 		value = filterProp.bidirectionalValue.apply(response.instance().properties);
 

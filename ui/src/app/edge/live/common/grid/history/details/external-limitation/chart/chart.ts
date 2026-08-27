@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component } from "@angular/core";
+import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { TranslateService } from "@ngx-translate/core";
 import { GridSectionComponent } from "src/app/edge/live/energymonitor/chart/section/grid.component";
 import { AbstractHistoryChart } from "src/app/shared/components/chart/abstracthistorychart";
@@ -7,19 +7,29 @@ import { ChartConstants } from "src/app/shared/components/chart/chart.constants"
 import { QueryHistoricTimeseriesEnergyResponse } from "src/app/shared/jsonrpc/response/queryHistoricTimeseriesEnergyResponse";
 import { ChannelAddress, EdgeConfig } from "src/app/shared/shared";
 import { ChartAxis, HistoryUtils, YAxisType } from "src/app/shared/utils/utils";
-import { buildAnnotations, createLimiter14aAxis, createRcrAxis, hasData, processRestrictionDatasets } from "../../../shared-grid";
+import { buildAnnotations, createLimiter14aAxis, createRcrAxis, hasData, processRestrictionDatasets, } from "../../../shared-grid";
 
 @Component({
     selector: "common-grid-details-external-limitation-chart",
     templateUrl: "../../../../../../../../shared/components/chart/abstracthistorychart.html",
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false,
 })
 export class ChartComponent extends AbstractHistoryChart {
-
-    public static getChartData(config: EdgeConfig, chartType: "line" | "bar", translate: TranslateService, showPhases: boolean): HistoryUtils.ChartData {
-
-        const isLimiter14aInstalled: boolean = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.Limiter14a");
-        const isRcrInstalled: boolean = GridSectionComponent.isControllerEnabled(config, "Controller.Ess.RippleControlReceiver");
+    public static getChartData(
+        config: EdgeConfig,
+        chartType: "line" | "bar",
+        translate: TranslateService,
+        showPhases: boolean,
+    ): HistoryUtils.ChartData {
+        const isLimiter14aInstalled: boolean = GridSectionComponent.isControllerEnabled(
+            config,
+            "Controller.Ess.Limiter14a",
+        );
+        const isRcrInstalled: boolean = GridSectionComponent.isControllerEnabled(
+            config,
+            "Controller.Ess.RippleControlReceiver",
+        );
 
         const controller14a = config.getComponentIdsByFactory("Controller.Ess.Limiter14a")[0] ?? null;
         const controllerRcr = config.getComponentIdsByFactory("Controller.Ess.RippleControlReceiver")[0] ?? null;
@@ -50,11 +60,9 @@ export class ChartComponent extends AbstractHistoryChart {
 
         const yAxes: HistoryUtils.yAxes[] = [];
 
-
         return {
             input: input,
             output: (data: HistoryUtils.ChannelData, labels: Date[]) => {
-
                 const { restrictionData14a, restrictionDataRcr } = processRestrictionDatasets(data, chartType);
 
                 const has14aData = hasData(isLimiter14aInstalled, restrictionData14a);
@@ -71,13 +79,14 @@ export class ChartComponent extends AbstractHistoryChart {
                         converter: () => restrictionData14a,
                         color: ChartConstants.Colors.ORANGE,
                         stack: 2,
-                        custom: chartType === "line"
-                            ? {
-                                unit: YAxisType.RELAY,
-                                pluginType: "box",
-                                annotations: buildAnnotations(restrictionData14a, labels, "14a", ChartAxis.RIGHT),
-                            }
-                            : { unit: YAxisType.TIME },
+                        custom:
+                            chartType === "line"
+                                ? {
+                                      unit: YAxisType.RELAY,
+                                      pluginType: "box",
+                                      annotations: buildAnnotations(restrictionData14a, labels, "14a", ChartAxis.RIGHT),
+                                  }
+                                : { unit: YAxisType.TIME },
                         yAxisId: ChartAxis.RIGHT,
                     } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>);
                 }
@@ -91,17 +100,23 @@ export class ChartComponent extends AbstractHistoryChart {
                         converter: () => restrictionDataRcr,
                         color: ChartConstants.Colors.GREEN,
                         stack: 3,
-                        custom: chartType === "line"
-                            ? {
-                                unit: YAxisType.PERCENTAGE,
-                                pluginType: "box",
-                                annotations: buildAnnotations(restrictionDataRcr, labels, "rcr", ChartAxis.RIGHT_2, yAxes[yAxes.length - 1]),
-                            }
-                            : { unit: YAxisType.TIME },
+                        custom:
+                            chartType === "line"
+                                ? {
+                                      unit: YAxisType.PERCENTAGE,
+                                      pluginType: "box",
+                                      annotations: buildAnnotations(
+                                          restrictionDataRcr,
+                                          labels,
+                                          "rcr",
+                                          ChartAxis.RIGHT_2,
+                                          yAxes[yAxes.length - 1],
+                                      ),
+                                  }
+                                : { unit: YAxisType.TIME },
                         yAxisId: ChartAxis.RIGHT_2,
                     } as HistoryUtils.DisplayValue<HistoryUtils.BoxCustomOptions>);
                 }
-
 
                 if (!showPhases) {
                     return datasets;

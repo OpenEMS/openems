@@ -1,5 +1,5 @@
 // @ts-strict-ignore
-import { Component, effect, inject, OnDestroy } from "@angular/core";
+import { Component, effect, inject, OnDestroy, ChangeDetectionStrategy } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { ViewWillLeave } from "@ionic/angular";
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -16,28 +16,22 @@ import { OAuthService } from "./oauth.service";
 @Component({
     selector: "oauth-callback",
     template: `<ion-content class="background">
-                    <ion-grid class="ion-full-height">
-                        <ion-row class="ion-justify-content-center ion-full-height">
-                            <ngx-spinner [name]="spinnerId">
-                                <p style="color: white" translate>
-                                    <span translate>
-                                        AUTHENTICATING
-                                    </span>
-                                    ...
-                                </p>
-                            </ngx-spinner>
-                        </ion-row>
-                    </ion-grid>
-                </ion-content>`,
-    imports: [
-        NgxSpinnerModule,
-        CommonUiModule,
-        TranslateModule,
-    ],
+        <ion-grid class="ion-full-height">
+            <ion-row class="ion-justify-content-center ion-full-height">
+                <ngx-spinner [name]="spinnerId">
+                    <p style="color: white" translate>
+                        <span translate> AUTHENTICATING </span>
+                        ...
+                    </p>
+                </ngx-spinner>
+            </ion-row>
+        </ion-grid>
+    </ion-content>`,
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [NgxSpinnerModule, CommonUiModule, TranslateModule],
 })
 export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
-
-    public static readonly OAUTH_CALLBACK: string = "oauthcallback";
+    public static readonly ID: string = "oauthcallback";
     protected spinnerId: string = uuidv4();
     private oauthService: OAuthService = inject(OAuthService);
 
@@ -46,7 +40,6 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
         private service: Service,
         private translate: TranslateService,
     ) {
-
         Language.normalizeAdditionalTranslationFiles({ de: de, en: en }).then((translations) => {
             for (const { lang, translation, shouldMerge } of translations) {
                 translate.setTranslation(lang, translation, shouldMerge);
@@ -58,15 +51,15 @@ export class OAuthCallBackComponent implements OnDestroy, ViewWillLeave {
             this.service.startSpinner(this.spinnerId, { fullScreen: true });
             if (States.isAtLeast(status, States.WEBSOCKET_CONNECTED)) {
                 await OAuthCallBackComponent.processQueryParams(this.route, this.oauthService);
-            };
+            }
         });
     }
 
     /**
      * Processes query params.
      *
-     * @param route the current route
-     * @param oAuthService the oauth service
+     * @param route The current route
+     * @param oAuthService The oauth service
      * @returns
      */
     public static async processQueryParams(route: ActivatedRoute, oAuthService: OAuthService): Promise<void> {

@@ -2,6 +2,7 @@ package io.openems.edge.evse.chargepoint.keba.common;
 
 import static io.openems.edge.common.channel.ChannelUtils.setValue;
 import static io.openems.edge.common.type.Phase.SingleOrThreePhase.SINGLE_PHASE;
+import static io.openems.edge.common.type.Phase.SingleOrThreePhase.THREE_PHASE;
 import static io.openems.edge.evse.api.common.ApplySetPoint.MIN_CURRENT;
 
 import java.time.Duration;
@@ -9,14 +10,14 @@ import java.time.Instant;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.types.MeterType;
-import io.openems.common.types.Tuple;
+import io.openems.common.types.Tuple2;
 import io.openems.edge.common.component.OpenemsComponent;
 import io.openems.edge.common.event.EdgeEventConstants;
 import io.openems.edge.common.type.Phase.SingleOrThreePhase;
 import io.openems.edge.evse.api.chargepoint.EvseChargePoint;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointAbilities;
 import io.openems.edge.evse.api.chargepoint.Profile.ChargePointActions;
-import io.openems.edge.evse.api.chargepoint.Profile.PhaseSwitch;
+import io.openems.edge.evse.api.common.ApplyPhaseSwitch.PhaseSwitchDirection;
 import io.openems.edge.evse.api.common.ApplySetPoint;
 import io.openems.edge.evse.chargepoint.keba.common.enums.CableState;
 import io.openems.edge.evse.chargepoint.keba.common.enums.ChargingState;
@@ -32,7 +33,7 @@ public class EvseKebaUtils {
 		this.parent = keba;
 	}
 
-	private Tuple<Instant, Integer> previousCurrent = null;
+	private Tuple2<Instant, Integer> previousCurrent = null;
 
 	/**
 	 * Applies a {@link ChargePointActions}.
@@ -44,21 +45,23 @@ public class EvseKebaUtils {
 		if (config.readOnly()) {
 			return;
 		}
-		this.applyPhaseSwitch(actions.phaseSwitch());
+		if (actions.phaseSwitch() != null) {
+			this.applyPhaseSwitch(actions.phaseSwitch().direction());
+		}
 		this.applySetPoint(actions.getApplySetPointInMilliAmpere().value());
 	}
 
-	private void applyPhaseSwitch(PhaseSwitch phaseSwitch) {
+	private void applyPhaseSwitch(PhaseSwitchDirection phaseSwitch) {
 		applyPhaseSwitch(this.parent, phaseSwitch);
 	}
 
 	/**
-	 * Applies a {@link PhaseSwitch} action to a given {@link EvseKeba}.
+	 * Applies a {@link PhaseSwitchDirection} action to a given {@link EvseKeba}.
 	 * 
 	 * @param keba        the {@link EvseKeba}
-	 * @param phaseSwitch the {@link PhaseSwitch}
+	 * @param phaseSwitch the {@link PhaseSwitchDirection}
 	 */
-	public static void applyPhaseSwitch(EvseKeba keba, PhaseSwitch phaseSwitch) {
+	public static void applyPhaseSwitch(EvseKeba keba, PhaseSwitchDirection phaseSwitch) {
 		if (phaseSwitch == null) {
 			return;
 		}
@@ -91,7 +94,7 @@ public class EvseKebaUtils {
 		if (this.previousCurrent != null && Duration.between(this.previousCurrent.a(), now).getSeconds() < 5) {
 			return;
 		}
-		this.previousCurrent = Tuple.of(now, setPointInMilliAmpere);
+		this.previousCurrent = Tuple2.of(now, setPointInMilliAmpere);
 
 		try {
 			keba.setSetEnable(setPointInMilliAmpere == 0 //
@@ -146,17 +149,33 @@ public class EvseKebaUtils {
 		case UNDEFINED, UNPLUGGED, PLUGGED_ON_WALLBOX, PLUGGED_ON_WALLBOX_AND_LOCKED -> false;
 		case PLUGGED_EV_NOT_LOCKED, PLUGGED_AND_LOCKED -> true;
 		};
+		final var phaseSwitchDirection = this.getPhaseSwitchAbility(config);
 
 		return ChargePointAbilities.create() //
 				// TODO apply actual hardware limit from protocol and/or config
 				.setApplySetPoint(new ApplySetPoint.Ability.MilliAmpere(phases, 6000, maxSupportedCurrent)) //
 				.setIsEvConnected(isEvConnected) //
 				.setIsReadyForCharging(keba.getIsReadyForCharging()) //
-				.setPhaseSwitch(this.getPhaseSwitchAbility(config)) //
+				.setPhaseSwitchManual(phaseSwitchDirection,
+						getOppositePhaseApplySetPointAbility(phaseSwitchDirection, maxSupportedCurrent)) //
 				.build();
 	}
 
-	private PhaseSwitch getPhaseSwitchAbility(CommonConfig config) {
+	private static ApplySetPoint.Ability.Watt getOppositePhaseApplySetPointAbility(
+			PhaseSwitchDirection phaseSwitchDirection, int maxSupportedCurrent) {
+		if (phaseSwitchDirection == null) {
+			return null;
+		}
+		final var oppositePhase = switch (phaseSwitchDirection) {
+		case TO_THREE_PHASE -> THREE_PHASE;
+		case TO_SINGLE_PHASE -> SINGLE_PHASE;
+		};
+		return new ApplySetPoint.Ability.Watt(oppositePhase,
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, MIN_CURRENT),
+				ApplySetPoint.convertMilliAmpereToWatt(oppositePhase, maxSupportedCurrent));
+	}
+
+	private PhaseSwitchDirection getPhaseSwitchAbility(CommonConfig config) {
 		final var keba = this.parent;
 
 		// Set Phase-Switching Ability
@@ -186,8 +205,8 @@ public class EvseKebaUtils {
 		}
 
 		return switch (phaseSwitchState) {
-		case SINGLE_PHASE -> PhaseSwitch.TO_THREE_PHASE;
-		case THREE_PHASE -> PhaseSwitch.TO_SINGLE_PHASE;
+		case SINGLE_PHASE -> PhaseSwitchDirection.TO_THREE_PHASE;
+		case THREE_PHASE -> PhaseSwitchDirection.TO_SINGLE_PHASE;
 		};
 	}
 

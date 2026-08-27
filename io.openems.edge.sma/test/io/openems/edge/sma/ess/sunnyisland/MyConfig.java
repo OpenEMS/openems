@@ -1,7 +1,5 @@
 package io.openems.edge.sma.ess.sunnyisland;
 
-import static io.openems.common.utils.ConfigUtils.generateReferenceTargetFilter;
-
 import io.openems.common.test.AbstractComponentConfig;
 import io.openems.edge.common.type.Phase.SingleOrAllPhase;
 
@@ -68,11 +66,6 @@ public class MyConfig extends AbstractComponentConfig implements Config {
 	@Override
 	public String modbus_id() {
 		return this.builder.modbusId;
-	}
-
-	@Override
-	public String Modbus_target() {
-		return generateReferenceTargetFilter(this.id(), this.modbus_id());
 	}
 
 	@Override

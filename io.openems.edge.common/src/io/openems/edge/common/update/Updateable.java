@@ -67,9 +67,10 @@ public interface Updateable {
 	/**
 	 * Gets the current state of the {@link Updateable}. This method should only
 	 * block if necessary.
-	 * 
+	 *
+	 * @param lang User language
 	 * @return the current {@link GetUpdateState.UpdateState}
 	 */
-	GetUpdateState.UpdateState getUpdateState();
+	GetUpdateState.UpdateState getUpdateState(Language lang);
 
 }

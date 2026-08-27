@@ -1,6 +1,12 @@
 package io.openems.edge.controller.ess.gridoptimizedcharge;
 
 import static io.openems.common.utils.IntUtils.minInt;
+import static io.openems.edge.common.channel.ChannelUtils.setValue;
+import static io.openems.edge.controller.ess.gridoptimizedcharge.ControllerEssGridOptimizedCharge.ChannelId.RUN_ENABLED;
+import static io.openems.edge.controller.ess.gridoptimizedcharge.DelayCharge.parseTime;
+import static org.osgi.service.component.annotations.ReferenceCardinality.MANDATORY;
+import static org.osgi.service.component.annotations.ReferencePolicy.STATIC;
+import static org.osgi.service.component.annotations.ReferencePolicyOption.GREEDY;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -28,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.common.channel.IntegerReadChannel;
 import io.openems.edge.common.channel.value.Value;
 import io.openems.edge.common.component.AbstractOpenemsComponent;
@@ -40,8 +47,6 @@ import io.openems.edge.common.meta.Meta;
 import io.openems.edge.common.sum.Sum;
 import io.openems.edge.controller.api.Controller;
 import io.openems.edge.controller.ess.ripplecontrolreceiver.ControllerEssRippleControlReceiver;
-import io.openems.edge.energy.api.EnergySchedulable;
-import io.openems.edge.energy.api.handler.EnergyScheduleHandler;
 import io.openems.edge.ess.api.ManagedSymmetricEss;
 import io.openems.edge.meter.api.ElectricityMeter;
 import io.openems.edge.predictor.api.manager.PredictorManager;
@@ -55,9 +60,9 @@ import io.openems.edge.timedata.api.utils.CalculateActiveTime;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
-public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent
-		implements ControllerEssGridOptimizedCharge, EnergySchedulable, Controller, OpenemsComponent, TimedataProvider,
-		ComponentManagerProvider {
+@GenerateTargetsFromReferences({ "ess", "meter" })
+public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsComponent implements
+		ControllerEssGridOptimizedCharge, Controller, OpenemsComponent, TimedataProvider, ComponentManagerProvider {
 
 	/**
 	 * Buffer in watt taken into account in the calculation of the first and last
@@ -90,7 +95,7 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			ControllerEssGridOptimizedCharge.ChannelId.NO_LIMITATION_TIME);
 
 	protected Config config = null;
-	private EnergyScheduleHandler energyScheduleHandler;
+	private boolean isRunEnabled = true;
 
 	/** Delay Charge logic. */
 	private DelayCharge delayCharge;
@@ -108,10 +113,12 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Reference
 	protected PredictorManager predictorManager;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	protected ManagedSymmetricEss ess;
 
-	@Reference
+	@Reference(policy = STATIC, policyOption = GREEDY, cardinality = MANDATORY, //
+			target = "(&(id=${config.meter_id})(enabled=true))")
 	protected ElectricityMeter meter;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -137,15 +144,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 	@Activate
 	private void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
-		this.energyScheduleHandler = EnergyScheduler.buildEnergyScheduleHandler(this, //
-				() -> this.config.enabled() //
-						? switch (this.config.mode()) {
-						case AUTOMATIC -> new EnergyScheduler.Config.Automatic();
-						case MANUAL ->
-							new EnergyScheduler.Config.Manual(DelayCharge.parseTime(this.config.manualTargetTime()));
-						case OFF -> null;
-						} //
-						: null);
 		this.updateConfig(config);
 	}
 
@@ -169,20 +167,12 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		this.delayCharge = new DelayCharge(this);
 		this.updateMaximumSellToGridPower();
 		this.sellToGridLimit = new SellToGridLimit(this);
-
-		// update filter for 'ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
-			return;
-		}
-
-		// update filter for 'meter'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "meter", config.meter_id())) {
-			return;
-		}
 	}
 
 	@Override
 	public void run() throws OpenemsNamedException {
+		setValue(this, RUN_ENABLED, this.isRunEnabled);
+
 		this.updateMaximumSellToGridPower();
 		if (!this.ess.isManaged() && this.config.mode() != Mode.OFF) {
 			this._setConfiguredEssIsNotManaged(true);
@@ -195,6 +185,10 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 			return;
 		}
 		this._setNoValidProductionPredictionChannel(false);
+
+		if (!this.isRunEnabled) {
+			return;
+		}
 
 		// Updates the time channels.
 		this.calculateTime();
@@ -478,11 +472,6 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 		return this.timedata;
 	}
 
-	@Override
-	public EnergyScheduleHandler getEnergyScheduleHandler() {
-		return this.energyScheduleHandler;
-	}
-
 	private void updateMaximumSellToGridPower() {
 		final var gridSellHardLimit = this.meta.getGridSellHardLimit();
 		final Integer dynamicGridFeedInLimit;
@@ -551,5 +540,30 @@ public class ControllerEssGridOptimizedChargeImpl extends AbstractOpenemsCompone
 				this.log.warn("Unable to reset maximumSellToGridPower in GridOptimizedCharge", e);
 			}
 		});
+	}
+
+	@Override
+	public void enableRun() {
+		this.isRunEnabled = true;
+	}
+
+	@Override
+	public void disableRun() {
+		this.isRunEnabled = false;
+	}
+
+	@Override
+	public Mode getMode() {
+		return this.config.mode();
+	}
+
+	@Override
+	public DelayChargeRiskLevel getRiskLevel() {
+		return this.config.delayChargeRiskLevel();
+	}
+
+	@Override
+	public LocalTime getManualTargetTime() {
+		return parseTime(this.config.manualTargetTime());
 	}
 }

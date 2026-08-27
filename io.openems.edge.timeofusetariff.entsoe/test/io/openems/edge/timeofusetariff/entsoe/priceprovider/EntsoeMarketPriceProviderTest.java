@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.time.Clock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import io.openems.common.bridge.http.dummy.DummyBridgeHttpFactory;
 import io.openems.common.bridge.http.time.periodic.DummyPeriodicExecutorFactory;
@@ -15,6 +15,7 @@ import io.openems.common.types.EntsoeBiddingZone;
 import io.openems.edge.common.component.ClockProvider;
 
 public class EntsoeMarketPriceProviderTest {
+
 	@Test
 	public void testPool() {
 		var pool = this.createPool();

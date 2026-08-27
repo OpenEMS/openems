@@ -18,13 +18,14 @@ public class CalculateSoc {
 	 *
 	 * @param ess the {@link SymmetricEss}
 	 */
-	public synchronized void add(SymmetricEss ess) {
-		var soc = ess.getSoc().get();
-		var capacity = ess.getCapacity().get();
-		if (soc == null) {
+	public void add(SymmetricEss ess) {
+		if (ess == null) {
 			return;
 		}
-		this.esss.add(new Ess(soc, capacity));
+
+		var socOpt = ess.getSoc().asOptional();
+		var capacityOpt = ess.getCapacity().asOptional();
+		socOpt.ifPresent(soc -> this.esss.add(new Ess(soc, capacityOpt.orElse(null))));
 	}
 
 	/**
@@ -36,6 +37,13 @@ public class CalculateSoc {
 	public synchronized CalculateSoc add(List<SymmetricEss> esss) {
 		esss.forEach(ess -> this.add(ess));
 		return this;
+	}
+
+	/**
+	 * Resets the calculator for reuse.
+	 */
+	public synchronized void reset() {
+		this.esss.clear();
 	}
 
 	/**

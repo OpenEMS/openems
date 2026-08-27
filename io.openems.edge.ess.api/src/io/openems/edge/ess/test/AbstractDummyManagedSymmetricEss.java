@@ -117,6 +117,17 @@ public abstract class AbstractDummyManagedSymmetricEss<SELF extends AbstractDumm
 		return this.self();
 	}
 
+	/**
+	 * Set {@link StartStoppable.ChannelId#START_STOP}.
+	 *
+	 * @param value the value
+	 * @return myself
+	 */
+	public final SELF withStartStop(StartStop value) {
+		TestUtils.withValue(this, StartStoppable.ChannelId.START_STOP, value);
+		return this.self();
+	}
+
 	@Override
 	public final void applyPower(int activePower, int reactivePower) {
 		if (this.symmetricApplyPowerCallback != null) {

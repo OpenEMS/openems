@@ -6,8 +6,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
@@ -26,7 +26,7 @@ public class QueryAppInstancesByFilterTest {
 
 	private TestFilter testFilter;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		this.appManagerTestBundle = new AppManagerTestBundle(null, null, t -> {
 			return ImmutableList.of(//

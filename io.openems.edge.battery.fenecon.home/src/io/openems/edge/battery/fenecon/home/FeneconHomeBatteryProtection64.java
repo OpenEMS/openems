@@ -2,14 +2,15 @@ package io.openems.edge.battery.fenecon.home;
 
 import java.util.function.IntSupplier;
 
+import io.openems.edge.battery.fenecon.home.statemachine.StateMachine;
 import io.openems.edge.battery.protection.force.ForceCharge;
 import io.openems.edge.battery.protection.force.ForceDischarge;
 import io.openems.edge.common.linecharacteristic.PolyLine;
 
 public class FeneconHomeBatteryProtection64 extends FeneconHomeBatteryProtection {
 
-	public FeneconHomeBatteryProtection64(IntSupplier forceChargeDischargeCurrent) {
-		super(forceChargeDischargeCurrent);
+	public FeneconHomeBatteryProtection64(IntSupplier forceChargeDischargeCurrent, StateMachine stateMachine) {
+		super(forceChargeDischargeCurrent, stateMachine);
 	}
 
 	@Override

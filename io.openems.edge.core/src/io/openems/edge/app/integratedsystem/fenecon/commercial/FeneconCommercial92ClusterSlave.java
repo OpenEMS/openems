@@ -1,6 +1,7 @@
 package io.openems.edge.app.integratedsystem.fenecon.commercial;
 
 import static io.openems.edge.app.common.props.CommonProps.alias;
+import static io.openems.edge.app.integratedsystem.FeneconHomeComponents.isHardwareInstalledForMasterBox;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.gridCode;
 import static io.openems.edge.app.integratedsystem.IntegratedSystemProps.safetyCountry;
 
@@ -131,18 +132,25 @@ public class FeneconCommercial92ClusterSlave
 					.getFirstInstantiatedAppByCategories(OpenemsAppCategory.OPENEMS_DEVICE_HARDWARE);
 
 			final var gridCode = this.getEnum(p, GridCode.class, Property.GRID_CODE).name();
+			final var dcMinVoltage = GridCode.VDE_4110.name().equals(gridCode) ? 653 : 650;
+			final var essProtection = GridCode.VDE_4110.name().equals(gridCode) //
+					? "RAMP"
+					: "VOLTAGE_REGULATION";
 
 			final var components = Lists.newArrayList(//
 					ComponentDef.from(FeneconHomeComponents.battery(bundle, batteryId, modbusToBatteryId, batteryTarget,
 							getIoId(this.appManagerUtil, deviceHardware) + "/DigitalOutput4")), //
 					FeneconCommercialComponents.batteryInverterWithForceErrorBehaviour(bundle, batteryInverterId,
-							modbusToBatteryInverterId, gridCode), //
+							modbusToBatteryInverterId, dcMinVoltage, gridCode), //
 					FeneconCommercialComponents.essWithForceEssFaultBehaviour(bundle, essId, batteryId,
-							batteryInverterId), //
-					ComponentDef.from(FeneconHomeComponents.modbusInternal(bundle, t, modbusToBatteryId)), //
+							batteryInverterId, essProtection), //
 					ComponentDef.from(
 							FeneconCommercialComponents.modbusToBatteryInverter(bundle, t, modbusToBatteryInverterId)) //
 			);
+
+			if (!isHardwareInstalledForMasterBox(deviceHardware)) {
+				components.add(ComponentDef.from(FeneconHomeComponents.io(bundle, modbusToBatteryId)));
+			}
 
 			return AppConfiguration.create() //
 					.addTask(Tasks.componentFromComponentConfig(components)) //

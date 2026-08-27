@@ -15,6 +15,8 @@ import io.openems.edge.app.enums.OptionsFactory;
 import io.openems.edge.core.appmanager.AppDef;
 import io.openems.edge.core.appmanager.Nameable;
 import io.openems.edge.core.appmanager.OpenemsApp;
+import io.openems.edge.core.appmanager.TranslationUtil;
+import io.openems.edge.core.appmanager.Type;
 import io.openems.edge.core.appmanager.Type.Parameter.BundleProvider;
 import io.openems.edge.core.appmanager.formly.Exp;
 import io.openems.edge.core.appmanager.formly.JsonFormlyUtil;
@@ -24,6 +26,7 @@ import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionBu
 import io.openems.edge.core.appmanager.formly.builder.accordiongroup.AccordionGroupBuilder;
 import io.openems.edge.core.appmanager.formly.enums.InputType;
 import io.openems.edge.core.appmanager.formly.expression.BooleanExpression;
+import io.openems.edge.core.appmanager.formly.expression.StringExpression;
 
 public final class FeneconCommercialProps {
 
@@ -140,8 +143,7 @@ public final class FeneconCommercialProps {
 	 * @param visibilityCondition the condition to show the field
 	 * @return the {@link AppDef}
 	 */
-	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetMaxPower(//
-			final Nameable visibilityCondition //
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetMaxPower(final Nameable visibilityCondition //
 	) {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.FENECON.Commercial.gensetMaxPower.label") //
@@ -157,19 +159,16 @@ public final class FeneconCommercialProps {
 	 * Creates a {@link AppDef} for input to set the SoC to start charge from the
 	 * Genset.
 	 *
-	 * @param visibilityCondition the condition to show the field
 	 * @return the {@link AppDef}
 	 */
-	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocStart(//
-			final Nameable visibilityCondition //
-	) {
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocStart() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.FENECON.Commercial.gensetChargeSocStart.label") //
 				.setTranslatedDescription("App.FENECON.Commercial.gensetChargeSocStart.description") //
-				.setDefaultValue(20) //
+				.setDefaultValue(10) //
+				.setAutoGenerateField(false) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					onlyShowIf(field, visibilityCondition);
-					setMinAndMax(field, 20, 90, Unit.PERCENT, l);
+					setMinAndMax(field, 10, 90, Unit.PERCENT, l);
 				}));
 	}
 
@@ -177,19 +176,56 @@ public final class FeneconCommercialProps {
 	 * Creates a {@link AppDef} for input to set the SoC to end charge from the
 	 * Genset.
 	 *
-	 * @param visibilityCondition the condition to show the field
 	 * @return the {@link AppDef}
 	 */
-	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocEnd(//
-			final Nameable visibilityCondition //
-	) {
+	public static AppDef<OpenemsApp, Nameable, BundleProvider> gensetChargeSocEnd() {
 		return AppDef.copyOfGeneric(defaultDef(), def -> def //
 				.setTranslatedLabel("App.FENECON.Commercial.gensetChargeSocEnd.label") //
 				.setTranslatedDescription("App.FENECON.Commercial.gensetChargeSocEnd.description") //
 				.setDefaultValue(40) //
+				.setAutoGenerateField(false) //
 				.setField(JsonFormlyUtil::buildInputFromNameable, (app, property, l, parameter, field) -> {
-					onlyShowIf(field, visibilityCondition);
 					setMinAndMax(field, 40, 95, Unit.PERCENT, l);
+				}));
+	}
+
+	/**
+	 * Creates a {@link AppDef} which groups the GenSet SoC start and end with
+	 * cross-field validation. The validation ensures that the end SoC is always
+	 * greater than the start SoC. The group is only shown if the visibility
+	 * condition is fulfilled.
+	 *
+	 * @param visibilityCondition the condition to show the group
+	 * @param startSoc            the property of the start SoC field
+	 * @param endSoc              the property of the end SoC field
+	 * @param <A>                 the {@link OpenemsApp} type
+	 * @param <M>                 the parameter type
+	 * @param <P>                 the property type
+	 * @return the {@link AppDef}
+	 */
+	public static <A extends OpenemsApp, M extends BundleProvider, P extends Nameable & Type<P, A, M>> //
+			AppDef<A, P, M> gensetChargeSocGroup(//
+					final Nameable visibilityCondition, //
+					final P startSoc, //
+					final P endSoc //
+	) {
+		return AppDef.copyOfGeneric(defaultDef(), def -> def //
+				.setField(JsonFormlyUtil::buildFieldGroupFromNameable, (app, property, l, parameter, field) -> {
+					final var validationText = TranslationUtil.getTranslation(parameter.bundle(),
+							"App.FENECON.Commercial.genset.soc.validation.error");
+
+					onlyShowIf(field, visibilityCondition);
+
+					field.hideKey() //
+							.setCustomValidation("gensetChargeSocValidation",
+									Exp.currentModelValue(visibilityCondition).isNull()
+											.or(Exp.currentModelValue(endSoc)
+													.greaterThanEqual(Exp.currentModelValue(startSoc))),
+									StringExpression.of(validationText), endSoc) //
+							.setFieldGroup(JsonUtils.buildJsonArray() //
+									.add(startSoc.def().getField().get(app, startSoc, l, parameter).build()) //
+									.add(endSoc.def().getField().get(app, endSoc, l, parameter).build()) //
+									.build());
 				}));
 	}
 

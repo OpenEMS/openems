@@ -1,11 +1,12 @@
-# How to use OpenEMS Backend docker image:
+# How to use OpenEMS Backend docker image
 
-- [How to use OpenEMS Backend docker image:](#how-to-use-openems-backend-docker-image)
+- [How to use OpenEMS Backend docker image](#how-to-use-openems-backend-docker-image)
   - [Start openems docker containers](#start-openems-docker-containers)
     - [With docker compose](#with-docker-compose)
   - [Setup Container](#setup-container)
     - [Setup Timedata.InfluxDB](#setup-timedatainfluxdb)
   - [Build your own OpenEMS Backend docker image](#build-your-own-openems-backend-docker-image)
+  - [Common Problems and Solutions](#common-problems-and-solutions)
 
 ## Start openems docker containers
 
@@ -60,7 +61,7 @@
     | Timedata.InfluxDB |                              |
     | ----------------- | ---------------------------- |
     | Query Language    | INFLUX_QL                    |
-    | URL               | http://openems_influxdb:8086 |
+    | URL               | http://openems-influxdb:8086 |
     | Org               | openems.io                   |
     | ApiKey            | *InfluxDB-Token*             |
     | Bucket            | openems                      |
