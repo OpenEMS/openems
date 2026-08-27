@@ -15,6 +15,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,6 +34,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("ess")
 public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		implements FeneconDessCharger, EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
@@ -48,7 +50,8 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private FeneconDessEss ess;
 
 	public FeneconDessCharger1() {
@@ -58,11 +61,6 @@ public class FeneconDessCharger1 extends AbstractFeneconDessCharger
 	private void activate(ComponentContext context, Config1 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
-			return;
-		}
-
-		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "ess", config.ess_id())) {
 			return;
 		}
 
