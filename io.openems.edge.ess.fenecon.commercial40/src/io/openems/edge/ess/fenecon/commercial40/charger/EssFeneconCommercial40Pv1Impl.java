@@ -15,6 +15,7 @@ import org.osgi.service.event.propertytypes.EventTopics;
 import org.osgi.service.metatype.annotations.Designate;
 
 import io.openems.common.exceptions.OpenemsException;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.edge.bridge.modbus.api.BridgeModbus;
 import io.openems.edge.bridge.modbus.api.ModbusComponent;
 import io.openems.edge.common.component.OpenemsComponent;
@@ -33,6 +34,7 @@ import io.openems.edge.timedata.api.TimedataProvider;
 @EventTopics({ //
 		EdgeEventConstants.TOPIC_CYCLE_AFTER_PROCESS_IMAGE //
 })
+@GenerateTargetsFromReferences("ess")
 public class EssFeneconCommercial40Pv1Impl extends AbstractEssFeneconCommercial40Pv implements EssFeneconCommercial40Pv,
 		EssDcCharger, ModbusComponent, OpenemsComponent, EventHandler, TimedataProvider {
 
@@ -45,7 +47,8 @@ public class EssFeneconCommercial40Pv1Impl extends AbstractEssFeneconCommercial4
 		super.setModbus(modbus);
 	}
 
-	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY)
+	@Reference(policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.MANDATORY, //
+			target = "(&(id=${config.ess_id})(enabled=true))")
 	private EssFeneconCommercial40 ess;
 
 	@Reference(policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY, cardinality = ReferenceCardinality.OPTIONAL)
@@ -58,11 +61,6 @@ public class EssFeneconCommercial40Pv1Impl extends AbstractEssFeneconCommercial4
 	private void activate(ComponentContext context, ConfigPv1 config) throws OpenemsException {
 		if (super.activate(context, config.id(), config.alias(), config.enabled(), this.ess.getUnitId(), this.cm,
 				"Modbus", this.ess.getModbusBridgeId())) {
-			return;
-		}
-
-		// update filter for 'Ess'
-		if (OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Ess", config.ess_id())) {
 			return;
 		}
 
