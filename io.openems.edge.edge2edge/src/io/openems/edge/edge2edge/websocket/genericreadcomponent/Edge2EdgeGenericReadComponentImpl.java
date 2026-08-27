@@ -2,7 +2,6 @@ package io.openems.edge.edge2edge.websocket.genericreadcomponent;
 
 import static java.util.stream.Collectors.toSet;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -23,6 +22,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsException;
 import io.openems.common.function.Disposable;
 import io.openems.common.jsonrpc.request.GetChannelsOfComponent.ChannelRecord;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -42,13 +42,11 @@ import io.openems.edge.ess.power.api.Power;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("Bridge")
 public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 		implements Edge2EdgeGenericReadComponent, Edge2EdgeWebsocket, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeGenericReadComponentImpl.class);
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference
 	private Power power;
@@ -65,7 +63,8 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.OPTIONAL)
+			cardinality = ReferenceCardinality.OPTIONAL, //
+			target = "(&(id=${config.bridge_id})(enabled=true))")
 	public void bindBridge(Edge2EdgeWebsocketBridge bridge) {
 		this.bridgeStateHandler.bindBridge(bridge);
 
@@ -153,8 +152,6 @@ public class Edge2EdgeGenericReadComponentImpl extends AbstractOpenemsComponent
 	private void activate(ComponentContext context, Config config) throws OpenemsException {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Bridge", config.bridge_id());
 
 		this.bridgeStateHandler.updateComponentId(config.enabled() ? config.remoteComponentId() : null);
 	}

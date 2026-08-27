@@ -4,7 +4,6 @@ import static io.openems.common.utils.IntUtils.maxInteger;
 import static io.openems.common.utils.IntUtils.minInteger;
 import static java.util.stream.Collectors.toSet;
 
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -27,6 +26,7 @@ import io.openems.common.exceptions.OpenemsError.OpenemsNamedException;
 import io.openems.common.exceptions.OpenemsRuntimeException;
 import io.openems.common.function.Disposable;
 import io.openems.common.jsonrpc.request.GetChannelsOfComponent;
+import io.openems.common.referencetarget.GenerateTargetsFromReferences;
 import io.openems.common.types.ChannelAddress;
 import io.openems.common.types.OpenemsType;
 import io.openems.common.utils.JsonUtils;
@@ -50,13 +50,11 @@ import io.openems.edge.ess.power.api.Power;
 		immediate = true, //
 		configurationPolicy = ConfigurationPolicy.REQUIRE //
 )
+@GenerateTargetsFromReferences("Bridge")
 public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implements ManagedSymmetricEss, AsymmetricEss,
 		SymmetricEss, Edge2EdgeWebsocketEss, Edge2EdgeWebsocket, OpenemsComponent {
 
 	private final Logger log = LoggerFactory.getLogger(Edge2EdgeWebsocketEssImpl.class);
-
-	@Reference
-	private ConfigurationAdmin cm;
 
 	@Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY, policy = ReferencePolicy.DYNAMIC)
 	private volatile Power power;
@@ -73,7 +71,8 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 	 */
 	@Reference(policy = ReferencePolicy.DYNAMIC, //
 			policyOption = ReferencePolicyOption.GREEDY, //
-			cardinality = ReferenceCardinality.OPTIONAL)
+			cardinality = ReferenceCardinality.OPTIONAL, //
+			target = "(&(id=${config.bridge_id})(enabled=true))")
 	public void bindBridge(Edge2EdgeWebsocketBridge bridge) {
 		this.bridgeStateHandler.bindBridge(bridge);
 
@@ -172,8 +171,6 @@ public class Edge2EdgeWebsocketEssImpl extends AbstractOpenemsComponent implemen
 	protected void activate(ComponentContext context, Config config) {
 		super.activate(context, config.id(), config.alias(), config.enabled());
 		this.config = config;
-
-		OpenemsComponent.updateReferenceFilter(this.cm, this.servicePid(), "Bridge", config.bridge_id());
 
 		this.bridgeStateHandler.updateComponentId(config.enabled() ? config.remoteComponentId() : null);
 	}
